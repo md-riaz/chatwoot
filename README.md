@@ -96,6 +96,11 @@ For developers and designers building UI components:
 - **[Design System Documentation](./DESIGN_SYSTEM.md)** - Comprehensive design system guide covering colors, typography, components, and patterns
 - **[AI Agent Quick Reference](./AI_DESIGN_GUIDE.md)** - Quick copy-paste templates optimized for LLM-based development
 
+### Backend Architecture
+
+For developers understanding or replicating the backend system:
+- **[Backend Architecture Guide](./BACKEND_ARCHITECTURE.md)** - Complete backend architecture documentation with data flows, diagrams, relationships, and examples for Laravel/Node.js/Django
+
 ## Translation process
 
 The translation process for Chatwoot web and mobile app is managed at [https://translate.chatwoot.com](https://translate.chatwoot.com) using Crowdin. Please read the [translation guide](https://www.chatwoot.com/docs/contributing/translating-chatwoot-to-your-language) for contributing to Chatwoot.
