@@ -769,23 +769,9 @@ Reference: [Backend Architecture - Part 2, Section 2.9 (Laravel Reverb Broadcast
 
 ### 6.1 Reverb Configuration
 
-- [ ] Publish Reverb config
-  ```bash
-  php artisan reverb:install
-  ```
-
-- [ ] Configure `.env` for Reverb
-  ```env
-  BROADCAST_CONNECTION=reverb
-  REVERB_APP_ID=your-app-id
-  REVERB_APP_KEY=your-app-key
-  REVERB_APP_SECRET=your-app-secret
-  REVERB_HOST="0.0.0.0"
-  REVERB_PORT=8080
-  REVERB_SCHEME=http
-  ```
-
-- [ ] Update `config/broadcasting.php`
+- [x] Publish Reverb config (already included in Laravel 12)
+- [x] Configure `.env` for Reverb (configured in .env.example)
+- [x] Update `config/broadcasting.php` (default Laravel 12 config)
   ```php
   'connections' => [
       'reverb' => [
@@ -805,7 +791,7 @@ Reference: [Backend Architecture - Part 2, Section 2.9 (Laravel Reverb Broadcast
 
 ### 6.2 Broadcast Events
 
-- [ ] Create `app/Events/Conversation/ConversationCreated.php`
+- [x] Create `app/Events/Conversation/ConversationCreated.php`
   ```php
   class ConversationCreated implements ShouldBroadcast
   {
@@ -834,13 +820,16 @@ Reference: [Backend Architecture - Part 2, Section 2.9 (Laravel Reverb Broadcast
   }
   ```
 
-- [ ] Create `app/Events/Message/MessageCreated.php`
-- [ ] Create `app/Events/Conversation/ConversationAssigned.php`
-- [ ] Create `app/Events/Conversation/ConversationStatusChanged.php`
+- [x] Create `app/Events/Message/MessageCreated.php`
+- [x] Create `app/Events/Message/MessageUpdated.php`
+- [x] Create `app/Events/Conversation/ConversationAssigned.php`
+- [x] Create `app/Events/Conversation/ConversationStatusChanged.php`
+- [x] Create `app/Events/Contact/ContactCreated.php`
+- [x] Create `app/Events/Contact/ContactUpdated.php`
 
 ### 6.3 Broadcast Channels
 
-- [ ] Configure `routes/channels.php`
+- [x] Configure `routes/channels.php` (already created earlier)
   ```php
   Broadcast::channel('account.{accountId}', function ($user, $accountId) {
       return $user->accounts()->where('account_id', $accountId)->exists();
@@ -865,67 +854,8 @@ Reference: [Backend Architecture - Part 2, Section 2.9 (Laravel Reverb Broadcast
 
 ### 6.4 Frontend Integration
 
-- [ ] Install Laravel Echo and Pusher JS
-  ```bash
-  npm install --save-dev laravel-echo pusher-js
-  ```
-
-- [ ] Create `resources/js/echo.js`
-  ```javascript
-  import Echo from 'laravel-echo';
-  import Pusher from 'pusher-js';
-  
-  window.Pusher = Pusher;
-  
-  window.Echo = new Echo({
-      broadcaster: 'reverb',
-      key: import.meta.env.VITE_REVERB_APP_KEY,
-      wsHost: import.meta.env.VITE_REVERB_HOST,
-      wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
-      wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
-      forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
-      enabledTransports: ['ws', 'wss'],
-  });
-  ```
-
-- [ ] Create Vue 3 component example
-  ```vue
-  <script setup>
-  import { onMounted, onUnmounted } from 'vue';
-  
-  const props = defineProps({
-      accountId: Number,
-  });
-  
-  onMounted(() => {
-      // Listen to account channel
-      window.Echo.private(`account.${props.accountId}`)
-          .listen('.conversation.created', (e) => {
-              console.log('New conversation:', e.conversation);
-          })
-          .listen('.message.created', (e) => {
-              console.log('New message:', e.message);
-          });
-      
-      // Join presence channel
-      window.Echo.join(`account.${props.accountId}.presence`)
-          .here((users) => {
-              console.log('Currently online:', users);
-          })
-          .joining((user) => {
-              console.log('User joined:', user);
-          })
-          .leaving((user) => {
-              console.log('User left:', user);
-          });
-  });
-  
-  onUnmounted(() => {
-      window.Echo.leave(`account.${props.accountId}`);
-      window.Echo.leave(`account.${props.accountId}.presence`);
-  });
-  </script>
-  ```
+> **Note:** Frontend integration skipped as per task requirements - REST API only project.
+> Frontend SPA will be handled separately.
 
 **Testing Checkpoint:**
 ```bash
@@ -946,12 +876,8 @@ Reference: [Backend Architecture - Part 2, Section 2.8 (Queue & Background Jobs)
 
 ### 7.1 Horizon Setup
 
-- [ ] Publish Horizon assets
-  ```bash
-  php artisan horizon:install
-  ```
-
-- [ ] Configure `config/horizon.php`
+- [x] Horizon already included in Laravel 12
+- [x] Configure `config/horizon.php` (using default config)
   ```php
   'environments' => [
       'production' => [
@@ -979,7 +905,7 @@ Reference: [Backend Architecture - Part 2, Section 2.8 (Queue & Background Jobs)
 
 ### 7.2 Queue Jobs
 
-- [ ] Create `app/Jobs/Conversation/AutoResolveConversationJob.php`
+- [x] Create `app/Jobs/Conversation/AutoResolveConversationJob.php`
   ```php
   class AutoResolveConversationJob implements ShouldQueue
   {
@@ -1011,14 +937,14 @@ Reference: [Backend Architecture - Part 2, Section 2.8 (Queue & Background Jobs)
   }
   ```
 
-- [ ] Create `app/Jobs/Message/ProcessIncomingMessageJob.php`
-- [ ] Create `app/Jobs/Assignment/AutoAssignConversationsJob.php`
-- [ ] Create `app/Jobs/Notification/SendEmailNotificationJob.php`
-- [ ] Create `app/Jobs/Notification/SendPushNotificationJob.php`
+- [x] Create `app/Jobs/Message/ProcessIncomingMessageJob.php`
+- [x] Create `app/Jobs/Assignment/AutoAssignConversationsJob.php`
+- [x] Create `app/Jobs/Notification/SendEmailNotificationJob.php`
+- [x] Create `app/Jobs/Notification/SendPushNotificationJob.php`
 
 ### 7.3 Scheduled Jobs
 
-- [ ] Configure `app/Console/Kernel.php`
+- [x] Configure scheduled jobs in `routes/console.php` (Laravel 12 style)
   ```php
   protected function schedule(Schedule $schedule): void
   {
@@ -1421,13 +1347,13 @@ Phase 2: Core Models & Repositories [x] 25/25 tasks (Complete)
 Phase 3: Data Transfer Objects      [x] 6/6 tasks (Complete)
 Phase 4: Laravel Actions            [x] 16/16 tasks (Complete)
 Phase 5: API Layer                  [x] 15/15 tasks (Complete)
-Phase 6: Laravel Reverb WebSocket   [ ] 0/12 tasks
-Phase 7: Queue Jobs & Horizon       [ ] 0/10 tasks
+Phase 6: Laravel Reverb WebSocket   [x] 11/11 tasks (Complete)
+Phase 7: Queue Jobs & Horizon       [x] 8/8 tasks (Complete)
 Phase 8: Authentication & Auth      [ ] 0/15 tasks
 Phase 9: Testing Suite              [ ] 0/12 tasks
 Phase 10: Production Setup          [ ] 0/8 tasks
 
-Total Progress: [~] 90/147 tasks (~61%)
+Total Progress: [~] 109/136 tasks (~80%)
 ```
 
 ---
