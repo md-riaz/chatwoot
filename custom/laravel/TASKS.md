@@ -1144,108 +1144,23 @@ php artisan test --coverage
 
 ### 10.1 Environment Configuration
 
-- [ ] Create production `.env`
-  ```env
-  APP_ENV=production
-  APP_DEBUG=false
-  APP_URL=https://your-domain.com
-  
-  DB_CONNECTION=pgsql
-  DB_HOST=your-db-host
-  DB_DATABASE=chatwoot_production
-  DB_USERNAME=your-db-user
-  DB_PASSWORD=your-db-password
-  
-  REDIS_HOST=your-redis-host
-  REDIS_PASSWORD=your-redis-password
-  
-  QUEUE_CONNECTION=redis
-  CACHE_DRIVER=redis
-  SESSION_DRIVER=redis
-  
-  BROADCAST_CONNECTION=reverb
-  REVERB_APP_ID=production-app-id
-  REVERB_APP_KEY=production-key
-  REVERB_APP_SECRET=production-secret
-  REVERB_HOST=your-reverb-host
-  REVERB_PORT=443
-  REVERB_SCHEME=https
-  
-  MAIL_MAILER=smtp
-  MAIL_HOST=your-smtp-host
-  MAIL_PORT=587
-  MAIL_USERNAME=your-smtp-user
-  MAIL_PASSWORD=your-smtp-password
-  
-  AWS_ACCESS_KEY_ID=your-aws-key
-  AWS_SECRET_ACCESS_KEY=your-aws-secret
-  AWS_DEFAULT_REGION=us-east-1
-  AWS_BUCKET=your-s3-bucket
-  ```
+- [x] Create production environment example `deploy/.env.production.example`
 
 ### 10.2 Supervisor Configuration
 
-- [ ] Create `/etc/supervisor/conf.d/laravel-worker.conf`
-  ```ini
-  [program:laravel-worker]
-  process_name=%(program_name)s_%(process_num)02d
-  command=php /path/to/artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
-  autostart=true
-  autorestart=true
-  stopasgroup=true
-  killasgroup=true
-  user=www-data
-  numprocs=8
-  redirect_stderr=true
-  stdout_logfile=/path/to/storage/logs/worker.log
-  stopwaitsecs=3600
-  ```
-
-- [ ] Create `/etc/supervisor/conf.d/laravel-reverb.conf`
-  ```ini
-  [program:laravel-reverb]
-  process_name=%(program_name)s
-  command=php /path/to/artisan reverb:start
-  autostart=true
-  autorestart=true
-  stopasgroup=true
-  killasgroup=true
-  user=www-data
-  redirect_stderr=true
-  stdout_logfile=/path/to/storage/logs/reverb.log
-  ```
+- [x] Create `deploy/supervisor/laravel-worker.conf`
+- [x] Create `deploy/supervisor/laravel-reverb.conf`
+- [x] Create `deploy/supervisor/laravel-horizon.conf`
 
 ### 10.3 Deployment Script
 
-- [ ] Create `deploy.sh`
-  ```bash
-  #!/bin/bash
-  
-  echo "Starting deployment..."
-  
-  # Pull latest code
-  git pull origin main
-  
-  # Install dependencies
-  composer install --no-dev --optimize-autoloader
-  npm ci && npm run build
-  
-  # Run migrations
-  php artisan migrate --force
-  
-  # Clear caches
-  php artisan config:cache
-  php artisan route:cache
-  php artisan view:cache
-  php artisan event:cache
-  
-  # Restart services
-  php artisan horizon:terminate
-  supervisorctl restart laravel-worker:*
-  supervisorctl restart laravel-reverb
-  
-  echo "Deployment complete!"
-  ```
+- [x] Create `deploy/deploy.sh`
+
+### 10.4 Docker Configuration
+
+- [x] Create `deploy/Dockerfile`
+- [x] Create `deploy/docker-compose.yml`
+- [x] Create `deploy/nginx.conf`
 
 **Testing Checkpoint:**
 ```bash
@@ -1253,11 +1168,10 @@ php artisan test --coverage
 php artisan config:cache
 php artisan about
 
-# Test supervisor
-sudo supervisorctl status
-
-# Test Reverb
-curl https://your-domain.com:443/reverb/health
+# Test with Docker
+cd deploy
+docker-compose up -d
+docker-compose logs -f
 ```
 
 ---
@@ -1276,9 +1190,9 @@ Phase 6: Laravel Reverb WebSocket   [x] 11/11 tasks (Complete)
 Phase 7: Queue Jobs & Horizon       [x] 8/8 tasks (Complete)
 Phase 8: Authentication & Auth      [x] 9/9 tasks (Complete)
 Phase 9: Testing Suite              [x] 8/8 tasks (Complete)
-Phase 10: Production Setup          [ ] 0/8 tasks
+Phase 10: Production Setup          [x] 8/8 tasks (Complete)
 
-Total Progress: [~] 126/134 tasks (~94%)
+Total Progress: [x] 134/134 tasks (100%)
 ```
 
 ---

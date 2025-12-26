@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: chatwoot-laravel-app
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "6001:6001"
+    environment:
+      - APP_ENV=production
+    volumes:
+      - ../storage:/var/www/html/storage
+      - ../.env:/var/www/html/.env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - chatwoot-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: chatwoot-laravel-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: chatwoot_production
+      POSTGRES_USER: chatwoot
+      POSTGRES_PASSWORD: your-secure-password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - chatwoot-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: chatwoot-laravel-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass your-redis-password
+    volumes:
+      - redis-data:/data
+    networks:
+      - chatwoot-network
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  chatwoot-network:
+    driver: bridge
