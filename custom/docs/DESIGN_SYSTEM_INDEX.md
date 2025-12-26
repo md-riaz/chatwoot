@@ -5,7 +5,7 @@ Welcome to the Chatwoot Design System documentation! This comprehensive guide is
 ## 📚 Documentation Files
 
 ### Complete Design System Guide
-**[DESIGN_SYSTEM.md](../DESIGN_SYSTEM.md)** - Comprehensive design system documentation
+**[DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md)** - Comprehensive design system documentation
 
 Covers:
 - Design principles and visual style
@@ -20,7 +20,7 @@ Covers:
 **Best for:** Understanding the complete system, implementing from scratch, design decisions
 
 ### AI Agent Quick Reference  
-**[AI_DESIGN_GUIDE.md](../AI_DESIGN_GUIDE.md)** - Fast lookup for LLM-powered development
+**[AI_DESIGN_GUIDE.md](./AI_DESIGN_GUIDE.md)** - Fast lookup for LLM-powered development
 
 Includes:
 - Copy-paste ready component templates
@@ -34,9 +34,9 @@ Includes:
 
 ## 🚀 Quick Start
 
-1. **First-time users:** Read [DESIGN_SYSTEM.md](../DESIGN_SYSTEM.md) sections 1-4
-2. **AI agents:** Start with [AI_DESIGN_GUIDE.md](../AI_DESIGN_GUIDE.md) System Summary
-3. **Quick lookup:** Bookmark [AI_DESIGN_GUIDE.md](../AI_DESIGN_GUIDE.md) for templates
+1. **First-time users:** Read [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) sections 1-4
+2. **AI agents:** Start with [AI_DESIGN_GUIDE.md](./AI_DESIGN_GUIDE.md) System Summary
+3. **Quick lookup:** Bookmark [AI_DESIGN_GUIDE.md](./AI_DESIGN_GUIDE.md) for templates
 
 ## 🎯 Key Information
 
