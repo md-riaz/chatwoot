@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Message;
 
-use App\Data\Message\MessageData;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreMessageRequest extends FormRequest

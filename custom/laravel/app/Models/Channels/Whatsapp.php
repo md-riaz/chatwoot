@@ -17,6 +17,7 @@ class Whatsapp extends Model
 
     // Provider constants
     public const PROVIDER_DEFAULT = 'default';
+
     public const PROVIDER_CLOUD = 'whatsapp_cloud';
 
     public const PROVIDERS = [

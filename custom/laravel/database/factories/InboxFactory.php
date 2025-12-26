@@ -22,7 +22,7 @@ class InboxFactory extends Factory
     {
         return [
             'account_id' => Account::factory(),
-            'name' => fake()->words(2, true) . ' Inbox',
+            'name' => fake()->words(2, true).' Inbox',
             'channel_type' => 'App\Models\Channels\WebWidget',
             'channel_id' => null,
             'enable_auto_assignment' => fake()->boolean(80),

@@ -75,6 +75,7 @@ class AgentBot extends Model
     public function scopeAccessibleTo($query, ?Account $account)
     {
         $accountId = $account?->id;
+
         return $query->whereNull('account_id')->orWhere('account_id', $accountId);
     }
 }

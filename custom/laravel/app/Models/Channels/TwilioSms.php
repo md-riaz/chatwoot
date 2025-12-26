@@ -17,6 +17,7 @@ class TwilioSms extends Model
 
     // Medium constants
     public const MEDIUM_SMS = 'sms';
+
     public const MEDIUM_WHATSAPP = 'whatsapp';
 
     protected $fillable = [

@@ -14,9 +14,7 @@ class ContactCreated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public Contact $contact)
-    {
-    }
+    public function __construct(public Contact $contact) {}
 
     public function broadcastOn(): array
     {

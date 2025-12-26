@@ -38,6 +38,7 @@ class Inbox extends Model
         'csat_survey_enabled' => 'boolean',
         'allow_messages_after_resolved' => 'boolean',
         'working_hours_enabled' => 'boolean',
+        'working_hours' => 'array',
     ];
 
     /**
@@ -110,7 +111,7 @@ class Inbox extends Model
      */
     public function isOpenNow(): bool
     {
-        if (!$this->working_hours_enabled) {
+        if (! $this->working_hours_enabled) {
             return true;
         }
 

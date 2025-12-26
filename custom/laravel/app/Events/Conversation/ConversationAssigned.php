@@ -20,8 +20,7 @@ class ConversationAssigned implements ShouldBroadcast
         public Conversation $conversation,
         public ?User $assignee,
         public ?User $previousAssignee = null
-    ) {
-    }
+    ) {}
 
     public function broadcastOn(): array
     {

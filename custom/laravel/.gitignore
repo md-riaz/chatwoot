@@ -19,6 +19,8 @@
 /storage/*.key
 /storage/pail
 /vendor
+/database/*.sqlite
+chatwoot_development
 Homestead.json
 Homestead.yaml
 Thumbs.db

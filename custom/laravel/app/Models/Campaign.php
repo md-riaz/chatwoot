@@ -13,10 +13,12 @@ class Campaign extends Model
 
     // Campaign type constants
     public const TYPE_ONGOING = 0;
+
     public const TYPE_ONE_OFF = 1;
 
     // Campaign status constants
     public const STATUS_ACTIVE = 0;
+
     public const STATUS_COMPLETED = 1;
 
     protected $fillable = [

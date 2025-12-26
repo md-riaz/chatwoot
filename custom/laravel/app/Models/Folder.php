@@ -25,7 +25,7 @@ class Folder extends Model
     protected static function booted(): void
     {
         static::creating(function (Folder $folder) {
-            if (!$folder->account_id && $folder->category) {
+            if (! $folder->account_id && $folder->category) {
                 $folder->account_id = $folder->category->account_id;
             }
         });

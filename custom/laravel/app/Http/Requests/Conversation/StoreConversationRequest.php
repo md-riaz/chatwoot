@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Conversation;
 
-use App\Data\Conversation\ConversationData;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreConversationRequest extends FormRequest

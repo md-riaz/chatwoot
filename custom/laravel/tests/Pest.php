@@ -14,6 +14,7 @@ uses(TestCase::class)->in('Unit');
 function actingAsUser(?User $user = null): TestCase
 {
     $user ??= User::factory()->create();
+
     return test()->actingAs($user, 'sanctum');
 }
 

@@ -14,9 +14,7 @@ class ConversationCreated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public Conversation $conversation)
-    {
-    }
+    public function __construct(public Conversation $conversation) {}
 
     public function broadcastOn(): array
     {

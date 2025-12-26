@@ -26,13 +26,13 @@ class MessageData extends Data
         #[In([Message::TYPE_INCOMING, Message::TYPE_OUTGOING, Message::TYPE_ACTIVITY, Message::TYPE_TEMPLATE])]
         public int $message_type = Message::TYPE_OUTGOING,
         #[Nullable]
-        public ?string $content,
-        public array|Optional $content_attributes,
+        public ?string $content = null,
         #[In([Message::CONTENT_TEXT, Message::CONTENT_INPUT_TEXT, Message::CONTENT_INPUT_EMAIL, Message::CONTENT_INPUT_SELECT, Message::CONTENT_CARDS, Message::CONTENT_FORM, Message::CONTENT_ARTICLE])]
         public int $content_type = Message::CONTENT_TEXT,
+        public array|Optional $content_attributes = [],
         public bool $private = false,
         #[Nullable]
-        public ?string $external_source_id,
+        public ?string $external_source_id = null,
     ) {}
 
     public static function rules(): array

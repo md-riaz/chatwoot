@@ -18,8 +18,7 @@ class ConversationStatusChanged implements ShouldBroadcast
         public Conversation $conversation,
         public int $previousStatus,
         public int $newStatus
-    ) {
-    }
+    ) {}
 
     public function broadcastOn(): array
     {

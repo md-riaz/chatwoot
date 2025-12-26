@@ -13,17 +13,29 @@ class Attachment extends Model
 
     // File type constants
     public const TYPE_IMAGE = 0;
+
     public const TYPE_AUDIO = 1;
+
     public const TYPE_VIDEO = 2;
+
     public const TYPE_FILE = 3;
+
     public const TYPE_LOCATION = 4;
+
     public const TYPE_FALLBACK = 5;
+
     public const TYPE_SHARE = 6;
+
     public const TYPE_STORY_MENTION = 7;
+
     public const TYPE_CONTACT = 8;
+
     public const TYPE_IG_REEL = 9;
+
     public const TYPE_IG_POST = 10;
+
     public const TYPE_IG_STORY = 11;
+
     public const TYPE_EMBED = 12;
 
     protected $fillable = [

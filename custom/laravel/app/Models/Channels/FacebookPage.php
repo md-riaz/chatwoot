@@ -45,6 +45,6 @@ class FacebookPage extends Model
 
     public function hasInstagram(): bool
     {
-        return !empty($this->instagram_id);
+        return ! empty($this->instagram_id);
     }
 }

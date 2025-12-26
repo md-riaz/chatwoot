@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
 
 class WorkingHour extends Model
 {
@@ -36,7 +36,7 @@ class WorkingHour extends Model
     protected static function booted(): void
     {
         static::saving(function (WorkingHour $workingHour) {
-            if (!$workingHour->account_id && $workingHour->inbox) {
+            if (! $workingHour->account_id && $workingHour->inbox) {
                 $workingHour->account_id = $workingHour->inbox->account_id;
             }
 
@@ -96,6 +96,6 @@ class WorkingHour extends Model
      */
     public function isClosedNow(): bool
     {
-        return !$this->isOpenNow();
+        return ! $this->isOpenNow();
     }
 }

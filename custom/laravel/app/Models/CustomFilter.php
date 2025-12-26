@@ -12,7 +12,9 @@ class CustomFilter extends Model
 
     // Filter type constants
     public const TYPE_CONVERSATION = 0;
+
     public const TYPE_CONTACT = 1;
+
     public const TYPE_REPORT = 2;
 
     protected $fillable = [

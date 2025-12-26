@@ -20,7 +20,7 @@ class Note extends Model
     protected static function booted(): void
     {
         static::creating(function (Note $note) {
-            if (!$note->account_id && $note->contact) {
+            if (! $note->account_id && $note->contact) {
                 $note->account_id = $note->contact->account_id;
             }
         });

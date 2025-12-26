@@ -21,17 +21,17 @@ class InboxData extends Data
         public string $channel_type,
         #[Nullable]
         public ?int $channel_id,
-        public bool $enable_auto_assignment = true,
-        public bool $greeting_enabled = false,
+        public bool $enable_auto_assignment,
+        public bool $greeting_enabled,
         #[Nullable]
         public ?string $greeting_message,
-        public bool $enable_email_collect = true,
-        public bool $csat_survey_enabled = false,
-        public bool $allow_messages_after_resolved = true,
+        public bool $enable_email_collect,
+        public bool $csat_survey_enabled,
+        public bool $allow_messages_after_resolved,
         public array|Optional $working_hours,
         #[StringType]
-        public string $timezone = 'UTC',
-        public bool $working_hours_enabled = false,
+        public string $timezone,
+        public bool $working_hours_enabled,
         #[Nullable]
         public ?string $out_of_office_message,
     ) {}

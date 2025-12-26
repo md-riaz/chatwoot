@@ -57,6 +57,7 @@ class ReportingEvent extends Model
         if ($range) {
             return $query->whereBetween('created_at', $range);
         }
+
         return $query;
     }
 
@@ -68,6 +69,7 @@ class ReportingEvent extends Model
         if ($inboxId) {
             return $query->where('inbox_id', $inboxId);
         }
+
         return $query;
     }
 
@@ -79,6 +81,7 @@ class ReportingEvent extends Model
         if ($userId) {
             return $query->where('user_id', $userId);
         }
+
         return $query;
     }
 
@@ -90,6 +93,7 @@ class ReportingEvent extends Model
         if ($name) {
             return $query->where('name', $name);
         }
+
         return $query;
     }
 }

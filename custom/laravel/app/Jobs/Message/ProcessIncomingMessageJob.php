@@ -21,6 +21,7 @@ class ProcessIncomingMessageJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
     public int $backoff = 30;
 
     public function __construct(
@@ -34,8 +35,9 @@ class ProcessIncomingMessageJob implements ShouldQueue
     ): void {
         $message = $messageRepository->find($this->messageId);
 
-        if (!$message) {
+        if (! $message) {
             Log::warning('Message not found for processing', ['message_id' => $this->messageId]);
+
             return;
         }
 
@@ -53,7 +55,7 @@ class ProcessIncomingMessageJob implements ShouldQueue
         }
 
         // Trigger auto-assignment if needed
-        if (!$conversation->assignee_id) {
+        if (! $conversation->assignee_id) {
             $autoAssignAction->handle($conversation->id);
         }
 
