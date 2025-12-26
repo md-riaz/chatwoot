@@ -5,7 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -34,6 +36,7 @@ class Conversation extends Model
         'contact_inbox_id',
         'assignee_id',
         'team_id',
+        'campaign_id',
         'display_id',
         'status',
         'priority',
@@ -43,16 +46,19 @@ class Conversation extends Model
         'last_activity_at',
         'waiting_since',
         'snoozed_until',
+        'muted',
     ];
 
     protected $casts = [
         'custom_attributes' => 'array',
+        'additional_attributes' => 'array',
         'status' => 'integer',
         'priority' => 'integer',
         'first_reply_created_at' => 'datetime',
         'last_activity_at' => 'datetime',
         'waiting_since' => 'datetime',
         'snoozed_until' => 'datetime',
+        'muted' => 'boolean',
     ];
 
     protected static function booted(): void
@@ -103,6 +109,14 @@ class Conversation extends Model
     }
 
     /**
+     * Get the campaign for the conversation.
+     */
+    public function campaign(): BelongsTo
+    {
+        return $this->belongsTo(Campaign::class);
+    }
+
+    /**
      * Get all messages for the conversation.
      */
     public function messages(): HasMany
@@ -119,6 +133,23 @@ class Conversation extends Model
     }
 
     /**
+     * Get all participants for the conversation.
+     */
+    public function participants(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'conversation_participants')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the CSAT survey response for the conversation.
+     */
+    public function csatSurveyResponse(): HasOne
+    {
+        return $this->hasOne(CsatSurveyResponse::class);
+    }
+
+    /**
      * Scope a query to only include open conversations.
      */
     public function scopeOpen($query)
@@ -132,5 +163,13 @@ class Conversation extends Model
     public function scopeUnassigned($query)
     {
         return $query->whereNull('assignee_id');
+    }
+
+    /**
+     * Scope a query to only include muted conversations.
+     */
+    public function scopeMuted($query)
+    {
+        return $query->where('muted', true);
     }
 }

@@ -16,6 +16,7 @@ class Inbox extends Model
 
     protected $fillable = [
         'account_id',
+        'portal_id',
         'name',
         'channel_type',
         'channel_id',
@@ -25,7 +26,6 @@ class Inbox extends Model
         'enable_email_collect',
         'csat_survey_enabled',
         'allow_messages_after_resolved',
-        'working_hours',
         'timezone',
         'working_hours_enabled',
         'out_of_office_message',
@@ -37,7 +37,6 @@ class Inbox extends Model
         'enable_email_collect' => 'boolean',
         'csat_survey_enabled' => 'boolean',
         'allow_messages_after_resolved' => 'boolean',
-        'working_hours' => 'array',
         'working_hours_enabled' => 'boolean',
     ];
 
@@ -47,6 +46,14 @@ class Inbox extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
+    }
+
+    /**
+     * Get the portal for the inbox.
+     */
+    public function portal(): BelongsTo
+    {
+        return $this->belongsTo(Portal::class);
     }
 
     /**
@@ -80,5 +87,44 @@ class Inbox extends Model
     {
         return $this->belongsToMany(User::class, 'inbox_members')
             ->withTimestamps();
+    }
+
+    /**
+     * Get all working hours for the inbox.
+     */
+    public function workingHours(): HasMany
+    {
+        return $this->hasMany(WorkingHour::class);
+    }
+
+    /**
+     * Get all campaigns for the inbox.
+     */
+    public function campaigns(): HasMany
+    {
+        return $this->hasMany(Campaign::class);
+    }
+
+    /**
+     * Check if inbox is currently within working hours.
+     */
+    public function isOpenNow(): bool
+    {
+        if (!$this->working_hours_enabled) {
+            return true;
+        }
+
+        $today = now($this->timezone)->dayOfWeek;
+        $workingHour = $this->workingHours()->where('day_of_week', $today)->first();
+
+        return $workingHour ? $workingHour->isOpenNow() : false;
+    }
+
+    /**
+     * Get assignable agents for the inbox.
+     */
+    public function assignableAgents()
+    {
+        return $this->members()->wherePivot('is_active', true);
     }
 }

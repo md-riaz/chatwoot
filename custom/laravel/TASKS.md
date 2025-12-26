@@ -30,7 +30,7 @@ This document provides a comprehensive checklist for converting Chatwoot from Ra
   - [x] Database connection (PostgreSQL)
   - [x] Redis configuration
   - [x] Mail settings
-  - [x] AWS S3 credentials
+  - [x] Local file storage (no S3 - using local disk)
   - [x] Reverb configuration
 - [x] Set up environment-specific configs
   - [x] `config/database.php` - PostgreSQL primary
@@ -1176,6 +1176,94 @@ docker-compose logs -f
 
 ---
 
+## Phase 11: Missing Chatwoot Features (Added)
+
+This phase covers additional Chatwoot functionality that was missing from the initial implementation.
+
+### 11.1 Media & File Storage
+
+- [x] Configure local file storage (no S3 by default)
+- [x] Create polymorphic `Media` model for reusable file attachments
+- [x] Create `media` migration table
+- [x] Update `Attachment` model to support media relationships
+- [x] Update `Message` model with media relationship
+
+### 11.2 Campaigns
+
+- [x] Create `Campaign` model with types (ongoing, one_off) and status
+- [x] Create `campaigns` migration
+
+### 11.3 Macros (Workflow Automation)
+
+- [x] Create `Macro` model with visibility (personal, global) and actions
+- [x] Create `macros` migration
+
+### 11.4 Agent Bots
+
+- [x] Create `AgentBot` model with webhook configuration
+- [x] Create `agent_bots` and `agent_bot_inboxes` migrations
+
+### 11.5 Custom Filters
+
+- [x] Create `CustomFilter` model for conversation/contact/report filters
+- [x] Create `custom_filters` migration
+
+### 11.6 Contact Notes
+
+- [x] Create `Note` model for contact notes
+- [x] Create `notes` migration
+
+### 11.7 Help Center (Portals, Articles, Categories)
+
+- [x] Create `Portal` model for help center
+- [x] Create `Category` model for article categories
+- [x] Create `Folder` model for organizing articles
+- [x] Create `Article` model with status (draft, published, archived)
+- [x] Create help center migrations
+
+### 11.8 CSAT Survey Responses
+
+- [x] Create `CsatSurveyResponse` model for customer satisfaction ratings
+- [x] Create `csat_survey_responses` migration
+
+### 11.9 Custom Attribute Definitions
+
+- [x] Create `CustomAttributeDefinition` model for custom fields
+- [x] Create `custom_attribute_definitions` migration
+
+### 11.10 Reporting Events
+
+- [x] Create `ReportingEvent` model for analytics data
+- [x] Create `reporting_events` migration
+
+### 11.11 Conversation Participants
+
+- [x] Create `ConversationParticipant` model for multi-agent conversations
+- [x] Create `conversation_participants` migration
+
+### 11.12 Dashboard Apps
+
+- [x] Create `DashboardApp` model for custom dashboard widgets
+- [x] Create `dashboard_apps` migration
+
+### 11.13 Working Hours
+
+- [x] Create `WorkingHour` model for inbox business hours
+- [x] Create `working_hours` migration
+
+### 11.14 Additional Channel Types
+
+- [x] Create `Whatsapp` channel model (360dialog, WhatsApp Cloud)
+- [x] Create `Telegram` channel model
+- [x] Create `Sms` channel model (Bandwidth)
+- [x] Create `TwilioSms` channel model
+- [x] Create `Line` channel model
+- [x] Create `FacebookPage` channel model
+- [x] Create `TwitterProfile` channel model
+- [x] Create additional channel migrations
+
+---
+
 ## 📊 Progress Summary
 
 Track overall progress by phase:
@@ -1191,8 +1279,9 @@ Phase 7: Queue Jobs & Horizon       [x] 8/8 tasks (Complete)
 Phase 8: Authentication & Auth      [x] 9/9 tasks (Complete)
 Phase 9: Testing Suite              [x] 8/8 tasks (Complete)
 Phase 10: Production Setup          [x] 8/8 tasks (Complete)
+Phase 11: Missing Chatwoot Features [x] 33/33 tasks (Complete)
 
-Total Progress: [x] 134/134 tasks (100%)
+Total Progress: [x] 167/167 tasks (100%)
 ```
 
 ---

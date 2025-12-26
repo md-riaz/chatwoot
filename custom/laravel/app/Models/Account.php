@@ -23,6 +23,7 @@ class Account extends Model
         'features',
         'limits',
         'status',
+        'conversation_required_attributes',
     ];
 
     protected $casts = [
@@ -30,6 +31,7 @@ class Account extends Model
         'features' => 'array',
         'limits' => 'array',
         'status' => 'integer',
+        'conversation_required_attributes' => 'array',
     ];
 
     /**
@@ -117,10 +119,74 @@ class Account extends Model
     }
 
     /**
+     * Get all campaigns for the account.
+     */
+    public function campaigns(): HasMany
+    {
+        return $this->hasMany(Campaign::class);
+    }
+
+    /**
+     * Get all macros for the account.
+     */
+    public function macros(): HasMany
+    {
+        return $this->hasMany(Macro::class);
+    }
+
+    /**
+     * Get all agent bots for the account.
+     */
+    public function agentBots(): HasMany
+    {
+        return $this->hasMany(AgentBot::class);
+    }
+
+    /**
+     * Get all custom filters for the account.
+     */
+    public function customFilters(): HasMany
+    {
+        return $this->hasMany(CustomFilter::class);
+    }
+
+    /**
+     * Get all portals (help centers) for the account.
+     */
+    public function portals(): HasMany
+    {
+        return $this->hasMany(Portal::class);
+    }
+
+    /**
+     * Get all custom attribute definitions for the account.
+     */
+    public function customAttributeDefinitions(): HasMany
+    {
+        return $this->hasMany(CustomAttributeDefinition::class);
+    }
+
+    /**
+     * Get all reporting events for the account.
+     */
+    public function reportingEvents(): HasMany
+    {
+        return $this->hasMany(ReportingEvent::class);
+    }
+
+    /**
      * Scope a query to only include active accounts.
      */
     public function scopeActive($query)
     {
         return $query->where('status', 1);
+    }
+
+    /**
+     * Check if a feature is enabled.
+     */
+    public function featureEnabled(string $feature): bool
+    {
+        return $this->features[$feature] ?? false;
     }
 }
