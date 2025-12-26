@@ -28,6 +28,11 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'display_name' => fake()->optional()->userName(),
+            'phone_number' => fake()->optional()->phoneNumber(),
+            'avatar_url' => fake()->optional()->imageUrl(200, 200, 'people'),
+            'availability' => fake()->randomElement([0, 1]),
+            'custom_attributes' => [],
             'remember_token' => Str::random(10),
         ];
     }
@@ -39,6 +44,26 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is online.
+     */
+    public function online(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'availability' => 1,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is offline.
+     */
+    public function offline(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'availability' => 0,
         ]);
     }
 }
