@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AccountsController;
+use App\Http\Controllers\Api\V1\ContactsController;
+use App\Http\Controllers\Api\V1\ConversationsController;
+use App\Http\Controllers\Api\V1\InboxesController;
+use App\Http\Controllers\Api\V1\MessagesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,33 +28,30 @@ Route::get('/', function () {
     ]);
 });
 
-// Authentication routes
-Route::prefix('auth')->group(function () {
-    // Route::post('login', [LoginController::class, 'login']);
-    // Route::post('register', [RegisterController::class, 'register']);
-});
-
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Account routes
-    // Route::apiResource('accounts', AccountsController::class);
+    Route::apiResource('accounts', AccountsController::class);
 
     // Account-scoped resources
-    // Route::prefix('accounts/{account}')->group(function () {
-    //     Route::apiResource('conversations', ConversationsController::class);
-    //     Route::apiResource('contacts', ContactsController::class);
-    //     Route::apiResource('inboxes', InboxesController::class);
-    //     Route::apiResource('teams', TeamsController::class);
-    //     Route::apiResource('labels', LabelsController::class);
-    //     Route::apiResource('canned_responses', CannedResponsesController::class);
-    //     Route::apiResource('automation_rules', AutomationRulesController::class);
-    //     Route::apiResource('webhooks', WebhooksController::class);
+    Route::prefix('accounts/{account}')->group(function () {
+        // Conversations
+        Route::apiResource('conversations', ConversationsController::class);
+        Route::post('conversations/{conversation}/assign', [ConversationsController::class, 'assign']);
+        Route::post('conversations/{conversation}/resolve', [ConversationsController::class, 'resolve']);
 
-    //     // Conversation-scoped resources
-    //     Route::prefix('conversations/{conversation}')->group(function () {
-    //         Route::apiResource('messages', MessagesController::class);
-    //         Route::post('assign', [ConversationsController::class, 'assign']);
-    //         Route::post('resolve', [ConversationsController::class, 'resolve']);
-    //     });
-    // });
+        // Messages (nested under conversations)
+        Route::apiResource('conversations/{conversation}/messages', MessagesController::class);
+
+        // Contacts
+        Route::apiResource('contacts', ContactsController::class);
+        Route::post('contacts/{contact}/merge', [ContactsController::class, 'merge']);
+
+        // Inboxes
+        Route::apiResource('inboxes', InboxesController::class);
+        Route::get('inboxes/{inbox}/members', [InboxesController::class, 'members']);
+        Route::post('inboxes/{inbox}/members', [InboxesController::class, 'addMember']);
+        Route::delete('inboxes/{inbox}/members', [InboxesController::class, 'removeMember']);
+    });
 });
+

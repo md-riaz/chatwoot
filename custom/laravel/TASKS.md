@@ -625,7 +625,7 @@ test('auto assigns conversation to available agent', function () {
 
 ### 5.1 Form Requests
 
-- [ ] Create `app/Http/Requests/Account/StoreAccountRequest.php`
+- [x] Create `app/Http/Requests/Account/StoreAccountRequest.php`
   ```php
   class StoreAccountRequest extends FormRequest
   {
@@ -641,13 +641,13 @@ test('auto assigns conversation to available agent', function () {
   }
   ```
 
-- [ ] Create `app/Http/Requests/Conversation/StoreConversationRequest.php`
-- [ ] Create `app/Http/Requests/Message/StoreMessageRequest.php`
-- [ ] Create `app/Http/Requests/Contact/StoreContactRequest.php`
+- [x] Create `app/Http/Requests/Conversation/StoreConversationRequest.php`
+- [x] Create `app/Http/Requests/Message/StoreMessageRequest.php`
+- [x] Create `app/Http/Requests/Contact/StoreContactRequest.php`
 
 ### 5.2 API Resources
 
-- [ ] Create `app/Http/Resources/Account/AccountResource.php`
+- [x] Create `app/Http/Resources/Account/AccountResource.php`
   ```php
   class AccountResource extends JsonResource
   {
@@ -673,13 +673,15 @@ test('auto assigns conversation to available agent', function () {
   }
   ```
 
-- [ ] Create `app/Http/Resources/Conversation/ConversationResource.php`
-- [ ] Create `app/Http/Resources/Message/MessageResource.php`
-- [ ] Create `app/Http/Resources/Contact/ContactResource.php`
+- [x] Create `app/Http/Resources/Conversation/ConversationResource.php`
+- [x] Create `app/Http/Resources/Message/MessageResource.php`
+- [x] Create `app/Http/Resources/Contact/ContactResource.php`
+- [x] Create `app/Http/Resources/Inbox/InboxResource.php`
+- [x] Create `app/Http/Resources/User/UserResource.php`
 
 ### 5.3 API Controllers
 
-- [ ] Create `app/Http/Controllers/Api/V1/AccountsController.php`
+- [x] Create `app/Http/Controllers/Api/V1/AccountsController.php`
   ```php
   class AccountsController extends Controller
   {
@@ -716,14 +718,14 @@ test('auto assigns conversation to available agent', function () {
   }
   ```
 
-- [ ] Create `app/Http/Controllers/Api/V1/ConversationsController.php`
-- [ ] Create `app/Http/Controllers/Api/V1/MessagesController.php`
-- [ ] Create `app/Http/Controllers/Api/V1/ContactsController.php`
-- [ ] Create `app/Http/Controllers/Api/V1/InboxesController.php`
+- [x] Create `app/Http/Controllers/Api/V1/ConversationsController.php`
+- [x] Create `app/Http/Controllers/Api/V1/MessagesController.php`
+- [x] Create `app/Http/Controllers/Api/V1/ContactsController.php`
+- [x] Create `app/Http/Controllers/Api/V1/InboxesController.php`
 
 ### 5.4 API Routes
 
-- [ ] Configure `routes/api.php`
+- [x] Configure `routes/api.php`
   ```php
   Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
       Route::apiResource('accounts', AccountsController::class);
@@ -1418,14 +1420,14 @@ Phase 1: Foundation Setup           [x] 28/28 tasks (Complete)
 Phase 2: Core Models & Repositories [x] 25/25 tasks (Complete)
 Phase 3: Data Transfer Objects      [x] 6/6 tasks (Complete)
 Phase 4: Laravel Actions            [x] 16/16 tasks (Complete)
-Phase 5: API Layer                  [ ] 0/15 tasks
+Phase 5: API Layer                  [x] 15/15 tasks (Complete)
 Phase 6: Laravel Reverb WebSocket   [ ] 0/12 tasks
 Phase 7: Queue Jobs & Horizon       [ ] 0/10 tasks
 Phase 8: Authentication & Auth      [ ] 0/15 tasks
 Phase 9: Testing Suite              [ ] 0/12 tasks
 Phase 10: Production Setup          [ ] 0/8 tasks
 
-Total Progress: [~] 75/147 tasks (~51%)
+Total Progress: [~] 90/147 tasks (~61%)
 ```
 
 ---
