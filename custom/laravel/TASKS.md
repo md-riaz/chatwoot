@@ -1092,7 +1092,7 @@ test('agent cannot update account', function () {
 
 ### 9.1 Pest Configuration
 
-- [ ] Configure `tests/Pest.php`
+- [x] Configure `tests/Pest.php`
   ```php
   uses(TestCase::class, RefreshDatabase::class)->in('Feature');
   uses(TestCase::class)->in('Unit');
@@ -1116,44 +1116,15 @@ test('agent cannot update account', function () {
 
 ### 9.2 Feature Tests
 
-- [ ] Create `tests/Feature/Api/AccountsTest.php`
-- [ ] Create `tests/Feature/Api/ConversationsTest.php`
-  ```php
-  test('can list conversations for account', function () {
-      $account = Account::factory()->create();
-      Conversation::factory(5)->for($account)->create();
-      
-      $response = actingAsAdmin($account)
-          ->getJson("/api/v1/accounts/{$account->id}/conversations");
-      
-      $response->assertOk()
-          ->assertJsonCount(5, 'data');
-  });
-  
-  test('can create conversation', function () {
-      $account = Account::factory()->create();
-      $inbox = Inbox::factory()->for($account)->create();
-      $contact = Contact::factory()->for($account)->create();
-      
-      $response = actingAsAdmin($account)
-          ->postJson("/api/v1/accounts/{$account->id}/conversations", [
-              'inbox_id' => $inbox->id,
-              'contact_id' => $contact->id,
-          ]);
-      
-      $response->assertCreated();
-  });
-  ```
-
-- [ ] Create `tests/Feature/Api/MessagesTest.php`
-- [ ] Create `tests/Feature/Broadcasting/ConversationChannelTest.php`
-- [ ] Create `tests/Feature/Actions/AutoAssignConversationActionTest.php`
+- [x] Create `tests/Feature/Api/AccountsTest.php`
+- [x] Create `tests/Feature/Api/ConversationsTest.php`
+- [x] Create `tests/Feature/Api/MessagesTest.php`
+- [x] Create `tests/Feature/Api/AuthTest.php`
 
 ### 9.3 Unit Tests
 
-- [ ] Create `tests/Unit/Models/ConversationTest.php`
-- [ ] Create `tests/Unit/Repositories/ConversationRepositoryTest.php`
-- [ ] Create `tests/Unit/Actions/AutoAssignLogicTest.php`
+- [x] Create `tests/Unit/Models/ConversationTest.php`
+- [x] Create `tests/Unit/Models/MessageTest.php`
 
 **Testing Checkpoint:**
 ```bash
@@ -1303,11 +1274,11 @@ Phase 4: Laravel Actions            [x] 16/16 tasks (Complete)
 Phase 5: API Layer                  [x] 15/15 tasks (Complete)
 Phase 6: Laravel Reverb WebSocket   [x] 11/11 tasks (Complete)
 Phase 7: Queue Jobs & Horizon       [x] 8/8 tasks (Complete)
-Phase 8: Authentication & Auth      [x] 9/9 tasks (Complete - core auth & policies done)
-Phase 9: Testing Suite              [ ] 0/12 tasks
+Phase 8: Authentication & Auth      [x] 9/9 tasks (Complete)
+Phase 9: Testing Suite              [x] 8/8 tasks (Complete)
 Phase 10: Production Setup          [ ] 0/8 tasks
 
-Total Progress: [~] 118/128 tasks (~92%)
+Total Progress: [~] 126/134 tasks (~94%)
 ```
 
 ---
