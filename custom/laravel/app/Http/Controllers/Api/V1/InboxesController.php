@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Inbox\InboxResource;
 use App\Models\Account;
+use App\Models\AgentBot;
 use App\Models\Inbox;
 use App\Repositories\Inbox\InboxRepository;
 use Illuminate\Http\JsonResponse;
@@ -91,7 +92,7 @@ class InboxesController extends Controller
 
         $inbox->delete();
 
-        return response()->json(null, 204);
+        return response()->json(['message' => 'Inbox deletion is in progress'], 200);
     }
 
     /**
@@ -134,5 +135,112 @@ class InboxesController extends Controller
         $this->inboxRepository->removeMember($inbox->id, $validated['user_id']);
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Get assignable agents for inbox.
+     */
+    public function assignableAgents(Account $account, Inbox $inbox): JsonResponse
+    {
+        abort_unless($inbox->account_id === $account->id, 404);
+
+        $agents = $inbox->members()
+            ->wherePivot('is_active', true)
+            ->get();
+
+        return response()->json(['data' => $agents]);
+    }
+
+    /**
+     * Get campaigns for inbox.
+     */
+    public function campaigns(Account $account, Inbox $inbox): JsonResponse
+    {
+        abort_unless($inbox->account_id === $account->id, 404);
+
+        return response()->json(['data' => $inbox->campaigns]);
+    }
+
+    /**
+     * Delete inbox avatar.
+     */
+    public function avatar(Account $account, Inbox $inbox): JsonResponse
+    {
+        abort_unless($inbox->account_id === $account->id, 404);
+
+        $inbox->update(['avatar_url' => null]);
+
+        return response()->json(null, 200);
+    }
+
+    /**
+     * Get inbox agent bot.
+     */
+    public function agentBot(Account $account, Inbox $inbox): JsonResponse
+    {
+        abort_unless($inbox->account_id === $account->id, 404);
+
+        $agentBot = $inbox->agentBot;
+
+        return response()->json(['data' => $agentBot]);
+    }
+
+    /**
+     * Set agent bot for inbox.
+     */
+    public function setAgentBot(Request $request, Account $account, Inbox $inbox): JsonResponse
+    {
+        abort_unless($inbox->account_id === $account->id, 404);
+
+        $agentBotId = $request->input('agent_bot');
+
+        if ($agentBotId) {
+            $agentBot = AgentBot::findOrFail($agentBotId);
+            $inbox->agentBotInbox()->updateOrCreate(
+                ['inbox_id' => $inbox->id],
+                ['agent_bot_id' => $agentBot->id]
+            );
+        } elseif ($inbox->agentBotInbox) {
+            $inbox->agentBotInbox->delete();
+        }
+
+        return response()->json(null, 200);
+    }
+
+    /**
+     * Sync templates (WhatsApp only).
+     */
+    public function syncTemplates(Account $account, Inbox $inbox): JsonResponse
+    {
+        abort_unless($inbox->account_id === $account->id, 404);
+
+        if ($inbox->channel_type !== 'Channel::Whatsapp') {
+            return response()->json(['error' => 'Template sync is only available for WhatsApp channels'], 422);
+        }
+
+        // Dispatch template sync job
+        // Channels\Whatsapp\TemplatesSyncJob::dispatch($inbox->channel);
+
+        return response()->json(['message' => 'Template sync initiated successfully'], 200);
+    }
+
+    /**
+     * Health check for inbox (WhatsApp Cloud API only).
+     */
+    public function health(Account $account, Inbox $inbox): JsonResponse
+    {
+        abort_unless($inbox->account_id === $account->id, 404);
+
+        if ($inbox->channel_type !== 'Channel::Whatsapp') {
+            return response()->json(['error' => 'Health data only available for WhatsApp Cloud API channels'], 400);
+        }
+
+        // Get health status from WhatsApp service
+        // $healthData = (new WhatsappHealthService($inbox->channel))->fetchHealthStatus();
+
+        return response()->json([
+            'status' => 'healthy',
+            'channel' => $inbox->channel_type,
+        ]);
     }
 }

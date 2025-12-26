@@ -91,6 +91,14 @@ class Inbox extends Model
     }
 
     /**
+     * Alias for members() for backward compatibility.
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->members();
+    }
+
+    /**
      * Get all working hours for the inbox.
      */
     public function workingHours(): HasMany

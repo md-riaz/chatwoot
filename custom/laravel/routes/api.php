@@ -156,8 +156,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('accounts/{account}')->group(function () {
         // Conversations
         Route::apiResource('conversations', ConversationsController::class);
+        Route::get('conversations/meta', [ConversationsController::class, 'meta']);
+        Route::get('conversations/search', [ConversationsController::class, 'search']);
+        Route::post('conversations/filter', [ConversationsController::class, 'filter']);
         Route::post('conversations/{conversation}/assign', [ConversationsController::class, 'assign']);
+        Route::post('conversations/{conversation}/toggle_status', [ConversationsController::class, 'toggleStatus']);
         Route::post('conversations/{conversation}/resolve', [ConversationsController::class, 'resolve']);
+        Route::post('conversations/{conversation}/mute', [ConversationsController::class, 'mute']);
+        Route::post('conversations/{conversation}/unmute', [ConversationsController::class, 'unmute']);
+        Route::post('conversations/{conversation}/transcript', [ConversationsController::class, 'transcript']);
+        Route::post('conversations/{conversation}/toggle_priority', [ConversationsController::class, 'togglePriority']);
+        Route::post('conversations/{conversation}/toggle_typing_status', [ConversationsController::class, 'toggleTypingStatus']);
+        Route::post('conversations/{conversation}/update_last_seen', [ConversationsController::class, 'updateLastSeen']);
+        Route::post('conversations/{conversation}/unread', [ConversationsController::class, 'unread']);
+        Route::post('conversations/{conversation}/custom_attributes', [ConversationsController::class, 'customAttributes']);
+        Route::get('conversations/{conversation}/attachments', [ConversationsController::class, 'attachments']);
 
         // Messages (nested under conversations)
         Route::apiResource('conversations/{conversation}/messages', MessagesController::class);
@@ -168,7 +181,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Contacts
         Route::apiResource('contacts', ContactsController::class);
+        Route::get('contacts/search', [ContactsController::class, 'search']);
+        Route::get('contacts/active', [ContactsController::class, 'active']);
+        Route::post('contacts/filter', [ContactsController::class, 'filter']);
+        Route::post('contacts/import', [ContactsController::class, 'import']);
+        Route::post('contacts/export', [ContactsController::class, 'export']);
         Route::post('contacts/{contact}/merge', [ContactsController::class, 'merge']);
+        Route::get('contacts/{contact}/contactable_inboxes', [ContactsController::class, 'contactableInboxes']);
+        Route::post('contacts/{contact}/destroy_custom_attributes', [ContactsController::class, 'destroyCustomAttributes']);
+        Route::delete('contacts/{contact}/avatar', [ContactsController::class, 'avatar']);
         
         // Contact Notes
         Route::apiResource('contacts/{contact}/notes', ContactNotesController::class);
@@ -178,10 +199,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('inboxes/{inbox}/members', [InboxesController::class, 'members']);
         Route::post('inboxes/{inbox}/members', [InboxesController::class, 'addMember']);
         Route::delete('inboxes/{inbox}/members', [InboxesController::class, 'removeMember']);
+        Route::get('inboxes/{inbox}/assignable_agents', [InboxesController::class, 'assignableAgents']);
+        Route::get('inboxes/{inbox}/campaigns', [InboxesController::class, 'campaigns']);
+        Route::delete('inboxes/{inbox}/avatar', [InboxesController::class, 'avatar']);
+        Route::get('inboxes/{inbox}/agent_bot', [InboxesController::class, 'agentBot']);
+        Route::post('inboxes/{inbox}/set_agent_bot', [InboxesController::class, 'setAgentBot']);
+        Route::post('inboxes/{inbox}/sync_templates', [InboxesController::class, 'syncTemplates']);
+        Route::get('inboxes/{inbox}/health', [InboxesController::class, 'health']);
         
         // Working Hours
         Route::get('inboxes/{inbox}/working_hours', [WorkingHoursController::class, 'index']);
-        Route::put('inboxes/{inbox}/working_hours', [WorkingHoursController::class, 'update']);
+        Route::match(['put', 'patch'], 'inboxes/{inbox}/working_hours', [WorkingHoursController::class, 'update']);
         Route::get('inboxes/{inbox}/is_open', [WorkingHoursController::class, 'isOpen']);
 
         // Teams
