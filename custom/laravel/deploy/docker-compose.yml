@@ -5,7 +5,7 @@ services:
     build:
       context: ..
       dockerfile: deploy/Dockerfile
-    container_name: chatwoot-laravel-app
+    container_name: clearline-app
     restart: unless-stopped
     ports:
       - "80:80"
@@ -19,35 +19,35 @@ services:
       - db
       - redis
     networks:
-      - chatwoot-network
+      - clearline-network
 
   db:
     image: postgres:16-alpine
-    container_name: chatwoot-laravel-db
+    container_name: clearline-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: chatwoot_production
-      POSTGRES_USER: chatwoot
+      POSTGRES_DB: clearline_production
+      POSTGRES_USER: clearline
       POSTGRES_PASSWORD: your-secure-password
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
-      - chatwoot-network
+      - clearline-network
 
   redis:
     image: redis:7-alpine
-    container_name: chatwoot-laravel-redis
+    container_name: clearline-redis
     restart: unless-stopped
     command: redis-server --appendonly yes --requirepass your-redis-password
     volumes:
       - redis-data:/data
     networks:
-      - chatwoot-network
+      - clearline-network
 
 volumes:
   postgres-data:
   redis-data:
 
 networks:
-  chatwoot-network:
+  clearline-network:
     driver: bridge

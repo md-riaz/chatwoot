@@ -46,10 +46,18 @@ use App\Http\Controllers\Api\V1\ReportsController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SegmentsController;
 use App\Http\Controllers\Api\V1\SlaPoliciesController;
+use App\Http\Controllers\Api\V1\SuperAdmin\AccessTokensController as SuperAdminAccessTokensController;
+use App\Http\Controllers\Api\V1\SuperAdmin\AccountsController as SuperAdminAccountsController;
+use App\Http\Controllers\Api\V1\SuperAdmin\AgentBotsController as SuperAdminAgentBotsController;
+use App\Http\Controllers\Api\V1\SuperAdmin\InstallationConfigsController;
+use App\Http\Controllers\Api\V1\SuperAdmin\InstanceStatusController;
+use App\Http\Controllers\Api\V1\SuperAdmin\PlatformAppsController;
+use App\Http\Controllers\Api\V1\SuperAdmin\UsersController as SuperAdminUsersController;
 use App\Http\Controllers\Api\V1\TeamsController;
 use App\Http\Controllers\Api\V1\UsersController;
 use App\Http\Controllers\Api\V1\WebhooksController;
 use App\Http\Controllers\Api\V1\WorkingHoursController;
+use App\Http\Middleware\EnsureSuperAdmin;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -376,5 +384,44 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('openai/summarize', [OpenAIController::class, 'summarize']);
             Route::post('openai/improve_tone', [OpenAIController::class, 'improveTone']);
         });
+    });
+
+    // Super Admin routes
+    Route::prefix('super_admin')->middleware(EnsureSuperAdmin::class)->group(function () {
+        // Instance Status
+        Route::get('instance_status', [InstanceStatusController::class, 'show']);
+
+        // Accounts
+        Route::apiResource('accounts', SuperAdminAccountsController::class);
+        Route::post('accounts/{account}/seed', [SuperAdminAccountsController::class, 'seed']);
+        Route::post('accounts/{account}/reset_cache', [SuperAdminAccountsController::class, 'resetCache']);
+
+        // Users
+        Route::apiResource('users', SuperAdminUsersController::class);
+        Route::delete('users/{user}/avatar', [SuperAdminUsersController::class, 'destroyAvatar']);
+
+        // Agent Bots (Global)
+        Route::apiResource('agent_bots', SuperAdminAgentBotsController::class);
+        Route::delete('agent_bots/{agentBot}/avatar', [SuperAdminAgentBotsController::class, 'destroyAvatar']);
+
+        // Platform Apps
+        Route::apiResource('platform_apps', PlatformAppsController::class);
+        Route::post('platform_apps/{platformApp}/regenerate_token', [PlatformAppsController::class, 'regenerateToken']);
+
+        // Installation Configs
+        Route::get('installation_configs', [InstallationConfigsController::class, 'index']);
+        Route::post('installation_configs', [InstallationConfigsController::class, 'store']);
+        Route::get('installation_configs/groups', [InstallationConfigsController::class, 'groups']);
+        Route::get('installation_configs/group/{group}', [InstallationConfigsController::class, 'showByGroup']);
+        Route::get('installation_configs/{installationConfig}', [InstallationConfigsController::class, 'show']);
+        Route::patch('installation_configs/{installationConfig}', [InstallationConfigsController::class, 'update']);
+        Route::delete('installation_configs/{installationConfig}', [InstallationConfigsController::class, 'destroy']);
+
+        // Access Tokens
+        Route::get('access_tokens', [SuperAdminAccessTokensController::class, 'index']);
+        Route::post('access_tokens', [SuperAdminAccessTokensController::class, 'store']);
+        Route::get('access_tokens/{accessToken}', [SuperAdminAccessTokensController::class, 'show']);
+        Route::delete('access_tokens/{accessToken}', [SuperAdminAccessTokensController::class, 'destroy']);
+        Route::delete('users/{user}/access_tokens', [SuperAdminAccessTokensController::class, 'revokeAllForUser']);
     });
 });

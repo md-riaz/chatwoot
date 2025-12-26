@@ -80,7 +80,7 @@ class WebWidgetController extends Controller
                 g.async = true;
                 s.parentNode.insertBefore(g,s);
                 g.onload=function(){
-                  window.chatwootSDK.run({
+                  window.clearlineSDK.run({
                     websiteToken: "%s",
                     baseUrl: BASE_URL
                   })

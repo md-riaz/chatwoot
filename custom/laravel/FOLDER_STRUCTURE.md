@@ -1,6 +1,6 @@
-# Chatwoot Laravel 12 Project - Folder Structure
+# ClearLine Laravel 12 Project - Folder Structure
 
-This document outlines the complete folder structure for the Chatwoot Laravel 12 conversion project using best practices, Reverb for WebSocket, and modern Laravel patterns.
+This document outlines the complete folder structure for the ClearLine Laravel 12 conversion project using best practices, Reverb for WebSocket, and modern Laravel patterns.
 
 ## 📁 Complete Folder Hierarchy
 

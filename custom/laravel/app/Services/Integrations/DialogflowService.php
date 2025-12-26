@@ -210,7 +210,7 @@ class DialogflowService
     }
 
     /**
-     * Process bot response for Chatwoot
+     * Process bot response for ClearLine
      */
     public function processResponse(array $dialogflowResponse, array $context = []): array
     {

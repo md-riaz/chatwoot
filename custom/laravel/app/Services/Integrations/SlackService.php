@@ -207,16 +207,16 @@ class SlackService
             [
                 'type' => 'actions',
                 'elements' => [
-                    [
-                        'type' => 'button',
-                        'text' => [
-                            'type' => 'plain_text',
-                            'text' => 'Open in Chatwoot',
-                            'emoji' => true,
-                        ],
-                        'url' => $conversation['url'] ?? '#',
-                        'action_id' => 'open_conversation',
+                [
+                    'type' => 'button',
+                    'text' => [
+                        'type' => 'plain_text',
+                        'text' => 'Open in ClearLine',
+                        'emoji' => true,
                     ],
+                    'url' => $conversation['url'] ?? '#',
+                    'action_id' => 'open_conversation',
+                ],
                 ],
             ],
         ];
