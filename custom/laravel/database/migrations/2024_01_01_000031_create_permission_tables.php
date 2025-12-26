@@ -35,7 +35,7 @@ return new class extends Migration
         $teams = config('permission.teams', false);
 
         if (empty($tableNames)) {
-            throw new \Exception('Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
+            throw new \RuntimeException('Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
         }
 
         Schema::create($tableNames['permissions'] ?? 'permissions', function (Blueprint $table) {
