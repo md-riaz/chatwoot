@@ -252,7 +252,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Users (Agents)
         Route::apiResource('users', UsersController::class);
-        Route::apiResource('agents', AgentsController::class)->only(['index', 'show', 'update', 'destroy']);
+        Route::apiResource('agents', AgentsController::class);
+        Route::post('agents/bulk_create', [AgentsController::class, 'bulkCreate']);
 
         // Portals (Help Center)
         Route::apiResource('portals', PortalsController::class);

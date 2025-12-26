@@ -144,9 +144,7 @@ class InboxesController extends Controller
     {
         abort_unless($inbox->account_id === $account->id, 404);
 
-        $agents = $inbox->members()
-            ->wherePivot('is_active', true)
-            ->get();
+        $agents = $inbox->members()->get();
 
         return response()->json(['data' => $agents]);
     }
