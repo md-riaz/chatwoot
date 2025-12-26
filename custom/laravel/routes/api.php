@@ -283,7 +283,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('search/contacts', [SearchController::class, 'contacts']);
         Route::get('search/messages', [SearchController::class, 'messages']);
 
-        // Bulk Actions
+        // Bulk Actions (matches Chatwoot Rails API - single resource with create action)
+        Route::post('bulk_actions', [BulkActionsController::class, 'store']);
         Route::post('bulk_actions/conversations', [BulkActionsController::class, 'conversations']);
         Route::delete('bulk_actions/conversations', [BulkActionsController::class, 'deleteConversations']);
 
