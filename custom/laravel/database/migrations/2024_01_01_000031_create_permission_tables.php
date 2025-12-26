@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Spatie Permission package migrations.
  *
  * Published from spatie/laravel-permission package.
+ *
  * @see https://spatie.be/docs/laravel-permission
  */
 return new class extends Migration
@@ -17,28 +18,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $tableNames = config('permission.table_names', [
+        // Use direct values for table names since config may not be loaded during migration
+        $tableNames = [
             'roles' => 'roles',
             'permissions' => 'permissions',
             'model_has_permissions' => 'model_has_permissions',
             'model_has_roles' => 'model_has_roles',
             'role_has_permissions' => 'role_has_permissions',
-        ]);
+        ];
 
-        $columnNames = config('permission.column_names', [
+        $columnNames = [
             'role_pivot_key' => 'role_id',
             'permission_pivot_key' => 'permission_id',
             'model_morph_key' => 'model_id',
-            'team_foreign_key' => 'team_id',
-        ]);
+        ];
 
-        $teams = config('permission.teams', false);
-
-        if (empty($tableNames)) {
-            throw new \RuntimeException('Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
-        }
-
-        Schema::create($tableNames['permissions'] ?? 'permissions', function (Blueprint $table) {
+        Schema::create($tableNames['permissions'], function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('guard_name');
@@ -47,24 +42,16 @@ return new class extends Migration
             $table->unique(['name', 'guard_name']);
         });
 
-        Schema::create($tableNames['roles'] ?? 'roles', function (Blueprint $table) use ($teams, $columnNames) {
+        Schema::create($tableNames['roles'], function (Blueprint $table) {
             $table->id();
-            if ($teams) {
-                $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable();
-                $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
-            }
             $table->string('name');
             $table->string('guard_name');
             $table->timestamps();
 
-            if ($teams) {
-                $table->unique([$columnNames['team_foreign_key'], 'name', 'guard_name']);
-            } else {
-                $table->unique(['name', 'guard_name']);
-            }
+            $table->unique(['name', 'guard_name']);
         });
 
-        Schema::create($tableNames['model_has_permissions'] ?? 'model_has_permissions', function (Blueprint $table) use ($tableNames, $columnNames, $teams) {
+        Schema::create($tableNames['model_has_permissions'], function (Blueprint $table) use ($tableNames, $columnNames) {
             $table->unsignedBigInteger($columnNames['permission_pivot_key']);
 
             $table->string('model_type');
@@ -73,26 +60,16 @@ return new class extends Migration
 
             $table->foreign($columnNames['permission_pivot_key'])
                 ->references('id')
-                ->on($tableNames['permissions'] ?? 'permissions')
+                ->on($tableNames['permissions'])
                 ->onDelete('cascade');
 
-            if ($teams) {
-                $table->unsignedBigInteger($columnNames['team_foreign_key']);
-                $table->index($columnNames['team_foreign_key'], 'model_has_permissions_team_foreign_key_index');
-
-                $table->primary(
-                    [$columnNames['team_foreign_key'], $columnNames['permission_pivot_key'], $columnNames['model_morph_key'], 'model_type'],
-                    'model_has_permissions_permission_model_type_primary'
-                );
-            } else {
-                $table->primary(
-                    [$columnNames['permission_pivot_key'], $columnNames['model_morph_key'], 'model_type'],
-                    'model_has_permissions_permission_model_type_primary'
-                );
-            }
+            $table->primary(
+                [$columnNames['permission_pivot_key'], $columnNames['model_morph_key'], 'model_type'],
+                'model_has_permissions_permission_model_type_primary'
+            );
         });
 
-        Schema::create($tableNames['model_has_roles'] ?? 'model_has_roles', function (Blueprint $table) use ($tableNames, $columnNames, $teams) {
+        Schema::create($tableNames['model_has_roles'], function (Blueprint $table) use ($tableNames, $columnNames) {
             $table->unsignedBigInteger($columnNames['role_pivot_key']);
 
             $table->string('model_type');
@@ -101,45 +78,40 @@ return new class extends Migration
 
             $table->foreign($columnNames['role_pivot_key'])
                 ->references('id')
-                ->on($tableNames['roles'] ?? 'roles')
+                ->on($tableNames['roles'])
                 ->onDelete('cascade');
 
-            if ($teams) {
-                $table->unsignedBigInteger($columnNames['team_foreign_key']);
-                $table->index($columnNames['team_foreign_key'], 'model_has_roles_team_foreign_key_index');
-
-                $table->primary(
-                    [$columnNames['team_foreign_key'], $columnNames['role_pivot_key'], $columnNames['model_morph_key'], 'model_type'],
-                    'model_has_roles_role_model_type_primary'
-                );
-            } else {
-                $table->primary(
-                    [$columnNames['role_pivot_key'], $columnNames['model_morph_key'], 'model_type'],
-                    'model_has_roles_role_model_type_primary'
-                );
-            }
+            $table->primary(
+                [$columnNames['role_pivot_key'], $columnNames['model_morph_key'], 'model_type'],
+                'model_has_roles_role_model_type_primary'
+            );
         });
 
-        Schema::create($tableNames['role_has_permissions'] ?? 'role_has_permissions', function (Blueprint $table) use ($tableNames, $columnNames) {
+        Schema::create($tableNames['role_has_permissions'], function (Blueprint $table) use ($tableNames, $columnNames) {
             $table->unsignedBigInteger($columnNames['permission_pivot_key']);
             $table->unsignedBigInteger($columnNames['role_pivot_key']);
 
             $table->foreign($columnNames['permission_pivot_key'])
                 ->references('id')
-                ->on($tableNames['permissions'] ?? 'permissions')
+                ->on($tableNames['permissions'])
                 ->onDelete('cascade');
 
             $table->foreign($columnNames['role_pivot_key'])
                 ->references('id')
-                ->on($tableNames['roles'] ?? 'roles')
+                ->on($tableNames['roles'])
                 ->onDelete('cascade');
 
             $table->primary([$columnNames['permission_pivot_key'], $columnNames['role_pivot_key']], 'role_has_permissions_permission_id_role_id_primary');
         });
 
-        app('cache')
-            ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)
-            ->forget(config('permission.cache.key'));
+        // Clear permission cache if available
+        try {
+            app('cache')
+                ->store(config('permission.cache.store') !== 'default' ? config('permission.cache.store') : null)
+                ->forget(config('permission.cache.key'));
+        } catch (\Throwable $e) {
+            // Cache may not be available during migration
+        }
     }
 
     /**
@@ -147,18 +119,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        $tableNames = config('permission.table_names', [
-            'roles' => 'roles',
-            'permissions' => 'permissions',
-            'model_has_permissions' => 'model_has_permissions',
-            'model_has_roles' => 'model_has_roles',
-            'role_has_permissions' => 'role_has_permissions',
-        ]);
-
-        Schema::drop($tableNames['role_has_permissions'] ?? 'role_has_permissions');
-        Schema::drop($tableNames['model_has_roles'] ?? 'model_has_roles');
-        Schema::drop($tableNames['model_has_permissions'] ?? 'model_has_permissions');
-        Schema::drop($tableNames['roles'] ?? 'roles');
-        Schema::drop($tableNames['permissions'] ?? 'permissions');
+        Schema::dropIfExists('role_has_permissions');
+        Schema::dropIfExists('model_has_roles');
+        Schema::dropIfExists('model_has_permissions');
+        Schema::dropIfExists('roles');
+        Schema::dropIfExists('permissions');
     }
 };

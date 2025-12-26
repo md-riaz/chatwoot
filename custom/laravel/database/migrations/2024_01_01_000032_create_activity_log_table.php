@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Spatie Activity Log package migrations.
  *
  * Published from spatie/laravel-activitylog package.
+ *
  * @see https://spatie.be/docs/laravel-activitylog
  */
 return new class extends Migration

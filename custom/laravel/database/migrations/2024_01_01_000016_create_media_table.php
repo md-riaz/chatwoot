@@ -31,7 +31,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('file_type');
-            $table->index(['mediable_type', 'mediable_id']);
+            // Note: morphs() already creates index on mediable_type and mediable_id
         });
     }
 

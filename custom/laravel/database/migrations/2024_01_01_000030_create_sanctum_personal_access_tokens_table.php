@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Sanctum personal access tokens migration.
  *
  * Published from Laravel Sanctum package.
+ *
  * @see https://laravel.com/docs/sanctum
  */
 return new class extends Migration
