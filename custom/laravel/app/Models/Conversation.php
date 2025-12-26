@@ -157,6 +157,16 @@ class Conversation extends Model
     }
 
     /**
+     * Get all attachments for the conversation (through messages).
+     */
+    public function attachments()
+    {
+        return Attachment::whereHas('message', function ($query) {
+            $query->where('conversation_id', $this->id);
+        });
+    }
+
+    /**
      * Scope a query to only include open conversations.
      */
     public function scopeOpen($query)

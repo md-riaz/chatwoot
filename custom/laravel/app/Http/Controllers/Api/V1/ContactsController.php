@@ -161,14 +161,25 @@ class ContactsController extends Controller
     {
         abort_unless($contact->account_id === $account->id, 404);
 
+        // Get inboxes that the contact already has contact_inboxes for
+        $existingInboxIds = $contact->contactInboxes()->pluck('inbox_id')->toArray();
+
+        // Get all inboxes for the account that are contactable
         $inboxes = $account->inboxes()
-            ->whereHas('contactInboxes', function ($query) use ($contact) {
-                $query->where('contact_id', $contact->id);
+            ->where(function ($query) use ($existingInboxIds) {
+                $query->whereIn('id', $existingInboxIds)
+                    ->orWhere('channel_type', 'like', '%WebWidget%')
+                    ->orWhere('channel_type', 'like', '%Api%');
             })
-            ->orWhere(function ($query) use ($account) {
-                $query->where('account_id', $account->id);
-            })
-            ->get();
+            ->get()
+            ->map(function ($inbox) use ($existingInboxIds) {
+                return [
+                    'inbox' => $inbox,
+                    'source_id' => in_array($inbox->id, $existingInboxIds)
+                        ? $inbox->contactInboxes()->where('contact_id', request()->route('contact'))->first()?->source_id
+                        : null,
+                ];
+            });
 
         return response()->json(['data' => $inboxes]);
     }

@@ -131,9 +131,10 @@ class ConversationsController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        $assignee = $request->has('assignee_id') && $request->assignee_id
-            ? User::findOrFail($request->assignee_id)
-            : null;
+        $assignee = null;
+        if ($request->has('assignee_id') && ! is_null($request->assignee_id)) {
+            $assignee = User::findOrFail($request->assignee_id);
+        }
 
         $updatedConversation = AssignConversationAction::run($conversation, $assignee);
 

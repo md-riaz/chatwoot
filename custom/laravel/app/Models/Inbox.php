@@ -115,6 +115,22 @@ class Inbox extends Model
     }
 
     /**
+     * Get the agent bot inbox relationship.
+     */
+    public function agentBotInbox()
+    {
+        return $this->hasOne(\App\Models\AgentBotInbox::class);
+    }
+
+    /**
+     * Get the agent bot through the agent bot inbox.
+     */
+    public function getAgentBotAttribute()
+    {
+        return $this->agentBotInbox?->agentBot;
+    }
+
+    /**
      * Check if inbox is currently within working hours.
      */
     public function isOpenNow(): bool
