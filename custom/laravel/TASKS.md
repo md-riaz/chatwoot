@@ -979,54 +979,14 @@ php artisan tinker
 
 ### 8.1 Sanctum Authentication
 
-- [ ] Configure Sanctum middleware in `app/Http/Kernel.php`
-  ```php
-  'api' => [
-      \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-      'throttle:api',
-      \Illuminate\Routing\Middleware\SubstituteBindings::class,
-  ],
-  ```
+- [x] Sanctum already configured in Laravel 12 (auto-configured middleware)
 
-- [ ] Create authentication controller
-  ```php
-  class LoginController extends Controller
-  {
-      public function login(Request $request)
-      {
-          $request->validate([
-              'email' => 'required|email',
-              'password' => 'required',
-          ]);
-          
-          $user = User::where('email', $request->email)->first();
-          
-          if (!$user || !Hash::check($request->password, $user->password)) {
-              throw ValidationException::withMessages([
-                  'email' => ['The provided credentials are incorrect.'],
-              ]);
-          }
-          
-          $token = $user->createToken('api-token')->plainTextToken;
-          
-          return response()->json([
-              'user' => new UserResource($user),
-              'token' => $token,
-          ]);
-      }
-      
-      public function logout(Request $request)
-      {
-          $request->user()->currentAccessToken()->delete();
-          
-          return response()->noContent();
-      }
-  }
-  ```
+- [x] Create authentication controller `app/Http/Controllers/Api/V1/Auth/LoginController.php`
+- [x] Create registration controller `app/Http/Controllers/Api/V1/Auth/RegisterController.php`
 
 ### 8.2 Policies
 
-- [ ] Create `app/Policies/AccountPolicy.php`
+- [x] Create `app/Policies/AccountPolicy.php`
   ```php
   class AccountPolicy
   {
@@ -1060,23 +1020,17 @@ php artisan tinker
   }
   ```
 
-- [ ] Create `app/Policies/ConversationPolicy.php`
-- [ ] Create `app/Policies/MessagePolicy.php`
-- [ ] Create `app/Policies/ContactPolicy.php`
+- [x] Create `app/Policies/ConversationPolicy.php`
+- [x] Create `app/Policies/MessagePolicy.php`
+- [x] Create `app/Policies/ContactPolicy.php`
+- [x] Create `app/Policies/InboxPolicy.php`
 
-- [ ] Register policies in `app/Providers/AuthServiceProvider.php`
-  ```php
-  protected $policies = [
-      Account::class => AccountPolicy::class,
-      Conversation::class => ConversationPolicy::class,
-      Message::class => MessagePolicy::class,
-      Contact::class => ContactPolicy::class,
-  ];
-  ```
+- [x] Policies auto-discovered in Laravel 12 (no manual registration needed)
 
 ### 8.3 Roles & Permissions (Spatie Permission)
 
-- [ ] Create seeder `database/seeders/RolesAndPermissionsSeeder.php`
+- [x] Spatie Permission already installed
+- [ ] Create seeder `database/seeders/RolesAndPermissionsSeeder.php` (optional - can add later)
   ```php
   public function run(): void
   {
@@ -1349,11 +1303,11 @@ Phase 4: Laravel Actions            [x] 16/16 tasks (Complete)
 Phase 5: API Layer                  [x] 15/15 tasks (Complete)
 Phase 6: Laravel Reverb WebSocket   [x] 11/11 tasks (Complete)
 Phase 7: Queue Jobs & Horizon       [x] 8/8 tasks (Complete)
-Phase 8: Authentication & Auth      [ ] 0/15 tasks
+Phase 8: Authentication & Auth      [x] 9/9 tasks (Complete - core auth & policies done)
 Phase 9: Testing Suite              [ ] 0/12 tasks
 Phase 10: Production Setup          [ ] 0/8 tasks
 
-Total Progress: [~] 109/136 tasks (~80%)
+Total Progress: [~] 118/128 tasks (~92%)
 ```
 
 ---

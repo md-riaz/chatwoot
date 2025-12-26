@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AccountsController;
+use App\Http\Controllers\Api\V1\Auth\LoginController;
+use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\ContactsController;
 use App\Http\Controllers\Api\V1\ConversationsController;
 use App\Http\Controllers\Api\V1\InboxesController;
@@ -28,8 +30,20 @@ Route::get('/', function () {
     ]);
 });
 
+// Authentication routes
+Route::prefix('auth')->group(function () {
+    Route::post('login', [LoginController::class, 'login']);
+    Route::post('register', [RegisterController::class, 'register']);
+});
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
+    // Auth routes
+    Route::prefix('auth')->group(function () {
+        Route::post('logout', [LoginController::class, 'logout']);
+        Route::get('me', [LoginController::class, 'me']);
+    });
+
     // Account routes
     Route::apiResource('accounts', AccountsController::class);
 
