@@ -26,18 +26,21 @@ This document provides a comprehensive checklist for converting Chatwoot from Ra
 - [x] Install Laravel 12 with composer
 - [x] Install required packages (Sanctum, Horizon, Reverb, Actions, Spatie packages)
 - [x] Install Pest testing framework
-- [ ] Configure `.env` file
-  - [ ] Database connection (PostgreSQL)
-  - [ ] Redis configuration
-  - [ ] Mail settings
-  - [ ] AWS S3 credentials
-  - [ ] Reverb configuration
-- [ ] Set up environment-specific configs
-  - [ ] `config/database.php` - PostgreSQL primary
-  - [ ] `config/queue.php` - Redis queue driver
-  - [ ] `config/reverb.php` - WebSocket server settings
-  - [ ] `config/sanctum.php` - API authentication
-  - [ ] `config/horizon.php` - Queue dashboard
+- [x] Configure `.env` file
+  - [x] Database connection (PostgreSQL)
+  - [x] Redis configuration
+  - [x] Mail settings
+  - [x] AWS S3 credentials
+  - [x] Reverb configuration
+- [x] Set up environment-specific configs
+  - [x] `config/database.php` - PostgreSQL primary
+  - [x] `config/queue.php` - Redis queue driver
+  - [x] `config/reverb.php` - WebSocket server settings
+  - [x] `config/sanctum.php` - API authentication
+  - [x] `config/horizon.php` - Queue dashboard
+- [x] Remove blade views (REST API only project)
+- [x] Create API routes structure (routes/api.php)
+- [x] Create broadcast channels (routes/channels.php)
 
 **Testing Checkpoint:**
 ```bash
@@ -52,7 +55,7 @@ php artisan about  # Verify environment
 
 #### 1.2.1 Core Tables Migration
 
-- [ ] Create migration: `accounts` table
+- [x] Create migration: `accounts` table
   ```php
   Schema::create('accounts', function (Blueprint $table) {
       $table->id();
@@ -72,7 +75,7 @@ php artisan about  # Verify environment
   });
   ```
 
-- [ ] Create migration: `users` table
+- [x] Create migration: `users` table
   ```php
   Schema::create('users', function (Blueprint $table) {
       $table->id();
@@ -94,7 +97,7 @@ php artisan about  # Verify environment
   });
   ```
 
-- [ ] Create migration: `account_users` pivot table
+- [x] Create migration: `account_users` pivot table
   ```php
   Schema::create('account_users', function (Blueprint $table) {
       $table->id();
@@ -111,19 +114,21 @@ php artisan about  # Verify environment
   });
   ```
 
-- [ ] Create migration: `contacts` table (see Backend Architecture Part 1, Section 4)
-- [ ] Create migration: `inboxes` table (polymorphic for channels)
-- [ ] Create migration: `channels` table (polymorphic type)
-- [ ] Create migration: `contact_inboxes` table
-- [ ] Create migration: `conversations` table
-- [ ] Create migration: `messages` table
-- [ ] Create migration: `labels` table
-- [ ] Create migration: `teams` table
-- [ ] Create migration: `team_members` table
-- [ ] Create migration: `automation_rules` table
-- [ ] Create migration: `canned_responses` table
-- [ ] Create migration: `webhooks` table
-- [ ] Create migration: `notifications` table
+- [x] Create migration: `contacts` table (see Backend Architecture Part 1, Section 4)
+- [x] Create migration: `inboxes` table (polymorphic for channels)
+- [x] Create migration: `channels` table (polymorphic type)
+- [x] Create migration: `contact_inboxes` table
+- [x] Create migration: `conversations` table
+- [x] Create migration: `messages` table
+- [x] Create migration: `labels` table
+- [x] Create migration: `teams` table
+- [x] Create migration: `team_members` table
+- [x] Create migration: `automation_rules` table
+- [x] Create migration: `canned_responses` table
+- [x] Create migration: `webhooks` table
+- [x] Create migration: `notifications` table
+- [x] Create migration: `attachments` table
+- [x] Create migration: `mentions` table
 
 #### 1.2.2 Package Migrations
 
@@ -171,7 +176,7 @@ Reference: [Backend Architecture - Part 1, Section 4 (Core Domain Models)](../do
 
 #### 2.1.1 Account Model
 
-- [ ] Create `app/Models/Account.php`
+- [x] Create `app/Models/Account.php`
   ```php
   class Account extends Model
   {
@@ -217,20 +222,21 @@ Reference: [Backend Architecture - Part 1, Section 4 (Core Domain Models)](../do
   }
   ```
 
-- [ ] Create `app/Models/User.php` (extends Authenticatable)
-- [ ] Create `app/Models/Contact.php`
-- [ ] Create `app/Models/Inbox.php`
-- [ ] Create `app/Models/Channel.php` (polymorphic base)
-- [ ] Create `app/Models/Channels/WebChannel.php`
-- [ ] Create `app/Models/Channels/EmailChannel.php`
-- [ ] Create `app/Models/ContactInbox.php`
-- [ ] Create `app/Models/Conversation.php`
-- [ ] Create `app/Models/Message.php`
-- [ ] Create `app/Models/Label.php`
-- [ ] Create `app/Models/Team.php`
-- [ ] Create `app/Models/AutomationRule.php`
-- [ ] Create `app/Models/CannedResponse.php`
-- [ ] Create `app/Models/Webhook.php`
+- [x] Create `app/Models/User.php` (extends Authenticatable)
+- [x] Create `app/Models/Contact.php`
+- [x] Create `app/Models/Inbox.php`
+- [x] Create `app/Models/Channels/WebWidget.php` (polymorphic channel)
+- [x] Create `app/Models/Channels/Email.php` (polymorphic channel)
+- [x] Create `app/Models/Channels/Api.php` (polymorphic channel)
+- [x] Create `app/Models/ContactInbox.php`
+- [x] Create `app/Models/Conversation.php`
+- [x] Create `app/Models/Message.php`
+- [x] Create `app/Models/Label.php`
+- [x] Create `app/Models/Team.php`
+- [x] Create `app/Models/AutomationRule.php`
+- [x] Create `app/Models/CannedResponse.php`
+- [x] Create `app/Models/Webhook.php`
+- [x] Create `app/Models/Attachment.php`
 
 **Testing Checkpoint:**
 ```bash
@@ -243,12 +249,12 @@ $account->inboxes;
 
 #### 2.1.2 Model Factories
 
-- [ ] Create `database/factories/AccountFactory.php`
-- [ ] Create `database/factories/UserFactory.php`
-- [ ] Create `database/factories/ContactFactory.php`
-- [ ] Create `database/factories/InboxFactory.php`
-- [ ] Create `database/factories/ConversationFactory.php`
-- [ ] Create `database/factories/MessageFactory.php`
+- [x] Create `database/factories/AccountFactory.php`
+- [x] Create `database/factories/UserFactory.php`
+- [x] Create `database/factories/ContactFactory.php`
+- [x] Create `database/factories/InboxFactory.php`
+- [x] Create `database/factories/ConversationFactory.php`
+- [x] Create `database/factories/MessageFactory.php`
 
 **Testing Checkpoint:**
 ```bash
@@ -265,7 +271,7 @@ Reference: [Backend Architecture - Part 2, Section 2.7 (Repository Pattern)](../
 
 #### 2.2.1 Base Repository
 
-- [ ] Create `app/Repositories/BaseRepository.php`
+- [x] Create `app/Repositories/BaseRepository.php`
   ```php
   abstract class BaseRepository
   {
@@ -305,8 +311,8 @@ Reference: [Backend Architecture - Part 2, Section 2.7 (Repository Pattern)](../
 
 #### 2.2.2 Specific Repositories
 
-- [ ] Create `app/Repositories/Account/AccountRepository.php`
-- [ ] Create `app/Repositories/Conversation/ConversationRepository.php`
+- [x] Create `app/Repositories/Account/AccountRepository.php`
+- [x] Create `app/Repositories/Conversation/ConversationRepository.php`
   ```php
   class ConversationRepository extends BaseRepository
   {
@@ -342,9 +348,9 @@ Reference: [Backend Architecture - Part 2, Section 2.7 (Repository Pattern)](../
   }
   ```
 
-- [ ] Create `app/Repositories/Message/MessageRepository.php`
-- [ ] Create `app/Repositories/Contact/ContactRepository.php`
-- [ ] Create `app/Repositories/Inbox/InboxRepository.php`
+- [x] Create `app/Repositories/Message/MessageRepository.php`
+- [x] Create `app/Repositories/Contact/ContactRepository.php`
+- [x] Create `app/Repositories/Inbox/InboxRepository.php`
 
 **Testing Checkpoint:**
 ```php
@@ -1408,8 +1414,8 @@ curl https://your-domain.com:443/reverb/health
 Track overall progress by phase:
 
 ```
-Phase 1: Foundation Setup           [ ] 0/10 tasks
-Phase 2: Core Models & Repositories [ ] 0/25 tasks
+Phase 1: Foundation Setup           [x] 28/28 tasks (Complete)
+Phase 2: Core Models & Repositories [x] 25/25 tasks (Complete)
 Phase 3: Data Transfer Objects      [ ] 0/8 tasks
 Phase 4: Laravel Actions            [ ] 0/20 tasks
 Phase 5: API Layer                  [ ] 0/15 tasks
@@ -1419,7 +1425,7 @@ Phase 8: Authentication & Auth      [ ] 0/15 tasks
 Phase 9: Testing Suite              [ ] 0/12 tasks
 Phase 10: Production Setup          [ ] 0/8 tasks
 
-Total Progress: [ ] 0/135 tasks (0%)
+Total Progress: [~] 53/153 tasks (~35%)
 ```
 
 ---

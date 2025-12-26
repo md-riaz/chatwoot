@@ -1,0 +1,126 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
+
+class Account extends Model
+{
+    use HasFactory, SoftDeletes, LogsActivity;
+
+    protected $fillable = [
+        'name',
+        'locale',
+        'domain',
+        'support_email',
+        'settings',
+        'features',
+        'limits',
+        'status',
+    ];
+
+    protected $casts = [
+        'settings' => 'array',
+        'features' => 'array',
+        'limits' => 'array',
+        'status' => 'integer',
+    ];
+
+    /**
+     * Configure activity log options.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'locale', 'domain', 'support_email', 'status'])
+            ->logOnlyDirty();
+    }
+
+    /**
+     * Get the users that belong to the account.
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'account_users')
+            ->withPivot('role', 'availability', 'settings', 'active_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get all inboxes for the account.
+     */
+    public function inboxes(): HasMany
+    {
+        return $this->hasMany(Inbox::class);
+    }
+
+    /**
+     * Get all conversations for the account.
+     */
+    public function conversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class);
+    }
+
+    /**
+     * Get all contacts for the account.
+     */
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(Contact::class);
+    }
+
+    /**
+     * Get all teams for the account.
+     */
+    public function teams(): HasMany
+    {
+        return $this->hasMany(Team::class);
+    }
+
+    /**
+     * Get all labels for the account.
+     */
+    public function labels(): HasMany
+    {
+        return $this->hasMany(Label::class);
+    }
+
+    /**
+     * Get all canned responses for the account.
+     */
+    public function cannedResponses(): HasMany
+    {
+        return $this->hasMany(CannedResponse::class);
+    }
+
+    /**
+     * Get all automation rules for the account.
+     */
+    public function automationRules(): HasMany
+    {
+        return $this->hasMany(AutomationRule::class);
+    }
+
+    /**
+     * Get all webhooks for the account.
+     */
+    public function webhooks(): HasMany
+    {
+        return $this->hasMany(Webhook::class);
+    }
+
+    /**
+     * Scope a query to only include active accounts.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
+}
