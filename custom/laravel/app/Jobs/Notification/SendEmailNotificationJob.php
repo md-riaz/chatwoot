@@ -17,6 +17,7 @@ class SendEmailNotificationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
     public int $backoff = 60;
 
     public function __construct(
@@ -30,8 +31,9 @@ class SendEmailNotificationJob implements ShouldQueue
     {
         $user = User::find($this->userId);
 
-        if (!$user) {
+        if (! $user) {
             Log::warning('User not found for email notification', ['user_id' => $this->userId]);
+
             return;
         }
 

@@ -52,8 +52,9 @@ test('can register new user', function () {
 
 test('can logout', function () {
     $user = User::factory()->create();
+    $token = $user->createToken('test-token');
 
-    $response = $this->actingAs($user, 'sanctum')
+    $response = $this->withHeader('Authorization', 'Bearer '.$token->plainTextToken)
         ->postJson('/api/v1/auth/logout');
 
     $response->assertNoContent();

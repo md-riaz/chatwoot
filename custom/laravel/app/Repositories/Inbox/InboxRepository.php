@@ -5,7 +5,6 @@ namespace App\Repositories\Inbox;
 use App\Models\Inbox;
 use App\Repositories\BaseRepository;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class InboxRepository extends BaseRepository
 {
@@ -55,9 +54,10 @@ class InboxRepository extends BaseRepository
     public function getMembers(int $inboxId): Collection
     {
         $inbox = $this->model->find($inboxId);
-        if (!$inbox) {
-            return new Collection();
+        if (! $inbox) {
+            return new Collection;
         }
+
         return $inbox->members()->get();
     }
 
@@ -67,10 +67,11 @@ class InboxRepository extends BaseRepository
     public function addMember(int $inboxId, int $userId): bool
     {
         $inbox = $this->model->find($inboxId);
-        if (!$inbox) {
+        if (! $inbox) {
             return false;
         }
         $inbox->members()->syncWithoutDetaching([$userId]);
+
         return true;
     }
 
@@ -80,10 +81,11 @@ class InboxRepository extends BaseRepository
     public function removeMember(int $inboxId, int $userId): bool
     {
         $inbox = $this->model->find($inboxId);
-        if (!$inbox) {
+        if (! $inbox) {
             return false;
         }
         $inbox->members()->detach($userId);
+
         return true;
     }
 }

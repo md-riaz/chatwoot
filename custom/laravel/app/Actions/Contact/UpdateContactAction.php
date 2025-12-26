@@ -2,7 +2,6 @@
 
 namespace App\Actions\Contact;
 
-use App\Data\Contact\ContactData;
 use App\Models\Contact;
 use App\Repositories\Contact\ContactRepository;
 use Lorisleiva\Actions\Concerns\AsAction;

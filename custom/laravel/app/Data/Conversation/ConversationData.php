@@ -20,18 +20,18 @@ class ConversationData extends Data
         #[Required]
         public int $contact_id,
         #[Nullable]
-        public ?int $contact_inbox_id,
+        public ?int $contact_inbox_id = null,
         #[Nullable]
-        public ?int $assignee_id,
+        public ?int $assignee_id = null,
         #[Nullable]
-        public ?int $team_id,
-        public int|Optional $display_id,
+        public ?int $team_id = null,
+        public int|Optional $display_id = 0,
         #[In([Conversation::STATUS_OPEN, Conversation::STATUS_RESOLVED, Conversation::STATUS_PENDING, Conversation::STATUS_SNOOZED])]
         public int $status = Conversation::STATUS_OPEN,
         #[In([Conversation::PRIORITY_NONE, Conversation::PRIORITY_LOW, Conversation::PRIORITY_MEDIUM, Conversation::PRIORITY_HIGH, Conversation::PRIORITY_URGENT])]
         public int $priority = Conversation::PRIORITY_NONE,
-        public array|Optional $custom_attributes,
-        public ?string $snoozed_until,
+        public array|Optional $custom_attributes = [],
+        public ?string $snoozed_until = null,
     ) {}
 
     public static function rules(): array

@@ -16,23 +16,35 @@ class Message extends Model
 
     // Message type constants
     public const TYPE_INCOMING = 0;
+
     public const TYPE_OUTGOING = 1;
+
     public const TYPE_ACTIVITY = 2;
+
     public const TYPE_TEMPLATE = 3;
 
     // Content type constants
     public const CONTENT_TEXT = 0;
+
     public const CONTENT_INPUT_TEXT = 1;
+
     public const CONTENT_INPUT_EMAIL = 2;
+
     public const CONTENT_INPUT_SELECT = 3;
+
     public const CONTENT_CARDS = 4;
+
     public const CONTENT_FORM = 5;
+
     public const CONTENT_ARTICLE = 6;
 
     // Status constants
     public const STATUS_SENT = 0;
+
     public const STATUS_DELIVERED = 1;
+
     public const STATUS_READ = 2;
+
     public const STATUS_FAILED = 3;
 
     protected $fillable = [

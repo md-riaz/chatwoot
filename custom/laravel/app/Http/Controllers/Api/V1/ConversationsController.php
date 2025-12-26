@@ -56,6 +56,9 @@ class ConversationsController extends Controller
      */
     public function show(Account $account, Conversation $conversation): ConversationResource
     {
+        // Ensure user has access to account
+        abort_unless(request()->user()->accounts()->where('account_id', $account->id)->exists(), 404);
+
         // Ensure conversation belongs to account
         abort_unless($conversation->account_id === $account->id, 404);
 

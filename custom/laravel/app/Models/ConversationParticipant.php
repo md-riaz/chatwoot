@@ -19,7 +19,7 @@ class ConversationParticipant extends Model
     protected static function booted(): void
     {
         static::creating(function (ConversationParticipant $participant) {
-            if (!$participant->account_id && $participant->conversation) {
+            if (! $participant->account_id && $participant->conversation) {
                 $participant->account_id = $participant->conversation->account_id;
             }
         });

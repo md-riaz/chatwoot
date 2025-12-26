@@ -57,6 +57,7 @@ class CsatSurveyResponse extends Model
         if ($range) {
             return $query->whereBetween('created_at', $range);
         }
+
         return $query;
     }
 
@@ -68,6 +69,7 @@ class CsatSurveyResponse extends Model
         if ($userIds) {
             return $query->whereIn('assigned_agent_id', (array) $userIds);
         }
+
         return $query;
     }
 
@@ -79,6 +81,7 @@ class CsatSurveyResponse extends Model
         if ($rating !== null) {
             return $query->where('rating', $rating);
         }
+
         return $query;
     }
 }

@@ -53,9 +53,10 @@ abstract class BaseRepository
     public function update(int $id, array $attributes): bool
     {
         $record = $this->model->find($id);
-        if (!$record) {
+        if (! $record) {
             return false;
         }
+
         return $record->update($attributes);
     }
 
@@ -65,9 +66,10 @@ abstract class BaseRepository
     public function delete(int $id): bool
     {
         $record = $this->model->find($id);
-        if (!$record) {
+        if (! $record) {
             return false;
         }
+
         return $record->delete();
     }
 

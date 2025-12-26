@@ -18,15 +18,22 @@ class Conversation extends Model
 
     // Status constants
     public const STATUS_OPEN = 0;
+
     public const STATUS_RESOLVED = 1;
+
     public const STATUS_PENDING = 2;
+
     public const STATUS_SNOOZED = 3;
 
     // Priority constants
     public const PRIORITY_NONE = 0;
+
     public const PRIORITY_LOW = 1;
+
     public const PRIORITY_MEDIUM = 2;
+
     public const PRIORITY_HIGH = 3;
+
     public const PRIORITY_URGENT = 4;
 
     protected $fillable = [

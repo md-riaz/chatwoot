@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Contact;
 
-use App\Data\Contact\ContactData;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreContactRequest extends FormRequest

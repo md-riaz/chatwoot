@@ -21,9 +21,10 @@ Broadcast::channel('account.{accountId}', function ($user, $accountId) {
 // Conversation channel - for specific conversation updates
 Broadcast::channel('conversation.{conversationId}', function ($user, $conversationId) {
     $conversation = \App\Models\Conversation::find($conversationId);
-    if (!$conversation) {
+    if (! $conversation) {
         return false;
     }
+
     return $user->accounts()->where('account_id', $conversation->account_id)->exists();
 });
 
@@ -36,5 +37,6 @@ Broadcast::channel('account.{accountId}.presence', function ($user, $accountId) 
             'avatar' => $user->avatar_url,
         ];
     }
+
     return false;
 });

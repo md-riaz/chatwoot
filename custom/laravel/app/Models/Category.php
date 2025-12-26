@@ -31,7 +31,7 @@ class Category extends Model
     protected static function booted(): void
     {
         static::creating(function (Category $category) {
-            if (!$category->account_id && $category->portal) {
+            if (! $category->account_id && $category->portal) {
                 $category->account_id = $category->portal->account_id;
             }
         });
@@ -85,6 +85,7 @@ class Category extends Model
         if ($locale) {
             return $query->where('locale', $locale);
         }
+
         return $query;
     }
 }

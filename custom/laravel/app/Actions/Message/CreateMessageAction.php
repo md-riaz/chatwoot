@@ -29,9 +29,9 @@ class CreateMessageAction
             ]);
 
             // If this is the first agent reply, update first_reply_created_at
-            if ($data->message_type === Message::TYPE_OUTGOING && !$data->private) {
+            if ($data->message_type === Message::TYPE_OUTGOING && ! $data->private) {
                 $conversation = $this->conversationRepository->find($data->conversation_id);
-                if (!$conversation->first_reply_created_at) {
+                if (! $conversation->first_reply_created_at) {
                     $this->conversationRepository->update($data->conversation_id, [
                         'first_reply_created_at' => now(),
                     ]);

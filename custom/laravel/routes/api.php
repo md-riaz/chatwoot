@@ -68,4 +68,3 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('inboxes/{inbox}/members', [InboxesController::class, 'removeMember']);
     });
 });
-

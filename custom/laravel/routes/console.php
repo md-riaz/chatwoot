@@ -25,11 +25,11 @@ Artisan::command('inspire', function () {
 Schedule::call(function () {
     Conversation::where('status', Conversation::STATUS_OPEN)
         ->where('last_activity_at', '<', now()->subHours(48))
-        ->each(fn($conv) => AutoResolveConversationJob::dispatch($conv->id));
+        ->each(fn ($conv) => AutoResolveConversationJob::dispatch($conv->id));
 })->hourly()->name('auto-resolve-conversations');
 
 // Auto-assign unassigned conversations (every 5 minutes)
-Schedule::job(new AutoAssignConversationsJob())->everyFiveMinutes()->name('auto-assign-conversations');
+Schedule::job(new AutoAssignConversationsJob)->everyFiveMinutes()->name('auto-assign-conversations');
 
 // Cleanup old sessions (daily)
 Schedule::command('auth:clear-resets')->daily()->name('clear-password-resets');

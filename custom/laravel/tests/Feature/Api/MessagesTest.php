@@ -85,13 +85,12 @@ test('message creation updates conversation last_activity_at', function () {
 
     $inbox = Inbox::factory()->for($account)->create();
     $contact = Contact::factory()->for($account)->create();
+    $oldActivityTime = now()->subHours(2);
     $conversation = Conversation::factory()
         ->for($account)
         ->for($inbox)
         ->for($contact)
-        ->create(['last_activity_at' => now()->subHours(2)]);
-
-    $oldActivityTime = $conversation->last_activity_at;
+        ->create(['last_activity_at' => $oldActivityTime]);
 
     $this->actingAs($user, 'sanctum')
         ->postJson("/api/v1/accounts/{$account->id}/conversations/{$conversation->id}/messages", [
@@ -99,5 +98,5 @@ test('message creation updates conversation last_activity_at', function () {
         ]);
 
     $conversation->refresh();
-    expect($conversation->last_activity_at)->toBeGreaterThan($oldActivityTime);
+    expect($conversation->last_activity_at->timestamp)->toBeGreaterThan($oldActivityTime->timestamp);
 });

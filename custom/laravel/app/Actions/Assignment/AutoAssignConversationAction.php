@@ -22,13 +22,13 @@ class AutoAssignConversationAction
     {
         $conversation = $this->conversationRepository->find($conversationId);
 
-        if (!$conversation || $conversation->assignee_id) {
+        if (! $conversation || $conversation->assignee_id) {
             return null;
         }
 
         $inbox = $this->inboxRepository->find($conversation->inbox_id);
 
-        if (!$inbox || !$inbox->enable_auto_assignment) {
+        if (! $inbox || ! $inbox->enable_auto_assignment) {
             return null;
         }
 

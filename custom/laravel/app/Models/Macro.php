@@ -13,6 +13,7 @@ class Macro extends Model
 
     // Visibility constants
     public const VISIBILITY_PERSONAL = 0;
+
     public const VISIBILITY_GLOBAL = 1;
 
     // Supported actions

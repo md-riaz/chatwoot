@@ -13,7 +13,9 @@ class Article extends Model
 
     // Status constants
     public const STATUS_DRAFT = 0;
+
     public const STATUS_PUBLISHED = 1;
+
     public const STATUS_ARCHIVED = 2;
 
     protected $fillable = [
@@ -44,11 +46,11 @@ class Article extends Model
     protected static function booted(): void
     {
         static::creating(function (Article $article) {
-            if (!$article->account_id && $article->portal) {
+            if (! $article->account_id && $article->portal) {
                 $article->account_id = $article->portal->account_id;
             }
-            if (!$article->slug && $article->title) {
-                $article->slug = time() . '-' . str($article->title)->slug();
+            if (! $article->slug && $article->title) {
+                $article->slug = time().'-'.str($article->title)->slug();
             }
         });
     }
@@ -128,6 +130,7 @@ class Article extends Model
         if ($locale) {
             return $query->where('locale', $locale);
         }
+
         return $query;
     }
 
@@ -139,6 +142,7 @@ class Article extends Model
         if ($authorId) {
             return $query->where('author_id', $authorId);
         }
+
         return $query;
     }
 }

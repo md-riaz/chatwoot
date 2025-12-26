@@ -2,7 +2,6 @@
 
 namespace App\Actions\Conversation;
 
-use App\Data\Conversation\ConversationData;
 use App\Models\Conversation;
 use App\Repositories\Conversation\ConversationRepository;
 use Lorisleiva\Actions\Concerns\AsAction;

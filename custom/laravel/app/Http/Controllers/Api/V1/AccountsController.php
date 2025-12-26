@@ -27,6 +27,7 @@ class AccountsController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $accounts = Account::withCount('users', 'inboxes')->paginate();
+
         return AccountResource::collection($accounts);
     }
 
@@ -74,6 +75,7 @@ class AccountsController extends Controller
     {
         // $this->authorize('delete', $account);
         DeleteAccountAction::run($account);
+
         return response()->json(null, 204);
     }
 }

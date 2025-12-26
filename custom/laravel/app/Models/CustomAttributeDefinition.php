@@ -12,16 +12,24 @@ class CustomAttributeDefinition extends Model
 
     // Attribute model constants
     public const MODEL_CONVERSATION = 0;
+
     public const MODEL_CONTACT = 1;
 
     // Attribute display type constants
     public const DISPLAY_TEXT = 0;
+
     public const DISPLAY_NUMBER = 1;
+
     public const DISPLAY_CURRENCY = 2;
+
     public const DISPLAY_PERCENT = 3;
+
     public const DISPLAY_LINK = 4;
+
     public const DISPLAY_DATE = 5;
+
     public const DISPLAY_LIST = 6;
+
     public const DISPLAY_CHECKBOX = 7;
 
     // Standard attributes that cannot be used as custom keys
@@ -83,6 +91,7 @@ class CustomAttributeDefinition extends Model
     public function keyConflictsWithStandard(): bool
     {
         $modelKey = $this->attribute_model === self::MODEL_CONVERSATION ? 'conversation' : 'contact';
+
         return in_array($this->attribute_key, self::STANDARD_ATTRIBUTES[$modelKey]);
     }
 }
