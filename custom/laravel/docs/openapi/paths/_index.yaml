@@ -39,3 +39,12 @@ $ref: './platform.yaml'
 
 # Integrations
 $ref: './integrations.yaml'
+
+# Super Admin APIs
+$ref: './super_admin.yaml'
+
+# Channels (WhatsApp, Facebook, Telegram, etc.)
+$ref: './channels.yaml'
+
+# Advanced Features (Segments, Audit Logs, Dashboard Apps, etc.)
+$ref: './advanced_features.yaml'

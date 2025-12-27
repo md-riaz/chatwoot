@@ -94,7 +94,27 @@ tags:
   - name: Integrations
     description: Third-party integrations
   - name: Channels
-    description: Channel-specific endpoints
+    description: Channel-specific endpoints (WhatsApp, Facebook, Email, SMS, etc.)
+  - name: Segments
+    description: Contact segmentation and filtering
+  - name: Audit Logs
+    description: Activity audit trail
+  - name: Dashboard Apps
+    description: Custom dashboard widgets
+  - name: Working Hours
+    description: Business hours configuration
+  - name: Bulk Actions
+    description: Bulk operations on conversations
+  - name: Search
+    description: Global and resource-specific search
+  - name: Attachments
+    description: File attachment management
+  - name: CSAT Surveys
+    description: Customer satisfaction surveys
+  - name: Agents
+    description: Agent management
+  - name: Users
+    description: User management
 
 components:
   securitySchemes:
