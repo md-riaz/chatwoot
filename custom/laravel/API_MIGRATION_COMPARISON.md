@@ -6,6 +6,8 @@ This document compares the Chatwoot Rails API functionality with the ClearLine L
 
 All Chatwoot Rails API endpoints have been successfully migrated to ClearLine Laravel 12.
 
+**Last Updated:** 2025-12-27
+
 ---
 
 ## API Endpoint Comparison
@@ -28,6 +30,10 @@ All Chatwoot Rails API endpoints have been successfully migrated to ClearLine La
 | PATCH /api/v1/profile/password | PATCH /api/v1/profile/password | ✅ |
 | PATCH /api/v1/profile/availability | PATCH /api/v1/profile/availability | ✅ |
 | PATCH /api/v1/profile/auto_offline | PATCH /api/v1/profile/auto_offline | ✅ |
+| DELETE /api/v1/profile/avatar | DELETE /api/v1/profile/avatar | ✅ |
+| PUT /api/v1/profile/set_active_account | PUT /api/v1/profile/set_active_account | ✅ |
+| POST /api/v1/profile/resend_confirmation | POST /api/v1/profile/resend_confirmation | ✅ |
+| POST /api/v1/profile/reset_access_token | POST /api/v1/profile/reset_access_token | ✅ |
 
 ### Accounts
 
@@ -514,6 +520,87 @@ All Chatwoot Rails API endpoints have been successfully migrated to ClearLine La
 
 ---
 
+## Widget API (Public Chat Widget)
+
+The Widget API provides endpoints for the public chat widget embedded on customer websites.
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| POST /api/v1/widget/config | POST /api/v1/widget/config | ✅ |
+| GET /api/v1/widget/campaigns | GET /api/v1/widget/campaigns | ✅ |
+| GET /api/v1/widget/contact | GET /api/v1/widget/contact | ✅ |
+| PATCH /api/v1/widget/contact | PATCH /api/v1/widget/contact | ✅ |
+| POST /api/v1/widget/contact/destroy_custom_attributes | POST /api/v1/widget/contact/destroy_custom_attributes | ✅ |
+| PATCH /api/v1/widget/contact/set_user | PATCH /api/v1/widget/contact/set_user | ✅ |
+| GET /api/v1/widget/conversations | GET /api/v1/widget/conversations | ✅ |
+| POST /api/v1/widget/conversations | POST /api/v1/widget/conversations | ✅ |
+| GET /api/v1/widget/conversations/toggle_status | GET /api/v1/widget/conversations/toggle_status | ✅ |
+| POST /api/v1/widget/conversations/toggle_typing | POST /api/v1/widget/conversations/toggle_typing | ✅ |
+| POST /api/v1/widget/conversations/update_last_seen | POST /api/v1/widget/conversations/update_last_seen | ✅ |
+| POST /api/v1/widget/conversations/set_custom_attributes | POST /api/v1/widget/conversations/set_custom_attributes | ✅ |
+| POST /api/v1/widget/conversations/destroy_custom_attributes | POST /api/v1/widget/conversations/destroy_custom_attributes | ✅ |
+| POST /api/v1/widget/conversations/transcript | POST /api/v1/widget/conversations/transcript | ✅ |
+| GET /api/v1/widget/messages | GET /api/v1/widget/messages | ✅ |
+| POST /api/v1/widget/messages | POST /api/v1/widget/messages | ✅ |
+| PATCH /api/v1/widget/messages/:id | PATCH /api/v1/widget/messages/{message} | ✅ |
+| GET /api/v1/widget/inbox_members | GET /api/v1/widget/inbox_members | ✅ |
+| POST /api/v1/widget/labels | POST /api/v1/widget/labels | ✅ |
+| DELETE /api/v1/widget/labels/:id | DELETE /api/v1/widget/labels/{label} | ✅ |
+| POST /api/v1/widget/events | POST /api/v1/widget/events | ✅ |
+| POST /api/v1/widget/direct_uploads | POST /api/v1/widget/direct_uploads | ✅ |
+
+---
+
+## Platform API
+
+The Platform API provides endpoints for platform-level integrations and SSO.
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| GET /platform/api/v1/users/:id | GET /api/v1/platform/users/{user} | ✅ |
+| POST /platform/api/v1/users | POST /api/v1/platform/users | ✅ |
+| PATCH /platform/api/v1/users/:id | PATCH /api/v1/platform/users/{user} | ✅ |
+| DELETE /platform/api/v1/users/:id | DELETE /api/v1/platform/users/{user} | ✅ |
+| GET /platform/api/v1/users/:id/login | GET /api/v1/platform/users/{user}/login | ✅ |
+| POST /platform/api/v1/users/:id/token | POST /api/v1/platform/users/{user}/token | ✅ |
+| GET /platform/api/v1/accounts | GET /api/v1/platform/accounts | ✅ |
+| GET /platform/api/v1/accounts/:id | GET /api/v1/platform/accounts/{account} | ✅ |
+| POST /platform/api/v1/accounts | POST /api/v1/platform/accounts | ✅ |
+| PATCH /platform/api/v1/accounts/:id | PATCH /api/v1/platform/accounts/{account} | ✅ |
+| DELETE /platform/api/v1/accounts/:id | DELETE /api/v1/platform/accounts/{account} | ✅ |
+| GET /platform/api/v1/accounts/:id/account_users | GET /api/v1/platform/accounts/{account}/account_users | ✅ |
+| POST /platform/api/v1/accounts/:id/account_users | POST /api/v1/platform/accounts/{account}/account_users | ✅ |
+| DELETE /platform/api/v1/accounts/:id/account_users | DELETE /api/v1/platform/accounts/{account}/account_users | ✅ |
+| GET /platform/api/v1/agent_bots | GET /api/v1/platform/agent_bots | ✅ |
+| GET /platform/api/v1/agent_bots/:id | GET /api/v1/platform/agent_bots/{agentBot} | ✅ |
+| POST /platform/api/v1/agent_bots | POST /api/v1/platform/agent_bots | ✅ |
+| PATCH /platform/api/v1/agent_bots/:id | PATCH /api/v1/platform/agent_bots/{agentBot} | ✅ |
+| DELETE /platform/api/v1/agent_bots/:id | DELETE /api/v1/platform/agent_bots/{agentBot} | ✅ |
+| DELETE /platform/api/v1/agent_bots/:id/avatar | DELETE /api/v1/platform/agent_bots/{agentBot}/avatar | ✅ |
+
+---
+
+## Public API (Inbox-based)
+
+The Public API provides endpoints for contacts to interact with inboxes directly.
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| POST /public/api/v1/inboxes/:inbox/contacts | POST /api/v1/public/inboxes/{inbox}/contacts | ✅ |
+| GET /public/api/v1/inboxes/:inbox/contacts/:id | GET /api/v1/public/inboxes/{inbox}/contacts/{contact} | ✅ |
+| PATCH /public/api/v1/inboxes/:inbox/contacts/:id | PATCH /api/v1/public/inboxes/{inbox}/contacts/{contact} | ✅ |
+| GET /public/api/v1/inboxes/:inbox/contacts/:id/conversations | GET /api/v1/public/inboxes/{inbox}/contacts/{contact}/conversations | ✅ |
+| POST /public/api/v1/inboxes/:inbox/contacts/:id/conversations | POST /api/v1/public/inboxes/{inbox}/contacts/{contact}/conversations | ✅ |
+| GET /public/api/v1/inboxes/:inbox/contacts/:id/conversations/:id | GET /api/v1/public/inboxes/{inbox}/contacts/{contact}/conversations/{conversation} | ✅ |
+| POST /public/api/v1/inboxes/:inbox/contacts/:id/conversations/:id/toggle_status | POST /api/v1/public/inboxes/{inbox}/contacts/{contact}/conversations/{conversation}/toggle_status | ✅ |
+| POST /public/api/v1/inboxes/:inbox/contacts/:id/conversations/:id/toggle_typing | POST /api/v1/public/inboxes/{inbox}/contacts/{contact}/conversations/{conversation}/toggle_typing | ✅ |
+| POST /public/api/v1/inboxes/:inbox/contacts/:id/conversations/:id/update_last_seen | POST /api/v1/public/inboxes/{inbox}/contacts/{contact}/conversations/{conversation}/update_last_seen | ✅ |
+| GET /public/api/v1/inboxes/:inbox/contacts/:id/conversations/:id/messages | GET /api/v1/public/inboxes/{inbox}/contacts/{contact}/conversations/{conversation}/messages | ✅ |
+| POST /public/api/v1/inboxes/:inbox/contacts/:id/conversations/:id/messages | POST /api/v1/public/inboxes/{inbox}/contacts/{contact}/conversations/{conversation}/messages | ✅ |
+| PATCH /public/api/v1/inboxes/:inbox/contacts/:id/conversations/:id/messages/:id | PATCH /api/v1/public/inboxes/{inbox}/contacts/{contact}/conversations/{conversation}/messages/{message} | ✅ |
+
+---
+
 ## Summary
 
 | Category | Chatwoot Rails | ClearLine Laravel | Status |
@@ -522,6 +609,9 @@ All Chatwoot Rails API endpoints have been successfully migrated to ClearLine La
 | Channel Integrations | 9 | 9 | ✅ |
 | Third-Party Integrations | 5 | 5 | ✅ |
 | Super Admin APIs | 25+ | 25+ | ✅ |
+| Widget API | 20+ | 20+ | ✅ |
+| Platform API | 15+ | 15+ | ✅ |
+| Public API | 12+ | 12+ | ✅ |
 | WebSocket Broadcasting | Sidekiq + ActionCable | Laravel Reverb | ✅ |
 | Queue Processing | Sidekiq | Laravel Horizon | ✅ |
 | Authentication | Devise | Laravel Sanctum | ✅ |

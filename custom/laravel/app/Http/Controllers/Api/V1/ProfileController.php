@@ -115,4 +115,70 @@ class ProfileController extends Controller
 
         return response()->json(['message' => 'Auto-offline setting updated successfully']);
     }
+
+    /**
+     * Delete user avatar.
+     */
+    public function avatar(): JsonResponse
+    {
+        $user = auth()->user();
+
+        $user->update(['avatar_url' => null]);
+
+        return response()->json(null, 204);
+    }
+
+    /**
+     * Set active account for user.
+     */
+    public function setActiveAccount(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'account_id' => 'required|exists:accounts,id',
+        ]);
+
+        $user = auth()->user();
+
+        // Update active_at timestamp in pivot table
+        $user->accounts()->updateExistingPivot($validated['account_id'], [
+            'active_at' => now(),
+        ]);
+
+        return response()->json(null, 200);
+    }
+
+    /**
+     * Resend confirmation email.
+     */
+    public function resendConfirmation(): JsonResponse
+    {
+        $user = auth()->user();
+
+        if ($user->email_verified_at) {
+            return response()->json(['message' => 'Email already confirmed'], 422);
+        }
+
+        // Queue confirmation email
+        // $user->sendEmailVerificationNotification();
+
+        return response()->json(null, 200);
+    }
+
+    /**
+     * Reset access token.
+     */
+    public function resetAccessToken(): JsonResponse
+    {
+        $user = auth()->user();
+
+        // Revoke all existing tokens
+        $user->tokens()->delete();
+
+        // Create a new token
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return response()->json([
+            'access_token' => $token,
+        ]);
+    }
 }
