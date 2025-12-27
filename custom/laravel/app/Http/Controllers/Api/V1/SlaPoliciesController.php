@@ -13,9 +13,12 @@ class SlaPoliciesController extends Controller
 {
     /**
      * Display a listing of SLA policies for an account.
+     * Requires admin role.
      */
-    public function index(Account $account): JsonResource
+    public function index(Request $request, Account $account): JsonResource
     {
+        $this->ensureAdmin($request, $account);
+        
         $policies = DB::table('sla_policies')
             ->where('account_id', $account->id)
             ->orderBy('created_at', 'desc')
@@ -26,9 +29,12 @@ class SlaPoliciesController extends Controller
 
     /**
      * Store a newly created SLA policy.
+     * Requires admin role.
      */
     public function store(Request $request, Account $account): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -53,9 +59,12 @@ class SlaPoliciesController extends Controller
 
     /**
      * Display the specified SLA policy.
+     * Requires admin role.
      */
-    public function show(Account $account, int $policyId): JsonResponse
+    public function show(Request $request, Account $account, int $policyId): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $policy = DB::table('sla_policies')
             ->where('account_id', $account->id)
             ->where('id', $policyId)
@@ -68,9 +77,12 @@ class SlaPoliciesController extends Controller
 
     /**
      * Update the specified SLA policy.
+     * Requires admin role.
      */
     public function update(Request $request, Account $account, int $policyId): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $policy = DB::table('sla_policies')
             ->where('account_id', $account->id)
             ->where('id', $policyId)
@@ -102,9 +114,12 @@ class SlaPoliciesController extends Controller
 
     /**
      * Remove the specified SLA policy.
+     * Requires admin role.
      */
-    public function destroy(Account $account, int $policyId): JsonResponse
+    public function destroy(Request $request, Account $account, int $policyId): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $policy = DB::table('sla_policies')
             ->where('account_id', $account->id)
             ->where('id', $policyId)
@@ -119,9 +134,12 @@ class SlaPoliciesController extends Controller
 
     /**
      * Get SLA breaches.
+     * Requires admin role.
      */
-    public function breaches(Account $account, Request $request): JsonResponse
+    public function breaches(Request $request, Account $account): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $since = $request->get('since', now()->subDays(7)->toDateString());
         $until = $request->get('until', now()->toDateString());
 
@@ -137,9 +155,12 @@ class SlaPoliciesController extends Controller
 
     /**
      * Get SLA metrics.
+     * Requires admin role.
      */
-    public function metrics(Account $account, Request $request): JsonResponse
+    public function metrics(Request $request, Account $account): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $since = $request->get('since', now()->subDays(7)->toDateString());
         $until = $request->get('until', now()->toDateString());
 
@@ -154,5 +175,18 @@ class SlaPoliciesController extends Controller
         ];
 
         return response()->json(['data' => $metrics]);
+    }
+    
+    /**
+     * Ensure the current user is an admin of the account.
+     */
+    private function ensureAdmin(Request $request, Account $account): void
+    {
+        $user = $request->user();
+        $accountUser = $account->users()->where('user_id', $user->id)->first();
+        
+        if (!$accountUser || $accountUser->pivot->role < 2) {
+            abort(403, 'Admin access required');
+        }
     }
 }

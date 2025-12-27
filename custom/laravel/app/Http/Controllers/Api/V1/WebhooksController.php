@@ -13,9 +13,12 @@ class WebhooksController extends Controller
 {
     /**
      * Display a listing of webhooks for an account.
+     * Requires admin role.
      */
-    public function index(Account $account): JsonResource
+    public function index(Request $request, Account $account): JsonResource
     {
+        $this->ensureAdmin($request, $account);
+        
         $webhooks = Webhook::where('account_id', $account->id)->paginate();
 
         return JsonResource::collection($webhooks);
@@ -23,9 +26,12 @@ class WebhooksController extends Controller
 
     /**
      * Store a newly created webhook.
+     * Requires admin role.
      */
     public function store(Request $request, Account $account): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $validated = $request->validate([
             'url' => 'required|url',
             'subscriptions' => 'required|array',
@@ -42,9 +48,11 @@ class WebhooksController extends Controller
 
     /**
      * Display the specified webhook.
+     * Requires admin role.
      */
-    public function show(Account $account, Webhook $webhook): JsonResponse
+    public function show(Request $request, Account $account, Webhook $webhook): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
         abort_unless($webhook->account_id === $account->id, 404);
 
         return response()->json(['data' => $webhook]);
@@ -52,9 +60,11 @@ class WebhooksController extends Controller
 
     /**
      * Update the specified webhook.
+     * Requires admin role.
      */
     public function update(Request $request, Account $account, Webhook $webhook): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
         abort_unless($webhook->account_id === $account->id, 404);
 
         $validated = $request->validate([
@@ -70,13 +80,28 @@ class WebhooksController extends Controller
 
     /**
      * Remove the specified webhook.
+     * Requires admin role.
      */
-    public function destroy(Account $account, Webhook $webhook): JsonResponse
+    public function destroy(Request $request, Account $account, Webhook $webhook): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
         abort_unless($webhook->account_id === $account->id, 404);
 
         $webhook->delete();
 
         return response()->json(null, 204);
+    }
+    
+    /**
+     * Ensure the current user is an admin of the account.
+     */
+    private function ensureAdmin(Request $request, Account $account): void
+    {
+        $user = $request->user();
+        $accountUser = $account->users()->where('user_id', $user->id)->first();
+        
+        if (!$accountUser || $accountUser->pivot->role < 2) {
+            abort(403, 'Admin access required');
+        }
     }
 }
