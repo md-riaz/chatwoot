@@ -1815,6 +1815,8 @@ Phase 11: Missing ClearLine Features   [x] 33/33 tasks (Complete)
 Phase 12: Channel Integrations        [x] COMPLETE - Controllers + Services
 Phase 13: Advanced Features           [x] COMPLETE - Controllers + Models
 Phase 14: Comprehensive Test Suite    [x] 40/40+ files (Complete - 1000+ tests)
+Phase 15: Super Admin APIs            [x] COMPLETE
+Phase 16: Widget, Platform, Public APIs [x] COMPLETE - 17 new controllers
 
 Total Progress: 100% API Migration Complete
 ```
@@ -1829,11 +1831,12 @@ Total Progress: 100% API Migration Complete
 **Help Center Controllers (3):**
 - PortalsController, ArticlesController, CategoriesController
 
-**Advanced Features Controllers (12):**
+**Advanced Features Controllers (14):**
 - MacrosController, CustomAttributeDefinitionsController, DashboardAppsController
 - CsatSurveyResponsesController, ContactNotesController, UsersController
 - AgentsController, ProfileController, SearchController, BulkActionsController
-- AttachmentsController, NotificationsController
+- AttachmentsController, NotificationsController, NotificationSubscriptionsController
+- Profile/MfaController
 
 **Enterprise Controllers (5):**
 - ReportsController, SlaPoliciesController, AuditLogsController
@@ -1847,6 +1850,19 @@ Total Progress: 100% API Migration Complete
 **Integration Controllers (6):**
 - IntegrationsController, SlackController, DialogflowController
 - LinearController, ShopifyController, OpenAIController
+
+**Widget Controllers (10):**
+- BaseController, ConfigsController, ContactsController
+- ConversationsController, MessagesController, CampaignsController
+- LabelsController, InboxMembersController, EventsController
+- DirectUploadsController
+
+**Platform Controllers (4):**
+- UsersController, AccountsController, AccountUsersController
+- AgentBotsController
+
+**Public Inbox Controllers (3):**
+- ContactsController, ConversationsController, MessagesController
 
 **Channel Services (7):**
 - `App\Services\Channels\Whatsapp\WhatsappService` - WhatsApp Cloud API
@@ -1981,10 +1997,57 @@ This phase covers Super Admin functionality for platform-level management, match
 
 ---
 
-**Last Updated:** 2025-12-26
-**Version:** 6.0.0 (Complete with Super Admin)
+## ✅ Phase 16: Widget, Platform, and Public APIs
+
+**Status: ✅ COMPLETE**
+
+This phase covers the public-facing Widget API, Platform API for integrations, and Public Inbox API.
+
+### Widget API Controllers (10)
+
+- [x] **Widget BaseController** - Base authentication with X-Auth-Token
+- [x] **Widget ConfigsController** - Widget configuration endpoint
+- [x] **Widget ContactsController** - Contact management for widget
+- [x] **Widget ConversationsController** - Conversation management for widget
+- [x] **Widget MessagesController** - Message management for widget
+- [x] **Widget CampaignsController** - Campaign listing for widget
+- [x] **Widget LabelsController** - Label management for widget
+- [x] **Widget InboxMembersController** - Inbox members listing for widget
+- [x] **Widget EventsController** - Event tracking for widget
+- [x] **Widget DirectUploadsController** - File uploads for widget
+
+### Platform API Controllers (4)
+
+- [x] **Platform UsersController** - Platform-level user management with SSO
+- [x] **Platform AccountsController** - Platform-level account management
+- [x] **Platform AccountUsersController** - Account user associations
+- [x] **Platform AgentBotsController** - Global agent bot management
+
+### Public Inbox API Controllers (3)
+
+- [x] **Public Inboxes ContactsController** - Contact management via inbox
+- [x] **Public Inboxes ConversationsController** - Conversation management via inbox
+- [x] **Public Inboxes MessagesController** - Message management via inbox
+
+### Additional Profile Features (2)
+
+- [x] **Profile MfaController** - Multi-factor authentication management
+- [x] **NotificationSubscriptionsController** - Push notification subscriptions
+
+### Routes
+
+- [x] Widget routes under `/api/v1/widget`
+- [x] Platform routes under `/api/v1/platform`
+- [x] Public inbox routes under `/api/v1/public/inboxes/{inbox}`
+- [x] MFA routes under `/api/v1/profile/mfa`
+- [x] Notification subscriptions routes
+
+---
+
+**Last Updated:** 2025-12-27
+**Version:** 7.0.0 (Complete with Widget, Platform, and Public APIs)
 **Total Tests:** 1000+
-**Controllers Implemented:** 47+
+**Controllers Implemented:** 65+
 **Channel Services:** 7
 **Integration Services:** 4
 **Maintainer:** Development Team

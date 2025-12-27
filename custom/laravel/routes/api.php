@@ -57,7 +57,28 @@ use App\Http\Controllers\Api\V1\TeamsController;
 use App\Http\Controllers\Api\V1\UsersController;
 use App\Http\Controllers\Api\V1\WebhooksController;
 use App\Http\Controllers\Api\V1\WorkingHoursController;
+// Widget Controllers
+use App\Http\Controllers\Api\V1\Widget\ConfigsController as WidgetConfigsController;
+use App\Http\Controllers\Api\V1\Widget\ContactsController as WidgetContactsController;
+use App\Http\Controllers\Api\V1\Widget\ConversationsController as WidgetConversationsController;
+use App\Http\Controllers\Api\V1\Widget\MessagesController as WidgetMessagesController;
+use App\Http\Controllers\Api\V1\Widget\CampaignsController as WidgetCampaignsController;
+use App\Http\Controllers\Api\V1\Widget\LabelsController as WidgetLabelsController;
+use App\Http\Controllers\Api\V1\Widget\InboxMembersController as WidgetInboxMembersController;
+use App\Http\Controllers\Api\V1\Widget\EventsController as WidgetEventsController;
+use App\Http\Controllers\Api\V1\Widget\DirectUploadsController as WidgetDirectUploadsController;
+// Platform Controllers
+use App\Http\Controllers\Api\V1\Platform\UsersController as PlatformUsersController;
+use App\Http\Controllers\Api\V1\Platform\AccountsController as PlatformAccountsController;
+use App\Http\Controllers\Api\V1\Platform\AccountUsersController as PlatformAccountUsersController;
+use App\Http\Controllers\Api\V1\Platform\AgentBotsController as PlatformAgentBotsController;
+// Public Inbox Controllers
+use App\Http\Controllers\Api\V1\Public\Inboxes\ContactsController as PublicContactsController;
+use App\Http\Controllers\Api\V1\Public\Inboxes\ConversationsController as PublicConversationsController;
+use App\Http\Controllers\Api\V1\Public\Inboxes\MessagesController as PublicMessagesController;
 use App\Http\Middleware\EnsureSuperAdmin;
+use App\Http\Controllers\Api\V1\NotificationSubscriptionsController;
+use App\Http\Controllers\Api\V1\Profile\MfaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -126,6 +147,85 @@ Route::prefix('webhooks')->group(function () {
 Route::prefix('public')->group(function () {
     Route::get('csat/{uuid}', [App\Http\Controllers\Api\V1\Public\CsatSurveyController::class, 'show']);
     Route::post('csat/{uuid}', [App\Http\Controllers\Api\V1\Public\CsatSurveyController::class, 'update']);
+    
+    // Public API for inboxes (no auth required, uses inbox identifier)
+    Route::prefix('inboxes/{inbox}')->group(function () {
+        Route::post('contacts', [PublicContactsController::class, 'store']);
+        Route::get('contacts/{contact}', [PublicContactsController::class, 'show']);
+        Route::patch('contacts/{contact}', [PublicContactsController::class, 'update']);
+        
+        Route::get('contacts/{contact}/conversations', [PublicConversationsController::class, 'index']);
+        Route::post('contacts/{contact}/conversations', [PublicConversationsController::class, 'store']);
+        Route::get('contacts/{contact}/conversations/{conversation}', [PublicConversationsController::class, 'show']);
+        Route::post('contacts/{contact}/conversations/{conversation}/toggle_status', [PublicConversationsController::class, 'toggleStatus']);
+        Route::post('contacts/{contact}/conversations/{conversation}/toggle_typing', [PublicConversationsController::class, 'toggleTyping']);
+        Route::post('contacts/{contact}/conversations/{conversation}/update_last_seen', [PublicConversationsController::class, 'updateLastSeen']);
+        
+        Route::get('contacts/{contact}/conversations/{conversation}/messages', [PublicMessagesController::class, 'index']);
+        Route::post('contacts/{contact}/conversations/{conversation}/messages', [PublicMessagesController::class, 'store']);
+        Route::patch('contacts/{contact}/conversations/{conversation}/messages/{message}', [PublicMessagesController::class, 'update']);
+    });
+});
+
+// Widget API routes (public, uses X-Auth-Token header)
+Route::prefix('widget')->group(function () {
+    Route::post('config', [WidgetConfigsController::class, 'create']);
+    Route::get('campaigns', [WidgetCampaignsController::class, 'index']);
+    
+    // Routes requiring widget token authentication
+    Route::get('contact', [WidgetContactsController::class, 'show']);
+    Route::patch('contact', [WidgetContactsController::class, 'update']);
+    Route::post('contact/destroy_custom_attributes', [WidgetContactsController::class, 'destroyCustomAttributes']);
+    Route::patch('contact/set_user', [WidgetContactsController::class, 'setUser']);
+    
+    Route::get('conversations', [WidgetConversationsController::class, 'index']);
+    Route::post('conversations', [WidgetConversationsController::class, 'create']);
+    Route::get('conversations/toggle_status', [WidgetConversationsController::class, 'toggleStatus']);
+    Route::post('conversations/toggle_typing', [WidgetConversationsController::class, 'toggleTyping']);
+    Route::post('conversations/update_last_seen', [WidgetConversationsController::class, 'updateLastSeen']);
+    Route::post('conversations/set_custom_attributes', [WidgetConversationsController::class, 'setCustomAttributes']);
+    Route::post('conversations/destroy_custom_attributes', [WidgetConversationsController::class, 'destroyCustomAttributes']);
+    Route::post('conversations/transcript', [WidgetConversationsController::class, 'transcript']);
+    
+    Route::get('messages', [WidgetMessagesController::class, 'index']);
+    Route::post('messages', [WidgetMessagesController::class, 'store']);
+    Route::patch('messages/{message}', [WidgetMessagesController::class, 'update']);
+    
+    Route::get('inbox_members', [WidgetInboxMembersController::class, 'index']);
+    
+    Route::post('labels', [WidgetLabelsController::class, 'store']);
+    Route::delete('labels/{label}', [WidgetLabelsController::class, 'destroy']);
+    
+    Route::post('events', [WidgetEventsController::class, 'store']);
+    
+    Route::post('direct_uploads', [WidgetDirectUploadsController::class, 'store']);
+});
+
+// Platform API routes (for platform-level integrations)
+Route::prefix('platform')->group(function () {
+    Route::get('users/{user}', [PlatformUsersController::class, 'show']);
+    Route::post('users', [PlatformUsersController::class, 'store']);
+    Route::patch('users/{user}', [PlatformUsersController::class, 'update']);
+    Route::delete('users/{user}', [PlatformUsersController::class, 'destroy']);
+    Route::get('users/{user}/login', [PlatformUsersController::class, 'login']);
+    Route::post('users/{user}/token', [PlatformUsersController::class, 'token']);
+    
+    Route::get('accounts', [PlatformAccountsController::class, 'index']);
+    Route::get('accounts/{account}', [PlatformAccountsController::class, 'show']);
+    Route::post('accounts', [PlatformAccountsController::class, 'store']);
+    Route::patch('accounts/{account}', [PlatformAccountsController::class, 'update']);
+    Route::delete('accounts/{account}', [PlatformAccountsController::class, 'destroy']);
+    
+    Route::get('accounts/{account}/account_users', [PlatformAccountUsersController::class, 'index']);
+    Route::post('accounts/{account}/account_users', [PlatformAccountUsersController::class, 'store']);
+    Route::delete('accounts/{account}/account_users', [PlatformAccountUsersController::class, 'destroy']);
+    
+    Route::get('agent_bots', [PlatformAgentBotsController::class, 'index']);
+    Route::get('agent_bots/{agentBot}', [PlatformAgentBotsController::class, 'show']);
+    Route::post('agent_bots', [PlatformAgentBotsController::class, 'store']);
+    Route::patch('agent_bots/{agentBot}', [PlatformAgentBotsController::class, 'update']);
+    Route::delete('agent_bots/{agentBot}', [PlatformAgentBotsController::class, 'destroy']);
+    Route::delete('agent_bots/{agentBot}/avatar', [PlatformAgentBotsController::class, 'avatar']);
 });
 
 // Protected routes
@@ -143,7 +243,24 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('password', [ProfileController::class, 'updatePassword']);
         Route::patch('availability', [ProfileController::class, 'updateAvailability']);
         Route::patch('auto_offline', [ProfileController::class, 'updateAutoOffline']);
+        Route::delete('avatar', [ProfileController::class, 'avatar']);
+        Route::put('set_active_account', [ProfileController::class, 'setActiveAccount']);
+        Route::post('resend_confirmation', [ProfileController::class, 'resendConfirmation']);
+        Route::post('reset_access_token', [ProfileController::class, 'resetAccessToken']);
+        
+        // MFA routes
+        Route::prefix('mfa')->group(function () {
+            Route::get('/', [MfaController::class, 'show']);
+            Route::post('/', [MfaController::class, 'store']);
+            Route::delete('/', [MfaController::class, 'destroy']);
+            Route::post('verify', [MfaController::class, 'verify']);
+            Route::post('backup_codes', [MfaController::class, 'backupCodes']);
+        });
     });
+
+    // Notification Subscriptions
+    Route::post('notification_subscriptions', [NotificationSubscriptionsController::class, 'store']);
+    Route::delete('notification_subscriptions', [NotificationSubscriptionsController::class, 'destroy']);
 
     // Notifications routes
     Route::prefix('notifications')->group(function () {

@@ -1,0 +1,656 @@
+# Teams, Labels, Webhooks API Paths
+
+# Teams
+/accounts/{account_id}/teams:
+  get:
+    tags:
+      - Teams
+    summary: List teams
+    description: Get all teams for an account
+    operationId: listTeams
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: List of teams
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/Team'
+            example:
+              data:
+                - id: 1
+                  name: "Support Team"
+                  description: "General support"
+                  allow_auto_assign: true
+                - id: 2
+                  name: "Sales Team"
+                  description: "Sales inquiries"
+
+  post:
+    tags:
+      - Teams
+    summary: Create team
+    description: Create a new team (Admin only)
+    operationId: createTeam
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                example: "Support Team"
+              description:
+                type: string
+                example: "General support team"
+              allow_auto_assign:
+                type: boolean
+                default: true
+          example:
+            name: "Support Team"
+            description: "General support team"
+            allow_auto_assign: true
+    responses:
+      '201':
+        description: Team created
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Team'
+
+/accounts/{account_id}/teams/{team_id}:
+  get:
+    tags:
+      - Teams
+    summary: Get team
+    description: Get team details
+    operationId: getTeam
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: team_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Team details
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Team'
+
+  patch:
+    tags:
+      - Teams
+    summary: Update team
+    description: Update team details (Admin only)
+    operationId: updateTeam
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: team_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              allow_auto_assign:
+                type: boolean
+          example:
+            name: "Updated Team Name"
+    responses:
+      '200':
+        description: Team updated
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Team'
+
+  delete:
+    tags:
+      - Teams
+    summary: Delete team
+    description: Delete a team (Admin only)
+    operationId: deleteTeam
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: team_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Team deleted
+
+/accounts/{account_id}/teams/{team_id}/members:
+  get:
+    tags:
+      - Teams
+    summary: List team members
+    description: Get all members of a team
+    operationId: listTeamMembers
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: team_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: List of team members
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/User'
+
+  post:
+    tags:
+      - Teams
+    summary: Add team members
+    description: Add members to a team (Admin only)
+    operationId: addTeamMembers
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: team_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_ids
+            properties:
+              user_ids:
+                type: array
+                items:
+                  type: integer
+                example: [1, 2, 3]
+          example:
+            user_ids: [1, 2, 3]
+    responses:
+      '200':
+        description: Members added
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Members added successfully"
+
+  delete:
+    tags:
+      - Teams
+    summary: Remove team members
+    description: Remove members from a team (Admin only)
+    operationId: removeTeamMembers
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: team_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_ids
+            properties:
+              user_ids:
+                type: array
+                items:
+                  type: integer
+          example:
+            user_ids: [2]
+    responses:
+      '200':
+        description: Members removed
+
+# Labels
+/accounts/{account_id}/labels:
+  get:
+    tags:
+      - Labels
+    summary: List labels
+    description: Get all labels for an account
+    operationId: listLabels
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: List of labels
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/Label'
+            example:
+              data:
+                - id: 1
+                  title: "bug"
+                  color: "#FF0000"
+                  show_on_sidebar: true
+                - id: 2
+                  title: "feature-request"
+                  color: "#00FF00"
+
+  post:
+    tags:
+      - Labels
+    summary: Create label
+    description: Create a new label (Admin only)
+    operationId: createLabel
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - title
+            properties:
+              title:
+                type: string
+                example: "urgent"
+              description:
+                type: string
+                example: "Urgent issues requiring immediate attention"
+              color:
+                type: string
+                example: "#FF0000"
+              show_on_sidebar:
+                type: boolean
+                default: true
+          example:
+            title: "urgent"
+            description: "Urgent issues"
+            color: "#FF0000"
+            show_on_sidebar: true
+    responses:
+      '201':
+        description: Label created
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Label'
+
+/accounts/{account_id}/labels/{label_id}:
+  get:
+    tags:
+      - Labels
+    summary: Get label
+    description: Get label details
+    operationId: getLabel
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: label_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Label details
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Label'
+
+  patch:
+    tags:
+      - Labels
+    summary: Update label
+    description: Update label details (Admin only)
+    operationId: updateLabel
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: label_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+              color:
+                type: string
+              show_on_sidebar:
+                type: boolean
+          example:
+            color: "#00FF00"
+    responses:
+      '200':
+        description: Label updated
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Label'
+
+  delete:
+    tags:
+      - Labels
+    summary: Delete label
+    description: Delete a label (Admin only)
+    operationId: deleteLabel
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: label_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Label deleted
+
+# Webhooks
+/accounts/{account_id}/webhooks:
+  get:
+    tags:
+      - Webhooks
+    summary: List webhooks
+    description: Get all webhooks for an account (Admin only)
+    operationId: listWebhooks
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: List of webhooks
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/Webhook'
+            example:
+              data:
+                - id: 1
+                  url: "https://example.com/webhook"
+                  subscriptions: ["conversation_created", "message_created"]
+      '403':
+        description: Admin access required
+
+  post:
+    tags:
+      - Webhooks
+    summary: Create webhook
+    description: Create a new webhook (Admin only)
+    operationId: createWebhook
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - url
+              - subscriptions
+            properties:
+              url:
+                type: string
+                format: uri
+                example: "https://example.com/webhook"
+              subscriptions:
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - conversation_created
+                    - conversation_status_changed
+                    - conversation_updated
+                    - message_created
+                    - message_updated
+                    - webwidget_triggered
+                example: ["conversation_created", "message_created"]
+          example:
+            url: "https://example.com/webhook"
+            subscriptions: ["conversation_created", "message_created"]
+    responses:
+      '201':
+        description: Webhook created
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Webhook'
+
+/accounts/{account_id}/webhooks/{webhook_id}:
+  get:
+    tags:
+      - Webhooks
+    summary: Get webhook
+    description: Get webhook details (Admin only)
+    operationId: getWebhook
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: webhook_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Webhook details
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Webhook'
+
+  patch:
+    tags:
+      - Webhooks
+    summary: Update webhook
+    description: Update webhook configuration (Admin only)
+    operationId: updateWebhook
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: webhook_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              url:
+                type: string
+                format: uri
+              subscriptions:
+                type: array
+                items:
+                  type: string
+          example:
+            subscriptions: ["conversation_created", "message_created", "conversation_status_changed"]
+    responses:
+      '200':
+        description: Webhook updated
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Webhook'
+
+  delete:
+    tags:
+      - Webhooks
+    summary: Delete webhook
+    description: Delete a webhook (Admin only)
+    operationId: deleteWebhook
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: webhook_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Webhook deleted

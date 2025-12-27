@@ -1,0 +1,430 @@
+# Inboxes API Paths
+
+/accounts/{account_id}/inboxes:
+  get:
+    tags:
+      - Inboxes
+    summary: List inboxes
+    description: Get all inboxes for an account
+    operationId: listInboxes
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 1
+    responses:
+      '200':
+        description: List of inboxes
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/Inbox'
+            example:
+              data:
+                - id: 1
+                  name: "Website Chat"
+                  channel_type: "Channel::WebWidget"
+                  enable_auto_assignment: true
+                - id: 2
+                  name: "Support Email"
+                  channel_type: "Channel::Email"
+
+  post:
+    tags:
+      - Inboxes
+    summary: Create inbox
+    description: Create a new inbox (Admin only)
+    operationId: createInbox
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - channel
+            properties:
+              name:
+                type: string
+                example: "Website Chat"
+              channel:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [web_widget, email, whatsapp, facebook, twitter, telegram, sms, line, api]
+                    example: "web_widget"
+                  website_url:
+                    type: string
+                    example: "https://example.com"
+              enable_auto_assignment:
+                type: boolean
+                default: true
+              greeting_enabled:
+                type: boolean
+                default: false
+              greeting_message:
+                type: string
+                example: "Hello! How can we help you?"
+          example:
+            name: "Website Chat"
+            channel:
+              type: "web_widget"
+              website_url: "https://example.com"
+            enable_auto_assignment: true
+            greeting_enabled: true
+            greeting_message: "Hello! How can we help you?"
+    responses:
+      '201':
+        description: Inbox created
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Inbox'
+      '403':
+        description: Admin access required
+
+/accounts/{account_id}/inboxes/{inbox_id}:
+  get:
+    tags:
+      - Inboxes
+    summary: Get inbox
+    description: Get a specific inbox by ID
+    operationId: getInbox
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: inbox_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Inbox details
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Inbox'
+
+  patch:
+    tags:
+      - Inboxes
+    summary: Update inbox
+    description: Update inbox settings (Admin only)
+    operationId: updateInbox
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: inbox_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              enable_auto_assignment:
+                type: boolean
+              greeting_enabled:
+                type: boolean
+              greeting_message:
+                type: string
+              csat_survey_enabled:
+                type: boolean
+              working_hours_enabled:
+                type: boolean
+          example:
+            name: "Updated Chat Widget"
+            greeting_enabled: true
+    responses:
+      '200':
+        description: Inbox updated
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Inbox'
+
+  delete:
+    tags:
+      - Inboxes
+    summary: Delete inbox
+    description: Delete an inbox (Admin only)
+    operationId: deleteInbox
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: inbox_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Inbox deleted
+      '403':
+        description: Admin access required
+
+/accounts/{account_id}/inboxes/{inbox_id}/members:
+  get:
+    tags:
+      - Inboxes
+    summary: List inbox members
+    description: Get all team members assigned to an inbox
+    operationId: listInboxMembers
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: inbox_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: List of members
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/User'
+
+  post:
+    tags:
+      - Inboxes
+    summary: Add inbox member
+    description: Add a team member to an inbox (Admin only)
+    operationId: addInboxMember
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: inbox_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_ids
+            properties:
+              user_ids:
+                type: array
+                items:
+                  type: integer
+                example: [1, 2, 3]
+          example:
+            user_ids: [1, 2, 3]
+    responses:
+      '200':
+        description: Members added
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Members added successfully"
+
+  delete:
+    tags:
+      - Inboxes
+    summary: Remove inbox member
+    description: Remove a team member from an inbox (Admin only)
+    operationId: removeInboxMember
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: inbox_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_ids
+            properties:
+              user_ids:
+                type: array
+                items:
+                  type: integer
+          example:
+            user_ids: [2]
+    responses:
+      '200':
+        description: Members removed
+
+/accounts/{account_id}/inboxes/{inbox_id}/assignable_agents:
+  get:
+    tags:
+      - Inboxes
+    summary: List assignable agents
+    description: Get agents that can be assigned to conversations in this inbox
+    operationId: listAssignableAgents
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: inbox_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: List of assignable agents
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/User'
+
+/accounts/{account_id}/inboxes/{inbox_id}/agent_bot:
+  get:
+    tags:
+      - Inboxes
+    summary: Get inbox agent bot
+    description: Get the agent bot configured for this inbox
+    operationId: getInboxAgentBot
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: inbox_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Agent bot configuration
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/AgentBot'
+
+/accounts/{account_id}/inboxes/{inbox_id}/set_agent_bot:
+  post:
+    tags:
+      - Inboxes
+    summary: Set inbox agent bot
+    description: Configure an agent bot for this inbox (Admin only)
+    operationId: setInboxAgentBot
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: inbox_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              agent_bot_id:
+                type: integer
+                nullable: true
+                example: 1
+                description: Bot ID or null to remove
+          example:
+            agent_bot_id: 1
+    responses:
+      '200':
+        description: Agent bot configured
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Agent bot configured"

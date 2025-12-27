@@ -1,0 +1,41 @@
+# OpenAPI Path Index
+# This file consolidates all path references
+
+# Include paths from individual files
+# Note: Each file contains multiple path definitions
+
+# Authentication
+$ref: './authentication.yaml'
+
+# Profile & MFA
+$ref: './profile.yaml'
+
+# Conversations
+$ref: './conversations.yaml'
+
+# Messages
+$ref: './messages.yaml'
+
+# Contacts
+$ref: './contacts.yaml'
+
+# Inboxes
+$ref: './inboxes.yaml'
+
+# Teams, Labels, Webhooks
+$ref: './teams_labels_webhooks.yaml'
+
+# Reports & SLA Policies
+$ref: './reports_sla.yaml'
+
+# Notifications, Canned Responses, Campaigns, Automation
+$ref: './notifications_canned_campaigns.yaml'
+
+# Widget (Public)
+$ref: './widget.yaml'
+
+# Platform API
+$ref: './platform.yaml'
+
+# Integrations
+$ref: './integrations.yaml'

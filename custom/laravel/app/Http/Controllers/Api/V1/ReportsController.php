@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Api\V1\Concerns\RequiresAccountAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use Illuminate\Http\JsonResponse;
@@ -10,11 +11,15 @@ use Illuminate\Support\Facades\DB;
 
 class ReportsController extends Controller
 {
+    use RequiresAccountAdmin;
     /**
      * Get account reports summary.
+     * Requires admin role.
      */
-    public function index(Account $account, Request $request): JsonResponse
+    public function index(Request $request, Account $account): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $since = $request->get('since', now()->subDays(7)->toDateString());
         $until = $request->get('until', now()->toDateString());
         $type = $request->get('type', 'account');
@@ -26,9 +31,12 @@ class ReportsController extends Controller
 
     /**
      * Get conversation metrics.
+     * Requires admin role.
      */
-    public function conversations(Account $account, Request $request): JsonResponse
+    public function conversations(Request $request, Account $account): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $since = $request->get('since', now()->subDays(7)->toDateString());
         $until = $request->get('until', now()->toDateString());
 
@@ -48,9 +56,12 @@ class ReportsController extends Controller
 
     /**
      * Get agent metrics.
+     * Requires admin role.
      */
-    public function agents(Account $account, Request $request): JsonResponse
+    public function agents(Request $request, Account $account): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $since = $request->get('since', now()->subDays(7)->toDateString());
         $until = $request->get('until', now()->toDateString());
 
@@ -73,9 +84,12 @@ class ReportsController extends Controller
 
     /**
      * Get inbox metrics.
+     * Requires admin role.
      */
-    public function inboxes(Account $account, Request $request): JsonResponse
+    public function inboxes(Request $request, Account $account): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $since = $request->get('since', now()->subDays(7)->toDateString());
         $until = $request->get('until', now()->toDateString());
 
@@ -97,9 +111,12 @@ class ReportsController extends Controller
 
     /**
      * Get team metrics.
+     * Requires admin role.
      */
-    public function teams(Account $account, Request $request): JsonResponse
+    public function teams(Request $request, Account $account): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $since = $request->get('since', now()->subDays(7)->toDateString());
         $until = $request->get('until', now()->toDateString());
 
@@ -121,9 +138,12 @@ class ReportsController extends Controller
 
     /**
      * Get label metrics.
+     * Requires admin role.
      */
-    public function labels(Account $account, Request $request): JsonResponse
+    public function labels(Request $request, Account $account): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $since = $request->get('since', now()->subDays(7)->toDateString());
         $until = $request->get('until', now()->toDateString());
 
@@ -135,9 +155,12 @@ class ReportsController extends Controller
 
     /**
      * Download report as CSV.
+     * Requires admin role.
      */
-    public function download(Account $account, Request $request): JsonResponse
+    public function download(Request $request, Account $account): JsonResponse
     {
+        $this->ensureAdmin($request, $account);
+        
         $type = $request->get('type', 'conversations');
         $since = $request->get('since', now()->subDays(7)->toDateString());
         $until = $request->get('until', now()->toDateString());
