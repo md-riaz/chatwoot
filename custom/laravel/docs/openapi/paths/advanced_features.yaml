@@ -1,0 +1,1172 @@
+paths:
+  # Segments
+  /accounts/{account_id}/segments:
+    get:
+      tags:
+        - Segments
+      summary: List segments
+      description: Get all contact segments for the account
+      operationId: listSegments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of segments
+    post:
+      tags:
+        - Segments
+      summary: Create segment
+      operationId: createSegment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - query
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                query:
+                  type: object
+      responses:
+        '201':
+          description: Segment created
+
+  /accounts/{account_id}/segments/{segment}:
+    get:
+      tags:
+        - Segments
+      summary: Get segment
+      operationId: getSegment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: segment
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Segment details
+    patch:
+      tags:
+        - Segments
+      summary: Update segment
+      operationId: updateSegment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: segment
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Segment updated
+    delete:
+      tags:
+        - Segments
+      summary: Delete segment
+      operationId: deleteSegment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: segment
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Segment deleted
+
+  /accounts/{account_id}/segments/{segment}/contacts:
+    get:
+      tags:
+        - Segments
+      summary: Get contacts in segment
+      operationId: getSegmentContacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: segment
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Contacts in segment
+
+  /accounts/{account_id}/segments/{segment}/count:
+    get:
+      tags:
+        - Segments
+      summary: Count contacts in segment
+      operationId: countSegmentContacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: segment
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Contact count
+
+  # Audit Logs
+  /accounts/{account_id}/audit_logs:
+    get:
+      tags:
+        - Audit Logs
+      summary: List audit logs
+      description: Get audit logs for the account with filtering
+      operationId: listAuditLogs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: user_id
+          in: query
+          schema:
+            type: integer
+        - name: event_type
+          in: query
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of audit logs
+
+  /accounts/{account_id}/audit_logs/{log}:
+    get:
+      tags:
+        - Audit Logs
+      summary: Get audit log
+      operationId: getAuditLog
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: log
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Audit log details
+
+  /accounts/{account_id}/audit_logs/summary:
+    get:
+      tags:
+        - Audit Logs
+      summary: Get audit logs summary
+      description: Get statistics and summary of audit logs
+      operationId: getAuditLogsSummary
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Audit logs summary
+
+  /accounts/{account_id}/audit_logs/download:
+    get:
+      tags:
+        - Audit Logs
+      summary: Download audit logs
+      description: Download audit logs as CSV
+      operationId: downloadAuditLogs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: CSV file
+
+  # Dashboard Apps
+  /accounts/{account_id}/dashboard_apps:
+    get:
+      tags:
+        - Dashboard Apps
+      summary: List dashboard apps
+      operationId: listDashboardApps
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of dashboard apps
+    post:
+      tags:
+        - Dashboard Apps
+      summary: Create dashboard app
+      operationId: createDashboardApp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+              properties:
+                title:
+                  type: string
+                content:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        '201':
+          description: Dashboard app created
+
+  /accounts/{account_id}/dashboard_apps/{dashboardApp}:
+    get:
+      tags:
+        - Dashboard Apps
+      summary: Get dashboard app
+      operationId: getDashboardApp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: dashboardApp
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Dashboard app details
+    patch:
+      tags:
+        - Dashboard Apps
+      summary: Update dashboard app
+      operationId: updateDashboardApp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: dashboardApp
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Dashboard app updated
+    delete:
+      tags:
+        - Dashboard Apps
+      summary: Delete dashboard app
+      operationId: deleteDashboardApp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: dashboardApp
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Dashboard app deleted
+
+  # Working Hours
+  /accounts/{account_id}/inboxes/{inbox}/working_hours:
+    get:
+      tags:
+        - Working Hours
+      summary: Get working hours
+      description: Get working hours configuration for an inbox
+      operationId: getWorkingHours
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Working hours configuration
+    put:
+      tags:
+        - Working Hours
+      summary: Update working hours
+      operationId: updateWorkingHours
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                working_hours:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      day_of_week:
+                        type: integer
+                        minimum: 0
+                        maximum: 6
+                      open_hour:
+                        type: integer
+                      open_minute:
+                        type: integer
+                      close_hour:
+                        type: integer
+                      close_minute:
+                        type: integer
+      responses:
+        '200':
+          description: Working hours updated
+
+  /accounts/{account_id}/inboxes/{inbox}/is_open:
+    get:
+      tags:
+        - Working Hours
+      summary: Check if inbox is open
+      description: Check if the inbox is currently within working hours
+      operationId: isInboxOpen
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Inbox status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  is_open:
+                    type: boolean
+
+  # Bulk Actions
+  /accounts/{account_id}/bulk_actions/conversations:
+    post:
+      tags:
+        - Bulk Actions
+      summary: Bulk update conversations
+      description: Perform bulk actions on multiple conversations
+      operationId: bulkUpdateConversations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - conversation_ids
+                - action
+              properties:
+                conversation_ids:
+                  type: array
+                  items:
+                    type: integer
+                action:
+                  type: string
+                  enum: [assign, unassign, resolve, reopen, mute, unmute, add_label, remove_label, change_team]
+                params:
+                  type: object
+      responses:
+        '200':
+          description: Bulk action completed
+    delete:
+      tags:
+        - Bulk Actions
+      summary: Bulk delete conversations
+      operationId: bulkDeleteConversations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - conversation_ids
+              properties:
+                conversation_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: Conversations deleted
+
+  # Search
+  /accounts/{account_id}/search:
+    get:
+      tags:
+        - Search
+      summary: Global search
+      description: Search across conversations, contacts, and messages
+      operationId: globalSearch
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+
+  /accounts/{account_id}/search/conversations:
+    get:
+      tags:
+        - Search
+      summary: Search conversations
+      operationId: searchConversations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Conversations matching search
+
+  /accounts/{account_id}/search/contacts:
+    get:
+      tags:
+        - Search
+      summary: Search contacts
+      operationId: searchContacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Contacts matching search
+
+  /accounts/{account_id}/search/messages:
+    get:
+      tags:
+        - Search
+      summary: Search messages
+      operationId: searchMessages
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Messages matching search
+
+  # Attachments
+  /accounts/{account_id}/conversations/{conversation}/attachments:
+    get:
+      tags:
+        - Attachments
+      summary: List attachments
+      operationId: listAttachments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: conversation
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of attachments
+    post:
+      tags:
+        - Attachments
+      summary: Upload attachment
+      operationId: uploadAttachment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: conversation
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Attachment uploaded
+
+  /accounts/{account_id}/conversations/{conversation}/attachments/{attachment}:
+    get:
+      tags:
+        - Attachments
+      summary: Get attachment
+      operationId: getAttachment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: conversation
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: attachment
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Attachment file
+    delete:
+      tags:
+        - Attachments
+      summary: Delete attachment
+      operationId: deleteAttachment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: conversation
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: attachment
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Attachment deleted
+
+  # CSAT Survey Responses
+  /accounts/{account_id}/csat_survey_responses:
+    get:
+      tags:
+        - CSAT Surveys
+      summary: List CSAT responses
+      description: Get customer satisfaction survey responses
+      operationId: listCsatResponses
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: user_id
+          in: query
+          schema:
+            type: integer
+        - name: rating
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of CSAT responses
+
+  /accounts/{account_id}/csat_survey_responses/{response}:
+    get:
+      tags:
+        - CSAT Surveys
+      summary: Get CSAT response
+      operationId: getCsatResponse
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: response
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: CSAT response details
+
+  /accounts/{account_id}/csat_survey_responses/metrics:
+    get:
+      tags:
+        - CSAT Surveys
+      summary: Get CSAT metrics
+      description: Get aggregated CSAT metrics and statistics
+      operationId: getCsatMetrics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: CSAT metrics
+
+  /accounts/{account_id}/csat_survey_responses/download:
+    get:
+      tags:
+        - CSAT Surveys
+      summary: Download CSAT responses
+      description: Download CSAT responses as CSV
+      operationId: downloadCsatResponses
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: CSV file
+
+  # Custom Attribute Definitions
+  /accounts/{account_id}/custom_attribute_definitions:
+    get:
+      tags:
+        - Custom Attributes
+      summary: List custom attribute definitions
+      operationId: listCustomAttributeDefinitions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: attribute_model
+          in: query
+          schema:
+            type: string
+            enum: [contact, conversation]
+      responses:
+        '200':
+          description: List of custom attribute definitions
+    post:
+      tags:
+        - Custom Attributes
+      summary: Create custom attribute definition
+      operationId: createCustomAttributeDefinition
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - attribute_display_name
+                - attribute_key
+                - attribute_display_type
+                - attribute_model
+              properties:
+                attribute_display_name:
+                  type: string
+                attribute_key:
+                  type: string
+                attribute_display_type:
+                  type: string
+                  enum: [text, number, date, link, list, checkbox]
+                attribute_model:
+                  type: string
+                  enum: [contact, conversation]
+                attribute_values:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Custom attribute definition created
+
+  /accounts/{account_id}/custom_attribute_definitions/{definition}:
+    get:
+      tags:
+        - Custom Attributes
+      summary: Get custom attribute definition
+      operationId: getCustomAttributeDefinition
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: definition
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Custom attribute definition details
+    patch:
+      tags:
+        - Custom Attributes
+      summary: Update custom attribute definition
+      operationId: updateCustomAttributeDefinition
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: definition
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Custom attribute definition updated
+    delete:
+      tags:
+        - Custom Attributes
+      summary: Delete custom attribute definition
+      operationId: deleteCustomAttributeDefinition
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: definition
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Custom attribute definition deleted
+
+  # Agents & Users
+  /accounts/{account_id}/agents:
+    get:
+      tags:
+        - Agents
+      summary: List agents
+      operationId: listAgents
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of agents
+
+  /accounts/{account_id}/agents/{agent}:
+    get:
+      tags:
+        - Agents
+      summary: Get agent
+      operationId: getAgent
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: agent
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Agent details
+    patch:
+      tags:
+        - Agents
+      summary: Update agent
+      operationId: updateAgent
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: agent
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Agent updated
+    delete:
+      tags:
+        - Agents
+      summary: Remove agent
+      operationId: removeAgent
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: agent
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Agent removed
+
+  # Users
+  /accounts/{account_id}/users:
+    get:
+      tags:
+        - Users
+      summary: List users
+      operationId: listAccountUsers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of users
+
+  /accounts/{account_id}/users/{user}:
+    get:
+      tags:
+        - Users
+      summary: Get user
+      operationId: getAccountUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User details
+
+  # Notification Subscriptions
+  /notification_subscriptions:
+    post:
+      tags:
+        - Notifications
+      summary: Create notification subscription
+      description: Subscribe to push notifications
+      operationId: createNotificationSubscription
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - subscription
+              properties:
+                subscription:
+                  type: object
+                  properties:
+                    endpoint:
+                      type: string
+                    keys:
+                      type: object
+      responses:
+        '201':
+          description: Subscription created
+    delete:
+      tags:
+        - Notifications
+      summary: Delete notification subscription
+      operationId: deleteNotificationSubscription
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Subscription deleted

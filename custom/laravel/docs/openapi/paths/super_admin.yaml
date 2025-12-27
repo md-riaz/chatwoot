@@ -1,0 +1,633 @@
+paths:
+  /super_admin/accounts:
+    get:
+      tags:
+        - Super Admin
+      summary: List all accounts
+      description: Get a paginated list of all accounts in the system (super admin only)
+      operationId: listSuperAdminAccounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 15
+      responses:
+        '200':
+          description: List of accounts
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden - Super admin access required
+    post:
+      tags:
+        - Super Admin
+      summary: Create account
+      description: Create a new account (super admin only)
+      operationId: createSuperAdminAccount
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                locale:
+                  type: string
+                  default: en
+      responses:
+        '201':
+          description: Account created
+        '422':
+          description: Validation error
+
+  /super_admin/accounts/{account}:
+    get:
+      tags:
+        - Super Admin
+      summary: Get account details
+      operationId: getSuperAdminAccount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Account details
+    patch:
+      tags:
+        - Super Admin
+      summary: Update account
+      operationId: updateSuperAdminAccount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                locale:
+                  type: string
+                features:
+                  type: object
+                limits:
+                  type: object
+      responses:
+        '200':
+          description: Account updated
+    delete:
+      tags:
+        - Super Admin
+      summary: Delete account
+      operationId: deleteSuperAdminAccount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Account deleted
+
+  /super_admin/accounts/{account}/seed:
+    post:
+      tags:
+        - Super Admin
+      summary: Seed account with demo data
+      operationId: seedSuperAdminAccount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Account seeded with demo data
+
+  /super_admin/accounts/{account}/reset_cache:
+    post:
+      tags:
+        - Super Admin
+      summary: Reset account cache
+      operationId: resetSuperAdminAccountCache
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cache reset
+
+  /super_admin/users:
+    get:
+      tags:
+        - Super Admin
+      summary: List all users
+      operationId: listSuperAdminUsers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of users
+    post:
+      tags:
+        - Super Admin
+      summary: Create user
+      operationId: createSuperAdminUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User created
+
+  /super_admin/users/{user}:
+    get:
+      tags:
+        - Super Admin
+      summary: Get user details
+      operationId: getSuperAdminUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User details
+    patch:
+      tags:
+        - Super Admin
+      summary: Update user
+      operationId: updateSuperAdminUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: User updated
+    delete:
+      tags:
+        - Super Admin
+      summary: Delete user
+      operationId: deleteSuperAdminUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: User deleted
+
+  /super_admin/users/{user}/avatar:
+    delete:
+      tags:
+        - Super Admin
+      summary: Delete user avatar
+      operationId: deleteSuperAdminUserAvatar
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Avatar deleted
+
+  /super_admin/agent_bots:
+    get:
+      tags:
+        - Super Admin
+      summary: List all agent bots
+      operationId: listSuperAdminAgentBots
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of agent bots
+    post:
+      tags:
+        - Super Admin
+      summary: Create agent bot
+      operationId: createSuperAdminAgentBot
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                outgoing_url:
+                  type: string
+                  format: uri
+      responses:
+        '201':
+          description: Agent bot created
+
+  /super_admin/agent_bots/{agentBot}:
+    get:
+      tags:
+        - Super Admin
+      summary: Get agent bot details
+      operationId: getSuperAdminAgentBot
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: agentBot
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Agent bot details
+    patch:
+      tags:
+        - Super Admin
+      summary: Update agent bot
+      operationId: updateSuperAdminAgentBot
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: agentBot
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Agent bot updated
+    delete:
+      tags:
+        - Super Admin
+      summary: Delete agent bot
+      operationId: deleteSuperAdminAgentBot
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: agentBot
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Agent bot deleted
+
+  /super_admin/platform_apps:
+    get:
+      tags:
+        - Super Admin
+      summary: List platform apps
+      operationId: listSuperAdminPlatformApps
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of platform apps
+    post:
+      tags:
+        - Super Admin
+      summary: Create platform app
+      operationId: createSuperAdminPlatformApp
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Platform app created
+
+  /super_admin/platform_apps/{platformApp}:
+    get:
+      tags:
+        - Super Admin
+      summary: Get platform app
+      operationId: getSuperAdminPlatformApp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: platformApp
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Platform app details
+    patch:
+      tags:
+        - Super Admin
+      summary: Update platform app
+      operationId: updateSuperAdminPlatformApp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: platformApp
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Platform app updated
+    delete:
+      tags:
+        - Super Admin
+      summary: Delete platform app
+      operationId: deleteSuperAdminPlatformApp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: platformApp
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Platform app deleted
+
+  /super_admin/platform_apps/{platformApp}/regenerate_token:
+    post:
+      tags:
+        - Super Admin
+      summary: Regenerate platform app token
+      operationId: regenerateSuperAdminPlatformAppToken
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: platformApp
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Token regenerated
+
+  /super_admin/instance_status:
+    get:
+      tags:
+        - Super Admin
+      summary: Get instance status
+      description: Get system status including version, database, redis, queue status
+      operationId: getSuperAdminInstanceStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Instance status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                  database:
+                    type: object
+                  redis:
+                    type: object
+                  queue:
+                    type: object
+
+  /super_admin/installation_configs:
+    get:
+      tags:
+        - Super Admin
+      summary: List installation configs
+      operationId: listSuperAdminInstallationConfigs
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of installation configs
+    post:
+      tags:
+        - Super Admin
+      summary: Update installation config
+      operationId: updateSuperAdminInstallationConfig
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+      responses:
+        '200':
+          description: Config updated
+
+  /super_admin/installation_configs/groups:
+    get:
+      tags:
+        - Super Admin
+      summary: List config groups
+      operationId: listSuperAdminConfigGroups
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of config groups
+
+  /super_admin/installation_configs/group/{group}:
+    get:
+      tags:
+        - Super Admin
+      summary: Get configs by group
+      operationId: getSuperAdminConfigsByGroup
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: group
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Configs for group
+
+  /super_admin/access_tokens:
+    get:
+      tags:
+        - Super Admin
+      summary: List access tokens
+      operationId: listSuperAdminAccessTokens
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of access tokens
+    post:
+      tags:
+        - Super Admin
+      summary: Create access token
+      operationId: createSuperAdminAccessToken
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                abilities:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Access token created
+
+  /super_admin/access_tokens/{accessToken}:
+    get:
+      tags:
+        - Super Admin
+      summary: Get access token
+      operationId: getSuperAdminAccessToken
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: accessToken
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Access token details
+    delete:
+      tags:
+        - Super Admin
+      summary: Revoke access token
+      operationId: revokeSuperAdminAccessToken
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: accessToken
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Access token revoked

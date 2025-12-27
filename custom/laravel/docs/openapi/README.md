@@ -21,7 +21,7 @@ This directory contains OpenAPI 3.0 specifications for all ClearLine API endpoin
 3. Select **File** tab
 4. Choose `openapi.bundled.yaml` from this directory
 5. Click **Import**
-6. A new collection "ClearLine API" will be created with all 250+ endpoints
+6. A new collection "ClearLine API" will be created with all 350+ endpoints
 
 ### Setting Up Environment Variables
 
@@ -58,6 +58,9 @@ After importing, create a new Environment in Postman with these variables:
 | `widget.yaml` | Public widget API endpoints |
 | `platform.yaml` | Platform-level API for SSO and management |
 | `integrations.yaml` | Slack, Dialogflow, OpenAI, Linear, Shopify |
+| `super_admin.yaml` | Super admin platform management endpoints |
+| `channels.yaml` | Channel setup (WhatsApp, Facebook, Email, SMS, etc.) |
+| `advanced_features.yaml` | Segments, Audit Logs, Search, Attachments, etc. |
 
 ## Alternative Tools
 
@@ -202,7 +205,7 @@ curl -X POST "https://api.example.com/api/v1/widget/config" \
 | Integrations | 30+ | Yes (Admin) |
 | Channels | 20+ | Yes (Admin) |
 
-**Total: 250+ endpoints**
+**Total: 350+ endpoints**
 
 ## Error Responses
 
@@ -234,5 +237,19 @@ All endpoints return consistent error responses:
 
 ---
 
+## Building the Bundled Specification
+
+If you modify any of the path files, rebuild the bundled specification:
+
+```bash
+cd docs/openapi
+python3 bundle.py
+```
+
+This will regenerate `openapi.bundled.yaml` with all endpoints merged.
+
+---
+
 **Last Updated:** 2025-12-27
 **OpenAPI Version:** 3.0.3
+**Total Documented Endpoints:** 350+

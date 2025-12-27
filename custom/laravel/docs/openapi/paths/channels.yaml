@@ -1,0 +1,951 @@
+paths:
+  # WhatsApp Channel
+  /accounts/{account_id}/channels/whatsapp:
+    post:
+      tags:
+        - Channels
+      summary: Create WhatsApp channel
+      description: Create a new WhatsApp inbox using WhatsApp Cloud API
+      operationId: createWhatsAppChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - phone_number
+                - provider
+                - provider_config
+              properties:
+                name:
+                  type: string
+                  example: WhatsApp Business
+                phone_number:
+                  type: string
+                  example: '+1234567890'
+                provider:
+                  type: string
+                  enum: [whatsapp_cloud, 360dialog]
+                  example: whatsapp_cloud
+                provider_config:
+                  type: object
+                  properties:
+                    api_key:
+                      type: string
+                    phone_number_id:
+                      type: string
+                    business_account_id:
+                      type: string
+      responses:
+        '201':
+          description: WhatsApp channel created
+        '422':
+          description: Validation error
+
+  /accounts/{account_id}/channels/whatsapp/{inbox}:
+    patch:
+      tags:
+        - Channels
+      summary: Update WhatsApp channel
+      operationId: updateWhatsAppChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                provider_config:
+                  type: object
+      responses:
+        '200':
+          description: WhatsApp channel updated
+
+  # Facebook Channel
+  /accounts/{account_id}/channels/facebook:
+    post:
+      tags:
+        - Channels
+      summary: Create Facebook channel
+      description: Create a new Facebook Messenger inbox
+      operationId: createFacebookChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - page_id
+                - user_access_token
+              properties:
+                name:
+                  type: string
+                page_id:
+                  type: string
+                user_access_token:
+                  type: string
+      responses:
+        '201':
+          description: Facebook channel created
+
+  /accounts/{account_id}/channels/facebook/{inbox}:
+    patch:
+      tags:
+        - Channels
+      summary: Update Facebook channel
+      operationId: updateFacebookChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Facebook channel updated
+
+  /accounts/{account_id}/channels/facebook/pages:
+    get:
+      tags:
+        - Channels
+      summary: List Facebook pages
+      description: Get available Facebook pages for the authenticated user
+      operationId: listFacebookPages
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: user_access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of Facebook pages
+
+  # Telegram Channel
+  /accounts/{account_id}/channels/telegram:
+    post:
+      tags:
+        - Channels
+      summary: Create Telegram channel
+      description: Create a new Telegram bot inbox
+      operationId: createTelegramChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - bot_token
+              properties:
+                name:
+                  type: string
+                bot_token:
+                  type: string
+      responses:
+        '201':
+          description: Telegram channel created
+
+  /accounts/{account_id}/channels/telegram/{inbox}:
+    patch:
+      tags:
+        - Channels
+      summary: Update Telegram channel
+      operationId: updateTelegramChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Telegram channel updated
+
+  /accounts/{account_id}/channels/telegram/bot_info:
+    post:
+      tags:
+        - Channels
+      summary: Get Telegram bot info
+      description: Verify Telegram bot token and get bot information
+      operationId: getTelegramBotInfo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - bot_token
+              properties:
+                bot_token:
+                  type: string
+      responses:
+        '200':
+          description: Bot information retrieved
+
+  # Twitter Channel
+  /accounts/{account_id}/channels/twitter:
+    post:
+      tags:
+        - Channels
+      summary: Create Twitter channel
+      description: Create a new Twitter/X direct message inbox
+      operationId: createTwitterChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - consumer_key
+                - consumer_secret
+                - access_token
+                - access_token_secret
+              properties:
+                name:
+                  type: string
+                consumer_key:
+                  type: string
+                consumer_secret:
+                  type: string
+                access_token:
+                  type: string
+                access_token_secret:
+                  type: string
+      responses:
+        '201':
+          description: Twitter channel created
+
+  /accounts/{account_id}/channels/twitter/{inbox}:
+    patch:
+      tags:
+        - Channels
+      summary: Update Twitter channel
+      operationId: updateTwitterChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Twitter channel updated
+
+  /accounts/{account_id}/channels/twitter/authorize:
+    get:
+      tags:
+        - Channels
+      summary: Twitter OAuth authorization
+      description: Get Twitter OAuth authorization URL
+      operationId: authorizeTwitter
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Authorization URL
+
+  /accounts/{account_id}/channels/twitter/callback:
+    post:
+      tags:
+        - Channels
+      summary: Twitter OAuth callback
+      description: Handle Twitter OAuth callback
+      operationId: twitterCallback
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - oauth_token
+                - oauth_verifier
+              properties:
+                oauth_token:
+                  type: string
+                oauth_verifier:
+                  type: string
+      responses:
+        '200':
+          description: Channel created
+
+  # Email Channel
+  /accounts/{account_id}/channels/email:
+    post:
+      tags:
+        - Channels
+      summary: Create Email channel
+      description: Create a new email inbox with IMAP/SMTP configuration
+      operationId: createEmailChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - imap_enabled
+                - smtp_enabled
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                imap_enabled:
+                  type: boolean
+                imap_address:
+                  type: string
+                imap_port:
+                  type: integer
+                imap_login:
+                  type: string
+                imap_password:
+                  type: string
+                smtp_enabled:
+                  type: boolean
+                smtp_address:
+                  type: string
+                smtp_port:
+                  type: integer
+                smtp_login:
+                  type: string
+                smtp_password:
+                  type: string
+      responses:
+        '201':
+          description: Email channel created
+
+  /accounts/{account_id}/channels/email/{inbox}:
+    patch:
+      tags:
+        - Channels
+      summary: Update Email channel
+      operationId: updateEmailChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Email channel updated
+
+  /accounts/{account_id}/channels/email/test_imap:
+    post:
+      tags:
+        - Channels
+      summary: Test IMAP connection
+      description: Test IMAP server connection with provided credentials
+      operationId: testEmailImap
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - imap_address
+                - imap_port
+                - imap_login
+                - imap_password
+              properties:
+                imap_address:
+                  type: string
+                imap_port:
+                  type: integer
+                imap_login:
+                  type: string
+                imap_password:
+                  type: string
+      responses:
+        '200':
+          description: IMAP connection successful
+        '422':
+          description: Connection failed
+
+  /accounts/{account_id}/channels/email/test_smtp:
+    post:
+      tags:
+        - Channels
+      summary: Test SMTP connection
+      description: Test SMTP server connection with provided credentials
+      operationId: testEmailSmtp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - smtp_address
+                - smtp_port
+                - smtp_login
+                - smtp_password
+              properties:
+                smtp_address:
+                  type: string
+                smtp_port:
+                  type: integer
+                smtp_login:
+                  type: string
+                smtp_password:
+                  type: string
+      responses:
+        '200':
+          description: SMTP connection successful
+        '422':
+          description: Connection failed
+
+  # SMS Channel
+  /accounts/{account_id}/channels/sms:
+    post:
+      tags:
+        - Channels
+      summary: Create SMS channel
+      description: Create a new SMS inbox using Twilio
+      operationId: createSmsChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - phone_number
+                - account_sid
+                - auth_token
+              properties:
+                name:
+                  type: string
+                phone_number:
+                  type: string
+                account_sid:
+                  type: string
+                auth_token:
+                  type: string
+      responses:
+        '201':
+          description: SMS channel created
+
+  /accounts/{account_id}/channels/sms/{inbox}:
+    patch:
+      tags:
+        - Channels
+      summary: Update SMS channel
+      operationId: updateSmsChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: SMS channel updated
+
+  /accounts/{account_id}/channels/sms/available_numbers:
+    get:
+      tags:
+        - Channels
+      summary: Get available SMS numbers
+      description: Get available phone numbers from Twilio
+      operationId: getAvailableSmsNumbers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: country_code
+          in: query
+          schema:
+            type: string
+            example: US
+        - name: account_sid
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: auth_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of available numbers
+
+  # Line Channel
+  /accounts/{account_id}/channels/line:
+    post:
+      tags:
+        - Channels
+      summary: Create Line channel
+      description: Create a new Line Messaging API inbox
+      operationId: createLineChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - line_channel_id
+                - line_channel_secret
+                - line_channel_token
+              properties:
+                name:
+                  type: string
+                line_channel_id:
+                  type: string
+                line_channel_secret:
+                  type: string
+                line_channel_token:
+                  type: string
+      responses:
+        '201':
+          description: Line channel created
+
+  /accounts/{account_id}/channels/line/{inbox}:
+    patch:
+      tags:
+        - Channels
+      summary: Update Line channel
+      operationId: updateLineChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Line channel updated
+
+  # Web Widget Channel
+  /accounts/{account_id}/channels/web_widget:
+    post:
+      tags:
+        - Channels
+      summary: Create Web Widget channel
+      description: Create a new web widget inbox
+      operationId: createWebWidgetChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - website_url
+              properties:
+                name:
+                  type: string
+                website_url:
+                  type: string
+                  format: uri
+                welcome_title:
+                  type: string
+                welcome_tagline:
+                  type: string
+                widget_color:
+                  type: string
+                  example: '#1f93ff'
+      responses:
+        '201':
+          description: Web widget channel created
+
+  /accounts/{account_id}/channels/web_widget/{inbox}:
+    patch:
+      tags:
+        - Channels
+      summary: Update Web Widget channel
+      operationId: updateWebWidgetChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Web widget channel updated
+
+  /accounts/{account_id}/channels/web_widget/{inbox}/script:
+    get:
+      tags:
+        - Channels
+      summary: Get widget script
+      description: Get the JavaScript embed code for the web widget
+      operationId: getWebWidgetScript
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Widget script code
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  # API Channel
+  /accounts/{account_id}/channels/api:
+    post:
+      tags:
+        - Channels
+      summary: Create API channel
+      description: Create a new API inbox for programmatic access
+      operationId: createApiChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: API channel created with access key
+
+  /accounts/{account_id}/channels/api/{inbox}:
+    patch:
+      tags:
+        - Channels
+      summary: Update API channel
+      operationId: updateApiChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: API channel updated
+
+  /accounts/{account_id}/channels/api/{inbox}/regenerate_key:
+    post:
+      tags:
+        - Channels
+      summary: Regenerate API channel key
+      description: Generate a new API key for the inbox
+      operationId: regenerateApiChannelKey
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: New API key generated
+
+  # Webhooks for channels
+  /webhooks/whatsapp:
+    get:
+      tags:
+        - Channels
+      summary: WhatsApp webhook verification
+      description: Verify WhatsApp webhook (used by WhatsApp Cloud API)
+      operationId: verifyWhatsAppWebhook
+      parameters:
+        - name: hub.mode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: hub.verify_token
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: hub.challenge
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Verification successful
+    post:
+      tags:
+        - Channels
+      summary: WhatsApp webhook
+      description: Receive WhatsApp messages and events
+      operationId: receiveWhatsAppWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook processed
+
+  /webhooks/facebook:
+    post:
+      tags:
+        - Channels
+      summary: Facebook webhook
+      description: Receive Facebook Messenger messages
+      operationId: receiveFacebookWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook processed
+
+  /webhooks/telegram/{inboxId}:
+    post:
+      tags:
+        - Channels
+      summary: Telegram webhook
+      description: Receive Telegram messages
+      operationId: receiveTelegramWebhook
+      parameters:
+        - name: inboxId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook processed
