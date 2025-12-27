@@ -81,16 +81,55 @@ pnpm dev              # Opens at http://localhost:5173
 | **Contact Card** | `contact-card/*.svelte`, `ContactCard.story.svelte` | ✅ |
 | **Reply Box** | `reply-box/*.svelte`, `ReplyBox.story.svelte` | ✅ |
 
-### Phase 4: Additional Components (Future)
+### Phase 4: Navigation & Core Components (Complete)
+
+| Component | Files | Story |
+|-----------|-------|-------|
+| **Breadcrumb** | `breadcrumb/*.svelte`, `Breadcrumb.story.svelte` | ✅ |
+| **PaginationFooter** | `pagination/*.svelte`, `PaginationFooter.story.svelte` | ✅ |
+| **TabBar** | `tab-bar/*.svelte`, `TabBar.story.svelte` | ✅ |
+| **Combobox** | `combobox/*.svelte`, `Combobox.story.svelte` | ✅ |
+| **TagInput** | `tag-input/*.svelte`, `TagInput.story.svelte` | ✅ |
+| **InlineInput** | `inline-input/*.svelte`, `InlineInput.story.svelte` | ✅ |
+| **PhoneInput** | `phone-input/*.svelte`, `PhoneInput.story.svelte` | ✅ |
+| **ConfirmButton** | `confirm-button/*.svelte`, `ConfirmButton.story.svelte` | ✅ |
+| **Flag** | `flag/*.svelte`, `Flag.story.svelte` | ✅ |
+| **FileIcon** | `file-icon/*.svelte`, `FileIcon.story.svelte` | ✅ |
+| **Filter** | `filter/*.svelte`, `Filter.story.svelte` | ✅ |
+
+### Phase 5: Business Components (Complete)
+
+| Component | Files | Story |
+|-----------|-------|-------|
+| **ArticleCard** | `article-card/*.svelte`, `ArticleCard.story.svelte` | ✅ |
+| **CategoryCard** | `category-card/*.svelte`, `CategoryCard.story.svelte` | ✅ |
+| **LocaleCard** | `locale-card/*.svelte`, `LocaleCard.story.svelte` | ✅ |
+| **AssistantCard** | `assistant-card/*.svelte`, `AssistantCard.story.svelte` | ✅ |
+| **DocumentCard** | `document-card/*.svelte`, `DocumentCard.story.svelte` | ✅ |
+| **Copilot** | `copilot/*.svelte`, `Copilot.story.svelte` | ✅ |
+| **LabelInput** | `label-input/*.svelte`, `LabelInput.story.svelte` | ✅ |
+| **CustomAttributes** | `custom-attributes/*.svelte`, `CustomAttributes.story.svelte` | ✅ |
+| **FeatureSpotlight** | `feature-spotlight/*.svelte`, `FeatureSpotlight.story.svelte` | ✅ |
+| **ChangelogCard** | `changelog-card/*.svelte`, `ChangelogCard.story.svelte` | ✅ |
+
+### Phase 6: Additional UI Components (Complete)
+
+| Component | Files | Story |
+|-----------|-------|-------|
+| **Toast** | `toast/*.svelte`, `Toast.story.svelte` | ✅ |
+| **Sheet** | `sheet/*.svelte`, `Sheet.story.svelte` | ✅ |
+| **Command** | `command/*.svelte`, `Command.story.svelte` | ✅ |
+| **RadioGroup** | `radio-group/*.svelte`, `RadioGroup.story.svelte` | ✅ |
+
+### Future Components (Planned)
 
 | Component | Status |
 |-----------|--------|
-| Command (cmdk) | ⏳ Pending |
-| Sheet | ⏳ Pending |
-| Toast (Sonner) | ⏳ Pending |
 | Calendar | ⏳ Pending |
 | Date Picker | ⏳ Pending |
-| Form Validation | ⏳ Pending |
+| Color Picker | ⏳ Pending |
+| Rich Text Editor | ⏳ Pending |
+| Chart/Data Visualization | ⏳ Pending |
 
 ## Histoire Stories
 
@@ -212,4 +251,16 @@ export const api = ky.create({
 ---
 
 **Created:** December 2024  
-**Status:** Phase 1, 2 & 3 Complete - 30 Components with Stories
+**Status:** All Phases Complete - 55 Components with Stories
+
+## Component Summary
+
+| Category | Count |
+|----------|-------|
+| Primitives | 11 |
+| Overlays & Navigation | 13 |
+| Chatwoot-Specific | 4 |
+| Navigation & Core | 11 |
+| Business Components | 10 |
+| Additional UI | 4 |
+| **Total** | **53** |
