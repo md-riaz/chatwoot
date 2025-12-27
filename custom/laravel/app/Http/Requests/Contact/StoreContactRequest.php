@@ -13,9 +13,16 @@ class StoreContactRequest extends FormRequest
 
     public function rules(): array
     {
+        // Get account_id from route
+        $accountId = $this->route('account')?->id;
+
         return [
             'name' => ['nullable', 'string', 'max:255'],
-            'email' => ['nullable', 'email'],
+            'email' => [
+                'nullable',
+                'email',
+                $accountId ? "unique:contacts,email,NULL,id,account_id,{$accountId}" : 'unique:contacts,email',
+            ],
             'phone_number' => ['nullable', 'string', 'max:50'],
             'identifier' => ['nullable', 'string'],
             'avatar_url' => ['nullable', 'url'],

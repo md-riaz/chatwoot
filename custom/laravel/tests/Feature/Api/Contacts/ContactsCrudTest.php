@@ -112,7 +112,8 @@ describe('Contact Creation', function () {
             ->assertJsonPath('data.name', 'Jane Doe');
     });
 
-    test('contact creation requires name', function () {
+    test('contact creation without name succeeds', function () {
+        // In Chatwoot Rails API, name is NOT required - contacts can be created with just email
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $account->users()->attach($user->id, ['role' => 2]);
@@ -122,8 +123,8 @@ describe('Contact Creation', function () {
                 'email' => 'test@example.com',
             ]);
 
-        $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['name']);
+        // Name is optional in Chatwoot - contact creation should succeed
+        $response->assertCreated();
     });
 
     test('contact creation with invalid email fails', function () {

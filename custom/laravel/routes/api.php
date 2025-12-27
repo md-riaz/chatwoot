@@ -152,8 +152,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Account routes
     Route::apiResource('accounts', AccountsController::class);
 
-    // Account-scoped resources
-    Route::prefix('accounts/{account}')->group(function () {
+    // Account-scoped resources (with account access middleware)
+    Route::prefix('accounts/{account}')->middleware(\App\Http\Middleware\EnsureAccountAccess::class)->group(function () {
         // Conversations
         Route::apiResource('conversations', ConversationsController::class);
         Route::get('conversations/meta', [ConversationsController::class, 'meta']);
