@@ -156,35 +156,46 @@ class InboxesController extends Controller
     }
 
     /**
-     * Add member to inbox.
+     * Add members to inbox (matching Rails API - accepts user_ids array).
      */
     public function addMember(Request $request, Account $account, Inbox $inbox): JsonResponse
     {
         abort_unless($inbox->account_id === $account->id, 404);
 
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
+        // Support both user_id (single) and user_ids (array) to match Rails API
+        $userIds = $request->input('user_ids', []);
+        if (empty($userIds) && $request->has('user_id')) {
+            $userIds = [$request->input('user_id')];
+        }
 
-        $this->inboxRepository->addMember($inbox->id, $validated['user_id']);
+        foreach ($userIds as $userId) {
+            $this->inboxRepository->addMember($inbox->id, $userId);
+        }
 
-        return response()->json(['success' => true]);
+        // Return updated agents list matching Rails API response
+        $agents = $inbox->members()->get();
+
+        return response()->json(['data' => $agents]);
     }
 
     /**
-     * Remove member from inbox.
+     * Remove members from inbox (matching Rails API - accepts user_ids array).
      */
     public function removeMember(Request $request, Account $account, Inbox $inbox): JsonResponse
     {
         abort_unless($inbox->account_id === $account->id, 404);
 
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
+        // Support both user_id (single) and user_ids (array) to match Rails API
+        $userIds = $request->input('user_ids', []);
+        if (empty($userIds) && $request->has('user_id')) {
+            $userIds = [$request->input('user_id')];
+        }
 
-        $this->inboxRepository->removeMember($inbox->id, $validated['user_id']);
+        foreach ($userIds as $userId) {
+            $this->inboxRepository->removeMember($inbox->id, $userId);
+        }
 
-        return response()->json(['success' => true]);
+        return response()->json(null, 200);
     }
 
     /**

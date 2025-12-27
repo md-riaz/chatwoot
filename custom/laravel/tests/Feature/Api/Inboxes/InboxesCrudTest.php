@@ -237,8 +237,10 @@ describe('Inbox Deletion', function () {
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/inboxes/{$inbox->id}");
 
-        $response->assertNoContent();
-        expect(Inbox::find($inbox->id))->toBeNull();
+        // Rails API returns 200 with message: 'Inbox deletion is in progress'
+        $response->assertOk();
+        // Note: inbox is soft-deleted so we check trashed
+        expect(Inbox::withTrashed()->find($inbox->id)?->trashed() ?? true)->toBeTrue();
     });
 
     test('deleting non-existent inbox returns 404', function () {
