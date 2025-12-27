@@ -375,6 +375,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('integrations')->group(function () {
             Route::get('/', [IntegrationsController::class, 'index']);
             Route::get('apps', [IntegrationsController::class, 'index']); // Alias
+            Route::post('apps', [IntegrationsController::class, 'createApp']);
             Route::get('hooks', [IntegrationsController::class, 'hooks']);
             Route::post('hooks', [IntegrationsController::class, 'createHook']);
             Route::patch('hooks/{hook}', [IntegrationsController::class, 'updateHook']);

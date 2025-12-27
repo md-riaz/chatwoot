@@ -74,6 +74,26 @@ class IntegrationsController extends Controller
     }
 
     /**
+     * Create/enable an integration app.
+     */
+    public function createApp(Request $request, Account $account): JsonResponse
+    {
+        $validated = $request->validate([
+            'app_id' => 'required|string',
+            'settings' => 'nullable|array',
+        ]);
+
+        // In a real implementation, this would create an integration record
+        return response()->json([
+            'data' => [
+                'id' => $validated['app_id'],
+                'enabled' => true,
+                'settings' => $validated['settings'] ?? [],
+            ],
+        ], 201);
+    }
+
+    /**
      * Get integration hooks for account.
      */
     public function hooks(Account $account): JsonResource
