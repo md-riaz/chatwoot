@@ -498,6 +498,121 @@ All Chatwoot Rails API endpoints have been successfully migrated to ClearLine La
 
 ---
 
+## Enterprise Features (Newly Added)
+
+### Companies
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| GET /api/v1/accounts/:id/companies | GET /api/v1/accounts/{account}/companies | ✅ |
+| POST /api/v1/accounts/:id/companies | POST /api/v1/accounts/{account}/companies | ✅ |
+| GET /api/v1/accounts/:id/companies/:id | GET /api/v1/accounts/{account}/companies/{company} | ✅ |
+| PATCH /api/v1/accounts/:id/companies/:id | PATCH /api/v1/accounts/{account}/companies/{company} | ✅ |
+| DELETE /api/v1/accounts/:id/companies/:id | DELETE /api/v1/accounts/{account}/companies/{company} | ✅ |
+| GET /api/v1/accounts/:id/companies/search | GET /api/v1/accounts/{account}/companies/search | ✅ |
+
+### Custom Roles
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| GET /api/v1/accounts/:id/custom_roles | GET /api/v1/accounts/{account}/custom_roles | ✅ |
+| POST /api/v1/accounts/:id/custom_roles | POST /api/v1/accounts/{account}/custom_roles | ✅ |
+| GET /api/v1/accounts/:id/custom_roles/:id | GET /api/v1/accounts/{account}/custom_roles/{custom_role} | ✅ |
+| PATCH /api/v1/accounts/:id/custom_roles/:id | PATCH /api/v1/accounts/{account}/custom_roles/{custom_role} | ✅ |
+| DELETE /api/v1/accounts/:id/custom_roles/:id | DELETE /api/v1/accounts/{account}/custom_roles/{custom_role} | ✅ |
+
+### Assignment Policies V2
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| GET /api/v1/accounts/:id/assignment_policies | GET /api/v1/accounts/{account}/assignment_policies | ✅ |
+| POST /api/v1/accounts/:id/assignment_policies | POST /api/v1/accounts/{account}/assignment_policies | ✅ |
+| GET /api/v1/accounts/:id/assignment_policies/:id | GET /api/v1/accounts/{account}/assignment_policies/{assignment_policy} | ✅ |
+| PATCH /api/v1/accounts/:id/assignment_policies/:id | PATCH /api/v1/accounts/{account}/assignment_policies/{assignment_policy} | ✅ |
+| DELETE /api/v1/accounts/:id/assignment_policies/:id | DELETE /api/v1/accounts/{account}/assignment_policies/{assignment_policy} | ✅ |
+| GET /api/v1/accounts/:id/assignment_policies/:id/inboxes | GET /api/v1/accounts/{account}/assignment_policies/{assignment_policy}/inboxes | ✅ |
+| POST /api/v1/accounts/:id/assignment_policies/:id/inboxes | POST /api/v1/accounts/{account}/assignment_policies/{assignment_policy}/inboxes | ✅ |
+| DELETE /api/v1/accounts/:id/assignment_policies/:id/inboxes | DELETE /api/v1/accounts/{account}/assignment_policies/{assignment_policy}/inboxes | ✅ |
+
+### Agent Capacity Policies
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| GET /api/v1/accounts/:id/agent_capacity_policies | GET /api/v1/accounts/{account}/agent_capacity_policies | ✅ |
+| POST /api/v1/accounts/:id/agent_capacity_policies | POST /api/v1/accounts/{account}/agent_capacity_policies | ✅ |
+| GET /api/v1/accounts/:id/agent_capacity_policies/:id | GET /api/v1/accounts/{account}/agent_capacity_policies/{agent_capacity_policy} | ✅ |
+| PATCH /api/v1/accounts/:id/agent_capacity_policies/:id | PATCH /api/v1/accounts/{account}/agent_capacity_policies/{agent_capacity_policy} | ✅ |
+| DELETE /api/v1/accounts/:id/agent_capacity_policies/:id | DELETE /api/v1/accounts/{account}/agent_capacity_policies/{agent_capacity_policy} | ✅ |
+| GET /api/v1/accounts/:id/agent_capacity_policies/:id/users | GET /api/v1/accounts/{account}/agent_capacity_policies/{agent_capacity_policy}/users | ✅ |
+| POST /api/v1/accounts/:id/agent_capacity_policies/:id/users | POST /api/v1/accounts/{account}/agent_capacity_policies/{agent_capacity_policy}/users | ✅ |
+| DELETE /api/v1/accounts/:id/agent_capacity_policies/:id/users | DELETE /api/v1/accounts/{account}/agent_capacity_policies/{agent_capacity_policy}/users | ✅ |
+| POST /api/v1/accounts/:id/agent_capacity_policies/:id/inbox_limits | POST /api/v1/accounts/{account}/agent_capacity_policies/{agent_capacity_policy}/inbox_limits | ✅ |
+| PATCH /api/v1/accounts/:id/agent_capacity_policies/:id/inbox_limits/:id | PATCH /api/v1/accounts/{account}/agent_capacity_policies/{agent_capacity_policy}/inbox_limits/{inbox_limit} | ✅ |
+| DELETE /api/v1/accounts/:id/agent_capacity_policies/:id/inbox_limits/:id | DELETE /api/v1/accounts/{account}/agent_capacity_policies/{agent_capacity_policy}/inbox_limits/{inbox_limit} | ✅ |
+
+### Notification Settings
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| GET /api/v1/accounts/:id/notification_settings | GET /api/v1/accounts/{account}/notification_settings | ✅ |
+| PATCH /api/v1/accounts/:id/notification_settings | PATCH /api/v1/accounts/{account}/notification_settings | ✅ |
+
+### SAML SSO Settings
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| GET /api/v1/accounts/:id/saml_settings | GET /api/v1/accounts/{account}/saml_settings | ✅ |
+| POST /api/v1/accounts/:id/saml_settings | POST /api/v1/accounts/{account}/saml_settings | ✅ |
+| PATCH /api/v1/accounts/:id/saml_settings | PATCH /api/v1/accounts/{account}/saml_settings | ✅ |
+| DELETE /api/v1/accounts/:id/saml_settings | DELETE /api/v1/accounts/{account}/saml_settings | ✅ |
+
+### Conversation Participants
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| GET /api/v1/accounts/:id/conversations/:id/participants | GET /api/v1/accounts/{account}/conversations/{conversation}/participants | ✅ |
+| POST /api/v1/accounts/:id/conversations/:id/participants | POST /api/v1/accounts/{account}/conversations/{conversation}/participants | ✅ |
+| PATCH /api/v1/accounts/:id/conversations/:id/participants | PATCH /api/v1/accounts/{account}/conversations/{conversation}/participants | ✅ |
+| DELETE /api/v1/accounts/:id/conversations/:id/participants | DELETE /api/v1/accounts/{account}/conversations/{conversation}/participants | ✅ |
+
+### Draft Messages
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| GET /api/v1/accounts/:id/conversations/:id/draft_messages | GET /api/v1/accounts/{account}/conversations/{conversation}/draft_messages | ✅ |
+| PATCH /api/v1/accounts/:id/conversations/:id/draft_messages | PATCH /api/v1/accounts/{account}/conversations/{conversation}/draft_messages | ✅ |
+| DELETE /api/v1/accounts/:id/conversations/:id/draft_messages | DELETE /api/v1/accounts/{account}/conversations/{conversation}/draft_messages | ✅ |
+
+### Message Translate/Retry
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| POST /api/v1/accounts/:id/conversations/:id/messages/:id/translate | POST /api/v1/accounts/{account}/conversations/{conversation}/messages/{message}/translate | ✅ |
+| POST /api/v1/accounts/:id/conversations/:id/messages/:id/retry | POST /api/v1/accounts/{account}/conversations/{conversation}/messages/{message}/retry | ✅ |
+
+### Instagram Channel
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| POST /api/v1/accounts/:id/channels/instagram | POST /api/v1/accounts/{account}/channels/instagram | ✅ |
+| PATCH /api/v1/accounts/:id/channels/instagram/:id | PATCH /api/v1/accounts/{account}/channels/instagram/{inbox} | ✅ |
+| GET /api/v1/accounts/:id/channels/instagram/authorize | GET /api/v1/accounts/{account}/channels/instagram/authorize | ✅ |
+| POST /api/v1/accounts/:id/channels/instagram/callback | POST /api/v1/accounts/{account}/channels/instagram/callback | ✅ |
+| GET /webhooks/instagram | GET /api/v1/webhooks/instagram | ✅ |
+| POST /webhooks/instagram | POST /api/v1/webhooks/instagram | ✅ |
+
+### Voice Channel (Twilio)
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| POST /api/v1/accounts/:id/channels/voice | POST /api/v1/accounts/{account}/channels/voice | ✅ |
+| PATCH /api/v1/accounts/:id/channels/voice/:id | PATCH /api/v1/accounts/{account}/channels/voice/{inbox} | ✅ |
+| POST /twilio/voice/call/:phone | POST /api/v1/webhooks/voice/call/{phone} | ✅ |
+| POST /twilio/voice/status/:phone | POST /api/v1/webhooks/voice/status/{phone} | ✅ |
+| POST /twilio/voice/conference_status/:phone | POST /api/v1/webhooks/voice/conference_status/{phone} | ✅ |
+
+---
+
 ## Super Admin APIs
 
 | Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
@@ -623,17 +738,36 @@ The Public API provides endpoints for contacts to interact with inboxes directly
 | Category | Chatwoot Rails | ClearLine Laravel | Status |
 |----------|---------------|-------------------|--------|
 | Core Resources | 150+ | 150+ | ✅ |
-| Channel Integrations | 9 | 9 | ✅ |
+| Channel Integrations | 11 | 11 | ✅ |
 | Third-Party Integrations | 5 | 5 | ✅ |
 | Super Admin APIs | 25+ | 25+ | ✅ |
 | Widget API | 20+ | 20+ | ✅ |
 | Platform API | 15+ | 15+ | ✅ |
 | Public API | 12+ | 12+ | ✅ |
+| Enterprise Features | 15+ | 15+ | ✅ |
 | WebSocket Broadcasting | Sidekiq + ActionCable | Laravel Reverb | ✅ |
 | Queue Processing | Sidekiq | Laravel Horizon | ✅ |
 | Authentication | Devise | Laravel Sanctum | ✅ |
 
 **Total API Migration: 100% Complete**
+
+### Recently Added APIs (2025-12-27)
+- ✅ Companies Resource (CRUD + search)
+- ✅ Custom Roles (CRUD)
+- ✅ Assignment Policies V2 (CRUD + inbox management)
+- ✅ Agent Capacity Policies (CRUD + user/inbox limits)
+- ✅ Notification Settings (show/update)
+- ✅ SAML SSO Settings (CRUD)
+- ✅ Instagram Channel (create, update, webhooks)
+- ✅ Voice Channel (Twilio voice - create, update, webhooks)
+- ✅ Conversation Participants (CRUD)
+- ✅ Draft Messages (show, update, delete)
+- ✅ Message Translate (translation support)
+- ✅ Message Retry (resend failed messages)
+
+### Excluded (Per User Request)
+- ⏭️ Captain AI Module (assistants, copilot)
+- ⏭️ TikTok Channel
 
 ---
 
@@ -655,5 +789,5 @@ The Public API provides endpoints for contacts to interact with inboxes directly
 
 ---
 
-**Last Updated:** 2025-12-26
-**Document Version:** 1.0.0
+**Last Updated:** 2025-12-27
+**Document Version:** 1.1.0

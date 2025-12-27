@@ -79,6 +79,17 @@ use App\Http\Controllers\Api\V1\Public\Inboxes\MessagesController as PublicMessa
 use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Controllers\Api\V1\NotificationSubscriptionsController;
 use App\Http\Controllers\Api\V1\Profile\MfaController;
+// New controllers for missing APIs
+use App\Http\Controllers\Api\V1\CompaniesController;
+use App\Http\Controllers\Api\V1\CustomRolesController;
+use App\Http\Controllers\Api\V1\AssignmentPoliciesController;
+use App\Http\Controllers\Api\V1\AgentCapacityPoliciesController;
+use App\Http\Controllers\Api\V1\NotificationSettingsController;
+use App\Http\Controllers\Api\V1\SamlSettingsController;
+use App\Http\Controllers\Api\V1\Channels\InstagramController;
+use App\Http\Controllers\Api\V1\Channels\VoiceController;
+use App\Http\Controllers\Api\V1\Conversations\ParticipantsController;
+use App\Http\Controllers\Api\V1\Conversations\DraftMessagesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -141,6 +152,15 @@ Route::prefix('webhooks')->group(function () {
     
     // Shopify webhooks
     Route::post('shopify', [ShopifyController::class, 'webhook']);
+    
+    // Instagram webhooks
+    Route::get('instagram', [InstagramController::class, 'verifyWebhook']);
+    Route::post('instagram', [InstagramController::class, 'webhook']);
+    
+    // Voice webhooks (Twilio)
+    Route::post('voice/call/{phone}', [VoiceController::class, 'callTwiml']);
+    Route::post('voice/status/{phone}', [VoiceController::class, 'status']);
+    Route::post('voice/conference_status/{phone}', [VoiceController::class, 'conferenceStatus']);
 });
 
 // Public CSAT Survey routes (no auth required)
@@ -297,6 +317,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Messages (nested under conversations)
         Route::apiResource('conversations/{conversation}/messages', MessagesController::class);
+        Route::post('conversations/{conversation}/messages/{message}/translate', [MessagesController::class, 'translate']);
+        Route::post('conversations/{conversation}/messages/{message}/retry', [MessagesController::class, 'retry']);
+        
+        // Conversation Participants
+        Route::get('conversations/{conversation}/participants', [ParticipantsController::class, 'show']);
+        Route::post('conversations/{conversation}/participants', [ParticipantsController::class, 'store']);
+        Route::patch('conversations/{conversation}/participants', [ParticipantsController::class, 'update']);
+        Route::delete('conversations/{conversation}/participants', [ParticipantsController::class, 'destroy']);
+        
+        // Draft Messages
+        Route::get('conversations/{conversation}/draft_messages', [DraftMessagesController::class, 'show']);
+        Route::patch('conversations/{conversation}/draft_messages', [DraftMessagesController::class, 'update']);
+        Route::delete('conversations/{conversation}/draft_messages', [DraftMessagesController::class, 'destroy']);
         
         // Attachments (nested under conversations)
         Route::apiResource('conversations/{conversation}/attachments', AttachmentsController::class)
@@ -486,6 +519,16 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('api', [ChannelApiController::class, 'create']);
             Route::patch('api/{inbox}', [ChannelApiController::class, 'update']);
             Route::post('api/{inbox}/regenerate_key', [ChannelApiController::class, 'regenerateKey']);
+            
+            // Instagram
+            Route::post('instagram', [InstagramController::class, 'create']);
+            Route::patch('instagram/{inbox}', [InstagramController::class, 'update']);
+            Route::get('instagram/authorize', [InstagramController::class, 'authorize']);
+            Route::post('instagram/callback', [InstagramController::class, 'callback']);
+            
+            // Voice (Twilio)
+            Route::post('voice', [VoiceController::class, 'create']);
+            Route::patch('voice/{inbox}', [VoiceController::class, 'update']);
         });
 
         // Integrations
@@ -542,6 +585,38 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('openai/summarize', [OpenAIController::class, 'summarize']);
             Route::post('openai/improve_tone', [OpenAIController::class, 'improveTone']);
         });
+
+        // Companies
+        Route::apiResource('companies', CompaniesController::class);
+        Route::get('companies/search', [CompaniesController::class, 'search']);
+
+        // Custom Roles
+        Route::apiResource('custom_roles', CustomRolesController::class);
+
+        // Assignment Policies V2
+        Route::apiResource('assignment_policies', AssignmentPoliciesController::class);
+        Route::get('assignment_policies/{assignment_policy}/inboxes', [AssignmentPoliciesController::class, 'inboxes']);
+        Route::post('assignment_policies/{assignment_policy}/inboxes', [AssignmentPoliciesController::class, 'addInbox']);
+        Route::delete('assignment_policies/{assignment_policy}/inboxes', [AssignmentPoliciesController::class, 'removeInbox']);
+
+        // Agent Capacity Policies
+        Route::apiResource('agent_capacity_policies', AgentCapacityPoliciesController::class);
+        Route::get('agent_capacity_policies/{agent_capacity_policy}/users', [AgentCapacityPoliciesController::class, 'users']);
+        Route::post('agent_capacity_policies/{agent_capacity_policy}/users', [AgentCapacityPoliciesController::class, 'addUser']);
+        Route::delete('agent_capacity_policies/{agent_capacity_policy}/users', [AgentCapacityPoliciesController::class, 'removeUser']);
+        Route::post('agent_capacity_policies/{agent_capacity_policy}/inbox_limits', [AgentCapacityPoliciesController::class, 'addInboxLimit']);
+        Route::patch('agent_capacity_policies/{agent_capacity_policy}/inbox_limits/{inbox_limit}', [AgentCapacityPoliciesController::class, 'updateInboxLimit']);
+        Route::delete('agent_capacity_policies/{agent_capacity_policy}/inbox_limits/{inbox_limit}', [AgentCapacityPoliciesController::class, 'removeInboxLimit']);
+
+        // Notification Settings
+        Route::get('notification_settings', [NotificationSettingsController::class, 'show']);
+        Route::patch('notification_settings', [NotificationSettingsController::class, 'update']);
+
+        // SAML Settings
+        Route::get('saml_settings', [SamlSettingsController::class, 'show']);
+        Route::post('saml_settings', [SamlSettingsController::class, 'store']);
+        Route::patch('saml_settings', [SamlSettingsController::class, 'update']);
+        Route::delete('saml_settings', [SamlSettingsController::class, 'destroy']);
 
         // Callbacks (OAuth and webhooks for channels)
         Route::prefix('callbacks')->group(function () {
