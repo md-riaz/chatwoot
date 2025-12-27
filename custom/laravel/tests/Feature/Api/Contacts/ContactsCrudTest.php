@@ -411,7 +411,9 @@ describe('Contact Authorization', function () {
 });
 
 describe('Contact Validation', function () {
-    test('name is required', function () {
+    test('contact can be created with empty body', function () {
+        // In Chatwoot Rails API, name is NOT required
+        // A contact can be created with minimal/no data
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $account->users()->attach($user->id, ['role' => 2]);
@@ -419,8 +421,8 @@ describe('Contact Validation', function () {
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", []);
 
-        $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['name']);
+        // Contact creation should succeed even with empty body
+        $response->assertCreated();
     });
 
     test('email must be valid format', function () {

@@ -122,6 +122,12 @@ Route::prefix('webhooks')->group(function () {
     Route::post('shopify', [ShopifyController::class, 'webhook']);
 });
 
+// Public CSAT Survey routes (no auth required)
+Route::prefix('public')->group(function () {
+    Route::get('csat/{uuid}', [App\Http\Controllers\Api\V1\Public\CsatSurveyController::class, 'show']);
+    Route::post('csat/{uuid}', [App\Http\Controllers\Api\V1\Public\CsatSurveyController::class, 'update']);
+});
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Auth routes
