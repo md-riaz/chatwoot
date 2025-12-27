@@ -497,6 +497,87 @@
   delete:
     $ref: ./application/team_members/delete.yml
 
+### Labels
+
+/api/v1/accounts/{account_id}/labels:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+  get:
+    $ref: ./application/labels/index.yml
+  post:
+    $ref: ./application/labels/create.yml
+/api/v1/accounts/{account_id}/labels/{id}:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+    - name: id
+      in: path
+      schema:
+        type: number
+      description: ID of the label
+      required: true
+  get:
+    $ref: './application/labels/show.yml'
+  patch:
+    $ref: ./application/labels/update.yml
+  delete:
+    $ref: ./application/labels/delete.yml
+
+### Campaigns
+
+/api/v1/accounts/{account_id}/campaigns:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+  get:
+    $ref: ./application/campaigns/index.yml
+  post:
+    $ref: ./application/campaigns/create.yml
+/api/v1/accounts/{account_id}/campaigns/{id}:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+    - name: id
+      in: path
+      schema:
+        type: number
+      description: ID of the campaign
+      required: true
+  get:
+    $ref: './application/campaigns/show.yml'
+  patch:
+    $ref: ./application/campaigns/update.yml
+  delete:
+    $ref: ./application/campaigns/delete.yml
+
+### Notifications
+
+/api/v1/accounts/{account_id}/notifications:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+  get:
+    $ref: ./application/notifications/index.yml
+/api/v1/accounts/{account_id}/notifications/read_all:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+  post:
+    $ref: ./application/notifications/read_all.yml
+/api/v1/accounts/{account_id}/notifications/unread_count:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+  get:
+    $ref: ./application/notifications/unread_count.yml
+/api/v1/accounts/{account_id}/notifications/{id}:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+    - name: id
+      in: path
+      schema:
+        type: number
+      description: ID of the notification
+      required: true
+  patch:
+    $ref: ./application/notifications/update.yml
+  delete:
+    $ref: ./application/notifications/delete.yml
+
 ### Custom Filters goes here
 
 # Custom Filters

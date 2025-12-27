@@ -1,0 +1,44 @@
+type: object
+required:
+  - title
+  - message
+  - inbox_id
+properties:
+  title:
+    type: string
+    description: Campaign title
+  description:
+    type: string
+    description: Campaign description
+  message:
+    type: string
+    description: Campaign message content
+  enabled:
+    type: boolean
+    description: Whether the campaign is enabled
+  inbox_id:
+    type: integer
+    description: ID of the inbox
+  sender_id:
+    type: integer
+    description: ID of the sender agent
+  trigger_only_during_business_hours:
+    type: boolean
+    description: Trigger only during business hours
+  trigger_rules:
+    type: object
+    description: Rules for triggering the campaign
+  scheduled_at:
+    type: string
+    format: date-time
+    description: When to schedule the campaign
+  audience:
+    type: array
+    description: Target audience
+    items:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: integer

@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :category, class: 'Category' do
     portal
-    name { 'MyString' }
-    description { 'MyText' }
+    sequence(:name) { |n| "Category #{n}" }
+    description { Faker::Lorem.sentence }
     position { 1 }
     slug { name.parameterize }
 

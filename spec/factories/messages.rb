@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :message do
-    content { 'Incoming Message' }
+    content { Faker::Lorem.sentence }
     status { 'sent' }
     message_type { 'incoming' }
     content_type { 'text' }

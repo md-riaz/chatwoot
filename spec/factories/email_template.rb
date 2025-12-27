@@ -1,5 +1,5 @@
 FactoryBot.define do
   factory :email_template do
-    name { 'MyString' }
+    sequence(:name) { |n| "Email Template #{n}" }
   end
 end

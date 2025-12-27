@@ -1,0 +1,26 @@
+tags:
+  - Labels
+operationId: get-a-label
+summary: Get a label
+security:
+  - userApiKey: []
+description: Get a label from the account
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/label'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '404':
+    description: Label not found
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

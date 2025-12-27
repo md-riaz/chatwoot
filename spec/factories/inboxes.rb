@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :inbox do
     account
     channel { FactoryBot.build(:channel_widget, account: account) }
-    name { 'Inbox' }
+    sequence(:name) { |n| "Inbox #{n}" }
 
     after(:create) do |inbox|
       inbox.channel.save!
@@ -12,7 +12,7 @@ FactoryBot.define do
 
     trait :with_email do
       channel { FactoryBot.build(:channel_email, account: account) }
-      name { 'Email Inbox' }
+      sequence(:name) { |n| "Email Inbox #{n}" }
     end
   end
 end

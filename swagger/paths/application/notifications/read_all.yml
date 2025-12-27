@@ -1,0 +1,27 @@
+tags:
+  - Notifications
+operationId: read-all-notifications
+summary: Mark all notifications as read
+security:
+  - userApiKey: []
+description: Mark all notifications as read for the current user
+parameters:
+  - in: query
+    name: primary_actor_type
+    schema:
+      type: string
+    description: Filter by primary actor type
+  - in: query
+    name: primary_actor_id
+    schema:
+      type: integer
+    description: Filter by primary actor ID
+responses:
+  '200':
+    description: Success
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :automation_rule do
     account
-    name { 'Test Automation Rule' }
+    sequence(:name) { |n| "Automation Rule #{n}" }
     event_name { 'conversation_status_changed' }
     conditions { [{ 'values': ['resolved'], 'attribute_key': 'status', 'query_operator': nil, 'filter_operator': 'equal_to' }] }
     actions do

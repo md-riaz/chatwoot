@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :agent_bot do
-    name { 'MyString' }
-    description { 'MyString' }
-    outgoing_url { 'localhost' }
+    sequence(:name) { |n| "AgentBot #{n}" }
+    description { Faker::Lorem.sentence }
+    outgoing_url { Faker::Internet.url }
     bot_config { {} }
     bot_type { 'webhook' }
 

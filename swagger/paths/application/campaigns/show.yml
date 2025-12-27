@@ -1,0 +1,26 @@
+tags:
+  - Campaigns
+operationId: get-a-campaign
+summary: Get a campaign
+security:
+  - userApiKey: []
+description: Get a campaign from the account
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/campaign'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '404':
+    description: Campaign not found
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

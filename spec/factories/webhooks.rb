@@ -2,8 +2,8 @@ FactoryBot.define do
   factory :webhook do
     account_id { 1 }
     inbox_id { 1 }
-    url { 'https://api.chatwoot.com' }
-    name { 'My Webhook' }
+    url { Faker::Internet.url }
+    sequence(:name) { |n| "Webhook #{n}" }
     subscriptions do
       %w[
         conversation_status_changed

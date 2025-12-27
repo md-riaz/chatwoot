@@ -63,6 +63,12 @@ tags:
     description: Custom fields for contacts and conversations
   - name: Custom Filters
     description: Saved filters for conversations
+  - name: Labels
+    description: Account labels for contacts and conversations
+  - name: Campaigns
+    description: Campaign management APIs
+  - name: Notifications
+    description: User notification APIs
   - name: Inboxes
     description: Communication channels setup
   - name: Integrations
@@ -110,6 +116,9 @@ x-tagGroups:
       - Conversations
       - Custom Attributes
       - Custom Filters
+      - Labels
+      - Campaigns
+      - Notifications
       - Inboxes
       - Integrations
       - Messages

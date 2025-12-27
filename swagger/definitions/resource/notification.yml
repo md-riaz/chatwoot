@@ -1,0 +1,39 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: Notification ID
+  notification_type:
+    type: string
+    description: Type of notification
+    enum:
+      - conversation_creation
+      - conversation_assignment
+      - assigned_conversation_new_message
+      - conversation_mention
+      - participating_conversation_new_message
+      - sla_missed_first_response
+      - sla_missed_next_response
+      - sla_missed_resolution
+  primary_actor_type:
+    type: string
+    description: Type of primary actor
+  primary_actor_id:
+    type: integer
+    description: ID of primary actor
+  primary_actor:
+    type: object
+    description: Primary actor object (conversation, etc.)
+  read_at:
+    type: string
+    format: date-time
+    description: When the notification was read
+  snoozed_until:
+    type: string
+    format: date-time
+    description: When the notification snooze ends
+  created_at:
+    type: string
+    format: date-time
+  user:
+    $ref: '#/components/schemas/user'

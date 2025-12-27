@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :macro do
     account
-    name { 'wrong_message_actions' }
+    sequence(:name) { |n| "Macro #{n}" }
     actions do
       [
         { 'action_name' => 'add_label', 'action_params' => %w[wrong_chat] }

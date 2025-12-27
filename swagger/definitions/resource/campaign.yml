@@ -1,0 +1,40 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: Campaign ID
+  display_id:
+    type: integer
+    description: Display ID of the campaign
+  title:
+    type: string
+    description: Campaign title
+  description:
+    type: string
+    description: Campaign description
+  message:
+    type: string
+    description: Campaign message content
+  enabled:
+    type: boolean
+    description: Whether the campaign is enabled
+  inbox:
+    $ref: '#/components/schemas/inbox'
+  sender:
+    $ref: '#/components/schemas/agent'
+  trigger_only_during_business_hours:
+    type: boolean
+    description: Trigger only during business hours
+  trigger_rules:
+    type: object
+    description: Rules for triggering the campaign
+  scheduled_at:
+    type: string
+    format: date-time
+    description: When the campaign is scheduled
+  created_at:
+    type: string
+    format: date-time
+  updated_at:
+    type: string
+    format: date-time
