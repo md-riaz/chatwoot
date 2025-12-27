@@ -7974,6 +7974,626 @@
         }
       }
     },
+    "/api/v1/accounts/{account_id}/macros": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/account_id"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Macros"
+        ],
+        "operationId": "list-all-macros",
+        "summary": "List all macros",
+        "security": [
+          {
+            "userApiKey": [
+
+            ]
+          }
+        ],
+        "description": "List all macros in the account",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "Array of macro objects",
+                  "items": {
+                    "$ref": "#/components/schemas/macro"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Macros"
+        ],
+        "operationId": "create-a-macro",
+        "summary": "Create a macro",
+        "security": [
+          {
+            "userApiKey": [
+
+            ]
+          }
+        ],
+        "description": "Create a new macro in the account",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/macro_create_update_payload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/macro"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/macros/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/account_id"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "schema": {
+            "type": "number"
+          },
+          "description": "ID of the macro",
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          "Macros"
+        ],
+        "operationId": "get-a-macro",
+        "summary": "Get a macro",
+        "security": [
+          {
+            "userApiKey": [
+
+            ]
+          }
+        ],
+        "description": "Get a macro from the account",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/macro"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Macro not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Macros"
+        ],
+        "operationId": "update-a-macro",
+        "summary": "Update a macro",
+        "security": [
+          {
+            "userApiKey": [
+
+            ]
+          }
+        ],
+        "description": "Update a macro in the account",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/macro_create_update_payload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/macro"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Macro not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Macros"
+        ],
+        "operationId": "delete-a-macro",
+        "summary": "Delete a macro",
+        "security": [
+          {
+            "userApiKey": [
+
+            ]
+          }
+        ],
+        "description": "Delete a macro from the account",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The macro does not exist in the account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/macros/{id}/execute": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/account_id"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "schema": {
+            "type": "number"
+          },
+          "description": "ID of the macro",
+          "required": true
+        }
+      ],
+      "post": {
+        "tags": [
+          "Macros"
+        ],
+        "operationId": "execute-a-macro",
+        "summary": "Execute a macro",
+        "security": [
+          {
+            "userApiKey": [
+
+            ]
+          }
+        ],
+        "description": "Execute a macro on specified conversations",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "conversation_ids"
+                ],
+                "properties": {
+                  "conversation_ids": {
+                    "type": "array",
+                    "description": "List of conversation IDs to execute the macro on",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Macro not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/search": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/account_id"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "operationId": "search-all",
+        "summary": "Search across all entities",
+        "security": [
+          {
+            "userApiKey": [
+
+            ]
+          }
+        ],
+        "description": "Search for conversations, contacts, messages, and articles",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Search query string"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number for pagination"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "meta": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/search/conversations": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/account_id"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "operationId": "search-conversations",
+        "summary": "Search conversations",
+        "security": [
+          {
+            "userApiKey": [
+
+            ]
+          }
+        ],
+        "description": "Search for conversations",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Search query string"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number for pagination"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/conversation"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/search/contacts": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/account_id"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "operationId": "search-contacts",
+        "summary": "Search contacts",
+        "security": [
+          {
+            "userApiKey": [
+
+            ]
+          }
+        ],
+        "description": "Search for contacts",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Search query string"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number for pagination"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/contact"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/search/messages": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/account_id"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "operationId": "search-messages",
+        "summary": "Search messages",
+        "security": [
+          {
+            "userApiKey": [
+
+            ]
+          }
+        ],
+        "description": "Search for messages",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Search query string"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number for pagination"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/message"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/accounts/{account_id}/custom_filters": {
       "parameters": [
         {
@@ -10730,6 +11350,61 @@
           }
         }
       },
+      "macro": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Macro ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Macro name"
+          },
+          "visibility": {
+            "type": "string",
+            "description": "Visibility of the macro",
+            "enum": [
+              "global",
+              "personal"
+            ]
+          },
+          "actions": {
+            "type": "array",
+            "description": "List of actions to execute",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action_name": {
+                  "type": "string",
+                  "description": "Name of the action"
+                },
+                "action_params": {
+                  "type": "array",
+                  "description": "Parameters for the action",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "created_by": {
+            "$ref": "#/components/schemas/agent"
+          },
+          "updated_by": {
+            "$ref": "#/components/schemas/agent"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "public_contact": {
         "type": "object",
         "properties": {
@@ -11999,6 +12674,47 @@
                 },
                 "id": {
                   "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "macro_create_update_payload": {
+        "type": "object",
+        "required": [
+          "name",
+          "actions"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Macro name"
+          },
+          "visibility": {
+            "type": "string",
+            "description": "Visibility of the macro",
+            "enum": [
+              "global",
+              "personal"
+            ]
+          },
+          "actions": {
+            "type": "array",
+            "description": "List of actions to execute",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action_name": {
+                  "type": "string",
+                  "description": "Name of the action"
+                },
+                "action_params": {
+                  "type": "array",
+                  "description": "Parameters for the action",
+                  "items": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -13913,6 +14629,14 @@
       "description": "User notification APIs"
     },
     {
+      "name": "Macros",
+      "description": "Macro automation APIs"
+    },
+    {
+      "name": "Search",
+      "description": "Search APIs"
+    },
+    {
       "name": "Inboxes",
       "description": "Communication channels setup"
     },
@@ -13993,6 +14717,8 @@
         "Labels",
         "Campaigns",
         "Notifications",
+        "Macros",
+        "Search",
         "Inboxes",
         "Integrations",
         "Messages",

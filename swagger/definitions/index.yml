@@ -82,6 +82,8 @@ campaign:
   $ref: ./resource/campaign.yml
 notification:
   $ref: ./resource/notification.yml
+macro:
+  $ref: ./resource/macro.yml
 
 ## public resources
 public_contact:
@@ -159,6 +161,10 @@ label_create_update_payload:
 # Campaign
 campaign_create_update_payload:
   $ref: ./request/campaign/create_update_payload.yml
+
+# Macro
+macro_create_update_payload:
+  $ref: ./request/macro/create_update_payload.yml
 
 webhook_create_update_payload:
   $ref: ./request/webhooks/create_update_payload.yml

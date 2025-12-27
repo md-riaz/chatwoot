@@ -1,0 +1,37 @@
+tags:
+  - Search
+operationId: search-messages
+summary: Search messages
+security:
+  - userApiKey: []
+description: Search for messages
+parameters:
+  - in: query
+    name: q
+    schema:
+      type: string
+    required: true
+    description: Search query string
+  - in: query
+    name: page
+    schema:
+      type: integer
+    description: Page number for pagination
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            payload:
+              type: array
+              items:
+                $ref: '#/components/schemas/message'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

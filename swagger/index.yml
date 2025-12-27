@@ -69,6 +69,10 @@ tags:
     description: Campaign management APIs
   - name: Notifications
     description: User notification APIs
+  - name: Macros
+    description: Macro automation APIs
+  - name: Search
+    description: Search APIs
   - name: Inboxes
     description: Communication channels setup
   - name: Integrations
@@ -119,6 +123,8 @@ x-tagGroups:
       - Labels
       - Campaigns
       - Notifications
+      - Macros
+      - Search
       - Inboxes
       - Integrations
       - Messages

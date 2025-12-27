@@ -1,0 +1,36 @@
+tags:
+  - Macros
+operationId: execute-a-macro
+summary: Execute a macro
+security:
+  - userApiKey: []
+description: Execute a macro on specified conversations
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - conversation_ids
+        properties:
+          conversation_ids:
+            type: array
+            description: List of conversation IDs to execute the macro on
+            items:
+              type: integer
+responses:
+  '200':
+    description: Success
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'
+  '404':
+    description: Macro not found
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/bad_request_error'

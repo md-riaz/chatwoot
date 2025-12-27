@@ -578,6 +578,65 @@
   delete:
     $ref: ./application/notifications/delete.yml
 
+### Macros
+
+/api/v1/accounts/{account_id}/macros:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+  get:
+    $ref: ./application/macros/index.yml
+  post:
+    $ref: ./application/macros/create.yml
+/api/v1/accounts/{account_id}/macros/{id}:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+    - name: id
+      in: path
+      schema:
+        type: number
+      description: ID of the macro
+      required: true
+  get:
+    $ref: './application/macros/show.yml'
+  patch:
+    $ref: ./application/macros/update.yml
+  delete:
+    $ref: ./application/macros/delete.yml
+/api/v1/accounts/{account_id}/macros/{id}/execute:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+    - name: id
+      in: path
+      schema:
+        type: number
+      description: ID of the macro
+      required: true
+  post:
+    $ref: ./application/macros/execute.yml
+
+### Search
+
+/api/v1/accounts/{account_id}/search:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+  get:
+    $ref: ./application/search/index.yml
+/api/v1/accounts/{account_id}/search/conversations:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+  get:
+    $ref: ./application/search/conversations.yml
+/api/v1/accounts/{account_id}/search/contacts:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+  get:
+    $ref: ./application/search/contacts.yml
+/api/v1/accounts/{account_id}/search/messages:
+  parameters:
+    - $ref: '#/components/parameters/account_id'
+  get:
+    $ref: ./application/search/messages.yml
+
 ### Custom Filters goes here
 
 # Custom Filters

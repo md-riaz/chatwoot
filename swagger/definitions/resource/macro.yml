@@ -1,0 +1,38 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: Macro ID
+  name:
+    type: string
+    description: Macro name
+  visibility:
+    type: string
+    description: Visibility of the macro
+    enum:
+      - global
+      - personal
+  actions:
+    type: array
+    description: List of actions to execute
+    items:
+      type: object
+      properties:
+        action_name:
+          type: string
+          description: Name of the action
+        action_params:
+          type: array
+          description: Parameters for the action
+          items:
+            type: string
+  created_by:
+    $ref: '#/components/schemas/agent'
+  updated_by:
+    $ref: '#/components/schemas/agent'
+  created_at:
+    type: string
+    format: date-time
+  updated_at:
+    type: string
+    format: date-time
