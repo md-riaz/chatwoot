@@ -20,6 +20,7 @@ class Account extends Model
         'domain',
         'support_email',
         'settings',
+        'custom_attributes',
         'features',
         'limits',
         'status',
@@ -28,6 +29,7 @@ class Account extends Model
 
     protected $casts = [
         'settings' => 'array',
+        'custom_attributes' => 'array',
         'features' => 'array',
         'limits' => 'array',
         'status' => 'integer',
