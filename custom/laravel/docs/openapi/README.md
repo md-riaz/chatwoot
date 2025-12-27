@@ -6,10 +6,45 @@ This directory contains OpenAPI 3.0 specifications for all ClearLine API endpoin
 
 | File | Description |
 |------|-------------|
-| `openapi.yaml` | Main specification with schemas and security definitions |
-| `paths/` | Directory containing path definitions by section |
+| `openapi.bundled.yaml` | **Single-file bundled spec for Postman import** (recommended) |
+| `openapi.yaml` | Main specification with schemas (modular structure) |
+| `paths/` | Directory containing path definitions by section (for development) |
 
-## Path Files
+## Quick Start - Import to Postman
+
+**Use `openapi.bundled.yaml` for Postman import.** This file contains all paths merged into a single file.
+
+### Step-by-Step Postman Import
+
+1. **Open Postman**
+2. Click **Import** button (top-left corner)
+3. Select **File** tab
+4. Choose `openapi.bundled.yaml` from this directory
+5. Click **Import**
+6. A new collection "ClearLine API" will be created with all 250+ endpoints
+
+### Setting Up Environment Variables
+
+After importing, create a new Environment in Postman with these variables:
+
+| Variable | Example Value | Description |
+|----------|---------------|-------------|
+| `baseUrl` | `http://localhost:8000/api/v1` | Your API base URL |
+| `bearerToken` | `1\|abc123...` | Your authentication token |
+| `accountId` | `1` | Your account ID |
+| `apiKey` | `platform_key_here` | Platform API key (for platform endpoints) |
+| `widgetToken` | `widget_auth_token` | Widget auth token (for widget endpoints) |
+
+### Testing Endpoints
+
+1. Select any endpoint from the imported collection
+2. The request body has **example data preloaded**
+3. Ensure environment variables are set
+4. Click **Send** to execute the request
+
+---
+
+## Path Files (for development)
 
 | File | Endpoints |
 |------|-----------|
@@ -24,26 +59,13 @@ This directory contains OpenAPI 3.0 specifications for all ClearLine API endpoin
 | `platform.yaml` | Platform-level API for SSO and management |
 | `integrations.yaml` | Slack, Dialogflow, OpenAI, Linear, Shopify |
 
-## Usage
+## Alternative Tools
 
 ### Viewing Documentation
 
-You can use any OpenAPI-compatible tool to view this documentation:
-
-1. **Swagger UI**: https://editor.swagger.io/
-2. **Redoc**: https://redocly.github.io/redoc/
-3. **Stoplight**: https://stoplight.io/
-4. **Postman**: Import the openapi.yaml file
-
-### Testing with Postman
-
-1. Open Postman
-2. Click **Import** > **File** > select `openapi.yaml`
-3. The collection will be created with all endpoints
-4. Set up environment variables:
-   - `baseUrl`: Your API base URL (e.g., `http://localhost:8000/api/v1`)
-   - `bearerToken`: Your authentication token
-   - `accountId`: Your account ID
+1. **Swagger UI**: https://editor.swagger.io/ - Paste `openapi.bundled.yaml` content
+2. **Redoc**: https://redocly.github.io/redoc/ - Use the bundled file
+3. **Stoplight**: https://stoplight.io/ - Import the bundled file
 
 ### Generating Client SDKs
 
@@ -54,13 +76,13 @@ Use OpenAPI Generator to create client libraries:
 npm install -g @openapitools/openapi-generator-cli
 
 # Generate JavaScript client
-openapi-generator-cli generate -i openapi.yaml -g javascript -o ./sdk/javascript
+openapi-generator-cli generate -i openapi.bundled.yaml -g javascript -o ./sdk/javascript
 
 # Generate Python client
-openapi-generator-cli generate -i openapi.yaml -g python -o ./sdk/python
+openapi-generator-cli generate -i openapi.bundled.yaml -g python -o ./sdk/python
 
 # Generate PHP client
-openapi-generator-cli generate -i openapi.yaml -g php -o ./sdk/php
+openapi-generator-cli generate -i openapi.bundled.yaml -g php -o ./sdk/php
 ```
 
 ## Authentication
