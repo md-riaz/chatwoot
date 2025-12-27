@@ -6,8 +6,8 @@ FactoryBot.define do
     locale { 'en' }
     association :author, factory: :user
     title { "#{Faker::Movie.title} #{SecureRandom.hex}" }
-    content { Faker::Lorem.paragraphs(number: 3).join("\n\n") }
-    description { Faker::Lorem.sentence }
+    content { 'MyText' }
+    description { 'MyDescrption' }
     status { :published }
     views { 0 }
   end

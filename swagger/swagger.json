@@ -29,9 +29,7 @@
         "description": "Create an Account",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "requestBody": {
@@ -83,9 +81,7 @@
         "description": "Get the details of an account",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "responses": {
@@ -130,9 +126,7 @@
         "description": "Update an account's attributes",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "requestBody": {
@@ -177,9 +171,7 @@
         "description": "Delete an Account",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "responses": {
@@ -224,9 +216,7 @@
         "description": "List all account users",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "responses": {
@@ -261,9 +251,7 @@
         "description": "Create an Account User",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "requestBody": {
@@ -322,9 +310,7 @@
         "description": "Delete an Account User",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "responses": {
@@ -364,9 +350,7 @@
         "description": "List all agent bots available",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "responses": {
@@ -405,9 +389,7 @@
         "description": "Create an agent bot",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "requestBody": {
@@ -459,9 +441,7 @@
         "description": "Get the details of an agent bot",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "responses": {
@@ -506,9 +486,7 @@
         "description": "Update an agent bot's attributes",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "requestBody": {
@@ -553,9 +531,7 @@
         "description": "Delete an AgentBot",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "responses": {
@@ -595,9 +571,7 @@
         "description": "Create a User",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "requestBody": {
@@ -649,9 +623,7 @@
         "description": "Get the details of an user",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "responses": {
@@ -696,9 +668,7 @@
         "description": "Update a user's attributes",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "requestBody": {
@@ -743,9 +713,7 @@
         "description": "Delete a User",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "responses": {
@@ -790,9 +758,7 @@
         "description": "Get the sso link of a user",
         "security": [
           {
-            "platformAppApiKey": [
-
-            ]
+            "platformAppApiKey": []
           }
         ],
         "responses": {
@@ -848,9 +814,7 @@
         "operationId": "get-details-of-a-inbox",
         "summary": "Inbox details",
         "description": "Get the details of an inbox",
-        "security": [
-
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "Success",
@@ -898,9 +862,7 @@
         "operationId": "create-a-contact",
         "summary": "Create a contact",
         "description": "Create a contact",
-        "security": [
-
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -951,9 +913,7 @@
         "operationId": "get-details-of-a-contact",
         "summary": "Get a contact",
         "description": "Get the details of a contact",
-        "security": [
-
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "Success",
@@ -994,9 +954,7 @@
         "operationId": "update-a-contact",
         "summary": "Update a contact",
         "description": "Update a contact's attributes",
-        "security": [
-
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -1047,9 +1005,7 @@
         "operationId": "create-a-conversation",
         "summary": "Create a conversation",
         "description": "Create a conversation",
-        "security": [
-
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -1090,9 +1046,7 @@
         "operationId": "list-all-contact-conversations",
         "summary": "List all conversations",
         "description": "List all conversations for the contact",
-        "security": [
-
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "Success",
@@ -1140,9 +1094,7 @@
         "operationId": "get-single-conversation",
         "summary": "Get a single conversation",
         "description": "Retrieves the details of a specific conversation",
-        "security": [
-
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "Success",
@@ -1196,9 +1148,7 @@
         "operationId": "resolve-conversation",
         "summary": "Resolve a conversation",
         "description": "Marks a conversation as resolved",
-        "security": [
-
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "Conversation resolved successfully",
@@ -1252,9 +1202,7 @@
         "operationId": "toggle-typing-status",
         "summary": "Toggle typing status",
         "description": "Toggles the typing status in a conversation",
-        "security": [
-
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "typing_status",
@@ -1333,9 +1281,7 @@
         "operationId": "update-last-seen",
         "summary": "Update last seen",
         "description": "Updates the last seen time of the contact in a conversation",
-        "security": [
-
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "Last seen updated successfully"
@@ -1382,9 +1328,7 @@
         "operationId": "create-a-message",
         "summary": "Create a message",
         "description": "Create a message",
-        "security": [
-
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -1425,9 +1369,7 @@
         "operationId": "list-all-converation-messages",
         "summary": "List all messages",
         "description": "List all messages in the conversation",
-        "security": [
-
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "Success",
@@ -1478,9 +1420,7 @@
         "operationId": "update-a-message",
         "summary": "Update a message",
         "description": "Update a message",
-        "security": [
-
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -1528,9 +1468,7 @@
         "operationId": "get-csat-survey-page",
         "summary": "Get CSAT survey page",
         "description": "You can redirect the client to this URL, instead of implementing the CSAT survey component yourself.",
-        "security": [
-
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "Success"
@@ -1553,9 +1491,7 @@
         "description": "Get the details of the current account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -1605,9 +1541,7 @@
         "description": "Update account details, settings, and custom attributes",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -1689,9 +1623,7 @@
         "description": "Get Details of Audit Log entries for an Account. This endpoint is only available in Enterprise editions and requires the audit_logs feature to be enabled.",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -1779,9 +1711,7 @@
         "description": "List all agent bots available for the current account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -1820,9 +1750,7 @@
         "description": "Create an agent bot in the account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -1877,9 +1805,7 @@
         "description": "Get the details of an agent bot in the account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -1924,9 +1850,7 @@
         "description": "Update an agent bot's attributes",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -1971,9 +1895,7 @@
         "description": "Delete an AgentBot from the account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -2018,9 +1940,7 @@
         "description": "Get Details of Agents in an Account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -2059,9 +1979,7 @@
         "description": "Add a new Agent to Account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -2113,9 +2031,7 @@
         "description": "Update an Agent in Account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -2181,9 +2097,7 @@
         "description": "Remove an Agent from Account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -2239,9 +2153,7 @@
         "description": "Get Details of Canned Responses in an Account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -2280,9 +2192,7 @@
         "description": "Add a new Canned Response to Account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -2334,9 +2244,7 @@
         "description": "Update a Canned Response in Account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -2402,9 +2310,7 @@
         "description": "Remove a Canned Response from Account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -2475,9 +2381,7 @@
         "description": "Get details of custom attributes in an Account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -2516,9 +2420,7 @@
         "description": "Add a new custom attribute to account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -2578,9 +2480,7 @@
         "summary": "Get a custom attribute details",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get the details of a custom attribute in the account",
@@ -2640,9 +2540,7 @@
         "description": "Update a custom attribute in account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -2708,9 +2606,7 @@
         "description": "Remove a custom attribute from account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -2764,9 +2660,7 @@
         "summary": "List Contacts",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -2812,9 +2706,7 @@
         "summary": "Create Contact",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -2879,9 +2771,7 @@
         "summary": "Show Contact",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get a contact belonging to the account using ID",
@@ -2926,9 +2816,7 @@
         "summary": "Update Contact",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Update a contact belonging to the account using ID",
@@ -2983,9 +2871,7 @@
         "summary": "Delete Contact",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Delete a contact belonging to the account using ID",
@@ -3051,9 +2937,7 @@
         ],
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -3114,9 +2998,7 @@
         "description": "Lists all the labels of a contact",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -3161,9 +3043,7 @@
         "description": "Add labels to a contact. Note that this API would overwrite the existing list of labels associated to the conversation.",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -3236,9 +3116,7 @@
         "summary": "Search Contacts",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -3294,9 +3172,7 @@
         "summary": "Contact Filter",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -3426,9 +3302,7 @@
         ],
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -3499,9 +3373,7 @@
         "summary": "Get Contactable Inboxes",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -3575,9 +3447,7 @@
         "description": "Get details of automation rules in an Account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -3612,9 +3482,7 @@
         "description": "Add a new automation rule to account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -3675,9 +3543,7 @@
         "description": "Get the details of a automation rule in the account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -3770,9 +3636,7 @@
         "description": "Update a automation rule in account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -3838,9 +3702,7 @@
         "description": "Remove a automation rule from account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -3896,9 +3758,7 @@
         "description": "Add a new portal to account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -3948,9 +3808,7 @@
         "description": "Get details of portals in an Account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -4044,9 +3902,7 @@
         "description": "Update a portal to account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -4178,9 +4034,7 @@
         "description": "Add a new category to portal",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -4235,9 +4089,7 @@
         "description": "Add a new article to portal",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -4289,9 +4141,7 @@
         "summary": "Get Conversation Counts",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -4402,9 +4252,7 @@
         "summary": "Conversations List",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -4513,14 +4361,10 @@
         "description": "Creating a conversation in chatwoot requires a source id. \n\n Learn more about source_id: https://www.chatwoot.com/hc/user-guide/articles/1677839703-how-to-create-an-api-channel-inbox#send-messages-to-the-api-channel",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           },
           {
-            "agentBotApiKey": [
-
-            ]
+            "agentBotApiKey": []
           }
         ],
         "requestBody": {
@@ -4586,9 +4430,7 @@
         "summary": "Conversations Filter",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -4708,9 +4550,7 @@
         "summary": "Conversation Details",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get all details regarding a conversation with all messages in the conversation",
@@ -4756,14 +4596,10 @@
         "description": "Update Conversation Attributes",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           },
           {
-            "agentBotApiKey": [
-
-            ]
+            "agentBotApiKey": []
           }
         ],
         "requestBody": {
@@ -4840,14 +4676,10 @@
         "description": "Toggle the status of a conversation. Pass `status` to explicitly set the\nconversation state. Use `snoozed` along with `snoozed_until` to snooze a\nconversation until a specific time. If `snoozed_until` is omitted, the\nconversation is snoozed until the next reply from the contact. Regardless\nof the value provided, snoozed conversations always reopen on the next\nreply from the contact.",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           },
           {
-            "agentBotApiKey": [
-
-            ]
+            "agentBotApiKey": []
           }
         ],
         "requestBody": {
@@ -4958,14 +4790,10 @@
         "description": "Toggles the priority of conversation",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           },
           {
-            "agentBotApiKey": [
-
-            ]
+            "agentBotApiKey": []
           }
         ],
         "requestBody": {
@@ -5040,9 +4868,7 @@
         "description": "Updates the custom attributes of a conversation",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -5126,14 +4952,10 @@
         "description": "Assign a conversation to an agent or a team",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           },
           {
-            "agentBotApiKey": [
-
-            ]
+            "agentBotApiKey": []
           }
         ],
         "requestBody": {
@@ -5209,9 +5031,7 @@
         "summary": "List Labels",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Lists all the labels of a conversation",
@@ -5256,9 +5076,7 @@
         "summary": "Add Labels",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Add labels to a conversation. Note that this API would overwrite the existing list of labels associated to the conversation.",
@@ -5339,9 +5157,7 @@
         "summary": "Conversation Reporting Events",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get reporting events for a specific conversation. This endpoint returns events such as first response time, resolution time, and other metrics for the conversation, sorted by creation time in ascending order.",
@@ -5393,9 +5209,7 @@
         "description": "List all inboxes available in the current account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -5455,9 +5269,7 @@
         "summary": "Get an inbox",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get an inbox available in the current account",
@@ -5519,9 +5331,7 @@
         "description": "You can create more than one website inbox in each account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -5582,9 +5392,7 @@
         "summary": "Update Inbox",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Update an existing inbox",
@@ -5656,9 +5464,7 @@
         "description": "See if an agent bot is associated to the Inbox",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -5718,9 +5524,7 @@
         "summary": "Add or remove agent bot",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "To add an agent bot pass agent_bot id, to remove agent bot from an inbox pass null",
@@ -5803,9 +5607,7 @@
         "description": "Get Details of Agents in an Inbox",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -5871,9 +5673,7 @@
         "description": "Add a new Agent to Inbox",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -5968,9 +5768,7 @@
         "description": "All agents except the one passed in params will be removed",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -6065,9 +5863,7 @@
         "description": "Remove an Agent from Inbox",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -6151,9 +5947,7 @@
         "summary": "Get messages",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "List all messages of a conversation",
@@ -6236,14 +6030,10 @@
         "description": "Create a new message in the conversation.\n\n## WhatsApp Template Messages\n\nFor WhatsApp channels, you can send structured template messages using the `template_params` field. \nTemplates must be pre-approved in WhatsApp Business Manager.\n\n### Example Templates\n\n**Text with Image Header:**\n```json\n{\n  \"content\": \"Hi your order 121212 is confirmed. Please wait for further updates\",\n  \"template_params\": {\n    \"name\": \"order_confirmation\",\n    \"category\": \"MARKETING\",\n    \"language\": \"en\",\n    \"processed_params\": {\n      \"body\": {\n        \"1\": \"121212\"\n      },\n      \"header\": {\n        \"media_url\": \"https://picsum.photos/200/300\",\n        \"media_type\": \"image\"\n      }\n    }\n  }\n}\n```\n\n**Text with Copy Code Button:**\n```json\n{\n  \"content\": \"Special offer! Get 30% off your next purchase. Use the code below\",\n  \"template_params\": {\n    \"name\": \"discount_coupon\",\n    \"category\": \"MARKETING\",\n    \"language\": \"en\",\n    \"processed_params\": {\n      \"body\": {\n        \"discount_percentage\": \"30\"\n      },\n      \"buttons\": [{\n        \"type\": \"copy_code\",\n        \"parameter\": \"SAVE20\"\n      }]\n    }\n  }\n}\n```\n",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           },
           {
-            "agentBotApiKey": [
-
-            ]
+            "agentBotApiKey": []
           }
         ],
         "requestBody": {
@@ -6317,9 +6107,7 @@
         "summary": "Delete a message",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Delete a message and it's attachments from the conversation.",
@@ -6364,9 +6152,7 @@
         "summary": "List all the Integrations",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get the details of all Integrations available for the account",
@@ -6423,9 +6209,7 @@
         "description": "Create an integration hook",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -6477,9 +6261,7 @@
         "description": "Update an Integration Hook",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -6532,9 +6314,7 @@
         "description": "Delete an Integration Hook",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -6582,9 +6362,7 @@
         "description": "Get the user profile details",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -6625,9 +6403,7 @@
         "summary": "List all teams",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "List all teams available in the current account",
@@ -6666,9 +6442,7 @@
         "summary": "Create a team",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Create a team in the account",
@@ -6728,9 +6502,7 @@
         "summary": "Get a team details",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get the details of a team in the account",
@@ -6775,9 +6547,7 @@
         "summary": "Update a team",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Update a team's attributes",
@@ -6822,9 +6592,7 @@
         "summary": "Delete a team",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Delete a team from the account",
@@ -6873,9 +6641,7 @@
         "description": "Get Details of Agents in an Team",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "parameters": [
@@ -6932,9 +6698,7 @@
         "description": "Add a new Agent to Team",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -7018,9 +6782,7 @@
         "description": "All agents except the one passed in params will be removed",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -7104,9 +6866,7 @@
         "description": "Remove an Agent from Team",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -7168,1432 +6928,6 @@
         }
       }
     },
-    "/api/v1/accounts/{account_id}/labels": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Labels"
-        ],
-        "operationId": "list-all-labels",
-        "summary": "List all labels",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "List all labels in the account",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "payload": {
-                      "type": "array",
-                      "description": "Array of label objects",
-                      "items": {
-                        "$ref": "#/components/schemas/label"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Labels"
-        ],
-        "operationId": "create-a-label",
-        "summary": "Create a label",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Create a new label in the account",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/label_create_update_payload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/label"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/labels/{id}": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        },
-        {
-          "name": "id",
-          "in": "path",
-          "schema": {
-            "type": "number"
-          },
-          "description": "ID of the label",
-          "required": true
-        }
-      ],
-      "get": {
-        "tags": [
-          "Labels"
-        ],
-        "operationId": "get-a-label",
-        "summary": "Get a label",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Get a label from the account",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/label"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Label not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Labels"
-        ],
-        "operationId": "update-a-label",
-        "summary": "Update a label",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Update a label in the account",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/label_create_update_payload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/label"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Label not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Labels"
-        ],
-        "operationId": "delete-a-label",
-        "summary": "Delete a label",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Delete a label from the account",
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "The label does not exist in the account",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/campaigns": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Campaigns"
-        ],
-        "operationId": "list-all-campaigns",
-        "summary": "List all campaigns",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "List all campaigns in the account",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "description": "Array of campaign objects",
-                  "items": {
-                    "$ref": "#/components/schemas/campaign"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Campaigns"
-        ],
-        "operationId": "create-a-campaign",
-        "summary": "Create a campaign",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Create a new campaign in the account",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/campaign_create_update_payload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/campaign"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/campaigns/{id}": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        },
-        {
-          "name": "id",
-          "in": "path",
-          "schema": {
-            "type": "number"
-          },
-          "description": "ID of the campaign",
-          "required": true
-        }
-      ],
-      "get": {
-        "tags": [
-          "Campaigns"
-        ],
-        "operationId": "get-a-campaign",
-        "summary": "Get a campaign",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Get a campaign from the account",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/campaign"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Campaign not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Campaigns"
-        ],
-        "operationId": "update-a-campaign",
-        "summary": "Update a campaign",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Update a campaign in the account",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/campaign_create_update_payload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/campaign"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Campaign not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Campaigns"
-        ],
-        "operationId": "delete-a-campaign",
-        "summary": "Delete a campaign",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Delete a campaign from the account",
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "The campaign does not exist in the account",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/notifications": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Notifications"
-        ],
-        "operationId": "list-all-notifications",
-        "summary": "List all notifications",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "List all notifications for the current user in the account",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Page number for pagination"
-          },
-          {
-            "in": "query",
-            "name": "includes",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "description": "Include additional data"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "payload": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/notification"
-                          }
-                        }
-                      }
-                    },
-                    "meta": {
-                      "type": "object",
-                      "properties": {
-                        "unread_count": {
-                          "type": "integer"
-                        },
-                        "count": {
-                          "type": "integer"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/notifications/read_all": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        }
-      ],
-      "post": {
-        "tags": [
-          "Notifications"
-        ],
-        "operationId": "read-all-notifications",
-        "summary": "Mark all notifications as read",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Mark all notifications as read for the current user",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "primary_actor_type",
-            "schema": {
-              "type": "string"
-            },
-            "description": "Filter by primary actor type"
-          },
-          {
-            "in": "query",
-            "name": "primary_actor_id",
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Filter by primary actor ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/notifications/unread_count": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Notifications"
-        ],
-        "operationId": "get-unread-notification-count",
-        "summary": "Get unread notification count",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Get the count of unread notifications",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/notifications/{id}": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        },
-        {
-          "name": "id",
-          "in": "path",
-          "schema": {
-            "type": "number"
-          },
-          "description": "ID of the notification",
-          "required": true
-        }
-      ],
-      "patch": {
-        "tags": [
-          "Notifications"
-        ],
-        "operationId": "update-notification",
-        "summary": "Mark notification as read",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Mark a notification as read",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/notification"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Notification not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Notifications"
-        ],
-        "operationId": "delete-notification",
-        "summary": "Delete a notification",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Delete a notification",
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Notification not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/macros": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Macros"
-        ],
-        "operationId": "list-all-macros",
-        "summary": "List all macros",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "List all macros in the account",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "description": "Array of macro objects",
-                  "items": {
-                    "$ref": "#/components/schemas/macro"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Macros"
-        ],
-        "operationId": "create-a-macro",
-        "summary": "Create a macro",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Create a new macro in the account",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/macro_create_update_payload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/macro"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/macros/{id}": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        },
-        {
-          "name": "id",
-          "in": "path",
-          "schema": {
-            "type": "number"
-          },
-          "description": "ID of the macro",
-          "required": true
-        }
-      ],
-      "get": {
-        "tags": [
-          "Macros"
-        ],
-        "operationId": "get-a-macro",
-        "summary": "Get a macro",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Get a macro from the account",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/macro"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Macro not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Macros"
-        ],
-        "operationId": "update-a-macro",
-        "summary": "Update a macro",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Update a macro in the account",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/macro_create_update_payload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/macro"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Macro not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Macros"
-        ],
-        "operationId": "delete-a-macro",
-        "summary": "Delete a macro",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Delete a macro from the account",
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "The macro does not exist in the account",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/macros/{id}/execute": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        },
-        {
-          "name": "id",
-          "in": "path",
-          "schema": {
-            "type": "number"
-          },
-          "description": "ID of the macro",
-          "required": true
-        }
-      ],
-      "post": {
-        "tags": [
-          "Macros"
-        ],
-        "operationId": "execute-a-macro",
-        "summary": "Execute a macro",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Execute a macro on specified conversations",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "conversation_ids"
-                ],
-                "properties": {
-                  "conversation_ids": {
-                    "type": "array",
-                    "description": "List of conversation IDs to execute the macro on",
-                    "items": {
-                      "type": "integer"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Macro not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/search": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Search"
-        ],
-        "operationId": "search-all",
-        "summary": "Search across all entities",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Search for conversations, contacts, messages, and articles",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "q",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "description": "Search query string"
-          },
-          {
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Page number for pagination"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "payload": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "meta": {
-                      "type": "object"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/search/conversations": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Search"
-        ],
-        "operationId": "search-conversations",
-        "summary": "Search conversations",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Search for conversations",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "q",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "description": "Search query string"
-          },
-          {
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Page number for pagination"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "payload": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/conversation"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/search/contacts": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Search"
-        ],
-        "operationId": "search-contacts",
-        "summary": "Search contacts",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Search for contacts",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "q",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "description": "Search query string"
-          },
-          {
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Page number for pagination"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "payload": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/contact"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/accounts/{account_id}/search/messages": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/account_id"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Search"
-        ],
-        "operationId": "search-messages",
-        "summary": "Search messages",
-        "security": [
-          {
-            "userApiKey": [
-
-            ]
-          }
-        ],
-        "description": "Search for messages",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "q",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "description": "Search query string"
-          },
-          {
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Page number for pagination"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "payload": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/message"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/bad_request_error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/accounts/{account_id}/custom_filters": {
       "parameters": [
         {
@@ -8623,9 +6957,7 @@
         "description": "List all custom filters in a category of a user",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -8669,9 +7001,7 @@
         ],
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "requestBody": {
@@ -8726,9 +7056,7 @@
         "description": "Get the details of a custom filter in the account",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "responses": {
@@ -8772,9 +7100,7 @@
         "summary": "Update a custom filter",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Update a custom filter's attributes",
@@ -8819,9 +7145,7 @@
         "summary": "Delete a custom filter",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Delete a custom filter from the account",
@@ -8866,9 +7190,7 @@
         "summary": "List all webhooks",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "List all webhooks in the account",
@@ -8907,9 +7229,7 @@
         "summary": "Add a webhook",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Add a webhook subscription to the account",
@@ -8969,9 +7289,7 @@
         "summary": "Update a webhook object",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Update a webhook object in the account",
@@ -9021,9 +7339,7 @@
         "summary": "Delete a webhook",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Delete a webhook from the account",
@@ -9068,9 +7384,7 @@
         "summary": "Account Reporting Events",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get paginated reporting events for the account. This endpoint returns reporting events such as first response time, resolution time, and other metrics. Only administrators can access this endpoint. Results are paginated with 25 items per page.",
@@ -9187,9 +7501,7 @@
         "summary": "Get Account reports",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get Account reports for a specific type, metric and date range",
@@ -9280,9 +7592,7 @@
         "summary": "Get Account reports summary",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get Account reports summary for a specific type and date range",
@@ -9346,9 +7656,7 @@
         "summary": "Account Conversation Metrics",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get conversation metrics for Account",
@@ -9432,9 +7740,7 @@
         "summary": "Agent Conversation Metrics",
         "security": [
           {
-            "userApiKey": [
-
-            ]
+            "userApiKey": []
           }
         ],
         "description": "Get conversation metrics for Agent",
@@ -11216,195 +9522,6 @@
           }
         }
       },
-      "label": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "Label ID"
-          },
-          "title": {
-            "type": "string",
-            "description": "Label title"
-          },
-          "description": {
-            "type": "string",
-            "description": "Label description"
-          },
-          "color": {
-            "type": "string",
-            "description": "Label color in hex format",
-            "example": "#1F93FF"
-          },
-          "show_on_sidebar": {
-            "type": "boolean",
-            "description": "Whether to show label on sidebar"
-          }
-        }
-      },
-      "campaign": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "Campaign ID"
-          },
-          "display_id": {
-            "type": "integer",
-            "description": "Display ID of the campaign"
-          },
-          "title": {
-            "type": "string",
-            "description": "Campaign title"
-          },
-          "description": {
-            "type": "string",
-            "description": "Campaign description"
-          },
-          "message": {
-            "type": "string",
-            "description": "Campaign message content"
-          },
-          "enabled": {
-            "type": "boolean",
-            "description": "Whether the campaign is enabled"
-          },
-          "inbox": {
-            "$ref": "#/components/schemas/inbox"
-          },
-          "sender": {
-            "$ref": "#/components/schemas/agent"
-          },
-          "trigger_only_during_business_hours": {
-            "type": "boolean",
-            "description": "Trigger only during business hours"
-          },
-          "trigger_rules": {
-            "type": "object",
-            "description": "Rules for triggering the campaign"
-          },
-          "scheduled_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When the campaign is scheduled"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "notification": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "Notification ID"
-          },
-          "notification_type": {
-            "type": "string",
-            "description": "Type of notification",
-            "enum": [
-              "conversation_creation",
-              "conversation_assignment",
-              "assigned_conversation_new_message",
-              "conversation_mention",
-              "participating_conversation_new_message",
-              "sla_missed_first_response",
-              "sla_missed_next_response",
-              "sla_missed_resolution"
-            ]
-          },
-          "primary_actor_type": {
-            "type": "string",
-            "description": "Type of primary actor"
-          },
-          "primary_actor_id": {
-            "type": "integer",
-            "description": "ID of primary actor"
-          },
-          "primary_actor": {
-            "type": "object",
-            "description": "Primary actor object (conversation, etc.)"
-          },
-          "read_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When the notification was read"
-          },
-          "snoozed_until": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When the notification snooze ends"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "user": {
-            "$ref": "#/components/schemas/user"
-          }
-        }
-      },
-      "macro": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "Macro ID"
-          },
-          "name": {
-            "type": "string",
-            "description": "Macro name"
-          },
-          "visibility": {
-            "type": "string",
-            "description": "Visibility of the macro",
-            "enum": [
-              "global",
-              "personal"
-            ]
-          },
-          "actions": {
-            "type": "array",
-            "description": "List of actions to execute",
-            "items": {
-              "type": "object",
-              "properties": {
-                "action_name": {
-                  "type": "string",
-                  "description": "Name of the action"
-                },
-                "action_params": {
-                  "type": "array",
-                  "description": "Parameters for the action",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
-          "created_by": {
-            "$ref": "#/components/schemas/agent"
-          },
-          "updated_by": {
-            "$ref": "#/components/schemas/agent"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
       "public_contact": {
         "type": "object",
         "properties": {
@@ -11603,14 +9720,12 @@
           "limits": {
             "type": "object",
             "description": "The limits of the account",
-            "example": {
-            }
+            "example": {}
           },
           "custom_attributes": {
             "type": "object",
             "description": "The custom attributes of the account",
-            "example": {
-            }
+            "example": {}
           }
         }
       },
@@ -11764,8 +9879,7 @@
           "bot_config": {
             "type": "object",
             "description": "The configuration for the bot",
-            "example": {
-            }
+            "example": {}
           }
         }
       },
@@ -11795,8 +9909,7 @@
           "custom_attributes": {
             "type": "object",
             "description": "Custom attributes you want to associate with the user",
-            "example": {
-            }
+            "example": {}
           }
         }
       },
@@ -11999,8 +10112,7 @@
           "custom_attributes": {
             "type": "object",
             "description": "An object where you can store custom attributes for contact. example {\"type\":\"customer\", \"age\":30}, this should have a valid custom attribute definition.",
-            "example": {
-            }
+            "example": {}
           }
         }
       },
@@ -12053,8 +10165,7 @@
           "custom_attributes": {
             "type": "object",
             "description": "An object where you can store custom attributes for contact. example {\"type\":\"customer\", \"age\":30}, this should have a valid custom attribute definition.",
-            "example": {
-            }
+            "example": {}
           }
         }
       },
@@ -12209,8 +10320,7 @@
           "content_attributes": {
             "type": "object",
             "description": "Attributes based on the content type",
-            "example": {
-            }
+            "example": {}
           },
           "campaign_id": {
             "type": "integer",
@@ -12588,136 +10698,7 @@
           "query": {
             "type": "object",
             "description": "A query that needs to be saved as a custom filter",
-            "example": {
-            }
-          }
-        }
-      },
-      "label_create_update_payload": {
-        "type": "object",
-        "required": [
-          "title"
-        ],
-        "properties": {
-          "title": {
-            "type": "string",
-            "description": "Label title"
-          },
-          "description": {
-            "type": "string",
-            "description": "Label description"
-          },
-          "color": {
-            "type": "string",
-            "description": "Label color in hex format",
-            "example": "#1F93FF"
-          },
-          "show_on_sidebar": {
-            "type": "boolean",
-            "description": "Whether to show label on sidebar"
-          }
-        }
-      },
-      "campaign_create_update_payload": {
-        "type": "object",
-        "required": [
-          "title",
-          "message",
-          "inbox_id"
-        ],
-        "properties": {
-          "title": {
-            "type": "string",
-            "description": "Campaign title"
-          },
-          "description": {
-            "type": "string",
-            "description": "Campaign description"
-          },
-          "message": {
-            "type": "string",
-            "description": "Campaign message content"
-          },
-          "enabled": {
-            "type": "boolean",
-            "description": "Whether the campaign is enabled"
-          },
-          "inbox_id": {
-            "type": "integer",
-            "description": "ID of the inbox"
-          },
-          "sender_id": {
-            "type": "integer",
-            "description": "ID of the sender agent"
-          },
-          "trigger_only_during_business_hours": {
-            "type": "boolean",
-            "description": "Trigger only during business hours"
-          },
-          "trigger_rules": {
-            "type": "object",
-            "description": "Rules for triggering the campaign"
-          },
-          "scheduled_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When to schedule the campaign"
-          },
-          "audience": {
-            "type": "array",
-            "description": "Target audience",
-            "items": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string"
-                },
-                "id": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        }
-      },
-      "macro_create_update_payload": {
-        "type": "object",
-        "required": [
-          "name",
-          "actions"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Macro name"
-          },
-          "visibility": {
-            "type": "string",
-            "description": "Visibility of the macro",
-            "enum": [
-              "global",
-              "personal"
-            ]
-          },
-          "actions": {
-            "type": "array",
-            "description": "List of actions to execute",
-            "items": {
-              "type": "object",
-              "properties": {
-                "action_name": {
-                  "type": "string",
-                  "description": "Name of the action"
-                },
-                "action_params": {
-                  "type": "array",
-                  "description": "Parameters for the action",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
+            "example": {}
           }
         }
       },
@@ -12777,8 +10758,7 @@
           "settings": {
             "type": "object",
             "description": "The settings required by the integration",
-            "example": {
-            }
+            "example": {}
           }
         }
       },
@@ -12793,8 +10773,7 @@
           "settings": {
             "type": "object",
             "description": "The settings required by the integration",
-            "example": {
-            }
+            "example": {}
           }
         }
       },
@@ -13059,8 +11038,7 @@
           "custom_attributes": {
             "type": "object",
             "description": "Custom attributes of the customer",
-            "example": {
-            }
+            "example": {}
           }
         }
       },
@@ -13127,8 +11105,7 @@
           "custom_attributes": {
             "type": "object",
             "description": "Custom attributes of the conversation",
-            "example": {
-            }
+            "example": {}
           }
         }
       },
@@ -14617,26 +12594,6 @@
       "description": "Saved filters for conversations"
     },
     {
-      "name": "Labels",
-      "description": "Account labels for contacts and conversations"
-    },
-    {
-      "name": "Campaigns",
-      "description": "Campaign management APIs"
-    },
-    {
-      "name": "Notifications",
-      "description": "User notification APIs"
-    },
-    {
-      "name": "Macros",
-      "description": "Macro automation APIs"
-    },
-    {
-      "name": "Search",
-      "description": "Search APIs"
-    },
-    {
       "name": "Inboxes",
       "description": "Communication channels setup"
     },
@@ -14714,11 +12671,6 @@
         "Conversations",
         "Custom Attributes",
         "Custom Filters",
-        "Labels",
-        "Campaigns",
-        "Notifications",
-        "Macros",
-        "Search",
         "Inboxes",
         "Integrations",
         "Messages",

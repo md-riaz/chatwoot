@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :note do
-    content { Faker::Lorem.paragraph }
+    content { 'Hey welcome to chatwoot' }
     account
     user
     contact

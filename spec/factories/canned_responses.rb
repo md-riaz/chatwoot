@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :canned_response do
-    content { Faker::Lorem.paragraph }
+    content { 'Content' }
     sequence(:short_code) { |n| "CODE#{n}" }
     account
   end

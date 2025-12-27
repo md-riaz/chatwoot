@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :account do
     sequence(:name) { |n| "Account #{n}" }
     status { 'active' }
-    domain { Faker::Internet.domain_name }
-    support_email { Faker::Internet.email }
+    domain { 'test.com' }
+    support_email { 'support@test.com' }
   end
 end
