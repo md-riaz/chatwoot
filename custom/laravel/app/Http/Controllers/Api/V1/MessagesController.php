@@ -98,4 +98,55 @@ class MessagesController extends Controller
 
         return response()->json(null, 204);
     }
+
+    /**
+     * Translate a message to the target language.
+     */
+    public function translate(Request $request, Account $account, Conversation $conversation, Message $message): JsonResponse
+    {
+        abort_unless($conversation->account_id === $account->id, 404);
+        abort_unless($message->conversation_id === $conversation->id, 404);
+
+        $validated = $request->validate([
+            'target_language' => 'required|string|size:2',
+        ]);
+
+        $targetLanguage = $validated['target_language'];
+
+        // Check if translation already exists
+        $translations = $message->translations ?? [];
+        if (isset($translations[$targetLanguage])) {
+            return response()->json(['content' => $translations[$targetLanguage]]);
+        }
+
+        // TODO: Implement actual translation via Google Translate or similar service
+        // For now, return a placeholder
+        $translatedContent = $message->content; // Placeholder - would be translated content
+
+        // Save translation
+        $translations[$targetLanguage] = $translatedContent;
+        $message->update(['translations' => $translations]);
+
+        return response()->json(['content' => $translatedContent]);
+    }
+
+    /**
+     * Retry sending a failed message.
+     */
+    public function retry(Account $account, Conversation $conversation, Message $message): JsonResponse
+    {
+        abort_unless($conversation->account_id === $account->id, 404);
+        abort_unless($message->conversation_id === $conversation->id, 404);
+
+        // Reset message status to pending
+        $message->update([
+            'status' => Message::STATUS_SENT,
+            'content_attributes' => [],
+        ]);
+
+        // TODO: Dispatch job to resend the message
+        // SendReplyJob::dispatch($message->id);
+
+        return response()->json(['data' => new MessageResource($message)]);
+    }
 }

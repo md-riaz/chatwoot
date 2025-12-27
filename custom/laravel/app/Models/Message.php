@@ -62,11 +62,13 @@ class Message extends Model
         'external_source_id',
         'external_source_ids',
         'source_id',
+        'translations',
     ];
 
     protected $casts = [
         'content_attributes' => 'array',
         'external_source_ids' => 'array',
+        'translations' => 'array',
         'message_type' => 'integer',
         'content_type' => 'integer',
         'status' => 'integer',
