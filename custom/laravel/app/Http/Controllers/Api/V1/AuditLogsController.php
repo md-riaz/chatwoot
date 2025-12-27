@@ -16,6 +16,13 @@ class AuditLogsController extends Controller
      */
     public function index(Account $account, Request $request): JsonResource
     {
+        // Only admins (role >= 2) can view audit logs
+        $user = $request->user();
+        $accountUser = $account->users()->where('user_id', $user->id)->first();
+        if (! $accountUser || $accountUser->pivot->role < 2) {
+            abort(403, 'Only admins can view audit logs');
+        }
+
         $query = DB::table('audit_logs')
             ->where('account_id', $account->id)
             ->orderBy('created_at', 'desc');
@@ -44,14 +51,21 @@ class AuditLogsController extends Controller
             $query->where('created_at', '<=', $request->until);
         }
 
-        return JsonResource::collection($query->paginate());
+        return JsonResource::collection($query->paginate($request->get('per_page', 25)));
     }
 
     /**
      * Display the specified audit log.
      */
-    public function show(Account $account, int $logId): JsonResponse
+    public function show(Account $account, int $logId, Request $request): JsonResponse
     {
+        // Only admins can view audit logs
+        $user = $request->user();
+        $accountUser = $account->users()->where('user_id', $user->id)->first();
+        if (! $accountUser || $accountUser->pivot->role < 2) {
+            abort(403, 'Only admins can view audit logs');
+        }
+
         $log = DB::table('audit_logs')
             ->where('account_id', $account->id)
             ->where('id', $logId)
@@ -67,6 +81,13 @@ class AuditLogsController extends Controller
      */
     public function summary(Account $account, Request $request): JsonResponse
     {
+        // Only admins can view audit logs
+        $user = $request->user();
+        $accountUser = $account->users()->where('user_id', $user->id)->first();
+        if (! $accountUser || $accountUser->pivot->role < 2) {
+            abort(403, 'Only admins can view audit logs');
+        }
+
         $since = $request->get('since', now()->subDays(7)->toDateString());
         $until = $request->get('until', now()->toDateString());
 
@@ -89,6 +110,13 @@ class AuditLogsController extends Controller
      */
     public function download(Account $account, Request $request): JsonResponse
     {
+        // Only admins can export audit logs
+        $user = $request->user();
+        $accountUser = $account->users()->where('user_id', $user->id)->first();
+        if (! $accountUser || $accountUser->pivot->role < 2) {
+            abort(403, 'Only admins can export audit logs');
+        }
+
         $since = $request->get('since', now()->subDays(7)->toDateString());
         $until = $request->get('until', now()->toDateString());
 
@@ -107,8 +135,15 @@ class AuditLogsController extends Controller
     /**
      * Get audit logs for a specific resource.
      */
-    public function forResource(Account $account, string $type, int $id): JsonResource
+    public function forResource(Account $account, string $type, int $id, Request $request): JsonResource
     {
+        // Only admins can view audit logs
+        $user = $request->user();
+        $accountUser = $account->users()->where('user_id', $user->id)->first();
+        if (! $accountUser || $accountUser->pivot->role < 2) {
+            abort(403, 'Only admins can view audit logs');
+        }
+
         $logs = DB::table('audit_logs')
             ->where('account_id', $account->id)
             ->where('auditable_type', $type)

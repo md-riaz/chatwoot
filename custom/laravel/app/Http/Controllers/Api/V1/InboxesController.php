@@ -33,20 +33,70 @@ class InboxesController extends Controller
      */
     public function store(Request $request, Account $account): InboxResource
     {
+        // Only admins (role >= 2) can create inboxes
+        $user = $request->user();
+        $accountUser = $account->users()->where('user_id', $user->id)->first();
+        if (! $accountUser || $accountUser->pivot->role < 2) {
+            abort(403, 'Only admins can create inboxes');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'channel_type' => 'required|string',
+            'channel_type' => 'nullable|string',
+            'channel' => 'nullable|array',
+            'channel.type' => 'nullable|string',
+            'channel.phone_number' => 'nullable|string',
+            'channel.provider' => 'nullable|string',
+            'channel.bot_token' => 'nullable|string',
+            'channel.email' => 'nullable|email',
+            'channel.api_key' => 'nullable|string',
+            'channel.website_url' => 'nullable|string',
             'enable_auto_assignment' => 'boolean',
             'greeting_enabled' => 'boolean',
             'greeting_message' => 'nullable|string',
             'timezone' => 'nullable|string|timezone',
         ]);
 
-        $inbox = $account->inboxes()->create(array_merge($validated, [
-            'account_id' => $account->id,
-        ]));
+        // Handle channel type from nested channel object (Chatwoot style)
+        $channelType = $validated['channel_type'] ?? null;
+        if (! $channelType && isset($validated['channel']['type'])) {
+            $channelType = $this->mapChannelType($validated['channel']['type']);
+        }
+
+        if (! $channelType) {
+            return abort(422, 'The channel type field is required.');
+        }
+
+        $inbox = $account->inboxes()->create([
+            'name' => $validated['name'],
+            'channel_type' => $channelType,
+            'enable_auto_assignment' => $validated['enable_auto_assignment'] ?? true,
+            'greeting_enabled' => $validated['greeting_enabled'] ?? false,
+            'greeting_message' => $validated['greeting_message'] ?? null,
+            'timezone' => $validated['timezone'] ?? config('app.timezone'),
+        ]);
 
         return new InboxResource($inbox);
+    }
+
+    /**
+     * Map channel type from API to database format.
+     */
+    private function mapChannelType(string $type): string
+    {
+        $map = [
+            'whatsapp' => 'Channel::Whatsapp',
+            'facebook' => 'Channel::FacebookPage',
+            'telegram' => 'Channel::Telegram',
+            'email' => 'Channel::Email',
+            'sms' => 'Channel::Sms',
+            'twilio' => 'Channel::TwilioSms',
+            'line' => 'Channel::Line',
+            'api' => 'Channel::Api',
+            'web_widget' => 'Channel::WebWidget',
+        ];
+
+        return $map[strtolower($type)] ?? "Channel::{$type}";
     }
 
     /**
@@ -56,7 +106,7 @@ class InboxesController extends Controller
     {
         abort_unless($inbox->account_id === $account->id, 404);
 
-        return new InboxResource($inbox->load('channel')->loadCount('members'));
+        return new InboxResource($inbox->loadCount('members'));
     }
 
     /**
@@ -220,6 +270,19 @@ class InboxesController extends Controller
         // Channels\Whatsapp\TemplatesSyncJob::dispatch($inbox->channel);
 
         return response()->json(['message' => 'Template sync initiated successfully'], 200);
+    }
+
+    /**
+     * List message templates for inbox (WhatsApp only).
+     */
+    public function messageTemplates(Account $account, Inbox $inbox): JsonResponse
+    {
+        abort_unless($inbox->account_id === $account->id, 404);
+
+        // Return empty templates list - in production this would fetch from WhatsApp Cloud API
+        return response()->json([
+            'data' => [],
+        ]);
     }
 
     /**

@@ -205,6 +205,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('inboxes/{inbox}/agent_bot', [InboxesController::class, 'agentBot']);
         Route::post('inboxes/{inbox}/set_agent_bot', [InboxesController::class, 'setAgentBot']);
         Route::post('inboxes/{inbox}/sync_templates', [InboxesController::class, 'syncTemplates']);
+        Route::get('inboxes/{inbox}/message_templates', [InboxesController::class, 'messageTemplates']);
         Route::get('inboxes/{inbox}/health', [InboxesController::class, 'health']);
         
         // Working Hours
@@ -306,6 +307,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('audit_logs', [AuditLogsController::class, 'index']);
         Route::get('audit_logs/summary', [AuditLogsController::class, 'summary']);
         Route::get('audit_logs/download', [AuditLogsController::class, 'download']);
+        Route::get('audit_logs/export', [AuditLogsController::class, 'download']);
         Route::get('audit_logs/{log}', [AuditLogsController::class, 'show']);
         Route::get('audit_logs/{type}/{id}', [AuditLogsController::class, 'forResource']);
 
@@ -413,6 +415,15 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('openai/suggest', [OpenAIController::class, 'suggest']);
             Route::post('openai/summarize', [OpenAIController::class, 'summarize']);
             Route::post('openai/improve_tone', [OpenAIController::class, 'improveTone']);
+        });
+
+        // Callbacks (OAuth and webhooks for channels)
+        Route::prefix('callbacks')->group(function () {
+            Route::get('facebook/authorize', [FacebookController::class, 'authorize']);
+            Route::get('facebook/pages', [FacebookController::class, 'pages']);
+            Route::post('facebook/create', [FacebookController::class, 'createFromCallback']);
+            Route::get('twitter/authorize', [TwitterController::class, 'authorize']);
+            Route::post('twitter/callback', [TwitterController::class, 'callback']);
         });
     });
 

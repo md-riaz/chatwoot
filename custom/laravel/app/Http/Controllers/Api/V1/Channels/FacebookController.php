@@ -78,17 +78,54 @@ class FacebookController extends Controller
     }
 
     /**
-     * Get Facebook pages for authorization.
+     * Initiate Facebook OAuth flow.
      */
-    public function pages(Request $request): JsonResponse
+    public function authorize(Request $request, Account $account): JsonResponse
     {
-        $validated = $request->validate([
-            'access_token' => 'required|string',
+        $redirectUri = config('services.facebook.redirect_uri', url('/callback'));
+        $appId = config('services.facebook.app_id', '');
+
+        $oauthUrl = "https://www.facebook.com/v18.0/dialog/oauth?" . http_build_query([
+            'client_id' => $appId,
+            'redirect_uri' => $redirectUri,
+            'scope' => 'pages_show_list,pages_messaging,pages_manage_metadata',
+            'response_type' => 'code',
         ]);
 
-        // Fetch pages from Facebook Graph API
+        return response()->json([
+            'authorization_url' => $oauthUrl,
+        ]);
+    }
+
+    /**
+     * Get Facebook pages for authorization.
+     */
+    public function pages(Request $request, Account $account): JsonResponse
+    {
+        // Access token can come from session or request
+        // In production, fetch pages from Facebook Graph API
         $pages = [];
 
         return response()->json(['data' => $pages]);
+    }
+
+    /**
+     * Create Facebook inbox from OAuth callback.
+     */
+    public function createFromCallback(Request $request, Account $account): JsonResponse
+    {
+        $validated = $request->validate([
+            'page_id' => 'required|string',
+            'page_access_token' => 'required|string',
+            'name' => 'required|string|max:255',
+        ]);
+
+        $inbox = Inbox::create([
+            'name' => $validated['name'],
+            'account_id' => $account->id,
+            'channel_type' => 'Channel::FacebookPage',
+        ]);
+
+        return response()->json(['data' => $inbox], 201);
     }
 }

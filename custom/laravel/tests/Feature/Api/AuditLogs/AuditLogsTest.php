@@ -144,7 +144,8 @@ describe('Audit Log Authorization', function () {
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/audit_logs");
 
-        $response->assertNotFound();
+        // Returns 403 (forbidden) since user exists but lacks permission
+        $response->assertForbidden();
     });
 });
 
