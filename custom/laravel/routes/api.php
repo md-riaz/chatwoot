@@ -374,6 +374,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Integrations
         Route::prefix('integrations')->group(function () {
             Route::get('/', [IntegrationsController::class, 'index']);
+            Route::get('apps', [IntegrationsController::class, 'index']); // Alias
             Route::get('hooks', [IntegrationsController::class, 'hooks']);
             Route::post('hooks', [IntegrationsController::class, 'createHook']);
             Route::patch('hooks/{hook}', [IntegrationsController::class, 'updateHook']);
@@ -381,6 +382,7 @@ Route::middleware('auth:sanctum')->group(function () {
             
             // Slack
             Route::get('slack', [SlackController::class, 'show']);
+            Route::get('slack/authorize', [SlackController::class, 'authorize']);
             Route::post('slack', [SlackController::class, 'create']);
             Route::patch('slack', [SlackController::class, 'update']);
             Route::delete('slack', [SlackController::class, 'destroy']);
