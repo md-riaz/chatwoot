@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Api\V1\Concerns\RequiresAccountAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Webhook;
@@ -11,6 +12,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class WebhooksController extends Controller
 {
+    use RequiresAccountAdmin;
     /**
      * Display a listing of webhooks for an account.
      * Requires admin role.
@@ -90,18 +92,5 @@ class WebhooksController extends Controller
         $webhook->delete();
 
         return response()->json(null, 204);
-    }
-    
-    /**
-     * Ensure the current user is an admin of the account.
-     */
-    private function ensureAdmin(Request $request, Account $account): void
-    {
-        $user = $request->user();
-        $accountUser = $account->users()->where('user_id', $user->id)->first();
-        
-        if (!$accountUser || $accountUser->pivot->role < 2) {
-            abort(403, 'Admin access required');
-        }
     }
 }

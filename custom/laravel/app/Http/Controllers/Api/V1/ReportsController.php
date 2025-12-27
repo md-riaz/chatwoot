@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Api\V1\Concerns\RequiresAccountAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use Illuminate\Http\JsonResponse;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class ReportsController extends Controller
 {
+    use RequiresAccountAdmin;
     /**
      * Get account reports summary.
      * Requires admin role.
@@ -187,18 +189,5 @@ class ReportsController extends Controller
             'outgoing_count' => (clone $conversations)->where('messages.message_type', 1)->count(),
             'resolutions_count' => (clone $conversations)->where('status', 'resolved')->count(),
         ];
-    }
-    
-    /**
-     * Ensure the current user is an admin of the account.
-     */
-    private function ensureAdmin(Request $request, Account $account): void
-    {
-        $user = $request->user();
-        $accountUser = $account->users()->where('user_id', $user->id)->first();
-        
-        if (!$accountUser || $accountUser->pivot->role < 2) {
-            abort(403, 'Admin access required');
-        }
     }
 }
