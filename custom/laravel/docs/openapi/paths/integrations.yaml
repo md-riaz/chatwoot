@@ -1,0 +1,726 @@
+# Integrations API Paths
+
+/accounts/{account_id}/integrations:
+  get:
+    tags:
+      - Integrations
+    summary: List integrations
+    description: Get all available integrations and their status
+    operationId: listIntegrations
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: List of integrations
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "slack"
+                      name:
+                        type: string
+                        example: "Slack"
+                      description:
+                        type: string
+                      enabled:
+                        type: boolean
+                      hooks:
+                        type: array
+                        items:
+                          type: object
+            example:
+              data:
+                - id: "slack"
+                  name: "Slack"
+                  description: "Connect Slack for notifications"
+                  enabled: true
+                - id: "dialogflow"
+                  name: "Dialogflow"
+                  description: "AI-powered chatbot"
+                  enabled: false
+
+# Slack Integration
+/accounts/{account_id}/integrations/slack:
+  get:
+    tags:
+      - Integrations
+    summary: Get Slack integration
+    description: Get Slack integration configuration
+    operationId: getSlackIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Slack integration details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                slack_channel_id:
+                  type: string
+                team_name:
+                  type: string
+
+  post:
+    tags:
+      - Integrations
+    summary: Create Slack integration
+    description: Connect Slack to the account (Admin only)
+    operationId: createSlackIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - code
+            properties:
+              code:
+                type: string
+                description: OAuth authorization code
+                example: "xoxb-..."
+          example:
+            code: "xoxb-123456789"
+    responses:
+      '201':
+        description: Slack integration created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Slack integration created"
+
+  delete:
+    tags:
+      - Integrations
+    summary: Delete Slack integration
+    description: Disconnect Slack from the account (Admin only)
+    operationId: deleteSlackIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Slack integration deleted
+
+/accounts/{account_id}/integrations/slack/channels:
+  get:
+    tags:
+      - Integrations
+    summary: List Slack channels
+    description: Get available Slack channels for the connected workspace
+    operationId: listSlackChannels
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: List of Slack channels
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "C12345678"
+                  name:
+                    type: string
+                    example: "support"
+
+# Dialogflow Integration
+/accounts/{account_id}/integrations/dialogflow:
+  get:
+    tags:
+      - Integrations
+    summary: Get Dialogflow integration
+    description: Get Dialogflow integration configuration
+    operationId: getDialogflowIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Dialogflow integration details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                project_id:
+                  type: string
+                inbox_ids:
+                  type: array
+                  items:
+                    type: integer
+
+  post:
+    tags:
+      - Integrations
+    summary: Create Dialogflow integration
+    description: Configure Dialogflow integration (Admin only)
+    operationId: createDialogflowIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - project_id
+              - credentials
+            properties:
+              project_id:
+                type: string
+                example: "my-gcp-project"
+              credentials:
+                type: object
+                description: Google Cloud service account JSON
+              inbox_ids:
+                type: array
+                items:
+                  type: integer
+                example: [1, 2]
+          example:
+            project_id: "my-gcp-project"
+            credentials:
+              type: "service_account"
+              project_id: "my-gcp-project"
+            inbox_ids: [1]
+    responses:
+      '201':
+        description: Dialogflow integration created
+
+  delete:
+    tags:
+      - Integrations
+    summary: Delete Dialogflow integration
+    description: Remove Dialogflow integration (Admin only)
+    operationId: deleteDialogflowIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Dialogflow integration deleted
+
+# OpenAI Integration
+/accounts/{account_id}/integrations/openai:
+  get:
+    tags:
+      - Integrations
+    summary: Get OpenAI integration
+    description: Get OpenAI integration configuration
+    operationId: getOpenAIIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: OpenAI integration details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                features:
+                  type: array
+                  items:
+                    type: string
+                  example: ["reply_suggestion", "summarization"]
+
+  post:
+    tags:
+      - Integrations
+    summary: Create OpenAI integration
+    description: Configure OpenAI integration (Admin only)
+    operationId: createOpenAIIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - api_key
+            properties:
+              api_key:
+                type: string
+                example: "sk-..."
+              model:
+                type: string
+                default: "gpt-4"
+                example: "gpt-4"
+          example:
+            api_key: "sk-abc123..."
+            model: "gpt-4"
+    responses:
+      '201':
+        description: OpenAI integration created
+
+  delete:
+    tags:
+      - Integrations
+    summary: Delete OpenAI integration
+    description: Remove OpenAI integration (Admin only)
+    operationId: deleteOpenAIIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: OpenAI integration deleted
+
+/accounts/{account_id}/integrations/openai/suggest:
+  post:
+    tags:
+      - Integrations
+    summary: Get reply suggestions
+    description: Get AI-powered reply suggestions for a conversation
+    operationId: getOpenAISuggestions
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - conversation_id
+            properties:
+              conversation_id:
+                type: integer
+                example: 1
+              tone:
+                type: string
+                enum: [formal, friendly, professional]
+                example: "friendly"
+          example:
+            conversation_id: 1
+            tone: "friendly"
+    responses:
+      '200':
+        description: Reply suggestions
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                suggestions:
+                  type: array
+                  items:
+                    type: string
+            example:
+              suggestions:
+                - "Thank you for reaching out! I'd be happy to help..."
+                - "I understand your concern. Let me look into this..."
+
+/accounts/{account_id}/integrations/openai/summarize:
+  post:
+    tags:
+      - Integrations
+    summary: Summarize conversation
+    description: Get AI-powered conversation summary
+    operationId: summarizeConversation
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - conversation_id
+            properties:
+              conversation_id:
+                type: integer
+                example: 1
+          example:
+            conversation_id: 1
+    responses:
+      '200':
+        description: Conversation summary
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                summary:
+                  type: string
+            example:
+              summary: "Customer inquired about order #12345 shipping status. Agent confirmed the order shipped yesterday and provided tracking number."
+
+# Linear Integration
+/accounts/{account_id}/integrations/linear:
+  get:
+    tags:
+      - Integrations
+    summary: Get Linear integration
+    description: Get Linear integration configuration
+    operationId: getLinearIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Linear integration details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                team_id:
+                  type: string
+
+  post:
+    tags:
+      - Integrations
+    summary: Create Linear integration
+    description: Configure Linear integration (Admin only)
+    operationId: createLinearIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - code
+            properties:
+              code:
+                type: string
+                description: OAuth authorization code
+          example:
+            code: "lin_oauth_..."
+    responses:
+      '201':
+        description: Linear integration created
+
+  delete:
+    tags:
+      - Integrations
+    summary: Delete Linear integration
+    description: Remove Linear integration (Admin only)
+    operationId: deleteLinearIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Linear integration deleted
+
+/accounts/{account_id}/integrations/linear/issues:
+  post:
+    tags:
+      - Integrations
+    summary: Create Linear issue
+    description: Create a Linear issue from a conversation
+    operationId: createLinearIssue
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - conversation_id
+              - title
+            properties:
+              conversation_id:
+                type: integer
+                example: 1
+              title:
+                type: string
+                example: "Bug: Login not working"
+              description:
+                type: string
+                example: "Customer reports login page showing error"
+              team_id:
+                type: string
+              priority:
+                type: integer
+                enum: [0, 1, 2, 3, 4]
+          example:
+            conversation_id: 1
+            title: "Bug: Login not working"
+            description: "Customer reports login page showing error"
+    responses:
+      '201':
+        description: Linear issue created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                issue_id:
+                  type: string
+                issue_url:
+                  type: string
+            example:
+              issue_id: "ABC-123"
+              issue_url: "https://linear.app/team/issue/ABC-123"
+
+# Shopify Integration
+/accounts/{account_id}/integrations/shopify:
+  get:
+    tags:
+      - Integrations
+    summary: Get Shopify integration
+    description: Get Shopify integration configuration
+    operationId: getShopifyIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Shopify integration details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                shop_domain:
+                  type: string
+                  example: "mystore.myshopify.com"
+
+  post:
+    tags:
+      - Integrations
+    summary: Create Shopify integration
+    description: Configure Shopify integration (Admin only)
+    operationId: createShopifyIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - shop_domain
+              - access_token
+            properties:
+              shop_domain:
+                type: string
+                example: "mystore.myshopify.com"
+              access_token:
+                type: string
+                example: "shpat_..."
+          example:
+            shop_domain: "mystore.myshopify.com"
+            access_token: "shpat_abc123..."
+    responses:
+      '201':
+        description: Shopify integration created
+
+  delete:
+    tags:
+      - Integrations
+    summary: Delete Shopify integration
+    description: Remove Shopify integration (Admin only)
+    operationId: deleteShopifyIntegration
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Shopify integration deleted
+
+/accounts/{account_id}/integrations/shopify/contacts/{contact_id}/orders:
+  get:
+    tags:
+      - Integrations
+    summary: Get customer orders
+    description: Get Shopify orders for a contact
+    operationId: getShopifyOrders
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Customer orders
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  order_number:
+                    type: string
+                  total_price:
+                    type: string
+                  financial_status:
+                    type: string
+                  fulfillment_status:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+            example:
+              - id: "123456789"
+                order_number: "#1001"
+                total_price: "99.99"
+                financial_status: "paid"
+                fulfillment_status: "fulfilled"
+                created_at: "2025-01-01T10:00:00Z"

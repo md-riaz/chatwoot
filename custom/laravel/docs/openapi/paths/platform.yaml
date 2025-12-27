@@ -1,0 +1,599 @@
+# Platform API Paths
+
+/platform/users:
+  post:
+    tags:
+      - Platform
+    summary: Create user
+    description: Create a new user via platform API
+    operationId: createPlatformUser
+    security:
+      - apiKeyAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - email
+            properties:
+              name:
+                type: string
+                example: "John Doe"
+              email:
+                type: string
+                format: email
+                example: "john@example.com"
+              password:
+                type: string
+                format: password
+                example: "password123"
+              custom_attributes:
+                type: object
+                additionalProperties: true
+          example:
+            name: "John Doe"
+            email: "john@example.com"
+            password: "password123"
+    responses:
+      '201':
+        description: User created
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/User'
+      '422':
+        description: Validation error
+
+/platform/users/{user_id}:
+  get:
+    tags:
+      - Platform
+    summary: Get user
+    description: Get user details by ID
+    operationId: getPlatformUser
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: User details
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/User'
+      '404':
+        description: User not found
+
+  patch:
+    tags:
+      - Platform
+    summary: Update user
+    description: Update user details
+    operationId: updatePlatformUser
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+              custom_attributes:
+                type: object
+          example:
+            name: "John Updated"
+    responses:
+      '200':
+        description: User updated
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/User'
+
+  delete:
+    tags:
+      - Platform
+    summary: Delete user
+    description: Delete a user
+    operationId: deletePlatformUser
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: User deleted
+
+/platform/users/{user_id}/login:
+  get:
+    tags:
+      - Platform
+    summary: SSO login URL
+    description: Generate SSO login URL for a user
+    operationId: getPlatformUserLogin
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: SSO login URL
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  example: "https://app.clearline.io/auth/sso?token=abc123"
+            example:
+              url: "https://app.clearline.io/auth/sso?token=abc123"
+
+/platform/users/{user_id}/token:
+  post:
+    tags:
+      - Platform
+    summary: Generate access token
+    description: Generate an access token for a user
+    operationId: createPlatformUserToken
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "API Token"
+          example:
+            name: "API Token"
+    responses:
+      '200':
+        description: Access token generated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: "1|abc123def456..."
+            example:
+              token: "1|abc123def456..."
+
+/platform/accounts:
+  get:
+    tags:
+      - Platform
+    summary: List accounts
+    description: List all accounts
+    operationId: listPlatformAccounts
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          default: 25
+    responses:
+      '200':
+        description: List of accounts
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/Account'
+                meta:
+                  $ref: '../openapi.yaml#/components/schemas/Pagination'
+
+  post:
+    tags:
+      - Platform
+    summary: Create account
+    description: Create a new account
+    operationId: createPlatformAccount
+    security:
+      - apiKeyAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                example: "Acme Corp"
+              locale:
+                type: string
+                example: "en"
+          example:
+            name: "Acme Corp"
+            locale: "en"
+    responses:
+      '201':
+        description: Account created
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Account'
+
+/platform/accounts/{account_id}:
+  get:
+    tags:
+      - Platform
+    summary: Get account
+    description: Get account details
+    operationId: getPlatformAccount
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Account details
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Account'
+
+  patch:
+    tags:
+      - Platform
+    summary: Update account
+    description: Update account details
+    operationId: updatePlatformAccount
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              locale:
+                type: string
+          example:
+            name: "Acme Corp Updated"
+    responses:
+      '200':
+        description: Account updated
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Account'
+
+  delete:
+    tags:
+      - Platform
+    summary: Delete account
+    description: Delete an account
+    operationId: deletePlatformAccount
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Account deleted
+
+/platform/accounts/{account_id}/account_users:
+  get:
+    tags:
+      - Platform
+    summary: List account users
+    description: List all users in an account
+    operationId: listPlatformAccountUsers
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: List of account users
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                  role:
+                    type: string
+                    enum: [agent, administrator]
+                  user:
+                    $ref: '../openapi.yaml#/components/schemas/User'
+
+  post:
+    tags:
+      - Platform
+    summary: Add user to account
+    description: Add a user to an account
+    operationId: createPlatformAccountUser
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_id
+              - role
+            properties:
+              user_id:
+                type: integer
+                example: 1
+              role:
+                type: string
+                enum: [agent, administrator]
+                example: "agent"
+          example:
+            user_id: 1
+            role: "agent"
+    responses:
+      '201':
+        description: User added to account
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "User added to account"
+
+  delete:
+    tags:
+      - Platform
+    summary: Remove user from account
+    description: Remove a user from an account
+    operationId: deletePlatformAccountUser
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_id
+            properties:
+              user_id:
+                type: integer
+                example: 1
+          example:
+            user_id: 1
+    responses:
+      '200':
+        description: User removed from account
+
+/platform/agent_bots:
+  get:
+    tags:
+      - Platform
+    summary: List global agent bots
+    description: List all global agent bots
+    operationId: listPlatformAgentBots
+    security:
+      - apiKeyAuth: []
+    responses:
+      '200':
+        description: List of agent bots
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../openapi.yaml#/components/schemas/AgentBot'
+
+  post:
+    tags:
+      - Platform
+    summary: Create global agent bot
+    description: Create a new global agent bot
+    operationId: createPlatformAgentBot
+    security:
+      - apiKeyAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                example: "Support Bot"
+              description:
+                type: string
+                example: "Automated support assistant"
+              outgoing_url:
+                type: string
+                format: uri
+                example: "https://bot.example.com/webhook"
+              bot_type:
+                type: string
+                enum: [webhook, csml, dialogflow]
+                example: "webhook"
+              bot_config:
+                type: object
+          example:
+            name: "Support Bot"
+            description: "Automated support assistant"
+            outgoing_url: "https://bot.example.com/webhook"
+            bot_type: "webhook"
+    responses:
+      '201':
+        description: Agent bot created
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/AgentBot'
+
+/platform/agent_bots/{agent_bot_id}:
+  get:
+    tags:
+      - Platform
+    summary: Get agent bot
+    description: Get agent bot details
+    operationId: getPlatformAgentBot
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: agent_bot_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Agent bot details
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/AgentBot'
+
+  patch:
+    tags:
+      - Platform
+    summary: Update agent bot
+    description: Update agent bot configuration
+    operationId: updatePlatformAgentBot
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: agent_bot_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              outgoing_url:
+                type: string
+                format: uri
+          example:
+            name: "Updated Bot Name"
+    responses:
+      '200':
+        description: Agent bot updated
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/AgentBot'
+
+  delete:
+    tags:
+      - Platform
+    summary: Delete agent bot
+    description: Delete an agent bot
+    operationId: deletePlatformAgentBot
+    security:
+      - apiKeyAuth: []
+    parameters:
+      - name: agent_bot_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Agent bot deleted

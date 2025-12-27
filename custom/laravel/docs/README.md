@@ -9,6 +9,18 @@ This directory contains comprehensive documentation for the ClearLine Laravel AP
 | [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | Complete API reference with all endpoints, methods, and permissions |
 | [AUTHORIZATION.md](AUTHORIZATION.md) | Authorization system, roles, policies, and middleware |
 | [INTEGRATIONS.md](INTEGRATIONS.md) | Detailed guide for all channel and third-party integrations |
+| [openapi/](openapi/) | **OpenAPI 3.0 specifications** for all API endpoints |
+
+## OpenAPI Specification
+
+The `openapi/` directory contains machine-readable API specifications that can be used for:
+
+- **Interactive Documentation**: Import into Swagger UI or Redoc
+- **API Testing**: Import into Postman with example data preloaded
+- **SDK Generation**: Generate client libraries in any language
+- **API Validation**: Validate requests and responses
+
+See [openapi/README.md](openapi/README.md) for detailed usage instructions.
 
 ## Quick Links
 

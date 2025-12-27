@@ -1,0 +1,807 @@
+# Notifications, Canned Responses, Campaigns, Automation API Paths
+
+# Notifications
+/notifications:
+  get:
+    tags:
+      - Notifications
+    summary: List notifications
+    description: Get all notifications for the current user
+    operationId: listNotifications
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          default: 25
+    responses:
+      '200':
+        description: List of notifications
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/Notification'
+                meta:
+                  $ref: '../openapi.yaml#/components/schemas/Pagination'
+            example:
+              data:
+                - id: 1
+                  notification_type: "conversation_assignment"
+                  read_at: null
+                  primary_actor_type: "Conversation"
+                  primary_actor_id: 123
+                  created_at: "2025-01-01T10:00:00Z"
+
+/notifications/unread_count:
+  get:
+    tags:
+      - Notifications
+    summary: Get unread count
+    description: Get count of unread notifications
+    operationId: getUnreadCount
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: Unread notification count
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                unread_count:
+                  type: integer
+                  example: 5
+
+/notifications/{notification_id}/read:
+  post:
+    tags:
+      - Notifications
+    summary: Mark as read
+    description: Mark a notification as read
+    operationId: markNotificationAsRead
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: notification_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Notification marked as read
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Notification'
+
+/notifications/read_all:
+  post:
+    tags:
+      - Notifications
+    summary: Mark all as read
+    description: Mark all notifications as read
+    operationId: markAllNotificationsAsRead
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: All notifications marked as read
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "All notifications marked as read"
+
+/notifications/{notification_id}:
+  delete:
+    tags:
+      - Notifications
+    summary: Delete notification
+    description: Delete a notification
+    operationId: deleteNotification
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: notification_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Notification deleted
+
+/notification_subscriptions:
+  post:
+    tags:
+      - Notifications
+    summary: Subscribe to push notifications
+    description: Register device for push notifications
+    operationId: createNotificationSubscription
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - subscription_type
+            properties:
+              subscription_type:
+                type: string
+                enum: [browser_push, fcm]
+                example: "fcm"
+              subscription_attributes:
+                type: object
+                properties:
+                  push_token:
+                    type: string
+                    description: FCM registration token
+                  endpoint:
+                    type: string
+                    description: Browser push endpoint URL
+                  p256dh:
+                    type: string
+                    description: Browser push p256dh key
+                  auth:
+                    type: string
+                    description: Browser push auth secret
+          example:
+            subscription_type: "fcm"
+            subscription_attributes:
+              push_token: "fcm_token_here..."
+    responses:
+      '201':
+        description: Subscription created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Subscription created"
+
+  delete:
+    tags:
+      - Notifications
+    summary: Unsubscribe from push notifications
+    description: Remove push notification subscription
+    operationId: deleteNotificationSubscription
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - push_token
+            properties:
+              push_token:
+                type: string
+          example:
+            push_token: "fcm_token_here..."
+    responses:
+      '200':
+        description: Subscription deleted
+
+# Canned Responses
+/accounts/{account_id}/canned_responses:
+  get:
+    tags:
+      - Canned Responses
+    summary: List canned responses
+    description: Get all canned responses for an account
+    operationId: listCannedResponses
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: search
+        in: query
+        schema:
+          type: string
+        description: Search by short code or content
+    responses:
+      '200':
+        description: List of canned responses
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/CannedResponse'
+            example:
+              data:
+                - id: 1
+                  short_code: "greeting"
+                  content: "Hello! How can I help you today?"
+                - id: 2
+                  short_code: "thanks"
+                  content: "Thank you for contacting us!"
+
+  post:
+    tags:
+      - Canned Responses
+    summary: Create canned response
+    description: Create a new canned response
+    operationId: createCannedResponse
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - short_code
+              - content
+            properties:
+              short_code:
+                type: string
+                example: "greeting"
+              content:
+                type: string
+                example: "Hello! How can I help you today?"
+          example:
+            short_code: "greeting"
+            content: "Hello! How can I help you today?"
+    responses:
+      '201':
+        description: Canned response created
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/CannedResponse'
+
+/accounts/{account_id}/canned_responses/{canned_response_id}:
+  get:
+    tags:
+      - Canned Responses
+    summary: Get canned response
+    description: Get canned response details
+    operationId: getCannedResponse
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: canned_response_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Canned response details
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/CannedResponse'
+
+  patch:
+    tags:
+      - Canned Responses
+    summary: Update canned response
+    description: Update canned response content
+    operationId: updateCannedResponse
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: canned_response_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              short_code:
+                type: string
+              content:
+                type: string
+          example:
+            content: "Updated greeting message!"
+    responses:
+      '200':
+        description: Canned response updated
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/CannedResponse'
+
+  delete:
+    tags:
+      - Canned Responses
+    summary: Delete canned response
+    description: Delete a canned response
+    operationId: deleteCannedResponse
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: canned_response_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Canned response deleted
+
+# Campaigns
+/accounts/{account_id}/campaigns:
+  get:
+    tags:
+      - Campaigns
+    summary: List campaigns
+    description: Get all campaigns for an account
+    operationId: listCampaigns
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: List of campaigns
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/Campaign'
+
+  post:
+    tags:
+      - Campaigns
+    summary: Create campaign
+    description: Create a new campaign (Admin only)
+    operationId: createCampaign
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - title
+              - message
+              - inbox_id
+            properties:
+              title:
+                type: string
+                example: "Welcome Campaign"
+              message:
+                type: string
+                example: "Hello! Welcome to our website."
+              inbox_id:
+                type: integer
+                example: 1
+              campaign_type:
+                type: string
+                enum: [one_off, ongoing]
+                default: "ongoing"
+              trigger_rules:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    example: "pricing"
+                  time_on_page:
+                    type: integer
+                    example: 10
+              sender_id:
+                type: integer
+              scheduled_at:
+                type: string
+                format: date-time
+          example:
+            title: "Welcome Campaign"
+            message: "Hello! Welcome to our website."
+            inbox_id: 1
+            campaign_type: "ongoing"
+            trigger_rules:
+              url: "pricing"
+              time_on_page: 10
+    responses:
+      '201':
+        description: Campaign created
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Campaign'
+
+/accounts/{account_id}/campaigns/{campaign_id}:
+  get:
+    tags:
+      - Campaigns
+    summary: Get campaign
+    description: Get campaign details
+    operationId: getCampaign
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: campaign_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Campaign details
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Campaign'
+
+  patch:
+    tags:
+      - Campaigns
+    summary: Update campaign
+    description: Update campaign configuration (Admin only)
+    operationId: updateCampaign
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: campaign_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              message:
+                type: string
+              campaign_status:
+                type: string
+                enum: [active, completed]
+              trigger_rules:
+                type: object
+    responses:
+      '200':
+        description: Campaign updated
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Campaign'
+
+  delete:
+    tags:
+      - Campaigns
+    summary: Delete campaign
+    description: Delete a campaign (Admin only)
+    operationId: deleteCampaign
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: campaign_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Campaign deleted
+
+# Automation Rules
+/accounts/{account_id}/automation_rules:
+  get:
+    tags:
+      - Automation Rules
+    summary: List automation rules
+    description: Get all automation rules for an account
+    operationId: listAutomationRules
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: List of automation rules
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/AutomationRule'
+
+  post:
+    tags:
+      - Automation Rules
+    summary: Create automation rule
+    description: Create a new automation rule (Admin only)
+    operationId: createAutomationRule
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - event_name
+              - conditions
+              - actions
+            properties:
+              name:
+                type: string
+                example: "Auto-assign VIP customers"
+              description:
+                type: string
+              event_name:
+                type: string
+                enum: [conversation_created, conversation_updated, message_created]
+                example: "conversation_created"
+              active:
+                type: boolean
+                default: true
+              conditions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    attribute_key:
+                      type: string
+                    filter_operator:
+                      type: string
+                    values:
+                      type: array
+                      items:
+                        type: string
+              actions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    action_name:
+                      type: string
+                    action_params:
+                      type: array
+                      items: {}
+          example:
+            name: "Auto-assign VIP customers"
+            event_name: "conversation_created"
+            conditions:
+              - attribute_key: "contact_custom_attribute.customer_type"
+                filter_operator: "equal_to"
+                values: ["VIP"]
+            actions:
+              - action_name: "assign_team"
+                action_params: [1]
+    responses:
+      '201':
+        description: Automation rule created
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/AutomationRule'
+
+/accounts/{account_id}/automation_rules/{rule_id}:
+  get:
+    tags:
+      - Automation Rules
+    summary: Get automation rule
+    description: Get automation rule details
+    operationId: getAutomationRule
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: rule_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Automation rule details
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/AutomationRule'
+
+  patch:
+    tags:
+      - Automation Rules
+    summary: Update automation rule
+    description: Update automation rule configuration (Admin only)
+    operationId: updateAutomationRule
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: rule_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              active:
+                type: boolean
+              conditions:
+                type: array
+                items:
+                  type: object
+              actions:
+                type: array
+                items:
+                  type: object
+    responses:
+      '200':
+        description: Automation rule updated
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/AutomationRule'
+
+  delete:
+    tags:
+      - Automation Rules
+    summary: Delete automation rule
+    description: Delete an automation rule (Admin only)
+    operationId: deleteAutomationRule
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: rule_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Automation rule deleted
+
+/accounts/{account_id}/automation_rules/{rule_id}/clone:
+  post:
+    tags:
+      - Automation Rules
+    summary: Clone automation rule
+    description: Create a copy of an automation rule
+    operationId: cloneAutomationRule
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: rule_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '201':
+        description: Automation rule cloned
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/AutomationRule'

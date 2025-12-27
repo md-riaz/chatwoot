@@ -1,0 +1,592 @@
+# Conversations API Paths
+
+/accounts/{account_id}/conversations:
+  get:
+    tags:
+      - Conversations
+    summary: List conversations
+    description: Get all conversations for an account with optional filters
+    operationId: listConversations
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 1
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum: [open, resolved, pending, snoozed, all]
+        example: "open"
+      - name: assignee_id
+        in: query
+        schema:
+          type: integer
+        description: Filter by assignee
+      - name: inbox_id
+        in: query
+        schema:
+          type: integer
+        description: Filter by inbox
+      - name: team_id
+        in: query
+        schema:
+          type: integer
+        description: Filter by team
+      - name: priority
+        in: query
+        schema:
+          type: string
+          enum: [low, medium, high, urgent]
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          default: 25
+    responses:
+      '200':
+        description: List of conversations
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/Conversation'
+                meta:
+                  $ref: '../openapi.yaml#/components/schemas/Pagination'
+            example:
+              data:
+                - id: 1
+                  display_id: 101
+                  status: "open"
+                  inbox_id: 1
+                  contact_id: 1
+                  assignee_id: 2
+              meta:
+                current_page: 1
+                per_page: 25
+                total: 50
+
+  post:
+    tags:
+      - Conversations
+    summary: Create conversation
+    description: Create a new conversation
+    operationId: createConversation
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - inbox_id
+              - contact_id
+            properties:
+              inbox_id:
+                type: integer
+                example: 1
+              contact_id:
+                type: integer
+                example: 1
+              status:
+                type: string
+                enum: [open, resolved, pending]
+                example: "open"
+              assignee_id:
+                type: integer
+              team_id:
+                type: integer
+              message:
+                type: object
+                properties:
+                  content:
+                    type: string
+                    example: "Hello, how can I help you?"
+          example:
+            inbox_id: 1
+            contact_id: 1
+            status: "open"
+            message:
+              content: "Hello, how can I help you?"
+    responses:
+      '201':
+        description: Conversation created
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Conversation'
+
+/accounts/{account_id}/conversations/{conversation_id}:
+  get:
+    tags:
+      - Conversations
+    summary: Get conversation
+    description: Get a specific conversation by ID
+    operationId: getConversation
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Conversation details
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Conversation'
+      '404':
+        description: Conversation not found
+
+  patch:
+    tags:
+      - Conversations
+    summary: Update conversation
+    description: Update conversation details
+    operationId: updateConversation
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [open, resolved, pending, snoozed]
+              priority:
+                type: string
+                enum: [low, medium, high, urgent]
+              team_id:
+                type: integer
+              snoozed_until:
+                type: string
+                format: date-time
+          example:
+            status: "resolved"
+            priority: "high"
+    responses:
+      '200':
+        description: Conversation updated
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Conversation'
+
+  delete:
+    tags:
+      - Conversations
+    summary: Delete conversation
+    description: Delete a conversation (Admin only)
+    operationId: deleteConversation
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Conversation deleted
+      '403':
+        description: Forbidden - Admin access required
+
+/accounts/{account_id}/conversations/meta:
+  get:
+    tags:
+      - Conversations
+    summary: Get conversation counts
+    description: Get conversation count by status
+    operationId: getConversationMeta
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: inbox_id
+        in: query
+        schema:
+          type: integer
+      - name: team_id
+        in: query
+        schema:
+          type: integer
+      - name: assignee_id
+        in: query
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Conversation counts
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meta:
+                  type: object
+                  properties:
+                    open:
+                      type: integer
+                      example: 15
+                    resolved:
+                      type: integer
+                      example: 120
+                    pending:
+                      type: integer
+                      example: 5
+                    snoozed:
+                      type: integer
+                      example: 2
+                    all:
+                      type: integer
+                      example: 142
+
+/accounts/{account_id}/conversations/search:
+  get:
+    tags:
+      - Conversations
+    summary: Search conversations
+    description: Search conversations by query
+    operationId: searchConversations
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+        example: "billing issue"
+        description: Search query
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+    responses:
+      '200':
+        description: Search results
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/Conversation'
+
+/accounts/{account_id}/conversations/filter:
+  post:
+    tags:
+      - Conversations
+    summary: Filter conversations
+    description: Filter conversations with advanced criteria
+    operationId: filterConversations
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    attribute_key:
+                      type: string
+                      example: "status"
+                    filter_operator:
+                      type: string
+                      enum: [equal_to, not_equal_to, contains, does_not_contain]
+                      example: "equal_to"
+                    values:
+                      type: array
+                      items:
+                        type: string
+                      example: ["open"]
+          example:
+            payload:
+              - attribute_key: "status"
+                filter_operator: "equal_to"
+                values: ["open"]
+              - attribute_key: "priority"
+                filter_operator: "equal_to"
+                values: ["high", "urgent"]
+    responses:
+      '200':
+        description: Filtered conversations
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/Conversation'
+
+/accounts/{account_id}/conversations/{conversation_id}/assign:
+  post:
+    tags:
+      - Conversations
+    summary: Assign conversation
+    description: Assign conversation to an agent or team
+    operationId: assignConversation
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              assignee_id:
+                type: integer
+                example: 2
+              team_id:
+                type: integer
+                example: 1
+          example:
+            assignee_id: 2
+    responses:
+      '200':
+        description: Conversation assigned
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Conversation'
+
+/accounts/{account_id}/conversations/{conversation_id}/toggle_status:
+  post:
+    tags:
+      - Conversations
+    summary: Toggle conversation status
+    description: Toggle conversation between open and resolved
+    operationId: toggleConversationStatus
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [open, resolved, pending, snoozed]
+                example: "resolved"
+              snoozed_until:
+                type: string
+                format: date-time
+          example:
+            status: "resolved"
+    responses:
+      '200':
+        description: Status toggled
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Conversation'
+
+/accounts/{account_id}/conversations/{conversation_id}/mute:
+  post:
+    tags:
+      - Conversations
+    summary: Mute conversation
+    description: Mute notifications for a conversation
+    operationId: muteConversation
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Conversation muted
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Conversation muted"
+
+/accounts/{account_id}/conversations/{conversation_id}/unmute:
+  post:
+    tags:
+      - Conversations
+    summary: Unmute conversation
+    description: Unmute notifications for a conversation
+    operationId: unmuteConversation
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Conversation unmuted
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Conversation unmuted"
+
+/accounts/{account_id}/conversations/{conversation_id}/transcript:
+  post:
+    tags:
+      - Conversations
+    summary: Email transcript
+    description: Send conversation transcript via email
+    operationId: emailTranscript
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                format: email
+                example: "customer@example.com"
+          example:
+            email: "customer@example.com"
+    responses:
+      '200':
+        description: Transcript sent
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Transcript sent successfully"

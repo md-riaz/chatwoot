@@ -1,0 +1,997 @@
+openapi: 3.0.3
+info:
+  title: ClearLine API
+  description: |
+    Complete API documentation for ClearLine - a customer engagement platform.
+    
+    ## Authentication
+    
+    The API uses different authentication methods based on the endpoint type:
+    
+    - **Bearer Token**: Most authenticated endpoints use Sanctum Bearer tokens
+    - **Platform API Key**: Platform-level endpoints use API key authentication
+    - **Widget Token**: Widget endpoints use X-Auth-Token header
+    - **Public**: Some endpoints are publicly accessible
+    
+    ## Base URL
+    
+    All API endpoints are prefixed with `/api/v1/`
+    
+  version: 1.0.0
+  contact:
+    name: ClearLine Support
+    email: support@clearline.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: '{protocol}://{host}/api/v1'
+    description: API Server
+    variables:
+      protocol:
+        default: https
+        enum:
+          - http
+          - https
+      host:
+        default: localhost:8000
+        description: API host
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: Profile
+    description: User profile management
+  - name: MFA
+    description: Multi-factor authentication
+  - name: Accounts
+    description: Account management
+  - name: Conversations
+    description: Conversation management
+  - name: Messages
+    description: Message management within conversations
+  - name: Contacts
+    description: Contact management
+  - name: Inboxes
+    description: Inbox (channel) management
+  - name: Teams
+    description: Team management
+  - name: Labels
+    description: Label management for organizing conversations
+  - name: Webhooks
+    description: Webhook configuration
+  - name: Canned Responses
+    description: Pre-defined message templates
+  - name: Campaigns
+    description: Marketing campaign management
+  - name: Automation Rules
+    description: Workflow automation
+  - name: Custom Filters
+    description: Saved filter configurations
+  - name: Custom Attributes
+    description: Custom attribute definitions
+  - name: Agent Bots
+    description: Chatbot configuration
+  - name: Macros
+    description: Action macros
+  - name: Portals
+    description: Help center portals
+  - name: Reports
+    description: Analytics and reporting
+  - name: SLA Policies
+    description: Service level agreements
+  - name: Notifications
+    description: In-app notifications
+  - name: Widget
+    description: Public widget API endpoints
+  - name: Platform
+    description: Platform-level API for SSO and multi-tenant management
+  - name: Public
+    description: Public API endpoints (no auth required)
+  - name: Super Admin
+    description: Platform administration (super admin only)
+  - name: Integrations
+    description: Third-party integrations
+  - name: Channels
+    description: Channel-specific endpoints
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Sanctum Bearer Token
+    
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: api_access_token
+      description: Platform API Key
+    
+    widgetAuth:
+      type: apiKey
+      in: header
+      name: X-Auth-Token
+      description: Widget authentication token
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Error message"
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    Pagination:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+        per_page:
+          type: integer
+          example: 25
+        total:
+          type: integer
+          example: 100
+        last_page:
+          type: integer
+          example: 4
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        avatar_url:
+          type: string
+          nullable: true
+          example: "https://example.com/avatar.jpg"
+        type:
+          type: string
+          example: "user"
+        availability_status:
+          type: string
+          enum: [online, busy, offline]
+          example: "online"
+        auto_offline:
+          type: boolean
+          example: true
+        confirmed:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Acme Corp"
+        locale:
+          type: string
+          example: "en"
+        domain:
+          type: string
+          nullable: true
+          example: "acme.com"
+        support_email:
+          type: string
+          format: email
+          nullable: true
+          example: "support@acme.com"
+        auto_resolve_duration:
+          type: integer
+          nullable: true
+          example: 7
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        account_id:
+          type: integer
+          example: 1
+        inbox_id:
+          type: integer
+          example: 1
+        contact_id:
+          type: integer
+          example: 1
+        assignee_id:
+          type: integer
+          nullable: true
+          example: 2
+        team_id:
+          type: integer
+          nullable: true
+          example: 1
+        status:
+          type: string
+          enum: [open, resolved, pending, snoozed]
+          example: "open"
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          nullable: true
+          example: "medium"
+        display_id:
+          type: integer
+          example: 101
+        unread_count:
+          type: integer
+          example: 3
+        first_reply_created_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_activity_at:
+          type: string
+          format: date-time
+        custom_attributes:
+          type: object
+          additionalProperties: true
+        labels:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        meta:
+          type: object
+          properties:
+            sender:
+              $ref: '#/components/schemas/Contact'
+            assignee:
+              $ref: '#/components/schemas/User'
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        content:
+          type: string
+          example: "Hello, how can I help you?"
+        content_type:
+          type: string
+          enum: [text, input_select, cards, form, article, incoming_email, input_csat, integrations]
+          example: "text"
+        content_attributes:
+          type: object
+          additionalProperties: true
+        message_type:
+          type: integer
+          description: "0: incoming, 1: outgoing, 2: activity"
+          example: 1
+        private:
+          type: boolean
+          example: false
+        sender_type:
+          type: string
+          enum: [User, Contact, AgentBot]
+          example: "User"
+        sender_id:
+          type: integer
+          example: 1
+        conversation_id:
+          type: integer
+          example: 1
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        file_type:
+          type: string
+          enum: [image, audio, video, file, location, contact, fallback]
+          example: "image"
+        data_url:
+          type: string
+          example: "https://example.com/file.jpg"
+        thumb_url:
+          type: string
+          nullable: true
+          example: "https://example.com/file_thumb.jpg"
+        file_size:
+          type: integer
+          example: 102400
+        extension:
+          type: string
+          nullable: true
+          example: "jpg"
+
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Jane Customer"
+        email:
+          type: string
+          format: email
+          nullable: true
+          example: "jane@customer.com"
+        phone_number:
+          type: string
+          nullable: true
+          example: "+1234567890"
+        avatar_url:
+          type: string
+          nullable: true
+          example: "https://example.com/avatar.jpg"
+        identifier:
+          type: string
+          nullable: true
+          example: "customer_123"
+        custom_attributes:
+          type: object
+          additionalProperties: true
+        additional_attributes:
+          type: object
+          additionalProperties: true
+        last_activity_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Inbox:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Website Chat"
+        channel_type:
+          type: string
+          example: "Channel::WebWidget"
+        enable_auto_assignment:
+          type: boolean
+          example: true
+        enable_email_collect:
+          type: boolean
+          example: true
+        greeting_enabled:
+          type: boolean
+          example: true
+        greeting_message:
+          type: string
+          nullable: true
+          example: "Hello! How can we help you today?"
+        working_hours_enabled:
+          type: boolean
+          example: false
+        csat_survey_enabled:
+          type: boolean
+          example: false
+        timezone:
+          type: string
+          example: "America/New_York"
+        website_url:
+          type: string
+          nullable: true
+          example: "https://example.com"
+        widget_color:
+          type: string
+          nullable: true
+          example: "#1f93ff"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Support Team"
+        description:
+          type: string
+          nullable: true
+          example: "General support team"
+        allow_auto_assign:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Label:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "bug"
+        description:
+          type: string
+          nullable: true
+          example: "Bug reports"
+        color:
+          type: string
+          example: "#FF0000"
+        show_on_sidebar:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        url:
+          type: string
+          format: uri
+          example: "https://example.com/webhook"
+        subscriptions:
+          type: array
+          items:
+            type: string
+          example: ["conversation_created", "message_created"]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CannedResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        short_code:
+          type: string
+          example: "greeting"
+        content:
+          type: string
+          example: "Hello! Thank you for contacting us. How can I assist you today?"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Welcome Campaign"
+        message:
+          type: string
+          example: "Welcome to our website!"
+        campaign_type:
+          type: string
+          enum: [one_off, ongoing]
+          example: "ongoing"
+        campaign_status:
+          type: string
+          enum: [active, completed]
+          example: "active"
+        inbox_id:
+          type: integer
+          example: 1
+        sender_id:
+          type: integer
+          nullable: true
+        scheduled_at:
+          type: string
+          format: date-time
+          nullable: true
+        trigger_rules:
+          type: object
+          additionalProperties: true
+        audience:
+          type: array
+          items:
+            type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AutomationRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Auto-assign high priority"
+        description:
+          type: string
+          nullable: true
+          example: "Automatically assign high priority conversations"
+        event_name:
+          type: string
+          enum: [conversation_created, conversation_updated, message_created]
+          example: "conversation_created"
+        active:
+          type: boolean
+          example: true
+        conditions:
+          type: array
+          items:
+            type: object
+            properties:
+              attribute_key:
+                type: string
+                example: "priority"
+              filter_operator:
+                type: string
+                example: "equal_to"
+              values:
+                type: array
+                items:
+                  type: string
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action_name:
+                type: string
+                example: "assign_agent"
+              action_params:
+                type: array
+                items: {}
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CustomFilter:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "My Open Conversations"
+        filter_type:
+          type: string
+          enum: [conversation, contact, report]
+          example: "conversation"
+        query:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CustomAttributeDefinition:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        attribute_display_name:
+          type: string
+          example: "Customer ID"
+        attribute_key:
+          type: string
+          example: "customer_id"
+        attribute_display_type:
+          type: string
+          enum: [text, number, date, link, checkbox, list]
+          example: "text"
+        attribute_model:
+          type: string
+          enum: [contact_attribute, conversation_attribute]
+          example: "contact_attribute"
+        default_value:
+          type: string
+          nullable: true
+        attribute_description:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AgentBot:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Support Bot"
+        description:
+          type: string
+          nullable: true
+          example: "Automated support assistant"
+        outgoing_url:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://example.com/webhook"
+        bot_type:
+          type: string
+          enum: [webhook, csml, dialogflow]
+          example: "webhook"
+        bot_config:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Macro:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Close and thank"
+        visibility:
+          type: string
+          enum: [personal, global]
+          example: "global"
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action_name:
+                type: string
+                example: "resolve_conversation"
+              action_params:
+                type: array
+                items: {}
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Portal:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Help Center"
+        slug:
+          type: string
+          example: "help-center"
+        custom_domain:
+          type: string
+          nullable: true
+          example: "help.example.com"
+        color:
+          type: string
+          example: "#1f93ff"
+        homepage_link:
+          type: string
+          nullable: true
+        page_title:
+          type: string
+          nullable: true
+        header_text:
+          type: string
+          nullable: true
+        archived:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Article:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Getting Started"
+        content:
+          type: string
+          example: "Welcome to our help center..."
+        description:
+          type: string
+          nullable: true
+        slug:
+          type: string
+          example: "getting-started"
+        status:
+          type: string
+          enum: [draft, published, archived]
+          example: "published"
+        portal_id:
+          type: integer
+          example: 1
+        category_id:
+          type: integer
+          nullable: true
+        author_id:
+          type: integer
+        views_count:
+          type: integer
+          example: 150
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "General"
+        slug:
+          type: string
+          example: "general"
+        description:
+          type: string
+          nullable: true
+        position:
+          type: integer
+          example: 1
+        portal_id:
+          type: integer
+          example: 1
+        parent_category_id:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SlaPolicy:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Premium Support"
+        description:
+          type: string
+          nullable: true
+        first_response_time_threshold:
+          type: integer
+          nullable: true
+          example: 3600
+          description: "In seconds"
+        next_response_time_threshold:
+          type: integer
+          nullable: true
+          example: 7200
+        resolution_time_threshold:
+          type: integer
+          nullable: true
+          example: 86400
+        only_during_business_hours:
+          type: boolean
+          example: true
+        active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        notification_type:
+          type: string
+          example: "conversation_assignment"
+        read_at:
+          type: string
+          format: date-time
+          nullable: true
+        primary_actor_type:
+          type: string
+          example: "Conversation"
+        primary_actor_id:
+          type: integer
+          example: 1
+        primary_actor:
+          type: object
+          additionalProperties: true
+        secondary_actor:
+          type: object
+          nullable: true
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Segment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "VIP Customers"
+        description:
+          type: string
+          nullable: true
+        query:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    DashboardApp:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Customer Info"
+        content:
+          type: array
+          items:
+            type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ContactNote:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        content:
+          type: string
+          example: "VIP customer, handle with care"
+        user_id:
+          type: integer
+          example: 1
+        contact_id:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+paths:
+  # Include path definitions from separate files
+  $ref: './paths/_index.yaml'
