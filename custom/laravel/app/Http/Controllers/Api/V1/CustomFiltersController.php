@@ -11,18 +11,20 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class CustomFiltersController extends Controller
 {
+    private const DEFAULT_FILTER_TYPE = 'conversation';
+
     /**
-     * Display a listing of custom filters for an account.
+     * Display a listing of custom filters for an account (scoped to current user).
      */
     public function index(Account $account, Request $request): JsonResource
     {
-        $query = CustomFilter::where('account_id', $account->id);
+        $filterType = $request->input('filter_type', self::DEFAULT_FILTER_TYPE);
 
-        if ($request->has('filter_type')) {
-            $query->where('filter_type', $request->filter_type);
-        }
+        $query = CustomFilter::where('account_id', $account->id)
+            ->where('user_id', auth()->id())
+            ->where('filter_type', $filterType);
 
-        return JsonResource::collection($query->paginate());
+        return JsonResource::collection($query->get());
     }
 
     /**
@@ -37,7 +39,9 @@ class CustomFiltersController extends Controller
         ]);
 
         $filter = CustomFilter::create([
-            ...$validated,
+            'name' => $validated['name'],
+            'filter_type' => $validated['filter_type'],
+            'query' => $validated['query'],
             'account_id' => $account->id,
             'user_id' => auth()->id(),
         ]);
@@ -46,21 +50,23 @@ class CustomFiltersController extends Controller
     }
 
     /**
-     * Display the specified custom filter.
+     * Display the specified custom filter (only if owned by current user).
      */
     public function show(Account $account, CustomFilter $customFilter): JsonResponse
     {
         abort_unless($customFilter->account_id === $account->id, 404);
+        abort_unless($customFilter->user_id === auth()->id(), 404);
 
         return response()->json(['data' => $customFilter]);
     }
 
     /**
-     * Update the specified custom filter.
+     * Update the specified custom filter (only if owned by current user).
      */
     public function update(Request $request, Account $account, CustomFilter $customFilter): JsonResponse
     {
         abort_unless($customFilter->account_id === $account->id, 404);
+        abort_unless($customFilter->user_id === auth()->id(), 404);
 
         $validated = $request->validate([
             'name' => 'string|max:255',
@@ -74,11 +80,12 @@ class CustomFiltersController extends Controller
     }
 
     /**
-     * Remove the specified custom filter.
+     * Remove the specified custom filter (only if owned by current user).
      */
     public function destroy(Account $account, CustomFilter $customFilter): JsonResponse
     {
         abort_unless($customFilter->account_id === $account->id, 404);
+        abort_unless($customFilter->user_id === auth()->id(), 404);
 
         $customFilter->delete();
 

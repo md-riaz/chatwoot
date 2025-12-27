@@ -13,10 +13,11 @@ class AgentBotsController extends Controller
 {
     /**
      * Display a listing of agent bots for an account.
+     * Includes global bots (account_id = null) and account-specific bots.
      */
     public function index(Account $account): JsonResource
     {
-        $bots = AgentBot::where('account_id', $account->id)->paginate();
+        $bots = AgentBot::accessibleTo($account)->paginate();
 
         return JsonResource::collection($bots);
     }
@@ -29,9 +30,10 @@ class AgentBotsController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'outgoing_url' => 'nullable|url',
-            'bot_type' => 'string|in:webhook,csml,dialogflow',
+            'outgoing_url' => 'nullable|url|max:2048',
+            'bot_type' => 'nullable|string|in:webhook,csml,dialogflow',
             'bot_config' => 'nullable|array',
+            'avatar_url' => 'nullable|url',
         ]);
 
         $bot = AgentBot::create([
@@ -44,27 +46,32 @@ class AgentBotsController extends Controller
 
     /**
      * Display the specified agent bot.
+     * Allows access to global bots (account_id = null).
      */
     public function show(Account $account, AgentBot $agentBot): JsonResponse
     {
-        abort_unless($agentBot->account_id === $account->id, 404);
+        // Allow access if bot belongs to account OR is a global bot
+        abort_unless($agentBot->account_id === $account->id || $agentBot->account_id === null, 404);
 
         return response()->json(['data' => $agentBot]);
     }
 
     /**
      * Update the specified agent bot.
+     * Only account-specific bots can be updated.
      */
     public function update(Request $request, Account $account, AgentBot $agentBot): JsonResponse
     {
+        // Only allow updating account-specific bots
         abort_unless($agentBot->account_id === $account->id, 404);
 
         $validated = $request->validate([
             'name' => 'string|max:255',
             'description' => 'nullable|string',
-            'outgoing_url' => 'nullable|url',
-            'bot_type' => 'string|in:webhook,csml,dialogflow',
+            'outgoing_url' => 'nullable|url|max:2048',
+            'bot_type' => 'nullable|string|in:webhook,csml,dialogflow',
             'bot_config' => 'nullable|array',
+            'avatar_url' => 'nullable|url',
         ]);
 
         $agentBot->update($validated);
@@ -74,13 +81,40 @@ class AgentBotsController extends Controller
 
     /**
      * Remove the specified agent bot.
+     * Only account-specific bots can be deleted.
      */
     public function destroy(Account $account, AgentBot $agentBot): JsonResponse
     {
+        // Only allow deleting account-specific bots
         abort_unless($agentBot->account_id === $account->id, 404);
 
         $agentBot->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Delete the agent bot's avatar.
+     */
+    public function avatar(Account $account, AgentBot $agentBot): JsonResponse
+    {
+        abort_unless($agentBot->account_id === $account->id, 404);
+
+        $agentBot->update(['avatar_url' => null]);
+
+        return response()->json(['data' => $agentBot]);
+    }
+
+    /**
+     * Reset the agent bot's access token.
+     */
+    public function resetAccessToken(Account $account, AgentBot $agentBot): JsonResponse
+    {
+        abort_unless($agentBot->account_id === $account->id, 404);
+
+        // Generate new token (would need AccessToken model)
+        // $agentBot->accessToken->regenerateToken();
+
+        return response()->json(['data' => $agentBot]);
     }
 }

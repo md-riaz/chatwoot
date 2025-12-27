@@ -22,16 +22,38 @@ class SlackController extends Controller
     }
 
     /**
+     * Get Slack OAuth authorization URL.
+     */
+    public function authorize(Account $account): JsonResponse
+    {
+        $clientId = config('services.slack.client_id', '');
+        $redirectUri = config('services.slack.redirect_uri', url('/callback/slack'));
+        $scopes = 'channels:history,channels:join,channels:manage,channels:read,chat:write,commands,groups:history,groups:read,im:history,im:read,im:write,mpim:read,reactions:write,users.profile:read,users:read,users:read.email';
+
+        $authorizationUrl = "https://slack.com/oauth/v2/authorize?" . http_build_query([
+            'client_id' => $clientId,
+            'scope' => $scopes,
+            'redirect_uri' => $redirectUri,
+            'state' => base64_encode(json_encode(['account_id' => $account->id])),
+        ]);
+
+        return response()->json([
+            'authorization_url' => $authorizationUrl,
+        ]);
+    }
+
+    /**
      * Create/Connect Slack integration.
      */
     public function create(Request $request, Account $account): JsonResponse
     {
         $validated = $request->validate([
-            'code' => 'required|string', // OAuth code from Slack
-            'redirect_uri' => 'required|url',
+            'code' => 'nullable|string', // OAuth code from Slack
+            'access_token' => 'nullable|string',
+            'channel_id' => 'nullable|string',
         ]);
 
-        // Exchange code for access token
+        // Exchange code for access token or use provided token
         // Store integration settings
 
         return response()->json(['message' => 'Slack connected successfully'], 201);
@@ -59,7 +81,7 @@ class SlackController extends Controller
     {
         // Remove Slack integration
 
-        return response()->json(null, 204);
+        return response()->json(null, 200);
     }
 
     /**

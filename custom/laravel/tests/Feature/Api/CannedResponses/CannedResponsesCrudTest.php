@@ -172,6 +172,7 @@ describe('Canned Response Retrieval', function () {
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$otherAccount->id}/canned_responses/{$cannedResponse->id}");
 
+        // User doesn't have access to otherAccount, middleware returns 404
         $response->assertNotFound();
     });
 });

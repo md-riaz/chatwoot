@@ -30,13 +30,18 @@ class AutomationRulesController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'event_name' => 'required|string',
-            'conditions' => 'required|array',
+            'conditions' => 'nullable|array',
             'actions' => 'required|array',
             'active' => 'boolean',
         ]);
 
         $rule = AutomationRule::create([
-            ...$validated,
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'event_name' => $validated['event_name'],
+            'conditions' => $validated['conditions'] ?? [],
+            'actions' => $validated['actions'],
+            'active' => $validated['active'] ?? true,
             'account_id' => $account->id,
         ]);
 

@@ -12,7 +12,7 @@ class Media extends Model
 {
     use HasFactory;
 
-    // File type constants matching Chatwoot
+    // File type constants matching ClearLine API
     public const TYPE_IMAGE = 0;
 
     public const TYPE_AUDIO = 1;

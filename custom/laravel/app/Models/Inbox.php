@@ -91,6 +91,14 @@ class Inbox extends Model
     }
 
     /**
+     * Alias for members() for backward compatibility.
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->members();
+    }
+
+    /**
      * Get all working hours for the inbox.
      */
     public function workingHours(): HasMany
@@ -104,6 +112,22 @@ class Inbox extends Model
     public function campaigns(): HasMany
     {
         return $this->hasMany(Campaign::class);
+    }
+
+    /**
+     * Get the agent bot inbox relationship.
+     */
+    public function agentBotInbox()
+    {
+        return $this->hasOne(\App\Models\AgentBotInbox::class);
+    }
+
+    /**
+     * Get the agent bot through the agent bot inbox.
+     */
+    public function getAgentBotAttribute()
+    {
+        return $this->agentBotInbox?->agentBot;
     }
 
     /**

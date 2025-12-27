@@ -196,6 +196,7 @@ describe('Campaign Retrieval', function () {
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$otherAccount->id}/campaigns/{$campaign->id}");
 
+        // User doesn't have access to otherAccount, middleware returns 404
         $response->assertNotFound();
     });
 });

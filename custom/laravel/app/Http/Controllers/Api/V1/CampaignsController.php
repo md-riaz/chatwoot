@@ -31,6 +31,7 @@ class CampaignsController extends Controller
             'description' => 'nullable|string',
             'message' => 'required|string',
             'enabled' => 'boolean',
+            'campaign_type' => 'nullable|integer',
             'trigger_only_during_business_hours' => 'boolean',
             'inbox_id' => 'required|exists:inboxes,id',
             'sender_id' => 'nullable|exists:users,id',
@@ -40,7 +41,17 @@ class CampaignsController extends Controller
         ]);
 
         $campaign = Campaign::create([
-            ...$validated,
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'message' => $validated['message'],
+            'enabled' => $validated['enabled'] ?? true,
+            'campaign_type' => $validated['campaign_type'] ?? 0,
+            'trigger_only_during_business_hours' => $validated['trigger_only_during_business_hours'] ?? false,
+            'inbox_id' => $validated['inbox_id'],
+            'sender_id' => $validated['sender_id'] ?? null,
+            'scheduled_at' => $validated['scheduled_at'] ?? null,
+            'audience' => $validated['audience'] ?? [],
+            'trigger_rules' => $validated['trigger_rules'] ?? [],
             'account_id' => $account->id,
         ]);
 

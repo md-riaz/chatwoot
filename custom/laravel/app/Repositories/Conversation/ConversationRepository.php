@@ -48,6 +48,129 @@ class ConversationRepository extends BaseRepository
     }
 
     /**
+     * Get conversation metadata/counts for an account.
+     */
+    public function getMetaForAccount(int $accountId, array $filters = []): array
+    {
+        $query = $this->model->where('account_id', $accountId);
+
+        if (isset($filters['inbox_id'])) {
+            $query->where('inbox_id', $filters['inbox_id']);
+        }
+
+        if (isset($filters['team_id'])) {
+            $query->where('team_id', $filters['team_id']);
+        }
+
+        if (isset($filters['assignee_id'])) {
+            $query->where('assignee_id', $filters['assignee_id']);
+        }
+
+        return [
+            'all_count' => (clone $query)->count(),
+            'open_count' => (clone $query)->where('status', 'open')->count(),
+            'resolved_count' => (clone $query)->where('status', 'resolved')->count(),
+            'pending_count' => (clone $query)->where('status', 'pending')->count(),
+            'snoozed_count' => (clone $query)->where('status', 'snoozed')->count(),
+            'unassigned_count' => (clone $query)->whereNull('assignee_id')->where('status', 'open')->count(),
+        ];
+    }
+
+    /**
+     * Search conversations.
+     */
+    public function search(int $accountId, ?string $query, array $filters = []): LengthAwarePaginator
+    {
+        $builder = $this->model->where('account_id', $accountId);
+
+        if ($query) {
+            $builder->where(function ($q) use ($query) {
+                $q->where('display_id', 'like', "%{$query}%")
+                    ->orWhereHas('contact', function ($contactQuery) use ($query) {
+                        $contactQuery->where('name', 'like', "%{$query}%")
+                            ->orWhere('email', 'like', "%{$query}%")
+                            ->orWhere('phone_number', 'like', "%{$query}%");
+                    })
+                    ->orWhereHas('messages', function ($messageQuery) use ($query) {
+                        $messageQuery->where('content', 'like', "%{$query}%");
+                    });
+            });
+        }
+
+        if (isset($filters['status'])) {
+            $builder->where('status', $filters['status']);
+        }
+
+        if (isset($filters['assignee_id'])) {
+            $builder->where('assignee_id', $filters['assignee_id']);
+        }
+
+        if (isset($filters['inbox_id'])) {
+            $builder->where('inbox_id', $filters['inbox_id']);
+        }
+
+        return $builder
+            ->with(['contact', 'inbox', 'assignee'])
+            ->orderByDesc('last_activity_at')
+            ->paginate($filters['per_page'] ?? 25);
+    }
+
+    /**
+     * Filter conversations with advanced payload.
+     */
+    public function filter(int $accountId, array $payload): array
+    {
+        $query = $this->model->where('account_id', $accountId);
+
+        foreach ($payload as $filter) {
+            $attribute = $filter['attribute_key'] ?? null;
+            $filterOperator = $filter['filter_operator'] ?? 'equal_to';
+            $values = $filter['values'] ?? [];
+
+            if (! $attribute || empty($values)) {
+                continue;
+            }
+
+            switch ($attribute) {
+                case 'status':
+                    $query->whereIn('status', $values);
+                    break;
+                case 'assignee_id':
+                    if ($filterOperator === 'equal_to') {
+                        $query->whereIn('assignee_id', $values);
+                    } else {
+                        $query->whereNotIn('assignee_id', $values);
+                    }
+                    break;
+                case 'inbox_id':
+                    $query->whereIn('inbox_id', $values);
+                    break;
+                case 'team_id':
+                    $query->whereIn('team_id', $values);
+                    break;
+                case 'priority':
+                    $query->whereIn('priority', $values);
+                    break;
+                case 'labels':
+                    $query->whereHas('labels', function ($q) use ($values) {
+                        $q->whereIn('title', $values);
+                    });
+                    break;
+            }
+        }
+
+        $conversations = $query
+            ->with(['contact', 'inbox', 'assignee'])
+            ->orderByDesc('last_activity_at')
+            ->paginate(25);
+
+        return [
+            'conversations' => $conversations,
+            'count' => $conversations->total(),
+        ];
+    }
+
+    /**
      * Get unassigned conversations for an inbox.
      */
     public function getUnassignedForInbox(int $inboxId): Collection

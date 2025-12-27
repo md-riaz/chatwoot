@@ -46,10 +46,18 @@ use App\Http\Controllers\Api\V1\ReportsController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SegmentsController;
 use App\Http\Controllers\Api\V1\SlaPoliciesController;
+use App\Http\Controllers\Api\V1\SuperAdmin\AccessTokensController as SuperAdminAccessTokensController;
+use App\Http\Controllers\Api\V1\SuperAdmin\AccountsController as SuperAdminAccountsController;
+use App\Http\Controllers\Api\V1\SuperAdmin\AgentBotsController as SuperAdminAgentBotsController;
+use App\Http\Controllers\Api\V1\SuperAdmin\InstallationConfigsController;
+use App\Http\Controllers\Api\V1\SuperAdmin\InstanceStatusController;
+use App\Http\Controllers\Api\V1\SuperAdmin\PlatformAppsController;
+use App\Http\Controllers\Api\V1\SuperAdmin\UsersController as SuperAdminUsersController;
 use App\Http\Controllers\Api\V1\TeamsController;
 use App\Http\Controllers\Api\V1\UsersController;
 use App\Http\Controllers\Api\V1\WebhooksController;
 use App\Http\Controllers\Api\V1\WorkingHoursController;
+use App\Http\Middleware\EnsureSuperAdmin;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -114,6 +122,12 @@ Route::prefix('webhooks')->group(function () {
     Route::post('shopify', [ShopifyController::class, 'webhook']);
 });
 
+// Public CSAT Survey routes (no auth required)
+Route::prefix('public')->group(function () {
+    Route::get('csat/{uuid}', [App\Http\Controllers\Api\V1\Public\CsatSurveyController::class, 'show']);
+    Route::post('csat/{uuid}', [App\Http\Controllers\Api\V1\Public\CsatSurveyController::class, 'update']);
+});
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Auth routes
@@ -144,12 +158,25 @@ Route::middleware('auth:sanctum')->group(function () {
     // Account routes
     Route::apiResource('accounts', AccountsController::class);
 
-    // Account-scoped resources
-    Route::prefix('accounts/{account}')->group(function () {
+    // Account-scoped resources (with account access middleware)
+    Route::prefix('accounts/{account}')->middleware(\App\Http\Middleware\EnsureAccountAccess::class)->group(function () {
         // Conversations
         Route::apiResource('conversations', ConversationsController::class);
+        Route::get('conversations/meta', [ConversationsController::class, 'meta']);
+        Route::get('conversations/search', [ConversationsController::class, 'search']);
+        Route::post('conversations/filter', [ConversationsController::class, 'filter']);
         Route::post('conversations/{conversation}/assign', [ConversationsController::class, 'assign']);
+        Route::post('conversations/{conversation}/toggle_status', [ConversationsController::class, 'toggleStatus']);
         Route::post('conversations/{conversation}/resolve', [ConversationsController::class, 'resolve']);
+        Route::post('conversations/{conversation}/mute', [ConversationsController::class, 'mute']);
+        Route::post('conversations/{conversation}/unmute', [ConversationsController::class, 'unmute']);
+        Route::post('conversations/{conversation}/transcript', [ConversationsController::class, 'transcript']);
+        Route::post('conversations/{conversation}/toggle_priority', [ConversationsController::class, 'togglePriority']);
+        Route::post('conversations/{conversation}/toggle_typing_status', [ConversationsController::class, 'toggleTypingStatus']);
+        Route::post('conversations/{conversation}/update_last_seen', [ConversationsController::class, 'updateLastSeen']);
+        Route::post('conversations/{conversation}/unread', [ConversationsController::class, 'unread']);
+        Route::post('conversations/{conversation}/custom_attributes', [ConversationsController::class, 'customAttributes']);
+        Route::get('conversations/{conversation}/attachments', [ConversationsController::class, 'attachments']);
 
         // Messages (nested under conversations)
         Route::apiResource('conversations/{conversation}/messages', MessagesController::class);
@@ -160,7 +187,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Contacts
         Route::apiResource('contacts', ContactsController::class);
+        Route::get('contacts/search', [ContactsController::class, 'search']);
+        Route::get('contacts/active', [ContactsController::class, 'active']);
+        Route::post('contacts/filter', [ContactsController::class, 'filter']);
+        Route::post('contacts/import', [ContactsController::class, 'import']);
+        Route::post('contacts/export', [ContactsController::class, 'export']);
         Route::post('contacts/{contact}/merge', [ContactsController::class, 'merge']);
+        Route::get('contacts/{contact}/contactable_inboxes', [ContactsController::class, 'contactableInboxes']);
+        Route::post('contacts/{contact}/destroy_custom_attributes', [ContactsController::class, 'destroyCustomAttributes']);
+        Route::delete('contacts/{contact}/avatar', [ContactsController::class, 'avatar']);
         
         // Contact Notes
         Route::apiResource('contacts/{contact}/notes', ContactNotesController::class);
@@ -170,10 +205,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('inboxes/{inbox}/members', [InboxesController::class, 'members']);
         Route::post('inboxes/{inbox}/members', [InboxesController::class, 'addMember']);
         Route::delete('inboxes/{inbox}/members', [InboxesController::class, 'removeMember']);
+        Route::get('inboxes/{inbox}/assignable_agents', [InboxesController::class, 'assignableAgents']);
+        Route::get('inboxes/{inbox}/campaigns', [InboxesController::class, 'campaigns']);
+        Route::delete('inboxes/{inbox}/avatar', [InboxesController::class, 'avatar']);
+        Route::get('inboxes/{inbox}/agent_bot', [InboxesController::class, 'agentBot']);
+        Route::post('inboxes/{inbox}/set_agent_bot', [InboxesController::class, 'setAgentBot']);
+        Route::post('inboxes/{inbox}/sync_templates', [InboxesController::class, 'syncTemplates']);
+        Route::get('inboxes/{inbox}/message_templates', [InboxesController::class, 'messageTemplates']);
+        Route::get('inboxes/{inbox}/health', [InboxesController::class, 'health']);
         
         // Working Hours
         Route::get('inboxes/{inbox}/working_hours', [WorkingHoursController::class, 'index']);
-        Route::put('inboxes/{inbox}/working_hours', [WorkingHoursController::class, 'update']);
+        Route::match(['put', 'patch'], 'inboxes/{inbox}/working_hours', [WorkingHoursController::class, 'update']);
         Route::get('inboxes/{inbox}/is_open', [WorkingHoursController::class, 'isOpen']);
 
         // Teams
@@ -216,7 +259,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Users (Agents)
         Route::apiResource('users', UsersController::class);
-        Route::apiResource('agents', AgentsController::class)->only(['index', 'show', 'update', 'destroy']);
+        Route::apiResource('agents', AgentsController::class);
+        Route::post('agents/bulk_create', [AgentsController::class, 'bulkCreate']);
 
         // Portals (Help Center)
         Route::apiResource('portals', PortalsController::class);
@@ -246,7 +290,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('search/contacts', [SearchController::class, 'contacts']);
         Route::get('search/messages', [SearchController::class, 'messages']);
 
-        // Bulk Actions
+        // Bulk Actions (matches Chatwoot Rails API - single resource with create action)
+        Route::post('bulk_actions', [BulkActionsController::class, 'store']);
         Route::post('bulk_actions/conversations', [BulkActionsController::class, 'conversations']);
         Route::delete('bulk_actions/conversations', [BulkActionsController::class, 'deleteConversations']);
 
@@ -268,6 +313,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('audit_logs', [AuditLogsController::class, 'index']);
         Route::get('audit_logs/summary', [AuditLogsController::class, 'summary']);
         Route::get('audit_logs/download', [AuditLogsController::class, 'download']);
+        Route::get('audit_logs/export', [AuditLogsController::class, 'download']);
         Route::get('audit_logs/{log}', [AuditLogsController::class, 'show']);
         Route::get('audit_logs/{type}/{id}', [AuditLogsController::class, 'forResource']);
 
@@ -328,6 +374,8 @@ Route::middleware('auth:sanctum')->group(function () {
         // Integrations
         Route::prefix('integrations')->group(function () {
             Route::get('/', [IntegrationsController::class, 'index']);
+            Route::get('apps', [IntegrationsController::class, 'index']); // Alias
+            Route::post('apps', [IntegrationsController::class, 'createApp']);
             Route::get('hooks', [IntegrationsController::class, 'hooks']);
             Route::post('hooks', [IntegrationsController::class, 'createHook']);
             Route::patch('hooks/{hook}', [IntegrationsController::class, 'updateHook']);
@@ -335,6 +383,7 @@ Route::middleware('auth:sanctum')->group(function () {
             
             // Slack
             Route::get('slack', [SlackController::class, 'show']);
+            Route::get('slack/authorize', [SlackController::class, 'authorize']);
             Route::post('slack', [SlackController::class, 'create']);
             Route::patch('slack', [SlackController::class, 'update']);
             Route::delete('slack', [SlackController::class, 'destroy']);
@@ -376,5 +425,53 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('openai/summarize', [OpenAIController::class, 'summarize']);
             Route::post('openai/improve_tone', [OpenAIController::class, 'improveTone']);
         });
+
+        // Callbacks (OAuth and webhooks for channels)
+        Route::prefix('callbacks')->group(function () {
+            Route::get('facebook/authorize', [FacebookController::class, 'authorize']);
+            Route::get('facebook/pages', [FacebookController::class, 'pages']);
+            Route::post('facebook/create', [FacebookController::class, 'createFromCallback']);
+            Route::get('twitter/authorize', [TwitterController::class, 'authorize']);
+            Route::post('twitter/callback', [TwitterController::class, 'callback']);
+        });
+    });
+
+    // Super Admin routes
+    Route::prefix('super_admin')->middleware(EnsureSuperAdmin::class)->group(function () {
+        // Instance Status
+        Route::get('instance_status', [InstanceStatusController::class, 'show']);
+
+        // Accounts
+        Route::apiResource('accounts', SuperAdminAccountsController::class);
+        Route::post('accounts/{account}/seed', [SuperAdminAccountsController::class, 'seed']);
+        Route::post('accounts/{account}/reset_cache', [SuperAdminAccountsController::class, 'resetCache']);
+
+        // Users
+        Route::apiResource('users', SuperAdminUsersController::class);
+        Route::delete('users/{user}/avatar', [SuperAdminUsersController::class, 'destroyAvatar']);
+
+        // Agent Bots (Global)
+        Route::apiResource('agent_bots', SuperAdminAgentBotsController::class);
+        Route::delete('agent_bots/{agentBot}/avatar', [SuperAdminAgentBotsController::class, 'destroyAvatar']);
+
+        // Platform Apps
+        Route::apiResource('platform_apps', PlatformAppsController::class);
+        Route::post('platform_apps/{platformApp}/regenerate_token', [PlatformAppsController::class, 'regenerateToken']);
+
+        // Installation Configs
+        Route::get('installation_configs', [InstallationConfigsController::class, 'index']);
+        Route::post('installation_configs', [InstallationConfigsController::class, 'store']);
+        Route::get('installation_configs/groups', [InstallationConfigsController::class, 'groups']);
+        Route::get('installation_configs/group/{group}', [InstallationConfigsController::class, 'showByGroup']);
+        Route::get('installation_configs/{installationConfig}', [InstallationConfigsController::class, 'show']);
+        Route::patch('installation_configs/{installationConfig}', [InstallationConfigsController::class, 'update']);
+        Route::delete('installation_configs/{installationConfig}', [InstallationConfigsController::class, 'destroy']);
+
+        // Access Tokens
+        Route::get('access_tokens', [SuperAdminAccessTokensController::class, 'index']);
+        Route::post('access_tokens', [SuperAdminAccessTokensController::class, 'store']);
+        Route::get('access_tokens/{accessToken}', [SuperAdminAccessTokensController::class, 'show']);
+        Route::delete('access_tokens/{accessToken}', [SuperAdminAccessTokensController::class, 'destroy']);
+        Route::delete('users/{user}/access_tokens', [SuperAdminAccessTokensController::class, 'revokeAllForUser']);
     });
 });

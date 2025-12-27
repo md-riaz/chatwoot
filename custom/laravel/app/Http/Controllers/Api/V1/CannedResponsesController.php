@@ -31,12 +31,18 @@ class CannedResponsesController extends Controller
     public function store(Request $request, Account $account): JsonResponse
     {
         $validated = $request->validate([
-            'short_code' => 'required|string|max:255',
+            'short_code' => [
+                'required',
+                'string',
+                'max:255',
+                "unique:canned_responses,short_code,NULL,id,account_id,{$account->id}",
+            ],
             'content' => 'required|string',
         ]);
 
         $cannedResponse = CannedResponse::create([
-            ...$validated,
+            'short_code' => $validated['short_code'],
+            'content' => $validated['content'],
             'account_id' => $account->id,
         ]);
 
