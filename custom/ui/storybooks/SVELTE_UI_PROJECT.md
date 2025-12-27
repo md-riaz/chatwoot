@@ -68,16 +68,29 @@ pnpm dev              # Opens at http://localhost:5173
 | **Alert** | `alert/*.svelte`, `Alert.story.svelte` | ✅ |
 | **Progress** | `progress/*.svelte`, `Progress.story.svelte` | ✅ |
 | **Scroll Area** | `scroll-area/*.svelte`, `ScrollArea.story.svelte` | ✅ |
+| **Table** | `table/*.svelte`, `Table.story.svelte` | ✅ |
+| **Skeleton** | `skeleton/*.svelte`, `Skeleton.story.svelte` | ✅ |
+| **Sidebar** | `sidebar/*.svelte`, `Sidebar.story.svelte` | ✅ |
 
-### Phase 3: Chatwoot-Specific (Future)
+### Phase 3: Chatwoot-Specific (Complete)
+
+| Component | Files | Story |
+|-----------|-------|-------|
+| **Message Bubble** | `message-bubble/*.svelte`, `MessageBubble.story.svelte` | ✅ |
+| **Conversation Card** | `conversation-card/*.svelte`, `ConversationCard.story.svelte` | ✅ |
+| **Contact Card** | `contact-card/*.svelte`, `ContactCard.story.svelte` | ✅ |
+| **Reply Box** | `reply-box/*.svelte`, `ReplyBox.story.svelte` | ✅ |
+
+### Phase 4: Additional Components (Future)
 
 | Component | Status |
 |-----------|--------|
-| Message Bubble | ⏳ Pending |
-| Conversation Card | ⏳ Pending |
-| Contact Card | ⏳ Pending |
-| Reply Box | ⏳ Pending |
-| Sidebar | ⏳ Pending |
+| Command (cmdk) | ⏳ Pending |
+| Sheet | ⏳ Pending |
+| Toast (Sonner) | ⏳ Pending |
+| Calendar | ⏳ Pending |
+| Date Picker | ⏳ Pending |
+| Form Validation | ⏳ Pending |
 
 ## Histoire Stories
 
@@ -199,4 +212,4 @@ export const api = ky.create({
 ---
 
 **Created:** December 2024  
-**Status:** Phase 1 & 2 Complete - 21 Components with Stories
+**Status:** Phase 1, 2 & 3 Complete - 30 Components with Stories
