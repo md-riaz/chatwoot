@@ -248,10 +248,53 @@ export const api = ky.create({
 - [SVELTE_CONVERSION_CRITIQUE.md](./SVELTE_CONVERSION_CRITIQUE.md) - Feasibility analysis
 - [svelte-ui/README.md](../svelte-ui/README.md) - Project README
 
+### Phase 7: Extended Components (Complete)
+
+| Component | Files | Story |
+|-----------|-------|-------|
+| **Captain Components** | `captain/*.svelte`, `Captain.story.svelte` | ✅ |
+| - AnimatingImg | AI avatar animation | ✅ |
+| - AddNewRulesInput | Rule input field | ✅ |
+| - InboxCard | Inbox selection | ✅ |
+| - ResponseCard | Canned response display | ✅ |
+| - RuleCard | Automation rule | ✅ |
+| - ScenariosCard | AI scenarios | ✅ |
+| - SuggestedRules | AI suggestions | ✅ |
+| - ToolsDropdown | Captain tools | ✅ |
+| - SettingsHeader | Captain settings | ✅ |
+| **CopilotLoader** | `copilot-loader/*.svelte`, `CopilotLoader.story.svelte` | ✅ |
+| **CopilotThinkingGroup** | AI thinking steps | ✅ |
+| **Message Templates** | `message-template/*.svelte`, `MessageTemplate.story.svelte` | ✅ |
+| - Text Template | Plain text messages | ✅ |
+| - Media Template | Image/video/audio/document | ✅ |
+| - Card Template | Product cards | ✅ |
+| - CallToAction | CTA buttons | ✅ |
+| - ListPicker | Selection lists | ✅ |
+| - QuickReply | Quick reply buttons | ✅ |
+| **ContactForm** | `contact-form/*.svelte`, `ContactForm.story.svelte` | ✅ |
+| **ContactMergeForm** | Merge duplicate contacts | ✅ |
+| **ContactHeader** | `contact-header/*.svelte`, `ContactHeader.story.svelte` | ✅ |
+| **ContactNoteItem** | `contact-note/*.svelte`, `ContactNote.story.svelte` | ✅ |
+| **EmptyState** | `empty-state/*.svelte`, `EmptyState.story.svelte` | ✅ |
+| - ContactEmptyState | No contacts view | ✅ |
+| - ArticleEmptyState | No articles view | ✅ |
+| - PortalEmptyState | No portal view | ✅ |
+| **AssignmentPolicy** | `assignment-policy/*.svelte`, `AssignmentPolicy.story.svelte` | ✅ |
+| - AssignmentCard | Assignment toggle | ✅ |
+| - AssignmentPolicyCard | Policy display | ✅ |
+| - AgentCapacityCard | Agent capacity | ✅ |
+| - RadioCard | Radio selection | ✅ |
+| - DataTable | Data grid | ✅ |
+| **PortalSwitcher** | `portal-switcher/*.svelte`, `PortalSwitcher.story.svelte` | ✅ |
+| **NewConversationForm** | `new-conversation/*.svelte`, `NewConversation.story.svelte` | ✅ |
+| **AvailabilityText** | `availability/*.svelte`, `Availability.story.svelte` | ✅ |
+| **SidebarActionsHeader** | `sidebar-actions/*.svelte`, `SidebarActionsHeader.story.svelte` | ✅ |
+| **SelectMenu** | `select-menu/*.svelte`, `SelectMenu.story.svelte` | ✅ |
+
 ---
 
 **Created:** December 2024  
-**Status:** All Phases Complete - 55 Components with Stories
+**Status:** All Phases Complete - 90+ Components with Stories
 
 ## Component Summary
 
@@ -263,4 +306,31 @@ export const api = ky.create({
 | Navigation & Core | 11 |
 | Business Components | 10 |
 | Additional UI | 4 |
-| **Total** | **53** |
+| Captain/AI | 12 |
+| Message Templates | 6 |
+| Contacts | 5 |
+| Empty States | 4 |
+| Assignment Policy | 5 |
+| Help Center Extended | 2 |
+| Other | 4 |
+| **Total** | **91** |
+
+## Vue to Svelte Migration Coverage
+
+| Vue Story Category | Count | Svelte Equivalent | Status |
+|-------------------|-------|-------------------|--------|
+| Core UI Components | 21 | Primitives, Forms, Navigation | ✅ Complete |
+| Filter Components | 5 | Filter, MultiSelect | ✅ Complete |
+| Message Components | 12 | MessageBubble, Templates | ✅ Complete |
+| Captain Components | 12 | Captain/* | ✅ Complete |
+| Copilot Components | 3 | Copilot, CopilotLoader | ✅ Complete |
+| Contacts Components | 6 | Contact*, EmptyState | ✅ Complete |
+| Conversation Components | 2 | ConversationCard, NewConversation | ✅ Complete |
+| Help Center Components | 10 | ArticleCard, CategoryCard, Portal* | ✅ Complete |
+| Assignment Policy | 11 | AssignmentPolicy/* | ✅ Complete |
+| Label Components | 2 | LabelInput | ✅ Complete |
+| Custom Attributes | 1 | CustomAttributes | ✅ Complete |
+| Feature Spotlight | 2 | FeatureSpotlight | ✅ Complete |
+| Changelog | 2 | ChangelogCard | ✅ Complete |
+| Widget Components | 1 | AvailabilityText | ✅ Complete |
+| **Total** | **90** | **91 Svelte Components** | ✅ **Fully Migrated** |

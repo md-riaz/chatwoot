@@ -74,3 +74,34 @@ export * from './locale-card';
 export * from './assistant-card';
 export * from './document-card';
 export * from './copilot';
+export * from './captain';
+export * from './copilot-loader';
+
+// Message Templates
+export * from './message-template';
+
+// Contacts
+export * from './contact-form';
+export * from './contact-header';
+export * from './contact-note';
+
+// Empty States
+export * from './empty-state';
+
+// Assignment Policy
+export * from './assignment-policy';
+
+// Help Center Extended
+export * from './portal-switcher';
+
+// Conversation
+export * from './new-conversation';
+
+// Widget
+export * from './availability';
+
+// Layout Extended
+export * from './sidebar-actions';
+
+// Selection
+export * from './select-menu';
