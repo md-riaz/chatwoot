@@ -69,7 +69,8 @@ class AgentBotsController extends Controller
             'bot_config' => 'nullable|array',
         ]);
 
-        $agentBot->update(array_filter($validated, fn($value) => $value !== null));
+        // Only update fields that were provided in the request
+        $agentBot->update(collect($validated)->filter(fn($value, $key) => $request->has($key))->toArray());
 
         return response()->json($this->formatAgentBot($agentBot));
     }

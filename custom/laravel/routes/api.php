@@ -77,6 +77,8 @@ use App\Http\Controllers\Api\V1\Public\Inboxes\ContactsController as PublicConta
 use App\Http\Controllers\Api\V1\Public\Inboxes\ConversationsController as PublicConversationsController;
 use App\Http\Controllers\Api\V1\Public\Inboxes\MessagesController as PublicMessagesController;
 use App\Http\Middleware\EnsureSuperAdmin;
+use App\Http\Controllers\Api\V1\NotificationSubscriptionsController;
+use App\Http\Controllers\Api\V1\Profile\MfaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -245,7 +247,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('set_active_account', [ProfileController::class, 'setActiveAccount']);
         Route::post('resend_confirmation', [ProfileController::class, 'resendConfirmation']);
         Route::post('reset_access_token', [ProfileController::class, 'resetAccessToken']);
+        
+        // MFA routes
+        Route::prefix('mfa')->group(function () {
+            Route::get('/', [MfaController::class, 'show']);
+            Route::post('/', [MfaController::class, 'store']);
+            Route::delete('/', [MfaController::class, 'destroy']);
+            Route::post('verify', [MfaController::class, 'verify']);
+            Route::post('backup_codes', [MfaController::class, 'backupCodes']);
+        });
     });
+
+    // Notification Subscriptions
+    Route::post('notification_subscriptions', [NotificationSubscriptionsController::class, 'store']);
+    Route::delete('notification_subscriptions', [NotificationSubscriptionsController::class, 'destroy']);
 
     // Notifications routes
     Route::prefix('notifications')->group(function () {

@@ -44,8 +44,7 @@ class LabelsController extends BaseController
         );
 
         // Attach to conversation if not already attached
-        $currentLabels = $conversation->labels ?? [];
-        if (!in_array($label->id, $currentLabels)) {
+        if (!$conversation->labels()->where('labels.id', $label->id)->exists()) {
             $conversation->labels()->attach($label->id);
         }
 

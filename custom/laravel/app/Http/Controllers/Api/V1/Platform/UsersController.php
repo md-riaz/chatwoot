@@ -118,7 +118,7 @@ class UsersController extends Controller
         $token = $user->createToken('platform-sso-' . time())->plainTextToken;
 
         return response()->json([
-            'url' => config('app.frontend_url') . '/auth/sso?token=' . $token,
+            'url' => config('app.frontend_url') . '/auth/sso?' . http_build_query(['token' => $token]),
         ]);
     }
 

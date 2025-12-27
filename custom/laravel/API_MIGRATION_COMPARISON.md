@@ -35,6 +35,23 @@ All Chatwoot Rails API endpoints have been successfully migrated to ClearLine La
 | POST /api/v1/profile/resend_confirmation | POST /api/v1/profile/resend_confirmation | ✅ |
 | POST /api/v1/profile/reset_access_token | POST /api/v1/profile/reset_access_token | ✅ |
 
+### MFA (Multi-Factor Authentication)
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| GET /api/v1/profile/mfa | GET /api/v1/profile/mfa | ✅ |
+| POST /api/v1/profile/mfa | POST /api/v1/profile/mfa | ✅ |
+| DELETE /api/v1/profile/mfa | DELETE /api/v1/profile/mfa | ✅ |
+| POST /api/v1/profile/mfa/verify | POST /api/v1/profile/mfa/verify | ✅ |
+| POST /api/v1/profile/mfa/backup_codes | POST /api/v1/profile/mfa/backup_codes | ✅ |
+
+### Notification Subscriptions
+
+| Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
+|------------------------|---------------------------|--------|
+| POST /api/v1/notification_subscriptions | POST /api/v1/notification_subscriptions | ✅ |
+| DELETE /api/v1/notification_subscriptions | DELETE /api/v1/notification_subscriptions | ✅ |
+
 ### Accounts
 
 | Chatwoot Rails Endpoint | ClearLine Laravel Endpoint | Status |
