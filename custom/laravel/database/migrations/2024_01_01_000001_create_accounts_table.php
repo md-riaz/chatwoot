@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('domain')->nullable();
             $table->string('support_email')->nullable();
             $table->json('settings')->nullable();
+            $table->json('custom_attributes')->nullable();
             $table->json('features')->nullable();
             $table->json('limits')->nullable();
             $table->integer('status')->default(1); // 1=active, 0=inactive
