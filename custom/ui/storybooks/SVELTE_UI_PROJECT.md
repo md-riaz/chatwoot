@@ -54,17 +54,20 @@ pnpm dev              # Opens at http://localhost:5173
 | **Card** | `card/*.svelte`, `Card.story.svelte` | ✅ |
 | **Spinner** | `spinner/index.ts`, `spinner.svelte`, `Spinner.story.svelte` | ✅ |
 
-### Phase 2: Overlays & Navigation (Next)
+### Phase 2: Overlays & Navigation (Complete)
 
-| Component | Status |
-|-----------|--------|
-| Dialog | ⏳ Pending |
-| Dropdown Menu | ⏳ Pending |
-| Popover | ⏳ Pending |
-| Tooltip | ⏳ Pending |
-| Tabs | ⏳ Pending |
-| Select | ⏳ Pending |
-| Command | ⏳ Pending |
+| Component | Files | Story |
+|-----------|-------|-------|
+| **Dialog** | `dialog/*.svelte`, `Dialog.story.svelte` | ✅ |
+| **Dropdown Menu** | `dropdown-menu/*.svelte`, `DropdownMenu.story.svelte` | ✅ |
+| **Popover** | `popover/*.svelte`, `Popover.story.svelte` | ✅ |
+| **Tooltip** | `tooltip/*.svelte`, `Tooltip.story.svelte` | ✅ |
+| **Tabs** | `tabs/*.svelte`, `Tabs.story.svelte` | ✅ |
+| **Select** | `select/*.svelte`, `Select.story.svelte` | ✅ |
+| **Accordion** | `accordion/*.svelte`, `Accordion.story.svelte` | ✅ |
+| **Alert** | `alert/*.svelte`, `Alert.story.svelte` | ✅ |
+| **Progress** | `progress/*.svelte`, `Progress.story.svelte` | ✅ |
+| **Scroll Area** | `scroll-area/*.svelte`, `ScrollArea.story.svelte` | ✅ |
 
 ### Phase 3: Chatwoot-Specific (Future)
 
@@ -196,4 +199,4 @@ export const api = ky.create({
 ---
 
 **Created:** December 2024  
-**Status:** Phase 1 Complete - 11 Components with Stories
+**Status:** Phase 1 & 2 Complete - 21 Components with Stories
