@@ -13,11 +13,13 @@ return new class extends Migration
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
             $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
             $table->foreignId('contact_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('message_id')->unique()->constrained()->cascadeOnDelete();
+            $table->foreignId('message_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('assigned_agent_id')->nullable()->constrained('users')->nullOnDelete();
             $table->integer('rating'); // 1-5
             $table->text('feedback_message')->nullable();
             $table->timestamps();
+
+            $table->unique(['conversation_id', 'message_id']);
         });
     }
 
