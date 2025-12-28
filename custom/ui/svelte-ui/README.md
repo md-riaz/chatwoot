@@ -217,31 +217,126 @@ const conversations = await api.get('conversations').json();
 
 ## 📝 Component Roadmap
 
-### To Be Added
-- [ ] Dialog
-- [ ] Dropdown Menu
-- [ ] Select
-- [ ] Popover
-- [ ] Tooltip
-- [ ] Tabs
-- [ ] Accordion
-- [ ] Alert
-- [ ] Toast (Sonner)
-- [ ] Sidebar
-- [ ] Table
-- [ ] Command (cmdk)
-- [ ] Calendar
-- [ ] Date Picker
-- [ ] Form validation
+### ✅ Completed Primitives (69 components with stories)
+- [x] Dialog
+- [x] Dropdown Menu
+- [x] Select
+- [x] Popover
+- [x] Tooltip
+- [x] Tabs
+- [x] Accordion
+- [x] Alert
+- [x] Toast (Sonner)
+- [x] Sidebar
+- [x] Table
+- [x] Command (cmdk)
+- [x] Button, Input, Textarea, Checkbox, Switch, Label, Separator
+- [x] Badge, Avatar, Card, Spinner
+- [x] Breadcrumb, Pagination, Radio Group, Progress
+- [x] Sheet, Scroll Area, Skeleton, Combobox
+- [x] Inline Input, Phone Input, Tag Input, Label Input, Select Menu
+- [x] Confirm Button, Empty State, File Icon, Flag
+- [x] **Calendar** ⭐ NEW
+- [x] **Date Picker** ⭐ NEW
+- [x] **Form (with validation)** ⭐ NEW
 
-### Custom Components (Chatwoot-specific)
-- [ ] Message Bubble
-- [ ] Conversation Card
-- [ ] Contact Card
-- [ ] Reply Box
-- [ ] File Upload
-- [ ] Audio Recorder
-- [ ] Emoji Picker
+### ✅ Completed Chatwoot-Specific Components
+- [x] Message Bubble
+- [x] Conversation Card
+- [x] Contact Card
+- [x] Reply Box
+- [x] Contact Header
+- [x] Contact Note
+- [x] Contact Form
+- [x] Custom Attributes
+- [x] Document Card
+- [x] Article Card
+- [x] Category Card
+- [x] Locale Card
+- [x] Portal Switcher
+- [x] Changelog Card
+- [x] Feature Spotlight
+- [x] Copilot/Copilot Loader
+- [x] Captain (AI Assistant)
+- [x] Assistant Card
+- [x] Assignment Policy
+- [x] Availability
+- [x] Filter
+- [x] Pagination Footer
+- [x] Sidebar Actions Header
+- [x] Tab Bar
+- [x] New Conversation
+- [x] Message Template
+
+### 🎯 Application Features To Be Added
+
+#### Media & File Handling ✅ COMPLETE
+- [x] **File Upload** - Drag-and-drop, multiple files, preview, progress ⭐ NEW
+- [x] **Audio Recorder** - Record, playback, waveform visualization ⭐ NEW
+- [x] **Emoji Picker** - Categories, search, recent emojis ⭐ NEW
+- [x] **Image Gallery** - Grid layout, lightbox, keyboard navigation ⭐ NEW
+- [ ] ArticlesPage - Full page for article management
+- [ ] CategoriesPage - Full page for category management  
+- [ ] LocalesPage - Full page for locale management
+- [ ] PortalSettings - Portal configuration page
+- [ ] Article Empty State - No articles placeholder
+- [ ] Portal Empty State - No portal placeholder
+
+#### Contact Management Module
+- [ ] Contact Merge Form - Merge duplicate contacts
+- [ ] Contact Import Dialog - Bulk import contacts
+- [ ] Contact Export Dialog - Bulk export contacts
+- [ ] Create/Edit Contact Dialog - Contact CRUD operations
+- [ ] Contact Labels Management - Label assignment UI
+- [ ] Contact Segments - Contact segmentation UI
+
+#### Conversation Module  
+- [ ] Conversation List - Main conversation inbox
+- [ ] Conversation Details - Full conversation view
+- [ ] Message Thread - Message history display
+- [ ] SLA Card Label - SLA status indicator
+- [ ] Priority Icon - Conversation priority
+
+#### Captain AI Module
+- [ ] Add New Rules Dialog - AI rule creation
+- [ ] Add New Rules Input - Rule input component
+- [ ] Document Upload Card - Document management
+- [ ] Inbox Settings Card - Inbox AI configuration
+- [ ] Response Suggestions Card - AI response suggestions
+- [ ] Rule Management Card - AI rule management
+- [ ] Scenarios Card - AI scenario configuration
+- [ ] Tools Dropdown - AI tool selection
+
+#### Assignment Policy Module
+- [ ] Agent Capacity Policy Card - Capacity management
+- [ ] Assignment Policy Card - Policy configuration
+- [ ] Assignment Card - Assignment UI
+- [ ] Data Table - Policy data display
+- [ ] Exclusion Rules - Rule exclusions
+- [ ] Fair Distribution - Load balancing UI
+- [ ] Inbox Capacity Limits - Capacity constraints
+
+#### Filter Module
+- [ ] Active Filter Preview - Display active filters
+- [ ] Condition Row - Filter condition builder
+- [ ] Filter Select - Filter dropdown
+- [ ] Multi Select Filter - Multiple selection
+- [ ] Single Select Filter - Single selection
+
+#### Media & File Handling
+- [ ] File Upload - Multi-file upload component
+- [ ] Audio Recorder - Voice message recording
+- [ ] Emoji Picker - Emoji selection UI
+- [ ] Image Gallery - Image viewing/selection
+- [ ] Video Player - Video message player
+
+#### Additional Features
+- [ ] Notification Center - In-app notifications
+- [ ] Search Component - Global search UI
+- [ ] User Menu - User profile dropdown
+- [ ] Settings Panel - Application settings
+- [ ] Report Dashboard - Analytics visualization
+- [ ] Team Management - Team member management
 
 ## 🏗️ Build
 
