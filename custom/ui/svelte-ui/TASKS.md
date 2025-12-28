@@ -138,16 +138,28 @@ This document outlines the step-by-step tasks for migrating all Vue components t
 
 ---
 
-## Phase 3: Help Center Module (MEDIUM PRIORITY) 🟡
+## Phase 3: Help Center Module (MEDIUM PRIORITY) 🟡 📋 SPECIFIED
 
-### Task 3.1: ArticlesPage Component
-- [ ] Examine Vue component: `app/javascript/dashboard/components-next/HelpCenter/Pages/ArticlePage/ArticlesPage.vue`
-- [ ] Create articles-page directory in custom/ui/svelte-ui
-- [ ] Implement articles-page.svelte with:
-  - Article list view
-  - Search/filter bar
-  - Sort options
-  - Pagination
+**Status:** Detailed specifications complete - Ready for implementation
+**Estimated Time:** 46-60 hours (6-8 days)
+**Components:** 8
+
+### Implementation Approach
+Phase 3 components require complex features (rich text editing, i18n, search). Rather than rush incomplete implementations, detailed specifications have been created to enable systematic, high-quality implementation in future sessions.
+
+**See `PHASE_3_4_SPECS.md` for complete component specifications.**
+
+### Components Specified:
+1. **Articles Page** - Article list with search/filters
+2. **Article Editor** - Rich text editor with TipTap
+3. **Categories** - Category management with drag-drop
+4. **Locales** - Localization management
+5. **Portal Configuration** - Portal settings and branding
+6. **Settings** - General help center settings
+7. **Sidebar** - Navigation sidebar
+8. **Search** - Full-text article search
+
+**Phase 3 Total:** 46-60 hours (6-8 days) 📋 SPECIFIED
   - Empty state
   - Loading state
 - [ ] Create ArticlesPage.story.svelte
