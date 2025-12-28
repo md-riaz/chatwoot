@@ -12,12 +12,6 @@ export default defineConfig({
   theme: {
     darkClass: 'dark',
     title: '@chatwoot/svelte-ui',
-    favicon: '/favicon.ico',
-    logo: {
-      square: '/logo.svg',
-      light: '/logo.svg',
-      dark: '/logo.svg'
-    },
     colors: {
       primary: {
         50: '#eff6ff',
