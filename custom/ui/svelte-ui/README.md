@@ -217,7 +217,7 @@ const conversations = await api.get('conversations').json();
 
 ## 📝 Component Roadmap
 
-### ✅ Completed Primitives (66 components with stories)
+### ✅ Completed Primitives (69 components with stories)
 - [x] Dialog
 - [x] Dropdown Menu
 - [x] Select
@@ -236,11 +236,9 @@ const conversations = await api.get('conversations').json();
 - [x] Sheet, Scroll Area, Skeleton, Combobox
 - [x] Inline Input, Phone Input, Tag Input, Label Input, Select Menu
 - [x] Confirm Button, Empty State, File Icon, Flag
-
-### 🚧 Primitives To Be Added
-- [ ] Calendar
-- [ ] Date Picker
-- [ ] Form validation (Formsnap integration)
+- [x] **Calendar** ⭐ NEW
+- [x] **Date Picker** ⭐ NEW
+- [x] **Form (with validation)** ⭐ NEW
 
 ### ✅ Completed Chatwoot-Specific Components
 - [x] Message Bubble
