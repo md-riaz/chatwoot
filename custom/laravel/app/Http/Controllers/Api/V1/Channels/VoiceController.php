@@ -1,3 +1,7 @@
+use App\Services\Voice\StatusUpdateService;
+use App\Services\Voice\Conference\Manager as ConferenceManager;
+use App\Services\Voice\CallSessionSyncService;
+use App\Services\Voice\InboundCallBuilder;
 <?php
 
 namespace App\Http\Controllers\Api\V1\Channels;
@@ -88,18 +92,14 @@ class VoiceController extends Controller
                 $conversation = $inbox->conversations()->where('additional_attributes->identifier', $callSid)->first();
             }
         } elseif ($direction === 'inbound') {
-            // Inbound: create or find conversation by callSid
-            $conversation = $inbox->conversations()->firstOrCreate(
-                ['additional_attributes->identifier' => $callSid],
-                [
-                    'account_id' => $inbox->account_id,
-                    'status' => 0,
-                    'additional_attributes' => ['identifier' => $callSid]
-                ]
-            );
+            // Inbound: use InboundCallBuilder
+            $conversation = (new InboundCallBuilder($inbox->account, $inbox, $from, $callSid))->perform();
         } elseif (in_array($direction, ['outbound-api', 'outbound-dial'])) {
-            // Outbound: sync outbound leg (stub)
+            // Outbound: sync outbound leg
             $conversation = $inbox->conversations()->where('additional_attributes->identifier', $callSid)->first();
+            if ($conversation) {
+                (new CallSessionSyncService($conversation, $callSid, $from, $request->input('To'), $direction))->perform();
+            }
         }
         // 3. Ensure conference_sid in additional_attributes
         if ($conversation) {
@@ -146,14 +146,9 @@ class VoiceController extends Controller
         $voice = Voice::where('phone_number', $phone)->first();
         $inbox = $voice ? $voice->inbox : null;
         $conversation = $inbox ? $inbox->conversations()->where('additional_attributes->identifier', $callSid)->first() : null;
-        // Store/update call status in conversation attributes
         if ($conversation) {
-            $attrs = $conversation->additional_attributes ?? [];
-            $attrs['call_status'] = $callStatus;
-            $conversation->additional_attributes = $attrs;
-            $conversation->save();
+            (new StatusUpdateService($conversation, $callSid, $callStatus, $request->all()))->perform();
         }
-        // Optionally: trigger events, notifications, etc.
         return response()->json(['success' => true]);
     }
 
@@ -173,18 +168,9 @@ class VoiceController extends Controller
         $voice = Voice::where('phone_number', $phone)->first();
         $inbox = $voice ? $voice->inbox : null;
         $conversation = $inbox ? $inbox->conversations()->where('additional_attributes->conference_sid', $conferenceSid)->first() : null;
-        // Store/update conference event in conversation attributes
         if ($conversation) {
-            $attrs = $conversation->additional_attributes ?? [];
-            $attrs['conference_event'] = [
-                'event' => $event,
-                'participant_label' => $participantLabel,
-                'timestamp' => now()->toIso8601String(),
-            ];
-            $conversation->additional_attributes = $attrs;
-            $conversation->save();
+            (new ConferenceManager($conversation, $event, $callSid, $participantLabel))->process();
         }
-        // Optionally: trigger events, notifications, etc.
         return response()->json(['success' => true]);
     }
 }
