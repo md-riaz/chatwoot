@@ -23,6 +23,17 @@ class CreateMessageAction
         return DB::transaction(function () use ($data) {
             $message = $this->messageRepository->create($data->toArray());
 
+            // Handle in-reply-to references via Action to follow project pattern
+            try {
+                $inReplyTo = $message->content_attributes['in_reply_to'] ?? null;
+                $inReplyToExternal = $message->content_attributes['in_reply_to_external_id'] ?? null;
+                if ($inReplyTo || $inReplyToExternal) {
+                    \App\Actions\Message\SetInReplyToAction::run($message, $inReplyTo, $inReplyToExternal);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('InReplyTo processing failed', ['error' => $e->getMessage()]);
+            }
+
             // Update conversation last activity
             $this->conversationRepository->update($data->conversation_id, [
                 'last_activity_at' => now(),
