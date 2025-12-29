@@ -191,4 +191,65 @@ class Account extends Model
     {
         return $this->features[$feature] ?? false;
     }
+
+    /**
+     * Return usage limits structure used by services (minimal implementation).
+     */
+    public function usageLimits(): array
+    {
+        $responses = $this->getCaptainLimits('responses');
+
+        return [
+            'captain' => [
+                'documents' => $this->getCaptainLimits('documents'),
+                'responses' => $responses,
+            ],
+        ];
+    }
+
+    /**
+     * Increment captain response usage counter stored in custom_attributes.
+     */
+    public function incrementResponseUsage(): void
+    {
+        $key = 'captain_responses_usage';
+        $attrs = $this->custom_attributes ?? [];
+        $current = isset($attrs[$key]) ? (int) $attrs[$key] : 0;
+        $attrs[$key] = $current + 1;
+        $this->custom_attributes = $attrs;
+        $this->save();
+    }
+
+    /**
+     * Compute captain limits for a given type.
+     */
+    protected function getCaptainLimits(string $type): array
+    {
+        // total_count may be stored under limits; fallback to a large value
+        $total = null;
+        if (is_array($this->limits)) {
+            if (isset($this->limits[$type])) {
+                $total = (int) $this->limits[$type];
+            } elseif (isset($this->limits['captain']) && isset($this->limits['captain'][$type])) {
+                $total = (int) $this->limits['captain'][$type];
+            }
+        }
+
+        // consumed stored in custom_attributes
+        $usageKey = $type === 'responses' ? 'captain_responses_usage' : 'captain_documents_usage';
+        $consumed = isset($this->custom_attributes[$usageKey]) ? (int) $this->custom_attributes[$usageKey] : 0;
+
+        if ($total === null) {
+            // no configured limit -> treat as unlimited
+            $total = PHP_INT_MAX;
+        }
+
+        $available = max(0, $total - $consumed);
+
+        return [
+            'total_count' => $total,
+            'current_available' => $available,
+            'consumed' => $consumed,
+        ];
+    }
 }

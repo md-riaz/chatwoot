@@ -39,10 +39,20 @@ class AudioTranscriptionService
 
     protected function canTranscribe(): bool
     {
-        // Example: check feature flag and usage limits (implement as needed)
-        if (!$this->account->feature_enabled('captain_integration')) return false;
-        if (empty($this->account->audio_transcriptions)) return false;
-        // Usage limit check (stub)
+        if (!$this->account) return false;
+        if (!method_exists($this->account, 'featureEnabled') || !$this->account->featureEnabled('captain_integration')) {
+            return false;
+        }
+
+        // If account exposes usage limits, respect them; otherwise allow
+        if (method_exists($this->account, 'usageLimits')) {
+            $limits = $this->account->usageLimits();
+            $available = $limits['captain']['responses']['current_available'] ?? null;
+            if ($available !== null) {
+                return (int) $available > 0;
+            }
+        }
+
         return true;
     }
 
@@ -104,8 +114,20 @@ class AudioTranscriptionService
         $filePath = $this->fetchAudioFile();
         $openai = new OpenAIService();
         $response = $openai->transcribeAudio($filePath, self::WHISPER_MODEL);
-        $transcribedText = $response['text'] ?? '';
-        $this->updateTranscription($transcribedText);
+        $transcribedText = $response['text'] ?? ($response['content'] ?? '');
+        if (!empty($transcribedText)) {
+            $this->updateTranscription($transcribedText);
+
+            // increment account usage if supported
+            try {
+                if (method_exists($this->message->account, 'incrementResponseUsage')) {
+                    $this->message->account->incrementResponseUsage();
+                }
+            } catch (\Exception $e) {
+                Log::warning('Failed to increment account response usage', ['error' => $e->getMessage()]);
+            }
+        }
+
         @unlink($filePath);
         return $transcribedText;
     }
@@ -123,6 +145,14 @@ class AudioTranscriptionService
             event(new \App\Events\Message\MessageUpdated($this->message));
         } catch (\Exception $e) {
             Log::warning('Failed to dispatch MessageUpdated event', ['error' => $e->getMessage()]);
+        }
+        // Trigger reindex if the message supports it
+        try {
+            if (method_exists($this->message, 'reindex')) {
+                $this->message->reindex();
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to reindex message', ['error' => $e->getMessage()]);
         }
     }
 }
