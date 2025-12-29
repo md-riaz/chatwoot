@@ -1,5 +1,6 @@
 <?php
 
+
 use App\Http\Controllers\Api\V1\AccountsController;
 use App\Http\Controllers\Api\V1\AgentBotsController;
 use App\Http\Controllers\Api\V1\AgentsController;
@@ -112,6 +113,10 @@ Route::get('/', function () {
         'api_version' => 'v1',
     ]);
 });
+
+
+// Onboarding route for first superadmin creation (Rails-style)
+Route::post('installation/onboarding', [\App\Http\Controllers\Api\V1\InstallationOnboardingController::class, 'onboard']);
 
 // Authentication routes
 Route::prefix('auth')->group(function () {
