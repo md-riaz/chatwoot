@@ -17,6 +17,15 @@ class AudioTranscriptionJob implements ShouldQueue
     public int $attachmentId;
 
     public string $queue = 'low';
+    /**
+     * Number of times the job may be attempted.
+     */
+    public int $tries = 3;
+
+    /**
+     * Backoff seconds between attempts.
+     */
+    public $backoff = [2, 10];
 
     public function __construct(int $attachmentId)
     {
@@ -33,7 +42,7 @@ class AudioTranscriptionJob implements ShouldQueue
             return;
         }
 
-        // Run the transcription service
+        // Run the transcription service. Let exceptions bubble so the job can be retried.
         $service = new AudioTranscriptionService($attachment);
         $service->perform();
     }

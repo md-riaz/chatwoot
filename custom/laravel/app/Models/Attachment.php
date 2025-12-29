@@ -125,8 +125,9 @@ class Attachment extends Model
     {
         static::created(function (self $attachment) {
             if ($attachment->isAudio()) {
-                // Dispatch transcription job for audio attachments
-                \App\Jobs\Message\AudioTranscriptionJob::dispatch($attachment->id)->onQueue('low');
+                \Illuminate\Support\Facades\DB::afterCommit(function () use ($attachment) {
+                    \App\Jobs\Message\AudioTranscriptionJob::dispatch($attachment->id)->onQueue('low');
+                });
             }
         });
     }

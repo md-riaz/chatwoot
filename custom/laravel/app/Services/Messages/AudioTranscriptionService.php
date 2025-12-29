@@ -3,8 +3,10 @@
 namespace App\Services\Messages;
 
 use App\Models\Attachment;
+use App\Models\Media;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 use App\Services\Integrations\OpenAIService;
 
 class AudioTranscriptionService
@@ -50,10 +52,47 @@ class AudioTranscriptionService
         if (!is_dir($localPath)) {
             mkdir($localPath, 0777, true);
         }
-        $fileName = $this->attachment->file_name ?? uniqid('audio_');
+
+        // Try to find associated Media record for this attachment
+        $media = $this->attachment->media()->where('file_type', Media::TYPE_AUDIO)->orderBy('id')->first();
+
+        $fileName = $media->file_name ?? ($this->attachment->file_name ?? uniqid('audio_'));
         $filePath = $localPath . '/' . $fileName;
-        Storage::disk('local')->put($filePath, $this->attachment->getRawFile());
-        return $filePath;
+
+        if ($media) {
+            // External URL (CDN or remote)
+            if (!empty($media->external_url)) {
+                $resp = Http::timeout(60)->get($media->external_url);
+                if (!$resp->successful()) {
+                    throw new \RuntimeException('Failed to download external media');
+                }
+                file_put_contents($filePath, $resp->body());
+                return $filePath;
+            }
+
+            // Stored in configured disk
+            if (!empty($media->file_path)) {
+                $disk = $media->disk ?? config('filesystems.default');
+                $content = Storage::disk($disk)->get($media->file_path);
+                if ($content === false || $content === null) {
+                    throw new \RuntimeException('Media file not available on storage');
+                }
+                file_put_contents($filePath, $content);
+                return $filePath;
+            }
+        }
+
+        // Fallback: attempt to use attachment external_url or stored external_url
+        if (!empty($this->attachment->external_url)) {
+            $resp = Http::timeout(60)->get($this->attachment->external_url);
+            if (!$resp->successful()) {
+                throw new \RuntimeException('Failed to download attachment external_url');
+            }
+            file_put_contents($filePath, $resp->body());
+            return $filePath;
+        }
+
+        throw new \RuntimeException('No media available to transcribe');
     }
 
     protected function transcribeAudio()
@@ -79,6 +118,11 @@ class AudioTranscriptionService
         $this->attachment->meta = $meta;
         $this->attachment->save();
         $this->message->refresh();
-        // Optionally: trigger update event, increment usage, reindex, etc.
+        // Broadcast message updated so UI and consumers receive the new transcription
+        try {
+            event(new \App\Events\Message\MessageUpdated($this->message));
+        } catch (\Exception $e) {
+            Log::warning('Failed to dispatch MessageUpdated event', ['error' => $e->getMessage()]);
+        }
     }
 }
