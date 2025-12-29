@@ -37,6 +37,7 @@ class Message extends Model
     public const CONTENT_FORM = 5;
 
     public const CONTENT_ARTICLE = 6;
+    public const CONTENT_VOICE_CALL = 12;
 
     // Status constants
     public const STATUS_SENT = 0;

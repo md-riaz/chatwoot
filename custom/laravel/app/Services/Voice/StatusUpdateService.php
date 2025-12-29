@@ -37,12 +37,14 @@ class StatusUpdateService
     {
         $normalized = $this->normalizeStatus($this->callStatus);
         if (!$normalized) return;
-        $attrs = $this->conversation->additional_attributes ?? [];
-        $attrs['call_status'] = $normalized;
-        $attrs['call_duration'] = $this->payloadDuration();
-        $attrs['call_timestamp'] = $this->payloadTimestamp();
-        $this->conversation->additional_attributes = $attrs;
-        $this->conversation->save();
+
+        // Delegate to CallStatusManager to properly apply transitions and update messages
+        try {
+            $manager = new \App\Services\Voice\CallStatusManager($this->conversation);
+            $manager->processStatusUpdate($normalized, $this->payloadDuration(), $this->payloadTimestamp());
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Call status processing failed', ['error' => $e->getMessage()]);
+        }
     }
 
     protected function normalizeStatus($status)

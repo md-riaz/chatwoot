@@ -32,7 +32,31 @@ class CallSessionSyncService
         $this->conversation->additional_attributes = $attrs;
         $this->conversation->last_activity_at = now();
         $this->conversation->save();
-        // Optionally: log or create a call message here
+        // Create/sync the voice call message
+        $agent = null;
+        if (!empty($attrs['agent_id'])) {
+            $agent = $this->conversation->account->users()->find($attrs['agent_id']) ?? null;
+            if ($this->direction === 'outbound' && $agent === null) {
+                throw new \InvalidArgumentException('Agent sender required for outbound call sync');
+            }
+        }
+
+        \App\Services\Voice\CallMessageBuilder::perform(
+            $this->conversation,
+            $this->direction,
+            [
+                'call_sid' => $this->callSid,
+                'status' => $attrs['call_status'],
+                'conference_sid' => $attrs['conference_sid'],
+                'from_number' => $this->fromNumber,
+                'to_number' => $this->toNumber,
+            ],
+            $agent,
+            [
+                'created_at' => $attrs['meta']['initiated_at'] ?? now(),
+            ]
+        );
+
         return $this->conversation;
     }
 }
