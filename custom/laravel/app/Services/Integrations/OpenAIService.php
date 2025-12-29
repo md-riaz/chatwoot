@@ -300,6 +300,42 @@ class OpenAIService
     }
 
     /**
+     * Transcribe audio file using OpenAI Whisper
+     *
+     * @param string $filePath
+     * @param string $model
+     * @return array
+     */
+    public function transcribeAudio(string $filePath, string $model = 'whisper-1'): array
+    {
+        if (!$this->apiKey) {
+            return ['success' => false, 'error' => 'OpenAI API key not configured'];
+        }
+
+        try {
+            $filename = basename($filePath);
+            $request = Http::withToken($this->apiKey)
+                ->timeout(120)
+                ->attach('file', fopen($filePath, 'r'), $filename)
+                ->asMultipart();
+
+            $response = $request->post("{$this->apiUrl}/audio/transcriptions", [
+                'model' => $model,
+                'temperature' => 0.4,
+            ]);
+
+            if ($response->successful()) {
+                return ['success' => true, 'text' => $response->json('text')];
+            }
+
+            return ['success' => false, 'error' => $response->body()];
+        } catch (\Exception $e) {
+            Log::error('OpenAI audio transcription failed', ['error' => $e->getMessage()]);
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
      * Build messages array from conversation
      */
     protected function buildConversationMessages(Conversation $conversation): array
