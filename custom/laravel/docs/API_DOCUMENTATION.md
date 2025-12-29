@@ -28,6 +28,7 @@ This document provides comprehensive documentation for all API endpoints in the 
 20. [SLA Policies](#20-sla-policies)
 21. [Notifications](#21-notifications)
 22. [Channel Integrations](#22-channel-integrations)
+23. [Voice Channel (Twilio)](#23-voice-channel-twilio)
 23. [Third-Party Integrations](#23-third-party-integrations)
 24. [Widget API (Public)](#24-widget-api-public)
 25. [Platform API](#25-platform-api)
@@ -687,6 +688,54 @@ Manage in-app notifications for users.
 ---
 
 ## 22. Channel Integrations
+## 23. Voice Channel (Twilio)
+
+### Purpose
+Integrate Twilio voice calls and conferences with ClearLine. Handles incoming calls, call status, and conference events.
+
+### Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/webhooks/voice/call/{phone}` | Twilio webhook for incoming calls (returns TwiML) |
+| POST | `/api/v1/webhooks/voice/status/{phone}` | Twilio webhook for call status events |
+| POST | `/api/v1/webhooks/voice/conference_status/{phone}` | Twilio webhook for conference status events |
+
+### Example Payloads
+
+#### Incoming Call (TwiML)
+```
+POST /api/v1/webhooks/voice/call/+1234567890
+Content-Type: application/x-www-form-urlencoded
+
+From=+15551234567&To=+1234567890&CallSid=CA123...&Direction=inbound
+```
+Response:
+```xml
+<Response>
+  <Dial>
+    <Conference startConferenceOnEnter="false" endConferenceOnExit="false" ...>conf_123</Conference>
+  </Dial>
+</Response>
+```
+
+#### Call Status Event
+```
+POST /api/v1/webhooks/voice/status/+1234567890
+Content-Type: application/x-www-form-urlencoded
+
+CallSid=CA123...&CallStatus=completed
+```
+
+#### Conference Status Event
+```
+POST /api/v1/webhooks/voice/conference_status/+1234567890
+Content-Type: application/x-www-form-urlencoded
+
+ConferenceSid=CF123...&StatusCallbackEvent=participant-join&ParticipantLabel=agent
+```
+
+### Setup
+Configure your Twilio number to use these endpoints for voice and status callbacks. See the main README for more details.
 
 ### Purpose
 Connect various messaging channels to handle customer conversations.

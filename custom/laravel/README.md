@@ -248,15 +248,31 @@ ClearLine follows best-in-class Laravel patterns:
 | Authentication | Laravel Sanctum |
 | Testing | Pest PHP |
 
+
 ## API Documentation
 
-ClearLine provides a comprehensive REST API covering all functionality:
+ClearLine provides a comprehensive REST API covering all functionality, including voice channel (Twilio) integration:
 
 ### Core Resources
 - `/api/v1/accounts` - Account management
 - `/api/v1/accounts/{id}/conversations` - Conversations
 - `/api/v1/accounts/{id}/contacts` - Contacts
 - `/api/v1/accounts/{id}/inboxes` - Inboxes
+
+### Voice Channel (Twilio)
+- `/api/v1/webhooks/voice/call/{phone}` - Twilio webhook for incoming calls (TwiML response)
+- `/api/v1/webhooks/voice/status/{phone}` - Twilio webhook for call status events
+- `/api/v1/webhooks/voice/conference_status/{phone}` - Twilio webhook for conference status events
+
+#### Example: Twilio Webhook Integration
+
+Configure your Twilio number to use these webhook URLs for voice calls:
+
+- Voice URL: `POST /api/v1/webhooks/voice/call/{phone}`
+- Status Callback: `POST /api/v1/webhooks/voice/status/{phone}`
+- Conference Status Callback: `POST /api/v1/webhooks/voice/conference_status/{phone}`
+
+See [docs/API_DOCUMENTATION.md](./docs/API_DOCUMENTATION.md) for full details and payload examples.
 
 ### Team Resources
 - `/api/v1/accounts/{id}/teams` - Teams
