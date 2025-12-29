@@ -1,3 +1,117 @@
+# ClearLine Laravel Project
+
+ClearLine is a scalable, sustainable customer engagement platform built on Laravel 12. It provides real-time chat, multi-channel support, automation, analytics, and more—designed for modern businesses and extensible for enterprise needs.
+
+## Features
+- Multi-channel: Web chat, Email, WhatsApp, Facebook, Telegram, Twitter, SMS, LINE
+- Real-time messaging (Laravel Reverb)
+- Teams, labels, canned responses, macros
+- Automation rules, SLAs, reporting, CSAT
+- Help center, knowledge base, portals
+- Integrations: Slack, Linear, Dialogflow, OpenAI, and more
+
+---
+
+## Environment & Prerequisites
+
+**Required:**
+- PHP 8.2+
+- Composer 2+
+- PostgreSQL 14+ (16+ recommended)
+- Redis 7+
+- Node.js 18+ (for frontend assets, if needed)
+- [Optional] Docker & Docker Compose for containerized setup
+
+---
+
+## Setup Guide
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/your-org/clearline.git
+cd clearline/custom/laravel
+```
+
+### 2. Install PHP dependencies
+```bash
+composer install
+```
+
+### 3. Configure environment
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+Edit `.env` to set your database, Redis, mail, and app URL settings. Key variables:
+- `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
+- `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`
+- `APP_URL` (your public URL)
+
+### 4. Run database migrations
+```bash
+php artisan migrate
+```
+
+### 5. Seed roles, permissions, and onboarding flag
+```bash
+php artisan db:seed
+```
+This does NOT create any default users or accounts for production. It only prepares roles/permissions and enables the onboarding API for secure first admin setup.
+
+### 6. (Optional) Build frontend assets
+If you use a frontend or UI, follow the relevant instructions (e.g., npm install && npm run build).
+
+### 7. Start the application
+```bash
+php artisan serve
+# Or use Docker Compose: docker-compose up -d
+```
+
+---
+
+## First-Time Setup: Super Admin Onboarding
+
+After seeding, create the first super admin and account using the onboarding API. This endpoint is available only once, immediately after seeding (the onboarding flag is set by the seeder).
+
+### 1. Seed the onboarding flag
+
+Run the default database seeder to set the onboarding flag in Redis:
+
+```bash
+php artisan db:seed
+```
+
+This ensures the onboarding API is available for first-time setup.
+
+### 2. Create the first super admin and account
+
+Send a POST request to `/api/v1/installation/onboarding`:
+
+```bash
+curl -X POST https://your-host.example/api/v1/installation/onboarding \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user": {
+      "name": "Admin",
+      "company": "Acme Inc",
+      "email": "admin@example.com",
+      "password": "Password1!"
+    },
+    "subscribe_to_updates": false
+  }'
+```
+
+On success, this creates:
+- A new account (with the given company name)
+- A user with the `super_admin` role
+
+Further onboarding attempts are blocked until the onboarding flag is reset in Redis.
+
+### 3. Log in and use the API
+
+After onboarding, log in as the super admin and use the API as documented below.
+
+---
 ## First-Time Setup: Super Admin Onboarding
 
 After initial install and seeding, you must create the first super admin and account using the onboarding API. This endpoint is available only once, immediately after seeding (the onboarding flag is set by the seeder).
