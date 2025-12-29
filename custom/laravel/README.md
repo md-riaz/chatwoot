@@ -1,3 +1,46 @@
+## First-Time Setup: Super Admin Onboarding
+
+After initial install and seeding, you must create the first super admin and account using the onboarding API. This endpoint is available only once, immediately after seeding (the onboarding flag is set by the seeder).
+
+### 1. Seed the onboarding flag
+
+Run the default database seeder to set the onboarding flag in Redis:
+
+```bash
+php artisan db:seed
+```
+
+This ensures the onboarding API is available for first-time setup.
+
+### 2. Create the first super admin and account
+
+Send a POST request to `/api/v1/installation/onboarding`:
+
+```bash
+curl -X POST https://your-host.example/api/v1/installation/onboarding \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user": {
+      "name": "Admin",
+      "company": "Acme Inc",
+      "email": "admin@example.com",
+      "password": "Password1!"
+    },
+    "subscribe_to_updates": false
+  }'
+```
+
+On success, this creates:
+- A new account (with the given company name)
+- A user with the `super_admin` role
+
+Further onboarding attempts are blocked until the onboarding flag is reset in Redis.
+
+### 3. Log in and use the API
+
+After onboarding, log in as the super admin and use the API as documented below.
+
+---
 # ClearLine
 
 <p align="center">

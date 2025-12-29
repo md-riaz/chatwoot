@@ -1,3 +1,46 @@
+  /installation/onboarding:
+    post:
+      tags:
+        - Authentication
+      summary: First-time onboarding (create super admin)
+      description: >-
+        Creates the first account and a user with the super_admin role. This endpoint is available only once, immediately after install/seed. Further requests are blocked after onboarding is complete.
+      operationId: onboardingCreateSuperAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user
+              properties:
+                user:
+                  type: object
+                  required:
+                    - name
+                    - company
+                    - email
+                    - password
+                  properties:
+                    name:
+                      type: string
+                    company:
+                      type: string
+                    email:
+                      type: string
+                      format: email
+                    password:
+                      type: string
+                subscribe_to_updates:
+                  type: boolean
+      responses:
+        '201':
+          description: Super admin and account created
+        '403':
+          description: Onboarding already completed
+        '422':
+          description: Validation error
 paths:
   /super_admin/accounts:
     get:
