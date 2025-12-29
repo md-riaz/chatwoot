@@ -41,21 +41,26 @@ class CallSessionSyncService
             }
         }
 
-        \App\Services\Voice\CallMessageBuilder::perform(
-            $this->conversation,
-            $this->direction,
-            [
-                'call_sid' => $this->callSid,
-                'status' => $attrs['call_status'],
-                'conference_sid' => $attrs['conference_sid'],
-                'from_number' => $this->fromNumber,
-                'to_number' => $this->toNumber,
-            ],
-            $agent,
-            [
-                'created_at' => $attrs['meta']['initiated_at'] ?? now(),
-            ]
-        );
+        // Use action-based flow to create call activity message
+        try {
+            \App\Actions\Voice\CreateCallMessageAction::run(
+                $this->conversation,
+                $this->direction,
+                [
+                    'call_sid' => $this->callSid,
+                    'status' => $attrs['call_status'],
+                    'conference_sid' => $attrs['conference_sid'],
+                    'from_number' => $this->fromNumber,
+                    'to_number' => $this->toNumber,
+                ],
+                $agent,
+                [
+                    'created_at' => $attrs['meta']['initiated_at'] ?? now(),
+                ]
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed to create call message via action', ['error' => $e->getMessage()]);
+        }
 
         return $this->conversation;
     }

@@ -1,7 +1,3 @@
-use App\Services\Voice\StatusUpdateService;
-use App\Services\Voice\Conference\Manager as ConferenceManager;
-use App\Services\Voice\CallSessionSyncService;
-use App\Services\Voice\InboundCallBuilder;
 <?php
 
 namespace App\Http\Controllers\Api\V1\Channels;
@@ -92,8 +88,13 @@ class VoiceController extends Controller
                 $conversation = $inbox->conversations()->where('additional_attributes->identifier', $callSid)->first();
             }
         } elseif ($direction === 'inbound') {
-            // Inbound: use InboundCallBuilder
-            $conversation = (new InboundCallBuilder($inbox->account, $inbox, $from, $callSid))->perform();
+            // Inbound: resolve conversation via Action
+            try {
+                $conversation = \App\Actions\Voice\HandleInboundCallAction::run($inbox, $from, $callSid);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Inbound call action failed', ['error' => $e->getMessage()]);
+                $conversation = null;
+            }
         } elseif (in_array($direction, ['outbound-api', 'outbound-dial'])) {
             // Outbound: sync outbound leg
             $conversation = $inbox->conversations()->where('additional_attributes->identifier', $callSid)->first();
