@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1\Integrations;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account;
+use App\Models\Integration;
+use App\Services\Integrations\ShopifyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -14,7 +16,7 @@ class ShopifyController extends Controller
      */
     public function show(Account $account): JsonResponse
     {
-        $integration = null; // Would fetch from integrations table
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->first();
 
         return response()->json(['data' => $integration]);
     }
@@ -63,15 +65,15 @@ class ShopifyController extends Controller
      */
     public function customer(Account $account, int $contactId): JsonResponse
     {
-        // Fetch customer data from Shopify
-        $customer = [
-            'id' => 'customer_id',
-            'email' => 'customer@example.com',
-            'orders_count' => 5,
-            'total_spent' => '250.00',
-        ];
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->firstOrFail();
 
-        return response()->json(['data' => $customer]);
+        $shopify = new ShopifyService($integration);
+
+        // In a real implementation we'd lookup contact and map to Shopify customer (e.g. by email)
+        $contact = \App\Models\Contact::findOrFail($contactId);
+        $result = $shopify->getCustomerByEmail($contact->email ?? '');
+
+        return response()->json(['data' => $result]);
     }
 
     /**
@@ -79,8 +81,15 @@ class ShopifyController extends Controller
      */
     public function orders(Account $account, int $contactId): JsonResponse
     {
-        // Fetch orders from Shopify
-        $orders = [];
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->firstOrFail();
+        $shopify = new ShopifyService($integration);
+
+        $contact = \App\Models\Contact::findOrFail($contactId);
+        $customers = $shopify->getCustomerByEmail($contact->email ?? '');
+
+        // customers response shape: { customers: [ ... ] }
+        $customerId = data_get($customers, 'customers.0.id');
+        $orders = $customerId ? $shopify->getOrdersByCustomerId($customerId) : [];
 
         return response()->json(['data' => $orders]);
     }
@@ -90,8 +99,10 @@ class ShopifyController extends Controller
      */
     public function order(Account $account, string $orderId): JsonResponse
     {
-        // Fetch order details from Shopify
-        $order = [];
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->firstOrFail();
+        $shopify = new ShopifyService($integration);
+
+        $order = $shopify->getOrder($orderId);
 
         return response()->json(['data' => $order]);
     }
@@ -101,9 +112,19 @@ class ShopifyController extends Controller
      */
     public function webhook(Request $request): JsonResponse
     {
-        // Verify Shopify webhook signature
-        // Process webhook events (order created, customer updated, etc.)
+        $shop = Integration::ofType('shopify')->first();
+        if (! $shop) {
+            return response()->json(['error' => 'Shopify integration not configured'], 404);
+        }
 
-        return response()->json(['status' => 'ok']);
+        $service = new ShopifyService($shop);
+        if (! $service->verifyWebhookSignature($request)) {
+            return response()->json(['error' => 'invalid signature'], 401);
+        }
+
+        $result = $service->processWebhook($request);
+
+        // Dispatch jobs or events based on $result['topic'] in a full implementation
+        return response()->json(['status' => 'ok', 'topic' => $result['topic']]);
     }
 }
