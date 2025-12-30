@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\Integration;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Services\Auth\BaseRefreshOauthTokenService;
 
 class SlackService
 {
@@ -290,6 +291,49 @@ class SlackService
         $expectedSignature = 'v0=' . hash_hmac('sha256', $baseString, $signingSecret);
 
         return hash_equals($expectedSignature, $signature);
+    }
+
+    /**
+     * Attempt to refresh tokens if refresh_token + token_url are present.
+     * Updates the integration credentials on success.
+     *
+     * @param Integration $integration
+     * @return bool true when new token was obtained
+     */
+    public function refreshTokensIfNeeded(Integration $integration): bool
+    {
+        $creds = $integration->credentials ?? [];
+
+        if (empty($creds['refresh_token']) || empty($creds['token_url'])) {
+            return false;
+        }
+
+        try {
+            $svc = new BaseRefreshOauthTokenService();
+            $res = $svc->refreshTokenFor([
+                'token_url' => $creds['token_url'],
+                'client_id' => $creds['client_id'] ?? null,
+                'client_secret' => $creds['client_secret'] ?? null,
+                'refresh_token' => $creds['refresh_token'],
+                'scope' => $creds['scope'] ?? null,
+            ]);
+
+            // Update integration credentials and local bot token
+            $creds['bot_token'] = $res['access_token'];
+            $creds['refresh_token'] = $res['refresh_token'] ?? $creds['refresh_token'];
+            if ($res['expires_at'] ?? false) {
+                $creds['expires_at'] = $res['expires_at']->toDateTimeString();
+            }
+
+            $integration->update(['credentials' => $creds]);
+
+            $this->botToken = $creds['bot_token'];
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::warning('Slack token refresh failed', ['error' => $e->getMessage()]);
+            return false;
+        }
     }
 
     /**
