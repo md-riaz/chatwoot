@@ -12,6 +12,50 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PortalsController extends Controller
+    /**
+     * Archive a portal.
+     */
+    public function archive(Request $request, $portal): JsonResponse
+    {
+        // TODO: Implement archive logic
+        return response()->json(['message' => 'Portal archived']);
+    }
+
+    /**
+     * Delete portal logo.
+     */
+    public function deleteLogo(Request $request, $portal): JsonResponse
+    {
+        // TODO: Implement logo deletion logic
+        return response()->json(['message' => 'Logo deleted']);
+    }
+
+    /**
+     * Send instructions for portal.
+     */
+    public function sendInstructions(Request $request, $portal): JsonResponse
+    {
+        // TODO: Implement send instructions logic
+        return response()->json(['message' => 'Instructions sent']);
+    }
+
+    /**
+     * Get SSL status for portal.
+     */
+    public function sslStatus(Request $request, $portal): JsonResponse
+    {
+        // TODO: Implement SSL status logic
+        return response()->json(['ssl_status' => 'unknown']);
+    }
+
+    /**
+     * Reorder articles in a portal.
+     */
+    public function reorderArticles(Request $request, $portal): JsonResponse
+    {
+        // TODO: Implement reorder logic
+        return response()->json(['message' => 'Articles reordered']);
+    }
 {
     /**
      * Display a listing of portals for an account.

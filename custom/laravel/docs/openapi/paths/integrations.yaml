@@ -724,3 +724,317 @@
                 financial_status: "paid"
                 fulfillment_status: "fulfilled"
                 created_at: "2025-01-01T10:00:00Z"
+
+/integrations/hooks/{hook}/process_event:
+  post:
+    tags:
+      - Integrations
+    summary: Process event for integration hook
+    description: Processes an event for the specified integration hook
+    operationId: processIntegrationEvent
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: hook
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+    responses:
+      '200':
+        description: Event processed
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Event processed"
+
+/integrations/slack/list_all_channels:
+  get:
+    tags:
+      - Integrations
+    summary: List all Slack channels
+    description: Returns all available Slack channels for the integration
+    operationId: listAllSlackChannels
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: List of Slack channels
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+
+/integrations/dyte/create_a_meeting:
+  post:
+    tags:
+      - Integrations
+    summary: Create a Dyte meeting
+    description: Creates a new Dyte meeting
+    operationId: createDyteMeeting
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+    responses:
+      '200':
+        description: Meeting created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meeting:
+                  type: string
+                  example: "created"
+
+/integrations/dyte/add_participant_to_meeting:
+  post:
+    tags:
+      - Integrations
+    summary: Add participant to Dyte meeting
+    description: Adds a participant to a Dyte meeting
+    operationId: addDyteParticipant
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+    responses:
+      '200':
+        description: Participant added
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                participant:
+                  type: string
+                  example: "added"
+
+/integrations/shopify/auth:
+  post:
+    tags:
+      - Integrations
+    summary: Authenticate Shopify integration
+    description: Authenticates Shopify integration
+    operationId: shopifyAuth
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+    responses:
+      '200':
+        description: Shopify authenticated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auth:
+                  type: string
+                  example: "success"
+
+/integrations/shopify/orders:
+  get:
+    tags:
+      - Integrations
+    summary: List Shopify orders
+    description: Returns all Shopify orders for the integration
+    operationId: listShopifyOrders
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: List of Shopify orders
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+
+/integrations/linear/teams:
+  get:
+    tags:
+      - Integrations
+    summary: List Linear teams
+    description: Returns all Linear teams for the integration
+    operationId: listLinearTeams
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: List of Linear teams
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+
+/integrations/linear/team_entities:
+  get:
+    tags:
+      - Integrations
+    summary: List Linear team entities
+    description: Returns all Linear team entities for the integration
+    operationId: listLinearTeamEntities
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: List of Linear team entities
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+
+/integrations/linear/create_issue:
+  post:
+    tags:
+      - Integrations
+    summary: Create Linear issue
+    description: Creates a new issue in Linear
+    operationId: createLinearIssue
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+    responses:
+      '200':
+        description: Issue created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                issue:
+                  type: string
+                  example: "created"
+
+/integrations/linear/link_issue:
+  post:
+    tags:
+      - Integrations
+    summary: Link Linear issue
+    description: Links an issue in Linear
+    operationId: linkLinearIssue
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+    responses:
+      '200':
+        description: Issue linked
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                link:
+                  type: string
+                  example: "success"
+
+/integrations/linear/unlink_issue:
+  post:
+    tags:
+      - Integrations
+    summary: Unlink Linear issue
+    description: Unlinks an issue in Linear
+    operationId: unlinkLinearIssue
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+    responses:
+      '200':
+        description: Issue unlinked
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                unlink:
+                  type: string
+                  example: "success"
+
+/integrations/linear/search_issue:
+  get:
+    tags:
+      - Integrations
+    summary: Search Linear issues
+    description: Searches for issues in Linear
+    operationId: searchLinearIssues
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: List of Linear issues
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+
+/integrations/linear/linked_issues:
+  get:
+    tags:
+      - Integrations
+    summary: List linked Linear issues
+    description: Returns all linked issues in Linear
+    operationId: listLinkedLinearIssues
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: List of linked Linear issues
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object

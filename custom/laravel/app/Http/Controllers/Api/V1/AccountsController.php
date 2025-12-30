@@ -16,6 +16,25 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AccountsController extends Controller
+    /**
+     * Update the active_at timestamp for an account.
+     */
+    public function updateActiveAt(Request $request, Account $account): JsonResponse
+    {
+        $account->active_at = now();
+        $account->save();
+        return response()->json(['message' => 'Account active_at updated']);
+    }
+
+    /**
+     * Get cache keys for the account (placeholder implementation).
+     */
+    public function cacheKeys(Account $account): JsonResponse
+    {
+        // TODO: Implement actual cache key logic
+        $keys = ['key1', 'key2'];
+        return response()->json(['cache_keys' => $keys]);
+    }
 {
     public function __construct(
         private AccountRepository $accountRepository

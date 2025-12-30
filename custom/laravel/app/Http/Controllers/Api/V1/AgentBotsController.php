@@ -10,6 +10,16 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AgentBotsController extends Controller
+    /**
+     * Reset the access token for an agent bot.
+     */
+    public function resetAccessToken(Account $account, AgentBot $agentBot): JsonResponse
+    {
+        // TODO: Implement actual token reset logic
+        $agentBot->access_token = bin2hex(random_bytes(32));
+        $agentBot->save();
+        return response()->json(['message' => 'Access token reset', 'access_token' => $agentBot->access_token]);
+    }
 {
     /**
      * Display a listing of agent bots for an account.

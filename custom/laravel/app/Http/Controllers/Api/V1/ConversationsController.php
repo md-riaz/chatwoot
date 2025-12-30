@@ -20,6 +20,23 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ConversationsController extends Controller
+    /**
+     * Get inbox assistant info for a conversation (enterprise-only placeholder).
+     */
+    public function inboxAssistant(Account $account, Conversation $conversation): JsonResponse
+    {
+        // TODO: Implement actual enterprise logic
+        return response()->json(['assistant' => 'Not implemented']);
+    }
+
+    /**
+     * Get reporting events for a conversation (enterprise-only placeholder).
+     */
+    public function reportingEvents(Account $account, Conversation $conversation): JsonResponse
+    {
+        // TODO: Implement actual enterprise reporting events logic
+        return response()->json(['events' => []]);
+    }
 {
     private const ATTACHMENT_RESULTS_PER_PAGE = 100;
 

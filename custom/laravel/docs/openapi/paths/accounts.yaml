@@ -1,0 +1,62 @@
+/openapi/accounts.yaml
+```yaml
+openapi: 3.0.0
+info:
+  title: Accounts API
+  version: 1.0.0
+paths:
+  /accounts/{account_id}/update_active_at:
+    post:
+      tags:
+        - Accounts
+      summary: Update account active_at timestamp
+      description: Updates the active_at timestamp for the specified account
+      operationId: updateAccountActiveAt
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Account active_at updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account active_at updated"
+
+  /accounts/{account_id}/cache_keys:
+    get:
+      tags:
+        - Accounts
+      summary: Get account cache keys
+      description: Returns cache keys for the specified account
+      operationId: getAccountCacheKeys
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cache keys
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cache_keys:
+                    type: array
+                    items:
+                      type: string
+```
