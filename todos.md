@@ -57,6 +57,40 @@ Tasks
    - Description: Enqueueing pattern defined; added `ProcessOpenAiEnrichmentJob` skeleton to handle asynchronous message enrichment via OpenAI. Service layer (`app/Services/Integrations/OpenAIService.php`) should implement `enrichMessage` method.
    - Next: Implement `OpenAIService::enrichMessage`, wire message-created events to enqueue enrichment jobs, and add cost/latency metrics.
 
+8. Article embeddings
+   - Status: completed
+   - Description: End-to-end embedding flow implemented. Migration, model, repository, service, and queued job added.
+   - Files: `database/migrations/2025_12_30_000001_create_article_embeddings_table.php`, `app/Models/ArticleEmbedding.php`, `app/Repositories/ArticleEmbeddingRepo.php`, `app/Services/Articles/ArticleEmbeddingService.php`, `app/Jobs/Articles/GenerateArticleEmbeddingJob.php`.
+   - Next: Wire article create/update events to dispatch `GenerateArticleEmbeddingJob` and add unit/integration tests for persistence and idempotency.
+
+9. Data imports
+   - Status: completed
+   - Description: `data_imports` migration and `DataImport` model added. Repository exists to manage import lifecycle.
+   - Files: `database/migrations/2025_12_30_000002_create_data_imports_table.php`, `app/Models/DataImport.php`, `app/Repositories/DataImportRepository.php`.
+   - Next: Add import worker tests and UI hooks (upload endpoints).
+
+10. SLA business-hours handling
+   - Status: completed
+   - Description: `CheckSlaJob` updated to compute deadlines respecting inbox working hours and timezone.
+   - Files: `app/Jobs/Sla/CheckSlaJob.php`.
+   - Next: Add tests to validate SLA deadline calculations across timezone/working-hours boundaries.
+
+11. Remaining migration-model tasks
+   - Status: in-progress
+   - Description: Migration stubs added for several small tables; models/repositories pending.
+   - Files: `database/migrations/2025_12_30_000003_create_email_templates_table.php`, `000004_create_leaves_table.php`, `000005_create_portal_members_table.php`, `000006_create_related_categories_table.php`.
+   - Next: Implement `EmailTemplate`, `Leave`, `PortalMember` (pivot), and `RelatedCategory` models and repositories when those features are required.
+
+12. Wire article lifecycle to embedding job
+   - Status: not-started
+   - Description: Add event/listener or model observer to dispatch `GenerateArticleEmbeddingJob` on article create/update.
+   - Next: Implement listener, add tests for dispatch and idempotency.
+
+13. Tests & CI validation
+   - Status: not-started
+   - Description: Add tests for new migrations, `ArticleEmbedding` flow, `DataImport` lifecycle, and SLA business-hours logic. Run full test-suite in CI.
+   - Next: Create tests and update CI to run `php artisan migrate` and `php artisan test` for the custom/laravel folder.
+
 8. Migrations audit
    - Status: not-started
    - Description: Compare Rails schema to Laravel migrations; ensure pivot tables, foreign keys, defaults and indexes are present.

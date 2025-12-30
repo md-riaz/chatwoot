@@ -148,6 +148,22 @@ Coverage: To be measured
 - ⚠️ Service layer: skeleton implemented (`app/Services/Integrations/OpenAIService.php`), `ProcessOpenAiEnrichmentJob` added and `EnqueueOpenAiEnrichment` listener registered in `app/Providers/EventServiceProvider.php`.
  - Next: implement prompt tuning, rate-limits, cost metrics and add tests.
 
+### Article Embeddings
+
+- ✅ End-to-end embedding flow implemented (service + job + repository)
+   - ✅ Migration `article_embeddings` created (`database/migrations/2025_12_30_000001_create_article_embeddings_table.php`)
+   - ✅ `ArticleEmbedding` model added (`app/Models/ArticleEmbedding.php`)
+   - ✅ `ArticleEmbeddingRepo` added (`app/Repositories/ArticleEmbeddingRepo.php`)
+   - ✅ `ArticleEmbeddingService` added (`app/Services/Articles/ArticleEmbeddingService.php`)
+   - ✅ `GenerateArticleEmbeddingJob` added (`app/Jobs/Articles/GenerateArticleEmbeddingJob.php`)
+   - Next: wire article create/update events to dispatch `GenerateArticleEmbeddingJob` and add tests for persistence and idempotency.
+
+### SLA Business-Hours Handling
+
+- ✅ `CheckSlaJob` patched to support business-hours-aware deadline computation
+   - File: `app/Jobs/Sla/CheckSlaJob.php` — added `addBusinessSeconds()` and `nextOpenStart()` helpers to respect `Inbox` working hours and account/inbox timezone
+   - Next: add unit tests to validate SLA deadline roll-forward across inbox working-hours boundaries.
+
 ### Advanced Features
 
 #### ✅ Reports & Analytics
