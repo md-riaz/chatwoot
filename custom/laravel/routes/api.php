@@ -47,6 +47,7 @@ use App\Http\Controllers\Api\V1\ReportsController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SegmentsController;
 use App\Http\Controllers\Api\V1\SlaPoliciesController;
+use App\Http\Controllers\Api\V1\Reports\AppliedSlaReportsController;
 use App\Http\Controllers\Api\V1\SuperAdmin\AccessTokensController as SuperAdminAccessTokensController;
 use App\Http\Controllers\Api\V1\SuperAdmin\AccountsController as SuperAdminAccountsController;
 use App\Http\Controllers\Api\V1\SuperAdmin\AgentBotsController as SuperAdminAgentBotsController;
@@ -113,6 +114,9 @@ Route::get('/', function () {
         'api_version' => 'v1',
     ]);
 });
+
+// Public import status (by import id)
+Route::get('imports/{import_id}/status', [\App\Http\Controllers\Api\V1\ImportsController::class, 'status']);
 
 
 // Onboarding route for first superadmin creation (Rails-style)
@@ -354,7 +358,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('contacts/active', [ContactsController::class, 'active']);
         Route::post('contacts/filter', [ContactsController::class, 'filter']);
         Route::post('contacts/import', [ContactsController::class, 'import']);
+        // Check import status by import id
+        Route::get('contacts/imports/{import_id}/status', [ContactsController::class, 'importStatus']);
+        // Queue export
         Route::post('contacts/export', [ContactsController::class, 'export']);
+        // Secure download endpoint for latest export for the authenticated user
+        Route::get('contacts/exports/download', [ContactsController::class, 'downloadExport'])->name('contacts.exports.download');
         Route::post('contacts/{contact}/merge', [ContactsController::class, 'merge']);
         Route::get('contacts/{contact}/contactable_inboxes', [ContactsController::class, 'contactableInboxes']);
         Route::post('contacts/{contact}/destroy_custom_attributes', [ContactsController::class, 'destroyCustomAttributes']);
@@ -473,6 +482,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('reports/teams', [ReportsController::class, 'teams']);
         Route::get('reports/labels', [ReportsController::class, 'labels']);
         Route::get('reports/download', [ReportsController::class, 'download']);
+        // Applied SLAs reports
+        Route::get('reports/applied_slas', [AppliedSlaReportsController::class, 'index']);
+        Route::get('reports/applied_slas/summary', [AppliedSlaReportsController::class, 'summary']);
 
         // SLA Policies
         Route::apiResource('sla_policies', SlaPoliciesController::class);

@@ -16,6 +16,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AccountsController extends Controller
+{
+    public function __construct(
+        private AccountRepository $accountRepository
+    ) {}
+
     /**
      * Update the active_at timestamp for an account.
      */
@@ -35,10 +40,6 @@ class AccountsController extends Controller
         $keys = ['key1', 'key2'];
         return response()->json(['cache_keys' => $keys]);
     }
-{
-    public function __construct(
-        private AccountRepository $accountRepository
-    ) {}
 
     /**
      * Display a listing of accounts.

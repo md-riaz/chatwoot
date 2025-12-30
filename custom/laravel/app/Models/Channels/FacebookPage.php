@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 class FacebookPage extends Model
 {
     use HasFactory;
+    use \App\Traits\Reauthorizable;
 
     protected $table = 'channel_facebook_pages';
 

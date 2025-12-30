@@ -5,6 +5,8 @@ namespace App\Services\Integrations;
 use App\Models\Integration;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
+use Illuminate\Support\Facades\Log;
 
 class ShopifyService
 {
@@ -35,17 +37,108 @@ class ShopifyService
         return data_get($this->integration->credentials, 'access_token');
     }
 
+    protected function apiVersion(): string
+    {
+        return data_get($this->integration->settings, 'api_version', '2023-10');
+    }
+
+    /**
+     * Low-level request with retries and rate-limit/backoff handling.
+     */
+    protected function request(string $method, string $uri, array $options = [], int $maxAttempts = 3): ?ResponseInterface
+    {
+        $attempt = 0;
+
+        while ($attempt < $maxAttempts) {
+            try {
+                $resp = $this->client->request($method, $uri, array_merge(['http_errors' => false], $options));
+
+                $status = $resp->getStatusCode();
+
+                // Handle rate limiting
+                if ($status === 429) {
+                    $retryAfter = $resp->getHeaderLine('Retry-After');
+                    $wait = is_numeric($retryAfter) ? ((int) $retryAfter) : (2 ** $attempt);
+                    usleep(max(500000, $wait * 1000000)); // at least 0.5s
+                    $attempt++;
+                    continue;
+                }
+
+                // Retry on server errors
+                if ($status >= 500) {
+                    $backoff = (int) (0.5 * (2 ** $attempt) * 1000000);
+                    usleep($backoff);
+                    $attempt++;
+                    continue;
+                }
+
+                return $resp;
+            } catch (\Throwable $e) {
+                Log::warning('ShopifyService request error', ['error' => $e->getMessage(), 'attempt' => $attempt, 'uri' => $uri]);
+                usleep((int) (0.25 * (2 ** $attempt) * 1000000));
+                $attempt++;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Fetch all pages for endpoints using Link header pagination.
+     */
+    protected function fetchAll(string $initialUri, array $query = []): array
+    {
+        $items = [];
+        $next = null;
+
+        $uri = $initialUri;
+        $opts = [];
+        if (! empty($query)) {
+            $opts['query'] = $query;
+        }
+
+        do {
+            $resp = $this->request('GET', $uri, $opts);
+            if (! $resp) {
+                break;
+            }
+
+            $body = json_decode((string) $resp->getBody(), true) ?: [];
+
+            // Merge common collection keys (customers, orders, etc.)
+            foreach ($body as $key => $value) {
+                if (is_array($value)) {
+                    $items = array_merge($items, $value);
+                    break;
+                }
+            }
+
+            $link = $resp->getHeaderLine('Link');
+            $next = null;
+            if (! empty($link)) {
+                // parse rel="next"
+                if (preg_match('/<([^>]+)>; rel="next"/', $link, $m)) {
+                    $next = $m[1];
+                }
+            }
+
+            // next becomes full URL; clear query for subsequent calls
+            $uri = $next ?: null;
+            $opts = [];
+        } while ($next);
+
+        return $items;
+    }
+
     public function getCustomerByEmail(string $email): array
     {
         if (empty($this->baseUri()) || empty($this->accessToken())) {
             return [];
         }
+        $uri = "admin/api/{$this->apiVersion()}/customers/search.json";
+        $customers = $this->fetchAll($uri, ['query' => "email:{$email}"]);
 
-        $resp = $this->client->get("admin/api/2023-10/customers/search.json", [
-            'query' => ['query' => "email:{$email}"]
-        ]);
-
-        return json_decode((string) $resp->getBody(), true) ?: [];
+        return ['customers' => $customers];
     }
 
     public function getOrdersByCustomerId(string $customerId): array
@@ -53,10 +146,10 @@ class ShopifyService
         if (empty($this->baseUri()) || empty($this->accessToken())) {
             return [];
         }
+        $uri = "admin/api/{$this->apiVersion()}/customers/{$customerId}/orders.json";
+        $orders = $this->fetchAll($uri);
 
-        $resp = $this->client->get("admin/api/2023-10/customers/{$customerId}/orders.json");
-
-        return json_decode((string) $resp->getBody(), true) ?: [];
+        return ['orders' => $orders];
     }
 
     public function getOrder(string $orderId): array
@@ -64,8 +157,11 @@ class ShopifyService
         if (empty($this->baseUri()) || empty($this->accessToken())) {
             return [];
         }
-
-        $resp = $this->client->get("admin/api/2023-10/orders/{$orderId}.json");
+        $uri = "admin/api/{$this->apiVersion()}/orders/{$orderId}.json";
+        $resp = $this->request('GET', $uri);
+        if (! $resp) {
+            return [];
+        }
 
         return json_decode((string) $resp->getBody(), true) ?: [];
     }

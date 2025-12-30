@@ -20,6 +20,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ConversationsController extends Controller
+{
+    private const ATTACHMENT_RESULTS_PER_PAGE = 100;
+
+    public function __construct(
+        private ConversationRepository $conversationRepository
+    ) {}
+
     /**
      * Get inbox assistant info for a conversation (enterprise-only placeholder).
      */
@@ -37,12 +44,6 @@ class ConversationsController extends Controller
         // TODO: Implement actual enterprise reporting events logic
         return response()->json(['events' => []]);
     }
-{
-    private const ATTACHMENT_RESULTS_PER_PAGE = 100;
-
-    public function __construct(
-        private ConversationRepository $conversationRepository
-    ) {}
 
     /**
      * Display a listing of conversations for an account.

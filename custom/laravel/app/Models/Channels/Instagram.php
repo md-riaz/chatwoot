@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Instagram extends Model
 {
     use HasFactory;
+    use \App\Traits\Reauthorizable;
 
     protected $table = 'channel_instagram';
 
