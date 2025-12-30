@@ -35,7 +35,7 @@ class AutoAssignConversationAction
             return null;
         }
 
-        $agent = $this->findBestAgent($inbox);
+        $agent = $this->findBestAgent($inbox, $conversation);
 
         if ($agent) {
             $previousAssignee = $conversation->assignee ?? null;
@@ -52,10 +52,15 @@ class AutoAssignConversationAction
         return $agent;
     }
 
-    private function findBestAgent(Inbox $inbox): ?User
+    private function findBestAgent(Inbox $inbox, Conversation $conversation): ?User
     {
-        // Get agents assigned to this inbox who are online
-        $inboxMembers = $inbox->members()->where('availability', 1)->get();
+        // Get agents assigned to this inbox who are online and eager-load account pivot
+        $inboxMembers = $inbox->members()
+            ->where('availability', 1)
+            ->with(['accounts' => function ($q) use ($inbox) {
+                $q->where('account_id', $inbox->account_id);
+            }])
+            ->get();
 
         if ($inboxMembers->isEmpty()) {
             // Fallback to account-level users
@@ -79,8 +84,81 @@ class AutoAssignConversationAction
 
         $candidateAgents = $inboxMembers;
 
+        // Team preference: if conversation is assigned to a team with auto-assign enabled,
+        // prefer team members who are also part of the inbox.
+        if ($conversation->team_id) {
+            // Eager-load team members in one query
+            $team = \App\Models\Team::with('members')->find($conversation->team_id);
+            if ($team && $team->allow_auto_assign) {
+                $teamMembers = $team->members;
+                $teamCandidates = $candidateAgents->filter(function ($agent) use ($teamMembers) {
+                    return $teamMembers->contains('id', $agent->id);
+                });
+
+                if ($teamCandidates->isNotEmpty()) {
+                    $candidateAgents = $teamCandidates;
+                }
+            }
+        }
+
+        // Skill-based routing: if the conversation declares required skills, prefer agents
+        // who have matching skills listed under their `custom_attributes.skills`.
+        $requiredSkills = data_get($conversation->custom_attributes, 'required_skills') ?? data_get($conversation->additional_attributes, 'required_skills');
+        if ($requiredSkills) {
+            $required = is_array($requiredSkills) ? $requiredSkills : array_map('trim', explode(',', (string) $requiredSkills));
+            $skillMatched = $candidateAgents->filter(function ($agent) use ($required) {
+                $agentSkills = data_get($agent->custom_attributes, 'skills', []);
+                if (! is_array($agentSkills)) {
+                    return false;
+                }
+                // ensure agent has all required skills (subset)
+                return count(array_intersect($required, $agentSkills)) === count($required);
+            });
+
+            if ($skillMatched->isNotEmpty()) {
+                $candidateAgents = $skillMatched;
+            }
+        }
+
         // Build open counts mapping for load evaluation
         $openCounts = $this->conversationRepository->countOpenByAssignee($inbox->account_id);
+
+        // Workload / capacity limits: gather policy ids from agent pivots and fetch
+        // inbox capacity limits in a single query to avoid N+1.
+        $policyIds = $candidateAgents->map(function ($agent) {
+            return $agent->accounts->first()?->pivot->agent_capacity_policy_id ?? null;
+        })->filter()->unique()->values()->all();
+
+        $limitsMap = [];
+        if (! empty($policyIds)) {
+            $limits = \App\Models\InboxCapacityLimit::whereIn('agent_capacity_policy_id', $policyIds)
+                ->where('inbox_id', $inbox->id)
+                ->get()
+                ->keyBy('agent_capacity_policy_id')
+                ->map(fn($r) => (int) $r->conversation_limit)
+                ->toArray();
+
+            $limitsMap = $limits;
+        }
+
+        $capacityFiltered = $candidateAgents->filter(function ($agent) use ($openCounts, $limitsMap) {
+            $policyId = $agent->accounts->first()?->pivot->agent_capacity_policy_id ?? null;
+            if (! $policyId) {
+                return true;
+            }
+
+            $limit = $limitsMap[$policyId] ?? null;
+            if (! $limit) {
+                return true;
+            }
+
+            $current = $openCounts[$agent->id] ?? 0;
+            return $current < (int) $limit;
+        });
+
+        if ($capacityFiltered->isNotEmpty()) {
+            $candidateAgents = $capacityFiltered;
+        }
 
         // If policy exists and indicates round-robin (0), try to pick the next agent in rotation
         if ($policy && (int) $policy->assignment_order === 0) {

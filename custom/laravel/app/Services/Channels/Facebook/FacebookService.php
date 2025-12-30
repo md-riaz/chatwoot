@@ -3,8 +3,12 @@
 namespace App\Services\Channels\Facebook;
 
 use App\Models\Inbox;
+use App\Models\Contact;
+use App\Models\Conversation;
+use App\Models\Message;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class FacebookService
 {
@@ -213,27 +217,155 @@ class FacebookService
     {
         $results = [];
 
-        if ($payload['object'] !== 'page') {
+        if (($payload['object'] ?? null) !== 'page') {
             return $results;
         }
 
         foreach ($payload['entry'] as $entry) {
-            $pageId = $entry['id'];
-            $time = $entry['time'];
+            $pageId = $entry['id'] ?? null;
+
+            // Find an inbox associated with this Facebook page
+            $inbox = Inbox::where('channel_type', 'Channel::FacebookPage')
+                ->whereJsonContains('channel', ['page_id' => (string) $pageId])
+                ->first();
+
+            if (! $inbox) {
+                Log::warning('No inbox found for facebook page during webhook processing', ['page_id' => $pageId]);
+                continue;
+            }
 
             foreach ($entry['messaging'] ?? [] as $event) {
-                $senderId = $event['sender']['id'];
-                $recipientId = $event['recipient']['id'];
-                $timestamp = $event['timestamp'];
+                try {
+                    if (isset($event['message'])) {
+                        $message = $event['message'];
+                        $mid = $message['mid'] ?? null;
 
-                if (isset($event['message'])) {
-                    $results[] = $this->parseMessage($event['message'], $senderId, $recipientId, $timestamp);
-                } elseif (isset($event['postback'])) {
-                    $results[] = $this->parsePostback($event['postback'], $senderId, $recipientId, $timestamp);
-                } elseif (isset($event['delivery'])) {
-                    $results[] = ['type' => 'delivery', 'data' => $event['delivery']];
-                } elseif (isset($event['read'])) {
-                    $results[] = ['type' => 'read', 'data' => $event['read']];
+                        // Idempotency: skip if we've already processed this mid
+                        if ($mid && DB::table('facebook_message_events')->where('message_mid', $mid)->exists()) {
+                            continue;
+                        }
+
+                        // Insert idempotency record (best-effort)
+                        try {
+                            DB::table('facebook_message_events')->insert([
+                                'page_id' => $pageId,
+                                'message_mid' => $mid,
+                                'payload' => json_encode($event),
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        } catch (\Throwable $e) {
+                            // Unique constraint may race; continue processing if insert fails
+                            Log::debug('facebook_message_events insert failed', ['mid' => $mid, 'error' => $e->getMessage()]);
+                        }
+
+                        $senderId = $event['sender']['id'] ?? null;
+
+                        if (! $senderId) {
+                            continue;
+                        }
+
+                        // Find or create contact by identifier
+                        $contact = Contact::firstOrCreate([
+                            'account_id' => $inbox->account_id,
+                            'identifier' => 'facebook:' . $senderId,
+                        ], [
+                            'name' => null,
+                            'source' => 'facebook',
+                        ]);
+
+                        // Find existing open conversation
+                        $conversation = Conversation::where('account_id', $inbox->account_id)
+                            ->where('inbox_id', $inbox->id)
+                            ->where('contact_id', $contact->id)
+                            ->where('status', Conversation::STATUS_OPEN)
+                            ->first();
+
+                        if (! $conversation) {
+                            $conversation = Conversation::create([
+                                'account_id' => $inbox->account_id,
+                                'inbox_id' => $inbox->id,
+                                'contact_id' => $contact->id,
+                                'status' => Conversation::STATUS_OPEN,
+                            ]);
+
+                            event(new \App\Events\Conversation\ConversationCreated($conversation));
+                        }
+
+                        // Create message record
+                        $msg = Message::create([
+                            'account_id' => $inbox->account_id,
+                            'conversation_id' => $conversation->id,
+                            'inbox_id' => $inbox->id,
+                            'sender_id' => $contact->id,
+                            'sender_type' => Contact::class,
+                            'message_type' => Message::TYPE_INCOMING,
+                            'content' => $message['text'] ?? null,
+                            'content_type' => Message::CONTENT_TEXT,
+                            'external_source_id' => $mid,
+                        ]);
+
+                        try {
+                            event(new \App\Events\Message\MessageCreated($msg));
+                        } catch (\Throwable $e) {
+                            Log::warning('Failed to dispatch MessageCreated event', ['error' => $e->getMessage()]);
+                        }
+
+                        $results[] = ['type' => 'message', 'mid' => $mid, 'message_id' => $msg->id];
+                    } elseif (isset($event['postback'])) {
+                        $postback = $event['postback'];
+
+                        $senderId = $event['sender']['id'] ?? null;
+                        if (! $senderId) {
+                            continue;
+                        }
+
+                        $contact = Contact::firstOrCreate([
+                            'account_id' => $inbox->account_id,
+                            'identifier' => 'facebook:' . $senderId,
+                        ], [
+                            'name' => null,
+                            'source' => 'facebook',
+                        ]);
+
+                        $conversation = Conversation::where('account_id', $inbox->account_id)
+                            ->where('inbox_id', $inbox->id)
+                            ->where('contact_id', $contact->id)
+                            ->where('status', Conversation::STATUS_OPEN)
+                            ->first();
+
+                        if (! $conversation) {
+                            $conversation = Conversation::create([
+                                'account_id' => $inbox->account_id,
+                                'inbox_id' => $inbox->id,
+                                'contact_id' => $contact->id,
+                                'status' => Conversation::STATUS_OPEN,
+                            ]);
+
+                            event(new \App\Events\Conversation\ConversationCreated($conversation));
+                        }
+
+                        $msg = Message::create([
+                            'account_id' => $inbox->account_id,
+                            'conversation_id' => $conversation->id,
+                            'inbox_id' => $inbox->id,
+                            'sender_id' => $contact->id,
+                            'sender_type' => Contact::class,
+                            'message_type' => Message::TYPE_INCOMING,
+                            'content' => $postback['payload'] ?? ($postback['title'] ?? null),
+                            'content_type' => Message::CONTENT_TEXT,
+                        ]);
+
+                        try {
+                            event(new \App\Events\Message\MessageCreated($msg));
+                        } catch (\Throwable $e) {
+                            Log::warning('Failed to dispatch MessageCreated event (postback)', ['error' => $e->getMessage()]);
+                        }
+
+                        $results[] = ['type' => 'postback', 'message_id' => $msg->id];
+                    }
+                } catch (\Throwable $e) {
+                    Log::error('Error processing facebook webhook event', ['error' => $e->getMessage(), 'event' => $event]);
                 }
             }
         }

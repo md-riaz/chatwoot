@@ -172,6 +172,10 @@ Route::prefix('webhooks')->group(function () {
     Route::post('voice/conference_status/{phone}', [VoiceController::class, 'conferenceStatus']);
 });
 
+    // OAuth callbacks for third-party installs (Shopify)
+    Route::get('callbacks/shopify/authorize', [ShopifyController::class, 'authorize']);
+    Route::get('callbacks/shopify/callback', [ShopifyController::class, 'callback']);
+
 // Public CSAT Survey routes (no auth required)
 Route::prefix('public')->group(function () {
     Route::get('csat/{uuid}', [App\Http\Controllers\Api\V1\Public\CsatSurveyController::class, 'show']);

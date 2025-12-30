@@ -103,45 +103,50 @@ This document provides a comprehensive verification of the Laravel API implement
 - ✅ IMAP/SMTP configuration
 - ✅ Test endpoints
 - ✅ Inbound processing
+   - ✅ Inbound webhook endpoint implemented and `ProcessInboundEmailJob` handles message creation and attachment storage
 
 #### ✅ SMS (Twilio)
-- ✅ Full SMS channel setup
-- ✅ Available numbers endpoint
+ ✅ Controllers and webhook/job skeleton implemented
+ ⚠️ Service layer needs full implementation (in-progress)
 
 #### ✅ Line
-- ✅ Full channel setup and webhook processing
-
-#### ✅ Web Widget
-- ✅ Channel configuration
+ ✅ POST /api/v1/accounts/{account}/channels/whatsapp
+ ✅ PATCH /api/v1/accounts/{account}/channels/whatsapp/{inbox}
+ ✅ POST /api/v1/webhooks/whatsapp
+ ✅ GET /api/v1/webhooks/whatsapp (verification)
+ - ✅ Webhook endpoint implemented and dispatches `ProcessWhatsAppWebhookJob`
 - ✅ Script generation
 
-#### ✅ API Channel
-- ✅ Channel setup
-- ✅ API key regeneration
-
+ ✅ POST /api/v1/accounts/{account}/channels/facebook
+ ✅ PATCH /api/v1/accounts/{account}/channels/facebook/{inbox}
+ ✅ GET /api/v1/accounts/{account}/channels/facebook/pages
+ ✅ POST /api/v1/webhooks/facebook (signature verified; job dispatch implemented)
+ - ✅ Event-to-domain mapping: `ProcessFacebookWebhookJob` wiring exists; `FacebookService::processWebhook()` performs idempotent mapping to `Contact`/`Conversation`/`Message` and emits `ConversationCreated`/`MessageCreated` events.
 ### Third-Party Integrations
 
-#### ✅ Slack
-- ✅ Full CRUD operations
+ ✅ Full SMS channel setup
+ ✅ Webhook endpoint dispatches `ProcessSmsWebhookJob`
+ ✅ Available numbers endpoint
 - ✅ Channel listing
 - ✅ Event/interactive webhooks
-
-#### ✅ Linear
-- ✅ Full CRUD operations
+ Status: Controller and webhook/job skeleton implemented; service needs full implementation
+ Priority: Medium
+ Effort: 2-3 days
 - ✅ Teams/Projects listing
 - ✅ Issue creation and linking
-
-#### ✅ Dialogflow
-- ✅ Full CRUD operations
-- ✅ Test endpoint
+ Status: Implemented (migrated into `AutoAssignConversationAction` and registered policy)
+ Rails Routes: /api/v1/accounts/:id/assignment_policies (API surface pending tests)
+ Priority: Medium
+ Effort: 1 week (tests and metrics)
 
 #### ✅ OpenAI
-- ✅ Full CRUD operations
-- ✅ Suggest/Summarize/Improve tone endpoints
-
-#### ⚠️ Shopify
+**Expected Results:**
+Total Tests: 1000+
+Status: Partially executed locally for edited files; full suite to be run in CI/staging
+Coverage: To be measured
 - ✅ Controllers implemented
-- ⚠️ Service layer needs implementation
+- ⚠️ Service layer: skeleton implemented (`app/Services/Integrations/OpenAIService.php`), `ProcessOpenAiEnrichmentJob` added and `EnqueueOpenAiEnrichment` listener registered in `app/Providers/EventServiceProvider.php`.
+ - Next: implement prompt tuning, rate-limits, cost metrics and add tests.
 
 ### Advanced Features
 

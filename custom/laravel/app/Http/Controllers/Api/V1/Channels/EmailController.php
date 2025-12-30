@@ -118,10 +118,35 @@ class EmailController extends Controller
      */
     public function inbound(Request $request): JsonResponse
     {
-        // Process incoming email
-        // Create or update conversation
-        // Create message
+        $raw = $request->all();
 
-        return response()->json(['status' => 'received']);
+        // Normalize payload for common providers (Mailgun/Sendgrid/Postmark)
+        $email = [];
+
+        // Mailgun-style
+        if ($request->has('Message-Id') || $request->has('message-id') || $request->has('message_id')) {
+            $email['message_id'] = $request->input('Message-Id') ?? $request->input('message-id') ?? $request->input('message_id');
+        }
+
+        // From / To
+        $email['from'] = $request->input('from') ?? $request->input('sender') ?? ($raw['headers']['From'] ?? null);
+        $email['from_name'] = $request->input('from_name') ?? null;
+        $email['to'] = $request->input('recipient') ?? $request->input('to') ?? ($raw['headers']['To'] ?? null);
+
+        // Subject / Body
+        $email['subject'] = $request->input('subject') ?? null;
+        $email['body'] = $request->input('body-plain') ?? $request->input('text') ?? $request->input('html') ?? null;
+
+        // attachments (provider-specific)
+        $email['attachments'] = $request->input('attachments') ?? $request->input('attachment-count') ?? null;
+
+        try {
+            \App\Jobs\Channels\ProcessInboundEmailJob::dispatch($email);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to dispatch ProcessInboundEmailJob', ['error' => $e->getMessage(), 'payload' => $raw]);
+            return response()->json(['error' => 'enqueue_failed'], 500);
+        }
+
+        return response()->json(['status' => 'queued']);
     }
 }

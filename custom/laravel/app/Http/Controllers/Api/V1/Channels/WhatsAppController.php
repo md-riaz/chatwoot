@@ -7,6 +7,8 @@ use App\Models\Account;
 use App\Models\Inbox;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Jobs\Channels\ProcessWhatsAppWebhookJob;
 
 class WhatsAppController extends Controller
 {
@@ -66,11 +68,19 @@ class WhatsAppController extends Controller
      */
     public function webhook(Request $request): JsonResponse
     {
-        // Verify webhook signature
-        // Process incoming messages
-        // This would typically dispatch a job
+        $raw = $request->getContent();
+        $payload = json_decode($raw, true);
+        if (! is_array($payload)) {
+            return response()->json(['error' => 'invalid payload'], 400);
+        }
 
-        return response()->json(['status' => 'received']);
+        try {
+            ProcessWhatsAppWebhookJob::dispatch($payload);
+        } catch (\Throwable $e) {
+            Log::error('Failed to dispatch ProcessWhatsAppWebhookJob', ['error' => $e->getMessage()]);
+        }
+
+        return response()->json(['status' => 'queued']);
     }
 
     /**

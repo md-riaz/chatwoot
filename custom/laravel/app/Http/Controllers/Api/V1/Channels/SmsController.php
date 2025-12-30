@@ -7,6 +7,8 @@ use App\Models\Account;
 use App\Models\Inbox;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Jobs\Channels\ProcessSmsWebhookJob;
 
 class SmsController extends Controller
 {
@@ -57,11 +59,15 @@ class SmsController extends Controller
      */
     public function webhook(Request $request): JsonResponse
     {
-        // Verify Twilio signature
-        // Process incoming SMS
-        // Create or update conversation
+        $payload = $request->all();
 
-        return response()->json(['status' => 'received']);
+        try {
+            ProcessSmsWebhookJob::dispatch($payload);
+        } catch (\Throwable $e) {
+            Log::error('Failed to dispatch ProcessSmsWebhookJob', ['error' => $e->getMessage()]);
+        }
+
+        return response()->json(['status' => 'queued']);
     }
 
     /**

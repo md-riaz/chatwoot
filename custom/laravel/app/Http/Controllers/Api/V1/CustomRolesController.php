@@ -5,12 +5,18 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\CustomRole;
+use App\Http\Resources\CustomRoleResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CustomRolesController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:manage_custom_roles')->only(['store', 'update', 'destroy']);
+    }
+
     /**
      * Display a listing of custom roles for an account.
      */
@@ -18,7 +24,7 @@ class CustomRolesController extends Controller
     {
         $customRoles = CustomRole::where('account_id', $account->id)->paginate();
 
-        return JsonResource::collection($customRoles);
+        return CustomRoleResource::collection($customRoles);
     }
 
     /**
@@ -33,12 +39,9 @@ class CustomRolesController extends Controller
             'permissions.*' => 'string',
         ]);
 
-        $customRole = CustomRole::create([
-            ...$validated,
-            'account_id' => $account->id,
-        ]);
+        $customRole = CustomRole::create(array_merge($validated, ['account_id' => $account->id]));
 
-        return response()->json(['data' => $customRole], 201);
+        return (new CustomRoleResource($customRole))->response()->setStatusCode(201);
     }
 
     /**
@@ -48,7 +51,7 @@ class CustomRolesController extends Controller
     {
         abort_unless($customRole->account_id === $account->id, 404);
 
-        return response()->json(['data' => $customRole]);
+        return new CustomRoleResource($customRole);
     }
 
     /**
@@ -67,7 +70,7 @@ class CustomRolesController extends Controller
 
         $customRole->update($validated);
 
-        return response()->json(['data' => $customRole]);
+        return new CustomRoleResource($customRole);
     }
 
     /**
@@ -79,6 +82,6 @@ class CustomRolesController extends Controller
 
         $customRole->delete();
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 }

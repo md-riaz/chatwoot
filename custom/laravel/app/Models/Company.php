@@ -4,31 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Company extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name',
-        'domain',
-        'description',
         'account_id',
-        'contacts_count',
+        'name',
+        'identifier',
+        'domain',
+        'website',
+        'custom_attributes',
     ];
 
     protected $casts = [
-        'contacts_count' => 'integer',
+        'custom_attributes' => 'array',
     ];
 
-    public function account(): BelongsTo
+    public function account()
     {
         return $this->belongsTo(Account::class);
     }
 
-    public function contacts(): HasMany
+    public function contacts()
     {
         return $this->hasMany(Contact::class);
     }
