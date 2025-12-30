@@ -35,6 +35,9 @@ return new class extends Migration
             $table->string('sp_entity_id')->nullable();
             $table->string('idp_entity_id')->nullable();
             $table->json('role_mappings')->default('{}');
+            $table->boolean('enabled')->default(false);
+            $table->string('issuer')->nullable();
+            $table->json('metadata')->nullable();
             $table->timestamps();
 
             $table->unique('account_id');

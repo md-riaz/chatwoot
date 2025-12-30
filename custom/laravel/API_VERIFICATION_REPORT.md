@@ -437,10 +437,12 @@ This document provides a comprehensive verification of the Laravel API implement
 - Estimated Effort: 2-3 weeks
 
 #### SAML Settings
-- Status: Not implemented
+#### SAML Settings
+- Status: Implemented (controller, model, routes, migration updated)
+- OpenAPI: paths and API docs updated (`/accounts/{account}/saml_settings`)
 - Rails Route: /api/v1/accounts/:id/saml_settings
 - Priority: Low (Enterprise SSO feature)
-- Effort: 1 week
+- Effort: 1 week (remaining: run migrations and verify SAML flows)
 
 #### Companies Resource
 - Status: Not implemented

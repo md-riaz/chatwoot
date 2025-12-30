@@ -59,4 +59,149 @@ paths:
                     type: array
                     items:
                       type: string
+
+      /accounts/{account_id}/saml_settings:
+        get:
+          tags:
+            - Accounts
+          summary: Get SAML settings for account
+          description: Retrieve SAML SSO configuration for the specified account
+          operationId: getAccountSamlSettings
+          security:
+            - bearerAuth: []
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+          responses:
+            '200':
+              description: SAML settings
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          sso_url:
+                            type: string
+                            nullable: true
+                          sp_entity_id:
+                            type: string
+                            nullable: true
+                          idp_entity_id:
+                            type: string
+                            nullable: true
+                          enabled:
+                            type: boolean
+                          metadata:
+                            type: object
+                            additionalProperties: true
+
+        post:
+          tags:
+            - Accounts
+          summary: Create or replace SAML settings for account
+          description: Create SAML SSO configuration for the specified account
+          operationId: createAccountSamlSettings
+          security:
+            - bearerAuth: []
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    sso_url:
+                      type: string
+                    certificate:
+                      type: string
+                    sp_entity_id:
+                      type: string
+                    idp_entity_id:
+                      type: string
+                    role_mappings:
+                      type: object
+                      additionalProperties: true
+                    enabled:
+                      type: boolean
+                    metadata:
+                      type: object
+                      additionalProperties: true
+          responses:
+            '201':
+              description: SAML settings created
+              content:
+                application/json:
+                  schema:
+                    $ref: '../openapi.yaml#/components/schemas/Error'
+
+        patch:
+          tags:
+            - Accounts
+          summary: Update SAML settings for account
+          description: Update fields on SAML SSO configuration
+          operationId: updateAccountSamlSettings
+          security:
+            - bearerAuth: []
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    sso_url:
+                      type: string
+                    certificate:
+                      type: string
+                    role_mappings:
+                      type: object
+                      additionalProperties: true
+                    enabled:
+                      type: boolean
+                    metadata:
+                      type: object
+                      additionalProperties: true
+          responses:
+            '200':
+              description: SAML settings updated
+              content:
+                application/json:
+                  schema:
+                    $ref: '../openapi.yaml#/components/schemas/Error'
+
+        delete:
+          tags:
+            - Accounts
+          summary: Delete SAML settings for account
+          description: Remove SAML SSO configuration for the specified account
+          operationId: deleteAccountSamlSettings
+          security:
+            - bearerAuth: []
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+          responses:
+            '204':
+              description: SAML settings removed
 ```

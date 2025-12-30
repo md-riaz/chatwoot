@@ -157,6 +157,25 @@
                   example: "https://app.clearline.io/auth/sso?token=abc123"
             example:
               url: "https://app.clearline.io/auth/sso?token=abc123"
+  /accounts/{account_id}/saml_settings:
+    get:
+      tags:
+        - SAML
+      summary: Get SAML settings for an account
+      operationId: getAccountSamlSettings
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: SAML settings
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/SamlSettings'
 
 /platform/users/{user_id}/token:
   post:

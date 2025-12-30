@@ -159,6 +159,10 @@ Manage accounts (organizations/workspaces) in the system.
 | GET | `/api/v1/accounts/{id}` | Get account details | Yes | Member |
 | PATCH | `/api/v1/accounts/{id}` | Update account | Yes | Admin |
 | DELETE | `/api/v1/accounts/{id}` | Delete account | Yes | Admin |
+| GET | `/api/v1/accounts/{account}/saml_settings` | Get SAML SSO settings for account | Yes | Admin |
+| POST | `/api/v1/accounts/{account}/saml_settings` | Create/replace SAML SSO settings | Yes | Admin |
+| PATCH | `/api/v1/accounts/{account}/saml_settings` | Update SAML SSO settings | Yes | Admin |
+| DELETE | `/api/v1/accounts/{account}/saml_settings` | Delete SAML SSO settings | Yes | Admin |
 
 ### Permission Setup
 - **View**: User must be a member of the account

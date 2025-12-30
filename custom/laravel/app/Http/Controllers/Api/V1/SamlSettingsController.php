@@ -43,12 +43,15 @@ class SamlSettingsController extends Controller
             'sp_entity_id' => 'nullable|string',
             'idp_entity_id' => 'nullable|string',
             'role_mappings' => 'nullable|array',
+            'enabled' => 'boolean',
+            'issuer' => 'nullable|string',
+            'metadata' => 'nullable|array',
         ]);
 
-        $setting = AccountSamlSetting::create([
-            ...$validated,
-            'account_id' => $account->id,
-        ]);
+        $setting = AccountSamlSetting::updateOrCreate(
+            ['account_id' => $account->id],
+            $validated
+        );
 
         return response()->json([
             'data' => [
@@ -74,6 +77,9 @@ class SamlSettingsController extends Controller
             'sp_entity_id' => 'nullable|string',
             'idp_entity_id' => 'nullable|string',
             'role_mappings' => 'nullable|array',
+            'enabled' => 'boolean',
+            'issuer' => 'nullable|string',
+            'metadata' => 'nullable|array',
         ]);
 
         $setting->update($validated);

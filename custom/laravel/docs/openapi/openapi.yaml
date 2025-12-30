@@ -87,6 +87,8 @@ tags:
     description: Public widget API endpoints
   - name: Platform
     description: Platform-level API for SSO and multi-tenant management
+  - name: SAML
+    description: SAML SSO endpoints for account-level configuration
   - name: Public
     description: Public API endpoints (no auth required)
   - name: Super Admin
@@ -115,6 +117,8 @@ tags:
     description: Agent management
   - name: Users
     description: User management
+  - name: SAML
+    description: SAML SSO configuration for accounts
 
 components:
   securitySchemes:
@@ -218,6 +222,23 @@ components:
         domain:
           type: string
           nullable: true
+    SamlSettings:
+      type: object
+      properties:
+        sso_url:
+          type: string
+          nullable: true
+        sp_entity_id:
+          type: string
+          nullable: true
+        idp_entity_id:
+          type: string
+          nullable: true
+        enabled:
+          type: boolean
+        metadata:
+          type: object
+          additionalProperties: true
           example: "acme.com"
         support_email:
           type: string
