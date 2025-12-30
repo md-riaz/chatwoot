@@ -21,25 +21,24 @@ return new class extends Migration
             $table->index('type');
         });
 
-        Schema::create('integration_hooks', function (Blueprint $table) {
+        Schema::create('integrations_hooks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('integration_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('integration_id')->nullable()->constrained('integrations')->cascadeOnDelete();
             $table->foreignId('inbox_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('app_id')->nullable();
-            $table->string('hook_type')->default('account');
-            $table->string('status')->default('enabled');
-            $table->json('settings')->nullable();
+            $table->integer('hook_type')->default(0);
+            $table->integer('status')->default(1);
+            $table->jsonb('settings')->default(new \Illuminate\Database\Query\Expression("'{}'::jsonb"));
             $table->string('reference_id')->nullable();
+            $table->string('access_token')->nullable();
             $table->timestamps();
-
-            $table->index(['account_id', 'hook_type']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('integration_hooks');
+        Schema::dropIfExists('integrations_hooks');
         Schema::dropIfExists('integrations');
     }
 };

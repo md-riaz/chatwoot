@@ -637,7 +637,7 @@ To add a new integration:
 
 5. **Add Integration Hook Model:**
    ```php
-   // Create integration_hooks record
+   // Create integrations_hooks record
    IntegrationHook::create([
        'account_id' => $accountId,
        'app_id' => 'new_integration',

@@ -8,19 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('portal_members', function (Blueprint $table) {
-            $table->id();
+        Schema::create('portals_members', function (Blueprint $table) {
             $table->foreignId('portal_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('role')->default('contributor');
-            $table->timestamps();
 
             $table->unique(['portal_id', 'user_id']);
+            $table->index('portal_id');
+            $table->index('user_id');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('portal_members');
+        Schema::dropIfExists('portals_members');
     }
 };
