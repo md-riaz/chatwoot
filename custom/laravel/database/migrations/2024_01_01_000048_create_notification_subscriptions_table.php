@@ -11,14 +11,13 @@ return new class extends Migration
     {
         Schema::create('notification_subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->integer('subscription_type');
             $table->jsonb('subscription_attributes')->default(new Expression("'{}'::jsonb"));
             $table->timestamps();
             $table->string('identifier')->nullable();
 
             $table->unique('identifier');
-            $table->index('user_id');
         });
     }
 

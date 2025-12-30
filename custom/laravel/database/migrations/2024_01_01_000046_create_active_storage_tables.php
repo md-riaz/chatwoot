@@ -25,10 +25,9 @@ return new class extends Migration
             $table->string('name');
             $table->string('record_type');
             $table->unsignedBigInteger('record_id');
-            $table->unsignedBigInteger('blob_id');
+            $table->foreignId('blob_id')->constrained('active_storage_blobs')->cascadeOnDelete();
             $table->timestamp('created_at')->useCurrent();
 
-            $table->index('blob_id');
             $table->unique(
                 ['record_type', 'record_id', 'name', 'blob_id'],
                 'active_storage_attachments_uniqueness'
@@ -37,7 +36,7 @@ return new class extends Migration
 
         Schema::create('active_storage_variant_records', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('blob_id');
+            $table->foreignId('blob_id')->constrained('active_storage_blobs')->cascadeOnDelete();
             $table->string('variation_digest');
 
             $table->unique(['blob_id', 'variation_digest'], 'active_storage_variant_records_uniqueness');

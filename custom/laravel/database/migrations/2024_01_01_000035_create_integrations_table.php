@@ -33,6 +33,8 @@ return new class extends Migration
             $table->string('reference_id')->nullable();
             $table->string('access_token')->nullable();
             $table->timestamps();
+
+            $table->index(['account_id', 'hook_type']);
         });
     }
 
