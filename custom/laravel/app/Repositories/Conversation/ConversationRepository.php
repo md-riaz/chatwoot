@@ -122,42 +122,8 @@ class ConversationRepository extends BaseRepository
     {
         $query = $this->model->where('account_id', $accountId);
 
-        foreach ($payload as $filter) {
-            $attribute = $filter['attribute_key'] ?? null;
-            $filterOperator = $filter['filter_operator'] ?? 'equal_to';
-            $values = $filter['values'] ?? [];
-
-            if (! $attribute || empty($values)) {
-                continue;
-            }
-
-            switch ($attribute) {
-                case 'status':
-                    $query->whereIn('status', $values);
-                    break;
-                case 'assignee_id':
-                    if ($filterOperator === 'equal_to') {
-                        $query->whereIn('assignee_id', $values);
-                    } else {
-                        $query->whereNotIn('assignee_id', $values);
-                    }
-                    break;
-                case 'inbox_id':
-                    $query->whereIn('inbox_id', $values);
-                    break;
-                case 'team_id':
-                    $query->whereIn('team_id', $values);
-                    break;
-                case 'priority':
-                    $query->whereIn('priority', $values);
-                    break;
-                case 'labels':
-                    $query->whereHas('labels', function ($q) use ($values) {
-                        $q->whereIn('title', $values);
-                    });
-                    break;
-            }
-        }
+        // Delegate the heavy-lifting to FilterService which mirrors Rails behavior
+        $query = \App\Services\FilterService::applyFilters($query, $payload, $accountId);
 
         $conversations = $query
             ->with(['contact', 'inbox', 'assignee'])

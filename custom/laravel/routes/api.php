@@ -314,6 +314,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('conversations/{conversation}/unmute', [ConversationsController::class, 'unmute']);
         Route::post('conversations/{conversation}/transcript', [ConversationsController::class, 'transcript']);
         Route::post('conversations/{conversation}/toggle_priority', [ConversationsController::class, 'togglePriority']);
+        Route::post('conversations/{conversation}/labels', [ConversationsController::class, 'addLabels']);
+        Route::delete('conversations/{conversation}/labels', [ConversationsController::class, 'removeLabels']);
         Route::post('conversations/{conversation}/toggle_typing_status', [ConversationsController::class, 'toggleTypingStatus']);
         Route::post('conversations/{conversation}/update_last_seen', [ConversationsController::class, 'updateLastSeen']);
         Route::post('conversations/{conversation}/unread', [ConversationsController::class, 'unread']);

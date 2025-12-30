@@ -6,6 +6,7 @@ use App\Actions\Conversation\AssignConversationAction;
 use App\Actions\Conversation\CloseConversationAction;
 use App\Actions\Conversation\CreateConversationAction;
 use App\Actions\Conversation\UpdateConversationAction;
+use App\Actions\Conversation\SendTranscriptAction;
 use App\Data\Conversation\ConversationData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Conversation\StoreConversationRequest;
@@ -95,7 +96,33 @@ class ConversationsController extends Controller
 
         return new ConversationResource($conversation->load('contact', 'inbox', 'assignee'));
     }
+    /**
+     * Add labels to a conversation
+     */
+    public function addLabels(Request $request, Account $account, Conversation $conversation): ConversationResource
+    {
+        abort_unless($conversation->account_id === $account->id, 404);
 
+        $this->validate($request, ['labels' => 'required|array']);
+
+        \App\Actions\Conversation\AddLabelsToConversationAction::run($conversation, $request->input('labels'));
+
+        return new ConversationResource($conversation->fresh()->load('labels'));
+    }
+
+    /**
+     * Remove labels from a conversation
+     */
+    public function removeLabels(Request $request, Account $account, Conversation $conversation): ConversationResource
+    {
+        abort_unless($conversation->account_id === $account->id, 404);
+
+        $this->validate($request, ['labels' => 'required|array']);
+
+        \App\Actions\Conversation\RemoveLabelsFromConversationAction::run($conversation, $request->input('labels'));
+
+        return new ConversationResource($conversation->fresh()->load('labels'));
+    }
     /**
      * Display the specified conversation.
      */
@@ -209,8 +236,10 @@ class ConversationsController extends Controller
             return response()->json(['error' => 'email param missing'], 422);
         }
 
-        // Queue transcript email job
-        // TranscriptEmailJob::dispatch($conversation, $request->input('email'));
+        // Split comma separated emails and queue transcript action
+        $emails = array_filter(explode(',', str_replace(' ', '', $request->input('email'))));
+
+        \App\Actions\Conversation\SendTranscriptAction::run($conversation, $emails);
 
         return response()->json(null, 200);
     }
@@ -222,7 +251,9 @@ class ConversationsController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        $conversation->update(['priority' => $request->input('priority')]);
+        $this->validate($request, ['priority' => 'nullable']);
+
+        \App\Actions\Conversation\ChangePriorityAction::run($conversation, $request->input('priority'));
 
         return response()->json(null, 200);
     }
