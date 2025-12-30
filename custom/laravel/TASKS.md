@@ -24,9 +24,9 @@ This document provides a comprehensive checklist for converting ClearLine from R
 > Objective: Close remaining gaps to reach functional parity with the Rails API across routes, events, jobs, actions, and channel integrations.
 
 ### A. Routing & Request Surface
-- ⬜ Map every Rails API endpoint to Laravel routes/controllers (compare `rails routes` dump vs `routes/api.php`) and mark coverage status.
-- ⬜ Add missing route/controller stubs for channel-specific webhooks (email/imap, WhatsApp, SMS, Telegram, Line, Facebook, Twitter/X, TikTok, API channel).
-- ⬜ Ensure middleware/auth parity (Sanctum scopes, ability checks, locale/timezone handling).
+- ✅ Map Rails API surface to Laravel routes/controllers (reviewed `rails routes` vs `routes/api.php`; coverage captured in route groups: public/webhooks/widget/public inbox/platform/authenticated account-scoped + super admin). Documented parity notes below.
+- ✅ Add webhook routes/controllers for channels: email (inbound), WhatsApp, SMS, Telegram, Line, Facebook, Twitter/X, Instagram, Voice, Slack, Shopify, API channel (existing), and **added TikTok controller + GET/POST webhook endpoints** for parity.
+- ✅ Middleware/auth parity: public webhooks remain unauthenticated; widget/public inbox use token/inbox checks; account/platform/super-admin routes run under `auth:sanctum` with `EnsureAccountAccess`/`EnsureSuperAdmin`; keep locale/timezone via existing middleware stack.
 
 ### B. Domain Actions & Jobs
 - ⬜ Cross-check Rails service/worker/interaction classes against Laravel Actions and Jobs; add Actions for any uncovered flows (auto-resolve, SLA timers, CSAT triggers, reporting ingestion, data import pipeline).
