@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Channels;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Channels\ProcessTiktokWebhookJob;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -28,10 +29,14 @@ class TiktokController extends Controller
      */
     public function webhook(Request $request): Response
     {
+        $payload = $request->all();
         Log::info('Received TikTok webhook', [
             'headers' => $request->headers->all(),
-            'payload' => $request->all(),
+            'payload' => $payload,
         ]);
+
+        // Dispatch processing to the queue to mirror other channel webhooks.
+        ProcessTiktokWebhookJob::dispatch($payload);
 
         // Acknowledge receipt; downstream processing should be wired to a Job/Action.
         return response()->noContent();
