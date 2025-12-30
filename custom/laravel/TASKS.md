@@ -19,6 +19,50 @@ This document provides a comprehensive checklist for converting ClearLine from R
 
 ---
 
+## Porting Follow-up Log — 2025-12-30
+
+> Objective: Close remaining gaps to reach functional parity with the Rails API across routes, events, jobs, actions, and channel integrations.
+
+### A. Routing & Request Surface
+- ✅ Map Rails API surface to Laravel routes/controllers (reviewed `rails routes` vs `routes/api.php`; coverage captured in route groups: public/webhooks/widget/public inbox/platform/authenticated account-scoped + super admin). Documented parity notes below.
+- ✅ Add webhook routes/controllers for channels: email (inbound), WhatsApp, SMS, Telegram, Line, Facebook, Twitter/X, Instagram, Voice, Slack, Shopify, API channel (existing), and **added TikTok controller + GET/POST webhook endpoints** for parity.
+- ✅ Middleware/auth parity: public webhooks remain unauthenticated; widget/public inbox use token/inbox checks; account/platform/super-admin routes run under `auth:sanctum` with `EnsureAccountAccess`/`EnsureSuperAdmin`; keep locale/timezone via existing middleware stack.
+
+### B. Domain Actions & Jobs
+- ⬜ Cross-check Rails service/worker/interaction classes against Laravel Actions and Jobs; add Actions for any uncovered flows (auto-resolve, SLA timers, CSAT triggers, reporting ingestion, data import pipeline).
+- ⬜ Wire corresponding Jobs/queue routing (Horizon) for async work: outbound deliverability, SLA event creation, notifications, campaign sends, data imports, attachment processing.
+- ⬜ Validate job retry/timeout policies mirror Rails (sidekiq settings → Laravel job properties/Horizon config).
+
+### C. Events, Listeners & Broadcasting
+- ⬜ Inventory Rails events and callbacks; add Laravel Events/Listeners for conversation lifecycle, message lifecycle, SLA breaches, assignment changes, contact updates, portal/article updates.
+- ⬜ Confirm broadcasting channels (Reverb) are defined and guarded; align payload shapes with frontend expectations.
+- ⬜ Add audit/activity logging parity (reuse Spatie Activity Log where appropriate).
+
+### D. Channel Integrations
+- ⬜ For each channel (email, API, web widget, WhatsApp, SMS/Twilio, Telegram, Line, Facebook, Twitter/X, Instagram, TikTok, Voice), document: inbound entrypoint, outbound sender, signature/auth, webhook verification, attachment handling, error paths.
+- ⬜ Implement missing repositories/services per channel and connect to Conversations/Messages Actions.
+- ⬜ Reconcile provider-specific templates/config fields with Rails schema defaults; migrate seed/config fixtures if needed.
+
+### E. Data & SLA/Reporting
+- ⬜ Finish SLA policy application flow: policy selection, Applied SLA creation, SLA event generation, timers/resets, breach notifications.
+- ⬜ Align reporting event ingestion and aggregation repos with Rails metrics; ensure background rollups scheduled.
+- ⬜ Confirm CSAT survey creation/dispatch/recording matches Rails rules (including business hours and snooze logic).
+
+### F. Notifications & Webhooks
+- ⬜ Mirror notification types (database/email/push) and subscription preferences; connect NotificationSubscription model to delivery services.
+- ⬜ Port webhook signing/delivery/retry logic and admin UI endpoints for webhook management.
+
+### G. Storage & Media
+- ⬜ Hook Active Storage equivalents to existing attachment/media services (uploads, variants, thumbnails, external URLs); ensure disk config aligns with Rails defaults.
+- ⬜ Validate large file handling, coordinate/meta persistence, and cleanup jobs.
+
+### H. Operational Readiness
+- ⬜ Add parity seeders/fixtures for demo/dev.
+- ⬜ Write regression test plan: API contract tests vs Rails, job/queue smoke tests, channel end-to-end mocks.
+- ⬜ Update deployment notes (env vars, cron/Horizon schedules, Reverb) to match required services.
+
+---
+
 ## Phase 1: Foundation Setup (Week 1)
 
 ### 1.1 Environment & Configuration

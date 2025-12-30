@@ -90,6 +90,7 @@ use App\Http\Controllers\Api\V1\NotificationSettingsController;
 use App\Http\Controllers\Api\V1\SamlSettingsController;
 use App\Http\Controllers\Api\V1\Channels\InstagramController;
 use App\Http\Controllers\Api\V1\Channels\VoiceController;
+use App\Http\Controllers\Api\V1\Channels\TiktokController;
 use App\Http\Controllers\Api\V1\Conversations\ParticipantsController;
 use App\Http\Controllers\Api\V1\Conversations\DraftMessagesController;
 use Illuminate\Support\Facades\Route;
@@ -165,6 +166,10 @@ Route::prefix('webhooks')->group(function () {
     // Instagram webhooks
     Route::get('instagram', [InstagramController::class, 'verifyWebhook']);
     Route::post('instagram', [InstagramController::class, 'webhook']);
+
+    // TikTok webhooks
+    Route::get('tiktok', [TiktokController::class, 'verify']);
+    Route::post('tiktok', [TiktokController::class, 'webhook']);
     
     // Voice webhooks (Twilio)
     Route::post('voice/call/{phone}', [VoiceController::class, 'callTwiml']);

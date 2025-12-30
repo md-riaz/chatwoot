@@ -11,10 +11,12 @@ class Api extends Model
 {
     use HasFactory;
 
-    protected $table = 'channel_apis';
+    protected $table = 'channel_api';
 
     protected $fillable = [
+        'account_id',
         'webhook_url',
+        'identifier',
         'hmac_token',
         'hmac_mandatory',
         'additional_attributes',
