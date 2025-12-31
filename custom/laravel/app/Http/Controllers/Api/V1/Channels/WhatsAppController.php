@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Channels;
 
 use App\Http\Controllers\Controller;
+use App\Models\Channels\Whatsapp;
 use App\Models\Account;
 use App\Models\Inbox;
 use Illuminate\Http\JsonResponse;
@@ -24,15 +25,19 @@ class WhatsAppController extends Controller
             'provider_config' => 'required|array',
         ]);
 
-        // Create the inbox with WhatsApp channel
+        $channel = Whatsapp::create([
+            'account_id' => $account->id,
+            'phone_number' => $validated['phone_number'],
+            'provider' => $validated['provider'],
+            'provider_config' => $validated['provider_config'],
+        ]);
+
         $inbox = Inbox::create([
             'name' => $validated['name'],
             'account_id' => $account->id,
-            'channel_type' => 'Channel::Whatsapp',
+            'channel_type' => Whatsapp::class,
+            'channel_id' => $channel->id,
         ]);
-
-        // Create the channel (would be a polymorphic relationship)
-        // In a full implementation, this would create a Channels\Whatsapp model
 
         return response()->json([
             'data' => [
@@ -51,7 +56,7 @@ class WhatsAppController extends Controller
     public function update(Request $request, Account $account, Inbox $inbox): JsonResponse
     {
         abort_unless($inbox->account_id === $account->id, 404);
-        abort_unless($inbox->channel_type === 'Channel::Whatsapp', 400);
+        abort_unless($inbox->channel instanceof Whatsapp, 400);
 
         $validated = $request->validate([
             'name' => 'string|max:255',
@@ -59,6 +64,12 @@ class WhatsAppController extends Controller
         ]);
 
         $inbox->update(['name' => $validated['name'] ?? $inbox->name]);
+
+        if ($inbox->channel) {
+            $inbox->channel->update([
+                'provider_config' => array_merge($inbox->channel->provider_config ?? [], $validated['provider_config'] ?? []),
+            ]);
+        }
 
         return response()->json(['data' => $inbox]);
     }
@@ -92,7 +103,9 @@ class WhatsAppController extends Controller
         $token = $request->get('hub_verify_token');
         $challenge = $request->get('hub_challenge');
 
-        if ($mode === 'subscribe' && $token === config('services.whatsapp.verify_token')) {
+        $channel = Whatsapp::where('provider_config->verify_token', $token)->first();
+
+        if ($mode === 'subscribe' && $channel) {
             return response($challenge, 200);
         }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Channels;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Channels\ProcessTwitterWebhookJob;
 use App\Models\Account;
 use App\Models\Inbox;
 use Illuminate\Http\JsonResponse;
@@ -79,8 +80,7 @@ class TwitterController extends Controller
      */
     public function webhook(Request $request): JsonResponse
     {
-        // Verify CRC
-        // Process events
+        ProcessTwitterWebhookJob::dispatch($request->all());
 
         return response()->json(['status' => 'ok']);
     }

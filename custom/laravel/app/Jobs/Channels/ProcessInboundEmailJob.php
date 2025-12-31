@@ -8,11 +8,13 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Redis;
+use App\Data\Channels\InboundMessageData;
+use App\Models\Inbox;
+use App\Services\Channels\InboundMessageService;
 
 class ProcessInboundEmailJob implements ShouldQueue
 {
@@ -29,8 +31,9 @@ class ProcessInboundEmailJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $messageId = $this->email['message_id'] ?? null;
-            $to = $this->email['to'] ?? null;
+            $raw = $this->email;
+            $messageId = $raw['message_id'] ?? null;
+            $to = $raw['to'] ?? null;
 
             if (! $to) {
                 Log::warning('ProcessInboundEmailJob: missing recipient', ['email' => $this->email]);
@@ -38,9 +41,10 @@ class ProcessInboundEmailJob implements ShouldQueue
             }
 
             // Resolve inbox by recipient address (simple heuristic)
-            $inbox = \App\Models\Inbox::where('channel_type', 'Channel::Email')
-                ->whereJsonContains('channel', ['email' => $to])
-                ->first();
+            $inbox = Inbox::whereHasMorph('channel', [\App\Models\Channels\Email::class], function ($q) use ($to) {
+                $q->where('email', strtolower($to))
+                    ->orWhere('forward_to_email', strtolower($to));
+            })->first();
 
             if (! $inbox) {
                 Log::warning('ProcessInboundEmailJob: no inbox for recipient', ['to' => $to]);
@@ -48,67 +52,34 @@ class ProcessInboundEmailJob implements ShouldQueue
             }
 
             // Idempotency: skip if message with same external_source_id exists
-            if ($messageId && DB::table('messages')->where('external_source_id', $messageId)->exists()) {
+            if ($messageId && \App\Models\Message::where('external_source_id', $messageId)->exists()) {
                 Log::info('ProcessInboundEmailJob: duplicate message, skipping', ['message_id' => $messageId]);
                 return;
             }
 
-            // Find or create contact by from email
-            $from = $this->email['from'] ?? null;
-            $contact = null;
-            if ($from) {
-                $contact = \App\Models\Contact::firstOrCreate([
-                    'account_id' => $inbox->account_id,
-                    'identifier' => 'email:' . strtolower($from),
-                ], [
-                    'name' => $this->email['from_name'] ?? null,
-                    'source' => 'email',
-                ]);
-            }
+            $contactIdentifier = $this->email['from'] ? 'email:' . strtolower($this->email['from']) : 'email:unknown';
 
-            // Find or create conversation
-            $conversation = null;
-            if ($contact) {
-                $conversation = \App\Models\Conversation::where('account_id', $inbox->account_id)
-                    ->where('inbox_id', $inbox->id)
-                    ->where('contact_id', $contact->id)
-                    ->where('status', \App\Models\Conversation::STATUS_OPEN)
-                    ->first();
-            }
+            $service = app(InboundMessageService::class);
+            $messageData = new InboundMessageData(
+                account_id: $inbox->account_id,
+                inbox_id: $inbox->id,
+                contact_identifier: $contactIdentifier,
+                contact_source: 'email',
+                contact_name: $this->email['from_name'] ?? null,
+                contact_email: $this->email['from'] ?? null,
+                contact_phone: null,
+                provider_contact_id: $this->email['from'] ?? null,
+                content: $this->email['body'] ?? null,
+                content_type: \App\Models\Message::CONTENT_TEXT,
+                external_source_id: $messageId,
+                attachments: is_array($this->email['attachments'] ?? null) ? $this->email['attachments'] : [],
+                metadata: [
+                    'subject' => $this->email['subject'] ?? null,
+                    'headers' => $raw['headers'] ?? ($raw['message'] ?? null),
+                ]
+            );
 
-            if (! $conversation) {
-                $conversation = \App\Models\Conversation::create([
-                    'account_id' => $inbox->account_id,
-                    'inbox_id' => $inbox->id,
-                    'contact_id' => $contact?->id ?? null,
-                    'status' => \App\Models\Conversation::STATUS_OPEN,
-                ]);
-
-                try {
-                    event(new \App\Events\Conversation\ConversationCreated($conversation));
-                } catch (\Throwable $e) {
-                    Log::warning('ProcessInboundEmailJob: event dispatch failed', ['error' => $e->getMessage()]);
-                }
-            }
-
-            // Create message
-            $msg = \App\Models\Message::create([
-                'account_id' => $inbox->account_id,
-                'conversation_id' => $conversation->id,
-                'inbox_id' => $inbox->id,
-                'sender_id' => $contact?->id,
-                'sender_type' => $contact ? \App\Models\Contact::class : null,
-                'message_type' => \App\Models\Message::TYPE_INCOMING,
-                'content' => $this->email['body'] ?? null,
-                'content_type' => \App\Models\Message::CONTENT_TEXT,
-                'external_source_id' => $messageId,
-            ]);
-
-            try {
-                event(new \App\Events\Message\MessageCreated($msg));
-            } catch (\Throwable $e) {
-                Log::warning('ProcessInboundEmailJob: MessageCreated event failed', ['error' => $e->getMessage()]);
-            }
+            $msg = $service->ingest($messageData);
 
             // Handle attachments if present
             $attachments = $this->email['attachments'] ?? null;

@@ -26,10 +26,39 @@ class ProcessTiktokWebhookJob implements ShouldQueue
 
     public function handle(): void
     {
-        // Map TikTok events to conversation/message flows and persist state.
-        // Implement provider-specific parsing when TikTok event payloads are finalized.
-        Log::info('Processing TikTok webhook payload', [
-            'payload' => $this->payload,
-        ]);
+        $eventId = $this->payload['event_id'] ?? $this->payload['event'] ?? null;
+        $sender = $this->payload['from_user_id'] ?? null;
+        $text = $this->payload['text'] ?? null;
+
+        if (! $eventId || ! $sender) {
+            Log::warning('TikTok webhook missing ids', ['payload' => $this->payload]);
+            return;
+        }
+
+        if (\App\Models\Message::where('external_source_id', $eventId)->exists()) {
+            return;
+        }
+
+        $inbox = \App\Models\Inbox::where('channel_type', \App\Models\Channels\Tiktok::class)->first();
+        if (! $inbox) {
+            Log::warning('TikTok webhook: no inbox configured');
+            return;
+        }
+
+        app(\App\Services\Channels\InboundMessageService::class)->ingest(new \App\Data\Channels\InboundMessageData(
+            account_id: $inbox->account_id,
+            inbox_id: $inbox->id,
+            contact_identifier: 'tiktok:' . $sender,
+            contact_source: 'tiktok',
+            contact_name: null,
+            contact_email: null,
+            contact_phone: null,
+            provider_contact_id: $sender,
+            content: $text ?? '[event]',
+            content_type: \App\Models\Message::CONTENT_TEXT,
+            external_source_id: (string) $eventId,
+            attachments: [],
+            metadata: ['raw' => $this->payload]
+        ));
     }
 }

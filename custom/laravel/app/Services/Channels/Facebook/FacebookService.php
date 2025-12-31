@@ -9,6 +9,8 @@ use App\Models\Message;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Services\Channels\InboundMessageService;
+use App\Data\Channels\InboundMessageData;
 
 class FacebookService
 {
@@ -265,51 +267,31 @@ class FacebookService
                             continue;
                         }
 
-                        // Find or create contact by identifier
-                        $contact = Contact::firstOrCreate([
-                            'account_id' => $inbox->account_id,
-                            'identifier' => 'facebook:' . $senderId,
-                        ], [
-                            'name' => null,
-                            'source' => 'facebook',
-                        ]);
-
-                        // Find existing open conversation
-                        $conversation = Conversation::where('account_id', $inbox->account_id)
-                            ->where('inbox_id', $inbox->id)
-                            ->where('contact_id', $contact->id)
-                            ->where('status', Conversation::STATUS_OPEN)
-                            ->first();
-
-                        if (! $conversation) {
-                            $conversation = Conversation::create([
-                                'account_id' => $inbox->account_id,
-                                'inbox_id' => $inbox->id,
-                                'contact_id' => $contact->id,
-                                'status' => Conversation::STATUS_OPEN,
-                            ]);
-
-                            event(new \App\Events\Conversation\ConversationCreated($conversation));
+                        $attachments = [];
+                        foreach ($message['attachments'] ?? [] as $attachment) {
+                            $attachments[] = [
+                                'url' => $attachment['payload']['url'] ?? null,
+                                'content_type' => $attachment['mime_type'] ?? null,
+                                'type' => $attachment['type'] ?? null,
+                                'meta' => $attachment,
+                            ];
                         }
 
-                        // Create message record
-                        $msg = Message::create([
-                            'account_id' => $inbox->account_id,
-                            'conversation_id' => $conversation->id,
-                            'inbox_id' => $inbox->id,
-                            'sender_id' => $contact->id,
-                            'sender_type' => Contact::class,
-                            'message_type' => Message::TYPE_INCOMING,
-                            'content' => $message['text'] ?? null,
-                            'content_type' => Message::CONTENT_TEXT,
-                            'external_source_id' => $mid,
-                        ]);
-
-                        try {
-                            event(new \App\Events\Message\MessageCreated($msg));
-                        } catch (\Throwable $e) {
-                            Log::warning('Failed to dispatch MessageCreated event', ['error' => $e->getMessage()]);
-                        }
+                        $msg = app(InboundMessageService::class)->ingest(new InboundMessageData(
+                            account_id: $inbox->account_id,
+                            inbox_id: $inbox->id,
+                            contact_identifier: 'facebook:' . $senderId,
+                            contact_source: 'facebook',
+                            contact_name: null,
+                            contact_email: null,
+                            contact_phone: null,
+                            provider_contact_id: $senderId,
+                            content: $message['text'] ?? null,
+                            content_type: Message::CONTENT_TEXT,
+                            external_source_id: $mid,
+                            attachments: $attachments,
+                            metadata: ['raw' => $event]
+                        ));
 
                         $results[] = ['type' => 'message', 'mid' => $mid, 'message_id' => $msg->id];
                     } elseif (isset($event['postback'])) {
@@ -320,47 +302,21 @@ class FacebookService
                             continue;
                         }
 
-                        $contact = Contact::firstOrCreate([
-                            'account_id' => $inbox->account_id,
-                            'identifier' => 'facebook:' . $senderId,
-                        ], [
-                            'name' => null,
-                            'source' => 'facebook',
-                        ]);
-
-                        $conversation = Conversation::where('account_id', $inbox->account_id)
-                            ->where('inbox_id', $inbox->id)
-                            ->where('contact_id', $contact->id)
-                            ->where('status', Conversation::STATUS_OPEN)
-                            ->first();
-
-                        if (! $conversation) {
-                            $conversation = Conversation::create([
-                                'account_id' => $inbox->account_id,
-                                'inbox_id' => $inbox->id,
-                                'contact_id' => $contact->id,
-                                'status' => Conversation::STATUS_OPEN,
-                            ]);
-
-                            event(new \App\Events\Conversation\ConversationCreated($conversation));
-                        }
-
-                        $msg = Message::create([
-                            'account_id' => $inbox->account_id,
-                            'conversation_id' => $conversation->id,
-                            'inbox_id' => $inbox->id,
-                            'sender_id' => $contact->id,
-                            'sender_type' => Contact::class,
-                            'message_type' => Message::TYPE_INCOMING,
-                            'content' => $postback['payload'] ?? ($postback['title'] ?? null),
-                            'content_type' => Message::CONTENT_TEXT,
-                        ]);
-
-                        try {
-                            event(new \App\Events\Message\MessageCreated($msg));
-                        } catch (\Throwable $e) {
-                            Log::warning('Failed to dispatch MessageCreated event (postback)', ['error' => $e->getMessage()]);
-                        }
+                        $msg = app(InboundMessageService::class)->ingest(new InboundMessageData(
+                            account_id: $inbox->account_id,
+                            inbox_id: $inbox->id,
+                            contact_identifier: 'facebook:' . $senderId,
+                            contact_source: 'facebook',
+                            contact_name: null,
+                            contact_email: null,
+                            contact_phone: null,
+                            provider_contact_id: $senderId,
+                            content: $postback['payload'] ?? ($postback['title'] ?? null),
+                            content_type: Message::CONTENT_TEXT,
+                            external_source_id: null,
+                            attachments: [],
+                            metadata: ['raw' => $event]
+                        ));
 
                         $results[] = ['type' => 'postback', 'message_id' => $msg->id];
                     }

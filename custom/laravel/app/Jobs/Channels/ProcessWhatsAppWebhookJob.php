@@ -2,13 +2,16 @@
 
 namespace App\Jobs\Channels;
 
+use App\Data\Channels\InboundMessageData;
+use App\Models\Channels\Whatsapp;
+use App\Models\Inbox;
+use App\Services\Channels\InboundMessageService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
 class ProcessWhatsAppWebhookJob implements ShouldQueue
 {
@@ -26,6 +29,8 @@ class ProcessWhatsAppWebhookJob implements ShouldQueue
             foreach ($entries as $entry) {
                 foreach ($entry['changes'] ?? [] as $change) {
                     $value = $change['value'] ?? [];
+                    $contacts = $value['contacts'] ?? [];
+                    $contactProfile = $contacts[0]['profile']['name'] ?? null;
                     foreach ($value['messages'] ?? [] as $msg) {
                         $from = $msg['from'] ?? null; // sender
                         $to = $value['metadata']['phone_number_id'] ?? null; // page/phone id
@@ -37,53 +42,36 @@ class ProcessWhatsAppWebhookJob implements ShouldQueue
                         }
 
                         // Find inbox by channel phone_number or metadata id
-                        $inbox = \App\Models\Inbox::where('channel_type', 'Channel::Whatsapp')
-                            ->where(function ($q) use ($to) {
-                                $q->whereJsonContains('channel', ['phone_number' => (string) $to])
-                                  ->orWhereJsonContains('channel', ['phone_number_id' => (string) $to]);
-                            })->first();
+                        $inbox = Inbox::whereHasMorph('channel', [Whatsapp::class], function ($q) use ($to) {
+                            $q->where('phone_number', (string) $to)
+                                ->orWhere('provider_config->phone_number_id', (string) $to);
+                        })->first();
 
                         if (! $inbox) {
                             Log::warning('WhatsApp webhook: no inbox found', ['to' => $to]);
                             continue;
                         }
 
-                        // Find or create contact
-                        $contact = \App\Models\Contact::firstOrCreate(
-                            ['account_id' => $inbox->account_id, 'identifier' => 'whatsapp:' . $from],
-                            ['name' => null, 'source' => 'whatsapp']
-                        );
-
-                        // Idempotency: skip if message external id exists
-                        if ($mid && \App\Models\Message::where('external_id', $mid)->exists()) {
+                        if ($mid && \App\Models\Message::where('external_source_id', $mid)->exists()) {
                             continue;
                         }
 
-                        $conversation = \App\Models\Conversation::where('account_id', $inbox->account_id)
-                            ->where('inbox_id', $inbox->id)
-                            ->where('contact_id', $contact->id)
-                            ->where('status', \App\Models\Conversation::STATUS_OPEN)
-                            ->first();
-
-                        if (! $conversation) {
-                            $conversation = \App\Models\Conversation::create([
-                                'account_id' => $inbox->account_id,
-                                'inbox_id' => $inbox->id,
-                                'contact_id' => $contact->id,
-                                'status' => \App\Models\Conversation::STATUS_OPEN,
-                            ]);
-                            event(new \App\Events\Conversation\ConversationCreated($conversation));
-                        }
-
-                        $message = \App\Models\Message::create([
-                            'conversation_id' => $conversation->id,
-                            'content' => $text,
-                            'message_type' => 'incoming',
-                            'external_id' => $mid,
-                            'sender_id' => null,
-                        ]);
-
-                        event(new \App\Events\Message\MessageCreated($message));
+                        $service = app(InboundMessageService::class);
+                        $service->ingest(new InboundMessageData(
+                            account_id: $inbox->account_id,
+                            inbox_id: $inbox->id,
+                            contact_identifier: 'whatsapp:' . $from,
+                            contact_source: 'whatsapp',
+                            contact_name: $contactProfile,
+                            contact_email: null,
+                            contact_phone: $from,
+                            provider_contact_id: $from,
+                            content: $text,
+                            content_type: \App\Models\Message::CONTENT_TEXT,
+                            external_source_id: $mid,
+                            attachments: [],
+                            metadata: ['raw' => $msg]
+                        ));
                     }
                 }
             }
