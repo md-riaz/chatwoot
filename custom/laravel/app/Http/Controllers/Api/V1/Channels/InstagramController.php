@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Channels\Instagram;
 use App\Models\Inbox;
+use App\Jobs\Channels\ProcessInstagramWebhookJob;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -91,8 +92,7 @@ class InstagramController extends Controller
     {
         $payload = $request->all();
 
-        // TODO: Implement webhook processing
-        // Process incoming messages, reactions, etc.
+        ProcessInstagramWebhookJob::dispatch($payload);
 
         return response()->json(['success' => true]);
     }

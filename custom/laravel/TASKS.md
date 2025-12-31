@@ -39,9 +39,9 @@ This document provides a comprehensive checklist for converting ClearLine from R
 - ✅ Add audit/activity logging parity (reuse Spatie Activity Log where appropriate).
 
 ### D. Channel Integrations
-- ⬜ For each channel (email, API, web widget, WhatsApp, SMS/Twilio, Telegram, Line, Facebook, Twitter/X, Instagram, TikTok, Voice), document: inbound entrypoint, outbound sender, signature/auth, webhook verification, attachment handling, error paths.
-- ⬜ Implement missing repositories/services per channel and connect to Conversations/Messages Actions.
-- ⬜ Reconcile provider-specific templates/config fields with Rails schema defaults; migrate seed/config fixtures if needed.
+- ✅ Added channel parity matrix with concrete inbound/outbound/auth/error notes at `custom/laravel/docs/channel-parity-matrix.md` (covers email, API, web widget, WhatsApp, SMS/Twilio, Telegram, Line, Facebook, Twitter/X, Instagram, TikTok, Voice).
+- 🔄 Inbound normalization now uses `App\Services\Channels\InboundMessageService` (Contact → Conversation → Message Actions) for Email, SMS/Twilio, WhatsApp, Telegram, Line, Instagram; Twilio signature validation added on SMS; Telegram secret token supported via `webhook_secret` migration; LINE HMAC validation implemented. Remaining inbound normalization (Facebook/Twitter/TikTok/Voice attachments) still pending.
+- 🔄 Channel creation now persists channel models (Email → `channel_email`, SMS/Twilio → `channel_twilio_sms`, WhatsApp → `channel_whatsapp`, Telegram → `channel_telegram`, Line → `channel_line`) so outbound services can load provider config. Remaining provider config parity (Facebook/Twitter/Instagram/TikTok/Voice) pending.
 
 ### E. Data & SLA/Reporting
 - ⬜ Finish SLA policy application flow: policy selection, Applied SLA creation, SLA event generation, timers/resets, breach notifications.
