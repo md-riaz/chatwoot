@@ -153,7 +153,7 @@ Route::prefix('webhooks')->group(function () {
     Route::post('sms', [SmsController::class, 'webhook']);
     
     // Line webhooks
-    Route::post('line', [LineController::class, 'webhook']);
+    Route::post('line/{inbox}', [LineController::class, 'webhook']);
     
     // Slack webhooks
     Route::post('slack/events', [SlackController::class, 'events']);

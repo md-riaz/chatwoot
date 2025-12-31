@@ -79,10 +79,12 @@ class TelegramController extends Controller
     {
         $inbox = Inbox::with('channel')->findOrFail($inboxId);
 
-        if ($inbox->channel && $request->header('X-Telegram-Bot-Api-Secret-Token')) {
-            $expected = $inbox->channel->webhook_secret ?? null;
-            if ($expected && ! hash_equals($expected, $request->header('X-Telegram-Bot-Api-Secret-Token'))) {
-                Log::warning('Telegram webhook rejected: secret mismatch', ['inbox_id' => $inbox->id]);
+        $expected = $inbox->channel?->webhook_secret;
+        $provided = $request->header('X-Telegram-Bot-Api-Secret-Token');
+
+        if ($expected) {
+            if (! $provided || ! hash_equals($expected, $provided)) {
+                Log::warning('Telegram webhook rejected: secret mismatch or missing', ['inbox_id' => $inbox->id]);
                 return response()->json(['error' => 'invalid_signature'], 403);
             }
         }

@@ -8,10 +8,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Redis;
 use App\Data\Channels\InboundMessageData;
 use App\Models\Inbox;
 use App\Services\Channels\InboundMessageService;
@@ -80,83 +76,6 @@ class ProcessInboundEmailJob implements ShouldQueue
             );
 
             $msg = $service->ingest($messageData);
-
-            // Handle attachments if present
-            $attachments = $this->email['attachments'] ?? null;
-            if ($attachments && is_array($attachments)) {
-                $stored = 0;
-                foreach ($attachments as $att) {
-                    try {
-                        $fileName = null;
-                        $content = null;
-                        $contentType = null;
-
-                        // Case A: attachment provided as URL string
-                        if (is_string($att) && filter_var($att, FILTER_VALIDATE_URL)) {
-                            $resp = Http::get($att);
-                            if (! $resp->successful()) {
-                                Log::warning('ProcessInboundEmailJob: failed to download attachment', ['url' => $att, 'status' => $resp->status()]);
-                                continue;
-                            }
-                            $content = $resp->body();
-                            $contentType = $resp->header('Content-Type') ?? null;
-                            $fileName = pathinfo(parse_url($att, PHP_URL_PATH) ?: 'file', PATHINFO_BASENAME) ?: 'attachment';
-                        }
-
-                        // Case B: attachment provided as associative array with base64 content
-                        if (is_array($att) && (! empty($att['content']) || ! empty($att['base64']))) {
-                            $b64 = $att['content'] ?? $att['base64'];
-                            $content = base64_decode($b64);
-                            $contentType = $att['content_type'] ?? $att['mime'] ?? null;
-                            $fileName = $att['filename'] ?? $att['name'] ?? 'attachment';
-                        }
-
-                        // Case C: provided as uploaded file info (path) - best-effort (not always available in queued job)
-                        if (is_array($att) && ! empty($att['tmp_path']) && file_exists($att['tmp_path'])) {
-                            $content = file_get_contents($att['tmp_path']);
-                            $fileName = $att['filename'] ?? basename($att['tmp_path']);
-                            $contentType = $att['content_type'] ?? mime_content_type($att['tmp_path']);
-                        }
-
-                        if (! $content) {
-                            continue;
-                        }
-
-                        $ext = pathinfo($fileName, PATHINFO_EXTENSION) ?: null;
-                        $safeName = Str::slug(pathinfo($fileName, PATHINFO_FILENAME));
-                        $storagePath = "attachments/{$msg->account_id}/" . $safeName . '-' . time() . ($ext ? ".{$ext}" : '');
-
-                        Storage::disk('public')->put($storagePath, $content);
-                        $dataUrl = Storage::url($storagePath);
-                        $size = strlen($content);
-
-                        $attachment = \App\Models\Attachment::create([
-                            'file_type' => $this->getFileType($contentType ?? 'application/octet-stream'),
-                            'file_name' => $fileName,
-                            'file_size' => $size,
-                            'content_type' => $contentType,
-                            'account_id' => $inbox->account_id,
-                            'message_id' => $msg->id,
-                            'data_url' => $dataUrl,
-                            'extension' => $ext,
-                            'meta' => is_array($att) ? $att : null,
-                        ]);
-
-                        $stored++;
-                    } catch (\Throwable $e) {
-                        Log::warning('ProcessInboundEmailJob: failed to store attachment', ['error' => $e->getMessage()]);
-                    }
-                }
-
-                // Basic metric: increment Redis counter for stored attachments
-                try {
-                    if ($stored > 0) {
-                        Redis::incrby('metrics:inbound_email_attachments', $stored);
-                    }
-                } catch (\Throwable $_) {
-                    // ignore metrics failures
-                }
-            }
 
         } catch (\Throwable $e) {
             Log::error('ProcessInboundEmailJob failed', ['error' => $e->getMessage(), 'email' => $this->email]);

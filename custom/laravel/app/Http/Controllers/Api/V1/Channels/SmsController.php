@@ -62,7 +62,7 @@ class SmsController extends Controller
 
         $inbox->update(['name' => $validated['name'] ?? $inbox->name]);
 
-        if ($inbox->channel instanceof TwilioSms && isset($validated['provider_config'])) {
+        if (isset($validated['provider_config'])) {
             $inbox->channel->update(array_filter([
                 'phone_number' => $validated['provider_config']['phone_number'] ?? null,
                 'messaging_service_sid' => $validated['provider_config']['messaging_service_sid'] ?? null,
@@ -87,6 +87,11 @@ class SmsController extends Controller
             $inbox = Inbox::whereHasMorph('channel', [TwilioSms::class], function ($q) use ($to) {
                 $q->where('phone_number', (string) $to);
             })->first();
+        }
+
+        if (! $inbox) {
+            Log::warning('SMS webhook: no inbox found for phone number', ['to' => $to]);
+            return response()->json(['error' => 'inbox_not_found'], 404);
         }
 
         if ($inbox && ! $this->validateTwilioSignature($request, $inbox->channel)) {
@@ -115,7 +120,7 @@ class SmsController extends Controller
         }
 
         $url = $request->fullUrl();
-        $params = $request->except('X-Twilio-Signature');
+        $params = $request->post();
         ksort($params);
         $data = $url;
         foreach ($params as $key => $value) {

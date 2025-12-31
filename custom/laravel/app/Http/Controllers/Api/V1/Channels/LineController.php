@@ -70,12 +70,13 @@ class LineController extends Controller
     /**
      * Receive webhook from LINE.
      */
-    public function webhook(Request $request): JsonResponse
+    public function webhook(Request $request, Inbox $inbox): JsonResponse
     {
-        $payload = $request->getContent();
-        $inbox = $this->resolveLineInbox($request);
+        abort_unless($inbox->channel instanceof LineChannel, 400);
 
-        if (! $inbox) {
+        $payload = $request->getContent();
+
+        if (! $this->validSignature($request, $inbox->channel)) {
             Log::warning('LINE webhook rejected', ['reason' => 'invalid_signature']);
             return response()->json(['error' => 'invalid_signature'], 403);
         }
@@ -125,17 +126,5 @@ class LineController extends Controller
         $hash = base64_encode(hash_hmac('sha256', $request->getContent(), $channel->line_channel_secret, true));
 
         return hash_equals($hash, $signature);
-    }
-
-    private function resolveLineInbox(Request $request): ?Inbox
-    {
-        /** @var LineChannel|null $channel */
-        foreach (LineChannel::with('inbox')->get() as $channel) {
-            if ($channel && $this->validSignature($request, $channel)) {
-                return $channel->inbox;
-            }
-        }
-
-        return null;
     }
 }

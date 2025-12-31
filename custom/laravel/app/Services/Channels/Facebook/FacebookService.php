@@ -298,9 +298,17 @@ class FacebookService
                         $postback = $event['postback'];
 
                         $senderId = $event['sender']['id'] ?? null;
+                        $postbackTimestamp = $event['timestamp'] ?? null;
                         if (! $senderId) {
                             continue;
                         }
+
+                        $postbackExternalId = hash('sha256', implode(':', [
+                            $senderId,
+                            $postback['payload'] ?? '',
+                            $postback['title'] ?? '',
+                            $postbackTimestamp ?? '',
+                        ]));
 
                         $msg = app(InboundMessageService::class)->ingest(new InboundMessageData(
                             account_id: $inbox->account_id,
@@ -313,7 +321,7 @@ class FacebookService
                             provider_contact_id: $senderId,
                             content: $postback['payload'] ?? ($postback['title'] ?? null),
                             content_type: Message::CONTENT_TEXT,
-                            external_source_id: null,
+                            external_source_id: $postbackExternalId,
                             attachments: [],
                             metadata: ['raw' => $event]
                         ));

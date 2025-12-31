@@ -35,8 +35,12 @@ class ProcessSmsWebhookJob implements ShouldQueue
             }
 
             // Find inbox by phone number in channel
-            $inbox = Inbox::whereHasMorph('channel', [TwilioSms::class], function ($q) use ($to) {
-                $q->where('phone_number', (string) $to)->orWhere('messaging_service_sid', $this->payload['MessagingServiceSid'] ?? null);
+            $messagingServiceSid = $this->payload['MessagingServiceSid'] ?? null;
+            $inbox = Inbox::whereHasMorph('channel', [TwilioSms::class], function ($q) use ($to, $messagingServiceSid) {
+                $q->where('phone_number', (string) $to);
+                if ($messagingServiceSid) {
+                    $q->orWhere('messaging_service_sid', $messagingServiceSid);
+                }
             })->first();
 
             if (! $inbox) {

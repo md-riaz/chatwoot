@@ -39,6 +39,11 @@ class ProcessTwitterWebhookJob implements ShouldQueue
             $text = $messageCreate['message_data']['text'] ?? null;
             $attachments = [];
 
+            if (! $recipientId) {
+                Log::warning('Twitter webhook: missing recipient id', ['event_id' => $eventId]);
+                continue;
+            }
+
             foreach ($messageCreate['message_data']['attachment']['media'] ?? [] as $media) {
                 $attachments[] = [
                     'url' => $media['media_url_https'] ?? $media['media_url'] ?? null,
@@ -50,8 +55,16 @@ class ProcessTwitterWebhookJob implements ShouldQueue
 
             // Determine inbox by matching recipient user id to channel config
             $inbox = Inbox::whereHasMorph('channel', [TwitterProfile::class], function ($q) use ($recipientId) {
-                $q->where('profile_id', $recipientId)->orWhere('provider_config->user_id', $recipientId ?? '');
+                $q->where('profile_id', $recipientId)
+                    ->orWhereRaw("provider_config->>'user_id' = ?", [$recipientId]);
             })->first();
+
+            if (! $inbox && $recipientId) {
+                $profile = TwitterProfile::where('profile_id', $recipientId)->first();
+                if ($profile) {
+                    $inbox = Inbox::where('channel_id', $profile->id)->first();
+                }
+            }
 
             if (! $inbox) {
                 Log::warning('Twitter webhook: inbox not found', ['recipient_id' => $recipientId]);

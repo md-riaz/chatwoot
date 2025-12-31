@@ -30,14 +30,20 @@ class InboundMessageService
     {
         $inbox = Inbox::findOrFail($data->inbox_id);
 
+        if ($data->external_source_id) {
+            $existing = Message::where('external_source_id', $data->external_source_id)
+                ->where('inbox_id', $data->inbox_id)
+                ->first();
+
+            if ($existing) {
+                return $existing;
+            }
+        }
+
         $contact = $this->findOrCreateContact($data);
         $contactInbox = $this->ensureContactInbox($contact, $inbox, $data->provider_contact_id);
 
         $conversation = $this->findOrCreateConversation($data, $contact, $contactInbox);
-
-        if ($data->external_source_id && Message::where('external_source_id', $data->external_source_id)->exists()) {
-            return Message::where('external_source_id', $data->external_source_id)->first();
-        }
 
         $messageData = new MessageData(
             id: null,
@@ -49,7 +55,7 @@ class InboundMessageService
             message_type: Message::TYPE_INCOMING,
             content: $data->content,
             content_type: $data->content_type,
-            content_attributes: $data->metadata,
+            content_attributes: [],
             private: false,
             external_source_id: $data->external_source_id
         );
@@ -171,7 +177,7 @@ class InboundMessageService
                 $filename = $attachment['filename'] ?? $attachment['name'] ?? null;
 
                 if (! $content && $url) {
-                    $resp = Http::get($url);
+                    $resp = Http::timeout(30)->get($url);
                     if (! $resp->successful()) {
                         Log::warning('Inbound attachment download failed', ['url' => $url, 'status' => $resp->status()]);
                         continue;
@@ -188,7 +194,7 @@ class InboundMessageService
                 $filename = $filename ?: 'attachment';
                 $ext = pathinfo($filename, PATHINFO_EXTENSION);
                 $safeName = Str::slug(pathinfo($filename, PATHINFO_FILENAME));
-                $path = "attachments/{$message->account_id}/{$safeName}-" . time() . ($ext ? ".{$ext}" : '');
+                $path = "attachments/{$message->account_id}/{$safeName}-" . Str::random(8) . ($ext ? ".{$ext}" : '');
 
                 Storage::disk('public')->put($path, $content);
                 $dataUrl = Storage::url($path);
@@ -199,6 +205,7 @@ class InboundMessageService
                     'account_id' => $message->account_id,
                     'message_id' => $message->id,
                     'external_url' => $url,
+                    'data_url' => $dataUrl,
                     'content_type' => $contentType,
                     'meta' => $attachment,
                 ]);

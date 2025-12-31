@@ -44,7 +44,7 @@ class ProcessWhatsAppWebhookJob implements ShouldQueue
                         // Find inbox by channel phone_number or metadata id
                         $inbox = Inbox::whereHasMorph('channel', [Whatsapp::class], function ($q) use ($to) {
                             $q->where('phone_number', (string) $to)
-                                ->orWhere('provider_config->phone_number_id', (string) $to);
+                                ->orWhereRaw("provider_config->>'phone_number_id' = ?", [(string) $to]);
                         })->first();
 
                         if (! $inbox) {
