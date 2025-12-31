@@ -3,6 +3,7 @@
 namespace App\Jobs\Notification;
 
 use App\Jobs\Webhooks\SendWebhooksJob;
+use App\Mail\CsatSurveyMail;
 use App\Models\Conversation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -47,14 +48,8 @@ class SendCsatSurveyJob implements ShouldQueue
         }
 
         $surveyUrl = url("/api/v1/public/csat/{$conversation->uuid}");
-        $subject = sprintf('%s: We value your feedback', config('app.name', 'ClearLine'));
-        $name = trim($contact->name ?: '') ?: 'there';
-        $body = "Hi {$name},\n\nWe recently resolved your conversation and would love to hear your feedback. Please rate your experience here: {$surveyUrl}\n\nThank you!";
 
-        Mail::raw($body, function ($message) use ($contact, $subject) {
-            $message->to($contact->email)
-                ->subject($subject);
-        });
+        Mail::to($contact->email)->send(new CsatSurveyMail($contact->name ?? '', $surveyUrl));
 
         SendWebhooksJob::dispatch($conversation->account_id, 'csat_survey_dispatched', [
             'conversation_id' => $conversation->id,

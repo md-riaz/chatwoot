@@ -21,6 +21,10 @@ class Campaign extends Model
 
     public const STATUS_COMPLETED = 1;
 
+    public const STATUS_PARTIALLY_COMPLETED = 2;
+
+    public const STATUS_FAILED = 3;
+
     protected $fillable = [
         'account_id',
         'inbox_id',
@@ -37,6 +41,7 @@ class Campaign extends Model
         'trigger_rules',
         'audience',
         'template_params',
+        'dispatched_at',
     ];
 
     protected $casts = [
@@ -48,6 +53,7 @@ class Campaign extends Model
         'trigger_rules' => 'array',
         'audience' => 'array',
         'template_params' => 'array',
+        'dispatched_at' => 'datetime',
     ];
 
     public function account(): BelongsTo

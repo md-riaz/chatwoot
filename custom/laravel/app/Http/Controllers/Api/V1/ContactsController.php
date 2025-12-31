@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Actions\Contact\CreateContactAction;
 use App\Actions\Contact\MergeContactsAction;
 use App\Actions\Contact\UpdateContactAction;
+use App\Actions\DataImport\GetImportStatusAction;
 use App\Actions\DataImport\StartDataImportAction;
 use App\Data\Contact\ContactData;
 use App\Http\Controllers\Controller;
@@ -13,7 +14,6 @@ use App\Http\Resources\Contact\ContactResource;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Repositories\Contact\ContactRepository;
-use App\Repositories\DataImportRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -24,8 +24,7 @@ class ContactsController extends Controller
     private const RESULTS_PER_PAGE = 15;
 
     public function __construct(
-        private ContactRepository $contactRepository,
-        private DataImportRepository $dataImportRepository
+        private ContactRepository $contactRepository
     ) {}
 
     /**
@@ -122,21 +121,10 @@ class ContactsController extends Controller
      */
     public function importStatus(Account $account, string $importId): JsonResponse
     {
-        $status = Cache::get("import_status:{$importId}");
+        $status = GetImportStatusAction::run($importId);
 
         if (! $status) {
-            $import = $this->dataImportRepository->findByToken($importId);
-            if (! $import) {
-                return response()->json(['error' => 'not_found'], 404);
-            }
-
-            $status = [
-                'status' => $import->status,
-                'processed' => $import->processed_rows,
-                'errors' => $import->meta['errors'] ?? [],
-                'created' => $import->meta['created'] ?? 0,
-                'updated' => $import->meta['updated'] ?? 0,
-            ];
+            return response()->json(['error' => 'not_found'], 404);
         }
 
         return response()->json(['data' => $status]);

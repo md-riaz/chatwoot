@@ -22,8 +22,12 @@ class ScheduleAutoResolveAction
             return;
         }
 
-        $lastActivity = $conversation->last_activity_at ?: now();
-        $deadline = Carbon::parse($lastActivity)->addMinutes($autoResolveMinutes);
+        $lastActivity = $conversation->last_activity_at ?? $conversation->created_at;
+        if (! $lastActivity) {
+            return;
+        }
+
+        $deadline = $lastActivity->copy()->addMinutes($autoResolveMinutes);
         $delay = $deadline->isFuture() ? $deadline : now();
 
         AutoResolveConversationJob::dispatch($conversation->id)

@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -64,6 +65,11 @@ class SendPushNotificationJob implements ShouldQueue
                 $this->sendFcmPush($subscription);
             } elseif ($subscription->subscription_type === 'browser_push') {
                 $this->sendBrowserPush($subscription);
+            } else {
+                Log::debug('Unknown subscription type', [
+                    'subscription_id' => $subscription->id,
+                    'type' => $subscription->subscription_type,
+                ]);
             }
         }
     }
@@ -108,7 +114,7 @@ class SendPushNotificationJob implements ShouldQueue
             'data' => $this->data,
         ];
 
-        $relayUrl = env('PUSH_RELAY_URL');
+        $relayUrl = config('services.push_relay.url');
 
         if ($relayUrl && $endpoint) {
             $response = Http::timeout(5)->post($relayUrl, [
@@ -130,9 +136,9 @@ class SendPushNotificationJob implements ShouldQueue
     private function sendFcmPush(NotificationSubscription $subscription): void
     {
         $pushToken = data_get($subscription->subscription_attributes, 'push_token');
-        $serverKey = env('FIREBASE_SERVER_KEY');
+        $projectId = config('services.firebase.project_id');
 
-        if (! $serverKey || ! $pushToken) {
+        if (! $projectId || ! $pushToken) {
             Log::warning('FCM push skipped due to missing credentials or token', [
                 'subscription_id' => $subscription->id,
                 'user_id' => $this->userId,
@@ -141,43 +147,159 @@ class SendPushNotificationJob implements ShouldQueue
             return;
         }
 
-        $response = Http::withHeaders([
-            'Authorization' => 'key=' . $serverKey,
-            'Content-Type' => 'application/json',
-        ])->post('https://fcm.googleapis.com/fcm/send', [
-            'to' => $pushToken,
-            'notification' => [
-                'title' => $this->title,
-                'body' => $this->body,
-            ],
-            'data' => $this->data ?? [],
-            'android' => [
-                'priority' => 'high',
-            ],
-            'apns' => [
-                'payload' => [
-                    'aps' => [
-                        'sound' => 'default',
-                        'category' => (string) Str::uuid(),
+        $accessToken = $this->getFirebaseAccessToken();
+
+        if (! $accessToken) {
+            Log::warning('FCM push skipped due to missing access token', [
+                'subscription_id' => $subscription->id,
+                'user_id' => $this->userId,
+            ]);
+
+            return;
+        }
+
+        $payload = [
+            'message' => [
+                'token' => $pushToken,
+                'notification' => [
+                    'title' => $this->title,
+                    'body' => $this->body,
+                ],
+                'data' => $this->data ?? [],
+                'android' => [
+                    'priority' => 'HIGH',
+                ],
+                'apns' => [
+                    'payload' => [
+                        'aps' => [
+                            'sound' => 'default',
+                            'category' => (string) Str::uuid(),
+                        ],
                     ],
                 ],
             ],
-        ]);
+        ];
+
+        $response = Http::timeout(30)
+            ->withToken($accessToken)
+            ->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", $payload);
 
         if ($response->failed()) {
-            $error = $response->json('results.0.error') ?? $response->status();
+            $error = data_get($response->json(), 'error.message') ?? data_get($response->json(), 'error.status') ?? $response->status();
             $this->handleSubscriptionFailure($subscription, $error);
         }
     }
 
     private function handleSubscriptionFailure(NotificationSubscription $subscription, $error): void
     {
+        $permanentErrors = ['NotRegistered', 'InvalidRegistration', 'MismatchSenderId'];
+
         Log::warning('Push notification subscription failed', [
             'subscription_id' => $subscription->id,
             'user_id' => $this->userId,
             'error' => $error,
         ]);
 
-        $subscription->delete();
+        if (in_array($error, $permanentErrors, true)) {
+            Log::info('Removing invalid subscription', ['subscription_id' => $subscription->id]);
+            $subscription->delete();
+        }
+    }
+
+    private function getFirebaseAccessToken(): ?string
+    {
+        $credentials = config('services.firebase.credentials');
+
+        if (! $credentials) {
+            return null;
+        }
+
+        $cachedToken = Cache::get('firebase_messaging_access_token');
+        if ($cachedToken) {
+            return $cachedToken;
+        }
+
+        $credentialsArray = $this->normalizeFirebaseCredentials($credentials);
+
+        $clientEmail = $credentialsArray['client_email'] ?? null;
+        $privateKey = $credentialsArray['private_key'] ?? null;
+        $tokenUri = $credentialsArray['token_uri'] ?? 'https://oauth2.googleapis.com/token';
+
+        if (! $clientEmail || ! $privateKey) {
+            return null;
+        }
+
+        $now = time();
+        $payload = [
+            'iss' => $clientEmail,
+            'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+            'aud' => $tokenUri,
+            'exp' => $now + 3600,
+            'iat' => $now,
+        ];
+
+        $jwt = $this->encodeJwt($payload, $privateKey);
+
+        if (! $jwt) {
+            return null;
+        }
+
+        $response = Http::timeout(15)->asForm()->post($tokenUri, [
+            'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            'assertion' => $jwt,
+        ]);
+
+        if ($response->failed()) {
+            return null;
+        }
+
+        $accessToken = $response->json('access_token');
+        $expiresIn = (int) $response->json('expires_in', 3600);
+
+        if ($accessToken) {
+            Cache::put('firebase_messaging_access_token', $accessToken, now()->addSeconds(max($expiresIn - 60, 300)));
+        }
+
+        return $accessToken;
+    }
+
+    private function normalizeFirebaseCredentials(string|array $credentials): array
+    {
+        if (is_string($credentials) && file_exists($credentials)) {
+            $credentials = file_get_contents($credentials) ?: '';
+        }
+
+        if (is_string($credentials)) {
+            $decoded = json_decode($credentials, true);
+        } else {
+            $decoded = $credentials;
+        }
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    private function encodeJwt(array $payload, string $privateKey): ?string
+    {
+        $header = ['alg' => 'RS256', 'typ' => 'JWT'];
+        $segments = [
+            $this->base64UrlEncode(json_encode($header)),
+            $this->base64UrlEncode(json_encode($payload)),
+        ];
+
+        $signingInput = implode('.', $segments);
+        $signature = '';
+
+        if (! openssl_sign($signingInput, $signature, $privateKey, 'sha256')) {
+            return null;
+        }
+
+        $segments[] = $this->base64UrlEncode($signature);
+
+        return implode('.', $segments);
+    }
+
+    private function base64UrlEncode(string $value): string
+    {
+        return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
     }
 }

@@ -20,8 +20,14 @@ class ScheduleCampaignSendAction
             ? $campaign->scheduled_at
             : now();
 
+        if ($campaign->dispatched_at && $campaign->dispatched_at->equalTo($dispatchAt)) {
+            return;
+        }
+
         SendCampaignMessagesJob::dispatch($campaign->id)
             ->delay($dispatchAt)
             ->onQueue('campaigns');
+
+        $campaign->updateQuietly(['dispatched_at' => $dispatchAt]);
     }
 }

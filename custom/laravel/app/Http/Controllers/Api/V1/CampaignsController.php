@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Campaign\ScheduleCampaignSendAction;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Campaign;
-use App\Actions\Campaign\ScheduleCampaignSendAction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -94,7 +94,10 @@ class CampaignsController extends Controller
 
         $campaign->update($validated);
 
-        if ($campaign->enabled) {
+        $schedulingFieldsChanged = $campaign->wasChanged(['scheduled_at', 'message', 'enabled', 'trigger_rules', 'audience']);
+        $wasReEnabled = $campaign->wasChanged('enabled') && $campaign->enabled;
+
+        if ($campaign->enabled && ($schedulingFieldsChanged || $wasReEnabled)) {
             ScheduleCampaignSendAction::run($campaign);
         }
 

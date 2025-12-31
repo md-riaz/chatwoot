@@ -55,7 +55,7 @@ return [
                 'maxTime' => 360,
                 'maxJobs' => 1000,
                 'nice' => 0,
-                'timeout' => 180,
+                'timeout' => 920,
             ],
         ],
 
@@ -79,7 +79,7 @@ return [
                 'maxTime' => 360,
                 'maxJobs' => 500,
                 'nice' => 0,
-                'timeout' => 180,
+                'timeout' => 920,
             ],
         ],
     ],

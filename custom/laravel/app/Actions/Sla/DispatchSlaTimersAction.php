@@ -13,7 +13,8 @@ class DispatchSlaTimersAction
 
     public function handle(Conversation $conversation): void
     {
-        CheckSlaJob::dispatch($conversation->id)->onQueue('sla');
-        CreateSlaEventsJob::dispatch($conversation->id)->onQueue('sla');
+        CheckSlaJob::withChain([
+            (new CreateSlaEventsJob($conversation->id))->onQueue('sla'),
+        ])->dispatch($conversation->id)->onQueue('sla');
     }
 }

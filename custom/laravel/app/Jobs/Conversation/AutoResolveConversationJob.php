@@ -48,7 +48,12 @@ class AutoResolveConversationJob implements ShouldQueue
             return;
         }
 
-        $lastActivity = $conversation->last_activity_at ?? $conversation->updated_at ?? $conversation->created_at ?? now();
+        $lastActivity = $conversation->last_activity_at ?? $conversation->created_at;
+        if (! $lastActivity) {
+            Log::warning('Skipping auto-resolve due to missing timestamps', ['conversation_id' => $conversation->id]);
+            return;
+        }
+
         $inactiveMinutes = now()->diffInMinutes($lastActivity);
 
         if ($inactiveMinutes < $autoResolveMinutes) {

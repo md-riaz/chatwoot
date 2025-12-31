@@ -31,6 +31,16 @@ class DataImportRepository
     {
         $payload = ['status' => DataImport::STATUS_COMPLETED];
 
+        if (array_key_exists('processed_rows', $meta)) {
+            $payload['processed_rows'] = $meta['processed_rows'];
+            unset($meta['processed_rows']);
+        }
+
+        if (array_key_exists('total_rows', $meta)) {
+            $payload['total_rows'] = $meta['total_rows'];
+            unset($meta['total_rows']);
+        }
+
         if (! empty($meta)) {
             $payload['meta'] = array_merge($import->meta ?? [], $meta);
         }
@@ -56,10 +66,11 @@ class DataImportRepository
 
     public function updateProgress(DataImport $import, int $processedRows, array $meta = []): DataImport
     {
-        $payload = [
-            'processed_rows' => $processedRows,
-            'meta' => array_merge($import->meta ?? [], $meta),
-        ];
+        $payload = ['processed_rows' => $processedRows];
+
+        if (! empty($meta)) {
+            $payload['meta'] = array_merge($import->meta ?? [], $meta);
+        }
 
         $import->update($payload);
 
