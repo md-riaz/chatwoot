@@ -7,6 +7,8 @@
 
 This document provides a comprehensive verification of the Laravel API implementation against the Rails API to ensure production readiness.
 
+**Note:** The Captain AI module has been excluded from the migration scope and will not be implemented in the Laravel version.
+
 ---
 
 ## 1. API Endpoint Coverage
@@ -445,17 +447,15 @@ Coverage: To be measured
    - Priority: Medium
    - Effort: 2-3 days
 
-### ⚠️ Rails Features Not Yet Migrated
+### ⚠️ Excluded from Migration Scope
 
 #### Captain (AI Assistant) Module
-- Status: Not implemented in Laravel
-- Rails Routes:
-  - POST /api/v1/accounts/:id/captain/assistants
-  - GET /api/v1/accounts/:id/captain/assistants/tools
-  - POST /api/v1/accounts/:id/captain/assistants/:id/playground
-  - CRUD for scenarios, documents, copilot_threads, etc.
-- Priority: Medium (Enterprise feature)
-- Estimated Effort: 2-3 weeks
+- Status: **EXCLUDED** - Will not be migrated to Laravel
+- Rails Routes: All Captain AI endpoints excluded
+- Rationale: Business decision to skip this enterprise feature
+- Impact: No impact on core customer support functionality
+
+### ⚠️ Rails Features Not Yet Migrated
 
 #### SAML Settings
 #### SAML Settings
@@ -574,22 +574,18 @@ Coverage: To be measured
 
 ### Short-term Improvements (1-2 months)
 
-1. **Implement Captain AI Module**
-   - Critical for competitive advantage
-   - Requires OpenAI service enhancement
-
-2. **Add Missing Features**
+1. **Add Missing Features**
    - Companies resource
    - Agent Capacity Policies
    - Conference feature
    - SAML SSO
 
-3. **Enhanced Monitoring**
+2. **Enhanced Monitoring**
    - Set up APM (Application Performance Monitoring)
    - Configure error tracking (Sentry/Bugsnag)
    - Create dashboards for key metrics
 
-4. **Testing Enhancement**
+3. **Testing Enhancement**
    - Increase test coverage to 90%+
    - Add E2E tests for critical flows
    - Implement contract testing for external APIs
@@ -650,7 +646,6 @@ The Laravel implementation has achieved **~95% feature parity** with the Rails a
 - ✅ Security best practices followed
 
 ### Areas Requiring Attention:
-- ⚠️ Captain AI module (Enterprise feature)
 - ⚠️ Some advanced Enterprise features (SAML, Conferences)
 - ⚠️ Load testing and performance benchmarking
 - ⚠️ Complete E2E integration tests
@@ -658,7 +653,7 @@ The Laravel implementation has achieved **~95% feature parity** with the Rails a
 ### Recommendation:
 **APPROVED for production deployment** for standard customer support use cases.
 
-For Enterprise deployments requiring Captain AI, SAML SSO, or video conferencing, complete those features first.
+For Enterprise deployments requiring SAML SSO or video conferencing, complete those features first.
 
 ### Next Steps:
 1. Execute test suite and verify results
