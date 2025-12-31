@@ -208,7 +208,7 @@ class ImportContactsJob implements ShouldQueue
         $existingContacts = Contact::where('account_id', $this->accountId)
             ->where(function ($query) use ($emails, $phones, $identifiers) {
                 if (! empty($emails)) {
-                    $query->orWhereIn('email', $emails);
+                    $query->whereIn('email', $emails);
                 }
                 if (! empty($phones)) {
                     $query->orWhereIn('phone_number', $phones);
