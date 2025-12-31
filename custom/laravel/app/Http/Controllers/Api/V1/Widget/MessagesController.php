@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1\Widget;
 
+use App\Events\Conversation\ConversationCreated;
+use App\Events\Message\MessageCreated;
+use App\Events\Message\MessageUpdated;
 use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Http\JsonResponse;
@@ -84,7 +87,7 @@ class MessagesController extends BaseController
 
         // Get or create conversation
         $conversation = Conversation::where('contact_inbox_id', $contactInbox->id)
-            ->where('status', '!=', 'resolved')
+            ->where('status', '!=', Conversation::STATUS_RESOLVED)
             ->latest()
             ->first();
 
@@ -95,10 +98,12 @@ class MessagesController extends BaseController
                 'inbox_id' => $contactInbox->inbox_id,
                 'contact_id' => $contactInbox->contact_id,
                 'contact_inbox_id' => $contactInbox->id,
-                'status' => 'open',
+                'status' => Conversation::STATUS_OPEN,
                 'uuid' => \Illuminate\Support\Str::uuid()->toString(),
                 'last_activity_at' => now(),
             ]);
+
+            event(new ConversationCreated($conversation));
         }
 
         // Create the message
@@ -107,7 +112,7 @@ class MessagesController extends BaseController
             'inbox_id' => $contactInbox->inbox_id,
             'conversation_id' => $conversation->id,
             'content' => $validated['content'] ?? '',
-            'message_type' => 0, // incoming
+            'message_type' => Message::TYPE_INCOMING,
             'sender_type' => \App\Models\Contact::class,
             'sender_id' => $contactInbox->contact_id,
             'external_source_id_echo' => $validated['echo_id'] ?? null,
@@ -126,6 +131,8 @@ class MessagesController extends BaseController
                 ]);
             }
         }
+
+        event(new MessageCreated($message->fresh('attachments')));
 
         return response()->json($this->formatMessage($message->load('attachments')), 201);
     }
@@ -160,6 +167,8 @@ class MessagesController extends BaseController
                 $validated
             ),
         ]);
+
+        event(new MessageUpdated($message));
 
         return response()->json($this->formatMessage($message));
     }

@@ -193,16 +193,14 @@ class ConversationsController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        if ($request->has('status')) {
-            $conversation->status = $request->input('status');
-            if ($request->has('snoozed_until')) {
-                $conversation->snoozed_until = $request->input('snoozed_until');
-            }
-        } else {
-            $conversation->status = $conversation->status === 'open' ? 'resolved' : 'open';
+        $status = $this->normalizeStatus($request, $conversation);
+        $payload = ['status' => $status];
+
+        if ($request->has('snoozed_until')) {
+            $payload['snoozed_until'] = $request->input('snoozed_until');
         }
 
-        $conversation->save();
+        $conversation = UpdateConversationAction::run($conversation, $payload);
 
         return new ConversationResource($conversation->load('contact', 'inbox', 'assignee'));
     }
@@ -326,7 +324,7 @@ class ConversationsController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        $conversation->update([
+        $conversation = UpdateConversationAction::run($conversation, [
             'custom_attributes' => $request->input('custom_attributes', []),
         ]);
 
@@ -365,5 +363,22 @@ class ConversationsController extends Controller
         $conversation->delete();
 
         return response()->json(null, 204);
+    }
+
+    private function normalizeStatus(Request $request, Conversation $conversation): int
+    {
+        if ($request->has('status')) {
+            $status = $request->input('status');
+            return match ($status) {
+                'open', Conversation::STATUS_OPEN => Conversation::STATUS_OPEN,
+                'pending', Conversation::STATUS_PENDING => Conversation::STATUS_PENDING,
+                'snoozed', Conversation::STATUS_SNOOZED => Conversation::STATUS_SNOOZED,
+                default => Conversation::STATUS_RESOLVED,
+            };
+        }
+
+        return $conversation->status === Conversation::STATUS_OPEN
+            ? Conversation::STATUS_RESOLVED
+            : Conversation::STATUS_OPEN;
     }
 }

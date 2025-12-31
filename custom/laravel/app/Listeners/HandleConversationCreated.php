@@ -9,6 +9,7 @@ use App\Jobs\Conversations\RunAutoAssignConversationJob;
 use App\Jobs\Conversations\CreateActivityMessageJob;
 use App\Jobs\Webhooks\SendWebhooksJob;
 use Illuminate\Contracts\Logging\Log as LogContract;
+use function Spatie\Activitylog\activity;
 
 class HandleConversationCreated
 {
@@ -32,6 +33,12 @@ class HandleConversationCreated
 
         // 5) Emit webhooks for 'conversation_created'
         SendWebhooksJob::dispatch($conversation->account_id, 'conversation_created', ['conversation_id' => $conversation->id]);
+
+        activity()
+            ->performedOn($conversation)
+            ->withProperties(['event' => 'conversation_created'])
+            ->event('conversation_created')
+            ->log('Conversation created');
 
         $this->log->info('HandleConversationCreated dispatched side-effects', ['conversation_id' => $conversation->id]);
     }

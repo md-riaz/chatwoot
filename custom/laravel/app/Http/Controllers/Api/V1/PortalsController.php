@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Events\Portal\PortalUpdated;
 use App\Models\Account;
 use App\Models\Portal;
 use Illuminate\Http\JsonResponse;
@@ -35,6 +36,8 @@ class PortalsController extends Controller
 
         $portal = Portal::create(array_merge($validated, ['account_id' => $account->id]));
 
+        event(new PortalUpdated($portal, 'created'));
+
         return response()->json(['data' => $portal], 201);
     }
 
@@ -62,12 +65,18 @@ class PortalsController extends Controller
 
         $portal->update($validated);
 
+        $portal->refresh();
+
+        event(new PortalUpdated($portal, 'updated'));
+
         return response()->json(['data' => $portal]);
     }
 
     public function destroy(Account $account, Portal $portal): JsonResponse
     {
         abort_unless($portal->account_id === $account->id, 404);
+
+        event(new PortalUpdated($portal, 'deleted'));
 
         $portal->delete();
 

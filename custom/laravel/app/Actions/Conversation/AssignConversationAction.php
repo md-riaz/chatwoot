@@ -2,6 +2,8 @@
 
 namespace App\Actions\Conversation;
 
+use App\Events\Conversation\ConversationAssigned;
+use App\Events\Conversation\ConversationUpdated;
 use App\Models\Conversation;
 use App\Models\User;
 use App\Repositories\Conversation\ConversationRepository;
@@ -23,9 +25,18 @@ class AssignConversationAction
             'assignee_id' => $assignee?->id,
         ]);
 
-        // Trigger event
-        // event(new ConversationAssigned($conversation, $assignee, $previousAssignee));
+        $conversation = $conversation->fresh();
 
-        return $conversation->fresh();
+        if ($previousAssignee?->id !== $assignee?->id) {
+            event(new ConversationAssigned($conversation, $assignee, $previousAssignee));
+            event(new ConversationUpdated($conversation, [
+                'assignee_id' => [
+                    'previous' => $previousAssignee?->id,
+                    'current' => $assignee?->id,
+                ],
+            ]));
+        }
+
+        return $conversation;
     }
 }

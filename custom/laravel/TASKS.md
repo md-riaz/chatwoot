@@ -34,9 +34,9 @@ This document provides a comprehensive checklist for converting ClearLine from R
 - 🔄 Validate job retry/timeout policies mirror Rails (sidekiq settings → Laravel job properties/Horizon config).
 
 ### C. Events, Listeners & Broadcasting
-- ⬜ Inventory Rails events and callbacks; add Laravel Events/Listeners for conversation lifecycle, message lifecycle, SLA breaches, assignment changes, contact updates, portal/article updates.
-- ⬜ Confirm broadcasting channels (Reverb) are defined and guarded; align payload shapes with frontend expectations.
-- ⬜ Add audit/activity logging parity (reuse Spatie Activity Log where appropriate).
+- ✅ Inventory Rails events and callbacks; add Laravel Events/Listeners for conversation lifecycle, message lifecycle, SLA breaches, assignment changes, contact updates, portal/article updates.
+- ✅ Confirm broadcasting channels (Reverb) are defined and guarded; align payload shapes with frontend expectations.
+- ✅ Add audit/activity logging parity (reuse Spatie Activity Log where appropriate).
 
 ### D. Channel Integrations
 - ⬜ For each channel (email, API, web widget, WhatsApp, SMS/Twilio, Telegram, Line, Facebook, Twitter/X, Instagram, TikTok, Voice), document: inbound entrypoint, outbound sender, signature/auth, webhook verification, attachment handling, error paths.

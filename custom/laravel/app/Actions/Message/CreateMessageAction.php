@@ -3,6 +3,7 @@
 namespace App\Actions\Message;
 
 use App\Data\Message\MessageData;
+use App\Events\Message\MessageCreated;
 use App\Models\Message;
 use App\Repositories\Conversation\ConversationRepository;
 use App\Repositories\Message\MessageRepository;
@@ -50,7 +51,7 @@ class CreateMessageAction
             }
 
             // Trigger event
-            // event(new MessageCreated($message));
+            event(new MessageCreated($message));
 
             return $message;
         });

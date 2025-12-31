@@ -2,6 +2,7 @@
 
 namespace App\Actions\Message;
 
+use App\Events\Message\MessageDeleted;
 use App\Models\Message;
 use App\Repositories\Message\MessageRepository;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -16,8 +17,7 @@ class DeleteMessageAction
 
     public function handle(Message $message): bool
     {
-        // Trigger event
-        // event(new MessageDeleted($message));
+        event(new MessageDeleted($message));
 
         return $this->messageRepository->delete($message->id);
     }

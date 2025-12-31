@@ -6,6 +6,7 @@ use App\Events\Conversation\ConversationAssigned;
 use App\Jobs\Conversations\CreateActivityMessageJob;
 use App\Jobs\Webhooks\SendWebhooksJob;
 use Illuminate\Contracts\Logging\Log as LogContract;
+use function Spatie\Activitylog\activity;
 
 class HandleConversationAssigned
 {
@@ -43,6 +44,16 @@ class HandleConversationAssigned
                 $this->log->warning('Failed to notify previous assignee', ['assignee_id' => $event->previousAssignee->id, 'error' => $e->getMessage()]);
             }
         }
+
+        activity()
+            ->performedOn($conversation)
+            ->withProperties([
+                'event' => 'conversation_assigned',
+                'assignee_id' => $assignee?->id,
+                'previous_assignee_id' => $event->previousAssignee?->id,
+            ])
+            ->event('conversation_assigned')
+            ->log('Conversation assignment updated');
 
         $this->log->info('HandleConversationAssigned dispatched side-effects', ['conversation_id' => $conversation->id]);
     }
