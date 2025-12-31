@@ -21,6 +21,10 @@ class UpdateMessageAction
 
         $message = $message->fresh();
 
+        if (! $message) {
+            throw new \RuntimeException('Message was not found after update.');
+        }
+
         event(new MessageUpdated($message));
 
         return $message;

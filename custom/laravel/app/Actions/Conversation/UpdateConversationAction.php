@@ -6,6 +6,7 @@ use App\Events\Conversation\ConversationStatusChanged;
 use App\Events\Conversation\ConversationUpdated;
 use App\Models\Conversation;
 use App\Repositories\Conversation\ConversationRepository;
+use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateConversationAction
@@ -77,7 +78,12 @@ class UpdateConversationAction
                 $previous = json_decode($previous, true);
             }
 
-            if ($previous != $current) {
+            if ($field === 'snoozed_until') {
+                $previous = $previous ? Carbon::parse($previous)->toIso8601String() : null;
+                $current = $current ? ($current instanceof Carbon ? $current->toIso8601String() : Carbon::parse($current)->toIso8601String()) : null;
+            }
+
+            if ($previous !== $current) {
                 $changes[$field] = [
                     'previous' => $previous,
                     'current' => $current,
