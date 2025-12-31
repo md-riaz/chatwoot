@@ -14,6 +14,7 @@ return new class extends Migration
         // Web Widget Channel
         Schema::create('channel_web_widgets', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('account_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('website_url');
             $table->string('website_token')->unique();
             $table->string('widget_color')->default('#1f93ff');
@@ -22,6 +23,11 @@ return new class extends Migration
             $table->boolean('feature_flags')->default(true);
             $table->json('pre_chat_form_options')->nullable();
             $table->boolean('pre_chat_form_enabled')->default(false);
+            $table->integer('reply_time')->default(0);
+            $table->string('hmac_token')->nullable()->unique();
+            $table->boolean('hmac_mandatory')->default(false);
+            $table->boolean('continuity_via_email')->default(true);
+            $table->text('allowed_domains')->nullable();
             $table->timestamps();
         });
 

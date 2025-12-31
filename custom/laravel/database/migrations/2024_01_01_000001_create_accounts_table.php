@@ -17,9 +17,12 @@ return new class extends Migration
             $table->string('locale')->default('en');
             $table->string('domain')->nullable();
             $table->string('support_email')->nullable();
+            $table->integer('auto_resolve_duration')->nullable();
             $table->json('settings')->nullable();
             $table->json('custom_attributes')->nullable();
+            $table->json('internal_attributes')->nullable();
             $table->json('features')->nullable();
+            $table->bigInteger('feature_flags')->default(0);
             $table->json('limits')->nullable();
             $table->integer('status')->default(1); // 1=active, 0=inactive
             $table->timestamps();

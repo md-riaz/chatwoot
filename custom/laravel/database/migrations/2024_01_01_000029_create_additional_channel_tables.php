@@ -45,9 +45,12 @@ return new class extends Migration
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
             $table->string('phone_number');
             $table->string('messaging_service_sid')->nullable();
+            $table->string('api_key_sid')->nullable();
             $table->string('account_sid');
             $table->string('auth_token');
             $table->string('medium')->default('sms'); // sms, whatsapp
+            $table->json('content_templates')->nullable();
+            $table->timestamp('content_templates_last_updated')->nullable();
             $table->timestamps();
 
             $table->index('phone_number');

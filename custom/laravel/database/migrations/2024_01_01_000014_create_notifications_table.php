@@ -20,6 +20,9 @@ return new class extends Migration
             $table->json('primary_actor')->nullable(); // Who triggered the notification
             $table->json('secondary_actor')->nullable();
             $table->timestamp('read_at')->nullable();
+            $table->timestamp('snoozed_until')->nullable();
+            $table->timestamp('last_activity_at')->default(now());
+            $table->json('meta')->nullable();
             $table->timestamps();
 
             $table->index(['account_id', 'user_id', 'read_at']);
