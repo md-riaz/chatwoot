@@ -57,6 +57,14 @@ class Account extends Model
     }
 
     /**
+     * Get the account user relationships.
+     */
+    public function accountUsers(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AccountUser::class);
+    }
+
+    /**
      * Get all inboxes for the account.
      */
     public function inboxes(): HasMany

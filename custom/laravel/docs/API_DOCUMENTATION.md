@@ -29,11 +29,11 @@ This document provides comprehensive documentation for all API endpoints in the 
 21. [Notifications](#21-notifications)
 22. [Channel Integrations](#22-channel-integrations)
 23. [Voice Channel (Twilio)](#23-voice-channel-twilio)
-23. [Third-Party Integrations](#23-third-party-integrations)
-24. [Widget API (Public)](#24-widget-api-public)
-25. [Platform API](#25-platform-api)
-26. [Public Inbox API](#26-public-inbox-api)
-27. [Super Admin API](#27-super-admin-api)
+24. [Third-Party Integrations](#24-third-party-integrations)
+25. [Widget API (Public)](#25-widget-api-public)
+26. [Platform API](#26-platform-api)
+27. [Public Inbox API](#27-public-inbox-api)
+28. [Super Admin API](#28-super-admin-api)
 
 ---
 
@@ -1020,6 +1020,268 @@ All API endpoints return consistent error responses:
 | 422 | Validation Error |
 | 429 | Rate Limited |
 | 500 | Server Error |
+
+---
+
+## 28. Super Admin API ⭐
+
+### Purpose
+Platform-level administration for super admins to manage the entire ClearLine system across all accounts.
+
+### Authentication
+Requires `super_admin` role and valid Sanctum token. All endpoints protected by `EnsureSuperAdmin` middleware.
+
+### Use Cases
+- System monitoring and health checks
+- Global user and account management
+- Platform configuration and settings
+- Cache management and optimization
+- Audit logging and compliance
+- Cross-account user administration
+
+### Dashboard & System
+
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/super_admin/dashboard` | System overview and metrics | Super Admin |
+| GET | `/api/v1/super_admin/instance_status` | System health and status | Super Admin |
+
+### Settings Management
+
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/super_admin/settings` | List all installation settings | Super Admin |
+| GET | `/api/v1/super_admin/settings/show` | Get settings grouped by category | Super Admin |
+| PATCH | `/api/v1/super_admin/settings` | Update multiple settings | Super Admin |
+| POST | `/api/v1/super_admin/settings` | Create new setting | Super Admin |
+| DELETE | `/api/v1/super_admin/settings/{name}` | Delete setting | Super Admin |
+| GET | `/api/v1/super_admin/settings/categories` | Get setting categories | Super Admin |
+| POST | `/api/v1/super_admin/settings/reset` | Reset settings to defaults | Super Admin |
+
+### Account Management
+
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/super_admin/accounts` | List all accounts | Super Admin |
+| POST | `/api/v1/super_admin/accounts` | Create account | Super Admin |
+| GET | `/api/v1/super_admin/accounts/{id}` | Get account details | Super Admin |
+| PATCH | `/api/v1/super_admin/accounts/{id}` | Update account | Super Admin |
+| DELETE | `/api/v1/super_admin/accounts/{id}` | Delete account | Super Admin |
+| POST | `/api/v1/super_admin/accounts/{id}/seed` | Seed account with demo data | Super Admin |
+| POST | `/api/v1/super_admin/accounts/{id}/reset_cache` | Clear account cache | Super Admin |
+
+### User Management
+
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/super_admin/users` | List all users | Super Admin |
+| POST | `/api/v1/super_admin/users` | Create user | Super Admin |
+| GET | `/api/v1/super_admin/users/{id}` | Get user details | Super Admin |
+| PATCH | `/api/v1/super_admin/users/{id}` | Update user | Super Admin |
+| DELETE | `/api/v1/super_admin/users/{id}` | Delete user | Super Admin |
+| DELETE | `/api/v1/super_admin/users/{id}/avatar` | Delete user avatar | Super Admin |
+
+### Account Users Management
+
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/super_admin/account_users` | List account-user relationships | Super Admin |
+| POST | `/api/v1/super_admin/account_users` | Create account-user relationship | Super Admin |
+| GET | `/api/v1/super_admin/account_users/{id}` | Get relationship details | Super Admin |
+| PATCH | `/api/v1/super_admin/account_users/{id}` | Update relationship | Super Admin |
+| DELETE | `/api/v1/super_admin/account_users/{id}` | Remove user from account | Super Admin |
+| POST | `/api/v1/super_admin/account_users/bulk` | Bulk create relationships | Super Admin |
+| GET | `/api/v1/super_admin/account_users/stats` | Get relationship statistics | Super Admin |
+
+### Agent Bots Management
+
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/super_admin/agent_bots` | List all agent bots | Super Admin |
+| POST | `/api/v1/super_admin/agent_bots` | Create agent bot | Super Admin |
+| GET | `/api/v1/super_admin/agent_bots/{id}` | Get agent bot details | Super Admin |
+| PATCH | `/api/v1/super_admin/agent_bots/{id}` | Update agent bot | Super Admin |
+| DELETE | `/api/v1/super_admin/agent_bots/{id}` | Delete agent bot | Super Admin |
+| DELETE | `/api/v1/super_admin/agent_bots/{id}/avatar` | Delete agent bot avatar | Super Admin |
+
+### Platform Apps Management
+
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/super_admin/platform_apps` | List platform apps | Super Admin |
+| POST | `/api/v1/super_admin/platform_apps` | Create platform app | Super Admin |
+| GET | `/api/v1/super_admin/platform_apps/{id}` | Get platform app details | Super Admin |
+| PATCH | `/api/v1/super_admin/platform_apps/{id}` | Update platform app | Super Admin |
+| DELETE | `/api/v1/super_admin/platform_apps/{id}` | Delete platform app | Super Admin |
+| POST | `/api/v1/super_admin/platform_apps/{id}/regenerate_token` | Regenerate app token | Super Admin |
+
+### Installation Configs
+
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/super_admin/installation_configs` | List installation configs | Super Admin |
+| POST | `/api/v1/super_admin/installation_configs` | Create config | Super Admin |
+| GET | `/api/v1/super_admin/installation_configs/groups` | List config groups | Super Admin |
+| GET | `/api/v1/super_admin/installation_configs/group/{group}` | Get configs by group | Super Admin |
+| GET | `/api/v1/super_admin/installation_configs/{id}` | Get config details | Super Admin |
+| PATCH | `/api/v1/super_admin/installation_configs/{id}` | Update config | Super Admin |
+| DELETE | `/api/v1/super_admin/installation_configs/{id}` | Delete config | Super Admin |
+
+### Access Tokens Management
+
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/super_admin/access_tokens` | List access tokens | Super Admin |
+| POST | `/api/v1/super_admin/access_tokens` | Create access token | Super Admin |
+| GET | `/api/v1/super_admin/access_tokens/{id}` | Get token details | Super Admin |
+| DELETE | `/api/v1/super_admin/access_tokens/{id}` | Delete access token | Super Admin |
+| DELETE | `/api/v1/super_admin/users/{id}/access_tokens` | Revoke all user tokens | Super Admin |
+
+### Cache Management
+
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/super_admin/cache` | Get cache information | Super Admin |
+| POST | `/api/v1/super_admin/cache/clear` | Clear all cache | Super Admin |
+| POST | `/api/v1/super_admin/cache/clear/{type}` | Clear cache by type | Super Admin |
+| POST | `/api/v1/super_admin/cache/clear_pattern` | Clear cache by pattern | Super Admin |
+| POST | `/api/v1/super_admin/cache/clear_account/{id}` | Clear account-specific cache | Super Admin |
+| POST | `/api/v1/super_admin/cache/warmup` | Warm up cache | Super Admin |
+
+### Audit Logs
+
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/super_admin/audit_logs` | List audit logs | Super Admin |
+| GET | `/api/v1/super_admin/audit_logs/{id}` | Get audit log details | Super Admin |
+| GET | `/api/v1/super_admin/audit_logs/stats` | Get audit statistics | Super Admin |
+| POST | `/api/v1/super_admin/audit_logs/export` | Export audit logs | Super Admin |
+| POST | `/api/v1/super_admin/audit_logs/cleanup` | Cleanup old audit logs | Super Admin |
+
+### Example Requests
+
+#### Get Dashboard Metrics
+```bash
+curl -X GET /api/v1/super_admin/dashboard \
+  -H "Authorization: Bearer {super_admin_token}"
+```
+
+#### Update Global Settings
+```bash
+curl -X PATCH /api/v1/super_admin/settings \
+  -H "Authorization: Bearer {super_admin_token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "settings": {
+      "app_name": "My ClearLine Instance",
+      "mail_from_address": "noreply@example.com"
+    }
+  }'
+```
+
+#### Create Account User Relationship
+```bash
+curl -X POST /api/v1/super_admin/account_users \
+  -H "Authorization: Bearer {super_admin_token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": 123,
+    "account_id": 456,
+    "role": "admin"
+  }'
+```
+
+#### Clear Cache by Type
+```bash
+curl -X POST /api/v1/super_admin/cache/clear/application \
+  -H "Authorization: Bearer {super_admin_token}"
+```
+
+### Response Examples
+
+#### Dashboard Response
+```json
+{
+  "data": {
+    "accounts_count": 150,
+    "users_count": 1250,
+    "conversations_count": 45000,
+    "messages_count": 180000,
+    "active_accounts": 120,
+    "recent_signups": 25,
+    "account_status": {
+      "active": 140,
+      "suspended": 10
+    },
+    "user_roles": {
+      "agent": 800,
+      "admin": 400,
+      "super_admin": 5
+    },
+    "growth": {
+      "accounts": {
+        "current": 15,
+        "previous": 12,
+        "growth_rate": 25.0
+      }
+    },
+    "system_health": {
+      "database": {
+        "status": "healthy",
+        "message": "Database connection successful"
+      },
+      "redis": {
+        "status": "healthy",
+        "message": "Redis connection successful"
+      }
+    }
+  }
+}
+```
+
+#### Account Users Response
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "user_id": 123,
+      "account_id": 456,
+      "role": 2,
+      "role_name": "admin",
+      "availability": 1,
+      "availability_name": "online",
+      "created_at": "2025-01-01T00:00:00Z",
+      "user": {
+        "id": 123,
+        "name": "John Doe",
+        "email": "john@example.com"
+      },
+      "account": {
+        "id": 456,
+        "name": "Acme Corp",
+        "domain": "acme.example.com"
+      }
+    }
+  ],
+  "links": {...},
+  "meta": {...}
+}
+```
+
+### Permission Setup
+- **All endpoints**: User must have `super_admin` role
+- **Middleware**: `EnsureSuperAdmin` middleware enforces access control
+- **Authentication**: Valid Laravel Sanctum token required
+
+### Features
+- **100% Rails Parity**: Complete feature compatibility with Rails super admin
+- **Advanced Filtering**: Search and filter across all resources
+- **Bulk Operations**: Efficient bulk create/update operations
+- **Caching**: Intelligent caching with pattern-based clearing
+- **Audit Trail**: Comprehensive logging of all super admin actions
+- **Performance Optimized**: Chunked operations for large datasets
+- **Type Safety**: Spatie Data objects for request/response validation
 
 ---
 

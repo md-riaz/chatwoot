@@ -685,8 +685,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Super Admin routes
     Route::prefix('super_admin')->middleware(EnsureSuperAdmin::class)->group(function () {
+        // Dashboard
+        Route::get('dashboard', [\App\Http\Controllers\Api\V1\SuperAdmin\DashboardController::class, 'index']);
+
         // Instance Status
         Route::get('instance_status', [InstanceStatusController::class, 'show']);
+
+        // Settings
+        Route::get('settings', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'index']);
+        Route::get('settings/show', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'show']);
+        Route::patch('settings', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'update']);
+        Route::post('settings', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'store']);
+        Route::delete('settings/{name}', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'destroy']);
+        Route::get('settings/categories', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'categories']);
+        Route::post('settings/reset', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'reset']);
 
         // Accounts
         Route::apiResource('accounts', SuperAdminAccountsController::class);
@@ -696,6 +708,11 @@ Route::middleware('auth:sanctum')->group(function () {
         // Users
         Route::apiResource('users', SuperAdminUsersController::class);
         Route::delete('users/{user}/avatar', [SuperAdminUsersController::class, 'destroyAvatar']);
+
+        // Account Users (Cross-account user management)
+        Route::apiResource('account_users', \App\Http\Controllers\Api\V1\SuperAdmin\AccountUsersController::class);
+        Route::post('account_users/bulk', [\App\Http\Controllers\Api\V1\SuperAdmin\AccountUsersController::class, 'bulkStore']);
+        Route::get('account_users/stats', [\App\Http\Controllers\Api\V1\SuperAdmin\AccountUsersController::class, 'stats']);
 
         // Agent Bots (Global)
         Route::apiResource('agent_bots', SuperAdminAgentBotsController::class);
@@ -720,5 +737,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('access_tokens/{accessToken}', [SuperAdminAccessTokensController::class, 'show']);
         Route::delete('access_tokens/{accessToken}', [SuperAdminAccessTokensController::class, 'destroy']);
         Route::delete('users/{user}/access_tokens', [SuperAdminAccessTokensController::class, 'revokeAllForUser']);
+
+        // Cache Management
+        Route::get('cache', [\App\Http\Controllers\Api\V1\SuperAdmin\CacheController::class, 'index']);
+        Route::post('cache/clear', [\App\Http\Controllers\Api\V1\SuperAdmin\CacheController::class, 'clearAll']);
+        Route::post('cache/clear/{type}', [\App\Http\Controllers\Api\V1\SuperAdmin\CacheController::class, 'clearByType']);
+        Route::post('cache/clear_pattern', [\App\Http\Controllers\Api\V1\SuperAdmin\CacheController::class, 'clearByPattern']);
+        Route::post('cache/clear_account/{accountId}', [\App\Http\Controllers\Api\V1\SuperAdmin\CacheController::class, 'clearAccount']);
+        Route::post('cache/warmup', [\App\Http\Controllers\Api\V1\SuperAdmin\CacheController::class, 'warmup']);
+
+        // Audit Logs
+        Route::get('audit_logs', [\App\Http\Controllers\Api\V1\SuperAdmin\AuditController::class, 'index']);
+        Route::get('audit_logs/{audit}', [\App\Http\Controllers\Api\V1\SuperAdmin\AuditController::class, 'show']);
+        Route::get('audit_logs/stats', [\App\Http\Controllers\Api\V1\SuperAdmin\AuditController::class, 'stats']);
+        Route::post('audit_logs/export', [\App\Http\Controllers\Api\V1\SuperAdmin\AuditController::class, 'export']);
+        Route::post('audit_logs/cleanup', [\App\Http\Controllers\Api\V1\SuperAdmin\AuditController::class, 'cleanup']);
     });
 });

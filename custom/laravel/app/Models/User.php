@@ -67,6 +67,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the account user relationships.
+     */
+    public function accountUsers(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AccountUser::class);
+    }
+
+    /**
+     * Get conversations for this user.
+     */
+    public function conversations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Conversation::class, 'assignee_id');
+    }
+
+    /**
+     * Get messages sent by this user.
+     */
+    public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
      * Scope a query to only include online users.
      */
     public function scopeOnline($query)

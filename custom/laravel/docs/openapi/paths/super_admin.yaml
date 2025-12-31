@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   title: Super Admin API
-  description: API for Super Admin operations
-  version: 1.0.0
+  description: API for Super Admin operations with 100% Rails parity
+  version: 2.0.0
 servers:
   - url: 'https://api.example.com/v1'
 paths:
@@ -50,10 +50,239 @@ paths:
         '422':
           description: Validation error
 
+  # Dashboard & System
+  /super_admin/dashboard:
+    get:
+      tags:
+        - Super Admin Dashboard
+      summary: Get system dashboard metrics
+      description: Get comprehensive system overview including counts, growth metrics, and system health
+      operationId: getSuperAdminDashboard
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      accounts_count:
+                        type: integer
+                      users_count:
+                        type: integer
+                      conversations_count:
+                        type: integer
+                      messages_count:
+                        type: integer
+                      active_accounts:
+                        type: integer
+                      recent_signups:
+                        type: integer
+                      account_status:
+                        type: object
+                      user_roles:
+                        type: object
+                      growth:
+                        type: object
+                      system_health:
+                        type: object
+                      recent_activity:
+                        type: object
+
+  /super_admin/instance_status:
+    get:
+      tags:
+        - Super Admin Dashboard
+      summary: Get instance status
+      description: Get system status including version, database, redis, queue status
+      operationId: getSuperAdminInstanceStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Instance status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      clearline_version:
+                        type: string
+                      laravel_version:
+                        type: string
+                      php_version:
+                        type: string
+                      edition:
+                        type: string
+                      database:
+                        type: object
+                      redis:
+                        type: object
+                      queue:
+                        type: object
+                      migrations:
+                        type: object
+                      system:
+                        type: object
+
+  # Settings Management
+  /super_admin/settings:
+    get:
+      tags:
+        - Super Admin Settings
+      summary: List all installation settings
+      operationId: listSuperAdminSettings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of settings
+    patch:
+      tags:
+        - Super Admin Settings
+      summary: Update multiple settings
+      operationId: updateSuperAdminSettings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - settings
+              properties:
+                settings:
+                  type: object
+                  additionalProperties: true
+                force:
+                  type: boolean
+      responses:
+        '200':
+          description: Settings updated
+        '207':
+          description: Partial success with errors
+    post:
+      tags:
+        - Super Admin Settings
+      summary: Create new setting
+      operationId: createSuperAdminSetting
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - value
+              properties:
+                name:
+                  type: string
+                value:
+                  oneOf:
+                    - type: string
+                    - type: number
+                    - type: boolean
+                    - type: object
+                locked:
+                  type: boolean
+      responses:
+        '201':
+          description: Setting created
+
+  /super_admin/settings/show:
+    get:
+      tags:
+        - Super Admin Settings
+      summary: Get settings grouped by category
+      operationId: showSuperAdminSettingsGrouped
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Settings grouped by category
+
+  /super_admin/settings/{name}:
+    delete:
+      tags:
+        - Super Admin Settings
+      summary: Delete setting
+      operationId: deleteSuperAdminSetting
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: force
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Setting deleted
+        '403':
+          description: Setting is locked
+
+  /super_admin/settings/categories:
+    get:
+      tags:
+        - Super Admin Settings
+      summary: Get setting categories
+      operationId: getSuperAdminSettingCategories
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of setting categories
+
+  /super_admin/settings/reset:
+    post:
+      tags:
+        - Super Admin Settings
+      summary: Reset settings to defaults
+      operationId: resetSuperAdminSettings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - confirm
+              properties:
+                settings:
+                  type: array
+                  items:
+                    type: string
+                confirm:
+                  type: boolean
+                  enum: [true]
+      responses:
+        '200':
+          description: Settings reset
+
+  # Account Management
   /super_admin/accounts:
     get:
       tags:
-        - Super Admin
+        - Super Admin Accounts
       summary: List all accounts
       description: Get a paginated list of all accounts in the system (super admin only)
       operationId: listSuperAdminAccounts
@@ -69,7 +298,16 @@ paths:
           in: query
           schema:
             type: integer
-            default: 15
+            default: 25
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: integer
+            enum: [0, 1]
       responses:
         '200':
           description: List of accounts
@@ -79,7 +317,7 @@ paths:
           description: Forbidden - Super admin access required
     post:
       tags:
-        - Super Admin
+        - Super Admin Accounts
       summary: Create account
       description: Create a new account (super admin only)
       operationId: createSuperAdminAccount
@@ -99,6 +337,17 @@ paths:
                 locale:
                   type: string
                   default: en
+                domain:
+                  type: string
+                support_email:
+                  type: string
+                  format: email
+                settings:
+                  type: object
+                features:
+                  type: object
+                limits:
+                  type: object
       responses:
         '201':
           description: Account created
@@ -108,7 +357,7 @@ paths:
   /super_admin/accounts/{account}:
     get:
       tags:
-        - Super Admin
+        - Super Admin Accounts
       summary: Get account details
       operationId: getSuperAdminAccount
       security:
@@ -124,7 +373,7 @@ paths:
           description: Account details
     patch:
       tags:
-        - Super Admin
+        - Super Admin Accounts
       summary: Update account
       operationId: updateSuperAdminAccount
       security:
@@ -145,16 +394,28 @@ paths:
                   type: string
                 locale:
                   type: string
+                domain:
+                  type: string
+                support_email:
+                  type: string
+                  format: email
+                settings:
+                  type: object
                 features:
                   type: object
                 limits:
+                  type: object
+                status:
+                  type: integer
+                  enum: [0, 1]
+                enabled_features:
                   type: object
       responses:
         '200':
           description: Account updated
     delete:
       tags:
-        - Super Admin
+        - Super Admin Accounts
       summary: Delete account
       operationId: deleteSuperAdminAccount
       security:
@@ -166,13 +427,13 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
-          description: Account deleted
+        '200':
+          description: Account deletion in progress
 
   /super_admin/accounts/{account}/seed:
     post:
       tags:
-        - Super Admin
+        - Super Admin Accounts
       summary: Seed account with demo data
       operationId: seedSuperAdminAccount
       security:
@@ -185,12 +446,12 @@ paths:
             type: integer
       responses:
         '200':
-          description: Account seeded with demo data
+          description: Account seeding triggered
 
   /super_admin/accounts/{account}/reset_cache:
     post:
       tags:
-        - Super Admin
+        - Super Admin Accounts
       summary: Reset account cache
       operationId: resetSuperAdminAccountCache
       security:
@@ -203,12 +464,13 @@ paths:
             type: integer
       responses:
         '200':
-          description: Cache reset
+          description: Cache keys cleared
 
+  # User Management
   /super_admin/users:
     get:
       tags:
-        - Super Admin
+        - Super Admin Users
       summary: List all users
       operationId: listSuperAdminUsers
       security:
@@ -222,12 +484,20 @@ paths:
           in: query
           schema:
             type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: role
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: List of users
     post:
       tags:
-        - Super Admin
+        - Super Admin Users
       summary: Create user
       operationId: createSuperAdminUser
       security:
@@ -250,6 +520,14 @@ paths:
                   format: email
                 password:
                   type: string
+                  minLength: 8
+                display_name:
+                  type: string
+                phone_number:
+                  type: string
+                role:
+                  type: string
+                  enum: [agent, admin, super_admin]
       responses:
         '201':
           description: User created
@@ -257,7 +535,7 @@ paths:
   /super_admin/users/{user}:
     get:
       tags:
-        - Super Admin
+        - Super Admin Users
       summary: Get user details
       operationId: getSuperAdminUser
       security:
@@ -273,7 +551,7 @@ paths:
           description: User details
     patch:
       tags:
-        - Super Admin
+        - Super Admin Users
       summary: Update user
       operationId: updateSuperAdminUser
       security:
@@ -294,14 +572,26 @@ paths:
                   type: string
                 email:
                   type: string
+                  format: email
                 password:
                   type: string
+                  minLength: 8
+                display_name:
+                  type: string
+                phone_number:
+                  type: string
+                availability:
+                  type: integer
+                  enum: [0, 1]
+                confirmed_at:
+                  type: string
+                  format: date-time
       responses:
         '200':
           description: User updated
     delete:
       tags:
-        - Super Admin
+        - Super Admin Users
       summary: Delete user
       operationId: deleteSuperAdminUser
       security:
@@ -319,7 +609,7 @@ paths:
   /super_admin/users/{user}/avatar:
     delete:
       tags:
-        - Super Admin
+        - Super Admin Users
       summary: Delete user avatar
       operationId: deleteSuperAdminUserAvatar
       security:
@@ -331,13 +621,221 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
+        '200':
           description: Avatar deleted
 
+  # Account Users Management
+  /super_admin/account_users:
+    get:
+      tags:
+        - Super Admin Account Users
+      summary: List account-user relationships
+      operationId: listSuperAdminAccountUsers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+        - name: account_id
+          in: query
+          schema:
+            type: integer
+        - name: user_id
+          in: query
+          schema:
+            type: integer
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [agent, admin]
+        - name: availability
+          in: query
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: account_search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of account-user relationships
+    post:
+      tags:
+        - Super Admin Account Users
+      summary: Create account-user relationship
+      operationId: createSuperAdminAccountUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - account_id
+                - role
+              properties:
+                user_id:
+                  type: integer
+                account_id:
+                  type: integer
+                role:
+                  type: string
+                  enum: [agent, admin, "1", "2"]
+                availability:
+                  type: integer
+                  enum: [0, 1]
+                settings:
+                  type: object
+      responses:
+        '201':
+          description: Account-user relationship created
+        '409':
+          description: User already associated with account
+
+  /super_admin/account_users/{accountUser}:
+    get:
+      tags:
+        - Super Admin Account Users
+      summary: Get account-user relationship details
+      operationId: getSuperAdminAccountUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: accountUser
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Account-user relationship details
+    patch:
+      tags:
+        - Super Admin Account Users
+      summary: Update account-user relationship
+      operationId: updateSuperAdminAccountUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: accountUser
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [agent, admin, "1", "2"]
+                availability:
+                  type: integer
+                  enum: [0, 1]
+                active_at:
+                  type: boolean
+                settings:
+                  type: object
+      responses:
+        '200':
+          description: Account-user relationship updated
+    delete:
+      tags:
+        - Super Admin Account Users
+      summary: Remove user from account
+      operationId: deleteSuperAdminAccountUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: accountUser
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User removed from account
+        '422':
+          description: Cannot remove last admin
+
+  /super_admin/account_users/bulk:
+    post:
+      tags:
+        - Super Admin Account Users
+      summary: Bulk create account-user relationships
+      operationId: bulkCreateSuperAdminAccountUsers
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - account_users
+              properties:
+                account_users:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - user_id
+                      - account_id
+                      - role
+                    properties:
+                      user_id:
+                        type: integer
+                      account_id:
+                        type: integer
+                      role:
+                        type: string
+                        enum: [agent, admin, "1", "2"]
+                      availability:
+                        type: integer
+                        enum: [0, 1]
+                      settings:
+                        type: object
+      responses:
+        '201':
+          description: Bulk creation completed
+        '207':
+          description: Partial success with errors
+
+  /super_admin/account_users/stats:
+    get:
+      tags:
+        - Super Admin Account Users
+      summary: Get account-user statistics
+      operationId: getSuperAdminAccountUserStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Account-user statistics
+
+  # Agent Bots Management
   /super_admin/agent_bots:
     get:
       tags:
-        - Super Admin
+        - Super Admin Agent Bots
       summary: List all agent bots
       operationId: listSuperAdminAgentBots
       security:
@@ -347,7 +845,7 @@ paths:
           description: List of agent bots
     post:
       tags:
-        - Super Admin
+        - Super Admin Agent Bots
       summary: Create agent bot
       operationId: createSuperAdminAgentBot
       security:
@@ -375,7 +873,7 @@ paths:
   /super_admin/agent_bots/{agentBot}:
     get:
       tags:
-        - Super Admin
+        - Super Admin Agent Bots
       summary: Get agent bot details
       operationId: getSuperAdminAgentBot
       security:
@@ -391,7 +889,7 @@ paths:
           description: Agent bot details
     patch:
       tags:
-        - Super Admin
+        - Super Admin Agent Bots
       summary: Update agent bot
       operationId: updateSuperAdminAgentBot
       security:
@@ -407,7 +905,7 @@ paths:
           description: Agent bot updated
     delete:
       tags:
-        - Super Admin
+        - Super Admin Agent Bots
       summary: Delete agent bot
       operationId: deleteSuperAdminAgentBot
       security:
@@ -422,10 +920,29 @@ paths:
         '204':
           description: Agent bot deleted
 
+  /super_admin/agent_bots/{agentBot}/avatar:
+    delete:
+      tags:
+        - Super Admin Agent Bots
+      summary: Delete agent bot avatar
+      operationId: deleteSuperAdminAgentBotAvatar
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: agentBot
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Avatar deleted
+
+  # Platform Apps Management
   /super_admin/platform_apps:
     get:
       tags:
-        - Super Admin
+        - Super Admin Platform Apps
       summary: List platform apps
       operationId: listSuperAdminPlatformApps
       security:
@@ -435,7 +952,7 @@ paths:
           description: List of platform apps
     post:
       tags:
-        - Super Admin
+        - Super Admin Platform Apps
       summary: Create platform app
       operationId: createSuperAdminPlatformApp
       security:
@@ -458,7 +975,7 @@ paths:
   /super_admin/platform_apps/{platformApp}:
     get:
       tags:
-        - Super Admin
+        - Super Admin Platform Apps
       summary: Get platform app
       operationId: getSuperAdminPlatformApp
       security:
@@ -474,7 +991,7 @@ paths:
           description: Platform app details
     patch:
       tags:
-        - Super Admin
+        - Super Admin Platform Apps
       summary: Update platform app
       operationId: updateSuperAdminPlatformApp
       security:
@@ -490,7 +1007,7 @@ paths:
           description: Platform app updated
     delete:
       tags:
-        - Super Admin
+        - Super Admin Platform Apps
       summary: Delete platform app
       operationId: deleteSuperAdminPlatformApp
       security:
@@ -508,7 +1025,7 @@ paths:
   /super_admin/platform_apps/{platformApp}/regenerate_token:
     post:
       tags:
-        - Super Admin
+        - Super Admin Platform Apps
       summary: Regenerate platform app token
       operationId: regenerateSuperAdminPlatformAppToken
       security:
@@ -523,36 +1040,11 @@ paths:
         '200':
           description: Token regenerated
 
-  /super_admin/instance_status:
-    get:
-      tags:
-        - Super Admin
-      summary: Get instance status
-      description: Get system status including version, database, redis, queue status
-      operationId: getSuperAdminInstanceStatus
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Instance status
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  version:
-                    type: string
-                  database:
-                    type: object
-                  redis:
-                    type: object
-                  queue:
-                    type: object
-
+  # Installation Configs
   /super_admin/installation_configs:
     get:
       tags:
-        - Super Admin
+        - Super Admin Installation Configs
       summary: List installation configs
       operationId: listSuperAdminInstallationConfigs
       security:
@@ -562,9 +1054,9 @@ paths:
           description: List of installation configs
     post:
       tags:
-        - Super Admin
-      summary: Update installation config
-      operationId: updateSuperAdminInstallationConfig
+        - Super Admin Installation Configs
+      summary: Create installation config
+      operationId: createSuperAdminInstallationConfig
       security:
         - bearerAuth: []
       requestBody:
@@ -573,19 +1065,24 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - name
+                - serialized_value
               properties:
-                key:
+                name:
                   type: string
-                value:
+                serialized_value:
                   type: string
+                locked:
+                  type: boolean
       responses:
-        '200':
-          description: Config updated
+        '201':
+          description: Config created
 
   /super_admin/installation_configs/groups:
     get:
       tags:
-        - Super Admin
+        - Super Admin Installation Configs
       summary: List config groups
       operationId: listSuperAdminConfigGroups
       security:
@@ -597,7 +1094,7 @@ paths:
   /super_admin/installation_configs/group/{group}:
     get:
       tags:
-        - Super Admin
+        - Super Admin Installation Configs
       summary: Get configs by group
       operationId: getSuperAdminConfigsByGroup
       security:
@@ -612,10 +1109,71 @@ paths:
         '200':
           description: Configs for group
 
+  /super_admin/installation_configs/{installationConfig}:
+    get:
+      tags:
+        - Super Admin Installation Configs
+      summary: Get installation config
+      operationId: getSuperAdminInstallationConfig
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: installationConfig
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Installation config details
+    patch:
+      tags:
+        - Super Admin Installation Configs
+      summary: Update installation config
+      operationId: updateSuperAdminInstallationConfig
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: installationConfig
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serialized_value:
+                  type: string
+                locked:
+                  type: boolean
+      responses:
+        '200':
+          description: Config updated
+    delete:
+      tags:
+        - Super Admin Installation Configs
+      summary: Delete installation config
+      operationId: deleteSuperAdminInstallationConfig
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: installationConfig
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Config deleted
+
+  # Access Tokens Management
   /super_admin/access_tokens:
     get:
       tags:
-        - Super Admin
+        - Super Admin Access Tokens
       summary: List access tokens
       operationId: listSuperAdminAccessTokens
       security:
@@ -625,7 +1183,7 @@ paths:
           description: List of access tokens
     post:
       tags:
-        - Super Admin
+        - Super Admin Access Tokens
       summary: Create access token
       operationId: createSuperAdminAccessToken
       security:
@@ -652,7 +1210,7 @@ paths:
   /super_admin/access_tokens/{accessToken}:
     get:
       tags:
-        - Super Admin
+        - Super Admin Access Tokens
       summary: Get access token
       operationId: getSuperAdminAccessToken
       security:
@@ -668,7 +1226,7 @@ paths:
           description: Access token details
     delete:
       tags:
-        - Super Admin
+        - Super Admin Access Tokens
       summary: Revoke access token
       operationId: revokeSuperAdminAccessToken
       security:
@@ -682,3 +1240,283 @@ paths:
       responses:
         '204':
           description: Access token revoked
+
+  /super_admin/users/{user}/access_tokens:
+    delete:
+      tags:
+        - Super Admin Access Tokens
+      summary: Revoke all user access tokens
+      operationId: revokeAllSuperAdminUserAccessTokens
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: All user tokens revoked
+
+  # Cache Management
+  /super_admin/cache:
+    get:
+      tags:
+        - Super Admin Cache
+      summary: Get cache information
+      operationId: getSuperAdminCacheInfo
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cache information
+
+  /super_admin/cache/clear:
+    post:
+      tags:
+        - Super Admin Cache
+      summary: Clear all cache
+      operationId: clearAllSuperAdminCache
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All cache cleared
+
+  /super_admin/cache/clear/{type}:
+    post:
+      tags:
+        - Super Admin Cache
+      summary: Clear cache by type
+      operationId: clearSuperAdminCacheByType
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [application, app, config, route, routes, view, views, compiled, redis, tags]
+        - name: tag
+          in: query
+          schema:
+            type: string
+          description: Required when type is 'tags'
+      responses:
+        '200':
+          description: Cache cleared by type
+        '422':
+          description: Invalid cache type or missing tag
+
+  /super_admin/cache/clear_pattern:
+    post:
+      tags:
+        - Super Admin Cache
+      summary: Clear cache by pattern
+      operationId: clearSuperAdminCacheByPattern
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - pattern
+              properties:
+                pattern:
+                  type: string
+                store:
+                  type: string
+      responses:
+        '200':
+          description: Cache cleared by pattern
+        '422':
+          description: Pattern-based clearing only supported for Redis
+
+  /super_admin/cache/clear_account/{accountId}:
+    post:
+      tags:
+        - Super Admin Cache
+      summary: Clear account-specific cache
+      operationId: clearSuperAdminAccountCache
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Account cache cleared
+
+  /super_admin/cache/warmup:
+    post:
+      tags:
+        - Super Admin Cache
+      summary: Warm up cache
+      operationId: warmupSuperAdminCache
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cache warmed up
+
+  # Audit Logs
+  /super_admin/audit_logs:
+    get:
+      tags:
+        - Super Admin Audit Logs
+      summary: List audit logs
+      operationId: listSuperAdminAuditLogs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+        - name: user_id
+          in: query
+          schema:
+            type: integer
+        - name: event
+          in: query
+          schema:
+            type: string
+        - name: auditable_type
+          in: query
+          schema:
+            type: string
+        - name: auditable_id
+          in: query
+          schema:
+            type: integer
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: ip_address
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of audit logs
+
+  /super_admin/audit_logs/{audit}:
+    get:
+      tags:
+        - Super Admin Audit Logs
+      summary: Get audit log details
+      operationId: getSuperAdminAuditLog
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: audit
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Audit log details
+
+  /super_admin/audit_logs/stats:
+    get:
+      tags:
+        - Super Admin Audit Logs
+      summary: Get audit statistics
+      operationId: getSuperAdminAuditStats
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Audit statistics
+
+  /super_admin/audit_logs/export:
+    post:
+      tags:
+        - Super Admin Audit Logs
+      summary: Export audit logs
+      operationId: exportSuperAdminAuditLogs
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                format:
+                  type: string
+                  enum: [csv, json]
+                from_date:
+                  type: string
+                  format: date
+                to_date:
+                  type: string
+                  format: date
+                filters:
+                  type: object
+      responses:
+        '200':
+          description: Export queued
+
+  /super_admin/audit_logs/cleanup:
+    post:
+      tags:
+        - Super Admin Audit Logs
+      summary: Cleanup old audit logs
+      operationId: cleanupSuperAdminAuditLogs
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - older_than_days
+                - confirm
+              properties:
+                older_than_days:
+                  type: integer
+                  minimum: 1
+                confirm:
+                  type: boolean
+                  enum: [true]
+      responses:
+        '200':
+          description: Audit logs cleaned up
