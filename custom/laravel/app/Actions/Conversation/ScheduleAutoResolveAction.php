@@ -11,14 +11,19 @@ class ScheduleAutoResolveAction
 {
     use AsAction;
 
-    public function handle(Conversation $conversation, int $autoResolveAfterHours = 48): void
+    public function handle(Conversation $conversation): void
     {
         if ($conversation->status !== Conversation::STATUS_OPEN) {
             return;
         }
 
+        $autoResolveMinutes = $conversation->account?->autoResolveAfterMinutes();
+        if (! $autoResolveMinutes) {
+            return;
+        }
+
         $lastActivity = $conversation->last_activity_at ?: now();
-        $deadline = Carbon::parse($lastActivity)->addHours($autoResolveAfterHours);
+        $deadline = Carbon::parse($lastActivity)->addMinutes($autoResolveMinutes);
         $delay = $deadline->isFuture() ? $deadline : now();
 
         AutoResolveConversationJob::dispatch($conversation->id)

@@ -17,7 +17,7 @@ class NotificationSubscription extends Model
     ];
 
     protected $casts = [
-        'subscription_type' => 'integer',
+        'subscription_type' => 'string',
         'subscription_attributes' => 'array',
     ];
 }

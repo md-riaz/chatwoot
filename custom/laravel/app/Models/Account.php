@@ -252,4 +252,16 @@ class Account extends Model
             'consumed' => $consumed,
         ];
     }
+
+    public function autoResolveAfterMinutes(): ?int
+    {
+        $value = data_get($this->settings, 'auto_resolve_after');
+
+        return $value !== null ? (int) $value : null;
+    }
+
+    public function autoResolveIgnoreWaiting(): bool
+    {
+        return (bool) data_get($this->settings, 'auto_resolve_ignore_waiting', false);
+    }
 }

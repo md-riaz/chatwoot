@@ -33,29 +33,45 @@ class AutoResolveConversationJob implements ShouldQueue
     {
         $conversation = $repository->find($this->conversationId);
 
-        if ($conversation && $conversation->status === Conversation::STATUS_OPEN) {
-            $lastActivity = $conversation->last_activity_at ?? $conversation->updated_at ?? $conversation->created_at ?? now();
-            $inactiveHours = now()->diffInHours($lastActivity);
-
-            if ($inactiveHours >= 48) {
-                $previousStatus = $conversation->status;
-
-                $repository->update($conversation->id, [
-                    'status' => Conversation::STATUS_RESOLVED,
-                ]);
-
-                event(new ConversationStatusChanged(
-                    $conversation->fresh(),
-                    $previousStatus,
-                    Conversation::STATUS_RESOLVED
-                ));
-
-                Log::info('Auto-resolved conversation', [
-                    'conversation_id' => $this->conversationId,
-                    'inactive_hours' => $inactiveHours,
-                ]);
-            }
+        if (! $conversation || $conversation->status !== Conversation::STATUS_OPEN) {
+            return;
         }
+
+        $account = $conversation->account;
+        $autoResolveMinutes = $account?->autoResolveAfterMinutes();
+
+        if (! $autoResolveMinutes) {
+            return;
+        }
+
+        if ($account->autoResolveIgnoreWaiting() && $conversation->waiting_since) {
+            return;
+        }
+
+        $lastActivity = $conversation->last_activity_at ?? $conversation->updated_at ?? $conversation->created_at ?? now();
+        $inactiveMinutes = now()->diffInMinutes($lastActivity);
+
+        if ($inactiveMinutes < $autoResolveMinutes) {
+            return;
+        }
+
+        $previousStatus = $conversation->status;
+
+        $repository->update($conversation->id, [
+            'status' => Conversation::STATUS_RESOLVED,
+        ]);
+
+        event(new ConversationStatusChanged(
+            $conversation->fresh(),
+            $previousStatus,
+            Conversation::STATUS_RESOLVED
+        ));
+
+        Log::info('Auto-resolved conversation', [
+            'conversation_id' => $this->conversationId,
+            'inactive_minutes' => $inactiveMinutes,
+            'threshold_minutes' => $autoResolveMinutes,
+        ]);
     }
 
     public function failed(Throwable $exception): void
