@@ -1,0 +1,165 @@
+/accounts/{account_id}/portals/{portal_id}/archive:
+  patch:
+    tags:
+      - Portals
+    summary: Archive a portal
+    description: Archives the specified portal
+    operationId: archivePortal
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: portal_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Portal archived
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Portal archived"
+
+/accounts/{account_id}/portals/{portal_id}/logo:
+  delete:
+    tags:
+      - Portals
+    summary: Delete portal logo
+    description: Deletes the logo for the specified portal
+    operationId: deletePortalLogo
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: portal_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Logo deleted
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Logo deleted"
+
+/accounts/{account_id}/portals/{portal_id}/send_instructions:
+  post:
+    tags:
+      - Portals
+    summary: Send portal instructions
+    description: Sends instructions for the specified portal
+    operationId: sendPortalInstructions
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: portal_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Instructions sent
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Instructions sent"
+
+/accounts/{account_id}/portals/{portal_id}/ssl_status:
+  get:
+    tags:
+      - Portals
+    summary: Get portal SSL status
+    description: Returns the SSL status for the specified portal
+    operationId: getPortalSSLStatus
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: portal_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: SSL status
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ssl_status:
+                  type: string
+                  example: "unknown"
+
+/accounts/{account_id}/portals/{portal_id}/articles/reorder:
+  post:
+    tags:
+      - Portals
+    summary: Reorder portal articles
+    description: Reorders articles for the specified portal
+    operationId: reorderPortalArticles
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: portal_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+    responses:
+      '200':
+        description: Articles reordered
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Articles reordered"

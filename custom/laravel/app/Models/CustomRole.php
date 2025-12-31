@@ -4,17 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CustomRole extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'custom_roles';
 
     protected $fillable = [
-        'name',
-        'description',
         'account_id',
+        'name',
         'permissions',
     ];
 
@@ -22,13 +22,8 @@ class CustomRole extends Model
         'permissions' => 'array',
     ];
 
-    public function account(): BelongsTo
+    public function account()
     {
         return $this->belongsTo(Account::class);
-    }
-
-    public function accountUsers(): HasMany
-    {
-        return $this->hasMany(AccountUser::class);
     }
 }

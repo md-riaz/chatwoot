@@ -1,60 +1,123 @@
-# ClearLine
+# ClearLine Laravel Project
 
-<p align="center">
-  <strong>A scalable, sustainable customer engagement platform built on Laravel 12</strong>
-</p>
+ClearLine is a scalable, sustainable customer engagement platform built on Laravel 12. It provides real-time chat, multi-channel support, automation, analytics, and more—designed for modern businesses and extensible for enterprise needs.
 
-<p align="center">
-  <a href="#features">Features</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#architecture">Architecture</a> •
-  <a href="#api-documentation">API</a> •
-  <a href="#deployment">Deployment</a>
-</p>
+## Features
+- Multi-channel: Web chat, Email, WhatsApp, Facebook, Telegram, Twitter, SMS, LINE
+- Real-time messaging (Laravel Reverb)
+- Teams, labels, canned responses, macros
+- Automation rules, SLAs, reporting, CSAT
+- Help center, knowledge base, portals
+- Integrations: Slack, Linear, Dialogflow, OpenAI, and more
 
 ---
 
-## About ClearLine
+## Environment & Prerequisites
 
-ClearLine is a comprehensive customer engagement platform designed for modern businesses. Built on Laravel 12, it provides enterprise-grade reliability, real-time communication, and seamless integrations.
-
-### Key Features
-
-- **Multi-Channel Support**: Web chat, Email, WhatsApp, Facebook, Telegram, Twitter, SMS, and LINE
-- **Real-Time Communication**: Laravel Reverb WebSocket for instant messaging
-- **Team Collaboration**: Teams, labels, canned responses, and macros
-- **Automation**: Advanced automation rules and SLA management
-- **Analytics**: Comprehensive reporting and CSAT surveys
-- **Help Center**: Knowledge base with portals, categories, and articles
-- **Integrations**: Slack, Linear, Dialogflow, OpenAI, and more
-
-## Quick Start
-
-### Requirements
-
+**Required:**
 - PHP 8.2+
-- PostgreSQL 14+
-- Redis 7+
 - Composer 2+
+- PostgreSQL 14+ (16+ recommended)
+- Redis 7+
+- Node.js 18+ (for frontend assets, if needed)
+- [Optional] Docker & Docker Compose for containerized setup
 
-### Installation
+---
 
+## Setup Guide
+
+### 1. Clone the repository
 ```bash
-# Clone the repository
 git clone https://github.com/your-org/clearline.git
 cd clearline/custom/laravel
+```
 
-# Install dependencies
+### 2. Install PHP dependencies
+```bash
 composer install
+```
 
-# Configure environment
+### 3. Configure environment
+```bash
 cp .env.example .env
 php artisan key:generate
+```
+Edit `.env` to set your database, Redis, mail, and app URL settings. Key variables:
+- `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
+- `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`
+- `APP_URL` (your public URL)
 
-# Run migrations
+### 4. Run database migrations
+```bash
 php artisan migrate
+```
 
-# Seed default data (optional)
+### 5. Publish Horizon assets (queue dashboard)
+```bash
+php artisan horizon:install
+```
+This publishes Horizon's assets and dashboard entrypoint. The dashboard is available at `/horizon` (or the path set via `HORIZON_PATH` in `.env`) once Horizon is running.
+
+### 6. Seed roles, permissions, and onboarding flag
+```bash
+php artisan db:seed
+```
+This does NOT create any default users or accounts for production. It only prepares roles/permissions and enables the onboarding API for secure first admin setup.
+
+### 7. (Optional) Build frontend assets
+If you use a frontend or UI, follow the relevant instructions (e.g., npm install && npm run build).
+
+### 8. Start the application
+```bash
+php artisan serve
+# Or use Docker Compose: docker-compose up -d
+```
+
+---
+
+## First-Time Setup: Super Admin Onboarding
+
+After seeding, create the first super admin and account using the onboarding API. This endpoint is available only once, immediately after seeding (the onboarding flag is set by the seeder).
+
+### 1. Seed the onboarding flag
+
+Run the default database seeder to set the onboarding flag in Redis:
+
+```bash
+php artisan db:seed
+```
+
+This ensures the onboarding API is available for first-time setup.
+
+### 2. Create the first super admin and account
+
+Send a POST request to `/api/v1/installation/onboarding`:
+
+```bash
+curl -X POST https://your-host.example/api/v1/installation/onboarding \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user": {
+      "name": "Admin",
+      "company": "Acme Inc",
+      "email": "admin@example.com",
+      "password": "Password1!"
+    },
+    "subscribe_to_updates": false
+  }'
+```
+
+On success, this creates:
+- A new account (with the given company name)
+- A user with the `super_admin` role
+
+Further onboarding attempts are blocked until the onboarding flag is reset in Redis.
+
+### 3. Log in and use the API
+
+After onboarding, log in as the super admin and use the API as documented below.
+
+---
 php artisan db:seed
 
 # Start development server
@@ -91,15 +154,31 @@ ClearLine follows best-in-class Laravel patterns:
 | Authentication | Laravel Sanctum |
 | Testing | Pest PHP |
 
+
 ## API Documentation
 
-ClearLine provides a comprehensive REST API covering all functionality:
+ClearLine provides a comprehensive REST API covering all functionality, including voice channel (Twilio) integration:
 
 ### Core Resources
 - `/api/v1/accounts` - Account management
 - `/api/v1/accounts/{id}/conversations` - Conversations
 - `/api/v1/accounts/{id}/contacts` - Contacts
 - `/api/v1/accounts/{id}/inboxes` - Inboxes
+
+### Voice Channel (Twilio)
+- `/api/v1/webhooks/voice/call/{phone}` - Twilio webhook for incoming calls (TwiML response)
+- `/api/v1/webhooks/voice/status/{phone}` - Twilio webhook for call status events
+- `/api/v1/webhooks/voice/conference_status/{phone}` - Twilio webhook for conference status events
+
+#### Example: Twilio Webhook Integration
+
+Configure your Twilio number to use these webhook URLs for voice calls:
+
+- Voice URL: `POST /api/v1/webhooks/voice/call/{phone}`
+- Status Callback: `POST /api/v1/webhooks/voice/status/{phone}`
+- Conference Status Callback: `POST /api/v1/webhooks/voice/conference_status/{phone}`
+
+See [docs/API_DOCUMENTATION.md](./docs/API_DOCUMENTATION.md) for full details and payload examples.
 
 ### Team Resources
 - `/api/v1/accounts/{id}/teams` - Teams

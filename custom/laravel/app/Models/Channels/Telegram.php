@@ -19,6 +19,7 @@ class Telegram extends Model
         'account_id',
         'bot_token',
         'bot_name',
+        'webhook_secret',
     ];
 
     protected $hidden = [

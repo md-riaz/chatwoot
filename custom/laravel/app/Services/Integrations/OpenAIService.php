@@ -2,6 +2,72 @@
 
 namespace App\Services\Integrations;
 
+use App\Models\Message;
+use Illuminate\Support\Facades\Log;
+use OpenAI\Client as OpenAIClient;
+
+class OpenAIService
+{
+    protected OpenAIClient $client;
+
+    public function __construct()
+    {
+        $apiKey = config('services.openai.key') ?? env('OPENAI_API_KEY');
+        $this->client = new OpenAIClient(['api_key' => $apiKey]);
+    }
+
+    /**
+     * Enrich a message by id using OpenAI (completion/embedding/summary etc.).
+     * This is a lightweight port of Rails backend behavior; keep processing idempotent and store results on message.
+     */
+    public function enrichMessage(int $messageId): void
+    {
+        $message = Message::find($messageId);
+        if (! $message) {
+            Log::warning('OpenAIService::enrichMessage message not found', ['message_id' => $messageId]);
+            return;
+        }
+
+        // Skip if already enriched
+        $meta = $message->content_attributes ?? [];
+        if (! empty($meta['openai_enriched'])) {
+            return;
+        }
+
+        try {
+            $text = $message->content ?? '';
+            if (trim($text) === '') {
+                return;
+            }
+
+            // Simple summarization prompt (follow Rails porting behavior)
+            $prompt = "Summarize the following customer message in one sentence:\n\n" . $text;
+
+            $resp = $this->client->completions()->create([
+                'model' => config('services.openai.model', 'gpt-4o-mini'),
+                'prompt' => $prompt,
+                'max_tokens' => 60,
+            ]);
+
+            $summary = $resp['choices'][0]['text'] ?? null;
+
+            $meta['openai_enriched'] = [
+                'summary' => $summary,
+                'completed_at' => now()->toISOString(),
+            ];
+
+            $message->content_attributes = $meta;
+            $message->save();
+        } catch (\Throwable $e) {
+            Log::error('OpenAIService::enrichMessage failed', ['error' => $e->getMessage(), 'message_id' => $messageId]);
+            // Do not throw to avoid job storms; let job system handle retries if needed
+        }
+    }
+}
+<?php
+
+namespace App\Services\Integrations;
+
 use App\Models\Integration;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -295,6 +361,42 @@ class OpenAIService
             ];
         } catch (\Exception $e) {
             Log::error('OpenAI embeddings request failed', ['error' => $e->getMessage()]);
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Transcribe audio file using OpenAI Whisper
+     *
+     * @param string $filePath
+     * @param string $model
+     * @return array
+     */
+    public function transcribeAudio(string $filePath, string $model = 'whisper-1'): array
+    {
+        if (!$this->apiKey) {
+            return ['success' => false, 'error' => 'OpenAI API key not configured'];
+        }
+
+        try {
+            $filename = basename($filePath);
+            $request = Http::withToken($this->apiKey)
+                ->timeout(120)
+                ->attach('file', fopen($filePath, 'r'), $filename)
+                ->asMultipart();
+
+            $response = $request->post("{$this->apiUrl}/audio/transcriptions", [
+                'model' => $model,
+                'temperature' => 0.4,
+            ]);
+
+            if ($response->successful()) {
+                return ['success' => true, 'text' => $response->json('text')];
+            }
+
+            return ['success' => false, 'error' => $response->body()];
+        } catch (\Exception $e) {
+            Log::error('OpenAI audio transcription failed', ['error' => $e->getMessage()]);
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }

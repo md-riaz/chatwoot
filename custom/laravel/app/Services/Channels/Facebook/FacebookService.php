@@ -3,8 +3,14 @@
 namespace App\Services\Channels\Facebook;
 
 use App\Models\Inbox;
+use App\Models\Contact;
+use App\Models\Conversation;
+use App\Models\Message;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use App\Services\Channels\InboundMessageService;
+use App\Data\Channels\InboundMessageData;
 
 class FacebookService
 {
@@ -213,27 +219,117 @@ class FacebookService
     {
         $results = [];
 
-        if ($payload['object'] !== 'page') {
+        if (($payload['object'] ?? null) !== 'page') {
             return $results;
         }
 
         foreach ($payload['entry'] as $entry) {
-            $pageId = $entry['id'];
-            $time = $entry['time'];
+            $pageId = $entry['id'] ?? null;
+
+            // Find an inbox associated with this Facebook page
+            $inbox = Inbox::where('channel_type', 'Channel::FacebookPage')
+                ->whereJsonContains('channel', ['page_id' => (string) $pageId])
+                ->first();
+
+            if (! $inbox) {
+                Log::warning('No inbox found for facebook page during webhook processing', ['page_id' => $pageId]);
+                continue;
+            }
 
             foreach ($entry['messaging'] ?? [] as $event) {
-                $senderId = $event['sender']['id'];
-                $recipientId = $event['recipient']['id'];
-                $timestamp = $event['timestamp'];
+                try {
+                    if (isset($event['message'])) {
+                        $message = $event['message'];
+                        $mid = $message['mid'] ?? null;
 
-                if (isset($event['message'])) {
-                    $results[] = $this->parseMessage($event['message'], $senderId, $recipientId, $timestamp);
-                } elseif (isset($event['postback'])) {
-                    $results[] = $this->parsePostback($event['postback'], $senderId, $recipientId, $timestamp);
-                } elseif (isset($event['delivery'])) {
-                    $results[] = ['type' => 'delivery', 'data' => $event['delivery']];
-                } elseif (isset($event['read'])) {
-                    $results[] = ['type' => 'read', 'data' => $event['read']];
+                        // Idempotency: skip if we've already processed this mid
+                        if ($mid && DB::table('facebook_message_events')->where('message_mid', $mid)->exists()) {
+                            continue;
+                        }
+
+                        // Insert idempotency record (best-effort)
+                        try {
+                            DB::table('facebook_message_events')->insert([
+                                'page_id' => $pageId,
+                                'message_mid' => $mid,
+                                'payload' => json_encode($event),
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        } catch (\Throwable $e) {
+                            // Unique constraint may race; continue processing if insert fails
+                            Log::debug('facebook_message_events insert failed', ['mid' => $mid, 'error' => $e->getMessage()]);
+                        }
+
+                        $senderId = $event['sender']['id'] ?? null;
+
+                        if (! $senderId) {
+                            continue;
+                        }
+
+                        $attachments = [];
+                        foreach ($message['attachments'] ?? [] as $attachment) {
+                            $attachments[] = [
+                                'url' => $attachment['payload']['url'] ?? null,
+                                'content_type' => $attachment['mime_type'] ?? null,
+                                'type' => $attachment['type'] ?? null,
+                                'meta' => $attachment,
+                            ];
+                        }
+
+                        $msg = app(InboundMessageService::class)->ingest(new InboundMessageData(
+                            account_id: $inbox->account_id,
+                            inbox_id: $inbox->id,
+                            contact_identifier: 'facebook:' . $senderId,
+                            contact_source: 'facebook',
+                            contact_name: null,
+                            contact_email: null,
+                            contact_phone: null,
+                            provider_contact_id: $senderId,
+                            content: $message['text'] ?? null,
+                            content_type: Message::CONTENT_TEXT,
+                            external_source_id: $mid,
+                            attachments: $attachments,
+                            metadata: ['raw' => $event]
+                        ));
+
+                        $results[] = ['type' => 'message', 'mid' => $mid, 'message_id' => $msg->id];
+                    } elseif (isset($event['postback'])) {
+                        $postback = $event['postback'];
+
+                        $senderId = $event['sender']['id'] ?? null;
+                        $postbackTimestamp = $event['timestamp'] ?? null;
+                        if (! $senderId) {
+                            continue;
+                        }
+
+                        $postbackExternalId = hash('sha256', implode(':', [
+                            $senderId,
+                            $postback['payload'] ?? '',
+                            $postback['title'] ?? '',
+                            $postbackTimestamp ?? '',
+                        ]));
+
+                        $msg = app(InboundMessageService::class)->ingest(new InboundMessageData(
+                            account_id: $inbox->account_id,
+                            inbox_id: $inbox->id,
+                            contact_identifier: 'facebook:' . $senderId,
+                            contact_source: 'facebook',
+                            contact_name: null,
+                            contact_email: null,
+                            contact_phone: null,
+                            provider_contact_id: $senderId,
+                            content: $postback['payload'] ?? ($postback['title'] ?? null),
+                            content_type: Message::CONTENT_TEXT,
+                            external_source_id: $postbackExternalId,
+                            attachments: [],
+                            metadata: ['raw' => $event]
+                        ));
+
+                        $results[] = ['type' => 'postback', 'message_id' => $msg->id];
+                    }
+                } catch (\Throwable $e) {
+                    Log::error('Error processing facebook webhook event', ['error' => $e->getMessage(), 'event' => $event]);
                 }
             }
         }

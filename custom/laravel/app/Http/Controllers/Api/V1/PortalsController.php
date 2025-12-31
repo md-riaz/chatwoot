@@ -3,19 +3,15 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Events\Portal\PortalUpdated;
 use App\Models\Account;
 use App\Models\Portal;
-use App\Models\Article;
-use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PortalsController extends Controller
 {
-    /**
-     * Display a listing of portals for an account.
-     */
     public function index(Account $account): JsonResource
     {
         $portals = Portal::where('account_id', $account->id)
@@ -25,9 +21,6 @@ class PortalsController extends Controller
         return JsonResource::collection($portals);
     }
 
-    /**
-     * Store a newly created portal.
-     */
     public function store(Request $request, Account $account): JsonResponse
     {
         $validated = $request->validate([
@@ -41,29 +34,20 @@ class PortalsController extends Controller
             'archived' => 'boolean',
         ]);
 
-        $portal = Portal::create([
-            ...$validated,
-            'account_id' => $account->id,
-        ]);
+        $portal = Portal::create(array_merge($validated, ['account_id' => $account->id]));
+
+        event(new PortalUpdated($portal, 'created'));
 
         return response()->json(['data' => $portal], 201);
     }
 
-    /**
-     * Display the specified portal.
-     */
     public function show(Account $account, Portal $portal): JsonResponse
     {
         abort_unless($portal->account_id === $account->id, 404);
 
-        return response()->json([
-            'data' => $portal->loadCount(['articles', 'categories'])
-        ]);
+        return response()->json(['data' => $portal->loadCount(['articles', 'categories'])]);
     }
 
-    /**
-     * Update the specified portal.
-     */
     public function update(Request $request, Account $account, Portal $portal): JsonResponse
     {
         abort_unless($portal->account_id === $account->id, 404);
@@ -81,24 +65,24 @@ class PortalsController extends Controller
 
         $portal->update($validated);
 
+        $portal->refresh();
+
+        event(new PortalUpdated($portal, 'updated'));
+
         return response()->json(['data' => $portal]);
     }
 
-    /**
-     * Remove the specified portal.
-     */
     public function destroy(Account $account, Portal $portal): JsonResponse
     {
         abort_unless($portal->account_id === $account->id, 404);
+
+        event(new PortalUpdated($portal, 'deleted'));
 
         $portal->delete();
 
         return response()->json(null, 204);
     }
 
-    /**
-     * List articles for a portal.
-     */
     public function articles(Account $account, Portal $portal): JsonResource
     {
         abort_unless($portal->account_id === $account->id, 404);
@@ -106,13 +90,40 @@ class PortalsController extends Controller
         return JsonResource::collection($portal->articles()->paginate());
     }
 
-    /**
-     * List categories for a portal.
-     */
     public function categories(Account $account, Portal $portal): JsonResource
     {
         abort_unless($portal->account_id === $account->id, 404);
 
         return JsonResource::collection($portal->categories()->paginate());
+    }
+
+    public function archive(Request $request, $portal): JsonResponse
+    {
+        // TODO: Implement archive logic
+        return response()->json(['message' => 'Portal archived']);
+    }
+
+    public function deleteLogo(Request $request, $portal): JsonResponse
+    {
+        // TODO: Implement logo deletion logic
+        return response()->json(['message' => 'Logo deleted']);
+    }
+
+    public function sendInstructions(Request $request, $portal): JsonResponse
+    {
+        // TODO: Implement send instructions logic
+        return response()->json(['message' => 'Instructions sent']);
+    }
+
+    public function sslStatus(Request $request, $portal): JsonResponse
+    {
+        // TODO: Implement SSL status logic
+        return response()->json(['ssl_status' => 'unknown']);
+    }
+
+    public function reorderArticles(Request $request, $portal): JsonResponse
+    {
+        // TODO: Implement reorder logic
+        return response()->json(['message' => 'Articles reordered']);
     }
 }

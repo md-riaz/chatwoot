@@ -2,6 +2,7 @@
 
 namespace App\Actions\Message;
 
+use App\Events\Message\MessageUpdated;
 use App\Models\Message;
 use App\Repositories\Message\MessageRepository;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -18,9 +19,14 @@ class UpdateMessageAction
     {
         $this->messageRepository->update($message->id, $data);
 
-        // Trigger event
-        // event(new MessageUpdated($message));
+        $message = $message->fresh();
 
-        return $message->fresh();
+        if (! $message) {
+            throw new \RuntimeException('Message was not found after update.');
+        }
+
+        event(new MessageUpdated($message));
+
+        return $message;
     }
 }

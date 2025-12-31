@@ -1,5 +1,6 @@
 <?php
 
+
 use App\Http\Controllers\Api\V1\AccountsController;
 use App\Http\Controllers\Api\V1\AgentBotsController;
 use App\Http\Controllers\Api\V1\AgentsController;
@@ -46,6 +47,7 @@ use App\Http\Controllers\Api\V1\ReportsController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SegmentsController;
 use App\Http\Controllers\Api\V1\SlaPoliciesController;
+use App\Http\Controllers\Api\V1\Reports\AppliedSlaReportsController;
 use App\Http\Controllers\Api\V1\SuperAdmin\AccessTokensController as SuperAdminAccessTokensController;
 use App\Http\Controllers\Api\V1\SuperAdmin\AccountsController as SuperAdminAccountsController;
 use App\Http\Controllers\Api\V1\SuperAdmin\AgentBotsController as SuperAdminAgentBotsController;
@@ -88,6 +90,7 @@ use App\Http\Controllers\Api\V1\NotificationSettingsController;
 use App\Http\Controllers\Api\V1\SamlSettingsController;
 use App\Http\Controllers\Api\V1\Channels\InstagramController;
 use App\Http\Controllers\Api\V1\Channels\VoiceController;
+use App\Http\Controllers\Api\V1\Channels\TiktokController;
 use App\Http\Controllers\Api\V1\Conversations\ParticipantsController;
 use App\Http\Controllers\Api\V1\Conversations\DraftMessagesController;
 use Illuminate\Support\Facades\Route;
@@ -112,6 +115,13 @@ Route::get('/', function () {
         'api_version' => 'v1',
     ]);
 });
+
+// Public import status (by import id)
+Route::get('imports/{import_id}/status', [\App\Http\Controllers\Api\V1\ImportsController::class, 'status']);
+
+
+// Onboarding route for first superadmin creation (Rails-style)
+Route::post('installation/onboarding', [\App\Http\Controllers\Api\V1\InstallationOnboardingController::class, 'onboard']);
 
 // Authentication routes
 Route::prefix('auth')->group(function () {
@@ -143,7 +153,7 @@ Route::prefix('webhooks')->group(function () {
     Route::post('sms', [SmsController::class, 'webhook']);
     
     // Line webhooks
-    Route::post('line', [LineController::class, 'webhook']);
+    Route::post('line/{inbox}', [LineController::class, 'webhook']);
     
     // Slack webhooks
     Route::post('slack/events', [SlackController::class, 'events']);
@@ -156,12 +166,20 @@ Route::prefix('webhooks')->group(function () {
     // Instagram webhooks
     Route::get('instagram', [InstagramController::class, 'verifyWebhook']);
     Route::post('instagram', [InstagramController::class, 'webhook']);
+
+    // TikTok webhooks
+    Route::get('tiktok', [TiktokController::class, 'verify']);
+    Route::post('tiktok', [TiktokController::class, 'webhook']);
     
     // Voice webhooks (Twilio)
     Route::post('voice/call/{phone}', [VoiceController::class, 'callTwiml']);
     Route::post('voice/status/{phone}', [VoiceController::class, 'status']);
     Route::post('voice/conference_status/{phone}', [VoiceController::class, 'conferenceStatus']);
 });
+
+    // OAuth callbacks for third-party installs (Shopify)
+    Route::get('callbacks/shopify/authorize', [ShopifyController::class, 'authorize']);
+    Route::get('callbacks/shopify/callback', [ShopifyController::class, 'callback']);
 
 // Public CSAT Survey routes (no auth required)
 Route::prefix('public')->group(function () {
@@ -294,6 +312,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Account routes
     Route::apiResource('accounts', AccountsController::class);
+        // Custom account actions
+        Route::post('accounts/{account}/update_active_at', [AccountsController::class, 'updateActiveAt']);
+        Route::get('accounts/{account}/cache_keys', [AccountsController::class, 'cacheKeys']);
 
     // Account-scoped resources (with account access middleware)
     Route::prefix('accounts/{account}')->middleware(\App\Http\Middleware\EnsureAccountAccess::class)->group(function () {
@@ -302,6 +323,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('conversations/meta', [ConversationsController::class, 'meta']);
         Route::get('conversations/search', [ConversationsController::class, 'search']);
         Route::post('conversations/filter', [ConversationsController::class, 'filter']);
+            // Enterprise-only actions
+            Route::get('conversations/{conversation}/inbox_assistant', [ConversationsController::class, 'inboxAssistant']);
+            Route::get('conversations/{conversation}/reporting_events', [ConversationsController::class, 'reportingEvents']);
         Route::post('conversations/{conversation}/assign', [ConversationsController::class, 'assign']);
         Route::post('conversations/{conversation}/toggle_status', [ConversationsController::class, 'toggleStatus']);
         Route::post('conversations/{conversation}/resolve', [ConversationsController::class, 'resolve']);
@@ -309,6 +333,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('conversations/{conversation}/unmute', [ConversationsController::class, 'unmute']);
         Route::post('conversations/{conversation}/transcript', [ConversationsController::class, 'transcript']);
         Route::post('conversations/{conversation}/toggle_priority', [ConversationsController::class, 'togglePriority']);
+        Route::post('conversations/{conversation}/labels', [ConversationsController::class, 'addLabels']);
+        Route::delete('conversations/{conversation}/labels', [ConversationsController::class, 'removeLabels']);
         Route::post('conversations/{conversation}/toggle_typing_status', [ConversationsController::class, 'toggleTypingStatus']);
         Route::post('conversations/{conversation}/update_last_seen', [ConversationsController::class, 'updateLastSeen']);
         Route::post('conversations/{conversation}/unread', [ConversationsController::class, 'unread']);
@@ -341,7 +367,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('contacts/active', [ContactsController::class, 'active']);
         Route::post('contacts/filter', [ContactsController::class, 'filter']);
         Route::post('contacts/import', [ContactsController::class, 'import']);
+        // Check import status by import id
+        Route::get('contacts/imports/{import_id}/status', [ContactsController::class, 'importStatus']);
+        // Queue export
         Route::post('contacts/export', [ContactsController::class, 'export']);
+        // Secure download endpoint for latest export for the authenticated user
+        Route::get('contacts/exports/download', [ContactsController::class, 'downloadExport'])->name('contacts.exports.download');
         Route::post('contacts/{contact}/merge', [ContactsController::class, 'merge']);
         Route::get('contacts/{contact}/contactable_inboxes', [ContactsController::class, 'contactableInboxes']);
         Route::post('contacts/{contact}/destroy_custom_attributes', [ContactsController::class, 'destroyCustomAttributes']);
@@ -399,6 +430,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Agent Bots
         Route::apiResource('agent_bots', AgentBotsController::class);
+    Route::post('agent_bots/{agentBot}/reset_access_token', [AgentBotsController::class, 'resetAccessToken']);
 
         // Macros
         Route::apiResource('macros', MacrosController::class);
@@ -416,6 +448,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('portals', PortalsController::class);
         Route::get('portals/{portal}/articles', [PortalsController::class, 'articles']);
         Route::get('portals/{portal}/categories', [PortalsController::class, 'categories']);
+            // Advanced portal actions
+            Route::patch('portals/{portal}/archive', [PortalsController::class, 'archive']);
+            Route::delete('portals/{portal}/logo', [PortalsController::class, 'deleteLogo']);
+            Route::post('portals/{portal}/send_instructions', [PortalsController::class, 'sendInstructions']);
+            Route::get('portals/{portal}/ssl_status', [PortalsController::class, 'sslStatus']);
+            Route::post('portals/{portal}/articles/reorder', [PortalsController::class, 'reorderArticles']);
         
         // Articles (nested under portals)
         Route::apiResource('portals/{portal}/articles', ArticlesController::class);
@@ -453,6 +491,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('reports/teams', [ReportsController::class, 'teams']);
         Route::get('reports/labels', [ReportsController::class, 'labels']);
         Route::get('reports/download', [ReportsController::class, 'download']);
+        // Applied SLAs reports
+        Route::get('reports/applied_slas', [AppliedSlaReportsController::class, 'index']);
+        Route::get('reports/applied_slas/summary', [AppliedSlaReportsController::class, 'summary']);
 
         // SLA Policies
         Route::apiResource('sla_policies', SlaPoliciesController::class);
@@ -533,6 +574,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Integrations
         Route::prefix('integrations')->group(function () {
+                // Advanced integration actions
+                Route::post('hooks/{hook}/process_event', [IntegrationsController::class, 'processEvent']);
+                Route::get('slack/list_all_channels', [IntegrationsController::class, 'listAllChannels']);
+                Route::post('dyte/create_a_meeting', [IntegrationsController::class, 'createAMeeting']);
+                Route::post('dyte/add_participant_to_meeting', [IntegrationsController::class, 'addParticipantToMeeting']);
+                Route::post('shopify/auth', [IntegrationsController::class, 'shopifyAuth']);
+                Route::get('shopify/orders', [IntegrationsController::class, 'shopifyOrders']);
+                Route::get('linear/teams', [IntegrationsController::class, 'linearTeams']);
+                Route::get('linear/team_entities', [IntegrationsController::class, 'linearTeamEntities']);
+                Route::post('linear/create_issue', [IntegrationsController::class, 'linearCreateIssue']);
+                Route::post('linear/link_issue', [IntegrationsController::class, 'linearLinkIssue']);
+                Route::post('linear/unlink_issue', [IntegrationsController::class, 'linearUnlinkIssue']);
+                Route::get('linear/search_issue', [IntegrationsController::class, 'linearSearchIssue']);
+                Route::get('linear/linked_issues', [IntegrationsController::class, 'linearLinkedIssues']);
             Route::get('/', [IntegrationsController::class, 'index']);
             Route::get('apps', [IntegrationsController::class, 'index']); // Alias
             Route::post('apps', [IntegrationsController::class, 'createApp']);

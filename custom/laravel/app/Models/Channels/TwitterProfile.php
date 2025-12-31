@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 class TwitterProfile extends Model
 {
     use HasFactory;
+    use \App\Traits\Reauthorizable;
 
     protected $table = 'channel_twitter_profiles';
 
@@ -21,6 +22,7 @@ class TwitterProfile extends Model
         'twitter_access_token',
         'twitter_access_token_secret',
         'tweets_enabled',
+        'provider_config',
     ];
 
     protected $hidden = [
@@ -30,6 +32,7 @@ class TwitterProfile extends Model
 
     protected $casts = [
         'tweets_enabled' => 'boolean',
+        'provider_config' => 'array',
     ];
 
     public function account(): BelongsTo

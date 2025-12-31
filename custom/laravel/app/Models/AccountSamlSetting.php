@@ -12,14 +12,20 @@ class AccountSamlSetting extends Model
 
     protected $fillable = [
         'account_id',
+        'enabled',
+        'issuer',
         'sso_url',
         'certificate',
+        'entity_id',
         'sp_entity_id',
         'idp_entity_id',
+        'metadata',
         'role_mappings',
     ];
 
     protected $casts = [
+        'enabled' => 'boolean',
+        'metadata' => 'array',
         'role_mappings' => 'array',
     ];
 

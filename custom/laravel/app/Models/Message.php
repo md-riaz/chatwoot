@@ -37,6 +37,7 @@ class Message extends Model
     public const CONTENT_FORM = 5;
 
     public const CONTENT_ARTICLE = 6;
+    public const CONTENT_VOICE_CALL = 12;
 
     // Status constants
     public const STATUS_SENT = 0;
@@ -121,6 +122,34 @@ class Message extends Model
     public function media(): MorphMany
     {
         return $this->morphMany(Media::class, 'mediable');
+    }
+
+    /**
+     * Dispatch message updated event so realtime clients receive changes.
+     */
+    public function sendUpdateEvent(): void
+    {
+        try {
+            event(new \App\Events\Message\MessageUpdated($this));
+        } catch (\Exception $e) {
+            // swallow; caller may handle logging
+        }
+    }
+
+    /**
+     * Reindex message for search backends (noop if no search service).
+     */
+    public function reindex(): void
+    {
+        if (class_exists(\App\Services\SearchService::class)) {
+            try {
+                $svc = app(\App\Services\SearchService::class);
+                if (method_exists($svc, 'indexMessage')) {
+                    $svc->indexMessage($this);
+                }
+            } catch (\Exception $e) {
+            }
+        }
     }
 
     /**

@@ -15,6 +15,8 @@ use App\Models\Message;
 use App\Repositories\Message\MessageRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Services\TranslationService;
+use App\Jobs\SendReplyJob;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MessagesController extends Controller
@@ -119,9 +121,8 @@ class MessagesController extends Controller
             return response()->json(['content' => $translations[$targetLanguage]]);
         }
 
-        // TODO: Implement actual translation via Google Translate or similar service
-        // For now, return a placeholder
-        $translatedContent = $message->content; // Placeholder - would be translated content
+        // Use the TranslationService (pluggable) to translate message content.
+        $translatedContent = app(TranslationService::class)->translate($message->content, $targetLanguage);
 
         // Save translation
         $translations[$targetLanguage] = $translatedContent;
@@ -138,14 +139,13 @@ class MessagesController extends Controller
         abort_unless($conversation->account_id === $account->id, 404);
         abort_unless($message->conversation_id === $conversation->id, 404);
 
-        // Reset message status to pending
+        // Reset message status and dispatch a job to resend the message
         $message->update([
             'status' => Message::STATUS_SENT,
             'content_attributes' => [],
         ]);
 
-        // TODO: Dispatch job to resend the message
-        // SendReplyJob::dispatch($message->id);
+        SendReplyJob::dispatch($message->id);
 
         return response()->json(['data' => new MessageResource($message)]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Notification;
 
+use App\Mail\GenericNotificationMail;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,6 +21,10 @@ class SendEmailNotificationJob implements ShouldQueue
 
     public int $backoff = 60;
 
+    public int $timeout = 120;
+
+    public string $queue = 'notifications';
+
     public function __construct(
         public int $userId,
         public string $subject,
@@ -37,12 +42,11 @@ class SendEmailNotificationJob implements ShouldQueue
             return;
         }
 
-        // Send email (using Laravel's mail facade)
-        // This is a placeholder - implement actual mailable class
-        Mail::raw($this->content, function ($message) use ($user) {
-            $message->to($user->email)
-                ->subject($this->subject);
-        });
+        Mail::to($user->email)->send(new GenericNotificationMail(
+            $this->subject,
+            $this->content,
+            $this->data ?? []
+        ));
 
         Log::info('Email notification sent', [
             'user_id' => $this->userId,

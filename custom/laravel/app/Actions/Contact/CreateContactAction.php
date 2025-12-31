@@ -3,6 +3,7 @@
 namespace App\Actions\Contact;
 
 use App\Data\Contact\ContactData;
+use App\Events\Contact\ContactCreated;
 use App\Models\Contact;
 use App\Repositories\Contact\ContactRepository;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,8 +20,7 @@ class CreateContactAction
     {
         $contact = $this->contactRepository->create($data->toArray());
 
-        // Trigger event
-        // event(new ContactCreated($contact));
+        event(new ContactCreated($contact));
 
         return $contact;
     }

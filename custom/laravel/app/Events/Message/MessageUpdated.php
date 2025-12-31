@@ -19,6 +19,7 @@ class MessageUpdated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
+            new PrivateChannel("account.{$this->message->account_id}"),
             new PrivateChannel("conversation.{$this->message->conversation_id}"),
         ];
     }
@@ -32,6 +33,7 @@ class MessageUpdated implements ShouldBroadcast
     {
         return [
             'message' => new MessageResource($this->message),
+            'conversation_id' => $this->message->conversation_id,
         ];
     }
 }

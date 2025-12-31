@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1\Public\Inboxes;
 
 use App\Http\Controllers\Controller;
+use App\Events\Message\MessageCreated;
+use App\Events\Message\MessageUpdated;
 use App\Models\Contact;
 use App\Models\ContactInbox;
 use App\Models\Conversation;
@@ -79,7 +81,7 @@ class MessagesController extends Controller
             'inbox_id' => $inbox->id,
             'conversation_id' => $conversation->id,
             'content' => $validated['content'] ?? '',
-            'message_type' => 0, // incoming
+            'message_type' => Message::TYPE_INCOMING,
             'sender_type' => Contact::class,
             'sender_id' => $contact->id,
             'external_source_id_echo' => $validated['echo_id'] ?? null,
@@ -87,6 +89,8 @@ class MessagesController extends Controller
 
         // Update conversation last activity
         $conversation->update(['last_activity_at' => now()]);
+
+        event(new MessageCreated($message));
 
         return response()->json($this->formatMessage($message), 201);
     }
@@ -120,6 +124,8 @@ class MessagesController extends Controller
                 $validated
             ),
         ]);
+
+        event(new MessageUpdated($message));
 
         return response()->json($this->formatMessage($message));
     }

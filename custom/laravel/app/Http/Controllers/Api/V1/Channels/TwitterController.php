@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Channels;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Channels\ProcessTwitterWebhookJob;
 use App\Models\Account;
 use App\Models\Inbox;
 use Illuminate\Http\JsonResponse;
@@ -18,14 +19,24 @@ class TwitterController extends Controller
         $validated = $request->validate([
             'oauth_token' => 'required|string',
             'oauth_token_secret' => 'required|string',
+            'user_id' => 'required|string',
             'name' => 'string|max:255',
         ]);
 
         // Create the inbox with Twitter channel
+        $channel = \App\Models\Channels\TwitterProfile::create([
+            'account_id' => $account->id,
+            'profile_id' => $validated['user_id'],
+            'twitter_access_token' => $validated['oauth_token'],
+            'twitter_access_token_secret' => $validated['oauth_token_secret'],
+            'provider_config' => ['user_id' => $validated['user_id']],
+        ]);
+
         $inbox = Inbox::create([
             'name' => $validated['name'] ?? 'Twitter',
             'account_id' => $account->id,
-            'channel_type' => 'Channel::Twitter',
+            'channel_type' => \App\Models\Channels\TwitterProfile::class,
+            'channel_id' => $channel->id,
         ]);
 
         return response()->json(['data' => $inbox], 201);
@@ -37,13 +48,27 @@ class TwitterController extends Controller
     public function update(Request $request, Account $account, Inbox $inbox): JsonResponse
     {
         abort_unless($inbox->account_id === $account->id, 404);
-        abort_unless($inbox->channel_type === 'Channel::Twitter', 400);
+        abort_unless($inbox->channel instanceof \App\Models\Channels\TwitterProfile, 400);
 
         $validated = $request->validate([
             'name' => 'string|max:255',
+            'user_id' => 'string',
+            'oauth_token' => 'string',
+            'oauth_token_secret' => 'string',
         ]);
 
         $inbox->update(['name' => $validated['name'] ?? $inbox->name]);
+
+        if ($inbox->channel) {
+            $inbox->channel->update(array_filter([
+                'profile_id' => $validated['user_id'] ?? null,
+                'twitter_access_token' => $validated['oauth_token'] ?? null,
+                'twitter_access_token_secret' => $validated['oauth_token_secret'] ?? null,
+                'provider_config' => array_merge($inbox->channel->provider_config ?? [], array_filter([
+                    'user_id' => $validated['user_id'] ?? null,
+                ])),
+            ], fn ($value) => $value !== null));
+        }
 
         return response()->json(['data' => $inbox]);
     }
@@ -79,8 +104,7 @@ class TwitterController extends Controller
      */
     public function webhook(Request $request): JsonResponse
     {
-        // Verify CRC
-        // Process events
+        ProcessTwitterWebhookJob::dispatch($request->all());
 
         return response()->json(['status' => 'ok']);
     }

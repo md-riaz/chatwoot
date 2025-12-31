@@ -2,6 +2,7 @@
 
 namespace App\Actions\Contact;
 
+use App\Events\Contact\ContactUpdated;
 use App\Models\Contact;
 use App\Repositories\Contact\ContactRepository;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -18,9 +19,10 @@ class UpdateContactAction
     {
         $this->contactRepository->update($contact->id, $data);
 
-        // Trigger event
-        // event(new ContactUpdated($contact));
+        $contact->refresh();
 
-        return $contact->fresh();
+        event(new ContactUpdated($contact));
+
+        return $contact;
     }
 }

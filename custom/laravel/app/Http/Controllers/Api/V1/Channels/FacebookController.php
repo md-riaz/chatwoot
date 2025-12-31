@@ -7,6 +7,10 @@ use App\Models\Account;
 use App\Models\Inbox;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Config;
+use App\Services\Channels\Facebook\FacebookService;
+use App\Jobs\Channels\ProcessFacebookWebhookJob;
 
 class FacebookController extends Controller
 {
@@ -21,14 +25,30 @@ class FacebookController extends Controller
             'name' => 'string|max:255',
         ]);
 
-        // Create the inbox with Facebook channel
+        // Create channel record for Facebook page
+        $fb = \App\Models\Channels\FacebookPage::create([
+            'account_id' => $account->id,
+            'page_id' => $validated['page_id'],
+            'page_access_token' => $validated['page_access_token'],
+            'user_access_token' => $request->input('user_access_token') ?? null,
+        ]);
+
+        // Create the inbox and associate the channel
         $inbox = Inbox::create([
             'name' => $validated['name'] ?? 'Facebook Page',
             'account_id' => $account->id,
             'channel_type' => 'Channel::FacebookPage',
+            'channel_id' => $fb->id,
         ]);
 
-        return response()->json(['data' => $inbox], 201);
+        // Dispatch subscription job so it can retry without blocking the request
+        try {
+            \App\Jobs\Channels\SubscribeFacebookPageJob::dispatch($inbox->id);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to dispatch SubscribeFacebookPageJob', ['error' => $e->getMessage()]);
+        }
+
+        return response()->json(['data' => $inbox->load('channel')], 201);
     }
 
     /**
@@ -54,11 +74,38 @@ class FacebookController extends Controller
      */
     public function webhook(Request $request): JsonResponse
     {
-        // Verify signature
-        // Process messages/events
-        // Dispatch jobs for processing
+        // Verify X-Hub-Signature (sha256) if present
+        $appSecret = Config::get('services.facebook.app_secret') ?? env('FACEBOOK_APP_SECRET');
+        $signature = $request->header('X-Hub-Signature-256') ?? $request->header('X-Hub-Signature');
+        $raw = $request->getContent();
 
-        return response()->json(['status' => 'received']);
+        if ($signature && $appSecret) {
+            // signature format: sha256=hex
+            if (str_starts_with($signature, 'sha256=')) {
+                $hash = substr($signature, 7);
+                $expected = hash_hmac('sha256', $raw, $appSecret);
+                if (! hash_equals($expected, $hash)) {
+                    Log::warning('Facebook webhook signature mismatch');
+                    return response()->json(['error' => 'invalid signature'], 401);
+                }
+            }
+        }
+
+        $payload = json_decode($raw, true);
+        if (! is_array($payload)) {
+            return response()->json(['error' => 'invalid payload'], 400);
+        }
+
+        $service = new FacebookService();
+
+        // Dispatch processing job with raw payload; the job will delegate to the service.
+        try {
+            ProcessFacebookWebhookJob::dispatch($payload);
+        } catch (\Throwable $e) {
+            Log::error('Failed to dispatch ProcessFacebookWebhookJob', ['error' => $e->getMessage()]);
+        }
+
+        return response()->json(['status' => 'queued']);
     }
 
     /**
@@ -120,12 +167,26 @@ class FacebookController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
+        // Create channel record and associate with inbox
+        $fb = \App\Models\Channels\FacebookPage::create([
+            'account_id' => $account->id,
+            'page_id' => $validated['page_id'],
+            'page_access_token' => $validated['page_access_token'],
+        ]);
+
         $inbox = Inbox::create([
             'name' => $validated['name'],
             'account_id' => $account->id,
             'channel_type' => 'Channel::FacebookPage',
+            'channel_id' => $fb->id,
         ]);
 
-        return response()->json(['data' => $inbox], 201);
+        try {
+            \App\Jobs\Channels\SubscribeFacebookPageJob::dispatch($inbox->id);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to dispatch SubscribeFacebookPageJob (callback)', ['error' => $e->getMessage()]);
+        }
+
+        return response()->json(['data' => $inbox->load('channel')], 201);
     }
 }

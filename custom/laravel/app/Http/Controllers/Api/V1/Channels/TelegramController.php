@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api\V1\Channels;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Channels\ProcessTelegramWebhookJob;
 use App\Models\Account;
 use App\Models\Inbox;
+use App\Models\Channels\Telegram;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TelegramController extends Controller
 {
@@ -17,14 +20,22 @@ class TelegramController extends Controller
     {
         $validated = $request->validate([
             'bot_token' => 'required|string',
+            'webhook_secret' => 'string|nullable',
             'name' => 'string|max:255',
         ]);
 
-        // Create the inbox with Telegram channel
+        $channel = Telegram::create([
+            'account_id' => $account->id,
+            'bot_token' => $validated['bot_token'],
+            'bot_name' => $validated['name'] ?? 'Telegram Bot',
+            'webhook_secret' => $validated['webhook_secret'] ?? null,
+        ]);
+
         $inbox = Inbox::create([
             'name' => $validated['name'] ?? 'Telegram Bot',
             'account_id' => $account->id,
-            'channel_type' => 'Channel::Telegram',
+            'channel_type' => Telegram::class,
+            'channel_id' => $channel->id,
         ]);
 
         // Set webhook URL with Telegram
@@ -40,14 +51,23 @@ class TelegramController extends Controller
     public function update(Request $request, Account $account, Inbox $inbox): JsonResponse
     {
         abort_unless($inbox->account_id === $account->id, 404);
-        abort_unless($inbox->channel_type === 'Channel::Telegram', 400);
+        abort_unless($inbox->channel instanceof Telegram, 400);
 
         $validated = $request->validate([
             'name' => 'string|max:255',
             'bot_token' => 'string',
+            'webhook_secret' => 'string|nullable',
         ]);
 
         $inbox->update(['name' => $validated['name'] ?? $inbox->name]);
+
+        if ($inbox->channel) {
+            $inbox->channel->update(array_filter([
+                'bot_token' => $validated['bot_token'] ?? null,
+                'bot_name' => $validated['name'] ?? null,
+                'webhook_secret' => $validated['webhook_secret'] ?? null,
+            ], fn ($value) => $value !== null));
+        }
 
         return response()->json(['data' => $inbox]);
     }
@@ -57,12 +77,21 @@ class TelegramController extends Controller
      */
     public function webhook(Request $request, string $inboxId): JsonResponse
     {
-        $inbox = Inbox::findOrFail($inboxId);
-        
-        // Process Telegram update
-        // Dispatch job for message processing
+        $inbox = Inbox::with('channel')->findOrFail($inboxId);
 
-        return response()->json(['status' => 'ok']);
+        $expected = $inbox->channel?->webhook_secret;
+        $provided = $request->header('X-Telegram-Bot-Api-Secret-Token');
+
+        if ($expected) {
+            if (! $provided || ! hash_equals($expected, $provided)) {
+                Log::warning('Telegram webhook rejected: secret mismatch or missing', ['inbox_id' => $inbox->id]);
+                return response()->json(['error' => 'invalid_signature'], 403);
+            }
+        }
+
+        ProcessTelegramWebhookJob::dispatch($inbox->id, $request->all());
+
+        return response()->json(['status' => 'queued']);
     }
 
     /**

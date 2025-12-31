@@ -590,3 +590,68 @@
                 message:
                   type: string
                   example: "Transcript sent successfully"
+
+/accounts/{account_id}/conversations/{conversation_id}/inbox_assistant:
+  get:
+    tags:
+      - Conversations
+    summary: Get inbox assistant info for a conversation
+    description: Returns assistant info for the given conversation (enterprise-only)
+    operationId: getInboxAssistant
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Inbox assistant info
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assistant:
+                  type: string
+                  example: "Not implemented"
+
+/accounts/{account_id}/conversations/{conversation_id}/reporting_events:
+  get:
+    tags:
+      - Conversations
+    summary: Get reporting events for a conversation
+    description: Returns reporting events for the given conversation (enterprise-only)
+    operationId: getReportingEvents
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Reporting events
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                events:
+                  type: array
+                  items:
+                    type: object

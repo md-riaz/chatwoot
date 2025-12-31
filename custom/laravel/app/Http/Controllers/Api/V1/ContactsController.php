@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Actions\Contact\CreateContactAction;
 use App\Actions\Contact\MergeContactsAction;
 use App\Actions\Contact\UpdateContactAction;
+use App\Actions\DataImport\GetImportStatusAction;
+use App\Actions\DataImport\StartDataImportAction;
 use App\Data\Contact\ContactData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Contact\StoreContactRequest;
@@ -14,6 +16,7 @@ use App\Models\Contact;
 use App\Repositories\Contact\ContactRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ContactsController extends Controller
@@ -97,10 +100,34 @@ class ContactsController extends Controller
             return response()->json(['error' => 'Import file is required'], 422);
         }
 
-        // Process import in background job
-        // ContactImportJob::dispatch($account, $request->file('import_file'));
+        $file = $request->file('import_file');
+        $path = $file->store('imports');
 
-        return response()->json(null, 200);
+        // Optional mapping and duplicate handling
+        $mapping = $request->input('mapping', []); // e.g. {"csv_name":"name","csv_email":"email"}
+        $duplicateHandling = $request->input('duplicate_handling', 'skip'); // skip|update|create_duplicate
+
+        $importResult = StartDataImportAction::run($account, (int) auth()->id(), $path, $mapping, $duplicateHandling);
+
+        return response()->json([
+            'message' => 'Import queued',
+            'import_id' => $importResult['import_id'],
+            'data_import_id' => $importResult['data_import_id'],
+        ], 202);
+    }
+
+    /**
+     * Return import status for a given import id.
+     */
+    public function importStatus(Account $account, string $importId): JsonResponse
+    {
+        $status = GetImportStatusAction::run($importId);
+
+        if (! $status) {
+            return response()->json(['error' => 'not_found'], 404);
+        }
+
+        return response()->json(['data' => $status]);
     }
 
     /**
@@ -112,9 +139,26 @@ class ContactsController extends Controller
         $filterParams = $request->only(['payload', 'label']);
 
         // Queue export job
-        // ContactExportJob::dispatch($account->id, auth()->id(), $columnNames, $filterParams);
+        \App\Jobs\ExportContactsJob::dispatch($account->id, auth()->id(), $columnNames, $filterParams);
 
-        return response()->json(['message' => 'Export initiated successfully'], 200);
+        return response()->json(['message' => 'Export queued'], 202);
+    }
+
+    /**
+     * Securely download the latest export for the authenticated user.
+     * Uses a cached key set by the ExportContactsJob.
+     */
+    public function downloadExport(Account $account)
+    {
+        $userId = auth()->id();
+        $cacheKey = 'export_result:' . $userId;
+        $path = Cache::get($cacheKey);
+
+        if (! $path || ! \Illuminate\Support\Facades\Storage::exists($path)) {
+            return response()->json(['error' => 'not_found'], 404);
+        }
+
+        return \Illuminate\Support\Facades\Storage::download($path);
     }
 
     /**

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 class Whatsapp extends Model
 {
     use HasFactory;
+    use \App\Traits\Reauthorizable;
 
     protected $table = 'channel_whatsapp';
 
@@ -28,6 +29,10 @@ class Whatsapp extends Model
     protected $fillable = [
         'account_id',
         'phone_number',
+        'phone_number_id',
+        'business_account_id',
+        'access_token',
+        'verify_token',
         'provider',
         'provider_config',
         'message_templates',
@@ -38,6 +43,7 @@ class Whatsapp extends Model
         'provider_config' => 'array',
         'message_templates' => 'array',
         'message_templates_last_updated' => 'datetime',
+        'access_token' => 'encrypted',
     ];
 
     public function account(): BelongsTo

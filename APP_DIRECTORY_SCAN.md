@@ -1,0 +1,1119 @@
+# App Directory — Backend Recursive Inventory (no frontend assets/JS)
+
+This file lists all backend files under `app/`, excluding frontend assets and JS sources (`app/assets`, `app/javascript`). Entries are plain paths with a short description and inferred responsibilities.
+
+## Top-level folder descriptions
+
+- `actions`: Small service objects representing discrete business actions invoked by controllers, jobs, and services.
+- `builders`: Objects that assemble complex domain objects or response payloads (DTOs) used by APIs and views.
+- `channels`: ActionCable channels for real-time WebSocket communication between server and clients.
+- `controllers`: Rails controllers handling HTTP API and web UI requests; orchestrate params -> services -> responses.
+- `dashboards`: Dashboard definitions, widgets and related display logic used by admin or analytics pages.
+- `dispatchers`: Components responsible for dispatching events, notifications, or messages to external systems or queues.
+- `drops`: Liquid drops used for safe template rendering in emails, portals, or content blocks.
+- `fields`: Definitions and helpers for custom form/attribute fields used across models and forms.
+- `finders`: Query objects encapsulating complex database lookup and search logic.
+- `helpers`: View helper modules providing shared presentation logic for templates.
+- `jobs`: Background workers (ActiveJob) for asynchronous processing.
+- `listeners`: Event listeners that respond to domain events or external webhooks.
+- `mailboxes`: ActionMailbox mailboxes handling inbound email processing.
+- `mailers`: ActionMailer classes used to generate and send outbound emails.
+- `models`: ActiveRecord models representing database-backed domain entities and business logic.
+- `policies`: Authorization policies (e.g., Pundit) controlling access to actions and resources.
+- `presenters`: Decorators/presenters that adapt models for views or API responses.
+- `services`: Plain Ruby service objects encapsulating business rules and interactions between models.
+- `views`: Rails view templates and partials rendered by controllers.
+- `assets`: Frontend assets (CSS, images) — excluded from this document.
+- `javascript`: Frontend JavaScript/TypeScript sources — excluded from this document.
+
+## actions
+
+  - app/actions/contact_identify_action.rb — Implements Contact Identify Action. Responsibilities: related utility or helper functionality.
+  - app/actions/contact_merge_action.rb — Implements Contact Merge Action. Responsibilities: related utility or helper functionality.
+
+## builders
+
+  - app/builders/account_builder.rb — Builder — Constructs complex objects/responses for Account. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+  - app/builders/agent_builder.rb — Builder — Constructs complex objects/responses for Agent. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+  - app/builders/contact_inbox_builder.rb — Builder — Constructs complex objects/responses for Contact Inbox. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+  - app/builders/contact_inbox_with_contact_builder.rb — Builder — Constructs complex objects/responses for Contact Inbox With Contact. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+  - app/builders/conversation_builder.rb — Builder — Constructs complex objects/responses for Conversation. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+  - app/builders/notification_builder.rb — Builder — Constructs complex objects/responses for Notification. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+  - app/builders/notification_subscription_builder.rb — Builder — Constructs complex objects/responses for Notification Subscription. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+  - app/builders/year_in_review_builder.rb — Builder — Constructs complex objects/responses for Year In Review. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+    - app/builders/campaigns/campaign_conversation_builder.rb — Builder — Constructs complex objects/responses for Campaign Conversation. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+    - app/builders/csat_surveys/response_builder.rb — Builder — Constructs complex objects/responses for Response. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+    - app/builders/email/base_builder.rb — Builder — Constructs complex objects/responses for Base. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+    - app/builders/email/from_builder.rb — Builder — Constructs complex objects/responses for From. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+    - app/builders/email/reply_to_builder.rb — Builder — Constructs complex objects/responses for Reply To. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+    - app/builders/messages/message_builder.rb — Builder — Constructs complex objects/responses for Message. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+      - app/builders/messages/facebook/message_builder.rb — Builder — Constructs complex objects/responses for Message. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+      - app/builders/messages/instagram/base_message_builder.rb — Builder — Constructs complex objects/responses for Base Message. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+      - app/builders/messages/instagram/message_builder.rb — Builder — Constructs complex objects/responses for Message. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+        - app/builders/messages/instagram/messenger/message_builder.rb — Builder — Constructs complex objects/responses for Message. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+      - app/builders/messages/messenger/message_builder.rb — Builder — Constructs complex objects/responses for Message. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+    - app/builders/v2/report_builder.rb — Builder — Constructs complex objects/responses for Report. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+      - app/builders/v2/reports/agent_summary_builder.rb — Builder — Constructs complex objects/responses for Agent Summary. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+      - app/builders/v2/reports/base_summary_builder.rb — Builder — Constructs complex objects/responses for Base Summary. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+      - app/builders/v2/reports/bot_metrics_builder.rb — Builder — Constructs complex objects/responses for Bot Metrics. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+      - app/builders/v2/reports/inbox_summary_builder.rb — Builder — Constructs complex objects/responses for Inbox Summary. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+      - app/builders/v2/reports/label_summary_builder.rb — Builder — Constructs complex objects/responses for Label Summary. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+      - app/builders/v2/reports/team_summary_builder.rb — Builder — Constructs complex objects/responses for Team Summary. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+        - app/builders/v2/reports/conversations/base_report_builder.rb — Builder — Constructs complex objects/responses for Base Report. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+        - app/builders/v2/reports/conversations/metric_builder.rb — Builder — Constructs complex objects/responses for Metric. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+        - app/builders/v2/reports/conversations/report_builder.rb — Builder — Constructs complex objects/responses for Report. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+        - app/builders/v2/reports/timeseries/average_report_builder.rb — Builder — Constructs complex objects/responses for Average Report. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+        - app/builders/v2/reports/timeseries/base_timeseries_builder.rb — Builder — Constructs complex objects/responses for Base Timeseries. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+        - app/builders/v2/reports/timeseries/count_report_builder.rb — Builder — Constructs complex objects/responses for Count Report. Responsibilities: assemble DTOs or payloads used by APIs or templates.
+
+## channels
+
+  - app/channels/room_channel.rb — Channel — Real-time channel Room. Responsibilities: manage subscriptions, broadcast updates, and handle incoming messages.
+    - app/channels/application_cable/channel.rb — Channel — Real-time channel Channel. Responsibilities: manage subscriptions, broadcast updates, and handle incoming messages.
+    - app/channels/application_cable/connection.rb — Channel — Real-time channel Connection. Responsibilities: manage subscriptions, broadcast updates, and handle incoming messages.
+
+## controllers
+
+  - app/controllers/android_app_controller.rb — Controller — Handles HTTP requests for Android App. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/api_controller.rb — Controller — Handles HTTP requests for Api. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/apple_app_controller.rb — Controller — Handles HTTP requests for Apple App. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/application_controller.rb — Controller — Handles HTTP requests for Application. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/dashboard_controller.rb — Controller — Handles HTTP requests for Dashboard. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/microsoft_controller.rb — Controller — Handles HTTP requests for Microsoft. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/oauth_callback_controller.rb — Controller — Handles HTTP requests for Oauth Callback. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/platform_controller.rb — Controller — Handles HTTP requests for Platform. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/public_controller.rb — Controller — Handles HTTP requests for Public. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/slack_uploads_controller.rb — Controller — Handles HTTP requests for Slack Uploads. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/swagger_controller.rb — Controller — Handles HTTP requests for Swagger. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/widget_tests_controller.rb — Controller — Handles HTTP requests for Widget Tests. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+  - app/controllers/widgets_controller.rb — Controller — Handles HTTP requests for Widgets. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/api/base_controller.rb — Controller — Handles HTTP requests for Base. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+      - app/controllers/api/v1/accounts_controller.rb — Controller — Handles HTTP requests for Accounts. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+      - app/controllers/api/v1/notification_subscriptions_controller.rb — Controller — Handles HTTP requests for Notification Subscriptions. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+      - app/controllers/api/v1/profiles_controller.rb — Controller — Handles HTTP requests for Profiles. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+      - app/controllers/api/v1/webhooks_controller.rb — Controller — Handles HTTP requests for Webhooks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/agent_bots_controller.rb — Controller — Handles HTTP requests for Agent Bots. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/agents_controller.rb — Controller — Handles HTTP requests for Agents. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/articles_controller.rb — Controller — Handles HTTP requests for Articles. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/assignable_agents_controller.rb — Controller — Handles HTTP requests for Assignable Agents. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/assignment_policies_controller.rb — Controller — Handles HTTP requests for Assignment Policies. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/automation_rules_controller.rb — Controller — Handles HTTP requests for Automation Rules. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/base_controller.rb — Controller — Handles HTTP requests for Base. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/bulk_actions_controller.rb — Controller — Handles HTTP requests for Bulk Actions. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/callbacks_controller.rb — Controller — Handles HTTP requests for Callbacks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/campaigns_controller.rb — Controller — Handles HTTP requests for Campaigns. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/canned_responses_controller.rb — Controller — Handles HTTP requests for Canned Responses. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/categories_controller.rb — Controller — Handles HTTP requests for Categories. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/contact_inboxes_controller.rb — Controller — Handles HTTP requests for Contact Inboxes. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/contacts_controller.rb — Controller — Handles HTTP requests for Contacts. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/conversations_controller.rb — Controller — Handles HTTP requests for Conversations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/csat_survey_responses_controller.rb — Controller — Handles HTTP requests for Csat Survey Responses. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/custom_attribute_definitions_controller.rb — Controller — Handles HTTP requests for Custom Attribute Definitions. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/custom_filters_controller.rb — Controller — Handles HTTP requests for Custom Filters. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/dashboard_apps_controller.rb — Controller — Handles HTTP requests for Dashboard Apps. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/inbox_csat_templates_controller.rb — Controller — Handles HTTP requests for Inbox Csat Templates. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/inbox_members_controller.rb — Controller — Handles HTTP requests for Inbox Members. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/inboxes_controller.rb — Controller — Handles HTTP requests for Inboxes. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/labels_controller.rb — Controller — Handles HTTP requests for Labels. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/macros_controller.rb — Controller — Handles HTTP requests for Macros. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/notification_settings_controller.rb — Controller — Handles HTTP requests for Notification Settings. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/notifications_controller.rb — Controller — Handles HTTP requests for Notifications. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/oauth_authorization_controller.rb — Controller — Handles HTTP requests for Oauth Authorization. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/portals_controller.rb — Controller — Handles HTTP requests for Portals. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/search_controller.rb — Controller — Handles HTTP requests for Search. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/team_members_controller.rb — Controller — Handles HTTP requests for Team Members. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/teams_controller.rb — Controller — Handles HTTP requests for Teams. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/upload_controller.rb — Controller — Handles HTTP requests for Upload. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/webhooks_controller.rb — Controller — Handles HTTP requests for Webhooks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/accounts/working_hours_controller.rb — Controller — Handles HTTP requests for Working Hours. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/actions/contact_merges_controller.rb — Controller — Handles HTTP requests for Contact Merges. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/assignment_policies/inboxes_controller.rb — Controller — Handles HTTP requests for Inboxes. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/channels/twilio_channels_controller.rb — Controller — Handles HTTP requests for Twilio Channels. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/contacts/base_controller.rb — Controller — Handles HTTP requests for Base. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/contacts/contact_inboxes_controller.rb — Controller — Handles HTTP requests for Contact Inboxes. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/contacts/conversations_controller.rb — Controller — Handles HTTP requests for Conversations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/contacts/labels_controller.rb — Controller — Handles HTTP requests for Labels. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/contacts/notes_controller.rb — Controller — Handles HTTP requests for Notes. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/conversations/assignments_controller.rb — Controller — Handles HTTP requests for Assignments. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/conversations/base_controller.rb — Controller — Handles HTTP requests for Base. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/conversations/direct_uploads_controller.rb — Controller — Handles HTTP requests for Direct Uploads. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/conversations/draft_messages_controller.rb — Controller — Handles HTTP requests for Draft Messages. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/conversations/labels_controller.rb — Controller — Handles HTTP requests for Labels. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/conversations/messages_controller.rb — Controller — Handles HTTP requests for Messages. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/conversations/participants_controller.rb — Controller — Handles HTTP requests for Participants. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/google/authorizations_controller.rb — Controller — Handles HTTP requests for Authorizations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/inboxes/assignment_policies_controller.rb — Controller — Handles HTTP requests for Assignment Policies. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/instagram/authorizations_controller.rb — Controller — Handles HTTP requests for Authorizations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/integrations/apps_controller.rb — Controller — Handles HTTP requests for Apps. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/integrations/dyte_controller.rb — Controller — Handles HTTP requests for Dyte. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/integrations/hooks_controller.rb — Controller — Handles HTTP requests for Hooks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/integrations/linear_controller.rb — Controller — Handles HTTP requests for Linear. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/integrations/notion_controller.rb — Controller — Handles HTTP requests for Notion. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/integrations/shopify_controller.rb — Controller — Handles HTTP requests for Shopify. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/integrations/slack_controller.rb — Controller — Handles HTTP requests for Slack. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/microsoft/authorizations_controller.rb — Controller — Handles HTTP requests for Authorizations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/notion/authorizations_controller.rb — Controller — Handles HTTP requests for Authorizations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/tiktok/authorizations_controller.rb — Controller — Handles HTTP requests for Authorizations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/twitter/authorizations_controller.rb — Controller — Handles HTTP requests for Authorizations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/accounts/whatsapp/authorizations_controller.rb — Controller — Handles HTTP requests for Authorizations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/integrations/webhooks_controller.rb — Controller — Handles HTTP requests for Webhooks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/profile/mfa_controller.rb — Controller — Handles HTTP requests for Mfa. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/widget/base_controller.rb — Controller — Handles HTTP requests for Base. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/widget/campaigns_controller.rb — Controller — Handles HTTP requests for Campaigns. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/widget/configs_controller.rb — Controller — Handles HTTP requests for Configs. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/widget/contacts_controller.rb — Controller — Handles HTTP requests for Contacts. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/widget/conversations_controller.rb — Controller — Handles HTTP requests for Conversations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/widget/direct_uploads_controller.rb — Controller — Handles HTTP requests for Direct Uploads. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/widget/events_controller.rb — Controller — Handles HTTP requests for Events. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/widget/inbox_members_controller.rb — Controller — Handles HTTP requests for Inbox Members. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/widget/labels_controller.rb — Controller — Handles HTTP requests for Labels. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v1/widget/messages_controller.rb — Controller — Handles HTTP requests for Messages. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/api/v1/widget/integrations/dyte_controller.rb — Controller — Handles HTTP requests for Dyte. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+      - app/controllers/api/v2/accounts_controller.rb — Controller — Handles HTTP requests for Accounts. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v2/accounts/live_reports_controller.rb — Controller — Handles HTTP requests for Live Reports. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v2/accounts/reports_controller.rb — Controller — Handles HTTP requests for Reports. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v2/accounts/summary_reports_controller.rb — Controller — Handles HTTP requests for Summary Reports. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/api/v2/accounts/year_in_reviews_controller.rb — Controller — Handles HTTP requests for Year In Reviews. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/.keep — Controller — Handles HTTP requests for .Keep. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/access_token_auth_helper.rb — Controller — Handles HTTP requests for Access Token Auth Helper. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/attachment_concern.rb — Controller — Handles HTTP requests for Attachment Concern. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/auth_helper.rb — Controller — Handles HTTP requests for Auth Helper. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/domain_helper.rb — Controller — Handles HTTP requests for Domain Helper. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/ensure_current_account_helper.rb — Controller — Handles HTTP requests for Ensure Current Account Helper. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/google_concern.rb — Controller — Handles HTTP requests for Google Concern. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/hmac_concern.rb — Controller — Handles HTTP requests for Hmac Concern. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/instagram_concern.rb — Controller — Handles HTTP requests for Instagram Concern. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/label_concern.rb — Controller — Handles HTTP requests for Label Concern. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/meta_token_verify_concern.rb — Controller — Handles HTTP requests for Meta Token Verify Concern. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/microsoft_concern.rb — Controller — Handles HTTP requests for Microsoft Concern. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/notion_concern.rb — Controller — Handles HTTP requests for Notion Concern. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/request_exception_handler.rb — Controller — Handles HTTP requests for Request Exception Handler. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/switch_locale.rb — Controller — Handles HTTP requests for Switch Locale. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/twitter_concern.rb — Controller — Handles HTTP requests for Twitter Concern. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/concerns/website_token_helper.rb — Controller — Handles HTTP requests for Website Token Helper. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/devise_overrides/confirmations_controller.rb — Controller — Handles HTTP requests for Confirmations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/devise_overrides/omniauth_callbacks_controller.rb — Controller — Handles HTTP requests for Omniauth Callbacks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/devise_overrides/passwords_controller.rb — Controller — Handles HTTP requests for Passwords. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/devise_overrides/sessions_controller.rb — Controller — Handles HTTP requests for Sessions. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/devise_overrides/token_validations_controller.rb — Controller — Handles HTTP requests for Token Validations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/google/callbacks_controller.rb — Controller — Handles HTTP requests for Callbacks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/instagram/callbacks_controller.rb — Controller — Handles HTTP requests for Callbacks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/installation/onboarding_controller.rb — Controller — Handles HTTP requests for Onboarding. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/linear/callbacks_controller.rb — Controller — Handles HTTP requests for Callbacks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/microsoft/callbacks_controller.rb — Controller — Handles HTTP requests for Callbacks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/notion/callbacks_controller.rb — Controller — Handles HTTP requests for Callbacks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/platform/api/v1/account_users_controller.rb — Controller — Handles HTTP requests for Account Users. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/platform/api/v1/accounts_controller.rb — Controller — Handles HTTP requests for Accounts. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/platform/api/v1/agent_bots_controller.rb — Controller — Handles HTTP requests for Agent Bots. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/platform/api/v1/users_controller.rb — Controller — Handles HTTP requests for Users. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/public/api/v1/csat_survey_controller.rb — Controller — Handles HTTP requests for Csat Survey. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/public/api/v1/inboxes_controller.rb — Controller — Handles HTTP requests for Inboxes. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+        - app/controllers/public/api/v1/portals_controller.rb — Controller — Handles HTTP requests for Portals. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/public/api/v1/inboxes/contacts_controller.rb — Controller — Handles HTTP requests for Contacts. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/public/api/v1/inboxes/conversations_controller.rb — Controller — Handles HTTP requests for Conversations. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/public/api/v1/inboxes/messages_controller.rb — Controller — Handles HTTP requests for Messages. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/public/api/v1/portals/articles_controller.rb — Controller — Handles HTTP requests for Articles. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/public/api/v1/portals/base_controller.rb — Controller — Handles HTTP requests for Base. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+          - app/controllers/public/api/v1/portals/categories_controller.rb — Controller — Handles HTTP requests for Categories. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/shopify/callbacks_controller.rb — Controller — Handles HTTP requests for Callbacks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/access_tokens_controller.rb — Controller — Handles HTTP requests for Access Tokens. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/account_users_controller.rb — Controller — Handles HTTP requests for Account Users. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/accounts_controller.rb — Controller — Handles HTTP requests for Accounts. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/agent_bots_controller.rb — Controller — Handles HTTP requests for Agent Bots. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/app_configs_controller.rb — Controller — Handles HTTP requests for App Configs. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/application_controller.rb — Controller — Handles HTTP requests for Application. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/dashboard_controller.rb — Controller — Handles HTTP requests for Dashboard. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/installation_configs_controller.rb — Controller — Handles HTTP requests for Installation Configs. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/instance_statuses_controller.rb — Controller — Handles HTTP requests for Instance Statuses. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/platform_apps_controller.rb — Controller — Handles HTTP requests for Platform Apps. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/settings_controller.rb — Controller — Handles HTTP requests for Settings. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/super_admin/users_controller.rb — Controller — Handles HTTP requests for Users. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+      - app/controllers/super_admin/devise/sessions_controller.rb — Controller — Handles HTTP requests for Sessions. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/survey/responses_controller.rb — Controller — Handles HTTP requests for Responses. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/tiktok/callbacks_controller.rb — Controller — Handles HTTP requests for Callbacks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/twilio/callback_controller.rb — Controller — Handles HTTP requests for Callback. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/twilio/delivery_status_controller.rb — Controller — Handles HTTP requests for Delivery Status. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/twitter/base_controller.rb — Controller — Handles HTTP requests for Base. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/twitter/callbacks_controller.rb — Controller — Handles HTTP requests for Callbacks. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/webhooks/instagram_controller.rb — Controller — Handles HTTP requests for Instagram. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/webhooks/line_controller.rb — Controller — Handles HTTP requests for Line. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/webhooks/sms_controller.rb — Controller — Handles HTTP requests for Sms. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/webhooks/telegram_controller.rb — Controller — Handles HTTP requests for Telegram. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/webhooks/tiktok_controller.rb — Controller — Handles HTTP requests for Tiktok. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+    - app/controllers/webhooks/whatsapp_controller.rb — Controller — Handles HTTP requests for Whatsapp. Responsibilities: validate input, authorize access, delegate to services, and render JSON/HTML responses.
+
+## dashboards
+
+  - app/dashboards/access_token_dashboard.rb — Dashboard — Visualization/widget Access Token Dashboard. Responsibilities: define metrics, charts, and presentation logic for analytics views.
+  - app/dashboards/account_dashboard.rb — Dashboard — Visualization/widget Account Dashboard. Responsibilities: define metrics, charts, and presentation logic for analytics views.
+  - app/dashboards/account_user_dashboard.rb — Dashboard — Visualization/widget Account User Dashboard. Responsibilities: define metrics, charts, and presentation logic for analytics views.
+  - app/dashboards/agent_bot_dashboard.rb — Dashboard — Visualization/widget Agent Bot Dashboard. Responsibilities: define metrics, charts, and presentation logic for analytics views.
+  - app/dashboards/installation_config_dashboard.rb — Dashboard — Visualization/widget Installation Config Dashboard. Responsibilities: define metrics, charts, and presentation logic for analytics views.
+  - app/dashboards/platform_app_dashboard.rb — Dashboard — Visualization/widget Platform App Dashboard. Responsibilities: define metrics, charts, and presentation logic for analytics views.
+  - app/dashboards/user_dashboard.rb — Dashboard — Visualization/widget User Dashboard. Responsibilities: define metrics, charts, and presentation logic for analytics views.
+
+## dispatchers
+
+  - app/dispatchers/async_dispatcher.rb — Dispatcher — Message/event dispatcher Async Dispatcher. Responsibilities: route events to handlers or external systems.
+  - app/dispatchers/base_dispatcher.rb — Dispatcher — Message/event dispatcher Base Dispatcher. Responsibilities: route events to handlers or external systems.
+  - app/dispatchers/dispatcher.rb — Dispatcher — Message/event dispatcher Dispatcher. Responsibilities: route events to handlers or external systems.
+  - app/dispatchers/sync_dispatcher.rb — Dispatcher — Message/event dispatcher Sync Dispatcher. Responsibilities: route events to handlers or external systems.
+
+## drops
+
+  - app/drops/account_drop.rb — Drop — Liquid drop Account Drop. Responsibilities: expose safe data to templates used in emails/portals.
+  - app/drops/base_drop.rb — Drop — Liquid drop Base Drop. Responsibilities: expose safe data to templates used in emails/portals.
+  - app/drops/contact_drop.rb — Drop — Liquid drop Contact Drop. Responsibilities: expose safe data to templates used in emails/portals.
+  - app/drops/conversation_drop.rb — Drop — Liquid drop Conversation Drop. Responsibilities: expose safe data to templates used in emails/portals.
+  - app/drops/inbox_drop.rb — Drop — Liquid drop Inbox Drop. Responsibilities: expose safe data to templates used in emails/portals.
+  - app/drops/message_drop.rb — Drop — Liquid drop Message Drop. Responsibilities: expose safe data to templates used in emails/portals.
+  - app/drops/user_drop.rb — Drop — Liquid drop User Drop. Responsibilities: expose safe data to templates used in emails/portals.
+
+## fields
+
+  - app/fields/avatar_field.rb — Field — Definition/helper Avatar Field. Responsibilities: define custom attribute types or input handling for forms/models.
+  - app/fields/count_field.rb — Field — Definition/helper Count Field. Responsibilities: define custom attribute types or input handling for forms/models.
+  - app/fields/secret_field.rb — Field — Definition/helper Secret Field. Responsibilities: define custom attribute types or input handling for forms/models.
+  - app/fields/serialized_field.rb — Field — Definition/helper Serialized Field. Responsibilities: define custom attribute types or input handling for forms/models.
+
+## finders
+
+  - app/finders/conversation_finder.rb — Finder — Query object Conversation Finder. Responsibilities: encapsulate complex DB queries and return results for callers.
+  - app/finders/email_channel_finder.rb — Finder — Query object Email Channel Finder. Responsibilities: encapsulate complex DB queries and return results for callers.
+  - app/finders/message_finder.rb — Finder — Query object Message Finder. Responsibilities: encapsulate complex DB queries and return results for callers.
+  - app/finders/notification_finder.rb — Finder — Query object Notification Finder. Responsibilities: encapsulate complex DB queries and return results for callers.
+
+## helpers
+
+  - app/helpers/application_helper.rb — Helper — View helper Application. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/billing_helper.rb — Helper — View helper Billing. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/cache_keys_helper.rb — Helper — View helper Cache Keys. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/contact_helper.rb — Helper — View helper Contact. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/data_helper.rb — Helper — View helper Data. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/date_range_helper.rb — Helper — View helper Date Range. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/email_helper.rb — Helper — View helper Email. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/file_type_helper.rb — Helper — View helper File Type. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/frontend_urls_helper.rb — Helper — View helper Frontend Urls. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/home_helper.rb — Helper — View helper Home. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/message_format_helper.rb — Helper — View helper Message Format. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/portal_helper.rb — Helper — View helper Portal. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/report_helper.rb — Helper — View helper Report. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/reporting_event_helper.rb — Helper — View helper Reporting Event. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/timezone_helper.rb — Helper — View helper Timezone. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/helpers/widget_helper.rb — Helper — View helper Widget. Responsibilities: provide presentation utilities used by templates to format/transform data.
+    - app/helpers/api/base_helper.rb — Helper — View helper Base. Responsibilities: provide presentation utilities used by templates to format/transform data.
+      - app/helpers/api/v1/agents_helper.rb — Helper — View helper Agents. Responsibilities: provide presentation utilities used by templates to format/transform data.
+      - app/helpers/api/v1/canned_responses_helper.rb — Helper — View helper Canned Responses. Responsibilities: provide presentation utilities used by templates to format/transform data.
+      - app/helpers/api/v1/conversations_helper.rb — Helper — View helper Conversations. Responsibilities: provide presentation utilities used by templates to format/transform data.
+      - app/helpers/api/v1/inboxes_helper.rb — Helper — View helper Inboxes. Responsibilities: provide presentation utilities used by templates to format/transform data.
+        - app/helpers/api/v1/widget/messages_helper.rb — Helper — View helper Messages. Responsibilities: provide presentation utilities used by templates to format/transform data.
+        - app/helpers/api/v2/accounts/heatmap_helper.rb — Helper — View helper Heatmap. Responsibilities: provide presentation utilities used by templates to format/transform data.
+        - app/helpers/api/v2/accounts/reports_helper.rb — Helper — View helper Reports. Responsibilities: provide presentation utilities used by templates to format/transform data.
+    - app/helpers/filters/filter_helper.rb — Helper — View helper Filter. Responsibilities: provide presentation utilities used by templates to format/transform data.
+    - app/helpers/instagram/integration_helper.rb — Helper — View helper Integration. Responsibilities: provide presentation utilities used by templates to format/transform data.
+    - app/helpers/linear/integration_helper.rb — Helper — View helper Integration. Responsibilities: provide presentation utilities used by templates to format/transform data.
+    - app/helpers/shopify/integration_helper.rb — Helper — View helper Integration. Responsibilities: provide presentation utilities used by templates to format/transform data.
+    - app/helpers/super_admin/account_features_helper.rb — Helper — View helper Account Features. Responsibilities: provide presentation utilities used by templates to format/transform data.
+    - app/helpers/super_admin/features.yml — Helper — View helper Features. Responsibilities: provide presentation utilities used by templates to format/transform data.
+    - app/helpers/super_admin/features_helper.rb — Helper — View helper Features. Responsibilities: provide presentation utilities used by templates to format/transform data.
+    - app/helpers/super_admin/navigation_helper.rb — Helper — View helper Navigation. Responsibilities: provide presentation utilities used by templates to format/transform data.
+    - app/helpers/tiktok/integration_helper.rb — Helper — View helper Integration. Responsibilities: provide presentation utilities used by templates to format/transform data.
+
+## jobs
+
+  - app/jobs/action_cable_broadcast_job.rb — Job — Background worker Action Cable Broadcast Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/application_job.rb — Job — Background worker Application Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/bulk_actions_job.rb — Job — Background worker Bulk Actions Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/contact_ip_lookup_job.rb — Job — Background worker Contact Ip Lookup Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/conversation_reply_email_job.rb — Job — Background worker Conversation Reply Email Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/data_import_job.rb — Job — Background worker Data Import Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/delete_object_job.rb — Job — Background worker Delete Object Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/event_dispatcher_job.rb — Job — Background worker Event Dispatcher Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/hook_job.rb — Job — Background worker Hook Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/macros_execution_job.rb — Job — Background worker Macros Execution Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/mutex_application_job.rb — Job — Background worker Mutex Application Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/send_on_slack_job.rb — Job — Background worker Send On Slack Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/send_reply_job.rb — Job — Background worker Send Reply Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/slack_unfurl_job.rb — Job — Background worker Slack Unfurl Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/trigger_scheduled_items_job.rb — Job — Background worker Trigger Scheduled Items Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+  - app/jobs/webhook_job.rb — Job — Background worker Webhook Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/account/contacts_export_job.rb — Job — Background worker Contacts Export Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/account/conversations_resolution_scheduler_job.rb — Job — Background worker Conversations Resolution Scheduler Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/agent_bots/webhook_job.rb — Job — Background worker Webhook Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/agents/destroy_job.rb — Job — Background worker Destroy Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/auto_assignment/assignment_job.rb — Job — Background worker Assignment Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/auto_assignment/periodic_assignment_job.rb — Job — Background worker Periodic Assignment Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/avatar/avatar_from_gravatar_job.rb — Job — Background worker Avatar From Gravatar Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/avatar/avatar_from_url_job.rb — Job — Background worker Avatar From Url Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/campaigns/trigger_oneoff_campaign_job.rb — Job — Background worker Trigger Oneoff Campaign Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+      - app/jobs/channels/twilio/templates_sync_job.rb — Job — Background worker Templates Sync Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+      - app/jobs/channels/whatsapp/templates_sync_job.rb — Job — Background worker Templates Sync Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+      - app/jobs/channels/whatsapp/templates_sync_scheduler_job.rb — Job — Background worker Templates Sync Scheduler Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/contacts/bulk_action_job.rb — Job — Background worker Bulk Action Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/conversations/activity_message_job.rb — Job — Background worker Activity Message Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/conversations/reopen_snoozed_conversations_job.rb — Job — Background worker Reopen Snoozed Conversations Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/conversations/resolution_job.rb — Job — Background worker Resolution Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/conversations/update_message_status_job.rb — Job — Background worker Update Message Status Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/conversations/user_mention_job.rb — Job — Background worker User Mention Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/crm/setup_job.rb — Job — Background worker Setup Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/inboxes/bulk_auto_assignment_job.rb — Job — Background worker Bulk Auto Assignment Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/inboxes/fetch_imap_email_inboxes_job.rb — Job — Background worker Fetch Imap Email Inboxes Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/inboxes/fetch_imap_emails_job.rb — Job — Background worker Fetch Imap Emails Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/inboxes/sync_widget_pre_chat_custom_fields_job.rb — Job — Background worker Sync Widget Pre Chat Custom Fields Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/inboxes/update_widget_pre_chat_custom_fields_job.rb — Job — Background worker Update Widget Pre Chat Custom Fields Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/internal/check_new_versions_job.rb — Job — Background worker Check New Versions Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/internal/delete_accounts_job.rb — Job — Background worker Delete Accounts Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/internal/process_stale_contacts_job.rb — Job — Background worker Process Stale Contacts Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/internal/process_stale_redis_keys_job.rb — Job — Background worker Process Stale Redis Keys Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/internal/remove_stale_contact_inboxes_job.rb — Job — Background worker Remove Stale Contact Inboxes Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/internal/remove_stale_contacts_job.rb — Job — Background worker Remove Stale Contacts Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/internal/remove_stale_redis_keys_job.rb — Job — Background worker Remove Stale Redis Keys Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/internal/seed_account_job.rb — Job — Background worker Seed Account Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/labels/update_job.rb — Job — Background worker Update Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/migration/add_search_indexes_job.rb — Job — Background worker Add Search Indexes Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/migration/backfill_companies_contacts_count_job.rb — Job — Background worker Backfill Companies Contacts Count Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/migration/conversation_batch_cache_label_job.rb — Job — Background worker Conversation Batch Cache Label Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/migration/conversation_cache_label_job.rb — Job — Background worker Conversation Cache Label Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/migration/conversations_first_reply_scheduler_job.rb — Job — Background worker Conversations First Reply Scheduler Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/migration/remove_message_notifications.rb — Job — Background worker Remove Message Notifications. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/migration/remove_stale_notifications_job.rb — Job — Background worker Remove Stale Notifications Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/migration/update_first_response_time_in_reporting_events_job.rb — Job — Background worker Update First Response Time In Reporting Events Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/notification/delete_notification_job.rb — Job — Background worker Delete Notification Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/notification/email_notification_job.rb — Job — Background worker Email Notification Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/notification/push_notification_job.rb — Job — Background worker Push Notification Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/notification/remove_duplicate_notification_job.rb — Job — Background worker Remove Duplicate Notification Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/notification/remove_old_notification_job.rb — Job — Background worker Remove Old Notification Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/notification/reopen_snoozed_notifications_job.rb — Job — Background worker Reopen Snoozed Notifications Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/webhooks/facebook_delivery_job.rb — Job — Background worker Facebook Delivery Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/webhooks/facebook_events_job.rb — Job — Background worker Facebook Events Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/webhooks/instagram_events_job.rb — Job — Background worker Instagram Events Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/webhooks/line_events_job.rb — Job — Background worker Line Events Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/webhooks/sms_events_job.rb — Job — Background worker Sms Events Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/webhooks/telegram_events_job.rb — Job — Background worker Telegram Events Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/webhooks/tiktok_events_job.rb — Job — Background worker Tiktok Events Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/webhooks/twilio_delivery_status_job.rb — Job — Background worker Twilio Delivery Status Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/webhooks/twilio_events_job.rb — Job — Background worker Twilio Events Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+    - app/jobs/webhooks/whatsapp_events_job.rb — Job — Background worker Whatsapp Events Job. Responsibilities: perform async processing, handle retries, and update models or notify systems.
+
+## listeners
+
+  - app/listeners/action_cable_listener.rb — Listener — Event listener Action Cable Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+  - app/listeners/agent_bot_listener.rb — Listener — Event listener Agent Bot Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+  - app/listeners/automation_rule_listener.rb — Listener — Event listener Automation Rule Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+  - app/listeners/base_listener.rb — Listener — Event listener Base Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+  - app/listeners/campaign_listener.rb — Listener — Event listener Campaign Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+  - app/listeners/csat_survey_listener.rb — Listener — Event listener Csat Survey Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+  - app/listeners/hook_listener.rb — Listener — Event listener Hook Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+  - app/listeners/installation_webhook_listener.rb — Listener — Event listener Installation Webhook Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+  - app/listeners/notification_listener.rb — Listener — Event listener Notification Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+  - app/listeners/participation_listener.rb — Listener — Event listener Participation Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+  - app/listeners/reporting_event_listener.rb — Listener — Event listener Reporting Event Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+  - app/listeners/webhook_listener.rb — Listener — Event listener Webhook Listener. Responsibilities: react to domain or external events and trigger side effects (notifications, jobs).
+
+## mailboxes
+
+  - app/mailboxes/application_mailbox.rb — Mailbox — Inbound email handler Application Mailbox. Responsibilities: process incoming emails and convert to application events or records.
+  - app/mailboxes/default_mailbox.rb — Mailbox — Inbound email handler Default Mailbox. Responsibilities: process incoming emails and convert to application events or records.
+  - app/mailboxes/incoming_email_validity_helper.rb — Helper — View helper Incoming Email Validity. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/mailboxes/mailbox_helper.rb — Helper — View helper Mailbox. Responsibilities: provide presentation utilities used by templates to format/transform data.
+  - app/mailboxes/reply_mailbox.rb — Mailbox — Inbound email handler Reply Mailbox. Responsibilities: process incoming emails and convert to application events or records.
+    - app/mailboxes/imap/imap_mailbox.rb — Mailbox — Inbound email handler Imap Mailbox. Responsibilities: process incoming emails and convert to application events or records.
+
+## mailers
+
+  - app/mailers/application_mailer.rb — Mailer — Email component Application Mailer. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+  - app/mailers/conversation_reply_mailer.rb — Mailer — Email component Conversation Reply Mailer. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+  - app/mailers/conversation_reply_mailer_attachment_helper.rb — Mailer — Email component Conversation Reply Mailer Attachment Helper. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+  - app/mailers/conversation_reply_mailer_helper.rb — Mailer — Email component Conversation Reply Mailer Helper. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+  - app/mailers/portal_instructions_mailer.rb — Mailer — Email component Portal Instructions Mailer. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+  - app/mailers/references_header_builder.rb — Mailer — Email component References Header Builder. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+    - app/mailers/administrator_notifications/account_compliance_mailer.rb — Mailer — Email component Account Compliance Mailer. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+    - app/mailers/administrator_notifications/account_notification_mailer.rb — Mailer — Email component Account Notification Mailer. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+    - app/mailers/administrator_notifications/base_mailer.rb — Mailer — Email component Base Mailer. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+    - app/mailers/administrator_notifications/channel_notifications_mailer.rb — Mailer — Email component Channel Notifications Mailer. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+    - app/mailers/administrator_notifications/integrations_notification_mailer.rb — Mailer — Email component Integrations Notification Mailer. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+    - app/mailers/agent_notifications/conversation_notifications_mailer.rb — Mailer — Email component Conversation Notifications Mailer. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+    - app/mailers/team_notifications/automation_notification_mailer.rb — Mailer — Email component Automation Notification Mailer. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+
+## models
+
+  - app/models/access_token.rb — Model — Represents domain entity Access Token. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/account.rb — Model — Represents domain entity Account. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/account_user.rb — Model — Represents domain entity Account User. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/agent_bot.rb — Model — Represents domain entity Agent Bot. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/agent_bot_inbox.rb — Model — Represents domain entity Agent Bot Inbox. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/application_record.rb — Model — Represents domain entity Application Record. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/article.rb — Model — Represents domain entity Article. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/assignment_policy.rb — Model — Represents domain entity Assignment Policy. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/attachment.rb — Model — Represents domain entity Attachment. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/automation_rule.rb — Model — Represents domain entity Automation Rule. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/campaign.rb — Model — Represents domain entity Campaign. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/canned_response.rb — Model — Represents domain entity Canned Response. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/category.rb — Model — Represents domain entity Category. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/contact.rb — Model — Represents domain entity Contact. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/contact_inbox.rb — Model — Represents domain entity Contact Inbox. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/conversation.rb — Model — Represents domain entity Conversation. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/conversation_participant.rb — Model — Represents domain entity Conversation Participant. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/csat_survey_response.rb — Model — Represents domain entity Csat Survey Response. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/custom_attribute_definition.rb — Model — Represents domain entity Custom Attribute Definition. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/custom_filter.rb — Model — Represents domain entity Custom Filter. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/dashboard_app.rb — Model — Represents domain entity Dashboard App. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/data_import.rb — Model — Represents domain entity Data Import. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/email_template.rb — Model — Represents domain entity Email Template. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/folder.rb — Model — Represents domain entity Folder. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/inbox.rb — Model — Represents domain entity Inbox. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/inbox_assignment_policy.rb — Model — Represents domain entity Inbox Assignment Policy. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/inbox_member.rb — Model — Represents domain entity Inbox Member. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/installation_config.rb — Model — Represents domain entity Installation Config. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/integrations.rb — Model — Represents domain entity Integrations. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/jsonb_attributes_length_validator.rb — Model — Represents domain entity Jsonb Attributes Length Validator. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/kbase.rb — Model — Represents domain entity Kbase. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/label.rb — Model — Represents domain entity Label. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/macro.rb — Model — Represents domain entity Macro. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/mention.rb — Model — Represents domain entity Mention. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/message.rb — Model — Represents domain entity Message. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/note.rb — Model — Represents domain entity Note. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/notification.rb — Model — Represents domain entity Notification. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/notification_setting.rb — Model — Represents domain entity Notification Setting. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/notification_subscription.rb — Model — Represents domain entity Notification Subscription. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/platform_app.rb — Model — Represents domain entity Platform App. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/platform_app_permissible.rb — Model — Represents domain entity Platform App Permissible. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/portal.rb — Model — Represents domain entity Portal. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/related_category.rb — Model — Represents domain entity Related Category. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/reporting_event.rb — Model — Represents domain entity Reporting Event. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/super_admin.rb — Model — Represents domain entity Super Admin. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/team.rb — Model — Represents domain entity Team. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/team_member.rb — Model — Represents domain entity Team Member. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/user.rb — Model — Represents domain entity User. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/webhook.rb — Model — Represents domain entity Webhook. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+  - app/models/working_hour.rb — Model — Represents domain entity Working Hour. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/api.rb — Model — Represents domain entity Api. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/email.rb — Model — Represents domain entity Email. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/facebook_page.rb — Model — Represents domain entity Facebook Page. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/instagram.rb — Model — Represents domain entity Instagram. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/line.rb — Model — Represents domain entity Line. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/sms.rb — Model — Represents domain entity Sms. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/telegram.rb — Model — Represents domain entity Telegram. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/tiktok.rb — Model — Represents domain entity Tiktok. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/twilio_sms.rb — Model — Represents domain entity Twilio Sms. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/twitter_profile.rb — Model — Represents domain entity Twitter Profile. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/web_widget.rb — Model — Represents domain entity Web Widget. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/channel/whatsapp.rb — Model — Represents domain entity Whatsapp. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/.keep — Model — Represents domain entity .Keep. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/access_tokenable.rb — Model — Represents domain entity Access Tokenable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/account_cache_revalidator.rb — Model — Represents domain entity Account Cache Revalidator. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/activity_message_handler.rb — Model — Represents domain entity Activity Message Handler. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/assignment_handler.rb — Model — Represents domain entity Assignment Handler. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/auto_assignment_handler.rb — Model — Represents domain entity Auto Assignment Handler. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/availability_statusable.rb — Model — Represents domain entity Availability Statusable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/avatarable.rb — Model — Represents domain entity Avatarable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/cache_keys.rb — Model — Represents domain entity Cache Keys. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/channelable.rb — Model — Represents domain entity Channelable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/content_attribute_validator.rb — Model — Represents domain entity Content Attribute Validator. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/conversation_mute_helpers.rb — Model — Represents domain entity Conversation Mute Helpers. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/featurable.rb — Model — Represents domain entity Featurable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/inbox_agent_availability.rb — Model — Represents domain entity Inbox Agent Availability. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/json_schema_validator.rb — Model — Represents domain entity Json Schema Validator. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/label_activity_message_handler.rb — Model — Represents domain entity Label Activity Message Handler. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/labelable.rb — Model — Represents domain entity Labelable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/liquidable.rb — Model — Represents domain entity Liquidable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/llm_formattable.rb — Model — Represents domain entity Llm Formattable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/message_filter_helpers.rb — Model — Represents domain entity Message Filter Helpers. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/out_of_offisable.rb — Model — Represents domain entity Out Of Offisable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/priority_activity_message_handler.rb — Model — Represents domain entity Priority Activity Message Handler. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/pubsubable.rb — Model — Represents domain entity Pubsubable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/push_data_helper.rb — Model — Represents domain entity Push Data Helper. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/reauthorizable.rb — Model — Represents domain entity Reauthorizable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/reportable.rb — Model — Represents domain entity Reportable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/sla_activity_message_handler.rb — Model — Represents domain entity Sla Activity Message Handler. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/sort_handler.rb — Model — Represents domain entity Sort Handler. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/sso_authenticatable.rb — Model — Represents domain entity Sso Authenticatable. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/team_activity_message_handler.rb — Model — Represents domain entity Team Activity Message Handler. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/concerns/user_attribute_helpers.rb — Model — Represents domain entity User Attribute Helpers. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/integrations/app.rb — Model — Represents domain entity App. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+    - app/models/integrations/hook.rb — Model — Represents domain entity Hook. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+
+## policies
+
+  - app/policies/account_policy.rb — Policy — Authorization rules for Account. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/agent_bot_policy.rb — Policy — Authorization rules for Agent Bot. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/application_policy.rb — Policy — Authorization rules for Application. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/article_policy.rb — Policy — Authorization rules for Article. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/assignment_policy_policy.rb — Policy — Authorization rules for Assignment. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/automation_rule_policy.rb — Policy — Authorization rules for Automation Rule. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/campaign_policy.rb — Policy — Authorization rules for Campaign. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/category_policy.rb — Policy — Authorization rules for Category. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/contact_policy.rb — Policy — Authorization rules for Contact. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/conversation_policy.rb — Policy — Authorization rules for Conversation. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/csat_survey_response_policy.rb — Policy — Authorization rules for Csat Survey Response. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/custom_filter_policy.rb — Policy — Authorization rules for Custom Filter. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/hook_policy.rb — Policy — Authorization rules for Hook. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/inbox_policy.rb — Policy — Authorization rules for Inbox. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/label_policy.rb — Policy — Authorization rules for Label. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/macro_policy.rb — Policy — Authorization rules for Macro. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/portal_policy.rb — Policy — Authorization rules for Portal. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/report_policy.rb — Policy — Authorization rules for Report. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/team_member_policy.rb — Policy — Authorization rules for Team Member. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/team_policy.rb — Policy — Authorization rules for Team. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/user_policy.rb — Policy — Authorization rules for User. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+  - app/policies/webhook_policy.rb — Policy — Authorization rules for Webhook. Responsibilities: allow/deny actions based on actor and resource, used by controllers and views.
+
+## presenters
+
+  - app/presenters/agent_bot_presenter.rb — Presenter — Formats Agent Bot for views/APIs. Responsibilities: adapt and serialize model data, expose presentation-friendly methods.
+  - app/presenters/html_parser.rb — Presenter — Formats Html Parser for views/APIs. Responsibilities: adapt and serialize model data, expose presentation-friendly methods.
+  - app/presenters/mail_presenter.rb — Presenter — Formats Mail for views/APIs. Responsibilities: adapt and serialize model data, expose presentation-friendly methods.
+  - app/presenters/message_content_presenter.rb — Presenter — Formats Message Content for views/APIs. Responsibilities: adapt and serialize model data, expose presentation-friendly methods.
+    - app/presenters/conversations/event_data_presenter.rb — Presenter — Formats Event Data for views/APIs. Responsibilities: adapt and serialize model data, expose presentation-friendly methods.
+    - app/presenters/inbox/event_data_presenter.rb — Presenter — Formats Event Data for views/APIs. Responsibilities: adapt and serialize model data, expose presentation-friendly methods.
+    - app/presenters/messages/search_data_presenter.rb — Presenter — Formats Search Data for views/APIs. Responsibilities: adapt and serialize model data, expose presentation-friendly methods.
+    - app/presenters/reports/time_format_presenter.rb — Presenter — Formats Time Format for views/APIs. Responsibilities: adapt and serialize model data, expose presentation-friendly methods.
+
+## services
+
+  - app/services/account_deletion_service.rb — Service — Encapsulates business logic for Account Deletion Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+  - app/services/action_service.rb — Service — Encapsulates business logic for Action Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+  - app/services/base_refresh_oauth_token_service.rb — Service — Encapsulates business logic for Base Refresh Oauth Token Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+  - app/services/base_token_service.rb — Service — Encapsulates business logic for Base Token Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+  - app/services/csat_survey_service.rb — Service — Encapsulates business logic for Csat Survey Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+  - app/services/filter_service.rb — Service — Encapsulates business logic for Filter Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+  - app/services/ip_lookup_service.rb — Service — Encapsulates business logic for Ip Lookup Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+  - app/services/search_service.rb — Service — Encapsulates business logic for Search Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/account/sign_up_email_validation_service.rb — Service — Encapsulates business logic for Sign Up Email Validation Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/auto_assignment/agent_assignment_service.rb — Service — Encapsulates business logic for Agent Assignment Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/auto_assignment/assignment_service.rb — Service — Encapsulates business logic for Assignment Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/auto_assignment/inbox_round_robin_service.rb — Service — Encapsulates business logic for Inbox Round Robin Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/auto_assignment/rate_limiter.rb — Service — Encapsulates business logic for Rate Limiter. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/auto_assignment/round_robin_selector.rb — Service — Encapsulates business logic for Round Robin Selector. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/automation_rules/action_service.rb — Service — Encapsulates business logic for Action Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/automation_rules/condition_validation_service.rb — Service — Encapsulates business logic for Condition Validation Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/automation_rules/conditions_filter_service.rb — Service — Encapsulates business logic for Conditions Filter Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/base/send_on_channel_service.rb — Service — Encapsulates business logic for Send On Channel Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/contacts/bulk_action_service.rb — Service — Encapsulates business logic for Bulk Action Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/contacts/bulk_assign_labels_service.rb — Service — Encapsulates business logic for Bulk Assign Labels Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/contacts/bulk_delete_service.rb — Service — Encapsulates business logic for Bulk Delete Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/contacts/contactable_inboxes_service.rb — Service — Encapsulates business logic for Contactable Inboxes Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/contacts/filter_service.rb — Service — Encapsulates business logic for Filter Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/contacts/sync_attributes.rb — Service — Encapsulates business logic for Sync Attributes. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/conversations/assignment_service.rb — Service — Encapsulates business logic for Assignment Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/conversations/filter_service.rb — Service — Encapsulates business logic for Filter Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/conversations/message_window_service.rb — Service — Encapsulates business logic for Message Window Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/conversations/permission_filter_service.rb — Service — Encapsulates business logic for Permission Filter Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/conversations/typing_status_manager.rb — Service — Encapsulates business logic for Typing Status Manager. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/crm/base_processor_service.rb — Service — Encapsulates business logic for Base Processor Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/crm/leadsquared/lead_finder_service.rb — Service — Encapsulates business logic for Lead Finder Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/crm/leadsquared/processor_service.rb — Service — Encapsulates business logic for Processor Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/crm/leadsquared/setup_service.rb — Service — Encapsulates business logic for Setup Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+        - app/services/crm/leadsquared/api/activity_client.rb — Service — Encapsulates business logic for Activity Client. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+        - app/services/crm/leadsquared/api/base_client.rb — Service — Encapsulates business logic for Base Client. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+        - app/services/crm/leadsquared/api/lead_client.rb — Service — Encapsulates business logic for Lead Client. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+        - app/services/crm/leadsquared/mappers/contact_mapper.rb — Service — Encapsulates business logic for Contact Mapper. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+        - app/services/crm/leadsquared/mappers/conversation_mapper.rb — Service — Encapsulates business logic for Conversation Mapper. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/data_import/contact_manager.rb — Service — Encapsulates business logic for Contact Manager. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/email/send_on_email_service.rb — Service — Encapsulates business logic for Send On Email Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/email_templates/db_resolver_service.rb — Service — Encapsulates business logic for Db Resolver Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/facebook/send_on_facebook_service.rb — Service — Encapsulates business logic for Send On Facebook Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/geocoder/setup_service.rb — Service — Encapsulates business logic for Setup Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/google/refresh_oauth_token_service.rb — Service — Encapsulates business logic for Refresh Oauth Token Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/imap/base_fetch_email_service.rb — Service — Encapsulates business logic for Base Fetch Email Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/imap/fetch_email_service.rb — Service — Encapsulates business logic for Fetch Email Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/imap/google_fetch_email_service.rb — Service — Encapsulates business logic for Google Fetch Email Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/imap/microsoft_fetch_email_service.rb — Service — Encapsulates business logic for Microsoft Fetch Email Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/instagram/base_message_text.rb — Service — Encapsulates business logic for Base Message Text. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/instagram/base_send_service.rb — Service — Encapsulates business logic for Base Send Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/instagram/message_text.rb — Service — Encapsulates business logic for Message Text. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/instagram/read_status_service.rb — Service — Encapsulates business logic for Read Status Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/instagram/refresh_oauth_token_service.rb — Service — Encapsulates business logic for Refresh Oauth Token Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/instagram/send_on_instagram_service.rb — Service — Encapsulates business logic for Send On Instagram Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/instagram/test_event_service.rb — Service — Encapsulates business logic for Test Event Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/instagram/webhooks_base_service.rb — Service — Encapsulates business logic for Webhooks Base Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/instagram/messenger/message_text.rb — Service — Encapsulates business logic for Message Text. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/instagram/messenger/send_on_instagram_service.rb — Service — Encapsulates business logic for Send On Instagram Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/internal/remove_stale_contact_inboxes_service.rb — Service — Encapsulates business logic for Remove Stale Contact Inboxes Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/internal/remove_stale_contacts_service.rb — Service — Encapsulates business logic for Remove Stale Contacts Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/internal/remove_stale_redis_keys_service.rb — Service — Encapsulates business logic for Remove Stale Redis Keys Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/labels/update_service.rb — Service — Encapsulates business logic for Update Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/line/incoming_message_service.rb — Service — Encapsulates business logic for Incoming Message Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/line/send_on_line_service.rb — Service — Encapsulates business logic for Send On Line Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/linear/activity_message_service.rb — Service — Encapsulates business logic for Activity Message Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/liquid/campaign_template_service.rb — Service — Encapsulates business logic for Campaign Template Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/llm_formatter/article_llm_formatter.rb — Service — Encapsulates business logic for Article Llm Formatter. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/llm_formatter/contact_llm_formatter.rb — Service — Encapsulates business logic for Contact Llm Formatter. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/llm_formatter/conversation_llm_formatter.rb — Service — Encapsulates business logic for Conversation Llm Formatter. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/llm_formatter/default_llm_formatter.rb — Service — Encapsulates business logic for Default Llm Formatter. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/llm_formatter/llm_text_formatter_service.rb — Service — Encapsulates business logic for Llm Text Formatter Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/macros/execution_service.rb — Service — Encapsulates business logic for Execution Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/mailbox/conversation_finder.rb — Service — Encapsulates business logic for Conversation Finder. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/mailbox/conversation_finder_strategies/base_strategy.rb — Service — Encapsulates business logic for Base Strategy. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/mailbox/conversation_finder_strategies/in_reply_to_strategy.rb — Service — Encapsulates business logic for In Reply To Strategy. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/mailbox/conversation_finder_strategies/new_conversation_strategy.rb — Service — Encapsulates business logic for New Conversation Strategy. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/mailbox/conversation_finder_strategies/receiver_uuid_strategy.rb — Service — Encapsulates business logic for Receiver Uuid Strategy. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/mailbox/conversation_finder_strategies/references_strategy.rb — Service — Encapsulates business logic for References Strategy. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/message_templates/hook_execution_service.rb — Service — Encapsulates business logic for Hook Execution Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/message_templates/template/auto_resolve.rb — Service — Encapsulates business logic for Auto Resolve. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/message_templates/template/csat_survey.rb — Service — Encapsulates business logic for Csat Survey. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/message_templates/template/email_collect.rb — Service — Encapsulates business logic for Email Collect. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/message_templates/template/greeting.rb — Service — Encapsulates business logic for Greeting. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/message_templates/template/out_of_office.rb — Service — Encapsulates business logic for Out Of Office. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/messages/in_reply_to_message_builder.rb — Service — Encapsulates business logic for In Reply To Message Builder. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/messages/markdown_renderer_service.rb — Service — Encapsulates business logic for Markdown Renderer Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/messages/mention_service.rb — Service — Encapsulates business logic for Mention Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/messages/new_message_notification_service.rb — Service — Encapsulates business logic for New Message Notification Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/messages/send_email_notification_service.rb — Service — Encapsulates business logic for Send Email Notification Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/messages/status_update_service.rb — Service — Encapsulates business logic for Status Update Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/messages/markdown_renderers/base_markdown_renderer.rb — Service — Encapsulates business logic for Base Markdown Renderer. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/messages/markdown_renderers/instagram_renderer.rb — Service — Encapsulates business logic for Instagram Renderer. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/messages/markdown_renderers/line_renderer.rb — Service — Encapsulates business logic for Line Renderer. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/messages/markdown_renderers/plain_text_renderer.rb — Service — Encapsulates business logic for Plain Text Renderer. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/messages/markdown_renderers/telegram_renderer.rb — Service — Encapsulates business logic for Telegram Renderer. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/messages/markdown_renderers/whats_app_renderer.rb — Service — Encapsulates business logic for Whats App Renderer. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/mfa/authentication_service.rb — Service — Encapsulates business logic for Authentication Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/mfa/management_service.rb — Service — Encapsulates business logic for Management Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/mfa/token_service.rb — Service — Encapsulates business logic for Token Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/microsoft/refresh_oauth_token_service.rb — Service — Encapsulates business logic for Refresh Oauth Token Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/notification/email_notification_service.rb — Service — Encapsulates business logic for Email Notification Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/notification/fcm_service.rb — Service — Encapsulates business logic for Fcm Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/notification/push_notification_service.rb — Service — Encapsulates business logic for Push Notification Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/sms/delivery_status_service.rb — Service — Encapsulates business logic for Delivery Status Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/sms/incoming_message_service.rb — Service — Encapsulates business logic for Incoming Message Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/sms/oneoff_sms_campaign_service.rb — Service — Encapsulates business logic for Oneoff Sms Campaign Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/sms/send_on_sms_service.rb — Service — Encapsulates business logic for Send On Sms Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/telegram/incoming_message_service.rb — Service — Encapsulates business logic for Incoming Message Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/telegram/param_helpers.rb — Service — Encapsulates business logic for Param Helpers. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/telegram/send_attachments_service.rb — Service — Encapsulates business logic for Send Attachments Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/telegram/send_on_telegram_service.rb — Service — Encapsulates business logic for Send On Telegram Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/telegram/update_message_service.rb — Service — Encapsulates business logic for Update Message Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/tiktok/auth_client.rb — Service — Encapsulates business logic for Auth Client. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/tiktok/client.rb — Service — Encapsulates business logic for Client. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/tiktok/message_service.rb — Service — Encapsulates business logic for Message Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/tiktok/messaging_helpers.rb — Service — Encapsulates business logic for Messaging Helpers. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/tiktok/read_status_service.rb — Service — Encapsulates business logic for Read Status Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/tiktok/send_on_tiktok_service.rb — Service — Encapsulates business logic for Send On Tiktok Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/tiktok/token_service.rb — Service — Encapsulates business logic for Token Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twilio/delivery_status_service.rb — Service — Encapsulates business logic for Delivery Status Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twilio/incoming_message_service.rb — Service — Encapsulates business logic for Incoming Message Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twilio/oneoff_sms_campaign_service.rb — Service — Encapsulates business logic for Oneoff Sms Campaign Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twilio/send_on_twilio_service.rb — Service — Encapsulates business logic for Send On Twilio Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twilio/template_processor_service.rb — Service — Encapsulates business logic for Template Processor Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twilio/template_sync_service.rb — Service — Encapsulates business logic for Template Sync Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twilio/webhook_setup_service.rb — Service — Encapsulates business logic for Webhook Setup Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twitter/direct_message_parser_service.rb — Service — Encapsulates business logic for Direct Message Parser Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twitter/send_on_twitter_service.rb — Service — Encapsulates business logic for Send On Twitter Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twitter/tweet_parser_service.rb — Service — Encapsulates business logic for Tweet Parser Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twitter/webhook_subscribe_service.rb — Service — Encapsulates business logic for Webhook Subscribe Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/twitter/webhooks_base_service.rb — Service — Encapsulates business logic for Webhooks Base Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/channel_creation_service.rb — Service — Encapsulates business logic for Channel Creation Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/csat_template_name_service.rb — Service — Encapsulates business logic for Csat Template Name Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/csat_template_service.rb — Service — Encapsulates business logic for Csat Template Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/embedded_signup_service.rb — Service — Encapsulates business logic for Embedded Signup Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/facebook_api_client.rb — Service — Encapsulates business logic for Facebook Api Client. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/health_service.rb — Service — Encapsulates business logic for Health Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/incoming_message_base_service.rb — Service — Encapsulates business logic for Incoming Message Base Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/incoming_message_service.rb — Service — Encapsulates business logic for Incoming Message Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/incoming_message_service_helpers.rb — Service — Encapsulates business logic for Incoming Message Service Helpers. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/incoming_message_whatsapp_cloud_service.rb — Service — Encapsulates business logic for Incoming Message Whatsapp Cloud Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/oneoff_campaign_service.rb — Service — Encapsulates business logic for Oneoff Campaign Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/phone_info_service.rb — Service — Encapsulates business logic for Phone Info Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/phone_number_normalization_service.rb — Service — Encapsulates business logic for Phone Number Normalization Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/populate_template_parameters_service.rb — Service — Encapsulates business logic for Populate Template Parameters Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/reauthorization_service.rb — Service — Encapsulates business logic for Reauthorization Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/send_on_whatsapp_service.rb — Service — Encapsulates business logic for Send On Whatsapp Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/template_parameter_converter_service.rb — Service — Encapsulates business logic for Template Parameter Converter Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/template_processor_service.rb — Service — Encapsulates business logic for Template Processor Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/token_exchange_service.rb — Service — Encapsulates business logic for Token Exchange Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/token_validation_service.rb — Service — Encapsulates business logic for Token Validation Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/webhook_setup_service.rb — Service — Encapsulates business logic for Webhook Setup Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/whatsapp/webhook_teardown_service.rb — Service — Encapsulates business logic for Webhook Teardown Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/whatsapp/phone_normalizers/argentina_phone_normalizer.rb — Service — Encapsulates business logic for Argentina Phone Normalizer. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/whatsapp/phone_normalizers/base_phone_normalizer.rb — Service — Encapsulates business logic for Base Phone Normalizer. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/whatsapp/phone_normalizers/brazil_phone_normalizer.rb — Service — Encapsulates business logic for Brazil Phone Normalizer. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/whatsapp/providers/base_service.rb — Service — Encapsulates business logic for Base Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/whatsapp/providers/whatsapp_360_dialog_service.rb — Service — Encapsulates business logic for Whatsapp 360 Dialog Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+      - app/services/whatsapp/providers/whatsapp_cloud_service.rb — Service — Encapsulates business logic for Whatsapp Cloud Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+    - app/services/widget/token_service.rb — Service — Encapsulates business logic for Token Service. Responsibilities: orchestrate model changes, coordinate external calls, and keep controllers thin.
+
+## views
+
+    - app/views/android_app/assetlinks.json.erb — View template — assetlinks.json.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/api/v1/accounts/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/api/v1/accounts/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/api/v1/accounts/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/actions/contact_merges/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/agent_bots/avatar.json.jbuilder — View template — avatar.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/agent_bots/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/agent_bots/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/agent_bots/reset_access_token.json.jbuilder — View template — reset_access_token.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/agent_bots/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/agent_bots/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/agents/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/agents/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/agents/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/articles/_article.json.jbuilder — View template — _article.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/articles/_associated_article.json.jbuilder — View template — _associated_article.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/articles/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/articles/edit.json.jbuilder — View template — edit.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/articles/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/articles/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/articles/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/assignable_agents/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/assignment_policies/_assignment_policy.json.jbuilder — View template — _assignment_policy.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/assignment_policies/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/assignment_policies/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/assignment_policies/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/assignment_policies/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/assignment_policies/inboxes/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/assignment_policies/inboxes/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/automation_rules/clone.json.jbuilder — View template — clone.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/automation_rules/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/automation_rules/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/automation_rules/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/automation_rules/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/automation_rules/partials/_automation_rule.json.jbuilder — View template — _automation_rule.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/callbacks/facebook_pages.json.jbuilder — View template — facebook_pages.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/callbacks/reauthorize_page.json.jbuilder — View template — reauthorize_page.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/callbacks/register_facebook_page.json.jbuilder — View template — register_facebook_page.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/campaigns/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/campaigns/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/campaigns/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/campaigns/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/categories/_associated_category.json.jbuilder — View template — _associated_category.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/categories/_category.json.jbuilder — View template — _category.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/categories/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/categories/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/categories/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/categories/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/channels/twilio_channels/create.json.jbuilder — Channel — Real-time channel Create.Json. Responsibilities: manage subscriptions, broadcast updates, and handle incoming messages.
+          - app/views/api/v1/accounts/contact_inboxes/filter.json.jbuilder — View template — filter.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/contacts/active.json.jbuilder — View template — active.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/contacts/avatar.json.jbuilder — View template — avatar.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/contacts/contactable_inboxes.json.jbuilder — View template — contactable_inboxes.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/contacts/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/contacts/destroy_custom_attributes.json.jbuilder — View template — destroy_custom_attributes.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/contacts/filter.json.jbuilder — View template — filter.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/contacts/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/contacts/search.json.jbuilder — View template — search.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/contacts/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/contacts/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/contacts/contact_inboxes/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/contacts/conversations/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/contacts/labels/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/contacts/labels/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/contacts/notes/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/contacts/notes/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/contacts/notes/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/contacts/notes/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/attachments.json.jbuilder — View template — attachments.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/custom_attributes.json.jbuilder — View template — custom_attributes.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/filter.json.jbuilder — View template — filter.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/meta.json.jbuilder — View template — meta.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/search.json.jbuilder — View template — search.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/toggle_status.json.jbuilder — View template — toggle_status.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/unread.json.jbuilder — View template — unread.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/conversations/update_last_seen.json.jbuilder — View template — update_last_seen.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/conversations/labels/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/conversations/labels/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/conversations/messages/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/conversations/messages/destroy.json.jbuilder — View template — destroy.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/conversations/messages/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/conversations/messages/retry.json.jbuilder — View template — retry.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/conversations/messages/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/conversations/participants/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/conversations/participants/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/csat_survey_responses/download.csv.erb — View template — download.csv.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/csat_survey_responses/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/csat_survey_responses/metrics.json.jbuilder — View template — metrics.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/custom_attribute_definitions/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/custom_attribute_definitions/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/custom_attribute_definitions/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/custom_attribute_definitions/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/custom_filters/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/custom_filters/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/custom_filters/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/custom_filters/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/dashboard_apps/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/dashboard_apps/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/dashboard_apps/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/dashboard_apps/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/inbox_members/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/inbox_members/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/inbox_members/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/inboxes/agent_bot.json.jbuilder — View template — agent_bot.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/inboxes/assignable_agents.json.jbuilder — View template — assignable_agents.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/inboxes/campaigns.json.jbuilder — View template — campaigns.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/inboxes/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/inboxes/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/inboxes/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/inboxes/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/inboxes/assignment_policies/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/inboxes/assignment_policies/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/integrations/apps/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/integrations/apps/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/integrations/hooks/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/integrations/hooks/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/integrations/linear/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/integrations/slack/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/integrations/slack/list_all_channels.json.jbuilder — View template — list_all_channels.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/integrations/slack/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/labels/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/labels/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/labels/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/labels/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/macros/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/macros/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/macros/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/macros/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/notification_settings/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/notifications/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/portals/_portal.json.jbuilder — View template — _portal.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/portals/add_members.json.jbuilder — View template — add_members.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/portals/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/portals/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/portals/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/portals/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/search/_agent.json.jbuilder — View template — _agent.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/search/_article.json.jbuilder — View template — _article.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/search/_contact.json.jbuilder — View template — _contact.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/search/_conversation_search_result.json.jbuilder — View template — _conversation_search_result.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/search/_inbox.json.jbuilder — View template — _inbox.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/search/_message.json.jbuilder — View template — _message.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/search/articles.json.jbuilder — View template — articles.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/search/contacts.json.jbuilder — View template — contacts.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/search/conversations.json.jbuilder — View template — conversations.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/search/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/search/messages.json.jbuilder — View template — messages.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/team_members/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/team_members/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/teams/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/teams/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/teams/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/teams/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/webhooks/_webhook.json.jbuilder — View template — _webhook.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/webhooks/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/webhooks/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/accounts/webhooks/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/api/v1/accounts/whatsapp/callbacks/embedded_signup.json.jbuilder — View template — embedded_signup.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/conversations/partials/_conversation.json.jbuilder — View template — _conversation.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/api/v1/models/_account.json.jbuilder — Model — Represents domain entity  Account.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_agent.json.jbuilder — Model — Represents domain entity  Agent.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_agent_bot.json.jbuilder — Model — Represents domain entity  Agent Bot.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_agent_bot_slim.json.jbuilder — Model — Represents domain entity  Agent Bot Slim.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_app.json.jbuilder — Model — Represents domain entity  App.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_campaign.json.jbuilder — Model — Represents domain entity  Campaign.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_contact.json.jbuilder — Model — Represents domain entity  Contact.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_contact_inbox.json.jbuilder — Model — Represents domain entity  Contact Inbox.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_conversation.json.jbuilder — Model — Represents domain entity  Conversation.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_csat_survey_response.json.jbuilder — Model — Represents domain entity  Csat Survey Response.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_custom_attribute_definition.json.jbuilder — Model — Represents domain entity  Custom Attribute Definition.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_custom_filter.json.jbuilder — Model — Represents domain entity  Custom Filter.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_dashboard_app.json.jbuilder — Model — Represents domain entity  Dashboard App.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_hook.json.jbuilder — Model — Represents domain entity  Hook.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_inbox.json.jbuilder — Model — Represents domain entity  Inbox.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_inbox_slim.json.jbuilder — Model — Represents domain entity  Inbox Slim.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_macro.json.jbuilder — Model — Represents domain entity  Macro.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_message.json.jbuilder — Model — Represents domain entity  Message.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_note.json.jbuilder — Model — Represents domain entity  Note.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_portal_config.json.jbuilder — Model — Represents domain entity  Portal Config.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_team.json.jbuilder — Model — Represents domain entity  Team.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_user.json.jbuilder — Model — Represents domain entity  User.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+        - app/views/api/v1/models/_widget_message.json.jbuilder — Model — Represents domain entity  Widget Message.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/api/v1/profile/mfa/backup_codes.json.jbuilder — View template — backup_codes.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/profile/mfa/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/profile/mfa/destroy.json.jbuilder — View template — destroy.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/profile/mfa/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/profile/mfa/verify.json.jbuilder — View template — verify.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/api/v1/profiles/auto_offline.jbuilder — View template — auto_offline.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/api/v1/profiles/availability.jbuilder — View template — availability.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/api/v1/profiles/avatar.json.jbuilder — View template — avatar.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/api/v1/profiles/reset_access_token.json.jbuilder — View template — reset_access_token.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/api/v1/profiles/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/api/v1/profiles/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/widget/campaigns/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/widget/configs/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/widget/contacts/set_user.json.jbuilder — View template — set_user.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/widget/contacts/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/widget/contacts/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/widget/conversations/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/widget/conversations/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/widget/inbox_members/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/widget/messages/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/widget/messages/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v1/widget/messages/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v2/accounts/reports/agents.csv.erb — View template — agents.csv.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v2/accounts/reports/conversation_traffic.erb — View template — conversation_traffic.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v2/accounts/reports/inboxes.csv.erb — View template — inboxes.csv.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v2/accounts/reports/labels.csv.erb — View template — labels.csv.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/api/v2/accounts/reports/teams.csv.erb — View template — teams.csv.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/apple_app/site_association.html.erb — View template — site_association.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/dashboard/index.html.erb — View template — index.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/devise/_auth.json.jbuilder — View template — _auth.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/devise/token.json.jbuilder — View template — token.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/devise/mailer/confirmation_instructions.html.erb — View template — confirmation_instructions.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/devise/mailer/password_change.html.erb — View template — password_change.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/devise/mailer/reset_password_instructions.html.erb — View template — reset_password_instructions.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/devise/mailer/unlock_instructions.html.erb — View template — unlock_instructions.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/fields/avatar_field/_index.html.erb — Field — Definition/helper  Index.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/avatar_field/_show.html.erb — Field — Definition/helper  Show.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/belongs_to/_form.html.erb — Field — Definition/helper  Form.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/belongs_to/_index.html.erb — Field — Definition/helper  Index.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/belongs_to/_show.html.erb — Field — Definition/helper  Show.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/belongs_to_search/_index.html.erb — Field — Definition/helper  Index.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/count_field/_index.html.erb — Field — Definition/helper  Index.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/count_field/_show.html.erb — Field — Definition/helper  Show.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/polymorphic/_form.html.erb — Field — Definition/helper  Form.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/polymorphic/_index.html.erb — Field — Definition/helper  Index.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/polymorphic/_show.html.erb — Field — Definition/helper  Show.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/secret_field/_index.html.erb — Field — Definition/helper  Index.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/secret_field/_show.html.erb — Field — Definition/helper  Show.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/serialized_field/_form.html.erb — Field — Definition/helper  Form.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/serialized_field/_index.html.erb — Field — Definition/helper  Index.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+      - app/views/fields/serialized_field/_show.html.erb — Field — Definition/helper  Show.Html. Responsibilities: define custom attribute types or input handling for forms/models.
+    - app/views/icons/_check-mark.html.erb — View template — _check-mark.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/icons/_chevron-down.html.erb — View template — _chevron-down.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/icons/_chevron-right.html.erb — View template — _chevron-right.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/icons/_close.html.erb — View template — _close.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/icons/_globe.html.erb — View template — _globe.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/icons/_hamburger.html.erb — View template — _hamburger.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/icons/_monitor.html.erb — View template — _monitor.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/icons/_moon.html.erb — View template — _moon.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/icons/_palette.html.erb — View template — _palette.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/icons/_redirect.html.erb — View template — _redirect.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/icons/_sun.html.erb — View template — _sun.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/icons/_user.html.erb — View template — _user.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/installation/onboarding/index.html.erb — View template — index.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/layouts/portal.html.erb — View template — portal.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/layouts/vueapp.html.erb — View template — vueapp.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/layouts/mailer/base.liquid — View template — base.liquid. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/layouts/super_admin/application.html.erb — View template — application.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/mailers/administrator_notifications/account_compliance_mailer/account_deleted.liquid — Mailer — Email component Account Deleted. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/account_notification_mailer/account_deletion_for_inactivity.liquid — Mailer — Email component Account Deletion For Inactivity. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/account_notification_mailer/account_deletion_user_initiated.liquid — Mailer — Email component Account Deletion User Initiated. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/account_notification_mailer/automation_rule_disabled.liquid — Mailer — Email component Automation Rule Disabled. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/account_notification_mailer/contact_export_complete.liquid — Mailer — Email component Contact Export Complete. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/account_notification_mailer/contact_import_complete.liquid — Mailer — Email component Contact Import Complete. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/account_notification_mailer/contact_import_failed.liquid — Mailer — Email component Contact Import Failed. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/channel_notifications_mailer/email_disconnect.liquid — Mailer — Email component Email Disconnect. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/channel_notifications_mailer/facebook_disconnect.liquid — Mailer — Email component Facebook Disconnect. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/channel_notifications_mailer/instagram_disconnect.liquid — Mailer — Email component Instagram Disconnect. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/channel_notifications_mailer/whatsapp_disconnect.liquid — Mailer — Email component Whatsapp Disconnect. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/integrations_notification_mailer/dialogflow_disconnect.liquid — Mailer — Email component Dialogflow Disconnect. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/administrator_notifications/integrations_notification_mailer/slack_disconnect.liquid — Mailer — Email component Slack Disconnect. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/agent_notifications/conversation_notifications_mailer/assigned_conversation_new_message.liquid — Mailer — Email component Assigned Conversation New Message. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/agent_notifications/conversation_notifications_mailer/conversation_assignment.liquid — Mailer — Email component Conversation Assignment. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/agent_notifications/conversation_notifications_mailer/conversation_creation.liquid — Mailer — Email component Conversation Creation. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/agent_notifications/conversation_notifications_mailer/conversation_mention.liquid — Mailer — Email component Conversation Mention. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/agent_notifications/conversation_notifications_mailer/participating_conversation_new_message.liquid — Mailer — Email component Participating Conversation New Message. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/agent_notifications/conversation_notifications_mailer/sla_missed_first_response.liquid — Mailer — Email component Sla Missed First Response. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/agent_notifications/conversation_notifications_mailer/sla_missed_next_response.liquid — Mailer — Email component Sla Missed Next Response. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/agent_notifications/conversation_notifications_mailer/sla_missed_resolution.liquid — Mailer — Email component Sla Missed Resolution. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+      - app/views/mailers/conversation_reply_mailer/conversation_transcript.html.erb — Mailer — Email component Conversation Transcript.Html. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+      - app/views/mailers/conversation_reply_mailer/email_reply.html.erb — Mailer — Email component Email Reply.Html. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+      - app/views/mailers/conversation_reply_mailer/reply_with_summary.html.erb — Mailer — Email component Reply With Summary.Html. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+      - app/views/mailers/conversation_reply_mailer/reply_without_summary.html.erb — Mailer — Email component Reply Without Summary.Html. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+      - app/views/mailers/portal_instructions_mailer/send_cname_instructions.liquid — Mailer — Email component Send Cname Instructions. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/team_notifications/automation_notification_mailer/conversation_creation.liquid — Mailer — Email component Conversation Creation. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/team_notifications/automation_notification_mailer/conversation_updated.liquid — Mailer — Email component Conversation Updated. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+        - app/views/mailers/team_notifications/automation_notification_mailer/message_created.liquid — Mailer — Email component Message Created. Responsibilities: compose email templates, set recipients/subjects, and deliver messages.
+    - app/views/microsoft/identity_association.json.jbuilder — View template — identity_association.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/accounts/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/accounts/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/accounts/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/accounts/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/agent_bots/avatar.json.jbuilder — View template — avatar.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/agent_bots/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/agent_bots/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/agent_bots/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/agent_bots/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/models/_account.json.jbuilder — Model — Represents domain entity  Account.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/platform/api/v1/models/_agent_bot.json.jbuilder — Model — Represents domain entity  Agent Bot.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/platform/api/v1/models/_user.json.jbuilder — Model — Represents domain entity  User.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/platform/api/v1/users/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/users/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/users/token.json.jbuilder — View template — token.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/platform/api/v1/users/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/csat_survey/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/csat_survey/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/inboxes/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/inboxes/contacts/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/inboxes/contacts/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/inboxes/contacts/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/inboxes/conversations/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/inboxes/conversations/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/inboxes/conversations/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/inboxes/conversations/toggle_status.json.jbuilder — View template — toggle_status.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/inboxes/messages/create.json.jbuilder — View template — create.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/inboxes/messages/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/inboxes/messages/update.json.jbuilder — View template — update.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/models/_article.json.jbuilder — Model — Represents domain entity  Article.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/public/api/v1/models/_associated_category.json.jbuilder — Model — Represents domain entity  Associated Category.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/public/api/v1/models/_category.json.jbuilder — Model — Represents domain entity  Category.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/public/api/v1/models/_contact.json.jbuilder — Model — Represents domain entity  Contact.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/public/api/v1/models/_conversation.json.jbuilder — Model — Represents domain entity  Conversation.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/public/api/v1/models/_csat_survey.json.jbuilder — Model — Represents domain entity  Csat Survey.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/public/api/v1/models/_inbox.json.jbuilder — Model — Represents domain entity  Inbox.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/public/api/v1/models/_message.json.jbuilder — Model — Represents domain entity  Message.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+            - app/views/public/api/v1/models/hc/_associated_article.json.jbuilder — Model — Represents domain entity  Associated Article.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+            - app/views/public/api/v1/models/hc/_author.json.jbuilder — Model — Represents domain entity  Author.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+            - app/views/public/api/v1/models/hc/_portal.json.jbuilder — Model — Represents domain entity  Portal.Json. Responsibilities: define schema associations/validations, encapsulate business rules, and persist state.
+          - app/views/public/api/v1/portals/_article_count.html.erb — View template — _article_count.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/_authors.html.erb — View template — _authors.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/_category-block.html.erb — View template — _category-block.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/_featured_articles.html.erb — View template — _featured_articles.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/_footer.html.erb — View template — _footer.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/_header.html.erb — View template — _header.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/_hero.html.erb — View template — _hero.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/_mobile_menu.html.erb — View template — _mobile_menu.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/_thumbnail.html.erb — View template — _thumbnail.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/_uncategorized-block.html.erb — View template — _uncategorized-block.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/show.html.erb — View template — show.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+          - app/views/public/api/v1/portals/sitemap.xml.erb — View template — sitemap.xml.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/articles/_article_header.html.erb — View template — _article_header.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/articles/index.html.erb — View template — index.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/articles/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/articles/show.html.erb — View template — show.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/articles/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/categories/_category-block.html.erb — View template — _category-block.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/categories/_category-hero.html.erb — View template — _category-hero.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/categories/_hero.html.erb — View template — _hero.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/categories/index.html.erb — View template — index.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/categories/index.json.jbuilder — View template — index.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/categories/show.html.erb — View template — show.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/categories/show.json.jbuilder — View template — show.json.jbuilder. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+            - app/views/public/api/v1/portals/error/404.html.erb — View template — 404.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/accounts/_reset_cache.html.erb — View template — _reset_cache.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/accounts/_seed_data.html.erb — View template — _seed_data.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/accounts/show.html.erb — View template — show.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/app_configs/show.html.erb — View template — show.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/_collection.html.erb — View template — _collection.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/_filters.html.erb — View template — _filters.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/_flashes.html.erb — View template — _flashes.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/_icons.html.erb — View template — _icons.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/_javascript.html.erb — View template — _javascript.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/_nav_item.html.erb — View template — _nav_item.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/_navigation.html.erb — View template — _navigation.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/_search.html.erb — View template — _search.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/_settings_menu.html.erb — View template — _settings_menu.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/_stylesheet.html.erb — View template — _stylesheet.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/index.html.erb — View template — index.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/application/show.html.erb — View template — show.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/dashboard/index.html.erb — View template — index.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+        - app/views/super_admin/devise/sessions/new.html.erb — View template — new.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/instance_statuses/show.html.erb — View template — show.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/settings/_upgrade_button_community.html.erb — View template — _upgrade_button_community.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/settings/_upgrade_button_enterprise.html.erb — View template — _upgrade_button_enterprise.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/settings/show.html.erb — View template — show.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/shared/_account_user_form.html.erb — View template — _account_user_form.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/users/_collection.html.erb — View template — _collection.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/users/_impersonate.erb — View template — _impersonate.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/super_admin/users/show.html.erb — View template — show.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+      - app/views/survey/responses/show.html.erb — View template — show.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/widget_tests/index.html.erb — View template — index.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+    - app/views/widgets/show.html.erb — View template — show.html.erb. Responsibilities: render HTML used by controllers or mailers; include partials and presentation logic.
+
+---
+Generated on 2025-12-30T12:36:07.012718

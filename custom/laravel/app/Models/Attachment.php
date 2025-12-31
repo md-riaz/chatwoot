@@ -120,4 +120,15 @@ class Attachment extends Model
     {
         return $this->file_type === self::TYPE_LOCATION;
     }
+
+    protected static function booted()
+    {
+        static::created(function (self $attachment) {
+            if ($attachment->isAudio()) {
+                \Illuminate\Support\Facades\DB::afterCommit(function () use ($attachment) {
+                    \App\Jobs\Message\AudioTranscriptionJob::dispatch($attachment->id)->onQueue('low');
+                });
+            }
+        });
+    }
 }

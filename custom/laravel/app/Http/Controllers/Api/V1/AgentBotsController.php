@@ -36,10 +36,7 @@ class AgentBotsController extends Controller
             'avatar_url' => 'nullable|url',
         ]);
 
-        $bot = AgentBot::create([
-            ...$validated,
-            'account_id' => $account->id,
-        ]);
+        $bot = AgentBot::create(array_merge($validated, ['account_id' => $account->id]));
 
         return response()->json(['data' => $bot], 201);
     }
@@ -50,7 +47,6 @@ class AgentBotsController extends Controller
      */
     public function show(Account $account, AgentBot $agentBot): JsonResponse
     {
-        // Allow access if bot belongs to account OR is a global bot
         abort_unless($agentBot->account_id === $account->id || $agentBot->account_id === null, 404);
 
         return response()->json(['data' => $agentBot]);
@@ -62,7 +58,6 @@ class AgentBotsController extends Controller
      */
     public function update(Request $request, Account $account, AgentBot $agentBot): JsonResponse
     {
-        // Only allow updating account-specific bots
         abort_unless($agentBot->account_id === $account->id, 404);
 
         $validated = $request->validate([
@@ -85,7 +80,6 @@ class AgentBotsController extends Controller
      */
     public function destroy(Account $account, AgentBot $agentBot): JsonResponse
     {
-        // Only allow deleting account-specific bots
         abort_unless($agentBot->account_id === $account->id, 404);
 
         $agentBot->delete();
@@ -106,15 +100,13 @@ class AgentBotsController extends Controller
     }
 
     /**
-     * Reset the agent bot's access token.
+     * Reset the access token for an agent bot.
      */
     public function resetAccessToken(Account $account, AgentBot $agentBot): JsonResponse
     {
-        abort_unless($agentBot->account_id === $account->id, 404);
-
-        // Generate new token (would need AccessToken model)
-        // $agentBot->accessToken->regenerateToken();
-
-        return response()->json(['data' => $agentBot]);
+        // TODO: Implement actual token reset logic
+        $agentBot->access_token = bin2hex(random_bytes(32));
+        $agentBot->save();
+        return response()->json(['message' => 'Access token reset', 'access_token' => $agentBot->access_token]);
     }
 }

@@ -1045,6 +1045,50 @@ components:
           type: string
           format: date-time
 paths:
+  /installation/onboarding:
+    post:
+      tags:
+      - Authentication
+      summary: First-time onboarding (create super admin)
+      description: Creates the first account and a user with the super_admin role.
+        This endpoint is available only once, immediately after install/seed. Further
+        requests are blocked after onboarding is complete.
+      operationId: onboardingCreateSuperAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - user
+              properties:
+                user:
+                  type: object
+                  required:
+                  - name
+                  - company
+                  - email
+                  - password
+                  properties:
+                    name:
+                      type: string
+                    company:
+                      type: string
+                    email:
+                      type: string
+                      format: email
+                    password:
+                      type: string
+                subscribe_to_updates:
+                  type: boolean
+      responses:
+        '201':
+          description: Super admin and account created
+        '403':
+          description: Onboarding already completed
+        '422':
+          description: Validation error
   /super_admin/accounts:
     get:
       tags:
@@ -1661,6 +1705,111 @@ paths:
       responses:
         '204':
           description: Access token revoked
+  /webhooks/voice/call/{phone}:
+    post:
+      tags:
+      - Channels
+      summary: Twilio Voice Call Webhook
+      description: Handle incoming Twilio voice call and return TwiML conference response.
+      operationId: twilioVoiceCallWebhook
+      parameters:
+      - name: phone
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                From:
+                  type: string
+                To:
+                  type: string
+                CallSid:
+                  type: string
+                Direction:
+                  type: string
+      responses:
+        '200':
+          description: TwiML conference response
+          content:
+            application/xml:
+              schema:
+                type: string
+  /webhooks/voice/status/{phone}:
+    post:
+      tags:
+      - Channels
+      summary: Twilio Call Status Webhook
+      description: Handle Twilio call status events.
+      operationId: twilioVoiceStatusWebhook
+      parameters:
+      - name: phone
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                CallSid:
+                  type: string
+                CallStatus:
+                  type: string
+      responses:
+        '200':
+          description: Status processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+  /webhooks/voice/conference_status/{phone}:
+    post:
+      tags:
+      - Channels
+      summary: Twilio Conference Status Webhook
+      description: Handle Twilio conference status events.
+      operationId: twilioVoiceConferenceStatusWebhook
+      parameters:
+      - name: phone
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                ConferenceSid:
+                  type: string
+                StatusCallbackEvent:
+                  type: string
+                ParticipantLabel:
+                  type: string
+      responses:
+        '200':
+          description: Conference event processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
   /accounts/{account_id}/channels/whatsapp:
     post:
       tags:

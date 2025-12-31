@@ -6,6 +6,7 @@ use App\Actions\Conversation\AssignConversationAction;
 use App\Actions\Conversation\CloseConversationAction;
 use App\Actions\Conversation\CreateConversationAction;
 use App\Actions\Conversation\UpdateConversationAction;
+use App\Actions\Conversation\SendTranscriptAction;
 use App\Data\Conversation\ConversationData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Conversation\StoreConversationRequest;
@@ -25,6 +26,24 @@ class ConversationsController extends Controller
     public function __construct(
         private ConversationRepository $conversationRepository
     ) {}
+
+    /**
+     * Get inbox assistant info for a conversation (enterprise-only placeholder).
+     */
+    public function inboxAssistant(Account $account, Conversation $conversation): JsonResponse
+    {
+        // TODO: Implement actual enterprise logic
+        return response()->json(['assistant' => 'Not implemented']);
+    }
+
+    /**
+     * Get reporting events for a conversation (enterprise-only placeholder).
+     */
+    public function reportingEvents(Account $account, Conversation $conversation): JsonResponse
+    {
+        // TODO: Implement actual enterprise reporting events logic
+        return response()->json(['events' => []]);
+    }
 
     /**
      * Display a listing of conversations for an account.
@@ -95,7 +114,33 @@ class ConversationsController extends Controller
 
         return new ConversationResource($conversation->load('contact', 'inbox', 'assignee'));
     }
+    /**
+     * Add labels to a conversation
+     */
+    public function addLabels(Request $request, Account $account, Conversation $conversation): ConversationResource
+    {
+        abort_unless($conversation->account_id === $account->id, 404);
 
+        $this->validate($request, ['labels' => 'required|array']);
+
+        \App\Actions\Conversation\AddLabelsToConversationAction::run($conversation, $request->input('labels'));
+
+        return new ConversationResource($conversation->fresh()->load('labels'));
+    }
+
+    /**
+     * Remove labels from a conversation
+     */
+    public function removeLabels(Request $request, Account $account, Conversation $conversation): ConversationResource
+    {
+        abort_unless($conversation->account_id === $account->id, 404);
+
+        $this->validate($request, ['labels' => 'required|array']);
+
+        \App\Actions\Conversation\RemoveLabelsFromConversationAction::run($conversation, $request->input('labels'));
+
+        return new ConversationResource($conversation->fresh()->load('labels'));
+    }
     /**
      * Display the specified conversation.
      */
@@ -148,16 +193,14 @@ class ConversationsController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        if ($request->has('status')) {
-            $conversation->status = $request->input('status');
-            if ($request->has('snoozed_until')) {
-                $conversation->snoozed_until = $request->input('snoozed_until');
-            }
-        } else {
-            $conversation->status = $conversation->status === 'open' ? 'resolved' : 'open';
+        $status = $this->normalizeStatus($request, $conversation);
+        $payload = ['status' => $status];
+
+        if ($request->has('snoozed_until')) {
+            $payload['snoozed_until'] = $request->input('snoozed_until');
         }
 
-        $conversation->save();
+        $conversation = UpdateConversationAction::run($conversation, $payload);
 
         return new ConversationResource($conversation->load('contact', 'inbox', 'assignee'));
     }
@@ -209,8 +252,10 @@ class ConversationsController extends Controller
             return response()->json(['error' => 'email param missing'], 422);
         }
 
-        // Queue transcript email job
-        // TranscriptEmailJob::dispatch($conversation, $request->input('email'));
+        // Split comma separated emails and queue transcript action
+        $emails = array_filter(explode(',', str_replace(' ', '', $request->input('email'))));
+
+        \App\Actions\Conversation\SendTranscriptAction::run($conversation, $emails);
 
         return response()->json(null, 200);
     }
@@ -222,7 +267,9 @@ class ConversationsController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        $conversation->update(['priority' => $request->input('priority')]);
+        $this->validate($request, ['priority' => 'nullable']);
+
+        \App\Actions\Conversation\ChangePriorityAction::run($conversation, $request->input('priority'));
 
         return response()->json(null, 200);
     }
@@ -277,7 +324,7 @@ class ConversationsController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        $conversation->update([
+        $conversation = UpdateConversationAction::run($conversation, [
             'custom_attributes' => $request->input('custom_attributes', []),
         ]);
 
@@ -316,5 +363,22 @@ class ConversationsController extends Controller
         $conversation->delete();
 
         return response()->json(null, 204);
+    }
+
+    private function normalizeStatus(Request $request, Conversation $conversation): int
+    {
+        if ($request->has('status')) {
+            $status = $request->input('status');
+            return match ($status) {
+                'open', Conversation::STATUS_OPEN => Conversation::STATUS_OPEN,
+                'pending', Conversation::STATUS_PENDING => Conversation::STATUS_PENDING,
+                'snoozed', Conversation::STATUS_SNOOZED => Conversation::STATUS_SNOOZED,
+                default => Conversation::STATUS_RESOLVED,
+            };
+        }
+
+        return $conversation->status === Conversation::STATUS_OPEN
+            ? Conversation::STATUS_RESOLVED
+            : Conversation::STATUS_OPEN;
     }
 }

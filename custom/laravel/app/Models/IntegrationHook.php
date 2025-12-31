@@ -10,6 +10,8 @@ class IntegrationHook extends Model
 {
     use HasFactory;
 
+    protected $table = 'integrations_hooks';
+
     protected $fillable = [
         'account_id',
         'integration_id',
@@ -19,6 +21,7 @@ class IntegrationHook extends Model
         'status',
         'settings',
         'reference_id',
+        'access_token',
     ];
 
     protected $casts = [
@@ -42,7 +45,7 @@ class IntegrationHook extends Model
 
     public function scopeEnabled($query)
     {
-        return $query->where('status', 'enabled');
+        return $query->where('status', 1);
     }
 
     public function scopeForInbox($query, int $inboxId)

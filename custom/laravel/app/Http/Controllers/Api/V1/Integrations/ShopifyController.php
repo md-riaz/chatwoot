@@ -4,8 +4,17 @@ namespace App\Http\Controllers\Api\V1\Integrations;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account;
+use App\Models\Integration;
+use App\Services\Integrations\ShopifyService;
+use App\Jobs\Integrations\ProcessShopifyWebhookJob;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Config;
 
 class ShopifyController extends Controller
 {
@@ -14,7 +23,7 @@ class ShopifyController extends Controller
      */
     public function show(Account $account): JsonResponse
     {
-        $integration = null; // Would fetch from integrations table
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->first();
 
         return response()->json(['data' => $integration]);
     }
@@ -29,9 +38,22 @@ class ShopifyController extends Controller
             'access_token' => 'required|string',
         ]);
 
-        // Store Shopify integration settings
+        $integration = Integration::updateOrCreate(
+            ['account_id' => $account->id, 'type' => 'shopify'],
+            [
+                'settings' => [
+                    'shop_domain' => $validated['shop_domain'],
+                    'api_version' => $request->input('api_version', '2023-10'),
+                ],
+                'credentials' => [
+                    'access_token' => $validated['access_token'],
+                    'webhook_secret' => $request->input('webhook_secret') ?? null,
+                ],
+                'active' => true,
+            ]
+        );
 
-        return response()->json(['message' => 'Shopify connected successfully'], 201);
+        return response()->json(['data' => $integration], 201);
     }
 
     /**
@@ -43,9 +65,21 @@ class ShopifyController extends Controller
             'enabled' => 'boolean',
         ]);
 
-        // Update Shopify integration settings
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->firstOrFail();
 
-        return response()->json(['message' => 'Shopify settings updated']);
+        if (array_key_exists('enabled', $validated)) {
+            $integration->active = (bool) $validated['enabled'];
+        }
+
+        if ($request->filled('webhook_secret')) {
+            $creds = $integration->credentials ?? [];
+            $creds['webhook_secret'] = $request->input('webhook_secret');
+            $integration->credentials = $creds;
+        }
+
+        $integration->save();
+
+        return response()->json(['data' => $integration]);
     }
 
     /**
@@ -53,7 +87,10 @@ class ShopifyController extends Controller
      */
     public function destroy(Account $account): JsonResponse
     {
-        // Remove Shopify integration
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->first();
+        if ($integration) {
+            $integration->delete();
+        }
 
         return response()->json(null, 204);
     }
@@ -63,15 +100,15 @@ class ShopifyController extends Controller
      */
     public function customer(Account $account, int $contactId): JsonResponse
     {
-        // Fetch customer data from Shopify
-        $customer = [
-            'id' => 'customer_id',
-            'email' => 'customer@example.com',
-            'orders_count' => 5,
-            'total_spent' => '250.00',
-        ];
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->firstOrFail();
 
-        return response()->json(['data' => $customer]);
+        $shopify = new ShopifyService($integration);
+
+        // In a real implementation we'd lookup contact and map to Shopify customer (e.g. by email)
+        $contact = \App\Models\Contact::findOrFail($contactId);
+        $result = $shopify->getCustomerByEmail($contact->email ?? '');
+
+        return response()->json(['data' => $result]);
     }
 
     /**
@@ -79,8 +116,15 @@ class ShopifyController extends Controller
      */
     public function orders(Account $account, int $contactId): JsonResponse
     {
-        // Fetch orders from Shopify
-        $orders = [];
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->firstOrFail();
+        $shopify = new ShopifyService($integration);
+
+        $contact = \App\Models\Contact::findOrFail($contactId);
+        $customers = $shopify->getCustomerByEmail($contact->email ?? '');
+
+        // customers response shape: { customers: [ ... ] }
+        $customerId = data_get($customers, 'customers.0.id');
+        $orders = $customerId ? $shopify->getOrdersByCustomerId($customerId) : [];
 
         return response()->json(['data' => $orders]);
     }
@@ -90,8 +134,10 @@ class ShopifyController extends Controller
      */
     public function order(Account $account, string $orderId): JsonResponse
     {
-        // Fetch order details from Shopify
-        $order = [];
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->firstOrFail();
+        $shopify = new ShopifyService($integration);
+
+        $order = $shopify->getOrder($orderId);
 
         return response()->json(['data' => $order]);
     }
@@ -101,9 +147,112 @@ class ShopifyController extends Controller
      */
     public function webhook(Request $request): JsonResponse
     {
-        // Verify Shopify webhook signature
-        // Process webhook events (order created, customer updated, etc.)
+        $shop = Integration::ofType('shopify')->first();
+        if (! $shop) {
+            return response()->json(['error' => 'Shopify integration not configured'], 404);
+        }
 
-        return response()->json(['status' => 'ok']);
+        $service = new ShopifyService($shop);
+        if (! $service->verifyWebhookSignature($request)) {
+            return response()->json(['error' => 'invalid signature'], 401);
+        }
+
+        $result = $service->processWebhook($request);
+
+        // Dispatch a queued job to process the webhook payload asynchronously
+        try {
+            $integrationId = $shop->id ?? null;
+            ProcessShopifyWebhookJob::dispatch($result['topic'] ?? 'unknown', $result['payload'] ?? [], $integrationId);
+        } catch (\Throwable $e) {
+            Log::error('Failed to dispatch ProcessShopifyWebhookJob', ['error' => $e->getMessage()]);
+        }
+
+        return response()->json(['status' => 'ok', 'topic' => $result['topic'] ?? null]);
+    }
+
+    /**
+     * Start OAuth install: generate state and redirect to Shopify authorize URL.
+     */
+    public function authorize(Request $request)
+    {
+        $request->validate(['shop' => 'required|string']);
+
+        $shop = $request->input('shop');
+        $state = Str::random(40);
+
+        // store state in cache for short time (5 minutes)
+        Cache::put("shopify_oauth_state:{$state}", [
+            'shop' => $shop,
+            'account_id' => $request->input('account_id'),
+        ], now()->addMinutes(5));
+
+        $clientId = Config::get('services.shopify.client_id') ?? env('SHOPIFY_API_KEY');
+        $scopes = Config::get('services.shopify.scopes', 'read_products,read_orders,read_customers');
+        $redirectUri = URL::to('/api/v1/callbacks/shopify/callback');
+
+        $installUrl = "https://{$shop}/admin/oauth/authorize?client_id={$clientId}&scope={$scopes}&redirect_uri=".urlencode($redirectUri)."&state={$state}";
+
+        return redirect()->away($installUrl);
+    }
+
+    /**
+     * OAuth callback: validate state and exchange code for access token.
+     */
+    public function callback(Request $request)
+    {
+        $request->validate(['code' => 'required|string', 'state' => 'required|string', 'shop' => 'required|string']);
+
+        $state = $request->input('state');
+        $cached = Cache::pull("shopify_oauth_state:{$state}");
+        if (! $cached) {
+            return response()->json(['error' => 'invalid or expired state'], 403);
+        }
+
+        $shop = $request->input('shop');
+        if (data_get($cached, 'shop') !== $shop) {
+            return response()->json(['error' => 'shop mismatch'], 403);
+        }
+
+        $clientId = Config::get('services.shopify.client_id') ?? env('SHOPIFY_API_KEY');
+        $clientSecret = Config::get('services.shopify.client_secret') ?? env('SHOPIFY_API_SECRET');
+
+        $response = Http::asForm()->post("https://{$shop}/admin/oauth/access_token", [
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
+            'code' => $request->input('code'),
+        ]);
+
+        if (! $response->ok()) {
+            Log::error('Shopify access token exchange failed', ['status' => $response->status(), 'body' => $response->body()]);
+            return response()->json(['error' => 'failed to fetch access token'], 500);
+        }
+
+        $body = $response->json();
+        $accessToken = $body['access_token'] ?? null;
+        if (! $accessToken) {
+            return response()->json(['error' => 'no access token returned'], 500);
+        }
+
+        $accountId = data_get($cached, 'account_id');
+        $attributes = ['type' => 'shopify'];
+        if ($accountId) {
+            $attributes['account_id'] = $accountId;
+        }
+
+        $integration = Integration::updateOrCreate(
+            $attributes,
+            [
+                'settings' => [
+                    'shop_domain' => $shop,
+                    'api_version' => $request->input('api_version', Config::get('services.shopify.api_version', '2023-10')),
+                ],
+                'credentials' => [
+                    'access_token' => $accessToken,
+                ],
+                'active' => true,
+            ]
+        );
+
+        return response()->json(['data' => $integration]);
     }
 }

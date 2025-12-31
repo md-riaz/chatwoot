@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers\Api\V1\Widget;
 
+use App\Actions\Conversation\UpdateConversationAction;
+use App\Events\Contact\ContactCreated;
+use App\Events\Conversation\ConversationCreated;
+use App\Events\Message\MessageCreated;
 use App\Models\Contact;
 use App\Models\ContactInbox;
 use App\Models\Conversation;
+use App\Models\Inbox;
+use App\Models\Message;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -64,7 +70,7 @@ class ConversationsController extends BaseController
         ]);
 
         // Find the inbox by website token
-        $inbox = \App\Models\Inbox::where('channel_type', 'Channel::WebWidget')
+        $inbox = Inbox::where('channel_type', 'Channel::WebWidget')
             ->whereHas('channel', function ($query) use ($validated) {
                 $query->where('website_token', $validated['website_token']);
             })
@@ -88,6 +94,8 @@ class ConversationsController extends BaseController
                 'custom_attributes' => $validated['contact']['custom_attributes'] ?? [],
             ]);
 
+            event(new ContactCreated($contact));
+
             // Create contact inbox
             $contactInbox = ContactInbox::create([
                 'contact_id' => $contact->id,
@@ -102,22 +110,26 @@ class ConversationsController extends BaseController
             'inbox_id' => $inbox->id,
             'contact_id' => $contactInbox->contact_id,
             'contact_inbox_id' => $contactInbox->id,
-            'status' => 'open',
+            'status' => Conversation::STATUS_OPEN,
             'uuid' => Str::uuid()->toString(),
             'custom_attributes' => $validated['custom_attributes'] ?? [],
             'last_activity_at' => now(),
         ]);
 
+        event(new ConversationCreated($conversation));
+
         // Create initial message if provided
         if (!empty($validated['message']['content'])) {
-            $conversation->messages()->create([
+            $message = $conversation->messages()->create([
                 'account_id' => $inbox->account_id,
                 'inbox_id' => $inbox->id,
                 'content' => $validated['message']['content'],
-                'message_type' => 0, // incoming
+                'message_type' => Message::TYPE_INCOMING,
                 'sender_type' => Contact::class,
                 'sender_id' => $contactInbox->contact_id,
             ]);
+
+            event(new MessageCreated($message));
         }
 
         return response()->json([
@@ -147,7 +159,7 @@ class ConversationsController extends BaseController
 
         // Get the most recent open conversation
         $conversation = Conversation::where('contact_inbox_id', $contactInbox->id)
-            ->where('status', 'open')
+            ->where('status', Conversation::STATUS_OPEN)
             ->latest()
             ->first();
 
@@ -155,7 +167,9 @@ class ConversationsController extends BaseController
             return response()->json(['error' => 'Conversation not found'], 404);
         }
 
-        $conversation->update(['status' => 'resolved']);
+        $conversation = UpdateConversationAction::run($conversation, [
+            'status' => Conversation::STATUS_RESOLVED,
+        ]);
 
         return response()->json([
             'id' => $conversation->id,
@@ -232,7 +246,7 @@ class ConversationsController extends BaseController
             return response()->json(['error' => 'Conversation not found'], 404);
         }
 
-        $conversation->update([
+        UpdateConversationAction::run($conversation, [
             'custom_attributes' => array_merge(
                 $conversation->custom_attributes ?? [],
                 $validated['custom_attributes']
@@ -272,7 +286,7 @@ class ConversationsController extends BaseController
             unset($customAttributes[$key]);
         }
 
-        $conversation->update(['custom_attributes' => $customAttributes]);
+        UpdateConversationAction::run($conversation, ['custom_attributes' => $customAttributes]);
 
         return response()->json(['success' => true]);
     }

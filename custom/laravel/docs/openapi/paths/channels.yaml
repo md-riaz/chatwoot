@@ -1,4 +1,114 @@
+---
 paths:
+  # Voice Channel (Twilio)
+  /webhooks/voice/call/{phone}:
+    post:
+      tags:
+        - Channels
+      summary: Twilio Voice Call Webhook
+      description: Handle incoming Twilio voice call and return TwiML conference response.
+      operationId: twilioVoiceCallWebhook
+      parameters:
+        - name: phone
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                From:
+                  type: string
+                To:
+                  type: string
+                CallSid:
+                  type: string
+                Direction:
+                  type: string
+      responses:
+        '200':
+          description: TwiML conference response
+          content:
+            application/xml:
+              schema:
+                type: string
+
+  /webhooks/voice/status/{phone}:
+    post:
+      tags:
+        - Channels
+      summary: Twilio Call Status Webhook
+      description: Handle Twilio call status events.
+      operationId: twilioVoiceStatusWebhook
+      parameters:
+        - name: phone
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                CallSid:
+                  type: string
+                CallStatus:
+                  type: string
+      responses:
+        '200':
+          description: Status processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /webhooks/voice/conference_status/{phone}:
+    post:
+      tags:
+        - Channels
+      summary: Twilio Conference Status Webhook
+      description: Handle Twilio conference status events.
+      operationId: twilioVoiceConferenceStatusWebhook
+      parameters:
+        - name: phone
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                ConferenceSid:
+                  type: string
+                StatusCallbackEvent:
+                  type: string
+                ParticipantLabel:
+                  type: string
+      responses:
+        '200':
+          description: Conference event processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
   # WhatsApp Channel
   /accounts/{account_id}/channels/whatsapp:
     post:

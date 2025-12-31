@@ -2,6 +2,8 @@
 
 namespace App\Actions\Conversation;
 
+use App\Events\Conversation\ConversationStatusChanged;
+use App\Events\Conversation\ConversationUpdated;
 use App\Models\Conversation;
 use App\Repositories\Conversation\ConversationRepository;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -22,9 +24,18 @@ class CloseConversationAction
             'status' => Conversation::STATUS_RESOLVED,
         ]);
 
-        // Trigger event
-        // event(new ConversationStatusChanged($conversation, $previousStatus, Conversation::STATUS_RESOLVED));
+        $conversation = $conversation->fresh();
 
-        return $conversation->fresh();
+        if ($previousStatus !== Conversation::STATUS_RESOLVED) {
+            event(new ConversationStatusChanged($conversation, $previousStatus, Conversation::STATUS_RESOLVED));
+            event(new ConversationUpdated($conversation, [
+                'status' => [
+                    'previous' => $previousStatus,
+                    'current' => Conversation::STATUS_RESOLVED,
+                ],
+            ]));
+        }
+
+        return $conversation;
     }
 }
