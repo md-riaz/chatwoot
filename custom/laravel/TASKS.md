@@ -29,9 +29,9 @@ This document provides a comprehensive checklist for converting ClearLine from R
 - ✅ Middleware/auth parity: public webhooks remain unauthenticated; widget/public inbox use token/inbox checks; account/platform/super-admin routes run under `auth:sanctum` with `EnsureAccountAccess`/`EnsureSuperAdmin`; keep locale/timezone via existing middleware stack.
 
 ### B. Domain Actions & Jobs
-- ⬜ Cross-check Rails service/worker/interaction classes against Laravel Actions and Jobs; add Actions for any uncovered flows (auto-resolve, SLA timers, CSAT triggers, reporting ingestion, data import pipeline).
-- ⬜ Wire corresponding Jobs/queue routing (Horizon) for async work: outbound deliverability, SLA event creation, notifications, campaign sends, data imports, attachment processing.
-- ⬜ Validate job retry/timeout policies mirror Rails (sidekiq settings → Laravel job properties/Horizon config).
+- ✅ Cross-check Rails service/worker/interaction classes against Laravel Actions and Jobs; add Actions for any uncovered flows (auto-resolve, SLA timers, CSAT triggers, reporting ingestion, data import pipeline).
+- ✅ Wire corresponding Jobs/queue routing (Horizon) for async work: outbound deliverability, SLA event creation, notifications, campaign sends, data imports, attachment processing.
+- 🔄 Validate job retry/timeout policies mirror Rails (sidekiq settings → Laravel job properties/Horizon config).
 
 ### C. Events, Listeners & Broadcasting
 - ⬜ Inventory Rails events and callbacks; add Laravel Events/Listeners for conversation lifecycle, message lifecycle, SLA breaches, assignment changes, contact updates, portal/article updates.
