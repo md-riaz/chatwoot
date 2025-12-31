@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Article;
+use App\Models\Conversation;
+use App\Models\Portal;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -20,7 +23,7 @@ Broadcast::channel('account.{accountId}', function ($user, $accountId) {
 
 // Conversation channel - for specific conversation updates
 Broadcast::channel('conversation.{conversationId}', function ($user, $conversationId) {
-    $conversation = \App\Models\Conversation::find($conversationId);
+    $conversation = Conversation::find($conversationId);
     if (! $conversation) {
         return false;
     }
@@ -48,7 +51,7 @@ Broadcast::channel('user.{userId}', function ($user, $userId) {
 
 // Portal channel - scoped to account membership
 Broadcast::channel('portal.{portalId}', function ($user, $portalId) {
-    $portal = \App\Models\Portal::find($portalId);
+    $portal = Portal::find($portalId);
 
     if (! $portal) {
         return false;
@@ -59,7 +62,7 @@ Broadcast::channel('portal.{portalId}', function ($user, $portalId) {
 
 // Article channel - scoped to account membership via portal/account
 Broadcast::channel('article.{articleId}', function ($user, $articleId) {
-    $article = \App\Models\Article::find($articleId);
+    $article = Article::find($articleId);
 
     if (! $article) {
         return false;

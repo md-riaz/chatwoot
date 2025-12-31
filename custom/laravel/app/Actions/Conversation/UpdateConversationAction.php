@@ -73,6 +73,10 @@ class UpdateConversationAction
             $previous = $original[$field] ?? null;
             $current = $conversation->{$field};
 
+            if ($field === 'custom_attributes' && is_string($previous)) {
+                $previous = json_decode($previous, true);
+            }
+
             if ($previous != $current) {
                 $changes[$field] = [
                     'previous' => $previous,

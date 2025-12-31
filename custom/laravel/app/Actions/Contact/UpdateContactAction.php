@@ -19,8 +19,10 @@ class UpdateContactAction
     {
         $this->contactRepository->update($contact->id, $data);
 
+        $contact->refresh();
+
         event(new ContactUpdated($contact));
 
-        return $contact->fresh();
+        return $contact;
     }
 }
