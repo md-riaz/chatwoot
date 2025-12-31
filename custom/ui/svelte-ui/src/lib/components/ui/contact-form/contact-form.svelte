@@ -28,12 +28,13 @@
   let location = $state(contact.location || '');
   let bio = $state(contact.bio || '');
 
-  function handleSubmit() {
+  function handleSubmit(e: Event) {
+    e.preventDefault();
     onSubmit?.({ name, email, phone, company, location, bio });
   }
 </script>
 
-<form class={cn('space-y-4', className)} onsubmit|preventDefault={handleSubmit}>
+<form class={cn('space-y-4', className)} onsubmit={handleSubmit}>
   <div class="grid grid-cols-2 gap-4">
     <div class="col-span-2">
       <Label for="name">Name</Label>

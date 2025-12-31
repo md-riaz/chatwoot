@@ -18,12 +18,13 @@
   let contact = $state('');
   let message = $state('');
 
-  function handleSubmit() {
+  function handleSubmit(e: Event) {
+    e.preventDefault();
     onSubmit?.({ inbox: selectedInbox, contact, message });
   }
 </script>
 
-<form class={cn('space-y-4', className)} onsubmit|preventDefault={handleSubmit}>
+<form class={cn('space-y-4', className)} onsubmit={handleSubmit}>
   <div>
     <Label for="inbox">Inbox</Label>
     <select 
