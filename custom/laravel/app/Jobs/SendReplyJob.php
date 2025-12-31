@@ -13,6 +13,14 @@ class SendReplyJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $tries = 5;
+
+    public int $backoff = 120;
+
+    public int $timeout = 180;
+
+    public string $queue = 'deliveries';
+
     public int $messageId;
 
     public function __construct(int $messageId)

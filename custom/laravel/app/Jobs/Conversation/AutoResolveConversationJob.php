@@ -21,6 +21,10 @@ class AutoResolveConversationJob implements ShouldQueue
 
     public int $backoff = 60;
 
+    public int $timeout = 120;
+
+    public string $queue = 'conversations';
+
     public function __construct(
         public int $conversationId
     ) {}
@@ -29,28 +33,50 @@ class AutoResolveConversationJob implements ShouldQueue
     {
         $conversation = $repository->find($this->conversationId);
 
-        if ($conversation && $conversation->status === Conversation::STATUS_OPEN) {
-            $inactiveHours = now()->diffInHours($conversation->last_activity_at);
-
-            if ($inactiveHours >= 48) {
-                $previousStatus = $conversation->status;
-
-                $repository->update($conversation->id, [
-                    'status' => Conversation::STATUS_RESOLVED,
-                ]);
-
-                event(new ConversationStatusChanged(
-                    $conversation->fresh(),
-                    $previousStatus,
-                    Conversation::STATUS_RESOLVED
-                ));
-
-                Log::info('Auto-resolved conversation', [
-                    'conversation_id' => $this->conversationId,
-                    'inactive_hours' => $inactiveHours,
-                ]);
-            }
+        if (! $conversation || $conversation->status !== Conversation::STATUS_OPEN) {
+            return;
         }
+
+        $account = $conversation->account;
+        $autoResolveMinutes = $account?->autoResolveAfterMinutes();
+
+        if (! $autoResolveMinutes) {
+            return;
+        }
+
+        if ($account->autoResolveIgnoreWaiting() && $conversation->waiting_since) {
+            return;
+        }
+
+        $lastActivity = $conversation->last_activity_at ?? $conversation->created_at;
+        if (! $lastActivity) {
+            Log::warning('Skipping auto-resolve due to missing timestamps', ['conversation_id' => $conversation->id]);
+            return;
+        }
+
+        $inactiveMinutes = now()->diffInMinutes($lastActivity);
+
+        if ($inactiveMinutes < $autoResolveMinutes) {
+            return;
+        }
+
+        $previousStatus = $conversation->status;
+
+        $repository->update($conversation->id, [
+            'status' => Conversation::STATUS_RESOLVED,
+        ]);
+
+        event(new ConversationStatusChanged(
+            $conversation->fresh(),
+            $previousStatus,
+            Conversation::STATUS_RESOLVED
+        ));
+
+        Log::info('Auto-resolved conversation', [
+            'conversation_id' => $this->conversationId,
+            'inactive_minutes' => $inactiveMinutes,
+            'threshold_minutes' => $autoResolveMinutes,
+        ]);
     }
 
     public function failed(Throwable $exception): void

@@ -403,9 +403,10 @@ custom/laravel/
 1. Review `TASKS.md` for complete migration checklist
 2. Set up `.env` configuration
 3. Run migrations: `php artisan migrate`
-4. Start Reverb: `php artisan reverb:start`
-5. Start Horizon: `php artisan horizon`
-6. Run tests: `php artisan test`
+4. Publish Horizon assets: `php artisan horizon:install`
+5. Start Reverb: `php artisan reverb:start`
+6. Start Horizon: `php artisan horizon` (dashboard at `/horizon` or `HORIZON_PATH`)
+7. Run tests: `php artisan test`
 
 ## 📚 Documentation References
 

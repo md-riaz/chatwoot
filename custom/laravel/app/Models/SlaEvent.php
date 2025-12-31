@@ -10,6 +10,13 @@ class SlaEvent extends Model
 {
     use HasFactory;
 
+    public const TYPE_FIRST_RESPONSE_DUE = 0;
+    public const TYPE_NEXT_RESPONSE_DUE = 1;
+    public const TYPE_RESOLUTION_DUE = 2;
+    public const TYPE_FIRST_RESPONSE_BREACHED = 3;
+    public const TYPE_NEXT_RESPONSE_BREACHED = 4;
+    public const TYPE_RESOLUTION_BREACHED = 5;
+
     protected $fillable = [
         'applied_sla_id',
         'conversation_id',

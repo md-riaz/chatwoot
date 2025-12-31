@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Campaign\ScheduleCampaignSendAction;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Campaign;
@@ -46,6 +47,7 @@ class CampaignsController extends Controller
             'message' => $validated['message'],
             'enabled' => $validated['enabled'] ?? true,
             'campaign_type' => $validated['campaign_type'] ?? 0,
+            'campaign_status' => Campaign::STATUS_ACTIVE,
             'trigger_only_during_business_hours' => $validated['trigger_only_during_business_hours'] ?? false,
             'inbox_id' => $validated['inbox_id'],
             'sender_id' => $validated['sender_id'] ?? null,
@@ -54,6 +56,8 @@ class CampaignsController extends Controller
             'trigger_rules' => $validated['trigger_rules'] ?? [],
             'account_id' => $account->id,
         ]);
+
+        ScheduleCampaignSendAction::run($campaign);
 
         return response()->json(['data' => $campaign], 201);
     }
@@ -89,6 +93,13 @@ class CampaignsController extends Controller
         ]);
 
         $campaign->update($validated);
+
+        $schedulingFieldsChanged = $campaign->wasChanged(['scheduled_at', 'message', 'enabled', 'trigger_rules', 'audience']);
+        $wasReEnabled = $campaign->wasChanged('enabled') && $campaign->enabled;
+
+        if ($campaign->enabled && ($schedulingFieldsChanged || $wasReEnabled)) {
+            ScheduleCampaignSendAction::run($campaign);
+        }
 
         return response()->json(['data' => $campaign]);
     }

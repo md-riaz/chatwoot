@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Actions\Contact\CreateContactAction;
 use App\Actions\Contact\MergeContactsAction;
 use App\Actions\Contact\UpdateContactAction;
+use App\Actions\DataImport\GetImportStatusAction;
+use App\Actions\DataImport\StartDataImportAction;
 use App\Data\Contact\ContactData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Contact\StoreContactRequest;
@@ -14,7 +16,6 @@ use App\Models\Contact;
 use App\Repositories\Contact\ContactRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -106,20 +107,13 @@ class ContactsController extends Controller
         $mapping = $request->input('mapping', []); // e.g. {"csv_name":"name","csv_email":"email"}
         $duplicateHandling = $request->input('duplicate_handling', 'skip'); // skip|update|create_duplicate
 
-        // Create an import id to track progress
-        $importId = (string) Str::uuid();
-        Cache::put("import_status:{$importId}", [
-            'status' => 'queued',
-            'processed' => 0,
-            'created' => 0,
-            'updated' => 0,
-            'errors' => [],
-        ], now()->addHours(6));
+        $importResult = StartDataImportAction::run($account, (int) auth()->id(), $path, $mapping, $duplicateHandling);
 
-        // Dispatch background import job with tracking id
-        \App\Jobs\ImportContactsJob::dispatch($account->id, auth()->id(), $path, $importId, $mapping, $duplicateHandling);
-
-        return response()->json(['message' => 'Import queued', 'import_id' => $importId], 202);
+        return response()->json([
+            'message' => 'Import queued',
+            'import_id' => $importResult['import_id'],
+            'data_import_id' => $importResult['data_import_id'],
+        ], 202);
     }
 
     /**
@@ -127,7 +121,7 @@ class ContactsController extends Controller
      */
     public function importStatus(Account $account, string $importId): JsonResponse
     {
-        $status = Cache::get("import_status:{$importId}");
+        $status = GetImportStatusAction::run($importId);
 
         if (! $status) {
             return response()->json(['error' => 'not_found'], 404);
