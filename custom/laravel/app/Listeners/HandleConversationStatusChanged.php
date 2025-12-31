@@ -3,8 +3,10 @@
 namespace App\Listeners;
 
 use App\Events\Conversation\ConversationStatusChanged;
+use App\Actions\Csat\DispatchCsatSurveyAction;
+use App\Actions\Conversation\ScheduleAutoResolveAction;
+use App\Actions\Sla\DispatchSlaTimersAction;
 use App\Jobs\Conversations\CreateActivityMessageJob;
-use App\Jobs\Sla\CheckSlaJob;
 use App\Jobs\Webhooks\SendWebhooksJob;
 use Illuminate\Contracts\Logging\Log as LogContract;
 
@@ -21,7 +23,13 @@ class HandleConversationStatusChanged
         CreateActivityMessageJob::dispatch($conversation, ['content' => $content]);
 
         // Re-evaluate SLAs on status change
-        CheckSlaJob::dispatch($conversation->id);
+        DispatchSlaTimersAction::run($conversation);
+
+        if ($event->newStatus === \App\Models\Conversation::STATUS_RESOLVED) {
+            DispatchCsatSurveyAction::run($conversation);
+        } else {
+            ScheduleAutoResolveAction::run($conversation);
+        }
 
         // Emit webhooks for 'conversation_status_changed'
         SendWebhooksJob::dispatch($conversation->account_id, 'conversation_status_changed', [

@@ -3,10 +3,11 @@
 namespace App\Listeners;
 
 use App\Events\Conversation\ConversationCreated;
+use App\Actions\Conversation\ScheduleAutoResolveAction;
+use App\Actions\Sla\DispatchSlaTimersAction;
 use App\Jobs\Conversations\RunAutoAssignConversationJob;
 use App\Jobs\Conversations\CreateActivityMessageJob;
 use App\Jobs\Webhooks\SendWebhooksJob;
-use App\Jobs\Sla\CheckSlaJob;
 use Illuminate\Contracts\Logging\Log as LogContract;
 
 class HandleConversationCreated
@@ -24,9 +25,12 @@ class HandleConversationCreated
         RunAutoAssignConversationJob::dispatch($conversation->id);
 
         // 3) Trigger SLA evaluation
-        CheckSlaJob::dispatch($conversation->id);
+        DispatchSlaTimersAction::run($conversation);
 
-        // 4) Emit webhooks for 'conversation_created'
+        // 4) Schedule auto-resolve parity with Rails worker
+        ScheduleAutoResolveAction::run($conversation);
+
+        // 5) Emit webhooks for 'conversation_created'
         SendWebhooksJob::dispatch($conversation->account_id, 'conversation_created', ['conversation_id' => $conversation->id]);
 
         $this->log->info('HandleConversationCreated dispatched side-effects', ['conversation_id' => $conversation->id]);

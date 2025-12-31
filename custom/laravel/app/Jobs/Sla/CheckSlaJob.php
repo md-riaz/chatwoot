@@ -19,6 +19,14 @@ class CheckSlaJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $tries = 5;
+
+    public int $backoff = 120;
+
+    public int $timeout = 180;
+
+    public string $queue = 'sla';
+
     public function __construct(public int $conversationId)
     {
     }

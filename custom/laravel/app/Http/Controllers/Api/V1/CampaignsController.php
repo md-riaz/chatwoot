@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Campaign;
+use App\Actions\Campaign\ScheduleCampaignSendAction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -46,6 +47,7 @@ class CampaignsController extends Controller
             'message' => $validated['message'],
             'enabled' => $validated['enabled'] ?? true,
             'campaign_type' => $validated['campaign_type'] ?? 0,
+            'campaign_status' => Campaign::STATUS_ACTIVE,
             'trigger_only_during_business_hours' => $validated['trigger_only_during_business_hours'] ?? false,
             'inbox_id' => $validated['inbox_id'],
             'sender_id' => $validated['sender_id'] ?? null,
@@ -54,6 +56,8 @@ class CampaignsController extends Controller
             'trigger_rules' => $validated['trigger_rules'] ?? [],
             'account_id' => $account->id,
         ]);
+
+        ScheduleCampaignSendAction::run($campaign);
 
         return response()->json(['data' => $campaign], 201);
     }
@@ -89,6 +93,10 @@ class CampaignsController extends Controller
         ]);
 
         $campaign->update($validated);
+
+        if ($campaign->enabled) {
+            ScheduleCampaignSendAction::run($campaign);
+        }
 
         return response()->json(['data' => $campaign]);
     }

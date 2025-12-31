@@ -16,7 +16,7 @@ class AudioTranscriptionJob implements ShouldQueue
 
     public int $attachmentId;
 
-    public string $queue = 'low';
+    public string $queue = 'attachments';
     /**
      * Number of times the job may be attempted.
      */
@@ -26,6 +26,8 @@ class AudioTranscriptionJob implements ShouldQueue
      * Backoff seconds between attempts.
      */
     public $backoff = [2, 10];
+
+    public int $timeout = 300;
 
     public function __construct(int $attachmentId)
     {

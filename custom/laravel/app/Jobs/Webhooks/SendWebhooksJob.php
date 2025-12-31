@@ -15,6 +15,14 @@ class SendWebhooksJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $tries = 3;
+
+    public int $backoff = 60;
+
+    public int $timeout = 120;
+
+    public string $queue = 'webhooks';
+
     public function __construct(public int $accountId, public string $eventName, public array $payload = [])
     {
     }

@@ -21,6 +21,10 @@ class AutoResolveConversationJob implements ShouldQueue
 
     public int $backoff = 60;
 
+    public int $timeout = 120;
+
+    public string $queue = 'conversations';
+
     public function __construct(
         public int $conversationId
     ) {}
@@ -30,7 +34,8 @@ class AutoResolveConversationJob implements ShouldQueue
         $conversation = $repository->find($this->conversationId);
 
         if ($conversation && $conversation->status === Conversation::STATUS_OPEN) {
-            $inactiveHours = now()->diffInHours($conversation->last_activity_at);
+            $lastActivity = $conversation->last_activity_at ?? $conversation->updated_at ?? $conversation->created_at ?? now();
+            $inactiveHours = now()->diffInHours($lastActivity);
 
             if ($inactiveHours >= 48) {
                 $previousStatus = $conversation->status;

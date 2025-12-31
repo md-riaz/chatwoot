@@ -19,6 +19,10 @@ class SendPushNotificationJob implements ShouldQueue
 
     public int $backoff = 60;
 
+    public int $timeout = 120;
+
+    public string $queue = 'notifications';
+
     public function __construct(
         public int $userId,
         public string $title,

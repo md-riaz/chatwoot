@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Actions\Contact\CreateContactAction;
 use App\Actions\Contact\MergeContactsAction;
 use App\Actions\Contact\UpdateContactAction;
+use App\Actions\DataImport\StartDataImportAction;
 use App\Data\Contact\ContactData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Contact\StoreContactRequest;
@@ -12,9 +13,9 @@ use App\Http\Resources\Contact\ContactResource;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Repositories\Contact\ContactRepository;
+use App\Repositories\DataImportRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -23,7 +24,8 @@ class ContactsController extends Controller
     private const RESULTS_PER_PAGE = 15;
 
     public function __construct(
-        private ContactRepository $contactRepository
+        private ContactRepository $contactRepository,
+        private DataImportRepository $dataImportRepository
     ) {}
 
     /**
@@ -106,20 +108,13 @@ class ContactsController extends Controller
         $mapping = $request->input('mapping', []); // e.g. {"csv_name":"name","csv_email":"email"}
         $duplicateHandling = $request->input('duplicate_handling', 'skip'); // skip|update|create_duplicate
 
-        // Create an import id to track progress
-        $importId = (string) Str::uuid();
-        Cache::put("import_status:{$importId}", [
-            'status' => 'queued',
-            'processed' => 0,
-            'created' => 0,
-            'updated' => 0,
-            'errors' => [],
-        ], now()->addHours(6));
+        $importResult = StartDataImportAction::run($account, (int) auth()->id(), $path, $mapping, $duplicateHandling);
 
-        // Dispatch background import job with tracking id
-        \App\Jobs\ImportContactsJob::dispatch($account->id, auth()->id(), $path, $importId, $mapping, $duplicateHandling);
-
-        return response()->json(['message' => 'Import queued', 'import_id' => $importId], 202);
+        return response()->json([
+            'message' => 'Import queued',
+            'import_id' => $importResult['import_id'],
+            'data_import_id' => $importResult['data_import_id'],
+        ], 202);
     }
 
     /**
@@ -130,7 +125,18 @@ class ContactsController extends Controller
         $status = Cache::get("import_status:{$importId}");
 
         if (! $status) {
-            return response()->json(['error' => 'not_found'], 404);
+            $import = $this->dataImportRepository->findByToken($importId);
+            if (! $import) {
+                return response()->json(['error' => 'not_found'], 404);
+            }
+
+            $status = [
+                'status' => $import->status,
+                'processed' => $import->processed_rows,
+                'errors' => $import->meta['errors'] ?? [],
+                'created' => $import->meta['created'] ?? 0,
+                'updated' => $import->meta['updated'] ?? 0,
+            ];
         }
 
         return response()->json(['data' => $status]);
