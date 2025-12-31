@@ -22,6 +22,8 @@ class VoiceController extends Controller
             'provider_config' => 'required|array',
             'provider_config.account_sid' => 'required|string',
             'provider_config.auth_token' => 'required|string',
+            'provider_config.voice_application_sid' => 'string|nullable',
+            'provider_config.messaging_service_sid' => 'string|nullable',
             'name' => 'required|string|max:255',
         ]);
 
@@ -52,6 +54,10 @@ class VoiceController extends Controller
 
         $validated = $request->validate([
             'provider_config' => 'array',
+            'provider_config.account_sid' => 'string',
+            'provider_config.auth_token' => 'string',
+            'provider_config.voice_application_sid' => 'string|nullable',
+            'provider_config.messaging_service_sid' => 'string|nullable',
             'name' => 'string|max:255',
         ]);
 
@@ -60,7 +66,8 @@ class VoiceController extends Controller
         }
 
         if (isset($validated['provider_config'])) {
-            $inbox->channel->update(['provider_config' => $validated['provider_config']]);
+            $config = array_merge($inbox->channel->provider_config ?? [], $validated['provider_config']);
+            $inbox->channel->update(['provider_config' => $config]);
         }
 
         return response()->json(['data' => $inbox->fresh()->load('channel')]);
