@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+// Health check endpoint
 Route::get('/', function () {
     return response()->json([
         'name' => config('app.name'),
@@ -20,4 +22,25 @@ Route::get('/', function () {
         'status' => 'running',
         'documentation' => '/api/documentation',
     ]);
+});
+
+// API and Auth endpoints (handled by Laravel controllers)
+// These should be defined in routes/api.php and routes/auth.php as needed
+
+// SPA catch-all: Serve SvelteKit index.html for /app and all subroutes
+Route::get('/app/{any}', function () {
+    return response()->file(public_path('app/index.html'));
+})->where('any', '.*');
+
+Route::get('/app', function () {
+    return response()->file(public_path('app/index.html'));
+});
+
+// Fallback for backend routes (not /app/*)
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+Route::fallback(function () {
+    if (request()->is('api/*') || request()->is('auth/*')) {
+        return response()->json(['error' => 'Not Found'], 404);
+    }
+    throw new NotFoundHttpException;
 });

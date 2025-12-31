@@ -64,7 +64,83 @@ pnpm test
 ```
 
 ## Notes for Maintainers
-
 - Before removing files, search for references across `custom/laravel` to avoid runtime errors.
 - When migrating Rails behavior, prefer implementing small Actions (e.g., `SetInReplyToAction`) rather than reintroducing legacy builders.
 - Keep `FOLDER_STRUCTURE.md` up to date as the canonical structure for contributors.
+
+
+## SPA Asset Placement & Serving
+
+- Build the SvelteKit SPA in `custom/ui/sveltekit-app` using `npm run build`.
+- Copy the build output (usually `build/` or `.svelte-kit/output/`) to `custom/laravel/public/app/`.
+- All static assets (JS, CSS, images) must be inside `public/app/` so Laravel can serve them directly.
+
+## Routing Setup
+
+- All `/api/*` and `/auth/*` endpoints are handled by Laravel (see `routes/api.php` and `routes/auth.php`).
+- All `/app/*` requests (including `/app`, `/app/super_admin`, etc.) are routed by Laravel to serve the SPA entrypoint (`public/app/index.html`).
+- Unknown routes under `/app/*` always fall back to the SPA entrypoint.
+- See `routes/web.php` for example configuration:
+
+```php
+Route::get('/app/{any}', function () {
+	 return response()->file(public_path('app/index.html'));
+})->where('any', '.*');
+Route::get('/app', function () {
+	 return response()->file(public_path('app/index.html'));
+});
+```
+
+## Local Development Workflow
+
+1. Install dependencies:
+	```bash
+	cd custom/laravel
+	composer install
+	pnpm install
+	```
+2. Run Laravel backend:
+	```bash
+	php artisan serve
+	# Default: http://localhost:8000
+	```
+3. Run SvelteKit frontend:
+	```bash
+	cd custom/ui/sveltekit-app
+	npm run dev
+	# Default: http://localhost:5173
+	```
+4. Proxy API requests from SvelteKit to Laravel (in `vite.config.js`):
+	```js
+	export default {
+	  server: {
+		 proxy: {
+			'/api': 'http://localhost:8000',
+			'/auth': 'http://localhost:8000',
+		 }
+	  }
+	}
+	```
+
+## Production Deployment
+
+1. Build SvelteKit:
+	```bash
+	cd custom/ui/sveltekit-app
+	npm run build
+	```
+2. Copy build output to Laravel:
+	```bash
+	cp -r build/* ../../laravel/public/app/
+	```
+3. Deploy Laravel as usual (web server points to `public/`).
+	- All `/app/*` requests are routed to SPA entrypoint (`index.html`).
+	- All `/api/*` and `/auth/*` requests are handled by Laravel backend.
+
+## Error Handling
+
+- Backend routes (not `/app/*`):
+  - Return JSON 404 for API/Auth.
+  - Return backend error page for other routes.
+- SPA routes (`/app/*`):
+  - Always serve `public/app/index.html` for any subroute (SPA handles client-side routing).
