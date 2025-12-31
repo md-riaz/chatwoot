@@ -23,11 +23,19 @@ class WhatsAppController extends Controller
             'phone_number' => 'required|string',
             'provider' => 'required|string|in:whatsapp_cloud,twilio,360dialog',
             'provider_config' => 'required|array',
+            'provider_config.phone_number_id' => 'required|string',
+            'provider_config.business_account_id' => 'nullable|string',
+            'provider_config.access_token' => 'required|string',
+            'provider_config.verify_token' => 'required|string',
         ]);
 
         $channel = Whatsapp::create([
             'account_id' => $account->id,
             'phone_number' => $validated['phone_number'],
+            'phone_number_id' => $validated['provider_config']['phone_number_id'],
+            'business_account_id' => $validated['provider_config']['business_account_id'] ?? null,
+            'access_token' => $validated['provider_config']['access_token'],
+            'verify_token' => $validated['provider_config']['verify_token'],
             'provider' => $validated['provider'],
             'provider_config' => $validated['provider_config'],
         ]);
@@ -61,13 +69,22 @@ class WhatsAppController extends Controller
         $validated = $request->validate([
             'name' => 'string|max:255',
             'provider_config' => 'array',
+            'provider_config.phone_number_id' => 'string',
+            'provider_config.business_account_id' => 'string|nullable',
+            'provider_config.access_token' => 'string',
+            'provider_config.verify_token' => 'string|nullable',
         ]);
 
         $inbox->update(['name' => $validated['name'] ?? $inbox->name]);
 
         if ($inbox->channel) {
+            $config = array_merge($inbox->channel->provider_config ?? [], $validated['provider_config'] ?? []);
             $inbox->channel->update([
-                'provider_config' => array_merge($inbox->channel->provider_config ?? [], $validated['provider_config'] ?? []),
+                'phone_number_id' => $config['phone_number_id'] ?? $inbox->channel->phone_number_id,
+                'business_account_id' => $config['business_account_id'] ?? $inbox->channel->business_account_id,
+                'access_token' => $config['access_token'] ?? $inbox->channel->access_token,
+                'verify_token' => $config['verify_token'] ?? $inbox->channel->verify_token,
+                'provider_config' => $config,
             ]);
         }
 
@@ -103,7 +120,9 @@ class WhatsAppController extends Controller
         $token = $request->get('hub_verify_token');
         $challenge = $request->get('hub_challenge');
 
-        $channel = Whatsapp::where('provider_config->verify_token', $token)->first();
+        $channel = Whatsapp::where('verify_token', $token)
+            ->orWhere('provider_config->verify_token', $token)
+            ->first();
 
         if ($mode === 'subscribe' && $channel) {
             return response($challenge, 200);

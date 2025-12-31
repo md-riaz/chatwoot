@@ -25,6 +25,7 @@ class SmsController extends Controller
             'provider_config' => 'required|array',
             'provider_config.account_sid' => 'required|string',
             'provider_config.auth_token' => 'required|string',
+            'provider_config.messaging_service_sid' => 'nullable|string',
         ]);
 
         $channel = TwilioSms::create([
