@@ -52,16 +52,22 @@ Edit `.env` to set your database, Redis, mail, and app URL settings. Key variabl
 php artisan migrate
 ```
 
-### 5. Seed roles, permissions, and onboarding flag
+### 5. Publish Horizon assets (queue dashboard)
+```bash
+php artisan horizon:install
+```
+This publishes Horizon's assets and dashboard entrypoint. The dashboard is available at `/horizon` (or the path set via `HORIZON_PATH` in `.env`) once Horizon is running.
+
+### 6. Seed roles, permissions, and onboarding flag
 ```bash
 php artisan db:seed
 ```
 This does NOT create any default users or accounts for production. It only prepares roles/permissions and enables the onboarding API for secure first admin setup.
 
-### 6. (Optional) Build frontend assets
+### 7. (Optional) Build frontend assets
 If you use a frontend or UI, follow the relevant instructions (e.g., npm install && npm run build).
 
-### 7. Start the application
+### 8. Start the application
 ```bash
 php artisan serve
 # Or use Docker Compose: docker-compose up -d
