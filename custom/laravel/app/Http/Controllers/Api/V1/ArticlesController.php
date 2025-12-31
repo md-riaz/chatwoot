@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Events\Article\ArticleUpdated;
 use App\Models\Account;
 use App\Models\Article;
 use App\Models\Portal;
@@ -55,7 +56,10 @@ class ArticlesController extends Controller
             'portal_id' => $portal->id,
             'account_id' => $account->id,
             'author_id' => $validated['author_id'] ?? auth()->id(),
+            'status' => $this->normalizeStatus($validated['status'] ?? null, Article::STATUS_DRAFT),
         ]);
+
+        event(new ArticleUpdated($article, 'created'));
 
         return response()->json(['data' => $article], 201);
     }
@@ -79,6 +83,8 @@ class ArticlesController extends Controller
         abort_unless($portal->account_id === $account->id, 404);
         abort_unless($article->portal_id === $portal->id, 404);
 
+        $previousStatus = $article->status;
+
         $validated = $request->validate([
             'title' => 'string|max:255',
             'slug' => 'string|max:255',
@@ -89,7 +95,15 @@ class ArticlesController extends Controller
             'meta' => 'nullable|array',
         ]);
 
+        if (array_key_exists('status', $validated)) {
+            $validated['status'] = $this->normalizeStatus($validated['status'], $article->status);
+        }
+
         $article->update($validated);
+
+        $article->refresh();
+
+        event(new ArticleUpdated($article, $this->resolveAction($previousStatus, $article->status), $previousStatus));
 
         return response()->json(['data' => $article]);
     }
@@ -102,8 +116,36 @@ class ArticlesController extends Controller
         abort_unless($portal->account_id === $account->id, 404);
         abort_unless($article->portal_id === $portal->id, 404);
 
+        event(new ArticleUpdated($article, 'deleted'));
+
         $article->delete();
 
         return response()->json(null, 204);
+    }
+
+    private function normalizeStatus(?string $status, int $default): int
+    {
+        if (is_null($status)) {
+            return $default;
+        }
+
+        return match ($status) {
+            'published' => Article::STATUS_PUBLISHED,
+            'archived' => Article::STATUS_ARCHIVED,
+            default => Article::STATUS_DRAFT,
+        };
+    }
+
+    private function resolveAction(int $previousStatus, int $currentStatus): string
+    {
+        if ($previousStatus !== $currentStatus) {
+            return match ($currentStatus) {
+                Article::STATUS_PUBLISHED => 'published',
+                Article::STATUS_ARCHIVED => 'archived',
+                default => 'updated',
+            };
+        }
+
+        return 'updated';
     }
 }

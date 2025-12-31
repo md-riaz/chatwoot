@@ -2,6 +2,8 @@
 
 namespace App\Actions\Conversation;
 
+use App\Events\Conversation\ConversationStatusChanged;
+use App\Events\Conversation\ConversationUpdated;
 use App\Models\Conversation;
 use App\Repositories\Conversation\ConversationRepository;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -16,6 +18,8 @@ class UpdateConversationAction
 
     public function handle(Conversation $conversation, array $data): Conversation
     {
+        $original = $conversation->getOriginal();
+
         // Normalize some legacy sentinel values to null like Rails behavior
         if (array_key_exists('priority', $data)) {
             if ($data['priority'] === 'nil' || $data['priority'] === 'null' || $data['priority'] === '') {
@@ -37,9 +41,46 @@ class UpdateConversationAction
 
         $this->conversationRepository->update($conversation->id, $data);
 
-        // Trigger event
-        // event(new ConversationUpdated($conversation));
+        $conversation->refresh();
 
-        return $conversation->fresh();
+        $changes = $this->detectChanges($conversation, $original, $data);
+
+        if (array_key_exists('status', $changes)) {
+            event(new ConversationStatusChanged(
+                $conversation,
+                $changes['status']['previous'],
+                $changes['status']['current']
+            ));
+        }
+
+        if (! empty($changes)) {
+            event(new ConversationUpdated($conversation, $changes));
+        }
+
+        return $conversation;
+    }
+
+    private function detectChanges(Conversation $conversation, array $original, array $payload): array
+    {
+        $tracked = ['status', 'priority', 'team_id', 'assignee_id', 'snoozed_until', 'custom_attributes'];
+        $changes = [];
+
+        foreach ($tracked as $field) {
+            if (! array_key_exists($field, $payload)) {
+                continue;
+            }
+
+            $previous = $original[$field] ?? null;
+            $current = $conversation->{$field};
+
+            if ($previous != $current) {
+                $changes[$field] = [
+                    'previous' => $previous,
+                    'current' => $current,
+                ];
+            }
+        }
+
+        return $changes;
     }
 }

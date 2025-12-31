@@ -9,6 +9,7 @@ use App\Actions\Sla\DispatchSlaTimersAction;
 use App\Jobs\Conversations\CreateActivityMessageJob;
 use App\Jobs\Webhooks\SendWebhooksJob;
 use Illuminate\Contracts\Logging\Log as LogContract;
+use function Spatie\Activitylog\activity;
 
 class HandleConversationStatusChanged
 {
@@ -37,6 +38,16 @@ class HandleConversationStatusChanged
             'previous_status' => $event->previousStatus,
             'new_status' => $event->newStatus,
         ]);
+
+        activity()
+            ->performedOn($conversation)
+            ->withProperties([
+                'event' => 'conversation_status_changed',
+                'previous_status' => $event->previousStatus,
+                'new_status' => $event->newStatus,
+            ])
+            ->event('conversation_status_changed')
+            ->log('Conversation status changed');
 
         $this->log->info('HandleConversationStatusChanged dispatched side-effects', ['conversation_id' => $conversation->id]);
     }

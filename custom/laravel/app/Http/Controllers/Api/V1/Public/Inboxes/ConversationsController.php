@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Public\Inboxes;
 
 use App\Http\Controllers\Controller;
+use App\Actions\Conversation\UpdateConversationAction;
+use App\Events\Conversation\ConversationCreated;
+use App\Events\Message\MessageCreated;
 use App\Models\Contact;
 use App\Models\ContactInbox;
 use App\Models\Conversation;
@@ -80,23 +83,27 @@ class ConversationsController extends Controller
             'inbox_id' => $inbox->id,
             'contact_id' => $contact->id,
             'contact_inbox_id' => $contactInbox->id,
-            'status' => 'open',
+            'status' => Conversation::STATUS_OPEN,
             'uuid' => Str::uuid()->toString(),
             'custom_attributes' => $validated['custom_attributes'] ?? [],
             'last_activity_at' => now(),
         ]);
 
+        event(new ConversationCreated($conversation));
+
         // Create initial message if provided
         if (!empty($validated['message']['content'])) {
-            Message::create([
+            $message = Message::create([
                 'account_id' => $inbox->account_id,
                 'inbox_id' => $inbox->id,
                 'conversation_id' => $conversation->id,
                 'content' => $validated['message']['content'],
-                'message_type' => 0, // incoming
+                'message_type' => Message::TYPE_INCOMING,
                 'sender_type' => Contact::class,
                 'sender_id' => $contact->id,
             ]);
+
+            event(new MessageCreated($message));
         }
 
         return response()->json([
@@ -145,8 +152,10 @@ class ConversationsController extends Controller
             return response()->json(['error' => 'Conversation not found'], 404);
         }
 
-        $conversation->update([
-            'status' => $conversation->status === 'open' ? 'resolved' : 'open',
+        $conversation = UpdateConversationAction::run($conversation, [
+            'status' => $conversation->status === Conversation::STATUS_OPEN
+                ? Conversation::STATUS_RESOLVED
+                : Conversation::STATUS_OPEN,
         ]);
 
         return response()->json([

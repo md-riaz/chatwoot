@@ -3,6 +3,7 @@
 namespace App\Actions\Conversation;
 
 use App\Data\Conversation\ConversationData;
+use App\Events\Conversation\ConversationCreated;
 use App\Models\Conversation;
 use App\Repositories\Conversation\ConversationRepository;
 use Illuminate\Support\Str;
@@ -24,8 +25,7 @@ class CreateConversationAction
 
         $conversation = $this->conversationRepository->create($conversationData);
 
-        // Trigger event
-        // event(new ConversationCreated($conversation));
+        event(new ConversationCreated($conversation));
 
         return $conversation;
     }

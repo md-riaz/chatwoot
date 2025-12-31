@@ -40,3 +40,30 @@ Broadcast::channel('account.{accountId}.presence', function ($user, $accountId) 
 
     return false;
 });
+
+// User-specific private channel for direct assignment/notifications
+Broadcast::channel('user.{userId}', function ($user, $userId) {
+    return (int) $user->id === (int) $userId;
+});
+
+// Portal channel - scoped to account membership
+Broadcast::channel('portal.{portalId}', function ($user, $portalId) {
+    $portal = \App\Models\Portal::find($portalId);
+
+    if (! $portal) {
+        return false;
+    }
+
+    return $user->accounts()->where('account_id', $portal->account_id)->exists();
+});
+
+// Article channel - scoped to account membership via portal/account
+Broadcast::channel('article.{articleId}', function ($user, $articleId) {
+    $article = \App\Models\Article::find($articleId);
+
+    if (! $article) {
+        return false;
+    }
+
+    return $user->accounts()->where('account_id', $article->account_id)->exists();
+});

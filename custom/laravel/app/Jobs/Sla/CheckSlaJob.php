@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Conversation;
 use App\Models\SlaPolicy;
 use App\Models\AppliedSla;
-use App\Jobs\Webhooks\SendWebhooksJob;
+use App\Events\Sla\SlaBreached;
 use App\Models\Inbox;
 use Carbon\Carbon;
 
@@ -81,7 +81,7 @@ class CheckSlaJob implements ShouldQueue
                     $data['sla_resolution_at'] = $resolutionAt;
                 }
 
-                AppliedSla::updateOrCreate(
+                $appliedSla = AppliedSla::updateOrCreate(
                     ['conversation_id' => $conv->id, 'sla_policy_id' => $policy->id],
                     $data
                 );
@@ -91,8 +91,7 @@ class CheckSlaJob implements ShouldQueue
                 if (! empty($breaches)) {
                     Log::warning('SLA breached', ['conversation_id' => $conv->id, 'policy_id' => $policy->id, 'breaches' => $breaches]);
 
-                    // emit webhook for SLA breach
-                    SendWebhooksJob::dispatch($conv->account_id, 'sla_breached', ['conversation_id' => $conv->id, 'policy_id' => $policy->id, 'breaches' => $breaches]);
+                    event(new SlaBreached($conv, $policy, $breaches, $appliedSla));
                 }
             }
 

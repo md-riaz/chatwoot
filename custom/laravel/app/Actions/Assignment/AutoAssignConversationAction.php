@@ -7,6 +7,7 @@ use App\Models\Inbox;
 use App\Models\User;
 use App\Models\InboxAssignmentPolicy;
 use App\Events\Conversation\ConversationAssigned;
+use App\Events\Conversation\ConversationUpdated;
 use App\Repositories\Conversation\ConversationRepository;
 use App\Repositories\Inbox\InboxRepository;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +48,12 @@ class AutoAssignConversationAction
             $conversation = $this->conversationRepository->find($conversation->id);
 
             event(new ConversationAssigned($conversation, $agent, $previousAssignee));
+            event(new ConversationUpdated($conversation, [
+                'assignee_id' => [
+                    'previous' => $previousAssignee?->id,
+                    'current' => $agent->id,
+                ],
+            ]));
         }
 
         return $agent;
