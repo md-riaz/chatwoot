@@ -32,7 +32,7 @@ Route::get('/app/{any}', function () {
     return response()->file(public_path('app/index.html'));
 })->where('any', '.*');
 
-Route::get('/app', function () {
+Route::get('/', function () {
     return response()->file(public_path('app/index.html'));
 });
 

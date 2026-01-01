@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Support\Str;
 
 class Whatsapp extends Model
 {
@@ -31,6 +32,9 @@ class Whatsapp extends Model
         self::PROVIDER_CLOUD,
         self::PROVIDER_360_DIALOG,
     ];
+
+    // Authorization error threshold for this channel type
+    public const AUTHORIZATION_ERROR_THRESHOLD = 3;
 
     protected $fillable = [
         'account_id',
@@ -51,6 +55,24 @@ class Whatsapp extends Model
         'message_templates_last_updated' => 'datetime',
         'access_token' => 'encrypted',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($channel) {
+            $channel->ensureWebhookVerifyToken();
+        });
+
+        static::created(function ($channel) {
+            SyncWhatsAppTemplatesJob::dispatch($channel);
+        });
+
+        static::deleting(function ($channel) {
+            // Teardown webhooks before deletion
+            $channel->teardownWebhooks();
+        });
+    }
 
     public function account(): BelongsTo
     {

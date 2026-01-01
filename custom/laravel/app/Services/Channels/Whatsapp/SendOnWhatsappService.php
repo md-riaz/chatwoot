@@ -9,11 +9,12 @@ class SendOnWhatsappService extends BaseSendOnChannelService
 {
     protected function channelClass(): string
     {
-        return \App\Models\Channels\Whatsapp::class;
+        return Whatsapp::class;
     }
 
     protected function performReply(): void
     {
+        /** @var Whatsapp $channel */
         $channel = $this->channel();
         $provider = $channel->provider ?? ($channel->provider_config['provider'] ?? 'unknown');
 
@@ -32,6 +33,7 @@ class SendOnWhatsappService extends BaseSendOnChannelService
                     'external_error' => 'Unknown WhatsApp provider: ' . $provider
                 ]);
             }
+
         } catch (\Exception $e) {
             report($e);
             $this->message->update([
