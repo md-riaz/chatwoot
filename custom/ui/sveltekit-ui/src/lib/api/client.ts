@@ -59,7 +59,15 @@ export const superAdminApi = {
 	updateUser: (id: number, data: unknown) =>
 		api.put(`super_admin/users/${id}`, { json: data }).json(),
 	deleteUser: (id: number) => api.delete(`super_admin/users/${id}`).json(),
+	uploadUserAvatar: (id: number, file: File) => {
+		const formData = new FormData();
+		formData.append('avatar', file);
+		return api.post(`super_admin/users/${id}/avatar`, { body: formData }).json();
+	},
 	deleteUserAvatar: (id: number) => api.delete(`super_admin/users/${id}/avatar`).json(),
+	confirmUserEmail: (id: number) => api.post(`super_admin/users/${id}/confirm`).json(),
+	lockUser: (id: number) => api.post(`super_admin/users/${id}/lock`).json(),
+	unlockUser: (id: number) => api.post(`super_admin/users/${id}/unlock`).json(),
 
 	// Settings
 	getSettings: () => api.get('super_admin/settings').json(),
@@ -143,4 +151,38 @@ export const authApi = {
 export const onboardingApi = {
 	checkOnboardingStatus: () => api.get('installation/onboarding/status').json(),
 	completeOnboarding: (data: unknown) => api.post('installation/onboarding', { json: data }).json()
+};
+
+// Simplified API export for components
+export const superAdminAPI = {
+	dashboard: {
+		get: () => superAdminApi.getDashboard(),
+		status: () => superAdminApi.getInstanceStatus()
+	},
+	accounts: {
+		list: (params?: any) => superAdminApi.getAccounts(params),
+		get: (id: string) => superAdminApi.getAccount(parseInt(id)),
+		create: (data: any) => superAdminApi.createAccount(data),
+		update: (id: string, data: any) => superAdminApi.updateAccount(parseInt(id), data),
+		delete: (id: string) => superAdminApi.deleteAccount(parseInt(id))
+	},
+	users: {
+		list: (params?: any) => superAdminApi.getUsers(params),
+		get: (id: string) => superAdminApi.getUser(parseInt(id)),
+		create: (data: any) => superAdminApi.createUser(data),
+		update: (id: string, data: any) => superAdminApi.updateUser(parseInt(id), data),
+		delete: (id: string) => superAdminApi.deleteUser(parseInt(id)),
+		uploadAvatar: (id: string, file: File) => superAdminApi.uploadUserAvatar(parseInt(id), file),
+		deleteAvatar: (id: string) => superAdminApi.deleteUserAvatar(parseInt(id)),
+		confirmEmail: (id: string) => superAdminApi.confirmUserEmail(parseInt(id)),
+		lock: (id: string) => superAdminApi.lockUser(parseInt(id)),
+		unlock: (id: string) => superAdminApi.unlockUser(parseInt(id))
+	},
+	settings: {
+		get: () => superAdminApi.getSettings(),
+		getGrouped: () => superAdminApi.getSettingsGrouped(),
+		update: (data: any) => superAdminApi.updateSettings(data),
+		create: (data: any) => superAdminApi.createSetting(data),
+		delete: (name: string) => superAdminApi.deleteSetting(name)
+	}
 };
