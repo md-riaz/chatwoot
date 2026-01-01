@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import { Chart, registerables } from 'chart.js';
+	
+	Chart.register(...registerables);
 	
 	interface ChartProps {
 		data: Array<[string, number]>;
@@ -7,55 +10,109 @@
 	
 	let { data = [] }: ChartProps = $props();
 	let canvasRef: HTMLCanvasElement | undefined = $state();
+	let chartInstance: Chart | undefined = $state();
+	let containerRef: HTMLDivElement | undefined = $state();
 	
-	onMount(() => {
+	// Responsive chart update
+	$effect(() => {
 		if (!canvasRef || !data || data.length === 0) return;
+		
+		// Destroy existing chart
+		if (chartInstance) {
+			chartInstance.destroy();
+		}
 		
 		const ctx = canvasRef.getContext('2d');
 		if (!ctx) return;
 		
-		// Simple bar chart implementation
 		const labels = data.map(d => d[0]);
 		const values = data.map(d => d[1]);
-		const maxValue = Math.max(...values, 1);
 		
-		const width = canvasRef.width;
-		const height = canvasRef.height;
-		const barWidth = width / labels.length;
-		const padding = 40;
-		const chartHeight = height - padding * 2;
-		
-		// Clear canvas
-		ctx.clearRect(0, 0, width, height);
-		
-		// Draw bars
-		values.forEach((value, index) => {
-			const barHeight = (value / maxValue) * chartHeight;
-			const x = index * barWidth + barWidth * 0.1;
-			const y = height - padding - barHeight;
-			
-			// Bar
-			ctx.fillStyle = 'rgb(31, 147, 255)'; // Chatwoot blue matching Vue
-			ctx.fillRect(x, y, barWidth * 0.8, barHeight);
-			
-			// Label
-			ctx.fillStyle = 'rgb(var(--slate-11))';
-			ctx.font = '12px Inter';
-			ctx.textAlign = 'center';
-			ctx.fillText(labels[index], x + barWidth * 0.4, height - padding + 20);
-			
-			// Value
-			ctx.fillStyle = 'rgb(var(--slate-12))';
-			ctx.font = '14px Inter';
-			ctx.fillText(value.toString(), x + barWidth * 0.4, y - 5);
+		// Create new chart with Chart.js
+		chartInstance = new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels,
+				datasets: [{
+					label: 'Count',
+					data: values,
+					backgroundColor: 'rgba(31, 147, 255, 0.8)', // Chatwoot blue matching Vue
+					borderColor: 'rgb(31, 147, 255)',
+					borderWidth: 1,
+					borderRadius: 4,
+					hoverBackgroundColor: 'rgba(31, 147, 255, 1)'
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+						display: false
+					},
+					tooltip: {
+						enabled: true,
+						backgroundColor: 'rgba(15, 23, 42, 0.9)',
+						titleColor: 'rgb(248, 250, 252)',
+						bodyColor: 'rgb(226, 232, 240)',
+						padding: 12,
+						cornerRadius: 8,
+						displayColors: false,
+						callbacks: {
+							title: (items) => items[0]?.label || '',
+							label: (item) => `Count: ${item.formattedValue}`
+						}
+					}
+				},
+				scales: {
+					x: {
+						grid: {
+							display: false
+						},
+						ticks: {
+							color: 'rgb(148, 163, 184)', // slate-11
+							font: {
+								family: 'Inter',
+								size: 12
+							}
+						}
+					},
+					y: {
+						beginAtZero: true,
+						grid: {
+							color: 'rgba(148, 163, 184, 0.1)', // subtle grid lines
+							drawBorder: false
+						},
+						ticks: {
+							color: 'rgb(148, 163, 184)', // slate-11
+							font: {
+								family: 'Inter',
+								size: 12
+							},
+							precision: 0
+						}
+					}
+				},
+				interaction: {
+					intersect: false,
+					mode: 'index'
+				}
+			}
 		});
+	});
+	
+	onDestroy(() => {
+		if (chartInstance) {
+			chartInstance.destroy();
+		}
 	});
 </script>
 
-<canvas
-	bind:this={canvasRef}
-	width={800}
-	height={400}
-	class="w-full h-full"
-	style="max-height: 400px;"
-/>
+<div bind:this={containerRef} class="relative w-full h-full" style="min-height: 300px; max-height: 400px;">
+	<canvas
+		bind:this={canvasRef}
+		class="w-full h-full"
+		role="img"
+		aria-label="Bar chart showing conversation statistics"
+	/>
+</div>

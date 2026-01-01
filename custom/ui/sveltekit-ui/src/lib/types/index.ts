@@ -134,5 +134,6 @@ export interface DataTableColumn<T = unknown> {
 	key: string;
 	label: string;
 	sortable?: boolean;
+	width?: string; // CSS width value (e.g., '100px', '20%')
 	render?: SafeRenderFunction<T>;
 }
