@@ -106,7 +106,7 @@
 				/>
 			</div>
 			<Button variant="outline" on:click={loadAgentBots} disabled={loading}>
-				<RefreshCw class="mr-2 h-4 w-4" class:animate-spin={loading} />
+				<RefreshCw class={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
 				Refresh
 			</Button>
 		</div>
