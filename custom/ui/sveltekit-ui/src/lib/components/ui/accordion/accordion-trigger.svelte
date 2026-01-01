@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Accordion as AccordionPrimitive } from 'bits-ui';
   import { cn } from '$lib/utils';
+  import { Accordion as AccordionPrimitive } from 'bits-ui';
   import type { Snippet } from 'svelte';
 
   type Props = {
@@ -20,7 +20,7 @@
     {...restProps}
   >
     {#if children}
-      {@render children()}
+      {@render children?.()}
     {/if}
     <svg
       xmlns="http://www.w3.org/2000/svg"
