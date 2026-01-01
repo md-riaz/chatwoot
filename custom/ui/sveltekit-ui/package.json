@@ -1,0 +1,52 @@
+{
+	"name": "sveltekit-ui",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^7.0.0",
+		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/kit": "^2.49.1",
+		"@sveltejs/vite-plugin-svelte": "^6.2.1",
+		"@tailwindcss/typography": "^0.5.19",
+		"autoprefixer": "^10.4.23",
+		"eslint": "^9.39.2",
+		"postcss": "^8.5.6",
+		"prettier": "^3.7.4",
+		"prettier-plugin-svelte": "^3.4.1",
+		"svelte": "^5.45.6",
+		"svelte-check": "^4.3.4",
+		"tailwindcss": "^4.1.18",
+		"tailwindcss-animate": "^1.0.7",
+		"typescript": "^5.9.3",
+		"vite": "^7.2.6"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild"
+		]
+	},
+	"dependencies": {
+		"@internationalized/date": "^3.10.1",
+		"bits-ui": "^2.14.4",
+		"clsx": "^2.1.1",
+		"formsnap": "^2.0.1",
+		"ky": "^1.14.2",
+		"lucide-svelte": "^0.562.0",
+		"mode-watcher": "^1.1.0",
+		"svelte-i18n": "^4.0.1",
+		"svelte-sonner": "^1.0.7",
+		"sveltekit-superforms": "^2.29.1",
+		"tailwind-merge": "^3.4.0",
+		"tailwind-variants": "^3.2.2",
+		"zod": "^4.3.4"
+	}
+}
