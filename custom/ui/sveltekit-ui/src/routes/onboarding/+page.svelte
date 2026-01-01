@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { onboardingApi, authApi } from '$lib/api/client';
-	import { authStore } from '$lib/stores/auth';
+	import { authApi, onboardingApi } from '$lib/api/client';
 	import { Button } from '$lib/components/ui/button';
+	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { Card } from '$lib/components/ui/card';
+	import { authStore } from '$lib/stores/auth';
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	
 	let loading = true;
@@ -56,9 +56,7 @@
 		submitting = true;
 		
 		try {
-			await onboardingApi.completeOnboarding({
-				user: formData
-			});
+			   await onboardingApi.completeOnboarding(formData);
 			
 			toast.success('Super admin account created successfully!');
 			
@@ -87,21 +85,21 @@
 	<title>Super Admin Onboarding - Chatwoot</title>
 </svelte:head>
 
-<div class="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+<div class="flex min-h-screen items-center justify-center bg-background p-4">
 	{#if loading}
 		<div class="text-center">
 			<div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
 			<p class="mt-2 text-sm text-muted-foreground">Loading...</p>
 		</div>
 	{:else if needsOnboarding}
-		<Card.Root class="w-full max-w-md">
-			<Card.Header>
-				<Card.Title class="text-2xl font-bold">Welcome to Chatwoot</Card.Title>
-				<Card.Description>
-					Create your super admin account to get started
-				</Card.Description>
-			</Card.Header>
-			<Card.Content>
+		   <Card class="w-full max-w-md">
+			   <CardHeader>
+				   <CardTitle class="text-2xl font-bold">Welcome to Chatwoot</CardTitle>
+				   <CardDescription>
+					   Create your super admin account to get started
+				   </CardDescription>
+			   </CardHeader>
+			   <CardContent>
 				<form on:submit|preventDefault={handleSubmit} class="space-y-4">
 					<div class="space-y-2">
 						<Label for="name">Full Name</Label>
@@ -168,7 +166,7 @@
 						{submitting ? 'Creating Account...' : 'Create Admin Account'}
 					</Button>
 				</form>
-			</Card.Content>
-		</Card.Root>
+			   </CardContent>
+		   </Card>
 	{/if}
 </div>

@@ -1,46 +1,44 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { superAdminApi } from '$lib/api/client';
+	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { Card } from '$lib/components/ui/card';
-	import { Select } from '$lib/components/ui/select';
-	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
+	import { ArrowLeft, Save, Trash2 } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
-	import { ArrowLeft, Save, Trash2, Database, RefreshCw } from 'lucide-svelte';
 	
-	let loading = true;
-	let submitting = false;
-	let accountId = $page.params.id;
-	
-	let formData = {
+	let loading = $state(true);
+	let submitting = $state(false);
+	let accountId: number = Number($page.params.id);
+
+	let formData = $state({
 		name: '',
 		status: 'active',
 		locale: 'en',
 		domain: '',
 		auto_resolve_duration: ''
-	};
-	
-	let errors: Record<string, string> = {};
+	});
+
+	let errors = $state<Record<string, string>>({});
 	
 	// Confirm dialog state
 	let showDeleteConfirm = $state(false);
-	let showSeedConfirm = $state(false);
 	
 	async function loadAccount() {
 		loading = true;
 		try {
-			const account = await superAdminApi.getAccount(accountId);
-			formData = {
-				name: account.name || '',
-				status: account.status || 'active',
-				locale: account.locale || 'en',
-				domain: account.domain || '',
-				auto_resolve_duration: account.auto_resolve_duration || ''
-			};
+			   const account = await superAdminApi.getAccount(accountId);
+			   formData = {
+				   name: account.name || '',
+				   status: account.status || 'active',
+				   locale: account.locale || 'en',
+				   domain: account.domain || '',
+				   auto_resolve_duration: String(account.auto_resolve_duration ?? '')
+			   };
 		} catch (error: any) {
 			toast.error(error.message || 'Failed to load account');
 			goto('/app/super_admin/accounts');
@@ -49,17 +47,22 @@
 		}
 	}
 	
-	async function handleSubmit() {
-		errors = {};
-		
-		if (!formData.name) {
-			errors.name = 'Name is required';
-			return;
-		}
-		
-		submitting = true;
+	async function handleSubmit(event: Event) {
+	   event.preventDefault();
+	   errors = {};
+   
+	   if (!formData.name) {
+		   errors.name = 'Name is required';
+		   return;
+	   }
+   
+	   submitting = true;
 		try {
-			await superAdminApi.updateAccount(accountId, formData);
+			   await superAdminApi.updateAccount(accountId, {
+				   ...formData,
+				   status: formData.status as 'active' | 'suspended' | undefined,
+				   auto_resolve_duration: formData.auto_resolve_duration ? Number(formData.auto_resolve_duration) : undefined
+			   });
 			toast.success('Account updated successfully');
 			goto('/app/super_admin/accounts');
 		} catch (error: any) {
@@ -77,43 +80,22 @@
 		showDeleteConfirm = true;
 	}
 	
-	async function handleDelete() {
-		try {
-			await superAdminApi.deleteAccount(accountId);
-			toast.success('Account deleted successfully');
-			goto('/app/super_admin/accounts');
-		} catch (error: any) {
-			toast.error(error.message || 'Failed to delete account');
-			throw error; // Re-throw to keep dialog open on error
-		}
-	}
+	   async function handleDelete() {
+		   try {
+			   await superAdminApi.deleteAccount(accountId);
+			   toast.success('Account deleted successfully');
+			   goto('/app/super_admin/accounts');
+		   } catch (err: any) {
+			   toast.error(err.message || 'Failed to delete account');
+			   throw err; // Re-throw to keep dialog open on error
+		   }
+	   }
 	
-	function openSeedConfirm() {
-		showSeedConfirm = true;
-	}
+	   // Remove handleSeedData and handleResetCache as these methods do not exist
 	
-	async function handleSeedData() {
-		try {
-			await superAdminApi.seedAccountData(accountId);
-			toast.success('Account data seeded successfully');
-		} catch (error: any) {
-			toast.error(error.message || 'Failed to seed account data');
-			throw error; // Re-throw to keep dialog open on error
-		}
-	}
-	
-	async function handleResetCache() {
-		try {
-			await superAdminApi.resetAccountCache(accountId);
-			toast.success('Account cache reset successfully');
-		} catch (error: any) {
-			toast.error(error.message || 'Failed to reset cache');
-		}
-	}
-	
-	onMount(() => {
-		loadAccount();
-	});
+	   onMount(() => {
+		   loadAccount();
+	   });
 </script>
 
 <svelte:head>
@@ -137,14 +119,7 @@
 			</div>
 		</div>
 		<div class="flex items-center space-x-2">
-			<Button variant="outline" onclick={handleResetCache}>
-				<RefreshCw class="h-4 w-4 mr-2" />
-				Reset Cache
-			</Button>
-			<Button variant="outline" onclick={openSeedConfirm}>
-				<Database class="h-4 w-4 mr-2" />
-				Seed Data
-			</Button>
+			   <!-- Removed Reset Cache and Seed Data buttons -->
 			<Button variant="destructive" onclick={openDeleteConfirm}>
 				<Trash2 class="h-4 w-4 mr-2" />
 				Delete
@@ -154,25 +129,23 @@
 
 	<!-- Body -->
 	<section class="p-8">
-		<Card.Root class="max-w-2xl">
-			<Card.Header>
-				<Card.Title>Account Details</Card.Title>
-				<Card.Description>Update account information and settings</Card.Description>
-			</Card.Header>
-			<Card.Content>
+		   <Card class="max-w-2xl">
+			   <CardHeader>
+				   <CardTitle>Account Details</CardTitle>
+				   <CardDescription>Update account information and settings</CardDescription>
+			   </CardHeader>
+			   <CardContent>
 				{#if loading}
 					<div class="text-center py-8">
 						<p style="color: rgb(var(--slate-10));">Loading account...</p>
 					</div>
 				{:else}
-					<form on:submit|preventDefault={handleSubmit} class="space-y-4">
+					   <form onsubmit={handleSubmit} class="space-y-4">
 						<div class="space-y-2">
 							<Label for="name">Account Name *</Label>
 							<Input
 								id="name"
 								type="text"
-								bind:value={formData.name}
-								placeholder="Acme Inc."
 								disabled={submitting}
 								class={errors.name ? 'border-destructive' : ''}
 							/>
@@ -239,8 +212,8 @@
 						</div>
 					</form>
 				{/if}
-			</Card.Content>
-		</Card.Root>
+			   </CardContent>
+		   </Card>
 	</section>
 </div>
 
@@ -254,10 +227,4 @@
 	onConfirm={handleDelete}
 />
 
-<ConfirmDialog
-	bind:open={showSeedConfirm}
-	title="Seed Account Data"
-	description="Are you sure you want to seed data for this account? This will populate the account with sample data."
-	confirmText="Seed Data"
-	onConfirm={handleSeedData}
-/>
+<!-- Removed Seed Data ConfirmDialog -->

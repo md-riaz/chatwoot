@@ -2,11 +2,11 @@
 	import { goto } from '$app/navigation';
 	import { superAdminApi } from '$lib/api/client';
 	import { Button } from '$lib/components/ui/button';
+	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { Card } from '$lib/components/ui/card';
-	import { toast } from 'svelte-sonner';
 	import { ArrowLeft, Plus } from 'lucide-svelte';
+	import { toast } from 'svelte-sonner';
 	
 	let submitting = false;
 	
@@ -64,12 +64,12 @@
 
 	<!-- Body -->
 	<section class="p-8">
-		<Card.Root class="max-w-2xl">
-			<Card.Header>
-				<Card.Title>Account Details</Card.Title>
-				<Card.Description>Enter the details for the new account</Card.Description>
-			</Card.Header>
-			<Card.Content>
+		   <Card class="max-w-2xl">
+			   <CardHeader>
+				   <CardTitle>Account Details</CardTitle>
+				   <CardDescription>Enter the details for the new account</CardDescription>
+			   </CardHeader>
+			   <CardContent>
 				<form on:submit|preventDefault={handleSubmit} class="space-y-4">
 					<div class="space-y-2">
 						<Label for="name">Account Name *</Label>
@@ -80,7 +80,6 @@
 							placeholder="Acme Inc."
 							disabled={submitting}
 							class={errors.name ? 'border-destructive' : ''}
-							autofocus
 						/>
 						{#if errors.name}
 							<p class="text-sm text-destructive">{errors.name}</p>
@@ -111,7 +110,7 @@
 						</Button>
 					</div>
 				</form>
-			</Card.Content>
-		</Card.Root>
+			   </CardContent>
+		   </Card>
 	</section>
 </div>
