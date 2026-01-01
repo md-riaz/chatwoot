@@ -6,19 +6,20 @@
   type $$Props = Props;
   type $$Events = Events;
 
+  let ref: ButtonPrimitive.Root | null = null;
+
   let {
     class: className,
     variant = 'default',
     size = 'default',
-    ref = $bindable(null),
     children,
     ...restProps
   }: $$Props = $props();
 </script>
 
 <ButtonPrimitive.Root
-  bind:ref
-  class={cn(buttonVariants({ variant, size, className }))}
+  bind:this={ref}
+  class={cn(buttonVariants({ variant, size, className: className ?? '' }))}
   {...restProps}
 >
   {@render children?.()}
