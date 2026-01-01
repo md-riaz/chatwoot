@@ -1,6 +1,21 @@
 import ky from 'ky';
 import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
+import type {
+	User,
+	Account,
+	DashboardData,
+	AgentBot,
+	PlatformApp,
+	AccessToken,
+	InstallationConfig,
+	AccountUser,
+	AuditLog,
+	Setting,
+	PaginationParams,
+	AuthResponse,
+	OnboardingData
+} from '$lib/types';
 
 const API_BASE_URL = browser
 	? import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
@@ -25,10 +40,15 @@ export const api = ky.create({
 		afterResponse: [
 			async (request, options, response) => {
 				// Handle 401 Unauthorized - redirect to login
+				// Prevent redirect loop by checking current path
 				if (response.status === 401 && browser) {
-					localStorage.removeItem('auth_token');
-					localStorage.removeItem('user');
-					goto('/login');
+					const currentPath = window.location.pathname;
+					// Only redirect if not already on login or onboarding pages
+					if (currentPath !== '/login' && currentPath !== '/onboarding') {
+						localStorage.removeItem('auth_token');
+						localStorage.removeItem('user');
+						goto('/login');
+					}
 				}
 				return response;
 			}
@@ -39,118 +59,118 @@ export const api = ky.create({
 // Super Admin API endpoints
 export const superAdminApi = {
 	// Dashboard
-	getDashboard: () => api.get('super_admin/dashboard').json(),
-	getInstanceStatus: () => api.get('super_admin/instance_status').json(),
+	getDashboard: () => api.get('super_admin/dashboard').json<DashboardData>(),
+	getInstanceStatus: () => api.get('super_admin/instance_status').json<Record<string, unknown>>(),
 
 	// Accounts
-	getAccounts: (params?: Record<string, string | number | boolean>) =>
-		api.get('super_admin/accounts', { searchParams: params as Record<string, string> }).json(),
-	getAccount: (id: number) => api.get(`super_admin/accounts/${id}`).json(),
-	createAccount: (data: unknown) => api.post('super_admin/accounts', { json: data }).json(),
-	updateAccount: (id: number, data: unknown) =>
-		api.put(`super_admin/accounts/${id}`, { json: data }).json(),
-	deleteAccount: (id: number) => api.delete(`super_admin/accounts/${id}`).json(),
+	getAccounts: (params?: PaginationParams) =>
+		api.get('super_admin/accounts', { searchParams: params as Record<string, string> }).json<{ data: Account[] }>(),
+	getAccount: (id: number) => api.get(`super_admin/accounts/${id}`).json<Account>(),
+	createAccount: (data: Partial<Account>) => api.post('super_admin/accounts', { json: data }).json<Account>(),
+	updateAccount: (id: number, data: Partial<Account>) =>
+		api.put(`super_admin/accounts/${id}`, { json: data }).json<Account>(),
+	deleteAccount: (id: number) => api.delete(`super_admin/accounts/${id}`).json<{ success: boolean }>(),
 
 	// Users
-	getUsers: (params?: Record<string, string | number | boolean>) =>
-		api.get('super_admin/users', { searchParams: params as Record<string, string> }).json(),
-	getUser: (id: number) => api.get(`super_admin/users/${id}`).json(),
-	createUser: (data: unknown) => api.post('super_admin/users', { json: data }).json(),
-	updateUser: (id: number, data: unknown) =>
-		api.put(`super_admin/users/${id}`, { json: data }).json(),
-	deleteUser: (id: number) => api.delete(`super_admin/users/${id}`).json(),
+	getUsers: (params?: PaginationParams) =>
+		api.get('super_admin/users', { searchParams: params as Record<string, string> }).json<{ data: User[] }>(),
+	getUser: (id: number) => api.get(`super_admin/users/${id}`).json<User>(),
+	createUser: (data: Partial<User> & { password: string }) => api.post('super_admin/users', { json: data }).json<User>(),
+	updateUser: (id: number, data: Partial<User>) =>
+		api.put(`super_admin/users/${id}`, { json: data }).json<User>(),
+	deleteUser: (id: number) => api.delete(`super_admin/users/${id}`).json<{ success: boolean }>(),
 	uploadUserAvatar: (id: number, file: File) => {
 		const formData = new FormData();
 		formData.append('avatar', file);
-		return api.post(`super_admin/users/${id}/avatar`, { body: formData }).json();
+		return api.post(`super_admin/users/${id}/avatar`, { body: formData }).json<User>();
 	},
-	deleteUserAvatar: (id: number) => api.delete(`super_admin/users/${id}/avatar`).json(),
-	confirmUserEmail: (id: number) => api.post(`super_admin/users/${id}/confirm`).json(),
-	lockUser: (id: number) => api.post(`super_admin/users/${id}/lock`).json(),
-	unlockUser: (id: number) => api.post(`super_admin/users/${id}/unlock`).json(),
+	deleteUserAvatar: (id: number) => api.delete(`super_admin/users/${id}/avatar`).json<User>(),
+	confirmUserEmail: (id: number) => api.post(`super_admin/users/${id}/confirm`).json<User>(),
+	lockUser: (id: number) => api.post(`super_admin/users/${id}/lock`).json<User>(),
+	unlockUser: (id: number) => api.post(`super_admin/users/${id}/unlock`).json<User>(),
 
 	// Settings
-	getSettings: () => api.get('super_admin/settings').json(),
-	getSettingsGrouped: () => api.get('super_admin/settings/show').json(),
-	updateSettings: (data: unknown) => api.patch('super_admin/settings', { json: data }).json(),
-	createSetting: (data: unknown) => api.post('super_admin/settings', { json: data }).json(),
-	deleteSetting: (name: string) => api.delete(`super_admin/settings/${name}`).json(),
+	getSettings: () => api.get('super_admin/settings').json<Setting[]>(),
+	getSettingsGrouped: () => api.get('super_admin/settings/show').json<Record<string, Setting[]>>(),
+	updateSettings: (data: Record<string, unknown>) => api.patch('super_admin/settings', { json: data }).json<{ success: boolean }>(),
+	createSetting: (data: Partial<Setting>) => api.post('super_admin/settings', { json: data }).json<Setting>(),
+	deleteSetting: (name: string) => api.delete(`super_admin/settings/${name}`).json<{ success: boolean }>(),
 
 	// Agent Bots
-	getAgentBots: (params?: Record<string, string | number | boolean>) =>
-		api.get('super_admin/agent_bots', { searchParams: params as Record<string, string> }).json(),
-	getAgentBot: (id: number) => api.get(`super_admin/agent_bots/${id}`).json(),
-	createAgentBot: (data: unknown) => api.post('super_admin/agent_bots', { json: data }).json(),
-	updateAgentBot: (id: number, data: unknown) =>
-		api.put(`super_admin/agent_bots/${id}`, { json: data }).json(),
-	deleteAgentBot: (id: number) => api.delete(`super_admin/agent_bots/${id}`).json(),
+	getAgentBots: (params?: PaginationParams) =>
+		api.get('super_admin/agent_bots', { searchParams: params as Record<string, string> }).json<{ data: AgentBot[] }>(),
+	getAgentBot: (id: number) => api.get(`super_admin/agent_bots/${id}`).json<AgentBot>(),
+	createAgentBot: (data: Partial<AgentBot>) => api.post('super_admin/agent_bots', { json: data }).json<AgentBot>(),
+	updateAgentBot: (id: number, data: Partial<AgentBot>) =>
+		api.put(`super_admin/agent_bots/${id}`, { json: data }).json<AgentBot>(),
+	deleteAgentBot: (id: number) => api.delete(`super_admin/agent_bots/${id}`).json<{ success: boolean }>(),
 
 	// Platform Apps
-	getPlatformApps: (params?: Record<string, string | number | boolean>) =>
+	getPlatformApps: (params?: PaginationParams) =>
 		api
 			.get('super_admin/platform_apps', { searchParams: params as Record<string, string> })
-			.json(),
-	getPlatformApp: (id: number) => api.get(`super_admin/platform_apps/${id}`).json(),
-	createPlatformApp: (data: unknown) =>
-		api.post('super_admin/platform_apps', { json: data }).json(),
-	updatePlatformApp: (id: number, data: unknown) =>
-		api.put(`super_admin/platform_apps/${id}`, { json: data }).json(),
-	deletePlatformApp: (id: number) => api.delete(`super_admin/platform_apps/${id}`).json(),
+			.json<{ data: PlatformApp[] }>(),
+	getPlatformApp: (id: number) => api.get(`super_admin/platform_apps/${id}`).json<PlatformApp>(),
+	createPlatformApp: (data: Partial<PlatformApp>) =>
+		api.post('super_admin/platform_apps', { json: data }).json<PlatformApp>(),
+	updatePlatformApp: (id: number, data: Partial<PlatformApp>) =>
+		api.put(`super_admin/platform_apps/${id}`, { json: data }).json<PlatformApp>(),
+	deletePlatformApp: (id: number) => api.delete(`super_admin/platform_apps/${id}`).json<{ success: boolean }>(),
 
 	// Access Tokens
-	getAccessTokens: (params?: Record<string, string | number | boolean>) =>
+	getAccessTokens: (params?: PaginationParams) =>
 		api
 			.get('super_admin/access_tokens', { searchParams: params as Record<string, string> })
-			.json(),
-	createAccessToken: (data: unknown) =>
-		api.post('super_admin/access_tokens', { json: data }).json(),
-	deleteAccessToken: (id: number) => api.delete(`super_admin/access_tokens/${id}`).json(),
+			.json<{ data: AccessToken[] }>(),
+	createAccessToken: (data: { name: string }) =>
+		api.post('super_admin/access_tokens', { json: data }).json<AccessToken>(),
+	deleteAccessToken: (id: number) => api.delete(`super_admin/access_tokens/${id}`).json<{ success: boolean }>(),
 
 	// Installation Configs
-	getInstallationConfigs: (params?: Record<string, string | number | boolean>) =>
+	getInstallationConfigs: (params?: PaginationParams) =>
 		api
 			.get('super_admin/installation_configs', { searchParams: params as Record<string, string> })
-			.json(),
-	getInstallationConfig: (id: number) => api.get(`super_admin/installation_configs/${id}`).json(),
-	updateInstallationConfig: (id: number, data: unknown) =>
-		api.patch(`super_admin/installation_configs/${id}`, { json: data }).json(),
+			.json<{ data: InstallationConfig[] }>(),
+	getInstallationConfig: (id: number) => api.get(`super_admin/installation_configs/${id}`).json<InstallationConfig>(),
+	updateInstallationConfig: (id: number, data: Partial<InstallationConfig>) =>
+		api.patch(`super_admin/installation_configs/${id}`, { json: data }).json<InstallationConfig>(),
 
 	// Account Users
-	getAccountUsers: (params?: Record<string, string | number | boolean>) =>
+	getAccountUsers: (params?: PaginationParams) =>
 		api
 			.get('super_admin/account_users', { searchParams: params as Record<string, string> })
-			.json(),
-	createAccountUser: (data: unknown) =>
-		api.post('super_admin/account_users', { json: data }).json(),
-	updateAccountUser: (id: number, data: unknown) =>
-		api.put(`super_admin/account_users/${id}`, { json: data }).json(),
-	deleteAccountUser: (id: number) => api.delete(`super_admin/account_users/${id}`).json(),
+			.json<{ data: AccountUser[] }>(),
+	createAccountUser: (data: { user_id: number; account_id: number; role: string }) =>
+		api.post('super_admin/account_users', { json: data }).json<AccountUser>(),
+	updateAccountUser: (id: number, data: { role?: string }) =>
+		api.put(`super_admin/account_users/${id}`, { json: data }).json<AccountUser>(),
+	deleteAccountUser: (id: number) => api.delete(`super_admin/account_users/${id}`).json<{ success: boolean }>(),
 
 	// Audit Logs
-	getAuditLogs: (params?: Record<string, string | number | boolean>) =>
-		api.get('super_admin/audit_logs', { searchParams: params as Record<string, string> }).json(),
+	getAuditLogs: (params?: PaginationParams) =>
+		api.get('super_admin/audit_logs', { searchParams: params as Record<string, string> }).json<{ data: AuditLog[] }>(),
 
 	// Cache
 	clearCache: (type?: string) => {
 		if (type) {
-			return api.post(`super_admin/cache/clear/${type}`).json();
+			return api.post(`super_admin/cache/clear/${type}`).json<{ success: boolean }>();
 		}
-		return api.post('super_admin/cache/clear').json();
+		return api.post('super_admin/cache/clear').json<{ success: boolean }>();
 	}
 };
 
 // Authentication API endpoints
 export const authApi = {
 	login: (email: string, password: string) =>
-		api.post('login', { json: { email, password } }).json<{ token: string; user: unknown }>(),
-	logout: () => api.post('logout').json(),
-	getCurrentUser: () => api.get('me').json()
+		api.post('login', { json: { email, password } }).json<AuthResponse>(),
+	logout: () => api.post('logout').json<{ success: boolean }>(),
+	getCurrentUser: () => api.get('me').json<User>()
 };
 
 // Onboarding API endpoints
 export const onboardingApi = {
-	checkOnboardingStatus: () => api.get('installation/onboarding/status').json(),
-	completeOnboarding: (data: unknown) => api.post('installation/onboarding', { json: data }).json()
+	checkOnboardingStatus: () => api.get('installation/onboarding/status').json<OnboardingData>(),
+	completeOnboarding: (data: { name: string; company: string; email: string; password: string }) => api.post('installation/onboarding', { json: data }).json<AuthResponse>()
 };
 
 // Simplified API export for components
@@ -160,17 +180,17 @@ export const superAdminAPI = {
 		status: () => superAdminApi.getInstanceStatus()
 	},
 	accounts: {
-		list: (params?: any) => superAdminApi.getAccounts(params),
+		list: (params?: PaginationParams) => superAdminApi.getAccounts(params),
 		get: (id: string) => superAdminApi.getAccount(parseInt(id)),
-		create: (data: any) => superAdminApi.createAccount(data),
-		update: (id: string, data: any) => superAdminApi.updateAccount(parseInt(id), data),
+		create: (data: Partial<Account>) => superAdminApi.createAccount(data),
+		update: (id: string, data: Partial<Account>) => superAdminApi.updateAccount(parseInt(id), data),
 		delete: (id: string) => superAdminApi.deleteAccount(parseInt(id))
 	},
 	users: {
-		list: (params?: any) => superAdminApi.getUsers(params),
+		list: (params?: PaginationParams) => superAdminApi.getUsers(params),
 		get: (id: string) => superAdminApi.getUser(parseInt(id)),
-		create: (data: any) => superAdminApi.createUser(data),
-		update: (id: string, data: any) => superAdminApi.updateUser(parseInt(id), data),
+		create: (data: Partial<User> & { password: string }) => superAdminApi.createUser(data),
+		update: (id: string, data: Partial<User>) => superAdminApi.updateUser(parseInt(id), data),
 		delete: (id: string) => superAdminApi.deleteUser(parseInt(id)),
 		uploadAvatar: (id: string, file: File) => superAdminApi.uploadUserAvatar(parseInt(id), file),
 		deleteAvatar: (id: string) => superAdminApi.deleteUserAvatar(parseInt(id)),
@@ -181,8 +201,8 @@ export const superAdminAPI = {
 	settings: {
 		get: () => superAdminApi.getSettings(),
 		getGrouped: () => superAdminApi.getSettingsGrouped(),
-		update: (data: any) => superAdminApi.updateSettings(data),
-		create: (data: any) => superAdminApi.createSetting(data),
+		update: (data: Record<string, unknown>) => superAdminApi.updateSettings(data),
+		create: (data: Partial<Setting>) => superAdminApi.createSetting(data),
 		delete: (name: string) => superAdminApi.deleteSetting(name)
 	}
 };

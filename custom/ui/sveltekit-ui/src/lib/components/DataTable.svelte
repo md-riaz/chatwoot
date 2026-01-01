@@ -3,17 +3,11 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { ChevronLeft, ChevronRight } from 'lucide-svelte';
+	import type { DataTableColumn } from '$lib/types';
 	
-	interface Column {
-		key: string;
-		label: string;
-		sortable?: boolean;
-		render?: (value: any, row: any) => string;
-	}
-	
-	interface DataTableProps {
-		columns: Column[];
-		data: any[];
+	interface DataTableProps<T = Record<string, unknown>> {
+		columns: DataTableColumn<T>[];
+		data: T[];
 		loading?: boolean;
 		pagination?: {
 			page: number;
@@ -22,7 +16,7 @@
 		};
 		onSort?: (key: string) => void;
 		onPageChange?: (page: number) => void;
-		onRowClick?: (row: any) => void;
+		onRowClick?: (row: T) => void;
 	}
 	
 	let {
@@ -94,9 +88,10 @@
 						{#each columns as column}
 							<Table.Cell style="color: rgb(var(--slate-12));">
 								{#if column.render}
-									{@html column.render(row[column.key], row)}
+									{@const renderedValue = column.render(row[column.key], row)}
+									{renderedValue ?? '-'}
 								{:else}
-									{row[column.key] || '-'}
+									{row[column.key] ?? '-'}
 								{/if}
 							</Table.Cell>
 						{/each}
