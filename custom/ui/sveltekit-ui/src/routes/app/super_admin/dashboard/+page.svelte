@@ -3,6 +3,7 @@
 	import { superAdminApi } from '$lib/api/client';
 	import { Card } from '$lib/components/ui/card';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import BarChart from '$lib/components/BarChart.svelte';
 	
 	let loading = true;
 	let dashboardData: any = null;
@@ -86,15 +87,16 @@
 			
 			<!-- Chart Section matching Vue frontend -->
 			<div class="p-8 w-full bg-white dark:bg-slate-1">
-				<div class="max-h-[500px] flex items-center justify-center border-2 border-dashed border-slate-6 rounded-lg p-12">
-					<div class="text-center">
-						<div class="text-lg font-medium text-slate-11 mb-2">
-							Conversations Chart
+				<div class="max-h-[500px]">
+					{#if dashboardData?.chartData && dashboardData.chartData.length > 0}
+						<BarChart data={dashboardData.chartData} />
+					{:else}
+						<div class="h-64 flex items-center justify-center border-2 border-dashed rounded-lg" style="border-color: rgb(var(--slate-6));">
+							<p class="text-sm" style="color: rgb(var(--slate-10));">
+								No chart data available
+							</p>
 						</div>
-						<p class="text-sm text-slate-10">
-							Chart visualization will be implemented with Chart.js to match Vue frontend
-						</p>
-					</div>
+					{/if}
 				</div>
 			</div>
 		{:else}
