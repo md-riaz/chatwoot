@@ -45,4 +45,14 @@ return [
         'server_key' => env('FIREBASE_SERVER_KEY'),
     ],
 
+    'whatsapp' => [
+        'cloud_base_url' => env('WHATSAPP_CLOUD_BASE_URL', 'https://graph.facebook.com'),
+        '360dialog_base_url' => env('WHATSAPP_360DIALOG_BASE_URL', 'https://waba.360dialog.io/v1'),
+    ],
+
+    'facebook' => [
+        'graph_url' => env('FACEBOOK_GRAPH_URL', 'https://graph.facebook.com'),
+        'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v15.0'),
+    ],
+
 ];
