@@ -8,6 +8,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Card } from '$lib/components/ui/card';
 	import { Select } from '$lib/components/ui/select';
+	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import { toast } from 'svelte-sonner';
 	import { ArrowLeft, Save, Trash2, Database, RefreshCw } from 'lucide-svelte';
 	
@@ -24,6 +25,10 @@
 	};
 	
 	let errors: Record<string, string> = {};
+	
+	// Confirm dialog state
+	let showDeleteConfirm = $state(false);
+	let showSeedConfirm = $state(false);
 	
 	async function loadAccount() {
 		loading = true;
@@ -68,30 +73,32 @@
 		}
 	}
 	
+	function openDeleteConfirm() {
+		showDeleteConfirm = true;
+	}
+	
 	async function handleDelete() {
-		if (!confirm('Are you sure you want to delete this account? This action cannot be undone.')) {
-			return;
-		}
-		
 		try {
 			await superAdminApi.deleteAccount(accountId);
 			toast.success('Account deleted successfully');
 			goto('/app/super_admin/accounts');
 		} catch (error: any) {
 			toast.error(error.message || 'Failed to delete account');
+			throw error; // Re-throw to keep dialog open on error
 		}
 	}
 	
+	function openSeedConfirm() {
+		showSeedConfirm = true;
+	}
+	
 	async function handleSeedData() {
-		if (!confirm('Are you sure you want to seed data for this account?')) {
-			return;
-		}
-		
 		try {
 			await superAdminApi.seedAccountData(accountId);
 			toast.success('Account data seeded successfully');
 		} catch (error: any) {
 			toast.error(error.message || 'Failed to seed account data');
+			throw error; // Re-throw to keep dialog open on error
 		}
 	}
 	
@@ -134,11 +141,11 @@
 				<RefreshCw class="h-4 w-4 mr-2" />
 				Reset Cache
 			</Button>
-			<Button variant="outline" onclick={handleSeedData}>
+			<Button variant="outline" onclick={openSeedConfirm}>
 				<Database class="h-4 w-4 mr-2" />
 				Seed Data
 			</Button>
-			<Button variant="destructive" onclick={handleDelete}>
+			<Button variant="destructive" onclick={openDeleteConfirm}>
 				<Trash2 class="h-4 w-4 mr-2" />
 				Delete
 			</Button>
@@ -236,3 +243,21 @@
 		</Card.Root>
 	</section>
 </div>
+
+<!-- Confirm Dialogs -->
+<ConfirmDialog
+	bind:open={showDeleteConfirm}
+	title="Delete Account"
+	description="Are you sure you want to delete this account? This action cannot be undone and will permanently remove all associated data."
+	confirmText="Delete Account"
+	variant="destructive"
+	onConfirm={handleDelete}
+/>
+
+<ConfirmDialog
+	bind:open={showSeedConfirm}
+	title="Seed Account Data"
+	description="Are you sure you want to seed data for this account? This will populate the account with sample data."
+	confirmText="Seed Data"
+	onConfirm={handleSeedData}
+/>

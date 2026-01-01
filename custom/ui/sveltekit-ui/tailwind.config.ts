@@ -48,6 +48,18 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card) / <alpha-value>)',
 					foreground: 'hsl(var(--card-foreground) / <alpha-value>)'
+				},
+				success: {
+					DEFAULT: 'rgb(var(--success) / <alpha-value>)',
+					foreground: 'rgb(var(--success-foreground) / <alpha-value>)'
+				},
+				warning: {
+					DEFAULT: 'rgb(var(--warning) / <alpha-value>)',
+					foreground: 'rgb(var(--warning-foreground) / <alpha-value>)'
+				},
+				info: {
+					DEFAULT: 'rgb(var(--info) / <alpha-value>)',
+					foreground: 'rgb(var(--info-foreground) / <alpha-value>)'
 				}
 			},
 			borderRadius: {

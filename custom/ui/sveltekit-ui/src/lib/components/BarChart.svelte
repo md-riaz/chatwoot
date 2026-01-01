@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
 	import { Chart, registerables } from 'chart.js';
 	
 	Chart.register(...registerables);
@@ -13,7 +12,7 @@
 	let chartInstance: Chart | undefined = $state();
 	let containerRef: HTMLDivElement | undefined = $state();
 	
-	// Responsive chart update
+	// Responsive chart update with automatic cleanup
 	$effect(() => {
 		if (!canvasRef || !data || data.length === 0) return;
 		
@@ -99,12 +98,14 @@
 				}
 			}
 		});
-	});
-	
-	onDestroy(() => {
-		if (chartInstance) {
-			chartInstance.destroy();
-		}
+		
+		// Cleanup function - automatically called when component unmounts or effect re-runs
+		return () => {
+			if (chartInstance) {
+				chartInstance.destroy();
+				chartInstance = undefined;
+			}
+		};
 	});
 </script>
 
