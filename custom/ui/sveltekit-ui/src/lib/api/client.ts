@@ -43,8 +43,8 @@ export const superAdminApi = {
 	getInstanceStatus: () => api.get('super_admin/instance_status').json(),
 
 	// Accounts
-	getAccounts: (params?: Record<string, unknown>) =>
-		api.get('super_admin/accounts', { searchParams: params }).json(),
+	getAccounts: (params?: Record<string, string | number | boolean>) =>
+		api.get('super_admin/accounts', { searchParams: params as Record<string, string> }).json(),
 	getAccount: (id: number) => api.get(`super_admin/accounts/${id}`).json(),
 	createAccount: (data: unknown) => api.post('super_admin/accounts', { json: data }).json(),
 	updateAccount: (id: number, data: unknown) =>
@@ -52,8 +52,8 @@ export const superAdminApi = {
 	deleteAccount: (id: number) => api.delete(`super_admin/accounts/${id}`).json(),
 
 	// Users
-	getUsers: (params?: Record<string, unknown>) =>
-		api.get('super_admin/users', { searchParams: params }).json(),
+	getUsers: (params?: Record<string, string | number | boolean>) =>
+		api.get('super_admin/users', { searchParams: params as Record<string, string> }).json(),
 	getUser: (id: number) => api.get(`super_admin/users/${id}`).json(),
 	createUser: (data: unknown) => api.post('super_admin/users', { json: data }).json(),
 	updateUser: (id: number, data: unknown) =>
@@ -69,8 +69,8 @@ export const superAdminApi = {
 	deleteSetting: (name: string) => api.delete(`super_admin/settings/${name}`).json(),
 
 	// Agent Bots
-	getAgentBots: (params?: Record<string, unknown>) =>
-		api.get('super_admin/agent_bots', { searchParams: params }).json(),
+	getAgentBots: (params?: Record<string, string | number | boolean>) =>
+		api.get('super_admin/agent_bots', { searchParams: params as Record<string, string> }).json(),
 	getAgentBot: (id: number) => api.get(`super_admin/agent_bots/${id}`).json(),
 	createAgentBot: (data: unknown) => api.post('super_admin/agent_bots', { json: data }).json(),
 	updateAgentBot: (id: number, data: unknown) =>
@@ -78,8 +78,10 @@ export const superAdminApi = {
 	deleteAgentBot: (id: number) => api.delete(`super_admin/agent_bots/${id}`).json(),
 
 	// Platform Apps
-	getPlatformApps: (params?: Record<string, unknown>) =>
-		api.get('super_admin/platform_apps', { searchParams: params }).json(),
+	getPlatformApps: (params?: Record<string, string | number | boolean>) =>
+		api
+			.get('super_admin/platform_apps', { searchParams: params as Record<string, string> })
+			.json(),
 	getPlatformApp: (id: number) => api.get(`super_admin/platform_apps/${id}`).json(),
 	createPlatformApp: (data: unknown) =>
 		api.post('super_admin/platform_apps', { json: data }).json(),
@@ -88,22 +90,28 @@ export const superAdminApi = {
 	deletePlatformApp: (id: number) => api.delete(`super_admin/platform_apps/${id}`).json(),
 
 	// Access Tokens
-	getAccessTokens: (params?: Record<string, unknown>) =>
-		api.get('super_admin/access_tokens', { searchParams: params }).json(),
+	getAccessTokens: (params?: Record<string, string | number | boolean>) =>
+		api
+			.get('super_admin/access_tokens', { searchParams: params as Record<string, string> })
+			.json(),
 	createAccessToken: (data: unknown) =>
 		api.post('super_admin/access_tokens', { json: data }).json(),
 	deleteAccessToken: (id: number) => api.delete(`super_admin/access_tokens/${id}`).json(),
 
 	// Installation Configs
-	getInstallationConfigs: (params?: Record<string, unknown>) =>
-		api.get('super_admin/installation_configs', { searchParams: params }).json(),
+	getInstallationConfigs: (params?: Record<string, string | number | boolean>) =>
+		api
+			.get('super_admin/installation_configs', { searchParams: params as Record<string, string> })
+			.json(),
 	getInstallationConfig: (id: number) => api.get(`super_admin/installation_configs/${id}`).json(),
 	updateInstallationConfig: (id: number, data: unknown) =>
 		api.patch(`super_admin/installation_configs/${id}`, { json: data }).json(),
 
 	// Account Users
-	getAccountUsers: (params?: Record<string, unknown>) =>
-		api.get('super_admin/account_users', { searchParams: params }).json(),
+	getAccountUsers: (params?: Record<string, string | number | boolean>) =>
+		api
+			.get('super_admin/account_users', { searchParams: params as Record<string, string> })
+			.json(),
 	createAccountUser: (data: unknown) =>
 		api.post('super_admin/account_users', { json: data }).json(),
 	updateAccountUser: (id: number, data: unknown) =>
@@ -111,8 +119,8 @@ export const superAdminApi = {
 	deleteAccountUser: (id: number) => api.delete(`super_admin/account_users/${id}`).json(),
 
 	// Audit Logs
-	getAuditLogs: (params?: Record<string, unknown>) =>
-		api.get('super_admin/audit_logs', { searchParams: params }).json(),
+	getAuditLogs: (params?: Record<string, string | number | boolean>) =>
+		api.get('super_admin/audit_logs', { searchParams: params as Record<string, string> }).json(),
 
 	// Cache
 	clearCache: (type?: string) => {
