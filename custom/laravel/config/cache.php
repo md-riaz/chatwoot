@@ -76,6 +76,8 @@ return [
             'driver' => 'redis',
             'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
+            'serializer' => env('REDIS_SERIALIZER', 'igbinary'),
+            'compression' => env('REDIS_COMPRESSION', 'lz4'),
         ],
 
         'dynamodb' => [
