@@ -758,13 +758,14 @@ Based on comprehensive analysis findings from 30+ detailed reports in `.kiro/spe
 - Follow AI agent recommendations for systematic code examination
 - Implement comprehensive testing throughout development
 - Regular stakeholder review and feedback cycles
-- Continuous validation against Rails functionalityith advanced rules
+
+  - [ ] 22.1 Continuous validation against Rails functionalityith advanced rules
     - Implement AssignmentPoliciesController with inbox management
     - Add policy evaluation service
     - Create migration and factory
     - _Requirements: 5.1, 7.1_
 
-  - [ ] 22.3 Implement Agent Capacity Policies
+  - [x] 22.3 Implement Agent Capacity Policies
     - Review Rails capacity policies from `APP_DIRECTORY_SCAN.md` if exists
     - Analyze current Laravel implementation in `custom/laravel/app/Models/`
     - Review `custom/laravel/API_VERIFICATION_REPORT.md` for capacity policies status
@@ -774,7 +775,7 @@ Based on comprehensive analysis findings from 30+ detailed reports in `.kiro/spe
     - Create migration and factory
     - _Requirements: 5.1_
 
-  - [ ] 22.4 Implement Conversation Participants
+  - [-] 22.4 Implement Conversation Participants
     - Review Rails ConversationParticipant from `APP_DIRECTORY_SCAN.md` models section
     - Analyze current Laravel implementation in `custom/laravel/app/Models/`
     - Review existing participant controller in `custom/laravel/app/Http/Controllers/`

@@ -35,9 +35,23 @@ class AgentCapacityPoliciesController extends Controller
             'exclusion_rules' => 'nullable|array',
         ]);
 
+        // Validate exclusion rules if provided
+        if (!empty($validated['exclusion_rules'])) {
+            $capacityService = new \App\Services\AgentCapacityService();
+            $ruleErrors = $capacityService->validateExclusionRules($validated['exclusion_rules']);
+            
+            if (!empty($ruleErrors)) {
+                return response()->json([
+                    'message' => 'The given data was invalid.',
+                    'errors' => $ruleErrors
+                ], 422);
+            }
+        }
+
         $policy = AgentCapacityPolicy::create([
             ...$validated,
             'account_id' => $account->id,
+            'exclusion_rules' => $validated['exclusion_rules'] ?? [],
         ]);
 
         return response()->json(['data' => $policy], 201);
@@ -65,6 +79,19 @@ class AgentCapacityPoliciesController extends Controller
             'description' => 'nullable|string',
             'exclusion_rules' => 'nullable|array',
         ]);
+
+        // Validate exclusion rules if provided
+        if (isset($validated['exclusion_rules']) && !empty($validated['exclusion_rules'])) {
+            $capacityService = new \App\Services\AgentCapacityService();
+            $ruleErrors = $capacityService->validateExclusionRules($validated['exclusion_rules']);
+            
+            if (!empty($ruleErrors)) {
+                return response()->json([
+                    'message' => 'The given data was invalid.',
+                    'errors' => $ruleErrors
+                ], 422);
+            }
+        }
 
         $agentCapacityPolicy->update($validated);
 
@@ -184,5 +211,45 @@ class AgentCapacityPoliciesController extends Controller
         $inboxLimit->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Get capacity statistics for agents in an inbox.
+     */
+    public function getCapacityStats(Request $request, Account $account, AgentCapacityPolicy $agentCapacityPolicy): JsonResponse
+    {
+        abort_unless($agentCapacityPolicy->account_id === $account->id, 404);
+
+        $validated = $request->validate([
+            'inbox_id' => 'required|exists:inboxes,id',
+        ]);
+
+        $inbox = \App\Models\Inbox::findOrFail($validated['inbox_id']);
+        abort_unless($inbox->account_id === $account->id, 404);
+
+        $capacityService = new \App\Services\AgentCapacityService();
+        $agentsByStatus = $capacityService->getAgentsByCapacityStatus($inbox);
+
+        $stats = [];
+        foreach ($agentCapacityPolicy->users as $user) {
+            $stats[] = [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'capacity_stats' => $capacityService->getAgentCapacityStats($user, $inbox),
+            ];
+        }
+
+        return response()->json([
+            'data' => [
+                'policy' => $agentCapacityPolicy,
+                'inbox' => $inbox,
+                'agent_stats' => $stats,
+                'summary' => [
+                    'available_count' => $agentsByStatus['available']->count(),
+                    'at_capacity_count' => $agentsByStatus['at_capacity']->count(),
+                    'no_policy_count' => $agentsByStatus['no_policy']->count(),
+                ],
+            ],
+        ]);
     }
 }

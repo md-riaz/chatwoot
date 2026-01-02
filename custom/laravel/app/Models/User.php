@@ -90,6 +90,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Alias for conversations - get assigned conversations for this user.
+     */
+    public function assignedConversations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->conversations();
+    }
+
+    /**
      * Get messages sent by this user.
      */
     public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany

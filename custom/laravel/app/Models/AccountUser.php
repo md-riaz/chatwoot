@@ -17,6 +17,7 @@ class AccountUser extends Model
         'user_id',
         'role',
         'custom_role_id',
+        'agent_capacity_policy_id',
         'active_at',
         'availability',
         'settings',
@@ -53,6 +54,14 @@ class AccountUser extends Model
     public function customRole(): BelongsTo
     {
         return $this->belongsTo(CustomRole::class);
+    }
+
+    /**
+     * Get the agent capacity policy for the account user.
+     */
+    public function agentCapacityPolicy(): BelongsTo
+    {
+        return $this->belongsTo(AgentCapacityPolicy::class);
     }
 
     /**

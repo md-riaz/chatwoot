@@ -359,7 +359,7 @@ Route::middleware('auth:sanctum')->group(function () {
         
         // Conversation Participants
         Route::get('conversations/{conversation}/participants', [ParticipantsController::class, 'show']);
-        Route::post('conversations/{conversation}/participants', [ParticipantsController::class, 'store']);
+        Route::post('conversations/{conversation}/participants', [ParticipantsController::class, 'create']);
         Route::patch('conversations/{conversation}/participants', [ParticipantsController::class, 'update']);
         Route::delete('conversations/{conversation}/participants', [ParticipantsController::class, 'destroy']);
         
@@ -701,6 +701,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('agent_capacity_policies/{agent_capacity_policy}/inbox_limits', [AgentCapacityPoliciesController::class, 'addInboxLimit']);
         Route::patch('agent_capacity_policies/{agent_capacity_policy}/inbox_limits/{inbox_limit}', [AgentCapacityPoliciesController::class, 'updateInboxLimit']);
         Route::delete('agent_capacity_policies/{agent_capacity_policy}/inbox_limits/{inbox_limit}', [AgentCapacityPoliciesController::class, 'removeInboxLimit']);
+        Route::get('agent_capacity_policies/{agent_capacity_policy}/capacity_stats', [AgentCapacityPoliciesController::class, 'getCapacityStats']);
 
         // Notification Settings
         Route::get('notification_settings', [NotificationSettingsController::class, 'show']);
