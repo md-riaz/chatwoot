@@ -27,19 +27,44 @@ ClearLine is a scalable, sustainable customer engagement platform built on Larav
 
 ## Setup Guide
 
-### 1. Clone the repository
+### Option 1: Docker Deployment (Recommended)
+
+The fastest way to get ClearLine running is with Docker:
+
 ```bash
+# Clone the repository
 git clone https://github.com/your-org/clearline.git
 cd clearline/custom/laravel
+
+# Quick development setup
+make dev-setup
+
+# Access the application
+# Application: http://localhost:8000
+# Mailhog: http://localhost:8025
+# PgAdmin: http://localhost:8080
 ```
 
-### 2. Install PHP dependencies
+For detailed Docker instructions, see [README.docker.md](README.docker.md).
+
+### Option 2: Manual Installation
+
+#### Prerequisites
+- PHP 8.2+
+- Composer 2+
+- PostgreSQL 14+ (16+ recommended)
+- Redis 7+
+- Node.js 18+ (for frontend assets, if needed)
+
 ```bash
+# 1. Clone the repository
+git clone https://github.com/your-org/clearline.git
+cd clearline/custom/laravel
+
+# 2. Install PHP dependencies
 composer install
-```
 
-### 3. Configure environment
-```bash
+# 3. Configure environment
 cp .env.example .env
 php artisan key:generate
 ```
@@ -48,30 +73,21 @@ Edit `.env` to set your database, Redis, mail, and app URL settings. Key variabl
 - `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`
 - `APP_URL` (your public URL)
 
-### 4. Run database migrations
 ```bash
+# 4. Run database migrations
 php artisan migrate
-```
 
-### 5. Publish Horizon assets (queue dashboard)
-```bash
+# 5. Publish Horizon assets (queue dashboard)
 php artisan horizon:install
-```
-This publishes Horizon's assets and dashboard entrypoint. The dashboard is available at `/horizon` (or the path set via `HORIZON_PATH` in `.env`) once Horizon is running.
 
-### 6. Seed roles, permissions, and onboarding flag
-```bash
+# 6. Seed roles, permissions, and onboarding flag
 php artisan db:seed
-```
-This does NOT create any default users or accounts for production. It only prepares roles/permissions and enables the onboarding API for secure first admin setup.
 
-### 7. (Optional) Build frontend assets
-If you use a frontend or UI, follow the relevant instructions (e.g., npm install && npm run build).
+# 7. (Optional) Build frontend assets
+# If you use a frontend or UI, follow the relevant instructions (e.g., npm install && npm run build)
 
-### 8. Start the application
-```bash
+# 8. Start the application
 php artisan serve
-# Or use Docker Compose: docker-compose up -d
 ```
 
 ---
@@ -216,7 +232,7 @@ Configure your Twilio number to use these webhook URLs for voice calls:
 - Status Callback: `POST /api/v1/webhooks/voice/status/{phone}`
 - Conference Status Callback: `POST /api/v1/webhooks/voice/conference_status/{phone}`
 
-See [docs/API_DOCUMENTATION.md](./docs/API_DOCUMENTATION.md) for full details and payload examples.
+See [docs/API_DOCUMENTATION.md](./docs/API_DOCUMENTATION.md) and [README.docker.md](./README.docker.md) for full details and deployment instructions.
 
 ### Team Resources
 - `/api/v1/accounts/{id}/teams` - Teams
@@ -235,6 +251,23 @@ See [docs/API_DOCUMENTATION.md](./docs/API_DOCUMENTATION.md) for full details an
 See [TASKS.md](./TASKS.md) for complete API migration status.
 
 ## Deployment
+
+### Docker Deployment (Recommended)
+
+ClearLine includes a complete Docker setup for easy deployment:
+
+```bash
+# Development
+make dev-setup
+
+# Production
+make prod-build
+make prod-up
+```
+
+See [README.docker.md](README.docker.md) for complete Docker deployment instructions.
+
+### Manual Deployment
 
 ### Production Configuration
 

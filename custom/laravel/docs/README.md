@@ -1,15 +1,26 @@
 # ClearLine Laravel Documentation
 
-This directory contains comprehensive documentation for the ClearLine Laravel API.
+This directory contains comprehensive documentation for the ClearLine Laravel API and system administration.
 
 ## Documentation Files
 
 | File | Description |
 |------|-------------|
-| [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | Complete API reference with all endpoints, methods, and permissions |
+| [API_DOCUMENTATION_COMPLETE.md](API_DOCUMENTATION_COMPLETE.md) | **Complete API reference** with all endpoints, authentication, and examples |
+| [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | Original API reference with all endpoints, methods, and permissions |
 | [AUTHORIZATION.md](AUTHORIZATION.md) | Authorization system, roles, policies, and middleware |
 | [INTEGRATIONS.md](INTEGRATIONS.md) | Detailed guide for all channel and third-party integrations |
+| [EMAIL_CONFIGURATION.md](EMAIL_CONFIGURATION.md) | Email system configuration and customization |
 | [openapi/](openapi/) | **OpenAPI 3.0 specifications** for all API endpoints |
+
+## Deployment and Operations
+
+| File | Description |
+|------|-------------|
+| [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) | **Complete deployment guide** for production environments |
+| [RAILS_TO_LARAVEL_MIGRATION_GUIDE.md](RAILS_TO_LARAVEL_MIGRATION_GUIDE.md) | **Comprehensive migration guide** from Chatwoot Rails to ClearLine Laravel |
+| [TROUBLESHOOTING_GUIDE.md](TROUBLESHOOTING_GUIDE.md) | **Troubleshooting guide** for common issues and debugging |
+| [MAINTENANCE_GUIDE.md](MAINTENANCE_GUIDE.md) | **Maintenance and operations guide** for ongoing system management |
 
 ## OpenAPI Specification
 
@@ -27,8 +38,16 @@ See [openapi/README.md](openapi/README.md) for detailed usage instructions.
 ### Getting Started
 - See the main [README.md](../README.md) for project setup
 - See [FOLDER_STRUCTURE.md](../FOLDER_STRUCTURE.md) for codebase organization
+- See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for production deployment
+
+### Migration and Operations
+- **Migration**: [RAILS_TO_LARAVEL_MIGRATION_GUIDE.md](RAILS_TO_LARAVEL_MIGRATION_GUIDE.md) - Complete migration from Rails
+- **Deployment**: [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Production deployment procedures
+- **Troubleshooting**: [TROUBLESHOOTING_GUIDE.md](TROUBLESHOOTING_GUIDE.md) - Common issues and solutions
+- **Maintenance**: [MAINTENANCE_GUIDE.md](MAINTENANCE_GUIDE.md) - Ongoing system maintenance
 
 ### API Reference
+- **Complete API Docs**: [API_DOCUMENTATION_COMPLETE.md](API_DOCUMENTATION_COMPLETE.md) - Comprehensive API reference
 - **Authentication**: `/api/v1/auth/*`
 - **Profile**: `/api/v1/profile/*`
 - **Account Resources**: `/api/v1/accounts/{account}/*`
@@ -125,5 +144,6 @@ When adding new API endpoints:
 
 ---
 
-**Last Updated:** 2025-12-31  
-**Super Admin Implementation:** ✅ **COMPLETE**
+**Last Updated:** 2025-01-02  
+**Super Admin Implementation:** ✅ **COMPLETE**  
+**Documentation Status:** ✅ **COMPREHENSIVE** - Complete deployment, migration, troubleshooting, and maintenance guides available

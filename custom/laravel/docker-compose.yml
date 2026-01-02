@@ -1,0 +1,248 @@
+version: '3.8'
+
+services:
+  # Application Server
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: clearline-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:80"
+      - "${REVERB_PORT:-8080}:8080"
+    environment:
+      - APP_ENV=production
+      - CONTAINER_ROLE=app
+    env_file:
+      - .env
+    volumes:
+      - storage-data:/var/www/html/storage/app
+      - logs-data:/var/www/html/storage/logs
+      - ./storage/framework:/var/www/html/storage/framework
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - clearline-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Queue Worker
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: clearline-queue
+    restart: unless-stopped
+    environment:
+      - APP_ENV=production
+      - CONTAINER_ROLE=queue
+    env_file:
+      - .env
+    volumes:
+      - storage-data:/var/www/html/storage/app
+      - logs-data:/var/www/html/storage/logs
+      - ./storage/framework:/var/www/html/storage/framework
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - clearline-network
+    command: ["php", "artisan", "horizon"]
+
+  # WebSocket Server
+  websocket:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: clearline-websocket
+    restart: unless-stopped
+    environment:
+      - APP_ENV=production
+      - CONTAINER_ROLE=websocket
+    env_file:
+      - .env
+    volumes:
+      - logs-data:/var/www/html/storage/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - clearline-network
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+
+  # Scheduler
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: clearline-scheduler
+    restart: unless-stopped
+    environment:
+      - APP_ENV=production
+      - CONTAINER_ROLE=scheduler
+    env_file:
+      - .env
+    volumes:
+      - storage-data:/var/www/html/storage/app
+      - logs-data:/var/www/html/storage/logs
+      - ./storage/framework:/var/www/html/storage/framework
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - clearline-network
+    command: ["php", "artisan", "schedule:work"]
+
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: clearline-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-clearline_production}
+      POSTGRES_USER: ${DB_USERNAME:-clearline}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./deploy/postgres/init:/docker-entrypoint-initdb.d
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    networks:
+      - clearline-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-clearline} -d ${DB_DATABASE:-clearline_production}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: clearline-redis
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --appendonly yes 
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - clearline-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
+  # Nginx Reverse Proxy (Optional - for production)
+  nginx:
+    image: nginx:alpine
+    container_name: clearline-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./deploy/ssl:/etc/nginx/ssl:ro
+      - storage-data:/var/www/html/storage/app:ro
+    depends_on:
+      - app
+    networks:
+      - clearline-network
+    profiles:
+      - production
+
+  # Mailhog (Development Email Testing)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: clearline-mailhog
+    restart: unless-stopped
+    ports:
+      - "${MAILHOG_WEB_PORT:-8025}:8025"
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"
+    networks:
+      - clearline-network
+    profiles:
+      - development
+
+  # PostgreSQL Admin (Development)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: clearline-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@clearline.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "${PGADMIN_PORT:-8080}:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - db
+    networks:
+      - clearline-network
+    profiles:
+      - development
+
+  # Redis Commander (Development)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: clearline-redis-commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: "local:redis:6379:0:${REDIS_PASSWORD}"
+    ports:
+      - "${REDIS_COMMANDER_PORT:-8081}:8081"
+    depends_on:
+      - redis
+    networks:
+      - clearline-network
+    profiles:
+      - development
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  storage-data:
+    driver: local
+  logs-data:
+    driver: local
+  pgadmin-data:
+    driver: local
+
+networks:
+  clearline-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
