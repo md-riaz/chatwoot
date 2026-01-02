@@ -13,9 +13,6 @@ class BounceHandlingService
     const BOUNCE_TYPE_SOFT = 'soft';
     const BOUNCE_TYPE_COMPLAINT = 'complaint';
 
-    const MAX_SOFT_BOUNCES = 5;
-    const SOFT_BOUNCE_RESET_DAYS = 30;
-
     /**
      * Process bounce webhook from email service provider.
      */
@@ -206,12 +203,15 @@ class BounceHandlingService
     protected function handleHardBounce(Contact $contact, array &$bounceInfo): void
     {
         $bounceInfo['hard_bounce_count'] = ($bounceInfo['hard_bounce_count'] ?? 0) + 1;
-        $bounceInfo['email_disabled'] = true;
-        $bounceInfo['email_disabled_at'] = now()->toISOString();
-        $bounceInfo['email_disabled_reason'] = 'Hard bounce';
+        
+        if (config('email.bounce.auto_disable_on_hard_bounce', true)) {
+            $bounceInfo['email_disabled'] = true;
+            $bounceInfo['email_disabled_at'] = now()->toISOString();
+            $bounceInfo['email_disabled_reason'] = 'Hard bounce';
 
-        // Mark contact email as invalid
-        $contact->email_status = 'invalid';
+            // Mark contact email as invalid
+            $contact->email_status = 'invalid';
+        }
         
         Log::warning('Contact email disabled due to hard bounce', [
             'contact_id' => $contact->id,
@@ -224,20 +224,23 @@ class BounceHandlingService
      */
     protected function handleSoftBounce(Contact $contact, array &$bounceInfo): void
     {
+        $maxSoftBounces = config('email.bounce.max_soft_bounces', 5);
+        $resetDays = config('email.bounce.soft_bounce_reset_days', 30);
+        
         $bounceInfo['soft_bounce_count'] = ($bounceInfo['soft_bounce_count'] ?? 0) + 1;
         
         // Reset soft bounce count if it's been too long since last bounce
         $lastBounceAt = isset($bounceInfo['last_soft_bounce_at']) ? 
             Carbon::parse($bounceInfo['last_soft_bounce_at']) : null;
             
-        if ($lastBounceAt && $lastBounceAt->diffInDays(now()) > self::SOFT_BOUNCE_RESET_DAYS) {
+        if ($lastBounceAt && $lastBounceAt->diffInDays(now()) > $resetDays) {
             $bounceInfo['soft_bounce_count'] = 1;
         }
         
         $bounceInfo['last_soft_bounce_at'] = now()->toISOString();
 
         // Disable email if soft bounce threshold exceeded
-        if ($bounceInfo['soft_bounce_count'] >= self::MAX_SOFT_BOUNCES) {
+        if ($bounceInfo['soft_bounce_count'] >= $maxSoftBounces) {
             $bounceInfo['email_disabled'] = true;
             $bounceInfo['email_disabled_at'] = now()->toISOString();
             $bounceInfo['email_disabled_reason'] = 'Too many soft bounces';
@@ -258,12 +261,15 @@ class BounceHandlingService
     protected function handleComplaint(Contact $contact, array &$bounceInfo): void
     {
         $bounceInfo['complaint_count'] = ($bounceInfo['complaint_count'] ?? 0) + 1;
-        $bounceInfo['email_disabled'] = true;
-        $bounceInfo['email_disabled_at'] = now()->toISOString();
-        $bounceInfo['email_disabled_reason'] = 'Spam complaint';
+        
+        if (config('email.bounce.auto_disable_on_complaint', true)) {
+            $bounceInfo['email_disabled'] = true;
+            $bounceInfo['email_disabled_at'] = now()->toISOString();
+            $bounceInfo['email_disabled_reason'] = 'Spam complaint';
 
-        // Mark contact email as invalid
-        $contact->email_status = 'invalid';
+            // Mark contact email as invalid
+            $contact->email_status = 'invalid';
+        }
         
         Log::warning('Contact email disabled due to spam complaint', [
             'contact_id' => $contact->id,

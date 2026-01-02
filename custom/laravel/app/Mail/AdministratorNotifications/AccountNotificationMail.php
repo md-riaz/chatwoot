@@ -133,9 +133,11 @@ class AccountNotificationMail extends ApplicationMailable
      */
     protected function getSubject(): string
     {
+        $brandName = $this->getGlobalConfig()['BRAND_NAME'];
+
         return match ($this->notificationType) {
-            'account_deletion_user_initiated' => 'Your Chatwoot account deletion has been scheduled',
-            'account_deletion_for_inactivity' => 'Your Chatwoot account is scheduled for deletion due to inactivity',
+            'account_deletion_user_initiated' => "Your {$brandName} account deletion has been scheduled",
+            'account_deletion_for_inactivity' => "Your {$brandName} account is scheduled for deletion due to inactivity",
             'contact_import_complete' => 'Contact Import Completed',
             'contact_import_failed' => 'Contact Import Failed',
             'contact_export_complete' => "Your contact's export file is available to download.",

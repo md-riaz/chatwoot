@@ -30,6 +30,6 @@
     <p>Please review and respond to this conversation as needed.</p>
     
     <p>Best regards,<br>
-    {{ $global_config['BRAND_NAME'] ?? 'Chatwoot' }} Team</p>
+    {{ $global_config['BRAND_NAME'] ?? config('app.name', 'Chatwoot') }} Team</p>
 </div>
 @endsection

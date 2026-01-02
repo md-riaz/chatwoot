@@ -158,8 +158,8 @@ class PortalInstructionsMail extends ApplicationMailable
      */
     protected function generateCnameRecord(): array
     {
-        $portalDomain = $this->portal->custom_domain ?? $this->portal->slug . '.chatwoot.com';
-        $targetDomain = config('app.portal_domain', 'portals.chatwoot.com');
+        $portalDomain = $this->portal->custom_domain ?? $this->portal->slug . '.' . strtolower(config('app.name', 'chatwoot')) . '.com';
+        $targetDomain = config('app.portal_domain', 'portals.' . strtolower(config('app.name', 'chatwoot')) . '.com');
 
         return [
             'type' => 'CNAME',

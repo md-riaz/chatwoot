@@ -112,16 +112,17 @@ class ConversationTranscriptMailable extends ApplicationMailable
     {
         $conversationId = $this->conversation->display_id ?? $this->conversation->id;
         $inboxName = $this->conversation->inbox?->name ?? 'Support';
+        $brandName = $this->getGlobalConfig()['BRAND_NAME'];
 
         return match ($this->emailType) {
             'reply_with_summary', 'reply_without_summary' => 
-                "Re: [{$inboxName}] Conversation #{$conversationId}",
+                "Re: [{$inboxName}] Conversation #{$conversationId} - {$brandName}",
             'email_reply' => 
-                "Re: [{$inboxName}] #{$conversationId}",
+                "Re: [{$inboxName}] #{$conversationId} - {$brandName}",
             'conversation_transcript' => 
-                "Conversation transcript - #{$conversationId}",
+                "Conversation transcript - #{$conversationId} - {$brandName}",
             default => 
-                "Conversation #{$conversationId}",
+                "Conversation #{$conversationId} - {$brandName}",
         };
     }
 
@@ -211,7 +212,7 @@ class ConversationTranscriptMailable extends ApplicationMailable
     {
         $conversationId = $this->conversation->id;
         $messageId = $this->message?->id ?? 'transcript';
-        $domain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'chatwoot.com';
+        $domain = parse_url(config('app.url'), PHP_URL_HOST) ?? strtolower(config('app.name', 'chatwoot')) . '.com';
         
         return "<conversation-{$conversationId}-message-{$messageId}@{$domain}>";
     }
@@ -232,7 +233,7 @@ class ConversationTranscriptMailable extends ApplicationMailable
             ->first();
 
         if ($previousMessage) {
-            $domain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'chatwoot.com';
+            $domain = parse_url(config('app.url'), PHP_URL_HOST) ?? strtolower(config('app.name', 'chatwoot')) . '.com';
             return "<conversation-{$this->conversation->id}-message-{$previousMessage->id}@{$domain}>";
         }
 
@@ -245,7 +246,7 @@ class ConversationTranscriptMailable extends ApplicationMailable
     public function getReferences(): array
     {
         $references = [];
-        $domain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'chatwoot.com';
+        $domain = parse_url(config('app.url'), PHP_URL_HOST) ?? strtolower(config('app.name', 'chatwoot')) . '.com';
         
         // Add conversation root reference
         $references[] = "<conversation-{$this->conversation->id}@{$domain}>";

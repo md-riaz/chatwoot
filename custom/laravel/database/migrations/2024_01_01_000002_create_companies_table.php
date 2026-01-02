@@ -28,24 +28,10 @@ return new class extends Migration
         Schema::table('companies', function (Blueprint $table) {
             $table->unique(['account_id', 'domain'], 'companies_account_domain_unique');
         });
-
-        // Add company_id to contacts table if it doesn't exist
-        if (!Schema::hasColumn('contacts', 'company_id')) {
-            Schema::table('contacts', function (Blueprint $table) {
-                $table->foreignId('company_id')->nullable()->constrained()->onDelete('set null');
-            });
-        }
     }
 
     public function down(): void
     {
-        if (Schema::hasColumn('contacts', 'company_id')) {
-            Schema::table('contacts', function (Blueprint $table) {
-                $table->dropForeign(['company_id']);
-                $table->dropColumn('company_id');
-            });
-        }
-
         Schema::dropIfExists('companies');
     }
 };

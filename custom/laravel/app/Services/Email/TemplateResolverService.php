@@ -15,8 +15,9 @@ class TemplateResolverService
     public function resolve(string $templateName, ?Account $account = null): string
     {
         $cacheKey = "email_template_{$templateName}_" . ($account?->id ?? 'global');
+        $cacheTtl = config('email.templates.cache_ttl', 3600);
         
-        return Cache::remember($cacheKey, 3600, function () use ($templateName, $account) {
+        return Cache::remember($cacheKey, $cacheTtl, function () use ($templateName, $account) {
             // Priority 1: Account-specific template
             if ($account) {
                 $accountTemplate = $this->getAccountTemplate($templateName, $account);
@@ -41,10 +42,22 @@ class TemplateResolverService
      */
     protected function getAccountTemplate(string $templateName, Account $account): ?string
     {
+        $locale = app()->getLocale();
+        $fallbackLocale = config('email.templates.fallback_locale', 'en');
+        
+        // Try current locale first
         $template = EmailTemplate::where('account_id', $account->id)
             ->where('name', $templateName)
-            ->where('locale', app()->getLocale())
+            ->where('locale', $locale)
             ->first();
+
+        // Fallback to default locale if not found
+        if (!$template && $locale !== $fallbackLocale) {
+            $template = EmailTemplate::where('account_id', $account->id)
+                ->where('name', $templateName)
+                ->where('locale', $fallbackLocale)
+                ->first();
+        }
 
         return $template?->body;
     }
@@ -54,10 +67,22 @@ class TemplateResolverService
      */
     protected function getInstallationTemplate(string $templateName): ?string
     {
+        $locale = app()->getLocale();
+        $fallbackLocale = config('email.templates.fallback_locale', 'en');
+        
+        // Try current locale first
         $template = EmailTemplate::whereNull('account_id')
             ->where('name', $templateName)
-            ->where('locale', app()->getLocale())
+            ->where('locale', $locale)
             ->first();
+
+        // Fallback to default locale if not found
+        if (!$template && $locale !== $fallbackLocale) {
+            $template = EmailTemplate::whereNull('account_id')
+                ->where('name', $templateName)
+                ->where('locale', $fallbackLocale)
+                ->first();
+        }
 
         return $template?->body;
     }

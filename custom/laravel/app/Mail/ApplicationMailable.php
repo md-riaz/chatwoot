@@ -119,7 +119,13 @@ abstract class ApplicationMailable extends Mailable
      */
     protected function getGlobalConfig(): array
     {
-        return app(GlobalConfigService::class)->get(['BRAND_NAME', 'BRAND_URL']);
+        $globalConfig = app(GlobalConfigService::class)->get(['BRAND_NAME', 'BRAND_URL']);
+        
+        // Provide fallbacks from email and app config
+        return [
+            'BRAND_NAME' => $globalConfig['BRAND_NAME'] ?? config('email.brand.name', config('app.name', 'Chatwoot')),
+            'BRAND_URL' => $globalConfig['BRAND_URL'] ?? config('email.brand.url', config('app.url')),
+        ];
     }
 
     /**
@@ -127,7 +133,11 @@ abstract class ApplicationMailable extends Mailable
      */
     protected function getFromAddress(): string
     {
-        return config('mail.from.address', 'accounts@chatwoot.com');
+        return config('mail.from.address', 
+            config('email.brand.support_email', 
+                'noreply@' . parse_url(config('app.url'), PHP_URL_HOST)
+            )
+        );
     }
 
     /**

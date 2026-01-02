@@ -44,6 +44,6 @@
     <p><strong>Action Required:</strong> Please respond to this conversation immediately to minimize the SLA breach impact.</p>
     
     <p>Best regards,<br>
-    {{ $global_config['BRAND_NAME'] ?? 'Chatwoot' }} Team</p>
+    {{ $global_config['BRAND_NAME'] ?? config('app.name', 'Chatwoot') }} Team</p>
 </div>
 @endsection

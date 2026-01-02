@@ -45,6 +45,6 @@
     <p>You're receiving this notification because you've participated in this conversation.</p>
     
     <p>Best regards,<br>
-    {{ $global_config['BRAND_NAME'] ?? 'Chatwoot' }} Team</p>
+    {{ $global_config['BRAND_NAME'] ?? config('app.name', 'Chatwoot') }} Team</p>
 </div>
 @endsection

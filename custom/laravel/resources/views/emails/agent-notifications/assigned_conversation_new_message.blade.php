@@ -44,6 +44,6 @@
     <p>Please respond to this message promptly to maintain good customer service.</p>
     
     <p>Best regards,<br>
-    {{ $global_config['BRAND_NAME'] ?? 'Chatwoot' }} Team</p>
+    {{ $global_config['BRAND_NAME'] ?? config('app.name', 'Chatwoot') }} Team</p>
 </div>
 @endsection

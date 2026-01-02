@@ -115,6 +115,7 @@ class ConversationNotificationMail extends ApplicationMailable
         $agentName = $this->agent->available_name ?? $this->agent->name;
         $conversationId = $this->conversation->display_id;
         $inboxName = $this->conversation->inbox?->name ?? 'Unknown Inbox';
+        $brandName = $this->getGlobalConfig()['BRAND_NAME'];
 
         return match ($this->notificationType) {
             'conversation_creation' => "{$agentName}, A new conversation [ID - {$conversationId}] has been created in {$inboxName}.",
@@ -122,10 +123,10 @@ class ConversationNotificationMail extends ApplicationMailable
             'conversation_mention' => "{$agentName}, You have been mentioned in conversation [ID - {$conversationId}]",
             'assigned_conversation_new_message' => "{$agentName}, New message in your assigned conversation [ID - {$conversationId}].",
             'participating_conversation_new_message' => "{$agentName}, New message in your participating conversation [ID - {$conversationId}].",
-            'sla_missed_first_response' => "{$agentName}, SLA missed for first response in conversation [ID - {$conversationId}].",
-            'sla_missed_next_response' => "{$agentName}, SLA missed for next response in conversation [ID - {$conversationId}].",
-            'sla_missed_resolution' => "{$agentName}, SLA missed for resolution in conversation [ID - {$conversationId}].",
-            default => "{$agentName}, Notification for conversation [ID - {$conversationId}].",
+            'sla_missed_first_response' => "{$agentName}, SLA missed for first response in conversation [ID - {$conversationId}] - {$brandName}",
+            'sla_missed_next_response' => "{$agentName}, SLA missed for next response in conversation [ID - {$conversationId}] - {$brandName}",
+            'sla_missed_resolution' => "{$agentName}, SLA missed for resolution in conversation [ID - {$conversationId}] - {$brandName}",
+            default => "{$agentName}, Notification for conversation [ID - {$conversationId}] - {$brandName}",
         };
     }
 
