@@ -4,6 +4,8 @@ namespace App\Actions\SuperAdmin;
 
 use App\Data\SuperAdmin\AccountUserData;
 use App\Models\AccountUser;
+use App\Enums\AccountUserRole;
+use App\Enums\UserAvailability;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class CreateAccountUserAction
@@ -22,17 +24,14 @@ class CreateAccountUserAction
         }
 
         // Convert role name to integer if needed
-        $role = $data->role;
-        if (is_string($role)) {
-            $roleMap = ['agent' => 1, 'admin' => 2];
-            $role = $roleMap[$role] ?? 1;
-        }
+        $role = is_string($data->role) ? AccountUserRole::fromName($data->role) : AccountUserRole::from($data->role);
+        $availability = is_int($data->availability) ? UserAvailability::from($data->availability) : UserAvailability::fromName($data->availability);
 
         return AccountUser::create([
             'user_id' => $data->user_id,
             'account_id' => $data->account_id,
             'role' => $role,
-            'availability' => $data->availability ?? 1,
+            'availability' => $availability,
             'settings' => $data->settings,
         ]);
     }

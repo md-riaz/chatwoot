@@ -46,7 +46,7 @@ class DeleteAccountAction
         }
 
         // Send compliance notification to account administrators
-        $adminEmails = $account->users()->wherePivot('role', '>=', 2)->pluck('email')->filter()->unique()->values()->all();
+        $adminEmails = $account->users()->administrators()->pluck('email')->filter()->unique()->values()->all();
 
         if (! empty($adminEmails)) {
             try {

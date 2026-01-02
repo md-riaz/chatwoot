@@ -15,9 +15,8 @@ trait RequiresAccountAdmin
     protected function ensureAdmin(Request $request, Account $account): void
     {
         $user = $request->user();
-        $accountUser = $account->users()->where('user_id', $user->id)->first();
-
-        if (! $accountUser || $accountUser->pivot->role < 2) {
+        
+        if (! $user->isAdministratorOf($account)) {
             abort(403, 'Admin access required');
         }
     }
@@ -28,8 +27,7 @@ trait RequiresAccountAdmin
     protected function isAdmin(Request $request, Account $account): bool
     {
         $user = $request->user();
-        $accountUser = $account->users()->where('user_id', $user->id)->first();
-
-        return $accountUser && $accountUser->pivot->role >= 2;
+        
+        return $user->isAdministratorOf($account);
     }
 }

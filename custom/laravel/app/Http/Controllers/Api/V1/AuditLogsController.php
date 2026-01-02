@@ -16,10 +16,9 @@ class AuditLogsController extends Controller
      */
     public function index(Account $account, Request $request): JsonResource
     {
-        // Only admins (role >= 2) can view audit logs
+        // Only admins can view audit logs
         $user = $request->user();
-        $accountUser = $account->users()->where('user_id', $user->id)->first();
-        if (! $accountUser || $accountUser->pivot->role < 2) {
+        if (! $user->isAdministratorOf($account)) {
             abort(403, 'Only admins can view audit logs');
         }
 
@@ -61,8 +60,7 @@ class AuditLogsController extends Controller
     {
         // Only admins can view audit logs
         $user = $request->user();
-        $accountUser = $account->users()->where('user_id', $user->id)->first();
-        if (! $accountUser || $accountUser->pivot->role < 2) {
+        if (! $user->isAdministratorOf($account)) {
             abort(403, 'Only admins can view audit logs');
         }
 
@@ -83,8 +81,7 @@ class AuditLogsController extends Controller
     {
         // Only admins can view audit logs
         $user = $request->user();
-        $accountUser = $account->users()->where('user_id', $user->id)->first();
-        if (! $accountUser || $accountUser->pivot->role < 2) {
+        if (! $user->isAdministratorOf($account)) {
             abort(403, 'Only admins can view audit logs');
         }
 
@@ -112,8 +109,7 @@ class AuditLogsController extends Controller
     {
         // Only admins can export audit logs
         $user = $request->user();
-        $accountUser = $account->users()->where('user_id', $user->id)->first();
-        if (! $accountUser || $accountUser->pivot->role < 2) {
+        if (! $user->isAdministratorOf($account)) {
             abort(403, 'Only admins can export audit logs');
         }
 
@@ -139,8 +135,7 @@ class AuditLogsController extends Controller
     {
         // Only admins can view audit logs
         $user = $request->user();
-        $accountUser = $account->users()->where('user_id', $user->id)->first();
-        if (! $accountUser || $accountUser->pivot->role < 2) {
+        if (! $user->isAdministratorOf($account)) {
             abort(403, 'Only admins can view audit logs');
         }
 

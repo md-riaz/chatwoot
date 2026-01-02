@@ -3,6 +3,7 @@
 namespace App\Services\Reports\V2\Reports;
 
 use App\Models\User;
+use App\Enums\AccountUserRole;
 
 class AgentSummaryBuilder extends BaseSummaryBuilder
 {
@@ -16,7 +17,7 @@ class AgentSummaryBuilder extends BaseSummaryBuilder
         
         // Get all agents for this account
         $agents = $this->account->users()
-            ->where('role', '!=', 1) // 1 = administrator
+            ->nonAdministrators()
             ->get();
         
         $agentSummaries = [];

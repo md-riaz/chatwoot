@@ -33,10 +33,9 @@ class InboxesController extends Controller
      */
     public function store(Request $request, Account $account): InboxResource
     {
-        // Only admins (role >= 2) can create inboxes
+        // Only admins can create inboxes
         $user = $request->user();
-        $accountUser = $account->users()->where('user_id', $user->id)->first();
-        if (! $accountUser || $accountUser->pivot->role < 2) {
+        if (! $user->isAdministratorOf($account)) {
             abort(403, 'Only admins can create inboxes');
         }
 

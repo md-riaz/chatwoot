@@ -26,7 +26,7 @@ class AccountUserRequest extends FormRequest
         return [
             'user_id' => $isUpdate ? 'nullable' : 'required|exists:users,id',
             'account_id' => $isUpdate ? 'nullable' : 'required|exists:accounts,id',
-            'role' => 'required|in:agent,admin,1,2',
+            'role' => 'required|in:agent,administrator',
             'availability' => 'nullable|integer|in:0,1',
             'active_at' => 'nullable|boolean',
             'settings' => 'nullable|array',

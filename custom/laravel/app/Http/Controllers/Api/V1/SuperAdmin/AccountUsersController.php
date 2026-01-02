@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AccountUser;
 use App\Models\Account;
 use App\Models\User;
+use App\Enums\AccountUserRole;
+use App\Enums\UserAvailability;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,9 +34,11 @@ class AccountUsersController extends Controller
 
         // Filter by role
         if ($request->has('role')) {
-            $roleMap = ['agent' => 1, 'admin' => 2];
-            $roleValue = $roleMap[$request->input('role')] ?? $request->input('role');
-            $query->where('role', $roleValue);
+            $role = $request->input('role');
+            if (is_string($role)) {
+                $role = AccountUserRole::fromName($role);
+            }
+            $query->where('role', $role->value);
         }
 
         // Filter by availability
@@ -110,7 +114,7 @@ class AccountUsersController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'account_id' => 'required|exists:accounts,id',
-            'role' => 'required|in:agent,admin,1,2',
+            'role' => 'required|in:agent,administrator',
             'availability' => 'integer|in:0,1',
             'settings' => 'nullable|array',
         ]);
@@ -134,17 +138,14 @@ class AccountUsersController extends Controller
         }
 
         // Convert role name to integer if needed
-        $role = $request->input('role');
-        if (is_string($role)) {
-            $roleMap = ['agent' => 1, 'admin' => 2];
-            $role = $roleMap[$role] ?? 1;
-        }
+        $role = AccountUserRole::fromName($request->input('role', 'agent'));
+        $availability = UserAvailability::tryFrom($request->input('availability', 1)) ?? UserAvailability::ONLINE;
 
         $accountUser = AccountUser::create([
             'user_id' => $request->input('user_id'),
             'account_id' => $request->input('account_id'),
             'role' => $role,
-            'availability' => $request->input('availability', 1),
+            'availability' => $availability,
             'settings' => $request->input('settings'),
         ]);
 
@@ -160,7 +161,7 @@ class AccountUsersController extends Controller
     public function update(Request $request, AccountUser $accountUser): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'role' => 'in:agent,admin,1,2',
+            'role' => 'in:agent,administrator',
             'availability' => 'integer|in:0,1',
             'active_at' => 'boolean',
             'settings' => 'nullable|array',
@@ -177,11 +178,7 @@ class AccountUsersController extends Controller
 
         // Update role if provided
         if ($request->has('role')) {
-            $role = $request->input('role');
-            if (is_string($role)) {
-                $roleMap = ['agent' => 1, 'admin' => 2];
-                $role = $roleMap[$role] ?? $role;
-            }
+            $role = AccountUserRole::fromName($request->input('role'));
             $updateData['role'] = $role;
         }
 
@@ -211,9 +208,10 @@ class AccountUsersController extends Controller
     public function destroy(AccountUser $accountUser): JsonResponse
     {
         // Check if this is the last admin for the account
-        if ($accountUser->role === 2) { // admin role
+        if ($accountUser->role->isAdministrator()) {
             $adminCount = AccountUser::where('account_id', $accountUser->account_id)
-                ->where('role', 2)
+                ->where('role', AccountUserRole::ADMINISTRATOR)
+                ->count();
                 ->count();
 
             if ($adminCount <= 1) {
@@ -237,7 +235,7 @@ class AccountUsersController extends Controller
             'account_users' => 'required|array|min:1',
             'account_users.*.user_id' => 'required|exists:users,id',
             'account_users.*.account_id' => 'required|exists:accounts,id',
-            'account_users.*.role' => 'required|in:agent,admin,1,2',
+            'account_users.*.role' => 'required|in:agent,administrator',
         ]);
 
         if ($validator->fails()) {
@@ -266,17 +264,14 @@ class AccountUsersController extends Controller
                 }
 
                 // Convert role name to integer if needed
-                $role = $data['role'];
-                if (is_string($role)) {
-                    $roleMap = ['agent' => 1, 'admin' => 2];
-                    $role = $roleMap[$role] ?? 1;
-                }
+                $role = AccountUserRole::fromName($data['role']);
+                $availability = UserAvailability::tryFrom($data['availability'] ?? 1) ?? UserAvailability::ONLINE;
 
                 $accountUser = AccountUser::create([
                     'user_id' => $data['user_id'],
                     'account_id' => $data['account_id'],
                     'role' => $role,
-                    'availability' => $data['availability'] ?? 1,
+                    'availability' => $availability,
                     'settings' => $data['settings'] ?? null,
                 ]);
 
@@ -311,12 +306,13 @@ class AccountUsersController extends Controller
         $stats = [
             'total_relationships' => AccountUser::count(),
             'by_role' => [
-                'agents' => AccountUser::where('role', 1)->count(),
-                'admins' => AccountUser::where('role', 2)->count(),
+                'agents' => AccountUser::where('role', AccountUserRole::AGENT)->count(),
+                'administrators' => AccountUser::where('role', AccountUserRole::ADMINISTRATOR)->count(),
             ],
             'by_availability' => [
-                'online' => AccountUser::where('availability', 1)->count(),
-                'offline' => AccountUser::where('availability', 0)->count(),
+                'online' => AccountUser::where('availability', UserAvailability::ONLINE)->count(),
+                'offline' => AccountUser::where('availability', UserAvailability::OFFLINE)->count(),
+                'busy' => AccountUser::where('availability', UserAvailability::BUSY)->count(),
             ],
             'accounts_with_users' => Account::has('accountUsers')->count(),
             'users_with_accounts' => User::has('accountUsers')->count(),
@@ -325,27 +321,4 @@ class AccountUsersController extends Controller
         return response()->json(['data' => $stats]);
     }
 
-    /**
-     * Get role name from role integer.
-     */
-    private function getRoleName(int $role): string
-    {
-        return match ($role) {
-            1 => 'agent',
-            2 => 'admin',
-            default => 'unknown',
-        };
-    }
-
-    /**
-     * Get availability name from availability integer.
-     */
-    private function getAvailabilityName(int $availability): string
-    {
-        return match ($availability) {
-            0 => 'offline',
-            1 => 'online',
-            default => 'unknown',
-        };
-    }
 }

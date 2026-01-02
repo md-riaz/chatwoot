@@ -25,7 +25,7 @@ class SendReauthorizationNotificationJob implements ShouldQueue
     {
         try {
             $account = $this->channel->account;
-            $adminUsers = $account->users()->where('role', 1)->get(); // 1 = administrator
+            $adminUsers = $account->users()->administrators()->get();
 
             foreach ($adminUsers as $admin) {
                 Mail::to($admin->email)->send(

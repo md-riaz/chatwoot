@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\User;
+use App\Enums\AccountUserRole;
+use App\Enums\UserAvailability;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -53,8 +55,8 @@ class AgentsController extends Controller
 
         // Add user to account
         $account->users()->attach($user->id, [
-            'role' => $validated['role'] === 'administrator' ? 1 : 0, // 1=administrator, 0=agent
-            'availability' => $validated['availability'] ?? 1,
+            'role' => AccountUserRole::fromName($validated['role'] ?? 'agent'),
+            'availability' => UserAvailability::tryFrom($validated['availability'] ?? 1) ?? UserAvailability::ONLINE,
         ]);
 
         return response()->json(['data' => $user->load('accounts')], 201);
@@ -91,9 +93,11 @@ class AgentsController extends Controller
         // Update pivot table attributes
         $pivotData = [];
         if (isset($validated['role'])) {
-            $pivotData['role'] = $validated['role'] === 'administrator' ? 1 : 0; // 1=administrator, 0=agent
+            $pivotData['role'] = AccountUserRole::fromName($validated['role']);
         }
         if (isset($validated['availability'])) {
+            $pivotData['availability'] = UserAvailability::tryFrom($validated['availability']) ?? UserAvailability::ONLINE;
+        }
             $pivotData['availability'] = $validated['availability'];
         }
 
@@ -138,7 +142,7 @@ class AgentsController extends Controller
             }
 
             if (! $account->users()->where('users.id', $user->id)->exists()) {
-                $account->users()->attach($user->id, ['role' => 1]);
+                $account->users()->attach($user->id, ['role' => AccountUserRole::AGENT]);
             }
         }
 

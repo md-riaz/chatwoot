@@ -8,6 +8,7 @@ use App\Actions\Account\SignUpEmailValidationAction;
 use App\Data\Account\AccountData;
 use App\Models\User;
 use App\Models\AccountUser;
+use App\Enums\AccountUserRole;
 use App\Exceptions\InvalidEmailException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -111,11 +112,11 @@ class InstallationOnboardingController extends Controller
                 // Assign super admin role
                 $user->assignRole('super_admin');
 
-                // Link user to account as administrator (Rails: administrator = 1)
+                // Link user to account as administrator
                 AccountUser::create([
                     'account_id' => $account->id,
                     'user_id' => $user->id,
-                    'role' => 1, // 1 = administrator (Rails parity)
+                    'role' => AccountUserRole::ADMINISTRATOR,
                 ]);
 
                 // Remove onboarding flag from Redis (block future onboarding)

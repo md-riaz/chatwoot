@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\AccountUserRole;
+use App\Enums\UserAvailability;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,8 +23,9 @@ class AccountUser extends Model
     ];
 
     protected $casts = [
+        'role' => AccountUserRole::class,
+        'availability' => UserAvailability::class,
         'active_at' => 'boolean',
-        'availability' => 'integer',
         'settings' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -57,11 +60,7 @@ class AccountUser extends Model
      */
     public function getRoleNameAttribute(): string
     {
-        return match ($this->role) {
-            0 => 'agent',
-            1 => 'administrator',
-            default => 'unknown',
-        };
+        return $this->role->getName();
     }
 
     /**
@@ -69,24 +68,19 @@ class AccountUser extends Model
      */
     public function getAvailabilityNameAttribute(): string
     {
-        return match ($this->availability) {
-            0 => 'offline',
-            1 => 'online',
-            default => 'unknown',
-        };
+        return $this->availability->getName();
     }
 
     /**
      * Scope to filter by role.
      */
-    public function scopeRole($query, $role)
+    public function scopeRole($query, AccountUserRole|string $role)
     {
         if (is_string($role)) {
-            $roleMap = ['agent' => 0, 'administrator' => 1];
-            $role = $roleMap[$role] ?? $role;
+            $role = AccountUserRole::fromName($role);
         }
 
-        return $query->where('role', $role);
+        return $query->where('role', $role->value);
     }
 
     /**
@@ -94,7 +88,7 @@ class AccountUser extends Model
      */
     public function scopeAvailable($query)
     {
-        return $query->where('availability', 1);
+        return $query->where('availability', UserAvailability::ONLINE->value);
     }
 
     /**
@@ -125,12 +119,12 @@ class AccountUser extends Model
     private function hasDefaultPermission(string $permission): bool
     {
         // Administrator role has all permissions
-        if ($this->role === 1) { // administrator
+        if ($this->role->isAdministrator()) {
             return true;
         }
 
         // Agent role has limited permissions
-        if ($this->role === 0) { // agent
+        if ($this->role->isAgent()) {
             $agentPermissions = [
                 'conversation_participating_manage',
                 'contact_manage',
@@ -151,11 +145,11 @@ class AccountUser extends Model
         }
 
         // Return default permissions based on role
-        if ($this->role === 1) { // administrator
+        if ($this->role->isAdministrator()) {
             return CustomRole::PERMISSIONS;
         }
 
-        if ($this->role === 0) { // agent
+        if ($this->role->isAgent()) {
             return [
                 'conversation_participating_manage',
                 'contact_manage',

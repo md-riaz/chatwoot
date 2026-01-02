@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\AccountUserRole;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +32,7 @@ class EnsureAccountAdmin
         // Check if user is an admin of this account
         $accountUser = $account->users()->where('user_id', $user->id)->first();
 
-        if (! $accountUser || $accountUser->pivot->role < 1) { // 1 = administrator
+        if (! $accountUser || $accountUser->pivot->role < AccountUserRole::ADMINISTRATOR->value) {
             return response()->json(['error' => 'Admin access required'], 403);
         }
 

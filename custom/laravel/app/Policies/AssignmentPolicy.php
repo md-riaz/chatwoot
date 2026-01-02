@@ -24,7 +24,7 @@ class AssignmentPolicy
 
     public function update(User $user, AssignmentPolicyModel $policy): bool
     {
-        return $user->accounts()->wherePivot('role', 1)->where('account_id', $policy->account_id)->exists(); // 1 = administrator
+        return $user->isAdministratorOf($policy->account);
     }
 
     public function delete(User $user, AssignmentPolicyModel $policy): bool

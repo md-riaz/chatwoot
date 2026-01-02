@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Account;
 use App\Models\User;
+use App\Enums\AccountUserRole;
 
 class AccountPolicy
 {
@@ -38,11 +39,7 @@ class AccountPolicy
      */
     public function update(User $user, Account $account): bool
     {
-        // Must be an admin of the account
-        return $user->accounts()
-            ->wherePivot('role', 1) // 1 = administrator
-            ->where('account_id', $account->id)
-            ->exists();
+        return $user->isAdministratorOf($account);
     }
 
     /**
@@ -50,10 +47,6 @@ class AccountPolicy
      */
     public function delete(User $user, Account $account): bool
     {
-        // Must be an admin of the account
-        return $user->accounts()
-            ->wherePivot('role', 1) // 1 = administrator
-            ->where('account_id', $account->id)
-            ->exists();
+        return $user->isAdministratorOf($account);
     }
 }

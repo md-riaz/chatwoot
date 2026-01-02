@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Platform;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\User;
+use App\Enums\AccountUserRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -47,7 +48,7 @@ class AccountUsersController extends Controller
         }
 
         $account->users()->attach($validated['user_id'], [
-            'role' => $validated['role'] === 'administrator' ? 1 : 0, // 1=administrator, 0=agent
+            'role' => AccountUserRole::fromName($validated['role']),
         ]);
 
         $user = User::find($validated['user_id']);
