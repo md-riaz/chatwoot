@@ -40,9 +40,33 @@ class SlaPolicy extends Model
         return $this->hasMany(AppliedSla::class);
     }
 
+    public function conversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class);
+    }
+
+    public function slaEvents(): HasMany
+    {
+        return $this->hasMany(SlaEvent::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('active', true);
+    }
+
+    /**
+     * Get push event data for real-time updates
+     */
+    public function pushEventData(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'frt' => $this->first_response_time_threshold,
+            'nrt' => $this->next_response_time_threshold,
+            'rt' => $this->resolution_time_threshold,
+        ];
     }
 
     public function isBreached(Conversation $conversation): array

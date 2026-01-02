@@ -14,6 +14,7 @@ class AccountUser extends Model
         'account_id',
         'user_id',
         'role',
+        'custom_role_id',
         'active_at',
         'availability',
         'settings',
@@ -41,6 +42,14 @@ class AccountUser extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the custom role for the account user.
+     */
+    public function customRole(): BelongsTo
+    {
+        return $this->belongsTo(CustomRole::class);
     }
 
     /**
@@ -94,5 +103,65 @@ class AccountUser extends Model
     public function scopeActive($query)
     {
         return $query->where('active_at', true);
+    }
+
+    /**
+     * Check if the account user has a specific permission
+     */
+    public function hasPermission(string $permission): bool
+    {
+        // If user has a custom role, check custom role permissions
+        if ($this->custom_role_id && $this->customRole) {
+            return $this->customRole->hasPermission($permission);
+        }
+
+        // Default role-based permissions
+        return $this->hasDefaultPermission($permission);
+    }
+
+    /**
+     * Check default role-based permissions
+     */
+    private function hasDefaultPermission(string $permission): bool
+    {
+        // Admin role has all permissions
+        if ($this->role === 2) { // admin
+            return true;
+        }
+
+        // Agent role has limited permissions
+        if ($this->role === 1) { // agent
+            $agentPermissions = [
+                'conversation_participating_manage',
+                'contact_manage',
+            ];
+            return in_array($permission, $agentPermissions);
+        }
+
+        return false;
+    }
+
+    /**
+     * Get all permissions for this account user
+     */
+    public function getPermissions(): array
+    {
+        if ($this->custom_role_id && $this->customRole) {
+            return $this->customRole->permissions ?? [];
+        }
+
+        // Return default permissions based on role
+        if ($this->role === 2) { // admin
+            return CustomRole::PERMISSIONS;
+        }
+
+        if ($this->role === 1) { // agent
+            return [
+                'conversation_participating_manage',
+                'contact_manage',
+            ];
+        }
+
+        return [];
     }
 }

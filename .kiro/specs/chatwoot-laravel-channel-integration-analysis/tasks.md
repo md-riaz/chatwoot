@@ -554,8 +554,8 @@ Based on comprehensive analysis findings from 30+ detailed reports in `.kiro/spe
     - **Success Criteria**: All Rails email functionality replicated, email delivery rates match Rails performance
     - _Requirements: 13.1_
 
-- [ ] 24. Complete Enterprise Features (3-4 weeks)
-  - [ ] 24.1 Complete SAML SSO Implementation
+- [x] 24. Complete Enterprise Features (3-4 weeks)
+  - [x] 24.1 Complete SAML SSO Implementation
     - **Reference**: `enterprise_features_analysis.md` , AGENTS.md (to learn laravel structure)
     - **Gap**: Only 30% complete, missing core authentication logic
     - **Impact**: Enterprise customers cannot use SSO features
@@ -566,7 +566,7 @@ Based on comprehensive analysis findings from 30+ detailed reports in `.kiro/spe
     - **Success Criteria**: SAML authentication works with major providers (Okta, Azure AD, Google)
     - _Requirements: 5.1_
 
-  - [ ] 24.2 Complete SLA Policies Implementation
+  - [x] 24.2 Complete SLA Policies Implementation
     - **Reference**: `enterprise_features_analysis.md` , AGENTS.md (to learn laravel structure)
     - **Gap**: Only 25% complete, missing event tracking and notifications
     - Complete SLA event tracking system with breach detection
@@ -576,7 +576,7 @@ Based on comprehensive analysis findings from 30+ detailed reports in `.kiro/spe
     - **Success Criteria**: SLA tracking and notifications operational, matches Rails functionality
     - _Requirements: 5.1, 12.1_
 
-  - [ ] 24.3 Complete Custom Roles Implementation
+  - [x] 24.3 Complete Custom Roles Implementation
     - **Reference**: `enterprise_features_analysis.md` , AGENTS.md (to learn laravel structure)
     - **Gap**: Only 35% complete, missing permission system integration
     - Complete permission system integration with Spatie Permission
@@ -586,7 +586,7 @@ Based on comprehensive analysis findings from 30+ detailed reports in `.kiro/spe
     - _Requirements: 5.1_
 
 - [ ] 25. Implement API v2 Reports (2-3 weeks)
-  - [ ] 25.1 Create API v2 Reports Namespace
+  - [ ] 25.1 Create API v2 Reports Namespace (if possible merge with v1 as there not much in v2)
     - **Reference**: `TASK_15_REPORTING_ANALYTICS_ANALYSIS_REPORT.md` , AGENTS.md (to learn laravel structure)
     - **Gap**: Complete API v2 namespace missing (0% coverage)
     - **Impact**: Advanced reporting unavailable

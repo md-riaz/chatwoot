@@ -9,6 +9,7 @@ use App\Http\Resources\CustomRoleResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Validation\Rule;
 
 class CustomRolesController extends Controller
 {
@@ -34,9 +35,12 @@ class CustomRolesController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:custom_roles,name,NULL,id,account_id,' . $account->id,
-            'description' => 'nullable|string',
-            'permissions' => 'required|array',
-            'permissions.*' => 'string',
+            'description' => 'nullable|string|max:500',
+            'permissions' => 'required|array|min:1',
+            'permissions.*' => [
+                'string',
+                Rule::in(CustomRole::PERMISSIONS)
+            ],
         ]);
 
         $customRole = CustomRole::create(array_merge($validated, ['account_id' => $account->id]));
@@ -63,9 +67,12 @@ class CustomRolesController extends Controller
 
         $validated = $request->validate([
             'name' => 'string|max:255|unique:custom_roles,name,' . $customRole->id . ',id,account_id,' . $account->id,
-            'description' => 'nullable|string',
-            'permissions' => 'array',
-            'permissions.*' => 'string',
+            'description' => 'nullable|string|max:500',
+            'permissions' => 'array|min:1',
+            'permissions.*' => [
+                'string',
+                Rule::in(CustomRole::PERMISSIONS)
+            ],
         ]);
 
         $customRole->update($validated);
@@ -80,8 +87,28 @@ class CustomRolesController extends Controller
     {
         abort_unless($customRole->account_id === $account->id, 404);
 
+        // Check if any account users are using this custom role
+        if ($customRole->accountUsers()->exists()) {
+            return response()->json([
+                'error' => 'Cannot delete custom role that is assigned to users'
+            ], 422);
+        }
+
         $customRole->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Get available permissions for custom roles
+     */
+    public function permissions(): JsonResponse
+    {
+        return response()->json([
+            'data' => [
+                'permissions' => CustomRole::getAvailablePermissions(),
+                'descriptions' => CustomRole::getPermissionDescriptions(),
+            ]
+        ]);
     }
 }

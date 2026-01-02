@@ -30,6 +30,9 @@ class User extends Authenticatable
         'availability',
         'custom_attributes',
         'confirmation_token',
+        'provider',
+        'uid',
+        'sso_auth_token',
     ];
 
     /**
@@ -41,6 +44,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'confirmation_token',
+        'sso_auth_token',
     ];
 
     /**
@@ -107,5 +111,25 @@ class User extends Authenticatable
     public function scopeOnline($query)
     {
         return $query->where('availability', 1);
+    }
+
+    /**
+     * Check if the provided SSO auth token is valid for this user
+     */
+    public function validSsoAuthToken(?string $token): bool
+    {
+        if (empty($token) || empty($this->sso_auth_token)) {
+            return false;
+        }
+
+        return hash_equals($this->sso_auth_token, $token);
+    }
+
+    /**
+     * Find user by email (helper method for SAML)
+     */
+    public static function fromEmail(string $email): ?User
+    {
+        return static::where('email', $email)->first();
     }
 }

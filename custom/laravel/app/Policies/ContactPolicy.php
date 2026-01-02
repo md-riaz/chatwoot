@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\AccountUser;
 use App\Models\Contact;
 use App\Models\User;
 
@@ -10,9 +11,14 @@ class ContactPolicy
     /**
      * Determine if the user can view any contacts.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user, $accountId): bool
     {
-        return true;
+        $accountUser = $this->getAccountUser($user, $accountId);
+        if (!$accountUser) {
+            return false;
+        }
+
+        return $accountUser->hasPermission('contact_manage');
     }
 
     /**
@@ -20,15 +26,25 @@ class ContactPolicy
      */
     public function view(User $user, Contact $contact): bool
     {
-        return $user->accounts()->where('account_id', $contact->account_id)->exists();
+        $accountUser = $this->getAccountUser($user, $contact->account_id);
+        if (!$accountUser) {
+            return false;
+        }
+
+        return $accountUser->hasPermission('contact_manage');
     }
 
     /**
      * Determine if the user can create contacts.
      */
-    public function create(User $user): bool
+    public function create(User $user, $accountId): bool
     {
-        return true;
+        $accountUser = $this->getAccountUser($user, $accountId);
+        if (!$accountUser) {
+            return false;
+        }
+
+        return $accountUser->hasPermission('contact_manage');
     }
 
     /**
@@ -36,7 +52,7 @@ class ContactPolicy
      */
     public function update(User $user, Contact $contact): bool
     {
-        return $user->accounts()->where('account_id', $contact->account_id)->exists();
+        return $this->view($user, $contact);
     }
 
     /**
@@ -44,14 +60,14 @@ class ContactPolicy
      */
     public function delete(User $user, Contact $contact): bool
     {
-        return $user->accounts()->where('account_id', $contact->account_id)->exists();
+        return $this->view($user, $contact);
     }
 
     /**
-     * Determine if the user can merge contacts.
+     * Get the account user relationship
      */
-    public function merge(User $user, Contact $contact): bool
+    private function getAccountUser(User $user, int $accountId): ?AccountUser
     {
-        return $user->accounts()->where('account_id', $contact->account_id)->exists();
+        return $user->accountUsers()->where('account_id', $accountId)->first();
     }
 }

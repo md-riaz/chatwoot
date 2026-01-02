@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        // Set onboarding flag for first-time superadmin creation
+        // Seed roles & permissions then set onboarding flag for first-time superadmin creation
+        $this->call(\Database\Seeders\RolesAndPermissionsSeeder::class);
         $this->call(OnboardingFlagSeeder::class);
     }
 }

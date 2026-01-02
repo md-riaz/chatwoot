@@ -185,6 +185,22 @@ class Account extends Model
     }
 
     /**
+     * Get the SAML settings for the account.
+     */
+    public function samlSettings(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(AccountSamlSetting::class);
+    }
+
+    /**
+     * Get all applied SLAs for the account.
+     */
+    public function appliedSlas(): HasMany
+    {
+        return $this->hasMany(AppliedSla::class);
+    }
+
+    /**
      * Scope a query to only include active accounts.
      */
     public function scopeActive($query)

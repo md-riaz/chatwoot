@@ -189,4 +189,36 @@ class Conversation extends Model
     {
         return $query->where('muted', true);
     }
+
+    /**
+     * Check if the conversation is resolved
+     */
+    public function isResolved(): bool
+    {
+        return $this->status === self::STATUS_RESOLVED;
+    }
+
+    /**
+     * Get conversation participants relationship for SLA notifications
+     */
+    public function conversationParticipants(): HasMany
+    {
+        return $this->hasMany(ConversationParticipant::class);
+    }
+
+    /**
+     * Get applied SLAs for this conversation
+     */
+    public function appliedSlas(): HasMany
+    {
+        return $this->hasMany(AppliedSla::class);
+    }
+
+    /**
+     * Get SLA events for this conversation
+     */
+    public function slaEvents(): HasMany
+    {
+        return $this->hasMany(SlaEvent::class);
+    }
 }
