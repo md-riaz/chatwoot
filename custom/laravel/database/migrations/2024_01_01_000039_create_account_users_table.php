@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->integer('role')->default(1); // 1=agent, 2=admin
+            $table->integer('role')->default(0); // 0=agent, 1=administrator (Rails parity)
             $table->boolean('active_at')->default(true);
             $table->integer('availability')->default(1); // 1=online, 0=offline
             $table->json('settings')->nullable();

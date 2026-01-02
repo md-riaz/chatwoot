@@ -58,8 +58,8 @@ class AccountUser extends Model
     public function getRoleNameAttribute(): string
     {
         return match ($this->role) {
-            1 => 'agent',
-            2 => 'admin',
+            0 => 'agent',
+            1 => 'administrator',
             default => 'unknown',
         };
     }
@@ -82,7 +82,7 @@ class AccountUser extends Model
     public function scopeRole($query, $role)
     {
         if (is_string($role)) {
-            $roleMap = ['agent' => 1, 'admin' => 2];
+            $roleMap = ['agent' => 0, 'administrator' => 1];
             $role = $roleMap[$role] ?? $role;
         }
 
@@ -124,13 +124,13 @@ class AccountUser extends Model
      */
     private function hasDefaultPermission(string $permission): bool
     {
-        // Admin role has all permissions
-        if ($this->role === 2) { // admin
+        // Administrator role has all permissions
+        if ($this->role === 1) { // administrator
             return true;
         }
 
         // Agent role has limited permissions
-        if ($this->role === 1) { // agent
+        if ($this->role === 0) { // agent
             $agentPermissions = [
                 'conversation_participating_manage',
                 'contact_manage',
@@ -151,11 +151,11 @@ class AccountUser extends Model
         }
 
         // Return default permissions based on role
-        if ($this->role === 2) { // admin
+        if ($this->role === 1) { // administrator
             return CustomRole::PERMISSIONS;
         }
 
-        if ($this->role === 1) { // agent
+        if ($this->role === 0) { // agent
             return [
                 'conversation_participating_manage',
                 'contact_manage',

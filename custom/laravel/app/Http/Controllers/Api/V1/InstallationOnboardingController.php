@@ -111,11 +111,11 @@ class InstallationOnboardingController extends Controller
                 // Assign super admin role
                 $user->assignRole('super_admin');
 
-                // Link user to account as administrator
+                // Link user to account as administrator (Rails: administrator = 1)
                 AccountUser::create([
                     'account_id' => $account->id,
                     'user_id' => $user->id,
-                    'role' => 'administrator',
+                    'role' => 1, // 1 = administrator (Rails parity)
                 ]);
 
                 // Remove onboarding flag from Redis (block future onboarding)
