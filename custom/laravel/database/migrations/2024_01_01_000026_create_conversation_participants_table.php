@@ -15,6 +15,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
 
+            // Indexes to match Rails schema
+            $table->index('account_id');
+            $table->index('conversation_id');
+            $table->index('user_id');
             $table->unique(['user_id', 'conversation_id']);
         });
     }
