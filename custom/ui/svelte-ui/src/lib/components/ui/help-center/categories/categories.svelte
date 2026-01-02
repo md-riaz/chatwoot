@@ -139,8 +139,10 @@
 
   function onDragStart(e: DragEvent, id: string) {
     dragId = id;
-    e.dataTransfer?.setData('text/plain', id);
-    e.dataTransfer?.effectAllowed = 'move';
+    if (e.dataTransfer) {
+      e.dataTransfer.setData('text/plain', id);
+      e.dataTransfer.effectAllowed = 'move';
+    }
   }
 
   function onDragOver(e: DragEvent) {

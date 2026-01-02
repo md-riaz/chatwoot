@@ -25,21 +25,18 @@
   let form: Article = article ? { ...article } : { title: '', content: '', status: 'draft', tags: [], featured: false, locale: locales[0] };
   let errors: Record<string, string> = {};
 
-  // TipTap editor instance (loaded dynamically)
-  let EditorComponent: any = null;
+  // TipTap editor instance (loaded dynamically using @tiptap/core)
   let editor: any = null;
+  let editorEl: HTMLElement | null = null;
   let useEditor = false;
 
   onMount(async () => {
     try {
-      const [{ Editor }, StarterKit] = await Promise.all([
-        import('@tiptap/svelte').then(m => m.Editor),
-        import('@tiptap/starter-kit').then(m => m.default || m)
-      ]);
+      const { Editor } = await import('@tiptap/core');
+      const StarterKit = (await import('@tiptap/starter-kit')).default || (await import('@tiptap/starter-kit'));
 
-      // create editor instance
       editor = new Editor({
-        element: null,
+        element: editorEl as any,
         extensions: [StarterKit()],
         content: form.content || '',
         onUpdate: ({ editor: e }: any) => {
@@ -47,12 +44,10 @@
         }
       });
 
-      EditorComponent = Editor;
       useEditor = true;
     } catch (err) {
-      // TipTap not available — fallback to textarea
       useEditor = false;
-      console.warn('TipTap not available, using fallback textarea.', err);
+      console.warn('TipTap core not available; using textarea fallback.', err);
     }
   });
 
@@ -100,8 +95,8 @@
 
   <div>
     <label class="text-sm">Content</label>
-    {#if useEditor && EditorComponent}
-      <svelte:component this={EditorComponent} bind:editor={editor} />
+    {#if useEditor}
+      <div bind:this={editorEl}></div>
     {:else}
       <textarea bind:value={form.content} class="w-full min-h-[240px] rounded border p-2" placeholder="Write article content here..." />
     {/if}
