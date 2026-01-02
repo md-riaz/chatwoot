@@ -57,7 +57,7 @@ return new class extends Migration
         if (Schema::hasTable('inboxes')) {
             Schema::table('inboxes', function (Blueprint $table) {
                 $table->index(['account_id', 'channel_type'], 'inboxes_account_channel_idx');
-                $table->index(['account_id', 'enabled'], 'inboxes_account_enabled_idx');
+                $table->index(['account_id', 'channel_type', 'channel_id'], 'inboxes_account_channel_id_idx');
             });
         }
 
@@ -74,6 +74,7 @@ return new class extends Migration
             Schema::table('account_users', function (Blueprint $table) {
                 $table->index(['account_id', 'user_id', 'role'], 'account_users_account_user_role_idx');
                 $table->index(['user_id', 'active_at'], 'account_users_user_active_idx');
+                $table->index(['account_id', 'active_at', 'availability'], 'account_users_account_active_availability_idx');
             });
         }
 
@@ -152,7 +153,7 @@ return new class extends Migration
         if (Schema::hasTable('inboxes')) {
             Schema::table('inboxes', function (Blueprint $table) {
                 $table->dropIndex('inboxes_account_channel_idx');
-                $table->dropIndex('inboxes_account_enabled_idx');
+                $table->dropIndex('inboxes_account_channel_id_idx');
             });
         }
 
@@ -167,6 +168,7 @@ return new class extends Migration
             Schema::table('account_users', function (Blueprint $table) {
                 $table->dropIndex('account_users_account_user_role_idx');
                 $table->dropIndex('account_users_user_active_idx');
+                $table->dropIndex('account_users_account_active_availability_idx');
             });
         }
 
