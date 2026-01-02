@@ -128,6 +128,37 @@
       onDelete(id);
     }
   }
+
+  // Drag-and-drop (HTML5) for top-level reordering
+  import { moveItem } from './dnd-utils';
+
+  let dragId: string | null = null;
+  let localCategories = categories ? [...categories] : [];
+
+  $: if (categories) localCategories = [...categories];
+
+  function onDragStart(e: DragEvent, id: string) {
+    dragId = id;
+    e.dataTransfer?.setData('text/plain', id);
+    e.dataTransfer?.effectAllowed = 'move';
+  }
+
+  function onDragOver(e: DragEvent) {
+    e.preventDefault();
+    e.dataTransfer!.dropEffect = 'move';
+  }
+
+  function onDrop(e: DragEvent, targetId: string) {
+    e.preventDefault();
+    const fromId = dragId || e.dataTransfer?.getData('text/plain');
+    if (!fromId) return;
+    const fromIndex = localCategories.findIndex(c => c.id === fromId);
+    const toIndex = localCategories.findIndex(c => c.id === targetId);
+    if (fromIndex === -1 || toIndex === -1) return;
+    if (fromIndex === toIndex) return;
+    localCategories = moveItem(localCategories, fromIndex, toIndex);
+    onReorder(localCategories);
+  }
 </script>
 
 <div class="w-full max-w-4xl mx-auto space-y-6 p-6">
@@ -188,8 +219,8 @@
   {/if}
 
   <div class="space-y-3">
-    {#each categories as category (category.id)}
-      <Card class="p-4">
+    {#each localCategories as category (category.id)}
+      <Card class="p-4" draggable="true" on:dragstart={(e) => onDragStart(e, category.id)} on:dragover={onDragOver} on:drop={(e) => onDrop(e, category.id)}>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4 flex-1">
             <div

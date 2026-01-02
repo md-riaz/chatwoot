@@ -2,6 +2,7 @@
 
 namespace App\Actions\Account;
 
+use App\Exceptions\InvalidEmailException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 
@@ -12,29 +13,36 @@ class SignUpEmailValidationAction
         // Validate email format
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             Log::info('Invalid email format', ['email' => $email]);
-            // TODO: throw custom InvalidEmail exception with details
-            return false;
+            throw new InvalidEmailException(['valid' => false, 'disposable' => null]);
         }
 
         // Check blocked domains
-        $domain = strtolower(substr(strrchr($email, '@'), 1));
-        $blockedDomains = $this->blockedDomains();
-        foreach ($blockedDomains as $blocked) {
-            if (stripos($domain, trim($blocked)) !== false) {
-                Log::info('Blocked email domain', ['email' => $email, 'domain' => $domain]);
-                // TODO: throw custom InvalidEmail exception with domain_blocked
-                return false;
-            }
+        if ($this->isDomainBlocked($email)) {
+            Log::info('Blocked email domain', ['email' => $email]);
+            throw new InvalidEmailException(['domain_blocked' => true]);
         }
 
-        // Check disposable (placeholder, implement with package if needed)
+        // Check disposable
         if ($this->isDisposable($email)) {
             Log::info('Disposable email detected', ['email' => $email]);
-            // TODO: throw custom InvalidEmail exception with disposable flag
-            return false;
+            throw new InvalidEmailException(['valid' => true, 'disposable' => true]);
         }
 
         return true;
+    }
+
+    private function isDomainBlocked(string $email): bool
+    {
+        $domain = strtolower(substr(strrchr($email, '@'), 1));
+        $blockedDomains = $this->blockedDomains();
+        
+        foreach ($blockedDomains as $blocked) {
+            if (stripos($domain, trim($blocked)) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     private function blockedDomains(): array
@@ -49,6 +57,15 @@ class SignUpEmailValidationAction
     private function isDisposable(string $email): bool
     {
         // TODO: Integrate with a disposable email checker package
-        return false;
+        // For now, just check some common disposable domains
+        $disposableDomains = [
+            '10minutemail.com',
+            'tempmail.org',
+            'guerrillamail.com',
+            'mailinator.com',
+        ];
+        
+        $domain = strtolower(substr(strrchr($email, '@'), 1));
+        return in_array($domain, $disposableDomains);
     }
 }

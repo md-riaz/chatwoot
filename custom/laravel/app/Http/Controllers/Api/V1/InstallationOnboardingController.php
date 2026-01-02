@@ -3,18 +3,44 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Actions\Account\CreateAccountAction;
+use App\Actions\Account\SignUpEmailValidationAction;
+use App\Data\Account\AccountData;
 use App\Models\User;
-use App\Models\Account; // You may need to create this if not present
-use App\Models\InstallationConfig;
+use App\Models\AccountUser;
+use App\Exceptions\InvalidEmailException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
+use Spatie\LaravelData\Optional;
 
 class InstallationOnboardingController extends Controller
 {
+    public function __construct(
+        private CreateAccountAction $createAccount,
+        private SignUpEmailValidationAction $emailValidation
+    ) {}
+
+    /**
+     * Show onboarding information (Rails equivalent of index action).
+     */
+    public function index(): JsonResponse
+    {
+        // Use Redis for onboarding flag (Rails-style)
+        $redisKey = 'chatwoot_installation_onboarding';
+        if (!app('redis')->get($redisKey)) {
+            return response()->json(['error' => 'Onboarding already completed.'], 403);
+        }
+
+        return response()->json([
+            'message' => 'Installation onboarding required.',
+            'onboarding_pending' => true
+        ]);
+    }
+
     /**
      * Handle the first-time onboarding to create a super admin and account.
      */
@@ -32,44 +58,87 @@ class InstallationOnboardingController extends Controller
             'user.email' => 'required|email|max:255|unique:users,email',
             'user.password' => 'required|string|min:8',
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $data = $request->input('user');
-        $subscribe = $request->input('subscribe_to_updates', false);
+        $userData = $request->input('user');
 
-        DB::beginTransaction();
         try {
-            // Create account (if Account model exists)
-            $account = Account::create([
-                'name' => $data['company'],
-            ]);
-
-            // Create user
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => Hash::make($data['password']),
-            ]);
-            $user->assignRole('super_admin');
-
-            // Link user to account (if needed)
-            if (method_exists($user, 'accounts')) {
-                $user->accounts()->attach($account->id, ['role' => 'administrator']);
+            // Validate email using existing action
+            $this->emailValidation->handle($userData['email']);
+        } catch (InvalidEmailException $e) {
+            $details = $e->getDetails();
+            $message = 'Invalid email address';
+            
+            if (isset($details['domain_blocked']) && $details['domain_blocked']) {
+                $message = 'Email domain is blocked';
+            } elseif (isset($details['disposable']) && $details['disposable']) {
+                $message = 'Disposable email addresses are not allowed';
+            } elseif (isset($details['valid']) && !$details['valid']) {
+                $message = 'Invalid email format';
             }
-
-            // Remove onboarding flag from Redis (block future onboarding)
-            app('redis')->del($redisKey);
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
+            
+            return response()->json(['errors' => ['email' => [$message]]], 422);
         }
 
-        // Optionally: handle subscribe_to_updates logic here
+        try {
+            return DB::transaction(function () use ($userData, $redisKey) {
+                // Create account using existing action
+                $accountData = new AccountData(
+                    id: Optional::create(),
+                    name: $userData['company'],
+                    locale: app()->getLocale(),
+                    domain: null,
+                    support_email: null,
+                    settings: Optional::create(),
+                    features: Optional::create(),
+                    limits: Optional::create(),
+                    status: 1
+                );
+                
+                $account = $this->createAccount->handle($accountData);
 
-        return response()->json(['message' => 'Super admin and account created successfully.'], 201);
+                // Create user (following existing pattern from other controllers)
+                $user = User::create([
+                    'name' => $userData['name'],
+                    'email' => $userData['email'],
+                    'password' => Hash::make($userData['password']),
+                    'email_verified_at' => now(), // confirmed = true
+                ]);
+
+                // Assign super admin role
+                $user->assignRole('super_admin');
+
+                // Link user to account as administrator
+                AccountUser::create([
+                    'account_id' => $account->id,
+                    'user_id' => $user->id,
+                    'role' => 'administrator',
+                ]);
+
+                // Remove onboarding flag from Redis (block future onboarding)
+                app('redis')->del($redisKey);
+
+                return response()->json([
+                    'message' => 'Super admin and account created successfully.',
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                    ],
+                    'account' => [
+                        'id' => $account->id,
+                        'name' => $account->name,
+                    ]
+                ], 201);
+            });
+
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

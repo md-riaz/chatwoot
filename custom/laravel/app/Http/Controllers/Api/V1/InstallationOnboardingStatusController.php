@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 // No imports needed for Redis or JsonResponse, use fully qualified names
 
-class InstallationOnboardingController extends Controller
+class InstallationOnboardingStatusController extends Controller
 {
     /**
      * Get the onboarding status for the installation.

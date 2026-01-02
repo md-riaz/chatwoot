@@ -121,6 +121,7 @@ Route::get('imports/{import_id}/status', [\App\Http\Controllers\Api\V1\ImportsCo
 
 
 // Onboarding route for first superadmin creation (Rails-style)
+Route::get('installation/onboarding', [\App\Http\Controllers\Api\V1\InstallationOnboardingController::class, 'index']);
 Route::post('installation/onboarding', [\App\Http\Controllers\Api\V1\InstallationOnboardingController::class, 'onboard']);
 // Onboarding status route
 Route::get('installation/onboarding/status', [\App\Http\Controllers\Api\V1\InstallationOnboardingStatusController::class, 'status']);
