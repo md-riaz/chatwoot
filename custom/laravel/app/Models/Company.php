@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
 
 class Company extends Model
 {
@@ -13,15 +14,27 @@ class Company extends Model
     protected $fillable = [
         'account_id',
         'name',
-        'identifier',
         'domain',
-        'website',
-        'custom_attributes',
+        'description',
     ];
 
     protected $casts = [
-        'custom_attributes' => 'array',
+        'contacts_count' => 'integer',
     ];
+
+    // Validation rules
+    public static function rules(): array
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'domain' => [
+                'nullable',
+                'string',
+                'regex:/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/',
+            ],
+            'description' => 'nullable|string|max:1000',
+        ];
+    }
 
     public function account()
     {
@@ -31,5 +44,39 @@ class Company extends Model
     public function contacts()
     {
         return $this->hasMany(Contact::class);
+    }
+
+    // Scopes
+    public function scopeOrderedByName(Builder $query): Builder
+    {
+        return $query->orderBy('name');
+    }
+
+    public function scopeSearchByNameOrDomain(Builder $query, string $searchTerm): Builder
+    {
+        return $query->where(function ($q) use ($searchTerm) {
+            $q->where('name', 'ilike', "%{$searchTerm}%")
+              ->orWhere('domain', 'ilike', "%{$searchTerm}%");
+        });
+    }
+
+    public function scopeOrderedByName(Builder $query): Builder
+    {
+        return $query->orderBy('name');
+    }
+
+    public function scopeOrderedByDomain(Builder $query): Builder
+    {
+        return $query->orderBy('domain');
+    }
+
+    public function scopeOrderedByCreatedAt(Builder $query): Builder
+    {
+        return $query->orderBy('created_at');
+    }
+
+    public function updateContactsCount(): void
+    {
+        $this->updateQuietly(['contacts_count' => $this->contacts()->count()]);
     }
 }

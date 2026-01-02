@@ -27,6 +27,11 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::create(['name' => 'manage contacts']);
         Permission::create(['name' => 'delete contacts']);
 
+        // Create permissions for companies
+        Permission::create(['name' => 'view companies']);
+        Permission::create(['name' => 'manage companies']);
+        Permission::create(['name' => 'delete companies']);
+
         // Create permissions for inboxes
         Permission::create(['name' => 'view inboxes']);
         Permission::create(['name' => 'manage inboxes']);
@@ -99,6 +104,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'view contacts',
             'manage contacts',
             'delete contacts',
+            'view companies',
+            'manage companies',
             'view inboxes',
             'manage inboxes',
             'view team',

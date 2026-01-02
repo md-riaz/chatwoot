@@ -1,4 +1,68 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
+  import { Button } from '../../../button/index.js';
+
+  export let categories: Category[] = [];
+
+  interface Category {
+    id: string;
+    title: string;
+    children?: Category[];
+  }
+
+  const dispatch = createEventDispatcher();
+
+  function addCategory() {
+    dispatch('add');
+  }
+
+  function editCategory(cat: Category) {
+    dispatch('edit', cat);
+  }
+
+  function removeCategory(cat: Category) {
+    dispatch('remove', cat);
+  }
+</script>
+
+<div class="space-y-4 p-4">
+  <div class="flex items-center justify-between">
+    <h3 class="text-lg font-medium">Categories</h3>
+    <Button on:click={addCategory}>New Category</Button>
+  </div>
+
+  {#if categories.length === 0}
+    <div class="text-sm text-muted-foreground">No categories yet.</div>
+  {:else}
+    <ul class="space-y-2">
+      {#each categories as cat}
+        <li class="border rounded p-2">
+          <div class="flex items-center justify-between">
+            <div>{cat.title}</div>
+            <div class="flex gap-2">
+              <Button variant="outline" size="sm" on:click={() => editCategory(cat)}>Edit</Button>
+              <Button variant="ghost" size="sm" on:click={() => removeCategory(cat)}>Delete</Button>
+            </div>
+          </div>
+          {#if cat.children && cat.children.length}
+            <ul class="pl-4 mt-2 space-y-1">
+              {#each cat.children as child}
+                <li class="flex items-center justify-between text-sm">
+                  <span>{child.title}</span>
+                  <div class="flex gap-2">
+                    <Button variant="outline" size="xs" on:click={() => editCategory(child)}>Edit</Button>
+                    <Button variant="ghost" size="xs" on:click={() => removeCategory(child)}>Delete</Button>
+                  </div>
+                </li>
+              {/each}
+            </ul>
+          {/if}
+        </li>
+      {/each}
+    </ul>
+  {/if}
+</div>
+<script lang="ts">
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';

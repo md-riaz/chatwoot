@@ -2,6 +2,24 @@
   import { Categories } from './index.js';
   export let Hst: any;
 
+  const sample = [
+    { id: 'c1', title: 'Getting Started', children: [{ id: 'c1-1', title: 'Account Setup' }] },
+    { id: 'c2', title: 'Billing' },
+    { id: 'c3', title: 'Integrations' }
+  ];
+</script>
+
+<Hst.Story title="Help Center/Categories" icon="lucide:list">
+  <Hst.Variant title="Default">
+    <div class="p-4 w-[600px]">
+      <Categories categories={sample} on:add={() => console.log('add')} on:edit={(e) => console.log('edit', e.detail)} on:remove={(e) => console.log('remove', e.detail)} />
+    </div>
+  </Hst.Variant>
+</Hst.Story>
+<script lang="ts">
+  import { Categories } from './index.js';
+  export let Hst: any;
+
   const sampleCategories = [
     {
       id: '1',

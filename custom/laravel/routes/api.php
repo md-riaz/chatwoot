@@ -645,7 +645,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Companies
         Route::apiResource('companies', CompaniesController::class);
-        Route::get('companies/search', [CompaniesController::class, 'search']);
+        Route::get('companies/search', [CompaniesController::class, 'search'])->name('companies.search');
 
         // Custom Roles
         Route::apiResource('custom_roles', CustomRolesController::class);

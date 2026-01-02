@@ -16,6 +16,7 @@ class Contact extends Model
 
     protected $fillable = [
         'account_id',
+        'company_id',
         'name',
         'email',
         'phone_number',
@@ -42,6 +43,14 @@ class Contact extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
+    }
+
+    /**
+     * Get the company that owns the contact.
+     */
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
     }
 
     /**

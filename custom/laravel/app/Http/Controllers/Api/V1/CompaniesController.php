@@ -9,39 +9,80 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\CompanyResource;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 
 class CompaniesController extends Controller
 {
+    const RESULTS_PER_PAGE = 25;
+
     public function __construct()
     {
         $this->middleware('permission:manage_companies')->only(['store', 'update', 'destroy']);
     }
+
     public function index(Request $request, Account $account): JsonResource
     {
-        $query = Company::where('account_id', $account->id);
+        $query = $this->resolvedCompanies($account);
 
-        if ($request->has('q')) {
-            $term = $request->get('q');
-            $query->where(function ($q) use ($term) {
-                $q->where('name', 'like', '%' . $term . '%')
-                    ->orWhere('domain', 'like', '%' . $term . '%')
-                    ->orWhere('identifier', 'like', '%' . $term . '%');
-            });
+        // Apply sorting
+        $sortBy = $request->get('sort_by', 'name');
+        $sortOrder = $request->get('sort_order', 'asc');
+
+        switch ($sortBy) {
+            case 'name':
+                $query->orderBy('name', $sortOrder);
+                break;
+            case 'domain':
+                $query->orderBy('domain', $sortOrder);
+                break;
+            case 'created_at':
+                $query->orderBy('created_at', $sortOrder);
+                break;
+            default:
+                $query->orderedByName();
         }
 
-        $companies = $query->paginate($request->get('per_page', 25));
+        $companies = $query->paginate($request->get('per_page', self::RESULTS_PER_PAGE));
 
-        return CompanyResource::collection($companies);
+        return CompanyResource::collection($companies)->additional([
+            'meta' => [
+                'companies_count' => $companies->total()
+            ]
+        ]);
+    }
+
+    public function search(Request $request, Account $account): JsonResource
+    {
+        if (empty($request->get('q'))) {
+            throw ValidationException::withMessages([
+                'q' => ['Search query is required']
+            ]);
+        }
+
+        $query = $this->resolvedCompanies($account)
+            ->searchByNameOrDomain($request->get('q'));
+
+        $companies = $query->paginate($request->get('per_page', self::RESULTS_PER_PAGE));
+
+        return CompanyResource::collection($companies)->additional([
+            'meta' => [
+                'companies_count' => $companies->total()
+            ]
+        ]);
     }
 
     public function store(Request $request, Account $account): JsonResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'identifier' => 'nullable|string|max:255',
-            'domain' => 'nullable|string|max:255',
-            'website' => 'nullable|url',
-            'custom_attributes' => 'nullable|array',
+            'domain' => [
+                'nullable',
+                'string',
+                'regex:/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/',
+                Rule::unique('companies', 'domain')->where('account_id', $account->id)->whereNotNull('domain')
+            ],
+            'description' => 'nullable|string|max:1000',
         ]);
 
         $company = Company::create(array_merge($validated, ['account_id' => $account->id]));
@@ -61,11 +102,17 @@ class CompaniesController extends Controller
         abort_unless($company->account_id === $account->id, 404);
 
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'identifier' => 'nullable|string|max:255',
-            'domain' => 'nullable|string|max:255',
-            'website' => 'nullable|url',
-            'custom_attributes' => 'nullable|array',
+            'name' => 'sometimes|required|string|max:255',
+            'domain' => [
+                'nullable',
+                'string',
+                'regex:/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/',
+                Rule::unique('companies', 'domain')
+                    ->where('account_id', $account->id)
+                    ->ignore($company->id)
+                    ->whereNotNull('domain')
+            ],
+            'description' => 'nullable|string|max:1000',
         ]);
 
         $company->update($validated);
@@ -82,20 +129,8 @@ class CompaniesController extends Controller
         return response()->json(null, 204);
     }
 
-    public function search(Request $request, Account $account): JsonResource
+    private function resolvedCompanies(Account $account)
     {
-        $query = Company::where('account_id', $account->id);
-
-        if ($request->has('q')) {
-            $searchTerm = $request->get('q');
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('domain', 'like', '%' . $searchTerm . '%');
-            });
-        }
-
-        $companies = $query->limit(10)->get();
-
-        return CompanyResource::collection($companies);
+        return Company::where('account_id', $account->id);
     }
 }

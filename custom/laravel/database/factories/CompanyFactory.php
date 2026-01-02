@@ -23,9 +23,29 @@ class CompanyFactory extends Factory
         return [
             'account_id' => Account::factory(),
             'name' => fake()->company(),
-            'domain' => fake()->optional()->domainName(),
-            'description' => fake()->optional()->paragraph(),
+            'domain' => fake()->optional(0.7)->domainName(),
+            'description' => fake()->optional(0.5)->paragraph(),
             'contacts_count' => 0,
         ];
+    }
+
+    /**
+     * Company with a specific domain.
+     */
+    public function withDomain(string $domain): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'domain' => $domain,
+        ]);
+    }
+
+    /**
+     * Company without a domain.
+     */
+    public function withoutDomain(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'domain' => null,
+        ]);
     }
 }
