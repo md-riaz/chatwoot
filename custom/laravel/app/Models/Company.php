@@ -16,6 +16,7 @@ class Company extends Model
         'name',
         'domain',
         'description',
+        'avatar_url',
     ];
 
     protected $casts = [
@@ -33,6 +34,7 @@ class Company extends Model
                 'regex:/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/',
             ],
             'description' => 'nullable|string|max:1000',
+            'avatar_url' => 'nullable|url',
         ];
     }
 
@@ -58,11 +60,6 @@ class Company extends Model
             $q->where('name', 'ilike', "%{$searchTerm}%")
               ->orWhere('domain', 'ilike', "%{$searchTerm}%");
         });
-    }
-
-    public function scopeOrderedByName(Builder $query): Builder
-    {
-        return $query->orderBy('name');
     }
 
     public function scopeOrderedByDomain(Builder $query): Builder

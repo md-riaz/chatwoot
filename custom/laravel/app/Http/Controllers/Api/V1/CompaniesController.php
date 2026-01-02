@@ -83,6 +83,7 @@ class CompaniesController extends Controller
                 Rule::unique('companies', 'domain')->where('account_id', $account->id)->whereNotNull('domain')
             ],
             'description' => 'nullable|string|max:1000',
+            'avatar_url' => 'nullable|url',
         ]);
 
         $company = Company::create(array_merge($validated, ['account_id' => $account->id]));
@@ -113,6 +114,7 @@ class CompaniesController extends Controller
                     ->whereNotNull('domain')
             ],
             'description' => 'nullable|string|max:1000',
+            'avatar_url' => 'nullable|url',
         ]);
 
         $company->update($validated);

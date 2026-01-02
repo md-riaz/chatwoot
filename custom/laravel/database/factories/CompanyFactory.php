@@ -25,6 +25,7 @@ class CompanyFactory extends Factory
             'name' => fake()->company(),
             'domain' => fake()->optional(0.7)->domainName(),
             'description' => fake()->optional(0.5)->paragraph(),
+            'avatar_url' => fake()->optional(0.3)->imageUrl(200, 200, 'business'),
             'contacts_count' => 0,
         ];
     }

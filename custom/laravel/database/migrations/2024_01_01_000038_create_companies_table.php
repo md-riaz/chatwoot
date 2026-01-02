@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('name')->index();
             $table->string('domain')->nullable();
             $table->text('description')->nullable();
+            $table->text('avatar_url')->nullable();
             $table->foreignId('account_id')->constrained()->onDelete('cascade');
             $table->integer('contacts_count')->default(0);
             $table->timestamps();

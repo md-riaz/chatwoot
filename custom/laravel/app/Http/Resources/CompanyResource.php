@@ -18,6 +18,7 @@ class CompanyResource extends JsonResource
             'name' => $this->name,
             'domain' => $this->domain,
             'description' => $this->description,
+            'avatar_url' => $this->avatar_url,
             'contacts_count' => $this->contacts_count,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
