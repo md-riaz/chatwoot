@@ -141,7 +141,7 @@ class SlaEvent extends Model
 
         // Add account administrators
         $administrators = $this->account->users()
-            ->wherePivot('role', 'administrator')
+            ->wherePivot('role', 1) // 1 = administrator
             ->get();
         $notifyUsers = $notifyUsers->merge($administrators);
 

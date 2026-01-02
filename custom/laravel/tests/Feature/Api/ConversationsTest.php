@@ -9,7 +9,7 @@ use App\Models\User;
 test('can list conversations for account', function () {
     $user = User::factory()->create();
     $account = Account::factory()->create();
-    $account->users()->attach($user->id, ['role' => 2]);
+    $account->users()->attach($user->id, ['role' =>   0]);
 
     $inbox = Inbox::factory()->for($account)->create();
     $contact = Contact::factory()->for($account)->create();
@@ -30,7 +30,7 @@ test('can list conversations for account', function () {
 test('can create conversation', function () {
     $user = User::factory()->create();
     $account = Account::factory()->create();
-    $account->users()->attach($user->id, ['role' => 2]);
+    $account->users()->attach($user->id, ['role' =>   0]);
 
     $inbox = Inbox::factory()->for($account)->create();
     $contact = Contact::factory()->for($account)->create();
@@ -49,7 +49,7 @@ test('can create conversation', function () {
 test('can show conversation', function () {
     $user = User::factory()->create();
     $account = Account::factory()->create();
-    $account->users()->attach($user->id, ['role' => 2]);
+    $account->users()->attach($user->id, ['role' =>   0]);
 
     $inbox = Inbox::factory()->for($account)->create();
     $contact = Contact::factory()->for($account)->create();
@@ -70,8 +70,8 @@ test('can assign conversation', function () {
     $user = User::factory()->create();
     $assignee = User::factory()->create();
     $account = Account::factory()->create();
-    $account->users()->attach($user->id, ['role' => 2]);
-    $account->users()->attach($assignee->id, ['role' => 1]);
+    $account->users()->attach($user->id, ['role' =>   0]);
+    $account->users()->attach($assignee->id, ['role' =>  0]);
 
     $inbox = Inbox::factory()->for($account)->create();
     $contact = Contact::factory()->for($account)->create();
@@ -93,7 +93,7 @@ test('can assign conversation', function () {
 test('can resolve conversation', function () {
     $user = User::factory()->create();
     $account = Account::factory()->create();
-    $account->users()->attach($user->id, ['role' => 2]);
+    $account->users()->attach($user->id, ['role' =>   0]);
 
     $inbox = Inbox::factory()->for($account)->create();
     $contact = Contact::factory()->for($account)->create();
@@ -115,7 +115,7 @@ test('cannot access conversations from other accounts', function () {
     $user = User::factory()->create();
     $account = Account::factory()->create();
     $otherAccount = Account::factory()->create();
-    $account->users()->attach($user->id, ['role' => 2]);
+    $account->users()->attach($user->id, ['role' =>   0]);
 
     $inbox = Inbox::factory()->for($otherAccount)->create();
     $contact = Contact::factory()->for($otherAccount)->create();

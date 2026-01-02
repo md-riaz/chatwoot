@@ -100,7 +100,7 @@ describe('CSAT Survey Responses Listing', function () {
     test('admin can list CSAT responses', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses");
@@ -111,7 +111,7 @@ describe('CSAT Survey Responses Listing', function () {
     test('CSAT list includes expected fields', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses");
@@ -123,7 +123,7 @@ describe('CSAT Survey Responses Listing', function () {
     test('can filter CSAT by date range', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses?" . http_build_query([
@@ -137,7 +137,7 @@ describe('CSAT Survey Responses Listing', function () {
     test('can filter CSAT by rating', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses?rating=5");
@@ -148,7 +148,7 @@ describe('CSAT Survey Responses Listing', function () {
     test('can filter CSAT by inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create();
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -161,8 +161,8 @@ describe('CSAT Survey Responses Listing', function () {
         $admin = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses?user_id={$agent->id}");
@@ -175,7 +175,7 @@ describe('CSAT Metrics', function () {
     test('can get CSAT metrics', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses/metrics");
@@ -186,7 +186,7 @@ describe('CSAT Metrics', function () {
     test('CSAT metrics include average rating', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses/metrics");
@@ -197,7 +197,7 @@ describe('CSAT Metrics', function () {
     test('CSAT metrics include response count', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses/metrics");
@@ -210,7 +210,7 @@ describe('CSAT Agent Performance', function () {
     test('can get agent CSAT performance', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses/agents");
@@ -222,8 +222,8 @@ describe('CSAT Agent Performance', function () {
         $admin = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses/agents");
@@ -244,7 +244,7 @@ describe('CSAT Authorization', function () {
     test('agent cannot view CSAT responses', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses");
@@ -267,7 +267,7 @@ describe('CSAT Export', function () {
     test('admin can export CSAT data', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses/export");
@@ -278,7 +278,7 @@ describe('CSAT Export', function () {
     test('export includes proper headers', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/csat_survey_responses/export");
@@ -291,7 +291,7 @@ describe('CSAT Survey Configuration', function () {
     test('admin can enable CSAT for inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create(['csat_survey_enabled' => false]);
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -305,7 +305,7 @@ describe('CSAT Survey Configuration', function () {
     test('admin can disable CSAT for inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create(['csat_survey_enabled' => true]);
 
         $response = $this->actingAs($admin, 'sanctum')

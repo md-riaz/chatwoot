@@ -15,7 +15,7 @@ describe('Automation Rule Listing', function () {
     test('can list automation rules for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AutomationRule::factory(5)->for($account)->create();
 
@@ -29,7 +29,7 @@ describe('Automation Rule Listing', function () {
     test('empty account returns empty automation rules list', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/automation_rules");
@@ -41,7 +41,7 @@ describe('Automation Rule Listing', function () {
     test('automation rules list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AutomationRule::factory()->for($account)->create();
 
@@ -71,7 +71,7 @@ describe('Automation Rule Creation', function () {
     test('can create automation rule', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/automation_rules", [
@@ -103,7 +103,7 @@ describe('Automation Rule Creation', function () {
     test('automation rule creation requires name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/automation_rules", [
@@ -119,7 +119,7 @@ describe('Automation Rule Creation', function () {
     test('automation rule creation requires event_name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/automation_rules", [
@@ -135,7 +135,7 @@ describe('Automation Rule Creation', function () {
     test('can create auto-assign rule', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/automation_rules", [
@@ -164,7 +164,7 @@ describe('Automation Rule Creation', function () {
     test('can create send email rule', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/automation_rules", [
@@ -188,7 +188,7 @@ describe('Automation Rule Retrieval', function () {
     test('can show automation rule', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $rule = AutomationRule::factory()->for($account)->create(['name' => 'Test Rule']);
 
@@ -204,7 +204,7 @@ describe('Automation Rule Retrieval', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $rule = AutomationRule::factory()->for($otherAccount)->create();
 
@@ -220,7 +220,7 @@ describe('Automation Rule Update', function () {
     test('can update automation rule name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $rule = AutomationRule::factory()->for($account)->create(['name' => 'Original']);
 
@@ -236,7 +236,7 @@ describe('Automation Rule Update', function () {
     test('can toggle active status', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $rule = AutomationRule::factory()->for($account)->create(['active' => true]);
 
@@ -252,7 +252,7 @@ describe('Automation Rule Update', function () {
     test('can update conditions', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $rule = AutomationRule::factory()->for($account)->create();
 
@@ -286,7 +286,7 @@ describe('Automation Rule Deletion', function () {
     test('can delete automation rule', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $rule = AutomationRule::factory()->for($account)->create();
 
@@ -300,7 +300,7 @@ describe('Automation Rule Deletion', function () {
     test('deleting non-existent automation rule returns 404', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/automation_rules/99999");
@@ -313,7 +313,7 @@ describe('Automation Rule Clone', function () {
     test('can clone automation rule', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $rule = AutomationRule::factory()->for($account)->create(['name' => 'Original Rule']);
 
@@ -349,7 +349,7 @@ describe('Automation Rule Edge Cases', function () {
     test('automation rule with unicode name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/automation_rules", [
@@ -368,7 +368,7 @@ describe('Automation Rule Edge Cases', function () {
     test('handles many automation rules', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AutomationRule::factory(50)->for($account)->create();
 
@@ -381,7 +381,7 @@ describe('Automation Rule Edge Cases', function () {
     test('complex conditions and actions', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/automation_rules", [

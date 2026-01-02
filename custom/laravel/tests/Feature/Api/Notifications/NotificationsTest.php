@@ -14,7 +14,7 @@ describe('Notification Listing', function () {
     test('can list notifications for user', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notifications");
@@ -27,8 +27,8 @@ describe('Notification Listing', function () {
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user1->id, ['role' => 2]);
-        $account->users()->attach($user2->id, ['role' => 1]);
+        $account->users()->attach($user1->id, ['role' =>   0]);
+        $account->users()->attach($user2->id, ['role' =>  0]);
 
         // Each user should only see their own notifications
         $response = $this->actingAs($user1, 'sanctum')
@@ -40,7 +40,7 @@ describe('Notification Listing', function () {
     test('notifications list is paginated', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notifications");
@@ -54,7 +54,7 @@ describe('Notification Filtering', function () {
     test('can filter unread notifications', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notifications?status=unread");
@@ -65,7 +65,7 @@ describe('Notification Filtering', function () {
     test('can filter read notifications', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notifications?status=read");
@@ -76,7 +76,7 @@ describe('Notification Filtering', function () {
     test('can filter by notification type', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notifications?type=conversation_assigned");
@@ -89,7 +89,7 @@ describe('Notification Actions', function () {
     test('can get unread count', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notifications/unread");
@@ -101,7 +101,7 @@ describe('Notification Actions', function () {
     test('can mark all notifications as read', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/notifications/read_all");
@@ -112,7 +112,7 @@ describe('Notification Actions', function () {
     test('can mark single notification as read', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/notifications/1", [
@@ -125,7 +125,7 @@ describe('Notification Actions', function () {
     test('can delete notification', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/notifications/1");
@@ -136,7 +136,7 @@ describe('Notification Actions', function () {
     test('can delete all notifications', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/notifications/destroy_all");
@@ -147,7 +147,7 @@ describe('Notification Actions', function () {
     test('can snooze notification', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/notifications/1/snooze", [
@@ -162,7 +162,7 @@ describe('Notification Settings', function () {
     test('can get notification settings', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notification_settings");
@@ -173,7 +173,7 @@ describe('Notification Settings', function () {
     test('can update notification settings', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/notification_settings", [
@@ -187,7 +187,7 @@ describe('Notification Settings', function () {
     test('can toggle specific notification types', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/notification_settings", [
@@ -232,7 +232,7 @@ describe('Notification Edge Cases', function () {
     test('handles large number of notifications', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notifications?per_page=100");
@@ -243,7 +243,7 @@ describe('Notification Edge Cases', function () {
     test('handles notification with missing primary actor', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         // This tests graceful handling of edge cases
         $response = $this->actingAs($user, 'sanctum')
@@ -257,7 +257,7 @@ describe('Notification Types', function () {
     test('conversation assignment notification', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notifications?type=conversation_assigned");
@@ -268,7 +268,7 @@ describe('Notification Types', function () {
     test('mention notification', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notifications?type=mention");
@@ -279,7 +279,7 @@ describe('Notification Types', function () {
     test('new message notification', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notifications?type=new_message");

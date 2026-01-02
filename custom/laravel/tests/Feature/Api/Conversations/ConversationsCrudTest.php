@@ -17,7 +17,7 @@ describe('Conversation Listing', function () {
     test('can list conversations for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -38,7 +38,7 @@ describe('Conversation Listing', function () {
     test('empty account returns empty conversations list', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/conversations");
@@ -50,7 +50,7 @@ describe('Conversation Listing', function () {
     test('conversations list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -78,7 +78,7 @@ describe('Conversation Listing', function () {
     test('conversations are sorted by last activity', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -108,7 +108,7 @@ describe('Conversation Creation', function () {
     test('can create conversation', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -127,7 +127,7 @@ describe('Conversation Creation', function () {
     test('new conversation defaults to open status', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -145,7 +145,7 @@ describe('Conversation Creation', function () {
     test('conversation creation requires inbox_id', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $contact = Contact::factory()->for($account)->create();
 
@@ -161,7 +161,7 @@ describe('Conversation Creation', function () {
     test('conversation creation requires contact_id', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -178,7 +178,7 @@ describe('Conversation Creation', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($otherAccount)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -196,8 +196,8 @@ describe('Conversation Creation', function () {
         $user = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -218,7 +218,7 @@ describe('Conversation Retrieval', function () {
     test('can show conversation', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -239,7 +239,7 @@ describe('Conversation Retrieval', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($otherAccount)->create();
         $contact = Contact::factory()->for($otherAccount)->create();
@@ -258,7 +258,7 @@ describe('Conversation Retrieval', function () {
     test('viewing non-existent conversation returns 404', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/conversations/99999");
@@ -272,8 +272,8 @@ describe('Conversation Assignment', function () {
         $user = User::factory()->create();
         $assignee = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($assignee->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($assignee->id, ['role' =>  0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -296,8 +296,8 @@ describe('Conversation Assignment', function () {
         $user = User::factory()->create();
         $assignee = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($assignee->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($assignee->id, ['role' =>  0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -320,8 +320,8 @@ describe('Conversation Assignment', function () {
         $user = User::factory()->create();
         $assignee = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($assignee->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($assignee->id, ['role' =>  0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -345,7 +345,7 @@ describe('Conversation Status', function () {
     test('can resolve conversation', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -366,7 +366,7 @@ describe('Conversation Status', function () {
     test('resolved conversation updates database', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -427,7 +427,7 @@ describe('Conversation Filtering', function () {
     test('can filter by status', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -447,8 +447,8 @@ describe('Conversation Filtering', function () {
         $user = User::factory()->create();
         $assignee = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($assignee->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($assignee->id, ['role' =>  0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -478,7 +478,7 @@ describe('Conversation Filtering', function () {
     test('can filter by inbox', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox1 = Inbox::factory()->for($account)->create();
         $inbox2 = Inbox::factory()->for($account)->create();
@@ -502,7 +502,7 @@ describe('Conversation Edge Cases', function () {
     test('handles large number of conversations', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -518,7 +518,7 @@ describe('Conversation Edge Cases', function () {
     test('conversation with custom attributes', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -538,7 +538,7 @@ describe('Conversation Edge Cases', function () {
     test('conversation display_id is unique per account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();

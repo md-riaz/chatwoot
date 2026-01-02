@@ -24,7 +24,7 @@ describe('Message Attachment Upload', function () {
     test('can upload image attachment with message', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -49,7 +49,7 @@ describe('Message Attachment Upload', function () {
     test('can upload document attachment', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -74,7 +74,7 @@ describe('Message Attachment Upload', function () {
     test('can upload multiple attachments', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -103,7 +103,7 @@ describe('Message Attachment Upload', function () {
     test('can upload audio attachment', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -128,7 +128,7 @@ describe('Message Attachment Upload', function () {
     test('can upload video attachment', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -159,7 +159,7 @@ describe('Attachment Validation', function () {
     test('rejects files that exceed size limit', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -185,7 +185,7 @@ describe('Attachment Validation', function () {
     test('rejects dangerous file types', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -216,7 +216,7 @@ describe('Attachment Retrieval', function () {
     test('message includes attachment urls', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -248,7 +248,7 @@ describe('Attachment Retrieval', function () {
     test('can list message attachments', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -293,7 +293,7 @@ describe('Attachment Edge Cases', function () {
     test('handles unicode filenames', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -318,7 +318,7 @@ describe('Attachment Edge Cases', function () {
     test('handles special characters in filenames', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -343,7 +343,7 @@ describe('Attachment Edge Cases', function () {
     test('can send message without attachments', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -365,7 +365,7 @@ describe('Attachment Edge Cases', function () {
     test('handles empty attachment array', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();

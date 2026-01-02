@@ -51,7 +51,7 @@ class MessagePolicy
         }
 
         return $user->accounts()
-            ->wherePivot('role', 2)
+            ->wherePivot('role', 1) // 1 = administrator
             ->where('account_id', $message->account_id)
             ->exists();
     }

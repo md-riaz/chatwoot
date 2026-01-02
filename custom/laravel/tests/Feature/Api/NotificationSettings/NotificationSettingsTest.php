@@ -14,7 +14,7 @@ describe('Notification Settings Show', function () {
     test('can show notification settings for user', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notification_settings");
@@ -31,7 +31,7 @@ describe('Notification Settings Show', function () {
     test('creates default settings if none exist', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         expect(NotificationSetting::where('user_id', $user->id)->count())->toBe(0);
 
@@ -47,7 +47,7 @@ describe('Notification Settings Update', function () {
     test('can update notification settings', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/notification_settings", [

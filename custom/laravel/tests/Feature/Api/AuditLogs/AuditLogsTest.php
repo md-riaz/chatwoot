@@ -14,7 +14,7 @@ describe('Audit Log Listing', function () {
     test('admin can list audit logs', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/audit_logs");
@@ -25,7 +25,7 @@ describe('Audit Log Listing', function () {
     test('audit logs include expected fields', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/audit_logs");
@@ -37,7 +37,7 @@ describe('Audit Log Listing', function () {
     test('can filter audit logs by user', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/audit_logs?user_id={$admin->id}");
@@ -48,7 +48,7 @@ describe('Audit Log Listing', function () {
     test('can filter audit logs by action', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/audit_logs?action=created");
@@ -59,7 +59,7 @@ describe('Audit Log Listing', function () {
     test('can filter audit logs by date range', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/audit_logs?" . http_build_query([
@@ -73,7 +73,7 @@ describe('Audit Log Listing', function () {
     test('can filter audit logs by subject type', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/audit_logs?subject_type=Conversation");
@@ -84,7 +84,7 @@ describe('Audit Log Listing', function () {
     test('audit logs are paginated', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/audit_logs?page=1&per_page=25");
@@ -97,7 +97,7 @@ describe('Audit Log Export', function () {
     test('can export audit logs', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/audit_logs/export");
@@ -108,7 +108,7 @@ describe('Audit Log Export', function () {
     test('export includes all required columns', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/audit_logs/export");
@@ -121,7 +121,7 @@ describe('Audit Log Authorization', function () {
     test('agent cannot view audit logs', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/audit_logs");

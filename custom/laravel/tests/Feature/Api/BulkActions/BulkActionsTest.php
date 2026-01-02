@@ -18,8 +18,8 @@ describe('Bulk Conversation Assignment', function () {
         $user = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -43,8 +43,8 @@ describe('Bulk Conversation Assignment', function () {
         $user = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -69,7 +69,7 @@ describe('Bulk Status Change', function () {
     test('can bulk resolve conversations', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -93,7 +93,7 @@ describe('Bulk Status Change', function () {
     test('can bulk reopen conversations', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -117,7 +117,7 @@ describe('Bulk Status Change', function () {
     test('can bulk snooze conversations', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -146,7 +146,7 @@ describe('Bulk Label Operations', function () {
     test('can bulk add labels to conversations', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -170,7 +170,7 @@ describe('Bulk Label Operations', function () {
     test('can bulk remove labels from conversations', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -196,7 +196,7 @@ describe('Bulk Team Assignment', function () {
     test('can bulk assign conversations to team', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -221,7 +221,7 @@ describe('Bulk Action Validation', function () {
     test('handles missing type parameter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/bulk_actions", [
@@ -236,7 +236,7 @@ describe('Bulk Action Validation', function () {
     test('handles missing ids parameter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/bulk_actions", [
@@ -251,7 +251,7 @@ describe('Bulk Action Validation', function () {
     test('ids must be array', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/bulk_actions", [
@@ -266,7 +266,7 @@ describe('Bulk Action Validation', function () {
     test('cannot process empty ids array', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/bulk_actions", [
@@ -312,7 +312,7 @@ describe('Bulk Action Edge Cases', function () {
     test('handles large number of conversations', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -335,7 +335,7 @@ describe('Bulk Action Edge Cases', function () {
     test('handles non-existent conversation ids gracefully', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/bulk_actions", [
@@ -351,7 +351,7 @@ describe('Bulk Action Edge Cases', function () {
     test('handles mixed valid and invalid ids', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -376,7 +376,7 @@ describe('Bulk Priority Update', function () {
     test('can bulk update priority', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();

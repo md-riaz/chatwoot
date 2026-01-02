@@ -19,7 +19,7 @@ describe('Reports V2 - Timeseries Reports', function () {
     test('can get timeseries report data', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -41,7 +41,7 @@ describe('Reports V2 - Timeseries Reports', function () {
     test('can get timeseries report with different grouping', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -64,8 +64,8 @@ describe('Reports V2 - Timeseries Reports', function () {
         $user = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -79,7 +79,7 @@ describe('Reports V2 - Timeseries Reports', function () {
     test('can filter timeseries by inbox', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -97,7 +97,7 @@ describe('Reports V2 - Summary Reports', function () {
     test('can get summary report', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -118,7 +118,7 @@ describe('Reports V2 - Summary Reports', function () {
     test('can get bot summary report', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -140,7 +140,7 @@ describe('Reports V2 - CSV Export Reports', function () {
     test('can export agents report as CSV', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -156,7 +156,7 @@ describe('Reports V2 - CSV Export Reports', function () {
     test('can export inboxes report as CSV', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -171,7 +171,7 @@ describe('Reports V2 - CSV Export Reports', function () {
     test('can export teams report as CSV', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -186,7 +186,7 @@ describe('Reports V2 - CSV Export Reports', function () {
     test('can export labels report as CSV', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -201,7 +201,7 @@ describe('Reports V2 - CSV Export Reports', function () {
     test('can export conversation traffic report as CSV', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -218,7 +218,7 @@ describe('Reports V2 - Conversation Metrics', function () {
     test('can get conversation metrics', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/v2/reports/conversations?type=resolved");
@@ -238,7 +238,7 @@ describe('Reports V2 - Conversation Metrics', function () {
     test('conversation metrics requires type parameter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/v2/reports/conversations");
@@ -251,8 +251,8 @@ describe('Reports V2 - Conversation Metrics', function () {
         $user = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/v2/reports/conversations?type=resolved&user_id={$agent->id}");
@@ -265,7 +265,7 @@ describe('Reports V2 - Bot Metrics', function () {
     test('can get bot metrics', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -289,7 +289,7 @@ describe('Reports V2 - Live Reports', function () {
     test('can get live conversation metrics', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/v2/live_reports/conversation_metrics");
@@ -306,7 +306,7 @@ describe('Reports V2 - Live Reports', function () {
     test('can get grouped conversation metrics', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/v2/live_reports/grouped_conversation_metrics?group_by=team_id");
@@ -318,7 +318,7 @@ describe('Reports V2 - Live Reports', function () {
     test('grouped conversation metrics validates group_by parameter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/v2/live_reports/grouped_conversation_metrics?group_by=invalid");
@@ -330,7 +330,7 @@ describe('Reports V2 - Live Reports', function () {
     test('can filter live metrics by team', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $team = Team::factory()->for($account)->create();
 
@@ -345,7 +345,7 @@ describe('Reports V2 - Summary Reports by Entity', function () {
     test('can get agent summary report', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -364,7 +364,7 @@ describe('Reports V2 - Summary Reports by Entity', function () {
     test('can get team summary report', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -383,7 +383,7 @@ describe('Reports V2 - Summary Reports by Entity', function () {
     test('can get inbox summary report', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -402,7 +402,7 @@ describe('Reports V2 - Summary Reports by Entity', function () {
     test('can get label summary report', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -424,7 +424,7 @@ describe('Reports V2 - Validation', function () {
     test('timeseries reports require since parameter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $until = now()->toDateString();
 
@@ -437,7 +437,7 @@ describe('Reports V2 - Validation', function () {
     test('timeseries reports require until parameter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
 
@@ -450,7 +450,7 @@ describe('Reports V2 - Validation', function () {
     test('since must be before until', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->toDateString();
         $until = now()->subDays(7)->toDateString();
@@ -464,7 +464,7 @@ describe('Reports V2 - Validation', function () {
     test('validates group_by parameter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -478,7 +478,7 @@ describe('Reports V2 - Validation', function () {
     test('validates type parameter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -502,7 +502,7 @@ describe('Reports V2 - Authorization', function () {
     test('non-admin user cannot access V2 reports', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -531,7 +531,7 @@ describe('Reports V2 - Business Hours', function () {
     test('can enable business hours in timeseries reports', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();
@@ -545,7 +545,7 @@ describe('Reports V2 - Business Hours', function () {
     test('can enable business hours in summary reports', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $since = now()->subDays(7)->toDateString();
         $until = now()->toDateString();

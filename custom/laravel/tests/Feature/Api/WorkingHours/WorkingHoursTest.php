@@ -15,7 +15,7 @@ describe('Working Hours Listing', function () {
     test('can get working hours for inbox', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -29,7 +29,7 @@ describe('Working Hours Listing', function () {
     test('default working hours structure', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -44,7 +44,7 @@ describe('Working Hours Update', function () {
     test('can update working hours', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -69,7 +69,7 @@ describe('Working Hours Update', function () {
     test('can set 24/7 availability', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -95,7 +95,7 @@ describe('Working Hours Update', function () {
     test('can close specific days', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -115,7 +115,7 @@ describe('Out of Office Messages', function () {
     test('can set out of office message', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -131,7 +131,7 @@ describe('Out of Office Messages', function () {
     test('can enable out of office', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -146,7 +146,7 @@ describe('Out of Office Messages', function () {
     test('can disable out of office', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -163,7 +163,7 @@ describe('Timezone Settings', function () {
     test('can set inbox timezone', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -178,7 +178,7 @@ describe('Timezone Settings', function () {
     test('can set account default timezone', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}", [
@@ -202,7 +202,7 @@ describe('Working Hours Authorization', function () {
     test('agent cannot modify working hours', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -220,7 +220,7 @@ describe('Working Hours Validation', function () {
     test('open hour must be before close hour', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -237,7 +237,7 @@ describe('Working Hours Validation', function () {
     test('day_of_week must be 0-6', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -254,7 +254,7 @@ describe('Working Hours Validation', function () {
     test('hour must be 0-23', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -271,7 +271,7 @@ describe('Working Hours Validation', function () {
     test('minutes must be 0-59', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -290,7 +290,7 @@ describe('Working Hours Edge Cases', function () {
     test('handles all days closed', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -309,7 +309,7 @@ describe('Working Hours Edge Cases', function () {
     test('out of office message with unicode', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 

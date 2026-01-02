@@ -14,7 +14,7 @@ describe('Custom Role Listing', function () {
     test('can list custom roles for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         CustomRole::factory(3)->for($account)->create();
 
@@ -30,7 +30,7 @@ describe('Custom Role Creation', function () {
     test('can create custom role', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_roles", [
@@ -46,7 +46,7 @@ describe('Custom Role Creation', function () {
     test('custom role creation requires name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_roles", [
@@ -62,7 +62,7 @@ describe('Custom Role Update', function () {
     test('can update custom role', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $role = CustomRole::factory()->for($account)->create(['name' => 'Original']);
 
@@ -80,7 +80,7 @@ describe('Custom Role Deletion', function () {
     test('can delete custom role', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $role = CustomRole::factory()->for($account)->create();
 

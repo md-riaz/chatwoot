@@ -14,7 +14,7 @@ describe('SAML Settings Show', function () {
     test('can show SAML settings for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AccountSamlSetting::factory()->for($account)->create([
             'sso_url' => 'https://idp.example.com/sso',
@@ -30,7 +30,7 @@ describe('SAML Settings Show', function () {
     test('returns null if no SAML settings configured', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/saml_settings");
@@ -44,7 +44,7 @@ describe('SAML Settings Creation', function () {
     test('can create SAML settings', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/saml_settings", [
@@ -61,7 +61,7 @@ describe('SAML Settings Creation', function () {
     test('SAML settings creation requires sso_url', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/saml_settings", [
@@ -77,7 +77,7 @@ describe('SAML Settings Update', function () {
     test('can update SAML settings', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AccountSamlSetting::factory()->for($account)->create([
             'sso_url' => 'https://old.example.com/sso',
@@ -97,7 +97,7 @@ describe('SAML Settings Deletion', function () {
     test('can delete SAML settings', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AccountSamlSetting::factory()->for($account)->create();
 

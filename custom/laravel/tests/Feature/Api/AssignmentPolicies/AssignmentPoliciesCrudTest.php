@@ -16,7 +16,7 @@ describe('Assignment Policy Listing', function () {
     test('can list assignment policies for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AssignmentPolicy::factory(3)->for($account)->create();
 
@@ -32,7 +32,7 @@ describe('Assignment Policy Creation', function () {
     test('can create assignment policy', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/assignment_policies", [
@@ -49,7 +49,7 @@ describe('Assignment Policy Creation', function () {
     test('assignment policy creation requires name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/assignment_policies", [
@@ -65,7 +65,7 @@ describe('Assignment Policy Update', function () {
     test('can update assignment policy', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $policy = AssignmentPolicy::factory()->for($account)->create(['name' => 'Original']);
 
@@ -81,7 +81,7 @@ describe('Assignment Policy Update', function () {
     test('can toggle assignment policy enabled status', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $policy = AssignmentPolicy::factory()->for($account)->create(['enabled' => true]);
 
@@ -99,7 +99,7 @@ describe('Assignment Policy Deletion', function () {
     test('can delete assignment policy', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $policy = AssignmentPolicy::factory()->for($account)->create();
 

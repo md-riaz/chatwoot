@@ -17,7 +17,7 @@ describe('Portal Listing', function () {
     test('can list portals for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Portal::factory(5)->for($account)->create();
 
@@ -31,7 +31,7 @@ describe('Portal Listing', function () {
     test('empty account returns empty portals list', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/portals");
@@ -43,7 +43,7 @@ describe('Portal Listing', function () {
     test('portals list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Portal::factory()->for($account)->create();
 
@@ -70,7 +70,7 @@ describe('Portal Listing', function () {
     test('does not list archived portals by default', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Portal::factory(3)->for($account)->active()->create();
         Portal::factory(2)->for($account)->archived()->create();
@@ -87,7 +87,7 @@ describe('Portal Creation', function () {
     test('can create portal', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/portals", [
@@ -104,7 +104,7 @@ describe('Portal Creation', function () {
     test('portal creation requires name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/portals", [
@@ -118,7 +118,7 @@ describe('Portal Creation', function () {
     test('portal creation requires slug', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/portals", [
@@ -132,7 +132,7 @@ describe('Portal Creation', function () {
     test('portal slug must be unique', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Portal::factory()->for($account)->create(['slug' => 'existing-slug']);
 
@@ -148,7 +148,7 @@ describe('Portal Creation', function () {
     test('portal with custom domain', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/portals", [
@@ -164,7 +164,7 @@ describe('Portal Creation', function () {
     test('portal with config', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/portals", [
@@ -184,7 +184,7 @@ describe('Portal Retrieval', function () {
     test('can show portal', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($account)->create(['name' => 'Test Portal']);
 
@@ -200,7 +200,7 @@ describe('Portal Retrieval', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($otherAccount)->create();
 
@@ -215,7 +215,7 @@ describe('Portal Update', function () {
     test('can update portal name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($account)->create(['name' => 'Original']);
 
@@ -231,7 +231,7 @@ describe('Portal Update', function () {
     test('can archive portal', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($account)->active()->create();
 
@@ -249,7 +249,7 @@ describe('Portal Deletion', function () {
     test('can delete portal', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($account)->create();
 
@@ -263,7 +263,7 @@ describe('Portal Deletion', function () {
     test('deleting non-existent portal returns 404', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/portals/99999");
@@ -276,7 +276,7 @@ describe('Portal Articles', function () {
     test('can list portal articles', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($account)->create();
         Article::factory(5)->for($account)->for($portal)->create();
@@ -291,7 +291,7 @@ describe('Portal Articles', function () {
     test('can create article in portal', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($account)->create();
 
@@ -311,7 +311,7 @@ describe('Portal Categories', function () {
     test('can list portal categories', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($account)->create();
         Category::factory(3)->for($account)->for($portal)->create();
@@ -326,7 +326,7 @@ describe('Portal Categories', function () {
     test('can create category in portal', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($account)->create();
 
@@ -366,7 +366,7 @@ describe('Portal Edge Cases', function () {
     test('portal with unicode name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/portals", [
@@ -381,7 +381,7 @@ describe('Portal Edge Cases', function () {
     test('handles many portals', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Portal::factory(50)->for($account)->create();
 
@@ -394,7 +394,7 @@ describe('Portal Edge Cases', function () {
     test('portal with many articles and categories', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($account)->create();
         Category::factory(10)->for($account)->for($portal)->create();

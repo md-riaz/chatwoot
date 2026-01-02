@@ -20,7 +20,7 @@ describe('Global Search', function () {
     test('can perform global search', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create(['name' => 'John Doe']);
@@ -35,7 +35,7 @@ describe('Global Search', function () {
     test('empty search returns results', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/search?q=");
@@ -48,7 +48,7 @@ describe('Conversation Search', function () {
     test('can search conversations', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create(['name' => 'Premium Customer']);
@@ -63,7 +63,7 @@ describe('Conversation Search', function () {
     test('conversation search by display_id', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -84,7 +84,7 @@ describe('Contact Search', function () {
     test('can search contacts by name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory()->for($account)->create(['name' => 'Alice Johnson']);
         Contact::factory()->for($account)->create(['name' => 'Bob Smith']);
@@ -101,7 +101,7 @@ describe('Contact Search', function () {
     test('can search contacts by email', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory()->for($account)->create(['email' => 'alice@example.com']);
         Contact::factory()->for($account)->create(['email' => 'bob@test.com']);
@@ -115,7 +115,7 @@ describe('Contact Search', function () {
     test('can search contacts by phone', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory()->for($account)->create(['phone_number' => '+1234567890']);
         Contact::factory()->for($account)->create(['phone_number' => '+0987654321']);
@@ -131,7 +131,7 @@ describe('Message Search', function () {
     test('can search messages by content', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -157,7 +157,7 @@ describe('Message Search', function () {
     test('message search is case insensitive', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -182,7 +182,7 @@ describe('Article Search', function () {
     test('can search articles by title', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($account)->create();
         Article::factory()->for($account)->for($portal)->create([
@@ -201,7 +201,7 @@ describe('Article Search', function () {
     test('can search articles by content', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $portal = Portal::factory()->for($account)->create();
         Article::factory()->for($account)->for($portal)->create([
@@ -239,7 +239,7 @@ describe('Search Authorization', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         // Create contact in other account
         Contact::factory()->for($otherAccount)->create(['name' => 'Secret Contact']);
@@ -455,7 +455,7 @@ describe('Search Edge Cases', function () {
     test('search with special characters', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory()->for($account)->create(['email' => 'test+tag@example.com']);
 
@@ -468,7 +468,7 @@ describe('Search Edge Cases', function () {
     test('search with unicode characters', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory()->for($account)->create(['name' => '田中太郎']);
 
@@ -481,7 +481,7 @@ describe('Search Edge Cases', function () {
     test('search with very long query', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $longQuery = str_repeat('a', 500);
 
@@ -494,7 +494,7 @@ describe('Search Edge Cases', function () {
     test('search with numbers', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory()->for($account)->create(['phone_number' => '+12025551234']);
 
@@ -507,7 +507,7 @@ describe('Search Edge Cases', function () {
     test('handles empty results gracefully', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/search?q=nonexistentquery123456");
@@ -521,7 +521,7 @@ describe('Search Pagination', function () {
     test('search results are paginated', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory(50)->for($account)->create(['name' => 'Test User']);
 
@@ -535,7 +535,7 @@ describe('Search Pagination', function () {
     test('can request specific page', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory(50)->for($account)->create(['name' => 'Test User']);
 

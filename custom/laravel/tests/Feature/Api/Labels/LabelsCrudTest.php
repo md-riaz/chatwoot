@@ -15,7 +15,7 @@ describe('Label Listing', function () {
     test('can list labels for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Label::factory(10)->for($account)->create();
 
@@ -29,7 +29,7 @@ describe('Label Listing', function () {
     test('empty account returns empty labels list', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/labels");
@@ -41,7 +41,7 @@ describe('Label Listing', function () {
     test('labels list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Label::factory()->for($account)->create();
 
@@ -69,7 +69,7 @@ describe('Label Creation', function () {
     test('can create label', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/labels", [
@@ -89,7 +89,7 @@ describe('Label Creation', function () {
     test('label creation requires title', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/labels", [
@@ -103,7 +103,7 @@ describe('Label Creation', function () {
     test('label creation with minimal data', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/labels", [
@@ -117,7 +117,7 @@ describe('Label Creation', function () {
     test('duplicate label title within account fails', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Label::factory()->for($account)->create(['title' => 'existing']);
 
@@ -134,7 +134,7 @@ describe('Label Retrieval', function () {
     test('can show label', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $label = Label::factory()->for($account)->create(['title' => 'Test Label']);
 
@@ -150,7 +150,7 @@ describe('Label Retrieval', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $label = Label::factory()->for($otherAccount)->create();
 
@@ -165,7 +165,7 @@ describe('Label Update', function () {
     test('can update label', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $label = Label::factory()->for($account)->create(['title' => 'Original']);
 
@@ -181,7 +181,7 @@ describe('Label Update', function () {
     test('can update label color', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $label = Label::factory()->for($account)->create(['color' => '#ff0000']);
 
@@ -197,7 +197,7 @@ describe('Label Update', function () {
     test('can toggle show_on_sidebar', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $label = Label::factory()->for($account)->create(['show_on_sidebar' => true]);
 
@@ -215,7 +215,7 @@ describe('Label Deletion', function () {
     test('can delete label', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $label = Label::factory()->for($account)->create();
 
@@ -229,7 +229,7 @@ describe('Label Deletion', function () {
     test('deleting non-existent label returns 404', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/labels/99999");
@@ -272,7 +272,7 @@ describe('Label Validation', function () {
     test('title is required', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/labels", []);
@@ -284,7 +284,7 @@ describe('Label Validation', function () {
     test('title cannot be too long', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/labels", [
@@ -298,7 +298,7 @@ describe('Label Validation', function () {
     test('color must be valid hex format', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/labels", [
@@ -315,7 +315,7 @@ describe('Label Edge Cases', function () {
     test('label with unicode title', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/labels", [
@@ -329,7 +329,7 @@ describe('Label Edge Cases', function () {
     test('handles many labels', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Label::factory(100)->for($account)->create();
 
@@ -342,7 +342,7 @@ describe('Label Edge Cases', function () {
     test('label with various color formats', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $colors = ['#ff0000', '#FF0000', '#f00', '#F00'];
 

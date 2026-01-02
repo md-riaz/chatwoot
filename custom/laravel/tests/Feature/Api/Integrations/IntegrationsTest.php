@@ -13,7 +13,7 @@ describe('Slack Integration', function () {
     test('can list available integrations', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/integrations/apps");
@@ -24,7 +24,7 @@ describe('Slack Integration', function () {
     test('can initiate slack oauth', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/integrations/slack/authorize");
@@ -35,7 +35,7 @@ describe('Slack Integration', function () {
     test('can create slack integration', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/apps", [
@@ -51,7 +51,7 @@ describe('Slack Integration', function () {
     test('can update slack settings', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         // First create
         $this->actingAs($admin, 'sanctum')
@@ -71,7 +71,7 @@ describe('Slack Integration', function () {
     test('can delete slack integration', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/apps", [
@@ -87,7 +87,7 @@ describe('Slack Integration', function () {
     test('can list slack channels', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/integrations/slack/channels");
@@ -100,7 +100,7 @@ describe('Linear Integration', function () {
     test('can create linear integration', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/apps", [
@@ -116,7 +116,7 @@ describe('Linear Integration', function () {
     test('can list linear teams', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/integrations/linear/teams");
@@ -127,7 +127,7 @@ describe('Linear Integration', function () {
     test('can create linear issue from conversation', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/linear/issues", [
@@ -145,7 +145,7 @@ describe('Dialogflow Integration', function () {
     test('can create dialogflow integration', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/apps", [
@@ -162,7 +162,7 @@ describe('Dialogflow Integration', function () {
     test('can configure dialogflow inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/dialogflow/inboxes", [
@@ -177,7 +177,7 @@ describe('OpenAI Integration', function () {
     test('can create openai integration', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/apps", [
@@ -193,7 +193,7 @@ describe('OpenAI Integration', function () {
     test('can get reply suggestions', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/openai/suggest", [
@@ -206,7 +206,7 @@ describe('OpenAI Integration', function () {
     test('can summarize conversation', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/openai/summarize", [
@@ -221,7 +221,7 @@ describe('Dyte Integration', function () {
     test('can create dyte integration', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/apps", [
@@ -238,7 +238,7 @@ describe('Dyte Integration', function () {
     test('can create meeting', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/dyte/meetings", [
@@ -253,7 +253,7 @@ describe('Webhooks Integration', function () {
     test('can create webhook', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/webhooks", [
@@ -267,7 +267,7 @@ describe('Webhooks Integration', function () {
     test('can test webhook', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/webhooks", [
@@ -286,7 +286,7 @@ describe('Webhooks Integration', function () {
     test('can list webhook subscriptions', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/webhooks/subscriptions");
@@ -299,7 +299,7 @@ describe('Captain AI Integration', function () {
     test('can enable captain for inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/captain", [
@@ -313,7 +313,7 @@ describe('Captain AI Integration', function () {
     test('can configure captain settings', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/integrations/captain", [
@@ -337,7 +337,7 @@ describe('Integration Authorization', function () {
     test('agent cannot create integrations', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/apps", [
@@ -350,7 +350,7 @@ describe('Integration Authorization', function () {
     test('agent can view integrations', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/integrations/apps");
@@ -363,7 +363,7 @@ describe('Integration Edge Cases', function () {
     test('handles invalid integration app id', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/integrations/apps", [
@@ -376,7 +376,7 @@ describe('Integration Edge Cases', function () {
     test('handles duplicate integration', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         // First create
         $this->actingAs($admin, 'sanctum')

@@ -274,7 +274,7 @@ class AutomationNotificationMail extends ApplicationMailable
         // Get account administrators if no team specified
         if (empty($recipients) && $this->account) {
             $admins = $this->account->users()
-                ->wherePivot('role', 'administrator')
+                ->wherePivot('role', 1) // 1 = administrator
                 ->get();
             
             foreach ($admins as $admin) {

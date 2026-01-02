@@ -15,7 +15,7 @@ test('auto assign dispatches ConversationAssigned', function () {
     $inbox = Inbox::factory()->for($account)->create(['enable_auto_assignment' => true]);
 
     $agent = User::factory()->create(['availability' => 1]);
-    $account->users()->attach($agent->id, ['role' => 1]);
+    $account->users()->attach($agent->id, ['role' =>  0]);
     $inbox->users()->attach($agent->id);
 
     $contact = \App\Models\Contact::factory()->for($account)->create();

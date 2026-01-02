@@ -17,7 +17,7 @@ describe('Conversation Reports', function () {
     test('can get conversation reports', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/conversations?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp);
@@ -29,7 +29,7 @@ describe('Conversation Reports', function () {
     test('conversation report includes count metrics', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -44,7 +44,7 @@ describe('Conversation Reports', function () {
     test('can filter conversation reports by inbox', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -57,7 +57,7 @@ describe('Conversation Reports', function () {
     test('can get conversation reports by different time ranges', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         // Last 30 days
         $response = $this->actingAs($user, 'sanctum')
@@ -71,7 +71,7 @@ describe('Agent Reports', function () {
     test('can get agent reports', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/agents?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp);
@@ -84,8 +84,8 @@ describe('Agent Reports', function () {
         $user = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -105,8 +105,8 @@ describe('Agent Reports', function () {
         $user = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/agents?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp."&agent_id={$agent->id}");
@@ -119,7 +119,7 @@ describe('Team Reports', function () {
     test('can get team reports', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/teams?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp);
@@ -131,7 +131,7 @@ describe('Team Reports', function () {
     test('can filter team reports by team', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/teams?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp.'&team_id=1');
@@ -144,7 +144,7 @@ describe('Inbox Reports', function () {
     test('can get inbox reports', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/inboxes?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp);
@@ -156,7 +156,7 @@ describe('Inbox Reports', function () {
     test('inbox report shows traffic data', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -173,7 +173,7 @@ describe('Label Reports', function () {
     test('can get label reports', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/labels?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp);
@@ -187,7 +187,7 @@ describe('CSAT Reports', function () {
     test('can get CSAT reports', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/csat?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp);
@@ -199,7 +199,7 @@ describe('CSAT Reports', function () {
     test('CSAT report includes satisfaction scores', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/csat?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp);
@@ -212,7 +212,7 @@ describe('Report Summary', function () {
     test('can get account summary', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/summary?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp);
@@ -223,7 +223,7 @@ describe('Report Summary', function () {
     test('summary includes key metrics', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -240,7 +240,7 @@ describe('Report Export', function () {
     test('can export conversation report', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/conversations?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp.'&type=export');
@@ -251,7 +251,7 @@ describe('Report Export', function () {
     test('can export agent report', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/agents?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp.'&type=export');
@@ -272,7 +272,7 @@ describe('Report Authorization', function () {
     test('agent cannot access reports by default', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/conversations?since=".now()->subDays(7)->timestamp.'&until='.now()->timestamp);
@@ -296,7 +296,7 @@ describe('Report Validation', function () {
     test('requires since parameter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/conversations?until=".now()->timestamp);
@@ -307,7 +307,7 @@ describe('Report Validation', function () {
     test('requires until parameter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/conversations?since=".now()->subDays(7)->timestamp);
@@ -318,7 +318,7 @@ describe('Report Validation', function () {
     test('since must be before until', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/conversations?since=".now()->timestamp.'&until='.now()->subDays(7)->timestamp);
@@ -329,7 +329,7 @@ describe('Report Validation', function () {
     test('handles invalid date format', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/conversations?since=invalid&until=invalid");
@@ -342,7 +342,7 @@ describe('Report Time Ranges', function () {
     test('can get daily reports', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/conversations?since=".now()->startOfDay()->timestamp.'&until='.now()->endOfDay()->timestamp.'&type=day');
@@ -353,7 +353,7 @@ describe('Report Time Ranges', function () {
     test('can get weekly reports', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/conversations?since=".now()->startOfWeek()->timestamp.'&until='.now()->endOfWeek()->timestamp.'&type=week');
@@ -364,7 +364,7 @@ describe('Report Time Ranges', function () {
     test('can get monthly reports', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/reports/conversations?since=".now()->startOfMonth()->timestamp.'&until='.now()->endOfMonth()->timestamp.'&type=month');

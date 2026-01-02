@@ -54,10 +54,10 @@ describe('Account Users Listing', function () {
     test('admin can list account users', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $agent = User::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/agents");
@@ -68,7 +68,7 @@ describe('Account Users Listing', function () {
     test('users list includes role information', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/agents");
@@ -82,12 +82,12 @@ describe('User Role Management', function () {
         $admin = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/agents/{$agent->id}", [
-                'role' => 2,
+                'role' =>   0,
             ]);
 
         $response->assertOk();
@@ -97,12 +97,12 @@ describe('User Role Management', function () {
         $agent = User::factory()->create();
         $otherAgent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
-        $account->users()->attach($otherAgent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
+        $account->users()->attach($otherAgent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/agents/{$otherAgent->id}", [
-                'role' => 2,
+                'role' =>   0,
             ]);
 
         $response->assertForbidden();
@@ -113,7 +113,7 @@ describe('User Availability', function () {
     test('user can update their availability', function () {
         $user = User::factory()->create(['availability' => 1]);
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>  0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/agents/{$user->id}/availability", [
@@ -134,13 +134,13 @@ describe('Agent Invitations', function () {
     test('admin can invite new agent', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agents/invite", [
                 'name' => 'New Agent',
                 'email' => 'newagent@example.com',
-                'role' => 1,
+                'role' =>  0,
             ]);
 
         $response->assertOk();
@@ -150,13 +150,13 @@ describe('Agent Invitations', function () {
         $admin = User::factory()->create();
         $existingUser = User::factory()->create(['email' => 'existing@example.com']);
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agents/invite", [
                 'name' => 'Duplicate',
                 'email' => 'existing@example.com',
-                'role' => 1,
+                'role' =>  0,
             ]);
 
         $response->assertUnprocessable();
@@ -165,13 +165,13 @@ describe('Agent Invitations', function () {
     test('agent cannot invite users', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agents/invite", [
                 'name' => 'New Agent',
                 'email' => 'invite@example.com',
-                'role' => 1,
+                'role' =>  0,
             ]);
 
         $response->assertForbidden();
@@ -183,8 +183,8 @@ describe('Agent Removal', function () {
         $admin = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/agents/{$agent->id}");
@@ -196,8 +196,8 @@ describe('Agent Removal', function () {
         $agent = User::factory()->create();
         $otherAgent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
-        $account->users()->attach($otherAgent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
+        $account->users()->attach($otherAgent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/agents/{$otherAgent->id}");
@@ -208,7 +208,7 @@ describe('Agent Removal', function () {
     test('admin cannot remove themselves as last admin', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/agents/{$admin->id}");
@@ -221,7 +221,7 @@ describe('User Search', function () {
     test('can search users by name', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         User::factory()->create(['name' => 'John Doe']);
         User::factory()->create(['name' => 'Jane Doe']);
@@ -236,7 +236,7 @@ describe('User Search', function () {
     test('can search users by email', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/agents?search=example.com");
@@ -281,11 +281,11 @@ describe('User Edge Cases', function () {
     test('handles many users efficiently', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $users = User::factory(100)->create();
         foreach ($users as $u) {
-            $account->users()->attach($u->id, ['role' => 1]);
+            $account->users()->attach($u->id, ['role' =>  0]);
         }
 
         $response = $this->actingAs($admin, 'sanctum')

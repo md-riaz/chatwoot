@@ -20,7 +20,7 @@ describe('Account Model', function () {
     test('account has many users', function () {
         $account = Account::factory()->create();
         $user = User::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         expect($account->users)->toHaveCount(1);
         expect($account->users->first()->id)->toBe($user->id);

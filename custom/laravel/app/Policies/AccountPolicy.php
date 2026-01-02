@@ -40,7 +40,7 @@ class AccountPolicy
     {
         // Must be an admin of the account
         return $user->accounts()
-            ->wherePivot('role', 2) // Admin role
+            ->wherePivot('role', 1) // 1 = administrator
             ->where('account_id', $account->id)
             ->exists();
     }
@@ -52,7 +52,7 @@ class AccountPolicy
     {
         // Must be an admin of the account
         return $user->accounts()
-            ->wherePivot('role', 2) // Admin role
+            ->wherePivot('role', 1) // 1 = administrator
             ->where('account_id', $account->id)
             ->exists();
     }

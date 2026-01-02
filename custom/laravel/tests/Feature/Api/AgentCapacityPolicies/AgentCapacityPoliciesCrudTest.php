@@ -15,7 +15,7 @@ describe('Agent Capacity Policy Listing', function () {
     test('can list agent capacity policies for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AgentCapacityPolicy::factory(3)->for($account)->create();
 
@@ -31,7 +31,7 @@ describe('Agent Capacity Policy Creation', function () {
     test('can create agent capacity policy', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agent_capacity_policies", [
@@ -47,7 +47,7 @@ describe('Agent Capacity Policy Creation', function () {
     test('agent capacity policy creation requires name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agent_capacity_policies", [
@@ -63,7 +63,7 @@ describe('Agent Capacity Policy Update', function () {
     test('can update agent capacity policy', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $policy = AgentCapacityPolicy::factory()->for($account)->create(['name' => 'Original']);
 
@@ -81,7 +81,7 @@ describe('Agent Capacity Policy Deletion', function () {
     test('can delete agent capacity policy', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $policy = AgentCapacityPolicy::factory()->for($account)->create();
 

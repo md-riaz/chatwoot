@@ -178,7 +178,7 @@ class IntegrationsNotificationMail extends ApplicationMailable
         // Get account owner or first admin
         if ($this->account) {
             $owner = $this->account->users()
-                ->wherePivot('role', 'administrator')
+                ->wherePivot('role', 1) // 1 = administrator
                 ->first();
             
             if ($owner) {

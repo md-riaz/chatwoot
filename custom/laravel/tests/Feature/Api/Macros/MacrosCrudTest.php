@@ -18,7 +18,7 @@ describe('Macro Listing', function () {
     test('can list macros for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/macros");
@@ -31,8 +31,8 @@ describe('Macro Listing', function () {
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user1->id, ['role' => 2]);
-        $account->users()->attach($user2->id, ['role' => 1]);
+        $account->users()->attach($user1->id, ['role' =>   0]);
+        $account->users()->attach($user2->id, ['role' =>  0]);
 
         $response = $this->actingAs($user1, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/macros");
@@ -43,7 +43,7 @@ describe('Macro Listing', function () {
     test('macros list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/macros");
@@ -57,7 +57,7 @@ describe('Macro Creation', function () {
     test('can create macro', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -78,7 +78,7 @@ describe('Macro Creation', function () {
     test('can create macro with multiple actions', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -97,7 +97,7 @@ describe('Macro Creation', function () {
     test('macro creation requires name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -113,7 +113,7 @@ describe('Macro Creation', function () {
     test('macro creation requires actions', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -127,7 +127,7 @@ describe('Macro Creation', function () {
     test('can create public macro as admin', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -147,7 +147,7 @@ describe('Macro Retrieval', function () {
     test('can show macro', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         // First create a macro
         $createResponse = $this->actingAs($user, 'sanctum')
@@ -170,7 +170,7 @@ describe('Macro Retrieval', function () {
     test('viewing non-existent macro returns 404', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/macros/99999");
@@ -183,7 +183,7 @@ describe('Macro Update', function () {
     test('can update macro name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -207,7 +207,7 @@ describe('Macro Update', function () {
     test('can update macro actions', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -235,7 +235,7 @@ describe('Macro Deletion', function () {
     test('can delete macro', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -256,7 +256,7 @@ describe('Macro Deletion', function () {
     test('deleting non-existent macro returns 404', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/macros/99999");
@@ -269,7 +269,7 @@ describe('Macro Execution', function () {
     test('can execute macro on conversation', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -300,7 +300,7 @@ describe('Macro Execution', function () {
     test('can execute macro on multiple conversations', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
@@ -363,7 +363,7 @@ describe('Macro Action Types', function () {
     test('resolve conversation action', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -379,7 +379,7 @@ describe('Macro Action Types', function () {
     test('add label action', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -395,7 +395,7 @@ describe('Macro Action Types', function () {
     test('assign agent action', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -411,7 +411,7 @@ describe('Macro Action Types', function () {
     test('send message action', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -427,7 +427,7 @@ describe('Macro Action Types', function () {
     test('snooze conversation action', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -445,7 +445,7 @@ describe('Macro Edge Cases', function () {
     test('macro with unicode name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/macros", [
@@ -462,7 +462,7 @@ describe('Macro Edge Cases', function () {
     test('macro with many actions', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $actions = [];
         for ($i = 0; $i < 10; $i++) {

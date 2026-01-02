@@ -15,7 +15,7 @@ describe('Canned Response Listing', function () {
     test('can list canned responses for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         CannedResponse::factory(10)->for($account)->create();
 
@@ -29,7 +29,7 @@ describe('Canned Response Listing', function () {
     test('empty account returns empty canned responses list', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/canned_responses");
@@ -41,7 +41,7 @@ describe('Canned Response Listing', function () {
     test('canned responses list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         CannedResponse::factory()->for($account)->create();
 
@@ -65,7 +65,7 @@ describe('Canned Response Listing', function () {
     test('can search canned responses by short code', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         CannedResponse::factory()->for($account)->create(['short_code' => 'greeting']);
         CannedResponse::factory()->for($account)->create(['short_code' => 'farewell']);
@@ -84,7 +84,7 @@ describe('Canned Response Creation', function () {
     test('can create canned response', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/canned_responses", [
@@ -100,7 +100,7 @@ describe('Canned Response Creation', function () {
     test('canned response creation requires short_code', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/canned_responses", [
@@ -114,7 +114,7 @@ describe('Canned Response Creation', function () {
     test('canned response creation requires content', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/canned_responses", [
@@ -128,7 +128,7 @@ describe('Canned Response Creation', function () {
     test('duplicate short_code within account fails', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         CannedResponse::factory()->for($account)->create(['short_code' => 'existing']);
 
@@ -146,7 +146,7 @@ describe('Canned Response Retrieval', function () {
     test('can show canned response', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $cannedResponse = CannedResponse::factory()->for($account)->create([
             'short_code' => 'test',
@@ -165,7 +165,7 @@ describe('Canned Response Retrieval', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $cannedResponse = CannedResponse::factory()->for($otherAccount)->create();
 
@@ -181,7 +181,7 @@ describe('Canned Response Update', function () {
     test('can update canned response', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $cannedResponse = CannedResponse::factory()->for($account)->create([
             'short_code' => 'original',
@@ -202,7 +202,7 @@ describe('Canned Response Update', function () {
     test('can update only content', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $cannedResponse = CannedResponse::factory()->for($account)->create([
             'short_code' => 'greeting',
@@ -224,7 +224,7 @@ describe('Canned Response Deletion', function () {
     test('can delete canned response', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $cannedResponse = CannedResponse::factory()->for($account)->create();
 
@@ -238,7 +238,7 @@ describe('Canned Response Deletion', function () {
     test('deleting non-existent canned response returns 404', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/canned_responses/99999");
@@ -272,7 +272,7 @@ describe('Canned Response Edge Cases', function () {
     test('canned response with unicode content', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/canned_responses", [
@@ -287,7 +287,7 @@ describe('Canned Response Edge Cases', function () {
     test('canned response with long content', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $longContent = str_repeat('This is a detailed response template. ', 50);
 
@@ -303,7 +303,7 @@ describe('Canned Response Edge Cases', function () {
     test('canned response with html content', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $htmlContent = '<p>Hello!</p><br><ul><li>Step 1</li><li>Step 2</li></ul>';
 
@@ -319,7 +319,7 @@ describe('Canned Response Edge Cases', function () {
     test('handles many canned responses', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         CannedResponse::factory(100)->for($account)->create();
 
@@ -332,7 +332,7 @@ describe('Canned Response Edge Cases', function () {
     test('short_code with special characters', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/canned_responses", [

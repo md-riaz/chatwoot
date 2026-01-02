@@ -25,7 +25,7 @@ function actingAsAdmin(?Account $account = null): TestCase
 {
     $account ??= Account::factory()->create();
     $admin = User::factory()->create();
-    $account->users()->attach($admin->id, ['role' => 2]);
+    $account->users()->attach($admin->id, ['role' =>  0]); // 1 = administrator
 
     return test()->actingAs($admin, 'sanctum');
 }
@@ -37,7 +37,7 @@ function actingAsAgent(?Account $account = null): TestCase
 {
     $account ??= Account::factory()->create();
     $agent = User::factory()->create();
-    $account->users()->attach($agent->id, ['role' => 1]);
+    $account->users()->attach($agent->id, ['role' => 0]); // 0 = agent
 
     return test()->actingAs($agent, 'sanctum');
 }

@@ -14,7 +14,7 @@ describe('Dashboard Apps Listing', function () {
     test('can list dashboard apps', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/dashboard_apps");
@@ -25,7 +25,7 @@ describe('Dashboard Apps Listing', function () {
     test('returns empty list for account without apps', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/dashboard_apps");
@@ -37,7 +37,7 @@ describe('Dashboard Apps Listing', function () {
     test('list includes expected fields', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/dashboard_apps");
@@ -51,7 +51,7 @@ describe('Dashboard Apps Creation', function () {
     test('can create dashboard app', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/dashboard_apps", [
@@ -68,7 +68,7 @@ describe('Dashboard Apps Creation', function () {
     test('can create frame type app', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/dashboard_apps", [
@@ -85,7 +85,7 @@ describe('Dashboard Apps Creation', function () {
     test('requires title', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/dashboard_apps", [
@@ -102,7 +102,7 @@ describe('Dashboard Apps Creation', function () {
     test('requires content', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/dashboard_apps", [
@@ -118,7 +118,7 @@ describe('Dashboard Apps Retrieval', function () {
     test('can show dashboard app', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/dashboard_apps", [
@@ -137,7 +137,7 @@ describe('Dashboard Apps Retrieval', function () {
     test('returns 404 for non-existent app', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/dashboard_apps/99999");
@@ -150,7 +150,7 @@ describe('Dashboard Apps Update', function () {
     test('can update dashboard app title', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/dashboard_apps", [
@@ -171,7 +171,7 @@ describe('Dashboard Apps Update', function () {
     test('can update dashboard app url', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/dashboard_apps", [
@@ -194,7 +194,7 @@ describe('Dashboard Apps Deletion', function () {
     test('can delete dashboard app', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/dashboard_apps", [
@@ -213,7 +213,7 @@ describe('Dashboard Apps Deletion', function () {
     test('deleting non-existent app returns 404', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/dashboard_apps/99999");
@@ -234,7 +234,7 @@ describe('Dashboard Apps Authorization', function () {
     test('agent cannot create apps', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/dashboard_apps", [
@@ -248,7 +248,7 @@ describe('Dashboard Apps Authorization', function () {
     test('agent can view apps', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/dashboard_apps");
@@ -271,7 +271,7 @@ describe('Dashboard Apps Edge Cases', function () {
     test('handles unicode titles', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/dashboard_apps", [
@@ -285,7 +285,7 @@ describe('Dashboard Apps Edge Cases', function () {
     test('handles many apps', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         for ($i = 0; $i < 20; $i++) {
             $this->actingAs($admin, 'sanctum')
@@ -304,7 +304,7 @@ describe('Dashboard Apps Edge Cases', function () {
     test('validates URL format', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/dashboard_apps", [

@@ -17,7 +17,7 @@ describe('Custom Attribute Definition Listing', function () {
     test('can list custom attribute definitions', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions");
@@ -28,7 +28,7 @@ describe('Custom Attribute Definition Listing', function () {
     test('can filter by model type', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions?attribute_model=contact_attribute");
@@ -39,7 +39,7 @@ describe('Custom Attribute Definition Listing', function () {
     test('list includes expected fields', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions");
@@ -53,7 +53,7 @@ describe('Custom Attribute Definition Creation', function () {
     test('can create text custom attribute', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -69,7 +69,7 @@ describe('Custom Attribute Definition Creation', function () {
     test('can create number custom attribute', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -85,7 +85,7 @@ describe('Custom Attribute Definition Creation', function () {
     test('can create link custom attribute', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -101,7 +101,7 @@ describe('Custom Attribute Definition Creation', function () {
     test('can create date custom attribute', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -117,7 +117,7 @@ describe('Custom Attribute Definition Creation', function () {
     test('can create list custom attribute', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -134,7 +134,7 @@ describe('Custom Attribute Definition Creation', function () {
     test('can create checkbox custom attribute', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -150,7 +150,7 @@ describe('Custom Attribute Definition Creation', function () {
     test('can create conversation custom attribute', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -167,7 +167,7 @@ describe('Custom Attribute Definition Creation', function () {
     test('attribute key must be unique per model', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         // Create first
         $this->actingAs($admin, 'sanctum')
@@ -193,7 +193,7 @@ describe('Custom Attribute Definition Creation', function () {
     test('requires display name', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -211,7 +211,7 @@ describe('Custom Attribute Definition Update', function () {
     test('can update display name', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -234,7 +234,7 @@ describe('Custom Attribute Definition Update', function () {
     test('can update description', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -259,7 +259,7 @@ describe('Custom Attribute Definition Deletion', function () {
     test('can delete custom attribute', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -282,7 +282,7 @@ describe('Using Custom Attributes on Contacts', function () {
     test('can set custom attribute on contact', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -299,7 +299,7 @@ describe('Using Custom Attributes on Contacts', function () {
     test('custom attributes are returned with contact', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create([
             'custom_attributes' => ['company' => 'Test Inc'],
         ]);
@@ -316,7 +316,7 @@ describe('Using Custom Attributes on Conversations', function () {
     test('can set custom attribute on conversation', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();
         $conversation = Conversation::factory()
@@ -349,7 +349,7 @@ describe('Custom Attribute Authorization', function () {
     test('agent cannot create custom attributes', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -367,7 +367,7 @@ describe('Custom Attribute Edge Cases', function () {
     test('handles unicode attribute names', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [
@@ -383,7 +383,7 @@ describe('Custom Attribute Edge Cases', function () {
     test('handles special characters in key', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_attribute_definitions", [

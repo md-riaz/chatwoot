@@ -15,7 +15,7 @@ describe('Team Listing', function () {
     test('can list teams for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Team::factory(5)->for($account)->create();
 
@@ -29,7 +29,7 @@ describe('Team Listing', function () {
     test('empty account returns empty teams list', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/teams");
@@ -41,7 +41,7 @@ describe('Team Listing', function () {
     test('teams list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Team::factory()->for($account)->create();
 
@@ -68,7 +68,7 @@ describe('Team Creation', function () {
     test('can create team', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/teams", [
@@ -86,7 +86,7 @@ describe('Team Creation', function () {
     test('team creation requires name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/teams", [
@@ -100,7 +100,7 @@ describe('Team Creation', function () {
     test('team creation with minimal data', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/teams", [
@@ -116,7 +116,7 @@ describe('Team Retrieval', function () {
     test('can show team', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $team = Team::factory()->for($account)->create(['name' => 'Test Team']);
 
@@ -132,7 +132,7 @@ describe('Team Retrieval', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $team = Team::factory()->for($otherAccount)->create();
 
@@ -147,7 +147,7 @@ describe('Team Update', function () {
     test('can update team', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $team = Team::factory()->for($account)->create(['name' => 'Original Name']);
 
@@ -163,7 +163,7 @@ describe('Team Update', function () {
     test('can toggle auto assignment', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $team = Team::factory()->for($account)->create(['allow_auto_assign' => false]);
 
@@ -181,7 +181,7 @@ describe('Team Deletion', function () {
     test('can delete team', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $team = Team::factory()->for($account)->create();
 
@@ -195,7 +195,7 @@ describe('Team Deletion', function () {
     test('deleting non-existent team returns 404', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/teams/99999");
@@ -209,8 +209,8 @@ describe('Team Members', function () {
         $user = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $team = Team::factory()->for($account)->create();
         $team->members()->attach($agent->id);
@@ -225,8 +225,8 @@ describe('Team Members', function () {
         $user = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $team = Team::factory()->for($account)->create();
 
@@ -243,8 +243,8 @@ describe('Team Members', function () {
         $user = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $team = Team::factory()->for($account)->create();
         $team->members()->attach($agent->id);
@@ -293,7 +293,7 @@ describe('Team Edge Cases', function () {
     test('team with unicode name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/teams", [
@@ -307,7 +307,7 @@ describe('Team Edge Cases', function () {
     test('handles many teams', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Team::factory(50)->for($account)->create();
 
@@ -320,7 +320,7 @@ describe('Team Edge Cases', function () {
     test('team with long description', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $longDescription = str_repeat('This is a detailed description. ', 50);
 

@@ -1080,8 +1080,6 @@ paths:
                       format: email
                     password:
                       type: string
-                subscribe_to_updates:
-                  type: boolean
       responses:
         '201':
           description: Super admin and account created

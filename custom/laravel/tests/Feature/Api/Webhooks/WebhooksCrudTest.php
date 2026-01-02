@@ -16,7 +16,7 @@ describe('Webhook Listing', function () {
     test('can list webhooks for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Webhook::factory(5)->for($account)->create();
 
@@ -30,7 +30,7 @@ describe('Webhook Listing', function () {
     test('empty account returns empty webhooks list', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/webhooks");
@@ -42,7 +42,7 @@ describe('Webhook Listing', function () {
     test('webhooks list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Webhook::factory()->for($account)->create();
 
@@ -68,7 +68,7 @@ describe('Webhook Creation', function () {
     test('can create webhook', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/webhooks", [
@@ -83,7 +83,7 @@ describe('Webhook Creation', function () {
     test('webhook creation requires url', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/webhooks", [
@@ -97,7 +97,7 @@ describe('Webhook Creation', function () {
     test('webhook creation with invalid url fails', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/webhooks", [
@@ -112,7 +112,7 @@ describe('Webhook Creation', function () {
     test('webhook creation with all subscriptions', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $allSubscriptions = [
             'conversation_created',
@@ -137,7 +137,7 @@ describe('Webhook Creation', function () {
     test('webhook can be associated with inbox', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -157,7 +157,7 @@ describe('Webhook Retrieval', function () {
     test('can show webhook', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $webhook = Webhook::factory()->for($account)->create([
             'url' => 'https://example.com/test',
@@ -175,7 +175,7 @@ describe('Webhook Retrieval', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $webhook = Webhook::factory()->for($otherAccount)->create();
 
@@ -190,7 +190,7 @@ describe('Webhook Update', function () {
     test('can update webhook url', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $webhook = Webhook::factory()->for($account)->create([
             'url' => 'https://old.example.com/webhook',
@@ -208,7 +208,7 @@ describe('Webhook Update', function () {
     test('can update subscriptions', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $webhook = Webhook::factory()->for($account)->create([
             'subscriptions' => ['conversation_created'],
@@ -229,7 +229,7 @@ describe('Webhook Deletion', function () {
     test('can delete webhook', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $webhook = Webhook::factory()->for($account)->create();
 
@@ -243,7 +243,7 @@ describe('Webhook Deletion', function () {
     test('deleting non-existent webhook returns 404', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/webhooks/99999");
@@ -286,7 +286,7 @@ describe('Webhook Validation', function () {
     test('url is required', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/webhooks", []);
@@ -298,7 +298,7 @@ describe('Webhook Validation', function () {
     test('url must be valid url format', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/webhooks", [
@@ -312,7 +312,7 @@ describe('Webhook Validation', function () {
     test('subscriptions must be array', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/webhooks", [
@@ -329,7 +329,7 @@ describe('Webhook Edge Cases', function () {
     test('handles many webhooks', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Webhook::factory(50)->for($account)->create();
 
@@ -342,7 +342,7 @@ describe('Webhook Edge Cases', function () {
     test('webhook with https url', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/webhooks", [
@@ -356,7 +356,7 @@ describe('Webhook Edge Cases', function () {
     test('webhook with port in url', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/webhooks", [
@@ -370,7 +370,7 @@ describe('Webhook Edge Cases', function () {
     test('webhook with query parameters in url', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/webhooks", [

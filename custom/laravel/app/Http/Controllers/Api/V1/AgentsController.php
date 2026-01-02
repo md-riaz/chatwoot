@@ -53,7 +53,7 @@ class AgentsController extends Controller
 
         // Add user to account
         $account->users()->attach($user->id, [
-            'role' => $validated['role'] === 'administrator' ? 2 : 1,
+            'role' => $validated['role'] === 'administrator' ? 1 : 0, // 1=administrator, 0=agent
             'availability' => $validated['availability'] ?? 1,
         ]);
 
@@ -91,7 +91,7 @@ class AgentsController extends Controller
         // Update pivot table attributes
         $pivotData = [];
         if (isset($validated['role'])) {
-            $pivotData['role'] = $validated['role'] === 'administrator' ? 2 : 1;
+            $pivotData['role'] = $validated['role'] === 'administrator' ? 1 : 0; // 1=administrator, 0=agent
         }
         if (isset($validated['availability'])) {
             $pivotData['availability'] = $validated['availability'];

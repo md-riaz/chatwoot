@@ -14,7 +14,7 @@ describe('Account Listing', function () {
     test('authenticated user can list their accounts', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/v1/accounts');
@@ -31,7 +31,7 @@ describe('Account Listing', function () {
         $user = User::factory()->create();
         $myAccount = Account::factory()->create(['name' => 'My Account']);
         Account::factory()->create(['name' => 'Other Account']);
-        $myAccount->users()->attach($user->id, ['role' => 2]);
+        $myAccount->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/v1/accounts');
@@ -46,7 +46,7 @@ describe('Account Listing', function () {
         $user = User::factory()->create();
         $accounts = Account::factory(25)->create();
         foreach ($accounts as $account) {
-            $account->users()->attach($user->id, ['role' => 1]);
+            $account->users()->attach($user->id, ['role' =>  0]);
         }
 
         $response = $this->actingAs($user, 'sanctum')
@@ -122,7 +122,7 @@ describe('Account Retrieval', function () {
     test('user can view their account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create(['name' => 'View Account']);
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}");
@@ -146,7 +146,7 @@ describe('Account Update', function () {
     test('admin can update account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create(['name' => 'Original Name']);
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}", [
@@ -166,7 +166,7 @@ describe('Account Update', function () {
             'locale' => 'en',
             'domain' => 'original.com',
         ]);
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}", [
@@ -183,7 +183,7 @@ describe('Account Deletion', function () {
     test('admin can delete account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}");

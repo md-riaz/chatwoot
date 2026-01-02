@@ -11,7 +11,7 @@ class EnsureAccountAdmin
     /**
      * Handle an incoming request.
      *
-     * Ensures the authenticated user is an administrator (role = 2) of the account.
+     * Ensures the authenticated user is an administrator (role = 1) of the account.
      * This middleware should be used after EnsureAccountAccess.
      */
     public function handle(Request $request, Closure $next): Response
@@ -31,7 +31,7 @@ class EnsureAccountAdmin
         // Check if user is an admin of this account
         $accountUser = $account->users()->where('user_id', $user->id)->first();
 
-        if (! $accountUser || $accountUser->pivot->role < 2) {
+        if (! $accountUser || $accountUser->pivot->role < 1) { // 1 = administrator
             return response()->json(['error' => 'Admin access required'], 403);
         }
 

@@ -15,10 +15,10 @@ describe('Agent Listing', function () {
     test('can list agents for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         User::factory(5)->create()->each(function ($agent) use ($account) {
-            $account->users()->attach($agent->id, ['role' => 1]);
+            $account->users()->attach($agent->id, ['role' =>  0]);
         });
 
         $response = $this->actingAs($user, 'sanctum')
@@ -31,7 +31,7 @@ describe('Agent Listing', function () {
     test('agents list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/agents");
@@ -43,7 +43,7 @@ describe('Agent Listing', function () {
     test('can list agents with availability status', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2, 'availability' => 'online']);
+        $account->users()->attach($user->id, ['role' =>   0, 'availability' => 'online']);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/agents");
@@ -56,7 +56,7 @@ describe('Agent CRUD', function () {
     test('can add agent to account by email', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agents", [
@@ -72,8 +72,8 @@ describe('Agent CRUD', function () {
         $admin = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/agents/{$agent->id}");
@@ -85,8 +85,8 @@ describe('Agent CRUD', function () {
         $admin = User::factory()->create();
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/agents/{$agent->id}", [
@@ -102,10 +102,10 @@ describe('Assignable Agents', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $inbox = Inbox::factory()->for($account)->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         User::factory(3)->create()->each(function ($agent) use ($account, $inbox) {
-            $account->users()->attach($agent->id, ['role' => 1]);
+            $account->users()->attach($agent->id, ['role' =>  0]);
             $inbox->members()->attach($agent->id);
         });
 
@@ -123,9 +123,9 @@ describe('Assignable Agents', function () {
         $account = Account::factory()->create();
         $inbox = Inbox::factory()->for($account)->create();
 
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($agent1->id, ['role' => 1]);
-        $account->users()->attach($agent2->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($agent1->id, ['role' =>  0]);
+        $account->users()->attach($agent2->id, ['role' =>  0]);
 
         // Only agent1 is inbox member
         $inbox->members()->attach($agent1->id);
@@ -141,7 +141,7 @@ describe('Agent Availability', function () {
     test('can update own availability', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2, 'availability' => 0]);
+        $account->users()->attach($user->id, ['role' =>   0, 'availability' => 0]);
 
         // Update via agent update endpoint (availability: 1 = online)
         $response = $this->actingAs($user, 'sanctum')
@@ -155,7 +155,7 @@ describe('Agent Availability', function () {
     test('availability is reflected in agent list', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2, 'availability' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0, 'availability' => 1]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/agents");
@@ -176,7 +176,7 @@ describe('Agent Authorization', function () {
     test('agent can add other agents if allowed', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]); // Agent role
+        $account->users()->attach($agent->id, ['role' =>  0]); // Agent role
 
         $response = $this->actingAs($agent, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agents", [
@@ -204,10 +204,10 @@ describe('Agent Edge Cases', function () {
     test('handles many agents', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         User::factory(100)->create()->each(function ($agent) use ($account) {
-            $account->users()->attach($agent->id, ['role' => 1]);
+            $account->users()->attach($agent->id, ['role' =>  0]);
         });
 
         $response = $this->actingAs($user, 'sanctum')
@@ -219,7 +219,7 @@ describe('Agent Edge Cases', function () {
     test('agent with unicode name', function () {
         $agent = User::factory()->create(['name' => 'エージェント 🦸']);
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 2]);
+        $account->users()->attach($agent->id, ['role' =>   0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/agents");
@@ -230,7 +230,7 @@ describe('Agent Edge Cases', function () {
     test('cannot remove last admin', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/agents/{$admin->id}");

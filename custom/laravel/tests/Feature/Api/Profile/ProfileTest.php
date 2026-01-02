@@ -28,7 +28,7 @@ describe('Profile Retrieval', function () {
     test('profile includes accounts', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/v1/profile');
@@ -153,7 +153,7 @@ describe('Notification Settings', function () {
     test('can get notification settings', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>  0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/notification_settings");
@@ -164,7 +164,7 @@ describe('Notification Settings', function () {
     test('can update notification settings', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>  0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/notification_settings", [
@@ -179,7 +179,7 @@ describe('Notification Settings', function () {
     test('can enable all notifications', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>  0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/notification_settings", [
@@ -192,7 +192,7 @@ describe('Notification Settings', function () {
     test('can disable all notifications', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>  0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson("/api/v1/accounts/{$account->id}/notification_settings", [
@@ -207,7 +207,7 @@ describe('Availability Status', function () {
     test('can set availability to online', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>  0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson('/api/v1/profile/availability', [
@@ -220,7 +220,7 @@ describe('Availability Status', function () {
     test('can set availability to busy', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>  0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson('/api/v1/profile/availability', [
@@ -233,7 +233,7 @@ describe('Availability Status', function () {
     test('can set availability to offline', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>  0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->patchJson('/api/v1/profile/availability', [

@@ -15,7 +15,7 @@ describe('Segment Listing', function () {
     test('can list segments', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/segments");
@@ -26,7 +26,7 @@ describe('Segment Listing', function () {
     test('segments include contact count', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/segments");
@@ -37,7 +37,7 @@ describe('Segment Listing', function () {
     test('can filter segments by type', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/segments?type=dynamic");
@@ -50,7 +50,7 @@ describe('Segment Creation', function () {
     test('can create static segment', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/segments", [
@@ -64,7 +64,7 @@ describe('Segment Creation', function () {
     test('can create dynamic segment', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/segments", [
@@ -81,7 +81,7 @@ describe('Segment Creation', function () {
     test('segment requires name', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/segments", [
@@ -97,7 +97,7 @@ describe('Segment Membership', function () {
     test('can add contacts to static segment', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $createResponse = $this->actingAs($admin, 'sanctum')
@@ -119,7 +119,7 @@ describe('Segment Membership', function () {
     test('can remove contacts from segment', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $createResponse = $this->actingAs($admin, 'sanctum')
@@ -141,7 +141,7 @@ describe('Segment Membership', function () {
     test('can list segment contacts', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/segments", [
@@ -160,7 +160,7 @@ describe('Segment Membership', function () {
     test('dynamic segment auto-calculates membership', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         // Create contacts
         Contact::factory(10)->for($account)->create();
@@ -181,7 +181,7 @@ describe('Segment Update', function () {
     test('can update segment name', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/segments", [
@@ -202,7 +202,7 @@ describe('Segment Update', function () {
     test('can update dynamic segment query', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/segments", [
@@ -228,7 +228,7 @@ describe('Segment Deletion', function () {
     test('can delete segment', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/segments", [
@@ -257,7 +257,7 @@ describe('Segment Authorization', function () {
     test('agent can view segments', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/segments");
@@ -327,7 +327,7 @@ describe('Segment Edge Cases', function () {
     test('handles unicode segment names', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/segments", [

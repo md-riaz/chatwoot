@@ -15,7 +15,7 @@ describe('Contact Notes Listing', function () {
     test('can list notes for contact', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -27,7 +27,7 @@ describe('Contact Notes Listing', function () {
     test('notes list returns expected fields', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -40,7 +40,7 @@ describe('Contact Notes Listing', function () {
     test('notes are sorted by creation date', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -54,7 +54,7 @@ describe('Contact Notes Creation', function () {
     test('can create note for contact', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -68,7 +68,7 @@ describe('Contact Notes Creation', function () {
     test('note stores user who created it', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -82,7 +82,7 @@ describe('Contact Notes Creation', function () {
     test('note requires content', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -95,7 +95,7 @@ describe('Contact Notes Creation', function () {
     test('agent can create notes', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
         $contact = Contact::factory()->for($account)->create();
 
         $response = $this->actingAs($agent, 'sanctum')
@@ -111,7 +111,7 @@ describe('Contact Notes Retrieval', function () {
     test('can show single note', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $createResponse = $this->actingAs($admin, 'sanctum')
@@ -131,7 +131,7 @@ describe('Contact Notes Retrieval', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($otherAccount)->create();
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -145,7 +145,7 @@ describe('Contact Notes Update', function () {
     test('can update note content', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $createResponse = $this->actingAs($admin, 'sanctum')
@@ -166,7 +166,7 @@ describe('Contact Notes Update', function () {
     test('author can update their own note', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
         $contact = Contact::factory()->for($account)->create();
 
         $createResponse = $this->actingAs($agent, 'sanctum')
@@ -189,7 +189,7 @@ describe('Contact Notes Deletion', function () {
     test('can delete note', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $createResponse = $this->actingAs($admin, 'sanctum')
@@ -208,7 +208,7 @@ describe('Contact Notes Deletion', function () {
     test('author can delete their own note', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
         $contact = Contact::factory()->for($account)->create();
 
         $createResponse = $this->actingAs($agent, 'sanctum')
@@ -251,7 +251,7 @@ describe('Contact Notes Edge Cases', function () {
     test('handles unicode content', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -265,7 +265,7 @@ describe('Contact Notes Edge Cases', function () {
     test('handles very long notes', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $longContent = str_repeat('This is a long note. ', 500);
@@ -281,7 +281,7 @@ describe('Contact Notes Edge Cases', function () {
     test('handles special characters', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -295,7 +295,7 @@ describe('Contact Notes Edge Cases', function () {
     test('handles many notes efficiently', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $contact = Contact::factory()->for($account)->create();
 
         // Create many notes

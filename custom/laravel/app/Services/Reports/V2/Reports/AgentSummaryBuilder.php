@@ -16,7 +16,7 @@ class AgentSummaryBuilder extends BaseSummaryBuilder
         
         // Get all agents for this account
         $agents = $this->account->users()
-            ->where('role', '!=', 'administrator')
+            ->where('role', '!=', 1) // 1 = administrator
             ->get();
         
         $agentSummaries = [];

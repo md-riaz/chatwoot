@@ -47,7 +47,7 @@ class AccountUsersController extends Controller
         }
 
         $account->users()->attach($validated['user_id'], [
-            'role' => $validated['role'] === 'administrator' ? 2 : 1,
+            'role' => $validated['role'] === 'administrator' ? 1 : 0, // 1=administrator, 0=agent
         ]);
 
         $user = User::find($validated['user_id']);

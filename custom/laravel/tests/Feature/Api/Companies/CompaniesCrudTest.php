@@ -15,7 +15,7 @@ describe('Company Listing', function () {
     test('can list companies for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Company::factory(5)->for($account)->create();
 
@@ -29,7 +29,7 @@ describe('Company Listing', function () {
     test('empty account returns empty companies list', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/companies");
@@ -43,7 +43,7 @@ describe('Company Creation', function () {
     test('can create company', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/companies", [
@@ -60,7 +60,7 @@ describe('Company Creation', function () {
     test('company creation requires name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/companies", [
@@ -76,7 +76,7 @@ describe('Company Retrieval', function () {
     test('can show company', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $company = Company::factory()->for($account)->create(['name' => 'Test Company']);
 
@@ -91,7 +91,7 @@ describe('Company Retrieval', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $company = Company::factory()->for($otherAccount)->create();
 
@@ -106,7 +106,7 @@ describe('Company Update', function () {
     test('can update company', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $company = Company::factory()->for($account)->create(['name' => 'Original']);
 
@@ -124,7 +124,7 @@ describe('Company Deletion', function () {
     test('can delete company', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $company = Company::factory()->for($account)->create();
 
@@ -140,7 +140,7 @@ describe('Company Search', function () {
     test('can search companies by name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Company::factory()->for($account)->create(['name' => 'Acme Corp']);
         Company::factory()->for($account)->create(['name' => 'Beta Inc']);

@@ -21,7 +21,7 @@ describe('Auto Assignment', function () {
             'enable_auto_assignment' => true,
         ]);
         $agent = User::factory()->create(['availability' => 1]);
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
         $inbox->users()->attach($agent->id);
 
         $contact = Contact::factory()->for($account)->create();
@@ -75,7 +75,7 @@ describe('Auto Assignment', function () {
         ]);
 
         $offlineAgent = User::factory()->create(['availability' => 0]);
-        $account->users()->attach($offlineAgent->id, ['role' => 1]);
+        $account->users()->attach($offlineAgent->id, ['role' =>  0]);
         $inbox->users()->attach($offlineAgent->id);
 
         $contact = Contact::factory()->for($account)->create();
@@ -99,7 +99,7 @@ describe('Auto Assignment', function () {
         $busyAgent = User::factory()->create(['availability' => 1]);
         $freeAgent = User::factory()->create(['availability' => 1]);
 
-        $account->users()->attach([$busyAgent->id, $freeAgent->id], ['role' => 1]);
+        $account->users()->attach([$busyAgent->id, $freeAgent->id], ['role' =>  0]);
         $inbox->users()->attach([$busyAgent->id, $freeAgent->id]);
 
         // Create conversations for busy agent
@@ -124,7 +124,7 @@ describe('Round Robin Assignment', function () {
 
         $agents = User::factory(3)->create(['availability' => 1]);
         foreach ($agents as $agent) {
-            $account->users()->attach($agent->id, ['role' => 1]);
+            $account->users()->attach($agent->id, ['role' =>  0]);
             $inbox->users()->attach($agent->id);
         }
 

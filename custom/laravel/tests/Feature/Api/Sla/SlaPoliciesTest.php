@@ -17,7 +17,7 @@ describe('SLA Policy Listing', function () {
     test('can list SLA policies', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/sla_policies");
@@ -28,7 +28,7 @@ describe('SLA Policy Listing', function () {
     test('returns empty list when no policies', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/sla_policies");
@@ -42,7 +42,7 @@ describe('SLA Policy Creation', function () {
     test('can create SLA policy', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/sla_policies", [
@@ -59,7 +59,7 @@ describe('SLA Policy Creation', function () {
     test('SLA policy requires name', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/sla_policies", [
@@ -73,7 +73,7 @@ describe('SLA Policy Creation', function () {
     test('can create SLA with custom conditions', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/sla_policies", [
@@ -92,7 +92,7 @@ describe('SLA Policy Update', function () {
     test('can update SLA policy', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/sla_policies", [
@@ -116,7 +116,7 @@ describe('SLA Policy Deletion', function () {
     test('can delete SLA policy', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $createResponse = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/sla_policies", [
@@ -209,7 +209,7 @@ describe('SLA Authorization', function () {
     test('agent cannot create SLA policies', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/sla_policies", [

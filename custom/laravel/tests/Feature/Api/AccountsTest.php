@@ -6,7 +6,7 @@ use App\Models\User;
 test('can list accounts', function () {
     $user = User::factory()->create();
     $account = Account::factory()->create();
-    $account->users()->attach($user->id, ['role' => 2]);
+    $account->users()->attach($user->id, ['role' =>   0]);
 
     $response = $this->actingAs($user, 'sanctum')
         ->getJson('/api/v1/accounts');
@@ -36,7 +36,7 @@ test('can create account', function () {
 test('can show account', function () {
     $user = User::factory()->create();
     $account = Account::factory()->create();
-    $account->users()->attach($user->id, ['role' => 2]);
+    $account->users()->attach($user->id, ['role' =>   0]);
 
     $response = $this->actingAs($user, 'sanctum')
         ->getJson("/api/v1/accounts/{$account->id}");
@@ -48,7 +48,7 @@ test('can show account', function () {
 test('can update account', function () {
     $user = User::factory()->create();
     $account = Account::factory()->create();
-    $account->users()->attach($user->id, ['role' => 2]);
+    $account->users()->attach($user->id, ['role' =>   0]);
 
     $response = $this->actingAs($user, 'sanctum')
         ->patchJson("/api/v1/accounts/{$account->id}", [
@@ -62,7 +62,7 @@ test('can update account', function () {
 test('can delete account', function () {
     $user = User::factory()->create();
     $account = Account::factory()->create();
-    $account->users()->attach($user->id, ['role' => 2]);
+    $account->users()->attach($user->id, ['role' =>   0]);
 
     $response = $this->actingAs($user, 'sanctum')
         ->deleteJson("/api/v1/accounts/{$account->id}");

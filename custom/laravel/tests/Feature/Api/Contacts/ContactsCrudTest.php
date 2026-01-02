@@ -16,7 +16,7 @@ describe('Contact Listing', function () {
     test('can list contacts for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory(10)->for($account)->create();
 
@@ -30,7 +30,7 @@ describe('Contact Listing', function () {
     test('empty account returns empty contacts list', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/contacts");
@@ -42,7 +42,7 @@ describe('Contact Listing', function () {
     test('contacts list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory()->for($account)->create();
 
@@ -67,7 +67,7 @@ describe('Contact Listing', function () {
     test('contacts list is paginated', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory(50)->for($account)->create();
 
@@ -83,7 +83,7 @@ describe('Contact Creation', function () {
     test('can create contact', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", [
@@ -101,7 +101,7 @@ describe('Contact Creation', function () {
     test('contact creation with minimal data', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", [
@@ -116,7 +116,7 @@ describe('Contact Creation', function () {
         // In Chatwoot Rails API, name is NOT required - contacts can be created with just email
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", [
@@ -130,7 +130,7 @@ describe('Contact Creation', function () {
     test('contact creation with invalid email fails', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", [
@@ -145,7 +145,7 @@ describe('Contact Creation', function () {
     test('contact creation with custom attributes', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", [
@@ -166,7 +166,7 @@ describe('Contact Creation', function () {
     test('duplicate email within same account is handled', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory()->for($account)->create(['email' => 'existing@example.com']);
 
@@ -187,7 +187,7 @@ describe('Contact Retrieval', function () {
     test('can show contact', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $contact = Contact::factory()->for($account)->create([
             'name' => 'Test Contact',
@@ -207,7 +207,7 @@ describe('Contact Retrieval', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $contact = Contact::factory()->for($otherAccount)->create();
 
@@ -220,7 +220,7 @@ describe('Contact Retrieval', function () {
     test('viewing non-existent contact returns 404', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/contacts/99999");
@@ -233,7 +233,7 @@ describe('Contact Update', function () {
     test('can update contact', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $contact = Contact::factory()->for($account)->create([
             'name' => 'Original Name',
@@ -251,7 +251,7 @@ describe('Contact Update', function () {
     test('partial update works', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $contact = Contact::factory()->for($account)->create([
             'name' => 'John Doe',
@@ -273,7 +273,7 @@ describe('Contact Update', function () {
     test('can update custom attributes', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $contact = Contact::factory()->for($account)->create([
             'name' => 'John Doe',
@@ -295,7 +295,7 @@ describe('Contact Deletion', function () {
     test('can delete contact', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $contact = Contact::factory()->for($account)->create();
 
@@ -309,7 +309,7 @@ describe('Contact Deletion', function () {
     test('deleting non-existent contact returns 404', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson("/api/v1/accounts/{$account->id}/contacts/99999");
@@ -322,7 +322,7 @@ describe('Contact Merge', function () {
     test('can merge contacts', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $baseContact = Contact::factory()->for($account)->create([
             'name' => 'John Doe',
@@ -350,7 +350,7 @@ describe('Contact Search', function () {
     test('can search contacts by name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory()->for($account)->create(['name' => 'Alice Smith']);
         Contact::factory()->for($account)->create(['name' => 'Bob Johnson']);
@@ -367,7 +367,7 @@ describe('Contact Search', function () {
     test('can search contacts by email', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory()->for($account)->create(['email' => 'alice@example.com']);
         Contact::factory()->for($account)->create(['email' => 'bob@example.com']);
@@ -416,7 +416,7 @@ describe('Contact Validation', function () {
         // A contact can be created with minimal/no data
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", []);
@@ -428,7 +428,7 @@ describe('Contact Validation', function () {
     test('email must be valid format', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", [
@@ -443,7 +443,7 @@ describe('Contact Validation', function () {
     test('name cannot be too long', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", [
@@ -459,7 +459,7 @@ describe('Contact Edge Cases', function () {
     test('contact with unicode name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", [
@@ -474,7 +474,7 @@ describe('Contact Edge Cases', function () {
     test('contact with empty optional fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", [
@@ -491,7 +491,7 @@ describe('Contact Edge Cases', function () {
     test('handles many contacts', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         Contact::factory(100)->for($account)->create();
 
@@ -504,7 +504,7 @@ describe('Contact Edge Cases', function () {
     test('contact with special characters in name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/contacts", [
@@ -520,7 +520,7 @@ describe('Contact Inbox Associations', function () {
     test('can get contact with inbox associations', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $contact = Contact::factory()->for($account)->create();

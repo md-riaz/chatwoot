@@ -16,7 +16,7 @@ describe('Campaign Listing', function () {
     test('can list campaigns for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         Campaign::factory(5)->for($account)->for($inbox)->create();
@@ -31,7 +31,7 @@ describe('Campaign Listing', function () {
     test('empty account returns empty campaigns list', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/campaigns");
@@ -43,7 +43,7 @@ describe('Campaign Listing', function () {
     test('campaigns list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         Campaign::factory()->for($account)->for($inbox)->create();
@@ -73,7 +73,7 @@ describe('Campaign Creation', function () {
     test('can create ongoing campaign', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -95,7 +95,7 @@ describe('Campaign Creation', function () {
     test('can create one-off campaign', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -115,7 +115,7 @@ describe('Campaign Creation', function () {
     test('campaign creation requires title', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -132,7 +132,7 @@ describe('Campaign Creation', function () {
     test('campaign creation requires inbox_id', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/campaigns", [
@@ -147,7 +147,7 @@ describe('Campaign Creation', function () {
     test('campaign with trigger rules', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -171,7 +171,7 @@ describe('Campaign Retrieval', function () {
     test('can show campaign', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $campaign = Campaign::factory()->for($account)->for($inbox)->create(['title' => 'Test Campaign']);
@@ -188,7 +188,7 @@ describe('Campaign Retrieval', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($otherAccount)->create();
         $campaign = Campaign::factory()->for($otherAccount)->for($inbox)->create();
@@ -205,7 +205,7 @@ describe('Campaign Update', function () {
     test('can update campaign title', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $campaign = Campaign::factory()->for($account)->for($inbox)->create(['title' => 'Original']);
@@ -222,7 +222,7 @@ describe('Campaign Update', function () {
     test('can toggle campaign enabled status', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $campaign = Campaign::factory()->for($account)->for($inbox)->create(['enabled' => true]);
@@ -241,7 +241,7 @@ describe('Campaign Deletion', function () {
     test('can delete campaign', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         $campaign = Campaign::factory()->for($account)->for($inbox)->create();
@@ -278,7 +278,7 @@ describe('Campaign Edge Cases', function () {
     test('campaign with unicode title', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
 
@@ -296,7 +296,7 @@ describe('Campaign Edge Cases', function () {
     test('handles many campaigns', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $inbox = Inbox::factory()->for($account)->create();
         Campaign::factory(50)->for($account)->for($inbox)->create();

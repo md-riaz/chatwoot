@@ -38,7 +38,7 @@ class InboxPolicy
     {
         // Only admins can update inboxes
         return $user->accounts()
-            ->wherePivot('role', 2)
+            ->wherePivot('role', 1) // 1 = administrator
             ->where('account_id', $inbox->account_id)
             ->exists();
     }
@@ -50,7 +50,7 @@ class InboxPolicy
     {
         // Only admins can delete inboxes
         return $user->accounts()
-            ->wherePivot('role', 2)
+            ->wherePivot('role', 1) // 1 = administrator
             ->where('account_id', $inbox->account_id)
             ->exists();
     }

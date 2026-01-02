@@ -15,7 +15,7 @@ describe('WhatsApp Channel', function () {
     test('can create whatsapp channel inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -33,7 +33,7 @@ describe('WhatsApp Channel', function () {
     test('whatsapp inbox requires phone number', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -51,7 +51,7 @@ describe('WhatsApp Channel', function () {
     test('can update whatsapp channel settings', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create(['channel_type' => 'Channel::Whatsapp']);
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -67,7 +67,7 @@ describe('WhatsApp Channel', function () {
     test('can list whatsapp message templates', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create(['channel_type' => 'Channel::Whatsapp']);
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -79,7 +79,7 @@ describe('WhatsApp Channel', function () {
     test('can sync whatsapp message templates', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create(['channel_type' => 'Channel::Whatsapp']);
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -93,7 +93,7 @@ describe('Facebook Channel', function () {
     test('can initiate facebook oauth', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/callbacks/facebook/authorize");
@@ -104,7 +104,7 @@ describe('Facebook Channel', function () {
     test('can list facebook pages after oauth', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson("/api/v1/accounts/{$account->id}/callbacks/facebook/pages");
@@ -115,7 +115,7 @@ describe('Facebook Channel', function () {
     test('can create facebook inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -135,7 +135,7 @@ describe('Telegram Channel', function () {
     test('can create telegram inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -152,7 +152,7 @@ describe('Telegram Channel', function () {
     test('telegram inbox requires bot token', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -169,7 +169,7 @@ describe('Telegram Channel', function () {
     test('can update telegram webhook', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create(['channel_type' => 'Channel::Telegram']);
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -185,7 +185,7 @@ describe('Email Channel', function () {
     test('can create email inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -202,7 +202,7 @@ describe('Email Channel', function () {
     test('can configure IMAP settings', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create(['channel_type' => 'Channel::Email']);
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -222,7 +222,7 @@ describe('Email Channel', function () {
     test('can configure SMTP settings', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create(['channel_type' => 'Channel::Email']);
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -244,7 +244,7 @@ describe('SMS Channel', function () {
     test('can create twilio SMS inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -263,7 +263,7 @@ describe('SMS Channel', function () {
     test('can create bandwidth SMS inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -283,7 +283,7 @@ describe('Line Channel', function () {
     test('can create line inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -304,7 +304,7 @@ describe('API Channel', function () {
     test('can create API channel inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -321,7 +321,7 @@ describe('API Channel', function () {
     test('API inbox generates hmac token', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create(['channel_type' => 'Channel::Api']);
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -335,7 +335,7 @@ describe('Web Widget Channel', function () {
     test('can create web widget inbox', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -352,7 +352,7 @@ describe('Web Widget Channel', function () {
     test('can configure widget settings', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create(['channel_type' => 'Channel::WebWidget']);
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -370,7 +370,7 @@ describe('Web Widget Channel', function () {
     test('widget generates unique token', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
         $inbox = Inbox::factory()->for($account)->create(['channel_type' => 'Channel::WebWidget']);
 
         $response = $this->actingAs($admin, 'sanctum')
@@ -395,7 +395,7 @@ describe('Channel Authorization', function () {
     test('agent cannot create channels', function () {
         $agent = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($agent->id, ['role' => 1]);
+        $account->users()->attach($agent->id, ['role' =>  0]);
 
         $response = $this->actingAs($agent, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -411,7 +411,7 @@ describe('Channel Edge Cases', function () {
     test('handles unicode channel names', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
@@ -428,7 +428,7 @@ describe('Channel Edge Cases', function () {
     test('handles many channels per account', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' => 2]);
+        $account->users()->attach($admin->id, ['role' =>   0]);
 
         Inbox::factory(10)->for($account)->create();
 

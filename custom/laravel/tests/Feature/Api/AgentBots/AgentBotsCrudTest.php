@@ -16,7 +16,7 @@ describe('Agent Bot Listing', function () {
     test('can list agent bots for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AgentBot::factory(5)->for($account)->create();
 
@@ -30,7 +30,7 @@ describe('Agent Bot Listing', function () {
     test('includes global bots in listing', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AgentBot::factory(2)->for($account)->create();
         AgentBot::factory(3)->systemBot()->create();
@@ -45,7 +45,7 @@ describe('Agent Bot Listing', function () {
     test('agent bots list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AgentBot::factory()->for($account)->create();
 
@@ -73,7 +73,7 @@ describe('Agent Bot Creation', function () {
     test('can create agent bot', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agent_bots", [
@@ -90,7 +90,7 @@ describe('Agent Bot Creation', function () {
     test('agent bot creation requires name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agent_bots", [
@@ -104,7 +104,7 @@ describe('Agent Bot Creation', function () {
     test('agent bot creation does not require outgoing_url', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agent_bots", [
@@ -118,7 +118,7 @@ describe('Agent Bot Creation', function () {
     test('agent bot creation with invalid url fails', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agent_bots", [
@@ -135,7 +135,7 @@ describe('Agent Bot Retrieval', function () {
     test('can show agent bot', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $bot = AgentBot::factory()->for($account)->create(['name' => 'Test Bot']);
 
@@ -151,7 +151,7 @@ describe('Agent Bot Retrieval', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         // Create bot for otherAccount (not user's account)
         $bot = AgentBot::factory()->for($otherAccount)->create();
@@ -166,7 +166,7 @@ describe('Agent Bot Retrieval', function () {
     test('can access global bot from any account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         // Create a global bot (no account)
         $globalBot = AgentBot::factory()->systemBot()->create();
@@ -182,7 +182,7 @@ describe('Agent Bot Update', function () {
     test('can update agent bot name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $bot = AgentBot::factory()->for($account)->create(['name' => 'Original']);
 
@@ -198,7 +198,7 @@ describe('Agent Bot Update', function () {
     test('can update outgoing_url', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $bot = AgentBot::factory()->for($account)->create([
             'outgoing_url' => 'https://old.example.com/webhook',
@@ -218,7 +218,7 @@ describe('Agent Bot Deletion', function () {
     test('can delete agent bot', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $bot = AgentBot::factory()->for($account)->create();
 
@@ -232,7 +232,7 @@ describe('Agent Bot Deletion', function () {
     test('cannot delete global bot', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $globalBot = AgentBot::factory()->systemBot()->create();
 
@@ -248,7 +248,7 @@ describe('Agent Bot Inbox Association', function () {
     test('can associate bot with inbox via set_agent_bot', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $bot = AgentBot::factory()->for($account)->create();
         $inbox = Inbox::factory()->for($account)->create();
@@ -265,7 +265,7 @@ describe('Agent Bot Inbox Association', function () {
     test('can remove bot from inbox via set_agent_bot', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $bot = AgentBot::factory()->for($account)->create();
         $inbox = Inbox::factory()->for($account)->create();
@@ -310,7 +310,7 @@ describe('Agent Bot Edge Cases', function () {
     test('agent bot with unicode name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agent_bots", [
@@ -325,7 +325,7 @@ describe('Agent Bot Edge Cases', function () {
     test('handles many agent bots', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         AgentBot::factory(50)->for($account)->create();
 
@@ -338,7 +338,7 @@ describe('Agent Bot Edge Cases', function () {
     test('agent bot with avatar url', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/agent_bots", [
@@ -355,7 +355,7 @@ describe('Agent Bot Edge Cases', function () {
     test('agent bot with long description', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $longDescription = str_repeat('This is a detailed bot description. ', 20);
 

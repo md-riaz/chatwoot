@@ -89,7 +89,7 @@ class PermissionFilterService
             ->where('account_id', $account->id)
             ->first();
             
-        return $accountUser && $accountUser->role === 'administrator';
+        return $accountUser && $accountUser->role === 1; // 1 = administrator
     }
 
     /**

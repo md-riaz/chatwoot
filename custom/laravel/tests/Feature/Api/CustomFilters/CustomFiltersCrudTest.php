@@ -15,7 +15,7 @@ describe('Custom Filter Listing', function () {
     test('can list custom filters for account', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         CustomFilter::factory(5)->for($account)->for($user)->create();
 
@@ -30,8 +30,8 @@ describe('Custom Filter Listing', function () {
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($otherUser->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($otherUser->id, ['role' =>  0]);
 
         CustomFilter::factory(3)->for($account)->for($user)->create();
         CustomFilter::factory(2)->for($account)->for($otherUser)->create();
@@ -46,7 +46,7 @@ describe('Custom Filter Listing', function () {
     test('custom filters list includes expected fields', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         CustomFilter::factory()->for($account)->for($user)->create();
 
@@ -71,7 +71,7 @@ describe('Custom Filter Listing', function () {
     test('can filter by type', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         CustomFilter::factory(3)->for($account)->for($user)->conversation()->create();
         CustomFilter::factory(2)->for($account)->for($user)->contact()->create();
@@ -89,7 +89,7 @@ describe('Custom Filter Creation', function () {
     test('can create conversation filter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_filters", [
@@ -113,7 +113,7 @@ describe('Custom Filter Creation', function () {
     test('can create contact filter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_filters", [
@@ -136,7 +136,7 @@ describe('Custom Filter Creation', function () {
     test('custom filter creation requires name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_filters", [
@@ -151,7 +151,7 @@ describe('Custom Filter Creation', function () {
     test('custom filter creation requires filter_type', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_filters", [
@@ -166,7 +166,7 @@ describe('Custom Filter Creation', function () {
     test('custom filter creation requires query', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_filters", [
@@ -183,7 +183,7 @@ describe('Custom Filter Retrieval', function () {
     test('can show custom filter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $filter = CustomFilter::factory()->for($account)->for($user)->create(['name' => 'My Filter']);
 
@@ -199,8 +199,8 @@ describe('Custom Filter Retrieval', function () {
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($otherUser->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($otherUser->id, ['role' =>  0]);
 
         $filter = CustomFilter::factory()->for($account)->for($otherUser)->create();
 
@@ -215,7 +215,7 @@ describe('Custom Filter Update', function () {
     test('can update custom filter name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $filter = CustomFilter::factory()->for($account)->for($user)->create(['name' => 'Original']);
 
@@ -231,7 +231,7 @@ describe('Custom Filter Update', function () {
     test('can update query', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $filter = CustomFilter::factory()->for($account)->for($user)->create();
 
@@ -259,7 +259,7 @@ describe('Custom Filter Deletion', function () {
     test('can delete custom filter', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $filter = CustomFilter::factory()->for($account)->for($user)->create();
 
@@ -274,8 +274,8 @@ describe('Custom Filter Deletion', function () {
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
-        $account->users()->attach($otherUser->id, ['role' => 1]);
+        $account->users()->attach($user->id, ['role' =>   0]);
+        $account->users()->attach($otherUser->id, ['role' =>  0]);
 
         $filter = CustomFilter::factory()->for($account)->for($otherUser)->create();
 
@@ -310,7 +310,7 @@ describe('Custom Filter Edge Cases', function () {
     test('custom filter with unicode name', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_filters", [
@@ -328,7 +328,7 @@ describe('Custom Filter Edge Cases', function () {
     test('complex filter with multiple conditions', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson("/api/v1/accounts/{$account->id}/custom_filters", [
@@ -347,7 +347,7 @@ describe('Custom Filter Edge Cases', function () {
     test('handles many custom filters', function () {
         $user = User::factory()->create();
         $account = Account::factory()->create();
-        $account->users()->attach($user->id, ['role' => 2]);
+        $account->users()->attach($user->id, ['role' =>   0]);
 
         CustomFilter::factory(50)->for($account)->for($user)->create();
 
