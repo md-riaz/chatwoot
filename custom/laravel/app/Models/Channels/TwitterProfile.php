@@ -49,4 +49,22 @@ class TwitterProfile extends Model
     {
         return 'Twitter';
     }
+
+    /**
+     * Get the Twitter API client for this channel.
+     */
+    public function getTwitterClient(): \App\Services\Channels\Twitter\TwitterApiClient
+    {
+        return new \App\Services\Channels\Twitter\TwitterApiClient($this);
+    }
+
+    /**
+     * Create a contact inbox for a Twitter profile.
+     */
+    public function createContactInbox(string $profileId, string $name, array $additionalAttributes = []): mixed
+    {
+        // This would integrate with the contact inbox creation system
+        // Implementation depends on the Laravel contact management system
+        return null; // Placeholder for now
+    }
 }

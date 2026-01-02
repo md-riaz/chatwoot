@@ -41,4 +41,12 @@ class Line extends Model
     {
         return 'Line';
     }
+
+    /**
+     * Get the Line API client for this channel.
+     */
+    public function getClient(): \App\Services\Channels\Line\LineApiClient
+    {
+        return new \App\Services\Channels\Line\LineApiClient($this);
+    }
 }

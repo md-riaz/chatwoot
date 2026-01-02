@@ -40,4 +40,21 @@ class Tiktok extends Model
     {
         return $this->belongsTo(Inbox::class, 'id', 'channel_id');
     }
+
+    /**
+     * Get a validated access token, refreshing if necessary.
+     */
+    public function getValidatedAccessToken(): ?string
+    {
+        $tokenService = new \App\Services\Channels\Tiktok\TiktokTokenService($this);
+        return $tokenService->getAccessToken();
+    }
+
+    /**
+     * Get the channel name.
+     */
+    public function getName(): string
+    {
+        return 'TikTok';
+    }
 }

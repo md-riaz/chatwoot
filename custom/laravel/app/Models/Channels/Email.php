@@ -60,4 +60,47 @@ class Email extends Model
     {
         return $this->morphOne(Inbox::class, 'channel');
     }
+
+    /**
+     * Check if this is a Microsoft/Outlook email channel.
+     */
+    public function isMicrosoft(): bool
+    {
+        return $this->provider === 'microsoft';
+    }
+
+    /**
+     * Check if this is a Google/Gmail email channel.
+     */
+    public function isGoogle(): bool
+    {
+        return $this->provider === 'google';
+    }
+
+    /**
+     * Check if this is a legacy Gmail setup (using IMAP credentials).
+     */
+    public function isLegacyGoogle(): bool
+    {
+        return $this->imap_enabled && $this->imap_address === 'imap.gmail.com';
+    }
+
+    /**
+     * Get the appropriate email fetch service based on provider.
+     */
+    public function getEmailFetchService()
+    {
+        if ($this->isGoogle()) {
+            return new \App\Services\Channels\Email\GoogleFetchEmailService($this);
+        }
+
+        if ($this->isMicrosoft()) {
+            return new \App\Services\Channels\Email\MicrosoftFetchEmailService($this);
+        }
+
+        // Fall back to regular email service for other providers
+        return new \App\Services\Channels\Email\EmailService(
+            $this->inbox()->first()
+        );
+    }
 }
