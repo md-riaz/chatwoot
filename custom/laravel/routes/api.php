@@ -494,7 +494,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('bulk_actions/conversations', [BulkActionsController::class, 'conversations']);
         Route::delete('bulk_actions/conversations', [BulkActionsController::class, 'deleteConversations']);
 
-        // Reports
+        // Reports V1
         Route::get('reports', [ReportsController::class, 'index']);
         Route::get('reports/conversations', [ReportsController::class, 'conversations']);
         Route::get('reports/agents', [ReportsController::class, 'agents']);
@@ -505,6 +505,34 @@ Route::middleware('auth:sanctum')->group(function () {
         // Applied SLAs reports
         Route::get('reports/applied_slas', [AppliedSlaReportsController::class, 'index']);
         Route::get('reports/applied_slas/summary', [AppliedSlaReportsController::class, 'summary']);
+
+        // Reports V2 - Advanced reporting with timeseries and enhanced analytics
+        Route::prefix('v2/reports')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Api\V2\ReportsController::class, 'index']);
+            Route::get('summary', [\App\Http\Controllers\Api\V2\ReportsController::class, 'summary']);
+            Route::get('bot_summary', [\App\Http\Controllers\Api\V2\ReportsController::class, 'botSummary']);
+            Route::get('agents', [\App\Http\Controllers\Api\V2\ReportsController::class, 'agents']);
+            Route::get('inboxes', [\App\Http\Controllers\Api\V2\ReportsController::class, 'inboxes']);
+            Route::get('labels', [\App\Http\Controllers\Api\V2\ReportsController::class, 'labels']);
+            Route::get('teams', [\App\Http\Controllers\Api\V2\ReportsController::class, 'teams']);
+            Route::get('conversation_traffic', [\App\Http\Controllers\Api\V2\ReportsController::class, 'conversationTraffic']);
+            Route::get('conversations', [\App\Http\Controllers\Api\V2\ReportsController::class, 'conversations']);
+            Route::get('bot_metrics', [\App\Http\Controllers\Api\V2\ReportsController::class, 'botMetrics']);
+        });
+
+        // Live Reports V2 - Real-time conversation metrics
+        Route::prefix('v2/live_reports')->group(function () {
+            Route::get('conversation_metrics', [\App\Http\Controllers\Api\V2\LiveReportsController::class, 'conversationMetrics']);
+            Route::get('grouped_conversation_metrics', [\App\Http\Controllers\Api\V2\LiveReportsController::class, 'groupedConversationMetrics']);
+        });
+
+        // Summary Reports V2 - Detailed summary reports by entity type
+        Route::prefix('v2/summary_reports')->group(function () {
+            Route::get('agent', [\App\Http\Controllers\Api\V2\SummaryReportsController::class, 'agent']);
+            Route::get('team', [\App\Http\Controllers\Api\V2\SummaryReportsController::class, 'team']);
+            Route::get('inbox', [\App\Http\Controllers\Api\V2\SummaryReportsController::class, 'inbox']);
+            Route::get('label', [\App\Http\Controllers\Api\V2\SummaryReportsController::class, 'label']);
+        });
 
         // SLA Policies
         Route::apiResource('sla_policies', SlaPoliciesController::class);

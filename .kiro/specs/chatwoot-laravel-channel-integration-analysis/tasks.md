@@ -585,8 +585,8 @@ Based on comprehensive analysis findings from 30+ detailed reports in `.kiro/spe
     - **Success Criteria**: Custom roles work identically to Rails system
     - _Requirements: 5.1_
 
-- [ ] 25. Implement API v2 Reports (2-3 weeks)
-  - [ ] 25.1 Create API v2 Reports Namespace (if possible merge with v1 as there not much in v2)
+- [-] 25. Implement API v2 Reports (2-3 weeks)
+  - [-] 25.1 Create API v2 Reports Namespace (if possible merge with v1 as there not much in v2)
     - **Reference**: `TASK_15_REPORTING_ANALYTICS_ANALYSIS_REPORT.md` , AGENTS.md (to learn laravel structure)
     - **Gap**: Complete API v2 namespace missing (0% coverage)
     - **Impact**: Advanced reporting unavailable
