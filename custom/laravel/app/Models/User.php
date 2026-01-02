@@ -29,6 +29,7 @@ class User extends Authenticatable
         'avatar_url',
         'availability',
         'custom_attributes',
+        'confirmation_token',
     ];
 
     /**
@@ -39,6 +40,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'confirmation_token',
     ];
 
     /**
@@ -88,6 +90,15 @@ class User extends Authenticatable
     public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
+     * Get the inboxes that this user is assigned to.
+     */
+    public function assignedInboxes(): BelongsToMany
+    {
+        return $this->belongsToMany(Inbox::class, 'inbox_members')
+            ->withTimestamps();
     }
 
     /**

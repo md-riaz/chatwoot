@@ -3,34 +3,49 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SearchRequest;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Services\PermissionFilterService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
+    public function __construct(
+        private PermissionFilterService $permissionFilterService
+    ) {}
+
     /**
      * Search across conversations, contacts, and messages.
      */
-    public function index(Account $account, Request $request): JsonResponse
+    public function index(Account $account, SearchRequest $request): JsonResponse
     {
-        $query = $request->get('q', '');
-        $type = $request->get('type', 'all'); // all, conversations, contacts, messages
+        $user = $request->user();
+        $query = $request->getQuery();
+        $type = $request->getType();
 
         $results = [];
 
         if ($type === 'all' || $type === 'conversations') {
-            $conversations = Conversation::where('account_id', $account->id)
+            $conversationQuery = Conversation::where('account_id', $account->id)
                 ->where(function ($q) use ($query) {
                     $q->where('display_id', 'like', "%{$query}%")
                       ->orWhereHas('contact', function ($contactQuery) use ($query) {
                           $contactQuery->where('name', 'like', "%{$query}%")
-                                       ->orWhere('email', 'like', "%{$query}%");
+                                       ->orWhere('email', 'like', "%{$query}%")
+                                       ->orWhere('phone_number', 'like', "%{$query}%")
+                                       ->orWhere('identifier', 'like', "%{$query}%");
                       });
-                })
+                });
+
+            // Apply permission-based filtering
+            $conversationQuery = $this->permissionFilterService->filterConversations($conversationQuery, $user, $account);
+
+            $conversations = $conversationQuery
+                ->with(['contact', 'inbox'])
+                ->orderBy('created_at', 'desc')
                 ->limit(10)
                 ->get();
 
@@ -38,13 +53,19 @@ class SearchController extends Controller
         }
 
         if ($type === 'all' || $type === 'contacts') {
-            $contacts = Contact::where('account_id', $account->id)
+            $contactQuery = Contact::where('account_id', $account->id)
                 ->where(function ($q) use ($query) {
                     $q->where('name', 'like', "%{$query}%")
                       ->orWhere('email', 'like', "%{$query}%")
                       ->orWhere('phone_number', 'like', "%{$query}%")
                       ->orWhere('identifier', 'like', "%{$query}%");
-                })
+                });
+
+            // Apply permission-based filtering
+            $contactQuery = $this->permissionFilterService->filterContacts($contactQuery, $user, $account);
+
+            $contacts = $contactQuery
+                ->orderBy('created_at', 'desc')
                 ->limit(10)
                 ->get();
 
@@ -52,10 +73,17 @@ class SearchController extends Controller
         }
 
         if ($type === 'all' || $type === 'messages') {
-            $messages = Message::whereHas('conversation', function ($q) use ($account) {
+            $messageQuery = Message::whereHas('conversation', function ($q) use ($account) {
                     $q->where('account_id', $account->id);
                 })
-                ->where('content', 'like', "%{$query}%")
+                ->where('content', 'like', "%{$query}%");
+
+            // Apply permission-based filtering
+            $messageQuery = $this->permissionFilterService->filterMessages($messageQuery, $user, $account);
+
+            $messages = $messageQuery
+                ->with(['conversation', 'sender'])
+                ->orderBy('created_at', 'desc')
                 ->limit(10)
                 ->get();
 
@@ -68,19 +96,29 @@ class SearchController extends Controller
     /**
      * Search conversations.
      */
-    public function conversations(Account $account, Request $request): JsonResponse
+    public function conversations(Account $account, SearchRequest $request): JsonResponse
     {
-        $query = $request->get('q', '');
+        $user = $request->user();
+        $query = $request->getQuery();
 
-        $conversations = Conversation::where('account_id', $account->id)
+        $conversationQuery = Conversation::where('account_id', $account->id)
             ->where(function ($q) use ($query) {
                 $q->where('display_id', 'like', "%{$query}%")
                   ->orWhereHas('contact', function ($contactQuery) use ($query) {
                       $contactQuery->where('name', 'like', "%{$query}%")
-                                   ->orWhere('email', 'like', "%{$query}%");
+                                   ->orWhere('email', 'like', "%{$query}%")
+                                   ->orWhere('phone_number', 'like', "%{$query}%")
+                                   ->orWhere('identifier', 'like', "%{$query}%");
                   });
-            })
-            ->paginate();
+            });
+
+        // Apply permission-based filtering
+        $conversationQuery = $this->permissionFilterService->filterConversations($conversationQuery, $user, $account);
+
+        $conversations = $conversationQuery
+            ->with(['contact', 'inbox', 'assignee'])
+            ->orderBy($request->getSortBy(), $request->getSortOrder())
+            ->paginate($request->getPerPage());
 
         return response()->json(['data' => $conversations]);
     }
@@ -88,17 +126,25 @@ class SearchController extends Controller
     /**
      * Search contacts.
      */
-    public function contacts(Account $account, Request $request): JsonResponse
+    public function contacts(Account $account, SearchRequest $request): JsonResponse
     {
-        $query = $request->get('q', '');
+        $user = $request->user();
+        $query = $request->getQuery();
 
-        $contacts = Contact::where('account_id', $account->id)
+        $contactQuery = Contact::where('account_id', $account->id)
             ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
                   ->orWhere('email', 'like', "%{$query}%")
-                  ->orWhere('phone_number', 'like', "%{$query}%");
-            })
-            ->paginate();
+                  ->orWhere('phone_number', 'like', "%{$query}%")
+                  ->orWhere('identifier', 'like', "%{$query}%");
+            });
+
+        // Apply permission-based filtering
+        $contactQuery = $this->permissionFilterService->filterContacts($contactQuery, $user, $account);
+
+        $contacts = $contactQuery
+            ->orderBy($request->getSortBy(), $request->getSortOrder())
+            ->paginate($request->getPerPage());
 
         return response()->json(['data' => $contacts]);
     }
@@ -106,16 +152,23 @@ class SearchController extends Controller
     /**
      * Search messages.
      */
-    public function messages(Account $account, Request $request): JsonResponse
+    public function messages(Account $account, SearchRequest $request): JsonResponse
     {
-        $query = $request->get('q', '');
+        $user = $request->user();
+        $query = $request->getQuery();
 
-        $messages = Message::whereHas('conversation', function ($q) use ($account) {
+        $messageQuery = Message::whereHas('conversation', function ($q) use ($account) {
                 $q->where('account_id', $account->id);
             })
-            ->where('content', 'like', "%{$query}%")
+            ->where('content', 'like', "%{$query}%");
+
+        // Apply permission-based filtering
+        $messageQuery = $this->permissionFilterService->filterMessages($messageQuery, $user, $account);
+
+        $messages = $messageQuery
             ->with(['conversation', 'sender'])
-            ->paginate();
+            ->orderBy($request->getSortBy(), $request->getSortOrder())
+            ->paginate($request->getPerPage());
 
         return response()->json(['data' => $messages]);
     }

@@ -35,9 +35,14 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->json('serialized_value');
             $table->boolean('locked')->default(true);
+            $table->string('display_title')->nullable();
+            $table->text('description')->nullable();
+            $table->string('type', 20)->default('text');
+            $table->json('options')->nullable();
             $table->timestamps();
 
             $table->index(['name', 'created_at']);
+            $table->index('type');
         });
     }
 

@@ -197,7 +197,58 @@ class Account extends Model
      */
     public function featureEnabled(string $feature): bool
     {
-        return $this->features[$feature] ?? false;
+        $features = $this->features ?? [];
+        return in_array($feature, $features);
+    }
+
+    /**
+     * Check if account has premium access.
+     */
+    public function isPremium(): bool
+    {
+        // For now, assume all accounts are premium
+        // In production, this would check subscription status
+        return true;
+    }
+
+    /**
+     * Enable a feature for this account.
+     */
+    public function enableFeature(string $feature): bool
+    {
+        $features = $this->features ?? [];
+        
+        if (!in_array($feature, $features)) {
+            $features[] = $feature;
+            $this->features = $features;
+            $this->save();
+        }
+        
+        return true;
+    }
+
+    /**
+     * Disable a feature for this account.
+     */
+    public function disableFeature(string $feature): bool
+    {
+        $features = $this->features ?? [];
+        
+        if (in_array($feature, $features)) {
+            $features = array_values(array_diff($features, [$feature]));
+            $this->features = $features;
+            $this->save();
+        }
+        
+        return true;
+    }
+
+    /**
+     * Get all enabled features for this account.
+     */
+    public function getEnabledFeatures(): array
+    {
+        return $this->features ?? [];
     }
 
     /**

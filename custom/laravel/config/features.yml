@@ -1,0 +1,255 @@
+- name: shopify_integration
+  display_name: Shopify Integration
+  description: Enable Shopify e-commerce integration
+  enabled: false
+  premium: true
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/integrations/shopify
+
+- name: custom_roles
+  display_name: Custom Roles
+  description: Create and manage custom user roles
+  enabled: false
+  premium: true
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/user-management/custom-roles
+
+- name: sla_policies
+  display_name: SLA Policies
+  description: Service Level Agreement tracking and enforcement
+  enabled: false
+  premium: true
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/sla-policies
+
+- name: linear_integration
+  display_name: Linear Integration
+  description: Integrate with Linear for issue tracking
+  enabled: false
+  premium: true
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/integrations/linear
+
+- name: slack_integration
+  display_name: Slack Integration
+  description: Connect with Slack for team notifications
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/integrations/slack
+
+- name: openai_integration
+  display_name: OpenAI Integration
+  description: AI-powered conversation assistance
+  enabled: false
+  premium: true
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/integrations/openai
+
+- name: audit_logs
+  display_name: Audit Logs
+  description: Comprehensive activity logging and monitoring
+  enabled: false
+  premium: true
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/audit-logs
+
+- name: advanced_reporting
+  display_name: Advanced Reporting
+  description: Detailed analytics and custom reports
+  enabled: false
+  premium: true
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/reporting
+
+- name: team_management
+  display_name: Team Management
+  description: Organize agents into teams
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/user-management/teams
+
+- name: automation_rules
+  display_name: Automation Rules
+  description: Automate conversation workflows
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/automation
+
+- name: csat_surveys
+  display_name: CSAT Surveys
+  description: Customer satisfaction surveys
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/csat
+
+- name: campaigns
+  display_name: Campaigns
+  description: Proactive messaging campaigns
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/campaigns
+
+- name: whatsapp_integration
+  display_name: WhatsApp Integration
+  description: Connect with WhatsApp Business API
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/integrations/whatsapp
+
+- name: facebook_integration
+  display_name: Facebook Integration
+  description: Connect with Facebook Messenger
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/integrations/facebook
+
+- name: instagram_integration
+  display_name: Instagram Integration
+  description: Connect with Instagram Direct Messages
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/integrations/instagram
+
+- name: twitter_integration
+  display_name: Twitter Integration
+  description: Connect with Twitter Direct Messages
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/integrations/twitter
+
+- name: email_integration
+  display_name: Email Integration
+  description: Handle customer emails as conversations
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/integrations/email
+
+- name: website_widget
+  display_name: Website Widget
+  description: Embeddable chat widget for websites
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/channels/website
+
+- name: mobile_app
+  display_name: Mobile App
+  description: Native mobile applications for iOS and Android
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/mobile-app
+
+- name: api_access
+  display_name: API Access
+  description: RESTful API for integrations and automation
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/api
+
+- name: webhooks
+  display_name: Webhooks
+  description: Real-time event notifications via HTTP callbacks
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/webhooks
+
+- name: macros
+  display_name: Macros
+  description: Predefined actions for quick conversation handling
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/macros
+
+- name: canned_responses
+  display_name: Canned Responses
+  description: Pre-written responses for common queries
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/canned-responses
+
+- name: labels
+  display_name: Labels
+  description: Organize conversations with custom labels
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/labels
+
+- name: contact_management
+  display_name: Contact Management
+  description: Comprehensive customer contact database
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/contacts
+
+- name: conversation_assignment
+  display_name: Conversation Assignment
+  description: Assign conversations to specific agents or teams
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/assignment
+
+- name: conversation_search
+  display_name: Conversation Search
+  description: Search through conversations and messages
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/search
+
+- name: file_attachments
+  display_name: File Attachments
+  description: Send and receive file attachments in conversations
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/attachments
+
+- name: conversation_notes
+  display_name: Conversation Notes
+  description: Internal notes for agent collaboration
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/notes
+
+- name: agent_availability
+  display_name: Agent Availability
+  description: Manage agent online/offline status
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/availability
+
+- name: conversation_status
+  display_name: Conversation Status
+  description: Track conversation states (open, resolved, pending)
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/status
+
+- name: real_time_notifications
+  display_name: Real-time Notifications
+  description: Instant notifications for new messages and events
+  enabled: true
+  premium: false
+  chatwoot_internal: false
+  help_url: https://docs.chatwoot.com/features/notifications

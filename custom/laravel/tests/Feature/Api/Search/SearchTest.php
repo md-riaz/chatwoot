@@ -256,6 +256,201 @@ describe('Search Authorization', function () {
     });
 });
 
+describe('Search Permission Filtering', function () {
+    test('user can only search conversations from assigned inboxes', function () {
+        $user = User::factory()->create();
+        $account = Account::factory()->create();
+        $account->users()->attach($user->id, ['role' => 'agent']);
+
+        // Create two inboxes
+        $assignedInbox = Inbox::factory()->for($account)->create(['name' => 'Assigned Inbox']);
+        $unassignedInbox = Inbox::factory()->for($account)->create(['name' => 'Unassigned Inbox']);
+
+        // Assign user to only one inbox
+        $assignedInbox->members()->attach($user->id);
+
+        // Create contacts and conversations in both inboxes
+        $assignedContact = Contact::factory()->for($account)->create(['name' => 'Assigned Contact']);
+        $unassignedContact = Contact::factory()->for($account)->create(['name' => 'Unassigned Contact']);
+
+        $assignedConversation = Conversation::factory()
+            ->for($account)
+            ->for($assignedInbox)
+            ->for($assignedContact)
+            ->create();
+
+        $unassignedConversation = Conversation::factory()
+            ->for($account)
+            ->for($unassignedInbox)
+            ->for($unassignedContact)
+            ->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/search/conversations?q=Contact");
+
+        $response->assertOk();
+        
+        $conversations = collect($response->json('data.data'));
+        $inboxIds = $conversations->pluck('inbox_id');
+        
+        // Should only return conversations from assigned inbox
+        expect($inboxIds->contains($assignedInbox->id))->toBeTrue();
+        expect($inboxIds->contains($unassignedInbox->id))->toBeFalse();
+    });
+
+    test('user can only search messages from assigned inboxes', function () {
+        $user = User::factory()->create();
+        $account = Account::factory()->create();
+        $account->users()->attach($user->id, ['role' => 'agent']);
+
+        // Create two inboxes
+        $assignedInbox = Inbox::factory()->for($account)->create();
+        $unassignedInbox = Inbox::factory()->for($account)->create();
+
+        // Assign user to only one inbox
+        $assignedInbox->members()->attach($user->id);
+
+        // Create conversations and messages in both inboxes
+        $assignedContact = Contact::factory()->for($account)->create();
+        $unassignedContact = Contact::factory()->for($account)->create();
+
+        $assignedConversation = Conversation::factory()
+            ->for($account)
+            ->for($assignedInbox)
+            ->for($assignedContact)
+            ->create();
+
+        $unassignedConversation = Conversation::factory()
+            ->for($account)
+            ->for($unassignedInbox)
+            ->for($unassignedContact)
+            ->create();
+
+        Message::factory()
+            ->for($account)
+            ->for($assignedConversation)
+            ->for($assignedInbox)
+            ->create(['content' => 'Assigned message content']);
+
+        Message::factory()
+            ->for($account)
+            ->for($unassignedConversation)
+            ->for($unassignedInbox)
+            ->create(['content' => 'Unassigned message content']);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/search/messages?q=message");
+
+        $response->assertOk();
+        
+        $messages = collect($response->json('data.data'));
+        
+        // Should only return messages from assigned inbox
+        $assignedMessages = $messages->filter(function ($message) {
+            return str_contains($message['content'], 'Assigned');
+        });
+        
+        $unassignedMessages = $messages->filter(function ($message) {
+            return str_contains($message['content'], 'Unassigned');
+        });
+        
+        expect($assignedMessages->count())->toBeGreaterThan(0);
+        expect($unassignedMessages->count())->toBe(0);
+    });
+
+    test('administrator can search all conversations in account', function () {
+        $admin = User::factory()->create();
+        $account = Account::factory()->create();
+        $account->users()->attach($admin->id, ['role' => 'administrator']);
+
+        // Create two inboxes
+        $inbox1 = Inbox::factory()->for($account)->create();
+        $inbox2 = Inbox::factory()->for($account)->create();
+
+        // Create conversations in both inboxes (admin not assigned to any)
+        $contact1 = Contact::factory()->for($account)->create(['name' => 'Contact One']);
+        $contact2 = Contact::factory()->for($account)->create(['name' => 'Contact Two']);
+
+        Conversation::factory()
+            ->for($account)
+            ->for($inbox1)
+            ->for($contact1)
+            ->create();
+
+        Conversation::factory()
+            ->for($account)
+            ->for($inbox2)
+            ->for($contact2)
+            ->create();
+
+        $response = $this->actingAs($admin, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/search/conversations?q=Contact");
+
+        $response->assertOk();
+        
+        $conversations = collect($response->json('data.data'));
+        $inboxIds = $conversations->pluck('inbox_id');
+        
+        // Admin should see conversations from both inboxes
+        expect($inboxIds->contains($inbox1->id))->toBeTrue();
+        expect($inboxIds->contains($inbox2->id))->toBeTrue();
+    });
+
+    test('user with no inbox access gets empty results', function () {
+        $user = User::factory()->create();
+        $account = Account::factory()->create();
+        $account->users()->attach($user->id, ['role' => 'agent']);
+
+        // Create inbox and conversation but don't assign user to inbox
+        $inbox = Inbox::factory()->for($account)->create();
+        $contact = Contact::factory()->for($account)->create(['name' => 'Test Contact']);
+        
+        Conversation::factory()
+            ->for($account)
+            ->for($inbox)
+            ->for($contact)
+            ->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/search/conversations?q=Test");
+
+        $response->assertOk();
+        
+        $conversations = collect($response->json('data.data'));
+        expect($conversations->count())->toBe(0);
+    });
+
+    test('search request validation works correctly', function () {
+        $user = User::factory()->create();
+        $account = Account::factory()->create();
+        $account->users()->attach($user->id, ['role' => 'agent']);
+
+        // Test missing query parameter
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/search");
+
+        $response->assertUnprocessable();
+
+        // Test query too short
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/search?q=a");
+
+        $response->assertUnprocessable();
+
+        // Test invalid search type
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/search?q=test&type=invalid");
+
+        $response->assertUnprocessable();
+
+        // Test valid request
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/search?q=test&type=all");
+
+        $response->assertOk();
+    });
+});
+
 describe('Search Edge Cases', function () {
     test('search with special characters', function () {
         $user = User::factory()->create();

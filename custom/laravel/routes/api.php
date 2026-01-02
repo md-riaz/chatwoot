@@ -130,6 +130,14 @@ Route::get('installation/onboarding/status', [\App\Http\Controllers\Api\V1\Insta
 Route::prefix('auth')->group(function () {
     Route::post('login', [LoginController::class, 'login']);
     Route::post('register', [RegisterController::class, 'register']);
+    
+    // Email confirmation routes
+    Route::post('email/verify', [\App\Http\Controllers\Api\V1\Auth\EmailConfirmationController::class, 'verify']);
+    Route::post('email/resend', [\App\Http\Controllers\Api\V1\Auth\EmailConfirmationController::class, 'resend']);
+    
+    // Password reset routes
+    Route::post('password/email', [\App\Http\Controllers\Api\V1\Auth\PasswordResetController::class, 'sendResetLink']);
+    Route::post('password/reset', [\App\Http\Controllers\Api\V1\Auth\PasswordResetController::class, 'reset']);
 });
 
 // Webhook routes (public)

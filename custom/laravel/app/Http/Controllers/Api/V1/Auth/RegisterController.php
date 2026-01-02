@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
+use App\Actions\Auth\SendEmailConfirmationAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\UserResource;
 use App\Models\User;
@@ -9,6 +10,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
@@ -28,15 +30,23 @@ class RegisterController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'confirmation_token' => Str::random(64),
         ]);
 
         event(new Registered($user));
 
+        // Send email confirmation
+        SendEmailConfirmationAction::run($user);
+
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
-            'user' => new UserResource($user),
-            'token' => $token,
+            'message' => 'Registration successful. Please check your email to confirm your account.',
+            'data' => [
+                'user' => new UserResource($user),
+                'token' => $token,
+                'email_confirmation_sent' => true,
+            ]
         ], 201);
     }
 }
