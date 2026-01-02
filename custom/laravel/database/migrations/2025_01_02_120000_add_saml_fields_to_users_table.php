@@ -15,7 +15,6 @@ return new class extends Migration
             $table->string('provider')->default('email')->after('password');
             $table->string('uid')->nullable()->after('provider');
             $table->string('sso_auth_token')->nullable()->after('uid');
-            $table->string('confirmation_token')->nullable()->after('sso_auth_token');
             
             $table->index('provider');
             $table->index('uid');
@@ -30,7 +29,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->dropIndex(['provider']);
             $table->dropIndex(['uid']);
-            $table->dropColumn(['provider', 'uid', 'sso_auth_token', 'confirmation_token']);
+            $table->dropColumn(['provider', 'uid', 'sso_auth_token']);
         });
     }
 };
