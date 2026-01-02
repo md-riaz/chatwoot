@@ -1,24 +1,23 @@
 <?php
 
 /**
- * ParticipantService Unit Tests
+ * ManageParticipantsAction Unit Tests
  *
- * Tests participant management service functionality.
+ * Tests the Action pattern implementation for participant management.
  */
 
+use App\Actions\Conversation\ManageParticipantsAction;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Conversation;
 use App\Models\ConversationParticipant;
 use App\Models\Inbox;
 use App\Models\User;
-use App\Services\ParticipantService;
+use App\Repositories\Conversation\ParticipantRepository;
 use Illuminate\Validation\ValidationException;
 
-describe('ParticipantService', function () {
+describe('ManageParticipantsAction', function () {
     beforeEach(function () {
-        $this->service = new ParticipantService();
-        
         $this->account = Account::factory()->create();
         $this->inbox = Inbox::factory()->for($this->account)->create();
         $this->contact = Contact::factory()->for($this->account)->create();
@@ -32,20 +31,22 @@ describe('ParticipantService', function () {
         $this->account->users()->attach($this->user1->id, ['role' => 0]);
         $this->account->users()->attach($this->user2->id, ['role' => 0]);
         $this->account->users()->attach($this->user3->id, ['role' => 0]);
+
+        $this->action = new ManageParticipantsAction();
     });
 
     test('can get participants for conversation', function () {
         ConversationParticipant::factory()->for($this->conversation)->for($this->user1)->for($this->account)->create();
         ConversationParticipant::factory()->for($this->conversation)->for($this->user2)->for($this->account)->create();
 
-        $participants = $this->service->getParticipants($this->conversation);
+        $participants = $this->action->getParticipants($this->conversation);
 
         expect($participants)->toHaveCount(2);
         expect($participants->pluck('user_id')->toArray())->toContain($this->user1->id, $this->user2->id);
     });
 
     test('can add participants to conversation', function () {
-        $participants = $this->service->addParticipants($this->conversation, [$this->user1->id, $this->user2->id]);
+        $participants = $this->action->addParticipants($this->conversation, [$this->user1->id, $this->user2->id]);
 
         expect($participants)->toHaveCount(2);
         
@@ -65,7 +66,7 @@ describe('ParticipantService', function () {
         ConversationParticipant::factory()->for($this->conversation)->for($this->user1)->for($this->account)->create();
 
         // Add same participant again
-        $participants = $this->service->addParticipants($this->conversation, [$this->user1->id]);
+        $participants = $this->action->addParticipants($this->conversation, [$this->user1->id]);
 
         expect($participants)->toHaveCount(1);
         
@@ -84,7 +85,7 @@ describe('ParticipantService', function () {
         ConversationParticipant::factory()->for($this->conversation)->for($this->user2)->for($this->account)->create();
 
         // Update to different set of participants
-        $participants = $this->service->updateParticipants($this->conversation, [$this->user2->id, $this->user3->id]);
+        $participants = $this->action->updateParticipants($this->conversation, [$this->user2->id, $this->user3->id]);
 
         expect($participants)->toHaveCount(2);
         
@@ -111,7 +112,7 @@ describe('ParticipantService', function () {
         ConversationParticipant::factory()->for($this->conversation)->for($this->user1)->for($this->account)->create();
         ConversationParticipant::factory()->for($this->conversation)->for($this->user2)->for($this->account)->create();
 
-        $this->service->removeParticipants($this->conversation, [$this->user1->id]);
+        $this->action->removeParticipants($this->conversation, [$this->user1->id]);
 
         // Verify user1 was removed
         $this->assertDatabaseMissing('conversation_participants', [
@@ -126,38 +127,24 @@ describe('ParticipantService', function () {
         ]);
     });
 
-    test('can get current participant IDs', function () {
-        ConversationParticipant::factory()->for($this->conversation)->for($this->user1)->for($this->account)->create();
-        ConversationParticipant::factory()->for($this->conversation)->for($this->user2)->for($this->account)->create();
-
-        $participantIds = $this->service->getCurrentParticipantIds($this->conversation);
-
-        expect($participantIds)->toHaveCount(2);
-        expect($participantIds)->toContain($this->user1->id, $this->user2->id);
-    });
-
-    test('can check if user can participate', function () {
-        // User with access
-        $canParticipate = $this->service->canUserParticipate($this->conversation, $this->user1);
-        expect($canParticipate)->toBeTrue();
-
-        // User without access
-        $userWithoutAccess = User::factory()->create();
-        $canParticipate = $this->service->canUserParticipate($this->conversation, $userWithoutAccess);
-        expect($canParticipate)->toBeFalse();
-    });
-
     test('validates participants have inbox access', function () {
         $userWithoutAccess = User::factory()->create();
 
         expect(function () use ($userWithoutAccess) {
-            $this->service->validateParticipants($this->conversation, [$userWithoutAccess->id]);
+            $this->action->addParticipants($this->conversation, [$userWithoutAccess->id]);
         })->toThrow(ValidationException::class);
     });
 
     test('allows participants with inbox access', function () {
         expect(function () {
-            $this->service->validateParticipants($this->conversation, [$this->user1->id, $this->user2->id]);
+            $this->action->addParticipants($this->conversation, [$this->user1->id, $this->user2->id]);
         })->not->toThrow(ValidationException::class);
+    });
+
+    test('action can be called statically', function () {
+        $participants = ManageParticipantsAction::run()->addParticipants($this->conversation, [$this->user1->id]);
+
+        expect($participants)->toHaveCount(1);
+        expect($participants->first()->user_id)->toBe($this->user1->id);
     });
 });

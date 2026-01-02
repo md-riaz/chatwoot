@@ -44,13 +44,19 @@ After importing, create a new Environment in Postman with these variables:
 
 ---
 
+## Additional Documentation
+
+| File | Description |
+|------|-------------|
+| `PARTICIPANTS_API_DOCUMENTATION.md` | Detailed documentation for conversation participants API |
+
 ## Path Files (for development)
 
 | File | Endpoints |
 |------|-----------|
 | `authentication.yaml` | Login, register, logout, current user |
 | `profile.yaml` | Profile management, MFA setup |
-| `conversations.yaml` | Conversation CRUD, search, filter, status |
+| `conversations.yaml` | Conversation CRUD, search, filter, status, participants |
 | `messages.yaml` | Message CRUD within conversations |
 | `contacts.yaml` | Contact CRUD, search, import/export, notes |
 | `inboxes.yaml` | Inbox management, members, agent bots |

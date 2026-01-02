@@ -2,11 +2,46 @@
 
 ## Overview
 
-This document describes the implementation of the Conversation Participants feature in Laravel, which provides 100% functional parity with the Rails backend.
+This document describes the implementation of the Conversation Participants feature in Laravel, which provides 100% functional parity with the Rails backend while following proper Laravel architecture patterns as defined in AGENTS.md.
+
+## Architecture Pattern: Action → Repository → Model
+
+Following the AGENTS.md guidelines, this implementation uses the recommended Laravel architecture:
+
+- **Controller**: Thin layer that validates input, calls Action, returns Resource
+- **Action**: Business logic encapsulation using lorisleiva/laravel-actions
+- **Repository**: Data access layer for database operations
+- **Data**: Spatie Data objects for typed request/response payloads
+- **Model**: Eloquent model with relationships and validations
 
 ## Components Implemented
 
-### 1. Model: `ConversationParticipant`
+### 1. Action: `ManageParticipantsAction`
+- **Location**: `app/Actions/Conversation/ManageParticipantsAction.php`
+- **Pattern**: Uses `lorisleiva/laravel-actions` for business logic
+- **Features**:
+  - Encapsulates all participant management business logic
+  - Handles validation for inbox access
+  - Transaction management for data consistency
+  - Implements Rails logic patterns (add/remove/update participants)
+
+### 2. Repository: `ParticipantRepository`
+- **Location**: `app/Repositories/Conversation/ParticipantRepository.php`
+- **Pattern**: Extends BaseRepository for consistent data access
+- **Features**:
+  - Database operations abstraction
+  - Query optimization and reusability
+  - Separation of data access from business logic
+
+### 3. Data Object: `ParticipantData`
+- **Location**: `app/Data/Conversation/ParticipantData.php`
+- **Pattern**: Uses Spatie Data for typed request validation
+- **Features**:
+  - Type-safe request payload handling
+  - Automatic validation rules
+  - Better IDE support and documentation
+
+### 4. Model: `ConversationParticipant`
 - **Location**: `app/Models/ConversationParticipant.php`
 - **Features**:
   - Automatic `account_id` assignment from conversation
@@ -15,23 +50,21 @@ This document describes the implementation of the Conversation Participants feat
   - Inbox access validation (ensures user has access to conversation's inbox)
   - Relationships: belongs to Account, Conversation, and User
 
-### 2. Controller: `ParticipantsController`
+### 5. Controller: `ParticipantsController`
 - **Location**: `app/Http/Controllers/Api/V1/Conversations/ParticipantsController.php`
+- **Pattern**: Thin controller following AGENTS.md guidelines
+- **Features**:
+  - Minimal logic: validate input → call Action → return Resource
+  - Uses Data objects for request validation
+  - Uses Actions for business logic
+  - Returns UserResource for consistent API responses
 - **Endpoints**:
   - `GET /api/v1/accounts/{account}/conversations/{conversation}/participants` - List participants
   - `POST /api/v1/accounts/{account}/conversations/{conversation}/participants` - Add participants
   - `PATCH /api/v1/accounts/{account}/conversations/{conversation}/participants` - Update participants
   - `DELETE /api/v1/accounts/{account}/conversations/{conversation}/participants` - Remove participants
 
-### 3. Service: `ParticipantService`
-- **Location**: `app/Services/ParticipantService.php`
-- **Features**:
-  - Participant management logic
-  - Validation for inbox access
-  - Transaction handling for data consistency
-  - Implements Rails logic for adding/removing participants
-
-### 4. Database Migration
+### 6. Database Migration
 - **Location**: `database/migrations/2024_01_01_000026_create_conversation_participants_table.php`
 - **Features**:
   - Complete table structure matching Rails schema
@@ -39,15 +72,28 @@ This document describes the implementation of the Conversation Participants feat
   - Foreign key constraints for data integrity
   - Unique constraint on user_id + conversation_id
 
-### 5. Factory
+### 7. Factory
 - **Location**: `database/factories/ConversationParticipantFactory.php`
 - **Features**: Test data generation for participants
 
-### 6. Tests
+### 8. Tests
 - **Feature Tests**: `tests/Feature/Api/Conversations/Participants/ParticipantsTest.php`
 - **Unit Tests**: 
   - `tests/Unit/Models/ConversationParticipantTest.php`
-  - `tests/Unit/Services/ParticipantServiceTest.php`
+  - `tests/Unit/Services/ParticipantServiceTest.php` (deprecated - replaced with Action tests)
+
+### 9. OpenAPI Documentation
+- **Location**: `docs/openapi/paths/conversations.yaml`
+- **Features**:
+  - Complete OpenAPI 3.0 specification for all participants endpoints
+  - Request/response schemas and examples
+  - Error response documentation
+  - Authentication requirements
+- **Additional Documentation**: `docs/openapi/PARTICIPANTS_API_DOCUMENTATION.md`
+  - Comprehensive API usage guide
+  - cURL and JavaScript examples
+  - Business rules and error handling
+  - Implementation notes
 
 ## Rails Parity Features
 

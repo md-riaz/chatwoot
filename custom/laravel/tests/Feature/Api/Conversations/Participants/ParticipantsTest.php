@@ -3,9 +3,10 @@
 /**
  * Conversation Participants API Tests
  *
- * Tests conversation participants CRUD functionality.
+ * Tests conversation participants CRUD functionality using Actions pattern.
  */
 
+use App\Actions\Conversation\ManageParticipantsAction;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Conversation;
@@ -59,7 +60,7 @@ describe('Conversation Participants Show', function () {
 });
 
 describe('Conversation Participants Creation', function () {
-    test('can add participants to conversation', function () {
+    test('can add participants to conversation using action', function () {
         $user = User::factory()->create();
         $user2 = User::factory()->create();
         $account = Account::factory()->create();
@@ -144,7 +145,7 @@ describe('Conversation Participants Creation', function () {
 });
 
 describe('Conversation Participants Update', function () {
-    test('can update participants for conversation', function () {
+    test('can update participants for conversation using action', function () {
         $user = User::factory()->create();
         $user2 = User::factory()->create();
         $user3 = User::factory()->create();
@@ -186,7 +187,7 @@ describe('Conversation Participants Update', function () {
 });
 
 describe('Conversation Participants Deletion', function () {
-    test('can remove participants from conversation', function () {
+    test('can remove participants from conversation using action', function () {
         $user = User::factory()->create();
         $user2 = User::factory()->create();
         $account = Account::factory()->create();
@@ -260,5 +261,26 @@ describe('Conversation Participants Authorization', function () {
             ->getJson("/api/v1/accounts/{$account2->id}/conversations/{$conversation->id}/participants");
 
         $response->assertNotFound();
+    });
+});
+
+describe('ManageParticipantsAction Unit Tests', function () {
+    test('action can be called directly', function () {
+        $account = Account::factory()->create();
+        $inbox = Inbox::factory()->for($account)->create();
+        $contact = Contact::factory()->for($account)->create();
+        $conversation = Conversation::factory()->for($account)->for($inbox)->for($contact)->create();
+        
+        $user = User::factory()->create();
+        $account->users()->attach($user->id, ['role' => 0]);
+
+        $action = new ManageParticipantsAction(
+            new \App\Repositories\Conversation\ParticipantRepository(new ConversationParticipant())
+        );
+
+        $participants = $action->addParticipants($conversation, [$user->id]);
+
+        expect($participants)->toHaveCount(1);
+        expect($participants->first()->user_id)->toBe($user->id);
     });
 });

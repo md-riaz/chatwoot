@@ -591,6 +591,247 @@
                   type: string
                   example: "Transcript sent successfully"
 
+/accounts/{account_id}/conversations/{conversation_id}/participants:
+  get:
+    tags:
+      - Conversations
+    summary: List conversation participants
+    description: Get all participants for a conversation
+    operationId: listConversationParticipants
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 1
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+    responses:
+      '200':
+        description: List of conversation participants
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/User'
+            example:
+              data:
+                - id: 1
+                  name: "John Doe"
+                  email: "john@example.com"
+                  avatar_url: "https://example.com/avatar.jpg"
+                - id: 2
+                  name: "Jane Smith"
+                  email: "jane@example.com"
+                  avatar_url: "https://example.com/avatar2.jpg"
+      '404':
+        description: Conversation not found
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Error'
+
+  post:
+    tags:
+      - Conversations
+    summary: Add conversation participants
+    description: Add one or more participants to a conversation
+    operationId: addConversationParticipants
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 1
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_ids
+            properties:
+              user_ids:
+                type: array
+                items:
+                  type: integer
+                description: Array of user IDs to add as participants
+                example: [456, 789]
+          example:
+            user_ids: [456, 789]
+    responses:
+      '200':
+        description: Participants added successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/User'
+            example:
+              data:
+                - id: 456
+                  name: "Alice Johnson"
+                  email: "alice@example.com"
+                - id: 789
+                  name: "Bob Wilson"
+                  email: "bob@example.com"
+      '422':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Error'
+            example:
+              error: "Validation failed"
+              errors:
+                user_ids: ["User 456 must have inbox access"]
+
+  patch:
+    tags:
+      - Conversations
+    summary: Update conversation participants
+    description: Replace all participants for a conversation with the provided list
+    operationId: updateConversationParticipants
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 1
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_ids
+            properties:
+              user_ids:
+                type: array
+                items:
+                  type: integer
+                description: Array of user IDs to set as participants (replaces existing)
+                example: [456, 999]
+          example:
+            user_ids: [456, 999]
+    responses:
+      '200':
+        description: Participants updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '../openapi.yaml#/components/schemas/User'
+            example:
+              data:
+                - id: 456
+                  name: "Alice Johnson"
+                  email: "alice@example.com"
+                - id: 999
+                  name: "Charlie Brown"
+                  email: "charlie@example.com"
+      '422':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Error'
+
+  delete:
+    tags:
+      - Conversations
+    summary: Remove conversation participants
+    description: Remove one or more participants from a conversation
+    operationId: removeConversationParticipants
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 1
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_ids
+            properties:
+              user_ids:
+                type: array
+                items:
+                  type: integer
+                description: Array of user IDs to remove from participants
+                example: [456]
+          example:
+            user_ids: [456]
+    responses:
+      '200':
+        description: Participants removed successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Participants removed successfully"
+      '422':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Error'
+
 /accounts/{account_id}/conversations/{conversation_id}/inbox_assistant:
   get:
     tags:
