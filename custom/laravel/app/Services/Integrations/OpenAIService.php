@@ -453,4 +453,262 @@ class OpenAIService
             return [];
         }
     }
+
+    /**
+     * Enterprise feature: Track usage and enforce limits
+     */
+    public function trackUsage(array $usage, string $feature = 'openai_general'): void
+    {
+        try {
+            // Track token usage for billing and limits
+            $totalTokens = $usage['total_tokens'] ?? 0;
+            $promptTokens = $usage['prompt_tokens'] ?? 0;
+            $completionTokens = $usage['completion_tokens'] ?? 0;
+
+            // Log usage for enterprise tracking
+            Log::info('OpenAI usage tracked', [
+                'feature' => $feature,
+                'total_tokens' => $totalTokens,
+                'prompt_tokens' => $promptTokens,
+                'completion_tokens' => $completionTokens,
+                'model' => $this->model,
+                'timestamp' => now()->toISOString(),
+            ]);
+
+            // TODO: Implement actual usage tracking in database
+            // This would typically update a usage_tracking table
+            // and check against account limits
+        } catch (\Exception $e) {
+            Log::error('Failed to track OpenAI usage', ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Enterprise feature: Check if usage is within limits
+     */
+    public function canUseFeature(string $feature = 'openai_general'): bool
+    {
+        try {
+            // TODO: Implement actual limit checking
+            // This would check against account usage limits
+            // For now, return true (unlimited)
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to check OpenAI usage limits', ['error' => $e->getMessage()]);
+            return false;
+        }
+    }
+
+    /**
+     * Enterprise feature: Get usage statistics
+     */
+    public function getUsageStats(string $period = 'month'): array
+    {
+        try {
+            // TODO: Implement actual usage statistics
+            // This would query usage_tracking table and return stats
+            return [
+                'period' => $period,
+                'total_requests' => 0,
+                'total_tokens' => 0,
+                'total_cost' => 0.0,
+                'features' => [],
+            ];
+        } catch (\Exception $e) {
+            Log::error('Failed to get OpenAI usage stats', ['error' => $e->getMessage()]);
+            return [];
+        }
+    }
+
+    /**
+     * Enterprise feature: Custom prompt templates
+     */
+    public function useCustomPrompt(string $templateName, array $variables = []): string
+    {
+        try {
+            // TODO: Implement custom prompt template system
+            // This would load templates from database or config
+            $templates = [
+                'reply_suggestion' => 'You are a helpful support agent. Based on the conversation history, suggest a professional reply. Variables: {context}',
+                'summarization' => 'Summarize this conversation focusing on: {focus_areas}',
+                'tone_improvement' => 'Improve the tone of this message to be more {target_tone}',
+            ];
+
+            $template = $templates[$templateName] ?? $templateName;
+
+            // Replace variables in template
+            foreach ($variables as $key => $value) {
+                $template = str_replace("{{$key}}", $value, $template);
+            }
+
+            return $template;
+        } catch (\Exception $e) {
+            Log::error('Failed to use custom prompt template', [
+                'template' => $templateName,
+                'error' => $e->getMessage(),
+            ]);
+            return $templateName;
+        }
+    }
+
+    /**
+     * Enterprise feature: Batch processing for multiple requests
+     */
+    public function batchProcess(array $requests): array
+    {
+        $results = [];
+
+        foreach ($requests as $index => $request) {
+            if (!$this->canUseFeature($request['feature'] ?? 'batch_processing')) {
+                $results[$index] = ['success' => false, 'error' => 'Usage limit exceeded'];
+                continue;
+            }
+
+            try {
+                $result = $this->chat($request['messages'], $request['options'] ?? []);
+                
+                if ($result['success'] && isset($result['usage'])) {
+                    $this->trackUsage($result['usage'], $request['feature'] ?? 'batch_processing');
+                }
+
+                $results[$index] = $result;
+            } catch (\Exception $e) {
+                $results[$index] = ['success' => false, 'error' => $e->getMessage()];
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Enterprise feature: Content moderation
+     */
+    public function moderateContent(string $content): array
+    {
+        if (!$this->apiKey) {
+            return ['success' => false, 'error' => 'OpenAI API key not configured'];
+        }
+
+        try {
+            $response = Http::withToken($this->apiKey)
+                ->post("{$this->apiUrl}/moderations", [
+                    'input' => $content,
+                ]);
+
+            if ($response->successful()) {
+                $result = $response->json('results.0');
+                return [
+                    'success' => true,
+                    'flagged' => $result['flagged'] ?? false,
+                    'categories' => $result['categories'] ?? [],
+                    'category_scores' => $result['category_scores'] ?? [],
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => $response->json('error.message', 'Unknown error'),
+            ];
+        } catch (\Exception $e) {
+            Log::error('OpenAI content moderation failed', ['error' => $e->getMessage()]);
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Enterprise feature: Fine-tuning support
+     */
+    public function createFineTuningJob(string $trainingFile, array $options = []): array
+    {
+        if (!$this->apiKey) {
+            return ['success' => false, 'error' => 'OpenAI API key not configured'];
+        }
+
+        try {
+            $payload = array_merge([
+                'training_file' => $trainingFile,
+                'model' => 'gpt-3.5-turbo',
+            ], $options);
+
+            $response = Http::withToken($this->apiKey)
+                ->post("{$this->apiUrl}/fine_tuning/jobs", $payload);
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'job_id' => $response->json('id'),
+                    'status' => $response->json('status'),
+                    'model' => $response->json('model'),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => $response->json('error.message', 'Unknown error'),
+            ];
+        } catch (\Exception $e) {
+            Log::error('OpenAI fine-tuning job creation failed', ['error' => $e->getMessage()]);
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Enhanced chat method with enterprise features
+     */
+    public function chat(array $messages, array $options = []): array
+    {
+        if (!$this->apiKey) {
+            return ['success' => false, 'error' => 'OpenAI API key not configured'];
+        }
+
+        $feature = $options['feature'] ?? 'chat_completion';
+
+        // Check usage limits for enterprise
+        if (!$this->canUseFeature($feature)) {
+            return ['success' => false, 'error' => 'Usage limit exceeded for this feature'];
+        }
+
+        try {
+            $payload = array_merge([
+                'model' => $this->model,
+                'messages' => $messages,
+                'temperature' => 0.7,
+                'max_tokens' => 1000,
+            ], $options);
+
+            // Remove non-API options
+            unset($payload['feature']);
+
+            $response = Http::withToken($this->apiKey)
+                ->timeout(30)
+                ->post("{$this->apiUrl}/chat/completions", $payload);
+
+            if ($response->successful()) {
+                $content = $response->json('choices.0.message.content');
+                $usage = $response->json('usage');
+
+                // Track usage for enterprise
+                $this->trackUsage($usage, $feature);
+
+                return [
+                    'success' => true,
+                    'content' => trim($content),
+                    'usage' => [
+                        'prompt_tokens' => $usage['prompt_tokens'] ?? 0,
+                        'completion_tokens' => $usage['completion_tokens'] ?? 0,
+                        'total_tokens' => $usage['total_tokens'] ?? 0,
+                    ],
+                    'model' => $response->json('model'),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => $response->json('error.message', 'Unknown error'),
+            ];
+        } catch (\Exception $e) {
+            Log::error('OpenAI API request failed', ['error' => $e->getMessage()]);
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
 }

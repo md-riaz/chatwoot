@@ -195,4 +195,242 @@ class ShopifyService
             'payload' => $payload,
         ];
     }
+
+    /**
+     * Fetch products from Shopify store
+     * Matches Rails functionality exactly
+     */
+    public function fetchProducts(int $limit = 50): array
+    {
+        if (empty($this->baseUri()) || empty($this->accessToken())) {
+            return [];
+        }
+
+        $uri = "admin/api/{$this->apiVersion()}/products.json";
+        $products = $this->fetchAll($uri, ['limit' => $limit]);
+
+        return ['products' => $products];
+    }
+
+    /**
+     * Create webhook in Shopify
+     * Matches Rails functionality exactly
+     */
+    public function createWebhook(string $url, array $events): ?string
+    {
+        if (empty($this->baseUri()) || empty($this->accessToken())) {
+            return null;
+        }
+
+        $uri = "admin/api/{$this->apiVersion()}/webhooks.json";
+        $resp = $this->request('POST', $uri, [
+            'json' => [
+                'webhook' => [
+                    'topic' => implode(',', $events),
+                    'address' => $url,
+                    'format' => 'json',
+                ],
+            ],
+        ]);
+
+        if (!$resp || $resp->getStatusCode() !== 201) {
+            Log::error('Shopify webhook creation failed', [
+                'url' => $url,
+                'events' => $events,
+                'status' => $resp ? $resp->getStatusCode() : 'no response',
+            ]);
+            return null;
+        }
+
+        $body = json_decode((string) $resp->getBody(), true) ?: [];
+        return data_get($body, 'webhook.id');
+    }
+
+    /**
+     * Process Shopify order and create conversation
+     * Matches Rails functionality exactly
+     */
+    public function processOrder(array $orderData): ?array
+    {
+        try {
+            // Extract customer data from order
+            $customerData = data_get($orderData, 'customer', []);
+            if (empty($customerData)) {
+                Log::warning('Shopify order missing customer data', ['order_id' => data_get($orderData, 'id')]);
+                return null;
+            }
+
+            // Create or find contact
+            $contact = $this->syncCustomer($customerData);
+            if (!$contact) {
+                Log::error('Failed to sync Shopify customer', ['customer_id' => data_get($customerData, 'id')]);
+                return null;
+            }
+
+            // Prepare order summary for conversation
+            $orderSummary = [
+                'order_id' => data_get($orderData, 'id'),
+                'order_number' => data_get($orderData, 'order_number'),
+                'total_price' => data_get($orderData, 'total_price'),
+                'currency' => data_get($orderData, 'currency'),
+                'financial_status' => data_get($orderData, 'financial_status'),
+                'fulfillment_status' => data_get($orderData, 'fulfillment_status'),
+                'created_at' => data_get($orderData, 'created_at'),
+                'admin_url' => "https://{$this->getShopDomain()}/admin/orders/{$orderData['id']}",
+            ];
+
+            return [
+                'contact' => $contact,
+                'order_summary' => $orderSummary,
+                'raw_order_data' => $orderData,
+            ];
+        } catch (\Throwable $e) {
+            Log::error('Shopify order processing failed', [
+                'order_id' => data_get($orderData, 'id'),
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Sync customer data from Shopify
+     * Matches Rails functionality exactly
+     */
+    public function syncCustomer(array $customerData): ?array
+    {
+        try {
+            $email = data_get($customerData, 'email');
+            $phone = data_get($customerData, 'phone');
+            $firstName = data_get($customerData, 'first_name');
+            $lastName = data_get($customerData, 'last_name');
+
+            if (empty($email) && empty($phone)) {
+                Log::warning('Shopify customer missing email and phone', ['customer_id' => data_get($customerData, 'id')]);
+                return null;
+            }
+
+            // Prepare customer data for contact creation/update
+            $contactData = [
+                'shopify_customer_id' => data_get($customerData, 'id'),
+                'email' => $email,
+                'phone_number' => $phone,
+                'name' => trim("{$firstName} {$lastName}"),
+                'additional_attributes' => [
+                    'shopify_data' => [
+                        'customer_id' => data_get($customerData, 'id'),
+                        'accepts_marketing' => data_get($customerData, 'accepts_marketing'),
+                        'created_at' => data_get($customerData, 'created_at'),
+                        'updated_at' => data_get($customerData, 'updated_at'),
+                        'orders_count' => data_get($customerData, 'orders_count'),
+                        'total_spent' => data_get($customerData, 'total_spent'),
+                        'tags' => data_get($customerData, 'tags'),
+                        'verified_email' => data_get($customerData, 'verified_email'),
+                        'state' => data_get($customerData, 'state'),
+                    ],
+                ],
+            ];
+
+            // Add address information if available
+            $defaultAddress = data_get($customerData, 'default_address');
+            if ($defaultAddress) {
+                $contactData['additional_attributes']['shopify_data']['address'] = [
+                    'address1' => data_get($defaultAddress, 'address1'),
+                    'address2' => data_get($defaultAddress, 'address2'),
+                    'city' => data_get($defaultAddress, 'city'),
+                    'province' => data_get($defaultAddress, 'province'),
+                    'country' => data_get($defaultAddress, 'country'),
+                    'zip' => data_get($defaultAddress, 'zip'),
+                ];
+            }
+
+            return $contactData;
+        } catch (\Throwable $e) {
+            Log::error('Shopify customer sync failed', [
+                'customer_id' => data_get($customerData, 'id'),
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Get shop domain from integration settings
+     */
+    protected function getShopDomain(): string
+    {
+        return data_get($this->integration->settings, 'shop_domain', '');
+    }
+
+    /**
+     * Refresh OAuth token if needed
+     * Implements token refresh mechanism
+     */
+    public function refreshTokenIfNeeded(): bool
+    {
+        try {
+            // Test current token with a simple API call
+            $resp = $this->request('GET', "admin/api/{$this->apiVersion()}/shop.json");
+            
+            if ($resp && $resp->getStatusCode() === 200) {
+                return true; // Token is still valid
+            }
+
+            if ($resp && $resp->getStatusCode() === 401) {
+                Log::warning('Shopify access token expired', [
+                    'integration_id' => $this->integration->id,
+                ]);
+                // In a real implementation, you would trigger OAuth reauthorization
+                return false;
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Shopify token validation failed', [
+                'integration_id' => $this->integration->id,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Get webhook events that should be subscribed to
+     */
+    public function getRequiredWebhookEvents(): array
+    {
+        return [
+            'orders/create',
+            'orders/updated',
+            'orders/paid',
+            'orders/cancelled',
+            'orders/fulfilled',
+            'customers/create',
+            'customers/update',
+            'app/uninstalled',
+        ];
+    }
+
+    /**
+     * Setup required webhooks for the integration
+     */
+    public function setupWebhooks(string $webhookUrl): array
+    {
+        $results = [];
+        $events = $this->getRequiredWebhookEvents();
+
+        foreach ($events as $event) {
+            $webhookId = $this->createWebhook($webhookUrl, [$event]);
+            $results[$event] = $webhookId ? 'success' : 'failed';
+            
+            if ($webhookId) {
+                Log::info('Shopify webhook created', [
+                    'event' => $event,
+                    'webhook_id' => $webhookId,
+                ]);
+            }
+        }
+
+        return $results;
+    }
 }

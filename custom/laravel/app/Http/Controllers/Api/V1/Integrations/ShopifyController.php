@@ -255,4 +255,51 @@ class ShopifyController extends Controller
 
         return response()->json(['data' => $integration]);
     }
+
+    /**
+     * Get Shopify products for the account
+     */
+    public function products(Account $account): JsonResponse
+    {
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->firstOrFail();
+        $shopify = new ShopifyService($integration);
+
+        $limit = request()->input('limit', 50);
+        $products = $shopify->fetchProducts($limit);
+
+        return response()->json(['data' => $products]);
+    }
+
+    /**
+     * Setup Shopify webhooks
+     */
+    public function setupWebhooks(Account $account): JsonResponse
+    {
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->firstOrFail();
+        $shopify = new ShopifyService($integration);
+
+        $webhookUrl = URL::to('/api/v1/webhooks/shopify');
+        $results = $shopify->setupWebhooks($webhookUrl);
+
+        return response()->json(['data' => $results]);
+    }
+
+    /**
+     * Test Shopify connection
+     */
+    public function testConnection(Account $account): JsonResponse
+    {
+        $integration = Integration::ofType('shopify')->where('account_id', $account->id)->firstOrFail();
+        $shopify = new ShopifyService($integration);
+
+        $isValid = $shopify->refreshTokenIfNeeded();
+
+        return response()->json([
+            'data' => [
+                'connected' => $isValid,
+                'shop_domain' => data_get($integration->settings, 'shop_domain'),
+                'last_tested' => now()->toISOString(),
+            ],
+        ]);
+    }
 }
