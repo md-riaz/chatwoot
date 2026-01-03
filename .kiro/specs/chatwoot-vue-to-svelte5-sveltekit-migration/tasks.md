@@ -5,8 +5,8 @@
 This implementation plan provides a comprehensive, phased approach to migrating the Chatwoot Vue.js frontend (884 .vue files) to Svelte 5 SvelteKit. The plan is structured into detailed, atomic tasks that can be executed independently by AI agents. Each task includes full context, specific file paths, acceptance criteria, and validation steps.
 
 **Current Status**: 69/69 primitive components complete in `custom/ui/svelte-ui`
-**Target Directory**: `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui`
-**Vue Source**: `/home/runner/work/chatwoot/chatwoot/app/javascript/`
+**Target Directory**: `chatwoot/custom/ui/svelte-ui`
+**Vue Source**: `chatwoot/app/javascript/`
 **Total Vue Files**: ~884 components across dashboard, widget, portal, survey, and superadmin
 **Timeline Estimate**: 20-28 weeks (5-7 months) with 2-3 developers
 
@@ -49,11 +49,11 @@ The existing `custom/ui/svelte-ui` directory has basic structure but needs compr
 - N/A (Project setup task)
 
 #### Svelte Files to Review
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/svelte.config.js`
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/vite.config.ts`
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/tsconfig.json`
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/tailwind.config.ts`
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/package.json`
+- `chatwoot/custom/ui/svelte-ui/svelte.config.js`
+- `chatwoot/custom/ui/svelte-ui/vite.config.ts`
+- `chatwoot/custom/ui/svelte-ui/tsconfig.json`
+- `chatwoot/custom/ui/svelte-ui/tailwind.config.ts`
+- `chatwoot/custom/ui/svelte-ui/package.json`
 
 #### Implementation Steps
 1. Review `svelte.config.js` and verify SPA adapter (`@sveltejs/adapter-static`) configuration
@@ -75,7 +75,7 @@ The existing `custom/ui/svelte-ui` directory has basic structure but needs compr
 
 #### Validation Steps
 ```bash
-cd /home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui
+cd chatwoot/custom/ui/svelte-ui
 pnpm dev         # Verify dev server starts without errors
 pnpm build       # Verify build completes successfully
 pnpm preview     # Verify built application works
@@ -96,14 +96,14 @@ Expected: All commands succeed with no errors
 The Vue application uses axios with custom interceptors for authentication, request/response transformation (camelCase ↔ snake_case), and error handling. We need to create an equivalent API client using ky (modern fetch wrapper) that provides identical functionality.
 
 #### Vue Reference Files
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/store/utils/api.js` - Base axios configuration
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/api/*.js` - 118 API endpoint files
+- `chatwoot/app/javascript/dashboard/store/utils/api.js` - Base axios configuration
+- `chatwoot/app/javascript/dashboard/api/*.js` - 118 API endpoint files
 
 #### Svelte Files to Create
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/api/client.ts` - Main API client
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/api/types.ts` - TypeScript types
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/api/errors.ts` - Error handling
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/api/transformers.ts` - Data transformation
+- `chatwoot/custom/ui/svelte-ui/src/lib/api/client.ts` - Main API client
+- `chatwoot/custom/ui/svelte-ui/src/lib/api/types.ts` - TypeScript types
+- `chatwoot/custom/ui/svelte-ui/src/lib/api/errors.ts` - Error handling
+- `chatwoot/custom/ui/svelte-ui/src/lib/api/transformers.ts` - Data transformation
 
 #### Implementation Steps
 1. Install ky: `pnpm add ky`
@@ -234,15 +234,15 @@ try {
 The Vue application uses Vuex with 50+ modules for state management. We need to create Svelte stores using Svelte 5 runes ($state, $derived, $effect) that provide equivalent functionality. This task establishes the foundation patterns for all domain stores.
 
 #### Vue Reference Files
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/store/index.js` - Vuex store setup
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/store/modules/*.js` - 50+ Vuex modules
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/store/mutation-types.js` - Mutation constants
+- `chatwoot/app/javascript/dashboard/store/index.js` - Vuex store setup
+- `chatwoot/app/javascript/dashboard/store/modules/*.js` - 50+ Vuex modules
+- `chatwoot/app/javascript/dashboard/store/mutation-types.js` - Mutation constants
 
 #### Svelte Files to Create
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/stores/base.svelte.ts` - Base store pattern
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/stores/persistence.ts` - LocalStorage utilities
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/stores/types.ts` - TypeScript types
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/stores/README.md` - Documentation
+- `chatwoot/custom/ui/svelte-ui/src/lib/stores/base.svelte.ts` - Base store pattern
+- `chatwoot/custom/ui/svelte-ui/src/lib/stores/persistence.ts` - LocalStorage utilities
+- `chatwoot/custom/ui/svelte-ui/src/lib/stores/types.ts` - TypeScript types
+- `chatwoot/custom/ui/svelte-ui/src/lib/stores/README.md` - Documentation
 
 #### Implementation Steps
 1. Create base store pattern in `src/lib/stores/base.svelte.ts`:
@@ -393,16 +393,16 @@ console.log(JSON.parse(stored)); // { count: 1 }
 The Vue application uses Vue Router with nested routes, route guards, and dynamic parameters. SvelteKit uses file-based routing which requires a different structure. We need to plan the route structure and implement navigation utilities.
 
 #### Vue Reference Files
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/routes/index.js` - Main router setup
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/routes/dashboard/dashboard.routes.js` - Dashboard routes
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/helper/routeHelpers.js` - Route utilities
+- `chatwoot/app/javascript/dashboard/routes/index.js` - Main router setup
+- `chatwoot/app/javascript/dashboard/routes/dashboard/dashboard.routes.js` - Dashboard routes
+- `chatwoot/app/javascript/dashboard/helper/routeHelpers.js` - Route utilities
 
 #### Svelte Files to Create
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/routing/guards.ts` - Auth guards
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/routing/navigation.ts` - Navigation helpers
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/routing/params.ts` - Parameter utilities
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/routing/types.ts` - TypeScript types
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/routes/ROUTING.md` - Documentation
+- `chatwoot/custom/ui/svelte-ui/src/lib/routing/guards.ts` - Auth guards
+- `chatwoot/custom/ui/svelte-ui/src/lib/routing/navigation.ts` - Navigation helpers
+- `chatwoot/custom/ui/svelte-ui/src/lib/routing/params.ts` - Parameter utilities
+- `chatwoot/custom/ui/svelte-ui/src/lib/routing/types.ts` - TypeScript types
+- `chatwoot/custom/ui/svelte-ui/src/routes/ROUTING.md` - Documentation
 
 #### SvelteKit Route Structure Plan
 ```
@@ -508,14 +508,14 @@ console.log(accountId); // Should be number
 The Vue application uses vue-i18n with JSON translation files for multiple languages. We need to set up svelte-i18n with equivalent functionality including locale switching, pluralization, and date/number formatting.
 
 #### Vue Reference Files
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/i18n/index.js` - i18n configuration
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/i18n/locale/**/*.json` - Translation files
+- `chatwoot/app/javascript/dashboard/i18n/index.js` - i18n configuration
+- `chatwoot/app/javascript/dashboard/i18n/locale/**/*.json` - Translation files
 
 #### Svelte Files to Create
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/i18n/index.ts` - i18n setup
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/i18n/locales/**/*.json` - Translation files
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/i18n/formatters.ts` - Date/number formatters
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/i18n/types.ts` - TypeScript types
+- `chatwoot/custom/ui/svelte-ui/src/lib/i18n/index.ts` - i18n setup
+- `chatwoot/custom/ui/svelte-ui/src/lib/i18n/locales/**/*.json` - Translation files
+- `chatwoot/custom/ui/svelte-ui/src/lib/i18n/formatters.ts` - Date/number formatters
+- `chatwoot/custom/ui/svelte-ui/src/lib/i18n/types.ts` - TypeScript types
 
 #### Implementation Steps
 1. Install svelte-i18n: `pnpm add svelte-i18n`
@@ -614,14 +614,14 @@ export { _, locale };
 The Vue application uses @rails/actioncable for WebSocket connections. We need to create a native WebSocket client that provides equivalent functionality including connection management, channel subscriptions, and automatic reconnection.
 
 #### Vue Reference Files
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/helper/actionCable.js` - ActionCable setup
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/store/modules/conversations.js` - WebSocket usage
+- `chatwoot/app/javascript/dashboard/helper/actionCable.js` - ActionCable setup
+- `chatwoot/app/javascript/dashboard/store/modules/conversations.js` - WebSocket usage
 
 #### Svelte Files to Create
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/websocket/client.ts` - WebSocket client class
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/websocket/channels.ts` - Channel management
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/websocket/types.ts` - TypeScript types
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/websocket/store.svelte.ts` - Connection state
+- `chatwoot/custom/ui/svelte-ui/src/lib/websocket/client.ts` - WebSocket client class
+- `chatwoot/custom/ui/svelte-ui/src/lib/websocket/channels.ts` - Channel management
+- `chatwoot/custom/ui/svelte-ui/src/lib/websocket/types.ts` - TypeScript types
+- `chatwoot/custom/ui/svelte-ui/src/lib/websocket/store.svelte.ts` - Connection state
 
 #### Implementation Steps
 1. Create WebSocket client class in `src/lib/websocket/client.ts`:
@@ -825,18 +825,18 @@ ws.disconnect();
 The Vue application has many utility functions and helpers spread across multiple files. These need to be migrated to TypeScript and organized in a maintainable structure.
 
 #### Vue Reference Files
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/helper/*.js` - Various helpers
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/composables/*.js` - Vue composables
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/shared/helpers/*.js` - Shared helpers
+- `chatwoot/app/javascript/dashboard/helper/*.js` - Various helpers
+- `chatwoot/app/javascript/dashboard/composables/*.js` - Vue composables
+- `chatwoot/app/javascript/shared/helpers/*.js` - Shared helpers
 
 #### Svelte Files to Create
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/utils/url.ts` - URL helpers
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/utils/date.ts` - Date helpers
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/utils/validation.ts` - Validation
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/utils/format.ts` - Formatting
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/utils/color.ts` - Color utilities
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/utils/file.ts` - File utilities
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/utils/__tests__/*.test.ts` - Tests
+- `chatwoot/custom/ui/svelte-ui/src/lib/utils/url.ts` - URL helpers
+- `chatwoot/custom/ui/svelte-ui/src/lib/utils/date.ts` - Date helpers
+- `chatwoot/custom/ui/svelte-ui/src/lib/utils/validation.ts` - Validation
+- `chatwoot/custom/ui/svelte-ui/src/lib/utils/format.ts` - Formatting
+- `chatwoot/custom/ui/svelte-ui/src/lib/utils/color.ts` - Color utilities
+- `chatwoot/custom/ui/svelte-ui/src/lib/utils/file.ts` - File utilities
+- `chatwoot/custom/ui/svelte-ui/src/lib/utils/__tests__/*.test.ts` - Tests
 
 #### Implementation Steps
 1. Review all Vue helper files and categorize by function
@@ -945,7 +945,7 @@ export function formatFileSize(bytes: number): string {
 #### Validation Steps
 ```bash
 # Run unit tests
-cd /home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui
+cd chatwoot/custom/ui/svelte-ui
 pnpm test src/lib/utils
 
 # Check test coverage
@@ -968,13 +968,13 @@ pnpm test -- --coverage src/lib/utils
 Authentication is the foundation of the application. We need to migrate the Vuex auth store and all authentication API calls to Svelte stores and ky client.
 
 #### Vue Reference Files
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/store/modules/auth.js` - Auth store
-- `/home/runner/work/chatwoot/chatwoot/app/javascript/dashboard/api/auth.js` - Auth API
+- `chatwoot/app/javascript/dashboard/store/modules/auth.js` - Auth store
+- `chatwoot/app/javascript/dashboard/api/auth.js` - Auth API
 
 #### Svelte Files to Create
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/stores/auth.svelte.ts` - Auth store
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/api/auth.ts` - Auth API client
-- `/home/runner/work/chatwoot/chatwoot/custom/ui/svelte-ui/src/lib/stores/__tests__/auth.test.ts` - Tests
+- `chatwoot/custom/ui/svelte-ui/src/lib/stores/auth.svelte.ts` - Auth store
+- `chatwoot/custom/ui/svelte-ui/src/lib/api/auth.ts` - Auth API client
+- `chatwoot/custom/ui/svelte-ui/src/lib/stores/__tests__/auth.test.ts` - Tests
 
 #### Implementation Steps
 1. Review Vue auth store to understand:
