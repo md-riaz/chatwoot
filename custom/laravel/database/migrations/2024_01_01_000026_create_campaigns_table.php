@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Campaigns Table Migration
  * 
  * Marketing campaigns - depends on accounts, inboxes, users
+ * Must be created BEFORE conversations (conversations reference campaigns)
  */
 return new class extends Migration
 {
