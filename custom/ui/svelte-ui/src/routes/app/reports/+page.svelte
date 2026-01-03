@@ -1,292 +1,153 @@
 <script lang="ts">
-  /**
-   * Reports and Analytics Page
-   * View conversation metrics and team performance
-   */
-  
   import { onMount } from 'svelte';
-  import { BarChart3, TrendingUp, Clock, Users, MessageSquare, CheckCircle } from '@lucide/svelte';
-  import { conversationsStore } from '$lib/stores/conversations.svelte';
-  import * as Card from '$lib/components/ui/card';
-  import { Badge } from '$lib/components/ui/badge';
-  import * as Tabs from '$lib/components/ui/tabs';
+  import { reportsStore } from '$lib/stores/reports.svelte';
+  import MetricsCards from '$lib/components/reports/MetricsCards.svelte';
   import { Button } from '$lib/components/ui/button';
+  import * as Card from '$lib/components/ui/card';
+  import { Input } from '$lib/components/ui/input';
+  import { BarChart3, Users, Building2, RefreshCw } from '@lucide/svelte';
   
-  // Reactive store access
-  const conversations = $derived(conversationsStore.allConversations);
-  const isLoading = $derived(conversationsStore.isLoading);
+  const conversationMetrics = $derived(reportsStore.conversationMetrics);
+  const agentMetrics = $derived(reportsStore.agentMetrics);
+  const teamMetrics = $derived(reportsStore.teamMetrics);
+  const topAgents = $derived(reportsStore.topAgents);
+  const topTeams = $derived(reportsStore.topTeams);
+  const isLoading = $derived(reportsStore.isLoading);
+  const filters = $derived(reportsStore.filters);
   
-  // Time period state
-  let timePeriod = $state<'today' | 'week' | 'month'>('week');
+  let since = $state(filters.since || '');
+  let until = $state(filters.until || '');
   
-  // Derived analytics
-  const totalConversations = $derived(conversations.length);
-  const openConversations = $derived(
-    conversations.filter(c => c.status === 'open').length
-  );
-  const resolvedConversations = $derived(
-    conversations.filter(c => c.status === 'resolved').length
-  );
-  const avgResolutionTime = $derived('3.2 hours'); // Placeholder
-  const resolutionRate = $derived(
-    totalConversations > 0 
-      ? Math.round((resolvedConversations / totalConversations) * 100)
-      : 0
-  );
-  
-  // Team metrics (placeholder data)
-  const teamMetrics = $derived([
-    { name: 'Agent 1', resolved: 45, avgTime: '2.5h', satisfaction: 4.8 },
-    { name: 'Agent 2', resolved: 38, avgTime: '3.1h', satisfaction: 4.6 },
-    { name: 'Agent 3', resolved: 32, avgTime: '3.8h', satisfaction: 4.5 },
-  ]);
-  
-  // Conversation trends (placeholder)
-  const conversationTrends = $derived([
-    { day: 'Mon', count: 12 },
-    { day: 'Tue', count: 18 },
-    { day: 'Wed', count: 15 },
-    { day: 'Thu', count: 22 },
-    { day: 'Fri', count: 19 },
-    { day: 'Sat', count: 8 },
-    { day: 'Sun', count: 6 },
-  ]);
-  
-  // Load data on mount
-  onMount(async () => {
-    await conversationsStore.fetchConversations();
+  onMount(() => {
+    reportsStore.fetchAllReports();
   });
+  
+  async function handleRefresh() {
+    await reportsStore.fetchAllReports({ since, until });
+  }
+  
+  function handleDateChange() {
+    if (since && until) {
+      reportsStore.setDateRange(since, until);
+    }
+  }
 </script>
 
-<div class="h-full flex flex-col">
-  <!-- Header -->
-  <div class="p-6 border-b">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h1 class="text-3xl font-bold">Reports & Analytics</h1>
-        <p class="text-muted-foreground">
-          Track your team's performance and conversation metrics
+<div class="reports-page">
+  <div class="header mb-6">
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-2">
+          <BarChart3 class="h-8 w-8 text-primary" />
+          <h1 class="text-3xl font-bold">Reports & Analytics</h1>
+        </div>
+        <p class="text-gray-600">
+          Monitor team performance and conversation metrics
         </p>
       </div>
-      <div class="flex gap-2">
-        <Button 
-          variant={timePeriod === 'today' ? 'default' : 'outline'}
-          size="sm"
-          onclick={() => timePeriod = 'today'}
-        >
-          Today
-        </Button>
-        <Button 
-          variant={timePeriod === 'week' ? 'default' : 'outline'}
-          size="sm"
-          onclick={() => timePeriod = 'week'}
-        >
-          This Week
-        </Button>
-        <Button 
-          variant={timePeriod === 'month' ? 'default' : 'outline'}
-          size="sm"
-          onclick={() => timePeriod = 'month'}
-        >
-          This Month
+      
+      <div class="flex items-center gap-2">
+        <Input
+          type="date"
+          bind:value={since}
+          onchange={handleDateChange}
+          class="w-40"
+        />
+        <span class="text-sm text-gray-500">to</span>
+        <Input
+          type="date"
+          bind:value={until}
+          onchange={handleDateChange}
+          class="w-40"
+        />
+        <Button onclick={handleRefresh} disabled={isLoading}>
+          <RefreshCw class="h-4 w-4 mr-2" class:animate-spin={isLoading} />
+          Refresh
         </Button>
       </div>
     </div>
   </div>
   
-  <!-- Content -->
-  <div class="flex-1 overflow-y-auto p-6">
-    <Tabs.Root value="overview" class="space-y-6">
-      <Tabs.List>
-        <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
-        <Tabs.Trigger value="team">Team Performance</Tabs.Trigger>
-        <Tabs.Trigger value="trends">Trends</Tabs.Trigger>
-      </Tabs.List>
-      
-      <!-- Overview Tab -->
-      <Tabs.Content value="overview" class="space-y-6">
-        <!-- Key Metrics -->
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card.Root>
-            <Card.Header class="flex flex-row items-center justify-between pb-2">
-              <Card.Title class="text-sm font-medium text-muted-foreground">
-                Total Conversations
-              </Card.Title>
-              <MessageSquare class="h-4 w-4 text-blue-600" />
-            </Card.Header>
-            <Card.Content>
-              <div class="text-2xl font-bold">{totalConversations}</div>
-              <p class="text-xs text-muted-foreground mt-1">
-                {timePeriod === 'today' ? 'Today' : timePeriod === 'week' ? 'This week' : 'This month'}
-              </p>
-            </Card.Content>
-          </Card.Root>
-          
-          <Card.Root>
-            <Card.Header class="flex flex-row items-center justify-between pb-2">
-              <Card.Title class="text-sm font-medium text-muted-foreground">
-                Resolution Rate
-              </Card.Title>
-              <CheckCircle class="h-4 w-4 text-green-600" />
-            </Card.Header>
-            <Card.Content>
-              <div class="text-2xl font-bold">{resolutionRate}%</div>
-              <p class="text-xs text-muted-foreground mt-1">
-                {resolvedConversations} of {totalConversations} resolved
-              </p>
-            </Card.Content>
-          </Card.Root>
-          
-          <Card.Root>
-            <Card.Header class="flex flex-row items-center justify-between pb-2">
-              <Card.Title class="text-sm font-medium text-muted-foreground">
-                Avg Resolution Time
-              </Card.Title>
-              <Clock class="h-4 w-4 text-purple-600" />
-            </Card.Header>
-            <Card.Content>
-              <div class="text-2xl font-bold">{avgResolutionTime}</div>
-              <p class="text-xs text-muted-foreground mt-1">
-                Average time to resolve
-              </p>
-            </Card.Content>
-          </Card.Root>
-          
-          <Card.Root>
-            <Card.Header class="flex flex-row items-center justify-between pb-2">
-              <Card.Title class="text-sm font-medium text-muted-foreground">
-                Currently Open
-              </Card.Title>
-              <TrendingUp class="h-4 w-4 text-yellow-600" />
-            </Card.Header>
-            <Card.Content>
-              <div class="text-2xl font-bold">{openConversations}</div>
-              <p class="text-xs text-muted-foreground mt-1">
-                Needs attention
-              </p>
-            </Card.Content>
-          </Card.Root>
-        </div>
-        
-        <!-- Conversation Status Breakdown -->
-        <Card.Root>
-          <Card.Header>
-            <Card.Title>Conversation Status</Card.Title>
-            <Card.Description>
-              Distribution of conversations by status
-            </Card.Description>
-          </Card.Header>
-          <Card.Content>
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <div class="h-3 w-3 rounded-full bg-green-500"></div>
-                  <span class="text-sm">Resolved</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium">{resolvedConversations}</span>
-                  <Badge variant="secondary">{resolutionRate}%</Badge>
-                </div>
-              </div>
-              
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <div class="h-3 w-3 rounded-full bg-blue-500"></div>
-                  <span class="text-sm">Open</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium">{openConversations}</span>
-                  <Badge variant="secondary">
-                    {totalConversations > 0 ? Math.round((openConversations / totalConversations) * 100) : 0}%
-                  </Badge>
-                </div>
-              </div>
-              
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <div class="h-3 w-3 rounded-full bg-yellow-500"></div>
-                  <span class="text-sm">Pending</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium">
-                    {conversations.filter(c => c.status === 'pending').length}
-                  </span>
-                  <Badge variant="secondary">
-                    {totalConversations > 0 ? Math.round((conversations.filter(c => c.status === 'pending').length / totalConversations) * 100) : 0}%
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          </Card.Content>
-        </Card.Root>
-      </Tabs.Content>
-      
-      <!-- Team Performance Tab -->
-      <Tabs.Content value="team" class="space-y-6">
-        <Card.Root>
-          <Card.Header>
-            <Card.Title>Team Performance</Card.Title>
-            <Card.Description>
-              Individual agent metrics and performance
-            </Card.Description>
-          </Card.Header>
-          <Card.Content>
-            <div class="space-y-4">
-              {#each teamMetrics as agent}
-                <div class="flex items-center gap-4 p-4 border rounded-lg">
-                  <div class="flex-1">
-                    <h3 class="font-medium">{agent.name}</h3>
-                    <div class="flex gap-4 mt-2 text-sm text-muted-foreground">
-                      <div>
-                        <span class="font-medium">{agent.resolved}</span> resolved
-                      </div>
-                      <div>
-                        Avg time: <span class="font-medium">{agent.avgTime}</span>
-                      </div>
-                      <div>
-                        Rating: <span class="font-medium">{agent.satisfaction}/5.0</span>
-                      </div>
-                    </div>
-                  </div>
-                  <Badge variant="secondary">
-                    {agent.resolved} conversations
-                  </Badge>
-                </div>
-              {/each}
-            </div>
-          </Card.Content>
-        </Card.Root>
-      </Tabs.Content>
-      
-      <!-- Trends Tab -->
-      <Tabs.Content value="trends" class="space-y-6">
-        <Card.Root>
-          <Card.Header>
-            <Card.Title>Conversation Trends</Card.Title>
-            <Card.Description>
-              Daily conversation volume over the past week
-            </Card.Description>
-          </Card.Header>
-          <Card.Content>
-            <div class="space-y-2">
-              {#each conversationTrends as trend}
-                <div class="flex items-center gap-3">
-                  <span class="text-sm font-medium w-12">{trend.day}</span>
-                  <div class="flex-1 bg-muted rounded-full h-8 relative overflow-hidden">
-                    <div 
-                      class="bg-blue-500 h-full transition-all"
-                      style="width: {(trend.count / 25) * 100}%"
-                    ></div>
-                    <span class="absolute inset-0 flex items-center justify-center text-xs font-medium">
-                      {trend.count} conversations
-                    </span>
-                  </div>
-                </div>
-              {/each}
-            </div>
-          </Card.Content>
-        </Card.Root>
-      </Tabs.Content>
-    </Tabs.Root>
+  <!-- Conversation Metrics -->
+  <div class="mb-6">
+    <h2 class="text-lg font-semibold mb-4">Conversation Metrics</h2>
+    <MetricsCards metrics={conversationMetrics} {isLoading} />
   </div>
+  
+  <!-- Top Agents -->
+  {#if topAgents.length > 0}
+    <div class="mb-6">
+      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+        <Users class="h-5 w-5" />
+        Top Agents
+      </h2>
+      <Card.Root>
+        <Card.Content class="p-0">
+          <div class="divide-y">
+            {#each topAgents as agent}
+              <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                <div>
+                  <p class="font-medium">{agent.agentName}</p>
+                  <p class="text-sm text-gray-600">
+                    {agent.conversationsCount} conversations • {agent.resolutionCount} resolved
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-gray-600">Avg Response</p>
+                  <p class="font-medium">
+                    {Math.round(agent.avgFirstResponseTime / 60)}m
+                  </p>
+                </div>
+              </div>
+            {/each}
+          </div>
+        </Card.Content>
+      </Card.Root>
+    </div>
+  {/if}
+  
+  <!-- Top Teams -->
+  {#if topTeams.length > 0}
+    <div class="mb-6">
+      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+        <Building2 class="h-5 w-5" />
+        Top Teams
+      </h2>
+      <Card.Root>
+        <Card.Content class="p-0">
+          <div class="divide-y">
+            {#each topTeams as team}
+              <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                <div>
+                  <p class="font-medium">{team.teamName}</p>
+                  <p class="text-sm text-gray-600">
+                    {team.conversationsCount} conversations
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-gray-600">Avg Response</p>
+                  <p class="font-medium">
+                    {Math.round(team.avgFirstResponseTime / 60)}m
+                  </p>
+                </div>
+              </div>
+            {/each}
+          </div>
+        </Card.Content>
+      </Card.Root>
+    </div>
+  {/if}
 </div>
+
+<style>
+  .reports-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .header {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1.5rem;
+  }
+</style>
