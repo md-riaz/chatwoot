@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Accordion as AccordionPrimitive } from 'bits-ui';
   import { cn } from '$lib/utils';
+  import { Accordion as AccordionPrimitive } from 'bits-ui';
   import type { Snippet } from 'svelte';
 
   type Props = AccordionPrimitive.ItemProps & {
@@ -13,6 +13,6 @@
 
 <AccordionPrimitive.Item class={cn('border-b', className)} {...restProps}>
   {#if children}
-    {@render children()}
+    {@render children?.()}
   {/if}
 </AccordionPrimitive.Item>

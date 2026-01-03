@@ -1,7 +1,7 @@
 <script lang="ts">
   import { cn } from '$lib/utils';
-  import { alertVariants, type Props } from './index.js';
   import type { Snippet } from 'svelte';
+  import { alertVariants, type Props } from './index.js';
 
   type $$Props = Props & { children?: Snippet };
 
@@ -19,6 +19,6 @@
   {...restProps}
 >
   {#if children}
-    {@render children()}
+    {@render children?.()}
   {/if}
 </div>

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Dialog as DialogPrimitive } from 'bits-ui';
   import { cn } from '$lib/utils';
+  import { Dialog as DialogPrimitive } from 'bits-ui';
+  import type { Snippet } from 'svelte';
   import DialogOverlay from './dialog-overlay.svelte';
   import DialogPortal from './dialog-portal.svelte';
-  import type { Snippet } from 'svelte';
 
   type Props = {
     class?: string;
@@ -23,7 +23,7 @@
     {...restProps}
   >
     {#if children}
-      {@render children()}
+      {@render children?.()}
     {/if}
     <DialogPrimitive.Close
       class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
