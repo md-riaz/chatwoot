@@ -39,9 +39,17 @@
   // Success/error messages
   let successMessage = $state('');
   let errorMessage = $state('');
+  let successTimeout: ReturnType<typeof setTimeout> | null = null;
   
   onMount(() => {
     inboxesStore.fetchInbox(inboxId);
+    
+    // Cleanup function
+    return () => {
+      if (successTimeout) {
+        clearTimeout(successTimeout);
+      }
+    };
   });
   
   // Update form when inbox data loads
@@ -73,8 +81,14 @@
     
     if (updated) {
       successMessage = 'Inbox settings updated successfully';
-      setTimeout(() => {
+      // Clear any existing timeout
+      if (successTimeout) {
+        clearTimeout(successTimeout);
+      }
+      // Set new timeout
+      successTimeout = setTimeout(() => {
         successMessage = '';
+        successTimeout = null;
       }, 3000);
     } else {
       errorMessage = inboxesStore.error || 'Failed to update inbox settings';
@@ -84,6 +98,8 @@
   async function handleDelete() {
     if (!inbox) return;
     
+    // TODO: Replace with custom confirmation dialog component
+    // For now using browser confirm for consistency with other delete operations
     const confirmed = confirm(`Are you sure you want to delete "${inbox.name}"? This action cannot be undone.`);
     if (!confirmed) return;
     

@@ -383,9 +383,9 @@
             {#if workingHoursEnabled}
               <div>
                 <Label for="timezone">Timezone</Label>
-                <Select.Root>
+                <Select.Root bind:value={timezone}>
                   <Select.Trigger class="w-full">
-                    <Select.Value placeholder={timezone} />
+                    <Select.Value placeholder="Select timezone" />
                   </Select.Trigger>
                   <Select.Content>
                     <Select.Item value="UTC">UTC</Select.Item>
