@@ -6,6 +6,7 @@
   import { Button } from '$lib/components/ui/button';
   import { CAMPAIGN_TYPES } from '$lib/api/campaigns';
   import type { Campaign } from '$lib/api/campaigns';
+  import LiveChatCampaignDialog from '$lib/components/campaigns/LiveChatCampaignDialog.svelte';
 
   let accountId = $derived($page.params.accountId);
   let isLoading = $derived(campaignsStore.isLoading);
@@ -14,16 +15,35 @@
   let smsCampaigns = $derived(campaignsStore.smsCampaigns);
   let whatsappCampaigns = $derived(campaignsStore.whatsappCampaigns);
 
+  let showCreateDialog = $state(false);
+  let showEditDialog = $state(false);
+  let editingCampaign = $state<Campaign | null>(null);
+
   onMount(() => {
     campaignsStore.fetchCampaigns();
   });
 
   function handleCreateCampaign() {
-    goto(`/app/${accountId}/campaigns/new`);
+    showCreateDialog = true;
   }
 
-  function handleEditCampaign(campaignId: number) {
-    goto(`/app/${accountId}/campaigns/${campaignId}/edit`);
+  async function handleSubmitCreate(event: CustomEvent) {
+    const data = event.detail;
+    await campaignsStore.createCampaign(data);
+    campaignsStore.fetchCampaigns();
+  }
+
+  function handleEditCampaign(campaign: Campaign) {
+    editingCampaign = campaign;
+    showEditDialog = true;
+  }
+
+  async function handleSubmitEdit(event: CustomEvent) {
+    if (!editingCampaign) return;
+    const data = event.detail;
+    await campaignsStore.updateCampaign(editingCampaign.id, data);
+    campaignsStore.fetchCampaigns();
+    editingCampaign = null;
   }
 
   function handleViewCampaign(campaignId: number) {
@@ -127,7 +147,7 @@
                   <Button
                     variant="outline"
                     size="sm"
-                    onclick={() => handleEditCampaign(campaign.id)}
+                    onclick={() => handleEditCampaign(campaign)}
                   >
                     Edit
                   </Button>
@@ -185,7 +205,7 @@
                   <Button
                     variant="outline"
                     size="sm"
-                    onclick={() => handleEditCampaign(campaign.id)}
+                    onclick={() => handleEditCampaign(campaign)}
                   >
                     Edit
                   </Button>
@@ -243,7 +263,7 @@
                   <Button
                     variant="outline"
                     size="sm"
-                    onclick={() => handleEditCampaign(campaign.id)}
+                    onclick={() => handleEditCampaign(campaign)}
                   >
                     Edit
                   </Button>
@@ -270,6 +290,20 @@
     </div>
   {/if}
 </div>
+
+<!-- Campaign Dialogs -->
+<LiveChatCampaignDialog
+  bind:open={showCreateDialog}
+  mode="create"
+  on:submit={handleSubmitCreate}
+/>
+
+<LiveChatCampaignDialog
+  bind:open={showEditDialog}
+  mode="edit"
+  campaign={editingCampaign}
+  on:submit={handleSubmitEdit}
+/>
 
 <style>
   .line-clamp-2 {
