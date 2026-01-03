@@ -3,10 +3,21 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { campaignsStore } from '$lib/stores/campaigns.svelte';
+  import { inboxesStore } from '$lib/stores/inboxes.svelte';
+  import { labelsStore } from '$lib/stores/labels.svelte';
   import { Button } from '$lib/components/ui/button';
   import { CAMPAIGN_TYPES } from '$lib/api/campaigns';
   import type { Campaign } from '$lib/api/campaigns';
   import LiveChatCampaignDialog from '$lib/components/campaigns/LiveChatCampaignDialog.svelte';
+  import SMSCampaignDialog from '$lib/components/campaigns/SMSCampaignDialog.svelte';
+  import WhatsAppCampaignDialog from '$lib/components/campaigns/WhatsAppCampaignDialog.svelte';
+  import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+  } from '$lib/components/ui/dropdown-menu';
+  import { ChevronDown } from 'lucide-svelte';
 
   let accountId = $derived($page.params.accountId);
   let isLoading = $derived(campaignsStore.isLoading);
@@ -15,16 +26,30 @@
   let smsCampaigns = $derived(campaignsStore.smsCampaigns);
   let whatsappCampaigns = $derived(campaignsStore.whatsappCampaigns);
 
-  let showCreateDialog = $state(false);
-  let showEditDialog = $state(false);
+  let showCreateLiveChatDialog = $state(false);
+  let showCreateSMSDialog = $state(false);
+  let showCreateWhatsAppDialog = $state(false);
+  let showEditLiveChatDialog = $state(false);
+  let showEditSMSDialog = $state(false);
+  let showEditWhatsAppDialog = $state(false);
   let editingCampaign = $state<Campaign | null>(null);
 
   onMount(() => {
     campaignsStore.fetchCampaigns();
+    inboxesStore.fetchInboxes();
+    labelsStore.fetchLabels();
   });
 
-  function handleCreateCampaign() {
-    showCreateDialog = true;
+  function handleCreateLiveChatCampaign() {
+    showCreateLiveChatDialog = true;
+  }
+
+  function handleCreateSMSCampaign() {
+    showCreateSMSDialog = true;
+  }
+
+  function handleCreateWhatsAppCampaign() {
+    showCreateWhatsAppDialog = true;
   }
 
   async function handleSubmitCreate(event: CustomEvent) {
@@ -35,7 +60,16 @@
 
   function handleEditCampaign(campaign: Campaign) {
     editingCampaign = campaign;
-    showEditDialog = true;
+    
+    // Determine which dialog to show based on campaign channel type
+    const channelType = campaign.inbox?.channelType;
+    if (channelType === 'Channel::WebWidget') {
+      showEditLiveChatDialog = true;
+    } else if (channelType === 'Channel::Sms' || channelType === 'Channel::TwilioSms') {
+      showEditSMSDialog = true;
+    } else if (channelType === 'Channel::Whatsapp') {
+      showEditWhatsAppDialog = true;
+    }
   }
 
   async function handleSubmitEdit(event: CustomEvent) {
@@ -82,7 +116,27 @@
         Manage your marketing campaigns across different channels
       </p>
     </div>
-    <Button onclick={handleCreateCampaign}>Create Campaign</Button>
+    
+    <!-- Create Campaign Dropdown -->
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild let:builder>
+        <Button builders={[builder]}>
+          Create Campaign
+          <ChevronDown class="ml-2 h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onclick={handleCreateLiveChatCampaign}>
+          Live Chat Campaign
+        </DropdownMenuItem>
+        <DropdownMenuItem onclick={handleCreateSMSCampaign}>
+          SMS Campaign
+        </DropdownMenuItem>
+        <DropdownMenuItem onclick={handleCreateWhatsAppCampaign}>
+          WhatsApp Campaign
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   </div>
 
   {#if isLoading}
@@ -110,7 +164,25 @@
       <p class="text-gray-600 mb-4">
         Create your first campaign to start engaging with your audience
       </p>
-      <Button onclick={handleCreateCampaign}>Create Your First Campaign</Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild let:builder>
+          <Button builders={[builder]}>
+            Create Your First Campaign
+            <ChevronDown class="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center">
+          <DropdownMenuItem onclick={handleCreateLiveChatCampaign}>
+            Live Chat Campaign
+          </DropdownMenuItem>
+          <DropdownMenuItem onclick={handleCreateSMSCampaign}>
+            SMS Campaign
+          </DropdownMenuItem>
+          <DropdownMenuItem onclick={handleCreateWhatsAppCampaign}>
+            WhatsApp Campaign
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   {:else}
     <div class="campaigns-sections space-y-8">
@@ -293,13 +365,39 @@
 
 <!-- Campaign Dialogs -->
 <LiveChatCampaignDialog
-  bind:open={showCreateDialog}
+  bind:open={showCreateLiveChatDialog}
   mode="create"
   on:submit={handleSubmitCreate}
 />
 
 <LiveChatCampaignDialog
-  bind:open={showEditDialog}
+  bind:open={showEditLiveChatDialog}
+  mode="edit"
+  campaign={editingCampaign}
+  on:submit={handleSubmitEdit}
+/>
+
+<SMSCampaignDialog
+  bind:open={showCreateSMSDialog}
+  mode="create"
+  on:submit={handleSubmitCreate}
+/>
+
+<SMSCampaignDialog
+  bind:open={showEditSMSDialog}
+  mode="edit"
+  campaign={editingCampaign}
+  on:submit={handleSubmitEdit}
+/>
+
+<WhatsAppCampaignDialog
+  bind:open={showCreateWhatsAppDialog}
+  mode="create"
+  on:submit={handleSubmitCreate}
+/>
+
+<WhatsAppCampaignDialog
+  bind:open={showEditWhatsAppDialog}
   mode="edit"
   campaign={editingCampaign}
   on:submit={handleSubmitEdit}
