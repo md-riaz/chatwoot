@@ -32,13 +32,13 @@ class AccountsController extends Controller
     }
 
     /**
-     * Get cache keys for the account (placeholder implementation).
+     * Get cache keys for the account.
      */
     public function cacheKeys(Account $account): JsonResponse
     {
-        // TODO: Implement actual cache key logic
-        $keys = ['key1', 'key2'];
-        return response()->json(['cache_keys' => $keys]);
+        $cacheKeys = $account->getCacheKeys();
+        
+        return response()->json(['cache_keys' => $cacheKeys]);
     }
 
     /**

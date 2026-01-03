@@ -61,13 +61,22 @@ class BulkAutoAssignConversationsAction
         if (empty($agents)) {
             return null;
         }
-        // TODO: Implement round robin selection logic
-        return $agents[array_rand($agents)];
+        
+        $roundRobinService = new \App\Services\AutoAssignment\RoundRobinService($inbox);
+        $agentIds = collect($agents)->pluck('id')->map(fn($id) => (string) $id)->toArray();
+        
+        return $roundRobinService->selectAgent($agentIds);
     }
 
     private function filterAgentsByRateLimit($agents)
     {
-        // TODO: Integrate rate limiter logic per agent
-        return $agents;
+        if (empty($agents)) {
+            return $agents;
+        }
+        
+        return collect($agents)->filter(function ($agent) {
+            $rateLimiter = new \App\Services\AutoAssignment\RateLimiter($this->inbox, $agent);
+            return $rateLimiter->withinLimit();
+        })->values()->toArray();
     }
 }

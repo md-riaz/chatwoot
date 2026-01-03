@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReportingEvent extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'account_id',
         'conversation_id',
@@ -49,51 +46,40 @@ class ReportingEvent extends Model
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Scope to filter by date range.
-     */
+    // Scopes for filtering
     public function scopeFilterByDateRange($query, $range)
     {
         if ($range) {
             return $query->whereBetween('created_at', $range);
         }
-
+        
         return $query;
     }
 
-    /**
-     * Scope to filter by inbox.
-     */
-    public function scopeFilterByInbox($query, $inboxId)
+    public function scopeFilterByInboxId($query, $inboxId)
     {
         if ($inboxId) {
             return $query->where('inbox_id', $inboxId);
         }
-
+        
         return $query;
     }
 
-    /**
-     * Scope to filter by user.
-     */
-    public function scopeFilterByUser($query, $userId)
+    public function scopeFilterByUserId($query, $userId)
     {
         if ($userId) {
             return $query->where('user_id', $userId);
         }
-
+        
         return $query;
     }
 
-    /**
-     * Scope to filter by event name.
-     */
     public function scopeFilterByName($query, $name)
     {
         if ($name) {
             return $query->where('name', $name);
         }
-
+        
         return $query;
     }
 }

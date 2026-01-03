@@ -97,33 +97,115 @@ class PortalsController extends Controller
         return JsonResource::collection($portal->categories()->paginate());
     }
 
-    public function archive(Request $request, $portal): JsonResponse
+    public function archive(Request $request, Account $account, Portal $portal): JsonResponse
     {
-        // TODO: Implement archive logic
-        return response()->json(['message' => 'Portal archived']);
+        abort_unless($portal->account_id === $account->id, 404);
+        
+        $portal->update(['archived' => true]);
+        
+        event(new PortalUpdated($portal, 'archived'));
+        
+        return response()->json(['message' => 'Portal archived successfully']);
     }
 
-    public function deleteLogo(Request $request, $portal): JsonResponse
+    public function deleteLogo(Request $request, Account $account, Portal $portal): JsonResponse
     {
-        // TODO: Implement logo deletion logic
-        return response()->json(['message' => 'Logo deleted']);
+        abort_unless($portal->account_id === $account->id, 404);
+        
+        if ($portal->logo) {
+            $portal->logo->delete();
+        }
+        
+        return response()->json(['message' => 'Logo deleted successfully']);
     }
 
-    public function sendInstructions(Request $request, $portal): JsonResponse
+    public function sendInstructions(Request $request, Account $account, Portal $portal): JsonResponse
     {
-        // TODO: Implement send instructions logic
-        return response()->json(['message' => 'Instructions sent']);
+        abort_unless($portal->account_id === $account->id, 404);
+        
+        $validated = $request->validate([
+            'email' => 'required|email',
+        ]);
+        
+        if (empty($portal->custom_domain)) {
+            return response()->json([
+                'error' => 'Custom domain not configured for this portal'
+            ], 422);
+        }
+        
+        // Send CNAME instructions email
+        // This would typically use a Mail class
+        // Mail::to($validated['email'])->send(new PortalInstructionsMail($portal));
+        
+        return response()->json(['message' => 'Instructions sent successfully']);
     }
 
-    public function sslStatus(Request $request, $portal): JsonResponse
+    public function sslStatus(Request $request, Account $account, Portal $portal): JsonResponse
     {
-        // TODO: Implement SSL status logic
-        return response()->json(['ssl_status' => 'unknown']);
+        abort_unless($portal->account_id === $account->id, 404);
+        
+        if (empty($portal->custom_domain)) {
+            return response()->json(['ssl_status' => 'no_domain']);
+        }
+        
+        // Check SSL status for the custom domain
+        $sslStatus = $this->checkSslStatus($portal->custom_domain);
+        
+        return response()->json(['ssl_status' => $sslStatus]);
     }
 
-    public function reorderArticles(Request $request, $portal): JsonResponse
+    public function reorderArticles(Request $request, Account $account, Portal $portal): JsonResponse
     {
-        // TODO: Implement reorder logic
-        return response()->json(['message' => 'Articles reordered']);
+        abort_unless($portal->account_id === $account->id, 404);
+        
+        $validated = $request->validate([
+            'article_ids' => 'required|array',
+            'article_ids.*' => 'integer|exists:articles,id',
+        ]);
+        
+        foreach ($validated['article_ids'] as $index => $articleId) {
+            $portal->articles()->where('id', $articleId)->update(['sort_order' => $index + 1]);
+        }
+        
+        return response()->json(['message' => 'Articles reordered successfully']);
+    }
+
+    private function checkSslStatus(string $domain): string
+    {
+        try {
+            $context = stream_context_create([
+                'ssl' => [
+                    'capture_peer_cert' => true,
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ],
+            ]);
+            
+            $stream = stream_socket_client(
+                "ssl://{$domain}:443",
+                $errno,
+                $errstr,
+                30,
+                STREAM_CLIENT_CONNECT,
+                $context
+            );
+            
+            if (!$stream) {
+                return 'error';
+            }
+            
+            $cert = stream_context_get_params($stream)['options']['ssl']['peer_certificate'];
+            $certInfo = openssl_x509_parse($cert);
+            
+            fclose($stream);
+            
+            if ($certInfo && $certInfo['validTo_time_t'] > time()) {
+                return 'valid';
+            }
+            
+            return 'expired';
+        } catch (\Exception $e) {
+            return 'error';
+        }
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -96,6 +97,47 @@ class Inbox extends Model
     public function users(): BelongsToMany
     {
         return $this->members();
+    }
+
+    /**
+     * Get the assignment policy for the inbox.
+     */
+    public function inboxAssignmentPolicy(): HasOne
+    {
+        return $this->hasOne(InboxAssignmentPolicy::class);
+    }
+
+    /**
+     * Get the assignment policy through the junction table.
+     */
+    public function assignmentPolicy(): BelongsTo
+    {
+        return $this->belongsTo(AssignmentPolicy::class, 'assignment_policy_id')
+            ->through('inboxAssignmentPolicy');
+    }
+
+    /**
+     * Get available agents for assignment.
+     */
+    public function availableAgents()
+    {
+        return $this->members()->where('availability_status', 'online');
+    }
+
+    /**
+     * Check if auto assignment v2 is enabled.
+     */
+    public function getAutoAssignmentV2EnabledAttribute(): bool
+    {
+        return $this->account->feature_enabled('assignment_v2') ?? false;
+    }
+
+    /**
+     * Get assignment configuration.
+     */
+    public function getAssignmentConfigAttribute(): ?array
+    {
+        return $this->assignmentPolicy?->toArray();
     }
 
     /**

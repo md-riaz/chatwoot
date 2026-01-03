@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\CacheKeys;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,7 +13,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Account extends Model
 {
-    use HasFactory, LogsActivity, SoftDeletes;
+    use HasFactory, LogsActivity, SoftDeletes, CacheKeys;
 
     protected $fillable = [
         'name',
@@ -94,6 +95,14 @@ class Account extends Model
     public function teams(): HasMany
     {
         return $this->hasMany(Team::class);
+    }
+
+    /**
+     * Get all integration hooks for the account.
+     */
+    public function integrationHooks(): HasMany
+    {
+        return $this->hasMany(\App\Models\Integration\Hook::class);
     }
 
     /**
@@ -182,6 +191,32 @@ class Account extends Model
     public function reportingEvents(): HasMany
     {
         return $this->hasMany(ReportingEvent::class);
+    }
+
+    /**
+     * Check if a feature is enabled for the account.
+     */
+    public function feature_enabled(string $feature): bool
+    {
+        $features = $this->features ?? [];
+        
+        // Check if feature is explicitly enabled
+        if (isset($features[$feature])) {
+            return (bool) $features[$feature];
+        }
+        
+        // Default feature availability based on account type/plan
+        $defaultFeatures = [
+            'assignment_v2' => true,
+            'inbox_assistant' => false, // Enterprise feature
+            'advanced_reporting' => false, // Enterprise feature
+            'linear_integration' => true,
+            'shopify_integration' => true,
+            'crm_integration' => false, // Enterprise feature
+            'notion_integration' => false, // Enterprise feature
+        ];
+        
+        return $defaultFeatures[$feature] ?? false;
     }
 
     /**

@@ -15,11 +15,7 @@ return [
     */
 
     'postmark' => [
-        'key' => env('POSTMARK_API_KEY'),
-    ],
-
-    'resend' => [
-        'key' => env('RESEND_API_KEY'),
+        'token' => env('POSTMARK_TOKEN'),
     ],
 
     'ses' => [
@@ -28,36 +24,52 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'resend' => [
+        'key' => env('RESEND_KEY'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+        'client_id' => env('SLACK_CLIENT_ID'),
+        'client_secret' => env('SLACK_CLIENT_SECRET'),
+        'redirect_uri' => env('SLACK_REDIRECT_URI'),
     ],
 
-    'push_relay' => [
-        'url' => env('PUSH_RELAY_URL'),
+    'shopify' => [
+        'client_id' => env('SHOPIFY_CLIENT_ID'),
+        'client_secret' => env('SHOPIFY_CLIENT_SECRET'),
+        'redirect_uri' => env('SHOPIFY_REDIRECT_URI'),
     ],
 
-    'firebase' => [
-        'project_id' => env('FIREBASE_PROJECT_ID'),
-        'credentials' => env('FIREBASE_CREDENTIALS'),
-        'server_key' => env('FIREBASE_SERVER_KEY'),
+    'linear' => [
+        'client_id' => env('LINEAR_CLIENT_ID'),
+        'client_secret' => env('LINEAR_CLIENT_SECRET'),
+        'redirect_uri' => env('LINEAR_REDIRECT_URI'),
     ],
 
-    'whatsapp' => [
-        'cloud_base_url' => env('WHATSAPP_CLOUD_BASE_URL', 'https://graph.facebook.com'),
-        '360dialog_base_url' => env('WHATSAPP_360DIALOG_BASE_URL', 'https://waba.360dialog.io/v1'),
+    'dyte' => [
+        'organization_id' => env('DYTE_ORGANIZATION_ID'),
+        'api_key' => env('DYTE_API_KEY'),
     ],
 
-    'facebook' => [
-        'graph_url' => env('FACEBOOK_GRAPH_URL', 'https://graph.facebook.com'),
-        'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v15.0'),
+    'tiktok' => [
+        'app_id' => env('TIKTOK_APP_ID'),
+        'secret' => env('TIKTOK_SECRET'),
+        'verify_token' => env('TIKTOK_VERIFY_TOKEN'),
     ],
 
-    'google_translate' => [
-        'project_id' => env('GOOGLE_TRANSLATE_PROJECT_ID'),
-        'credentials' => env('GOOGLE_TRANSLATE_CREDENTIALS') ? json_decode(env('GOOGLE_TRANSLATE_CREDENTIALS'), true) : null,
+    'instagram' => [
+        'app_id' => env('INSTAGRAM_APP_ID'),
+        'app_secret' => env('INSTAGRAM_APP_SECRET'),
+    ],
+
+    'twilio' => [
+        'account_sid' => env('TWILIO_ACCOUNT_SID'),
+        'auth_token' => env('TWILIO_AUTH_TOKEN'),
+        'phone_number' => env('TWILIO_PHONE_NUMBER'),
     ],
 
 ];

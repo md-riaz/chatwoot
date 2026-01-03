@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AccessTokenable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class AgentBot extends Model
 {
-    use HasFactory;
+    use HasFactory, AccessTokenable;
 
     // Bot type constants
     public const TYPE_WEBHOOK = 0;

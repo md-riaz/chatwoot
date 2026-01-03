@@ -104,9 +104,13 @@ class AgentBotsController extends Controller
      */
     public function resetAccessToken(Account $account, AgentBot $agentBot): JsonResponse
     {
-        // TODO: Implement actual token reset logic
-        $agentBot->access_token = bin2hex(random_bytes(32));
-        $agentBot->save();
-        return response()->json(['message' => 'Access token reset', 'access_token' => $agentBot->access_token]);
+        abort_unless($agentBot->account_id === $account->id, 404);
+        
+        $newToken = $agentBot->resetAccessToken();
+        
+        return response()->json([
+            'message' => 'Access token reset successfully',
+            'access_token' => $newToken
+        ]);
     }
 }

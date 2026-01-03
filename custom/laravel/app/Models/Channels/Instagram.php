@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Http;
 
 class Instagram extends Model
 {
@@ -48,13 +49,30 @@ class Instagram extends Model
 
     public function subscribe(): bool
     {
-        // TODO: Implement Instagram subscription
-        return true;
+        try {
+            $response = Http::post("https://graph.instagram.com/v22.0/{$this->instagram_id}/subscribed_apps", [
+                'subscribed_fields' => 'messages,message_reactions,messaging_seen',
+                'access_token' => $this->access_token,
+            ]);
+
+            return $response->successful();
+        } catch (\Exception $e) {
+            \Log::error('Instagram subscription failed: ' . $e->getMessage());
+            return false;
+        }
     }
 
     public function unsubscribe(): bool
     {
-        // TODO: Implement Instagram unsubscription
-        return true;
+        try {
+            $response = Http::delete("https://graph.instagram.com/v22.0/{$this->instagram_id}/subscribed_apps", [
+                'access_token' => $this->access_token,
+            ]);
+
+            return $response->successful();
+        } catch (\Exception $e) {
+            \Log::error('Instagram unsubscription failed: ' . $e->getMessage());
+            return false;
+        }
     }
 }

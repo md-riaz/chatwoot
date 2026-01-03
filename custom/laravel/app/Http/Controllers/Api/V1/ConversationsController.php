@@ -13,6 +13,7 @@ use App\Http\Requests\Conversation\StoreConversationRequest;
 use App\Http\Resources\Conversation\ConversationResource;
 use App\Models\Account;
 use App\Models\Conversation;
+use App\Models\ReportingEvent;
 use App\Models\User;
 use App\Repositories\Conversation\ConversationRepository;
 use Illuminate\Http\JsonResponse;
@@ -28,21 +29,71 @@ class ConversationsController extends Controller
     ) {}
 
     /**
-     * Get inbox assistant info for a conversation (enterprise-only placeholder).
+     * Get inbox assistant info for a conversation (enterprise feature).
      */
     public function inboxAssistant(Account $account, Conversation $conversation): JsonResponse
     {
-        // TODO: Implement actual enterprise logic
-        return response()->json(['assistant' => 'Not implemented']);
+        abort_unless($conversation->account_id === $account->id, 404);
+        
+        // Check if account has enterprise features enabled
+        if (!$account->feature_enabled('inbox_assistant')) {
+            return response()->json(['error' => 'Inbox assistant feature not available'], 403);
+        }
+        
+        // Get active agent bot for the inbox
+        $agentBot = $conversation->inbox->agentBot;
+        
+        if (!$agentBot || !$agentBot->active) {
+            return response()->json(['assistant' => null]);
+        }
+        
+        // Get assistant configuration and status
+        $assistantData = [
+            'id' => $agentBot->id,
+            'name' => $agentBot->name,
+            'description' => $agentBot->description,
+            'status' => $agentBot->status,
+            'bot_type' => $agentBot->bot_type,
+            'configuration' => $agentBot->bot_config,
+            'last_activity' => $agentBot->updated_at,
+        ];
+        
+        return response()->json(['assistant' => $assistantData]);
     }
 
     /**
-     * Get reporting events for a conversation (enterprise-only placeholder).
+     * Get reporting events for a conversation (enterprise feature).
      */
     public function reportingEvents(Account $account, Conversation $conversation): JsonResponse
     {
-        // TODO: Implement actual enterprise reporting events logic
-        return response()->json(['events' => []]);
+        abort_unless($conversation->account_id === $account->id, 404);
+        
+        // Check if account has reporting features enabled
+        if (!$account->feature_enabled('advanced_reporting')) {
+            return response()->json(['error' => 'Advanced reporting feature not available'], 403);
+        }
+        
+        $events = ReportingEvent::where('conversation_id', $conversation->id)
+            ->where('account_id', $account->id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'name' => $event->name,
+                    'value' => $event->value,
+                    'value_in_business_hours' => $event->value_in_business_hours,
+                    'event_start_time' => $event->event_start_time,
+                    'event_end_time' => $event->event_end_time,
+                    'created_at' => $event->created_at,
+                    'user' => $event->user ? [
+                        'id' => $event->user->id,
+                        'name' => $event->user->name,
+                    ] : null,
+                ];
+            });
+        
+        return response()->json(['events' => $events]);
     }
 
     /**
