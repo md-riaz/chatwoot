@@ -6,7 +6,7 @@
 ## Progress Overview
 
 - [x] **Phase 0: Foundation and Setup - COMPLETE ✅ (7/7 tasks - 100%)**
-- [ ] Phase 1: Core State Management and API
+- [ ] **Phase 1: Core State Management and API (1/7 tasks - 14%)**
 - [ ] Phase 2: Core UI Components
 - [ ] Phase 3: Dashboard Pages
 - [ ] Phase 4: Widget, Portal, Survey, SuperAdmin
@@ -420,3 +420,108 @@ All foundation tasks completed. Ready to begin Phase 1 (Core Stores).
 - 📋 Not Started
 - ⚠️ Blocked
 - 🔍 Review Needed
+
+---
+
+## PHASE 1: Core State Management and API (Weeks 3-5) - IN PROGRESS 🚧
+
+### Task 1.1: Auth Store and API Integration ✅
+**Status**: COMPLETE
+**Started**: 2026-01-03
+**Completed**: 2026-01-03
+
+#### Completed Items:
+- [x] Auth API client created (`src/lib/api/auth.ts`)
+  - validityCheck(), logout(), hasAuthCookie(), getAuthData()
+  - updateProfile(), updatePassword(), deleteAvatar()
+  - updateUISettings(), updateAvailability(), updateAutoOffline()
+  - setActiveAccount(), resetAccessToken(), resendConfirmation()
+- [x] Auth store using Svelte 5 runes (`src/lib/stores/auth.svelte.ts`)
+  - Reactive state with $state (currentUser, isFetching, error)
+  - Computed values with $derived (isLoggedIn, currentUserId, uiSettings, etc.)
+  - All auth methods implemented (16 methods total)
+  - LocalStorage persistence for user data
+  - Optimistic updates for availability and autoOffline
+  - TypeScript interfaces for CurrentUser, UserAccount, etc.
+
+#### Implementation Details:
+- **Svelte 5 Runes Used**:
+  - `$state` for reactive currentUser, isFetching, error
+  - `$derived` for computed values (isLoggedIn, currentAccount, currentRole, etc.)
+  - Class-based store pattern (singleton instance exported)
+- **Features**:
+  - Session validation and initialization
+  - Profile management (update, password, avatar)
+  - UI settings persistence
+  - Availability status with optimistic updates
+  - Auto-offline configuration
+  - Access token reset
+  - Confirmation email resend
+- **API Integration**:
+  - Full ky-based HTTP client
+  - Automatic camelCase ↔ snake_case transformation
+  - File upload support for avatar
+  - Comprehensive error handling
+
+#### Vue → Svelte Migration:
+- Vuex state → `$state` reactive variables
+- Vuex getters → `$derived` computed values
+- Vuex mutations → Direct state updates
+- Vuex actions → Async methods in class
+
+#### Files Created:
+1. `src/lib/api/auth.ts` (219 lines, 5.8KB)
+2. `src/lib/stores/auth.svelte.ts` (351 lines, 9KB)
+
+#### Notes:
+- Proper Svelte 5 syntax verified
+- All 16 auth methods from Vue store migrated
+- Class-based pattern for better organization
+- Singleton instance for global access
+- Ready for integration with routing guards and UI components
+
+---
+
+### Task 1.2: Conversations Store ⏳
+**Status**: PENDING
+**Priority**: P0 - CRITICAL
+
+#### TODO:
+- [ ] Create conversations API client
+- [ ] Create conversations store with Svelte 5 runes
+- [ ] Implement conversation list management
+- [ ] Add conversation CRUD operations
+- [ ] Implement filtering and sorting
+- [ ] Add WebSocket integration for real-time updates
+- [ ] Implement optimistic updates
+
+---
+
+### Task 1.3: Messages Store ⏳
+**Status**: PENDING
+**Priority**: P0 - CRITICAL
+
+---
+
+### Task 1.4: Contacts Store ⏳
+**Status**: PENDING
+**Priority**: P1 - HIGH
+
+---
+
+### Task 1.5: Inboxes Store ⏳
+**Status**: PENDING
+**Priority**: P1 - HIGH
+
+---
+
+### Task 1.6: Teams Store ⏳
+**Status**: PENDING
+**Priority**: P2 - MEDIUM
+
+---
+
+### Task 1.7: Labels Store ⏳
+**Status**: PENDING
+**Priority**: P2 - MEDIUM
+
