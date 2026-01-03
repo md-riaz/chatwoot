@@ -15,11 +15,13 @@ return new class extends Migration
             // This is separate from personal_access_tokens (Sanctum) and action_mailbox tables
             Schema::create('access_tokens', function (Blueprint $table) {
                 $table->id();
-                $table->morphs('owner'); // owner_type, owner_id
+                $table->string('owner_type');
+                $table->unsignedBigInteger('owner_id');
                 $table->string('token', 64)->unique();
                 $table->timestamps();
-
-                $table->index(['owner_type', 'owner_id']);
+                
+                // Skip index creation to avoid conflicts - can be added later if needed
+                // $table->index(['owner_type', 'owner_id']);
             });
         } else {
             // Table exists, check if we need to add missing columns
@@ -37,24 +39,9 @@ return new class extends Migration
                 });
             }
             
-            // Add index only if it doesn't exist - use raw SQL to avoid Laravel's automatic index creation
-            if (DB::getDriverName() === 'pgsql') {
-                try {
-                    DB::statement('CREATE INDEX IF NOT EXISTS access_tokens_owner_type_owner_id_index ON access_tokens (owner_type, owner_id)');
-                } catch (\Exception $e) {
-                    // Index already exists, ignore
-                }
-            } else {
-                // For MySQL, check if index exists before creating
-                try {
-                    $indexExists = DB::select("SHOW INDEX FROM access_tokens WHERE Key_name = 'access_tokens_owner_type_owner_id_index'");
-                    if (empty($indexExists)) {
-                        DB::statement('CREATE INDEX access_tokens_owner_type_owner_id_index ON access_tokens (owner_type, owner_id)');
-                    }
-                } catch (\Exception $e) {
-                    // Index might already exist, ignore
-                }
-            }
+            // Skip index creation entirely to avoid conflicts
+            // Index can be added manually later if needed:
+            // CREATE INDEX IF NOT EXISTS access_tokens_owner_type_owner_id_index ON access_tokens (owner_type, owner_id);
         }
     }
 
@@ -83,17 +70,6 @@ return new class extends Migration
                         $table->dropColumn('owner_id');
                     }
                 });
-                
-                // Drop our index if it exists using raw SQL
-                try {
-                    if (DB::getDriverName() === 'pgsql') {
-                        DB::statement('DROP INDEX IF EXISTS access_tokens_owner_type_owner_id_index');
-                    } else {
-                        DB::statement('DROP INDEX IF EXISTS access_tokens_owner_type_owner_id_index ON access_tokens');
-                    }
-                } catch (\Exception $e) {
-                    // Index might not exist, ignore
-                }
             }
         }
     }
