@@ -4,10 +4,12 @@
    * Manage notification preferences
    */
 
+  import { onMount } from 'svelte';
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import { Switch } from '$lib/components/ui/switch';
   import { Label } from '$lib/components/ui/label';
+  import { authStore } from '$lib/stores/auth.svelte';
 
   let emailNotifications = $state({
     newMessages: true,
@@ -23,14 +25,44 @@
   });
 
   let isSaving = $state(false);
+  let successMessage = $state<string | null>(null);
+
+  onMount(() => {
+    // Load notification preferences from UI settings
+    const uiSettings = authStore.uiSettings;
+    if (uiSettings?.notificationPreferences) {
+      const prefs = uiSettings.notificationPreferences;
+      if (prefs.email) {
+        emailNotifications = { ...emailNotifications, ...prefs.email };
+      }
+      if (prefs.push) {
+        pushNotifications = { ...pushNotifications, ...prefs.push };
+      }
+    }
+  });
 
   async function handleSave() {
-    isSaving = true;
-    // TODO: Implement save functionality
-    setTimeout(() => {
+    try {
+      isSaving = true;
+
+      // Save notification preferences to UI settings
+      await authStore.updateUISettings({
+        ...authStore.uiSettings,
+        notificationPreferences: {
+          email: emailNotifications,
+          push: pushNotifications,
+        },
+      });
+
+      successMessage = 'Notification preferences saved successfully!';
+      setTimeout(() => {
+        successMessage = null;
+      }, 3000);
+    } catch (error) {
+      console.error('Error saving notification preferences:', error);
+    } finally {
       isSaving = false;
-      alert('Notification preferences saved successfully!');
-    }, 1000);
+    }
   }
 </script>
 
@@ -41,6 +73,12 @@
       Choose how you want to be notified about updates
     </p>
   </div>
+
+  {#if successMessage}
+    <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded">
+      {successMessage}
+    </div>
+  {/if}
 
   <Card.Root>
     <Card.Header>

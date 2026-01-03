@@ -4,43 +4,98 @@
    * Manage user profile information
    */
 
+  import { onMount } from 'svelte';
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
+  import { authStore } from '$lib/stores/auth.svelte';
+  import * as authAPI from '$lib/api/auth';
 
-  let name = $state('John Doe');
-  let email = $state('john@example.com');
+  let name = $state('');
+  let email = $state('');
   let currentPassword = $state('');
   let newPassword = $state('');
   let confirmPassword = $state('');
   let isSaving = $state(false);
   let isChangingPassword = $state(false);
+  let error = $state<string | null>(null);
+  let successMessage = $state<string | null>(null);
+
+  onMount(() => {
+    // Load current user data
+    if (authStore.currentUser) {
+      name = authStore.currentUser.displayName || authStore.currentUser.name || '';
+      email = authStore.currentUser.email || '';
+    }
+  });
 
   async function handleSave() {
-    isSaving = true;
-    // TODO: Implement save functionality
-    setTimeout(() => {
+    try {
+      isSaving = true;
+      error = null;
+      successMessage = null;
+
+      await authAPI.updateProfile({
+        displayName: name,
+      });
+
+      // Update the auth store
+      await authStore.validityCheck();
+      
+      successMessage = 'Profile updated successfully!';
+    } catch (err: any) {
+      error = err.message || 'Failed to update profile';
+    } finally {
       isSaving = false;
-      alert('Profile updated successfully!');
-    }, 1000);
+      // Clear success message after 3 seconds
+      if (successMessage) {
+        setTimeout(() => {
+          successMessage = null;
+        }, 3000);
+      }
+    }
   }
 
   async function handlePasswordChange() {
     if (newPassword !== confirmPassword) {
-      alert('Passwords do not match!');
+      error = 'Passwords do not match!';
       return;
     }
 
-    isChangingPassword = true;
-    // TODO: Implement password change functionality
-    setTimeout(() => {
-      isChangingPassword = false;
+    if (newPassword.length < 6) {
+      error = 'Password must be at least 6 characters long';
+      return;
+    }
+
+    try {
+      isChangingPassword = true;
+      error = null;
+      successMessage = null;
+
+      await authAPI.updatePassword({
+        currentPassword,
+        password: newPassword,
+        passwordConfirmation: confirmPassword,
+      });
+
+      // Clear password fields
       currentPassword = '';
       newPassword = '';
       confirmPassword = '';
-      alert('Password changed successfully!');
-    }, 1000);
+      
+      successMessage = 'Password changed successfully!';
+    } catch (err: any) {
+      error = err.message || 'Failed to change password';
+    } finally {
+      isChangingPassword = false;
+      // Clear success message after 3 seconds
+      if (successMessage) {
+        setTimeout(() => {
+          successMessage = null;
+        }, 3000);
+      }
+    }
   }
 </script>
 
@@ -51,6 +106,18 @@
       Update your personal information and password
     </p>
   </div>
+
+  {#if error}
+    <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+      {error}
+    </div>
+  {/if}
+
+  {#if successMessage}
+    <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded">
+      {successMessage}
+    </div>
+  {/if}
 
   <Card.Root>
     <Card.Header>
