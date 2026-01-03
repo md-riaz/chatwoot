@@ -2,6 +2,8 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { base } from '$app/paths';
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
 
   const components = [
     'accordion', 'alert', 'article-card', 'assignment-policy', 'assistant-card', 
@@ -25,6 +27,16 @@
   $: filteredComponents = components.filter(c => 
     c.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  
+  // Redirect authenticated users to app
+  onMount(() => {
+    if (typeof localStorage !== 'undefined') {
+      const token = localStorage.getItem('chatwoot_auth_token');
+      if (token) {
+        goto('/app');
+      }
+    }
+  });
 </script>
 
 <div class="container mx-auto py-10">
