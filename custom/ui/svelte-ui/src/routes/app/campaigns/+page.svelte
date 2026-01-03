@@ -5,6 +5,7 @@
   import { campaignsStore } from '$lib/stores/campaigns.svelte';
   import { Button } from '$lib/components/ui/button';
   import { CAMPAIGN_TYPES } from '$lib/api/campaigns';
+  import type { Campaign } from '$lib/api/campaigns';
 
   let accountId = $derived($page.params.accountId);
   let isLoading = $derived(campaignsStore.isLoading);
@@ -39,7 +40,7 @@
     await campaignsStore.toggleCampaignStatus(campaignId);
   }
 
-  function getCampaignStatusClass(campaign: any) {
+  function getCampaignStatusClass(campaign: Campaign) {
     if (!campaign.enabled) return 'bg-gray-100 text-gray-800';
     if (campaign.campaignStatus === 'active')
       return 'bg-green-100 text-green-800';

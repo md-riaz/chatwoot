@@ -84,7 +84,7 @@ class CampaignsStore {
         params
       );
 
-      this.allCampaigns = response.payload || [];
+      this.allCampaigns = response.data || [];
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch campaigns';
       console.error('Error fetching campaigns:', err);

@@ -84,7 +84,7 @@ export interface CampaignListParams {
 export async function getCampaigns(
   accountId: number,
   params: CampaignListParams = {}
-): Promise<{ payload: Campaign[] }> {
+): Promise<{ data: Campaign[] }> {
   const searchParams = new URLSearchParams();
   if (params.page) searchParams.set('page', params.page.toString());
   if (params.perPage) searchParams.set('per_page', params.perPage.toString());

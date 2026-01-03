@@ -59,6 +59,15 @@
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleDateString();
   }
+
+  function isValidUrl(url: string): boolean {
+    try {
+      const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }
 </script>
 
 <div class="companies-page p-6">
@@ -139,7 +148,7 @@
           {#if company.website}
             <div class="text-sm text-blue-600 mb-2 truncate">
               <a
-                href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
+                href={isValidUrl(company.website) ? company.website : `https://${company.website}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onclick={(e) => e.stopPropagation()}

@@ -14,6 +14,7 @@
     Inbox,
     FileText,
     CreditCard,
+    Clock,
   } from '@lucide/svelte';
   import { Button } from '$lib/components/ui/button';
   import { Badge } from '$lib/components/ui/badge';
@@ -108,7 +109,7 @@
       inbox: Inbox,
       'file-text': FileText,
       'credit-card': CreditCard,
-      clock: Settings, // Using Settings as placeholder for clock
+      clock: Clock,
     };
     return icons[iconName] || Settings;
   }
