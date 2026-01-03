@@ -22,6 +22,7 @@
   // Wizard state
   let currentStep = $state(1);
   let selectedChannelType = $state<string>('');
+  let selectedProvider = $state<string>('');
   let isCreating = $derived(inboxesStore.uiFlags.isCreating);
   
   // Form data
@@ -39,11 +40,29 @@
   let phoneNumber = $state('');
   let apiKey = $state('');
   
-  // Voice channel specific (Twilio)
+  // Twilio common fields
   let accountSid = $state('');
   let authToken = $state('');
   let apiKeySid = $state('');
   let apiKeySecret = $state('');
+  let messagingServiceSid = $state('');
+  let useApiKey = $state(false);
+  let useMessagingService = $state(false);
+  
+  // Bandwidth SMS fields
+  let bandwidthAccountId = $state('');
+  let bandwidthUsername = $state('');
+  let bandwidthPassword = $state('');
+  let bandwidthApplicationId = $state('');
+  
+  // WhatsApp Cloud fields
+  let phoneNumberId = $state('');
+  let businessAccountId = $state('');
+  let accessToken = $state('');
+  
+  // 360Dialog fields
+  let dialog360ApiKey = $state('');
+  let dialog360PartnerId = $state('');
   
   // Errors
   let errors = $state<Record<string, string>>({});
@@ -87,14 +106,47 @@
     },
   ];
   
+  // Provider options
+  const smsProviders = [
+    { value: 'twilio', label: 'Twilio' },
+    { value: 'bandwidth', label: 'Bandwidth' },
+  ];
+  
+  const whatsappProviders = [
+    { value: 'whatsapp_cloud', label: 'WhatsApp Cloud' },
+    { value: 'twilio', label: 'Twilio' },
+    { value: '360dialog', label: '360Dialog' },
+  ];
+  
+  function needsProviderSelection(channelType: string): boolean {
+    return channelType === 'Channel::Sms' || channelType === 'Channel::Whatsapp';
+  }
+  
   function handleChannelSelect(channelType: string) {
     selectedChannelType = channelType;
-    currentStep = 2;
+    if (needsProviderSelection(channelType)) {
+      currentStep = 2; // Provider selection step
+    } else {
+      selectedProvider = '';
+      currentStep = 3; // Configuration step
+    }
+  }
+  
+  function handleProviderSelect(provider: string) {
+    selectedProvider = provider;
+    currentStep = 3; // Configuration step
   }
   
   function handleBack() {
-    if (currentStep > 1) {
+    if (currentStep === 3 && needsProviderSelection(selectedChannelType)) {
+      // From config back to provider selection
+      currentStep = 2;
+    } else if (currentStep > 1) {
       currentStep--;
+      if (currentStep === 1) {
+        selectedChannelType = '';
+        selectedProvider = '';
+      }
     } else {
       goto(`/app/${accountId}/settings/inboxes`);
     }
@@ -121,29 +173,59 @@
       }
     }
     
-    if (selectedChannelType === 'Channel::Sms' && !phoneNumber.trim()) {
-      errors.phoneNumber = 'Phone number is required';
+    // SMS validation based on provider
+    if (selectedChannelType === 'Channel::Sms') {
+      if (selectedProvider === 'twilio') {
+        if (!accountSid.trim()) errors.accountSid = 'Account SID is required';
+        if (useApiKey) {
+          if (!apiKeySid.trim()) errors.apiKeySid = 'API Key SID is required';
+          if (!apiKeySecret.trim()) errors.apiKeySecret = 'API Key Secret is required';
+        } else {
+          if (!authToken.trim()) errors.authToken = 'Auth Token is required';
+        }
+        if (useMessagingService) {
+          if (!messagingServiceSid.trim()) errors.messagingServiceSid = 'Messaging Service SID is required';
+        } else {
+          if (!phoneNumber.trim()) errors.phoneNumber = 'Phone number is required';
+        }
+      } else if (selectedProvider === 'bandwidth') {
+        if (!bandwidthAccountId.trim()) errors.bandwidthAccountId = 'Account ID is required';
+        if (!bandwidthUsername.trim()) errors.bandwidthUsername = 'Username is required';
+        if (!bandwidthPassword.trim()) errors.bandwidthPassword = 'Password is required';
+        if (!bandwidthApplicationId.trim()) errors.bandwidthApplicationId = 'Application ID is required';
+        if (!phoneNumber.trim()) errors.phoneNumber = 'Phone number is required';
+      }
     }
     
-    if (selectedChannelType === 'Channel::Whatsapp' && !phoneNumber.trim()) {
-      errors.phoneNumber = 'Phone number is required';
+    // WhatsApp validation based on provider
+    if (selectedChannelType === 'Channel::Whatsapp') {
+      if (selectedProvider === 'whatsapp_cloud') {
+        if (!phoneNumberId.trim()) errors.phoneNumberId = 'Phone Number ID is required';
+        if (!businessAccountId.trim()) errors.businessAccountId = 'Business Account ID is required';
+        if (!accessToken.trim()) errors.accessToken = 'Access Token is required';
+      } else if (selectedProvider === 'twilio') {
+        if (!accountSid.trim()) errors.accountSid = 'Account SID is required';
+        if (useApiKey) {
+          if (!apiKeySid.trim()) errors.apiKeySid = 'API Key SID is required';
+          if (!apiKeySecret.trim()) errors.apiKeySecret = 'API Key Secret is required';
+        } else {
+          if (!authToken.trim()) errors.authToken = 'Auth Token is required';
+        }
+        if (!phoneNumber.trim()) errors.phoneNumber = 'Phone number is required';
+      } else if (selectedProvider === '360dialog') {
+        if (!dialog360ApiKey.trim()) errors.dialog360ApiKey = 'API Key is required';
+      }
     }
     
+    // Voice validation
     if (selectedChannelType === 'Channel::Voice') {
-      if (!phoneNumber.trim()) {
-        errors.phoneNumber = 'Phone number is required';
-      }
-      if (!accountSid.trim()) {
-        errors.accountSid = 'Twilio Account SID is required';
-      }
-      if (!authToken.trim()) {
-        errors.authToken = 'Twilio Auth Token is required';
-      }
-      if (!apiKeySid.trim()) {
-        errors.apiKeySid = 'Twilio API Key SID is required';
-      }
-      if (!apiKeySecret.trim()) {
-        errors.apiKeySecret = 'Twilio API Key Secret is required';
+      if (!phoneNumber.trim()) errors.phoneNumber = 'Phone number is required';
+      if (!accountSid.trim()) errors.accountSid = 'Account SID is required';
+      if (useApiKey) {
+        if (!apiKeySid.trim()) errors.apiKeySid = 'API Key SID is required';
+        if (!apiKeySecret.trim()) errors.apiKeySecret = 'API Key Secret is required';
+      } else {
+        if (!authToken.trim()) errors.authToken = 'Auth Token is required';
       }
     }
     
@@ -155,7 +237,7 @@
       return;
     }
     
-    // Build channel data based on selected type
+    // Build channel data based on selected type and provider
     const channelData: Record<string, any> = {};
     
     if (selectedChannelType === 'Channel::WebWidget') {
@@ -167,19 +249,70 @@
       channelData.imap_enabled = false;
       channelData.smtp_enabled = false;
     } else if (selectedChannelType === 'Channel::Sms') {
-      channelData.phone_number = phoneNumber;
-      channelData.provider = 'default';
+      if (selectedProvider === 'twilio') {
+        channelData.provider = 'twilio';
+        channelData.provider_config = {
+          account_sid: accountSid,
+          ...(useApiKey ? {
+            api_key_sid: apiKeySid,
+            api_key_secret: apiKeySecret,
+          } : {
+            auth_token: authToken,
+          }),
+          ...(useMessagingService ? {
+            messaging_service_sid: messagingServiceSid,
+          } : {
+            phone_number: phoneNumber,
+          }),
+        };
+      } else if (selectedProvider === 'bandwidth') {
+        channelData.provider = 'bandwidth';
+        channelData.provider_config = {
+          account_id: bandwidthAccountId,
+          username: bandwidthUsername,
+          password: bandwidthPassword,
+          application_id: bandwidthApplicationId,
+        };
+        channelData.phone_number = phoneNumber;
+      }
     } else if (selectedChannelType === 'Channel::Whatsapp') {
-      channelData.phone_number = phoneNumber;
-      channelData.provider = 'whatsapp_cloud';
+      if (selectedProvider === 'whatsapp_cloud') {
+        channelData.provider = 'whatsapp_cloud';
+        channelData.provider_config = {
+          phone_number_id: phoneNumberId,
+          business_account_id: businessAccountId,
+          api_key: accessToken,
+        };
+      } else if (selectedProvider === 'twilio') {
+        channelData.provider = 'twilio';
+        channelData.provider_config = {
+          account_sid: accountSid,
+          ...(useApiKey ? {
+            api_key_sid: apiKeySid,
+            api_key_secret: apiKeySecret,
+          } : {
+            auth_token: authToken,
+          }),
+        };
+        channelData.phone_number = phoneNumber;
+      } else if (selectedProvider === '360dialog') {
+        channelData.provider = '360dialog';
+        channelData.provider_config = {
+          api_key: dialog360ApiKey,
+          ...(dialog360PartnerId ? { partner_id: dialog360PartnerId } : {}),
+        };
+      }
     } else if (selectedChannelType === 'Channel::Voice') {
       channelData.phone_number = phoneNumber;
       channelData.provider = 'twilio';
       channelData.provider_config = {
         account_sid: accountSid,
-        auth_token: authToken,
-        api_key_sid: apiKeySid,
-        api_key_secret: apiKeySecret,
+        ...(useApiKey ? {
+          api_key_sid: apiKeySid,
+          api_key_secret: apiKeySecret,
+        } : {
+          auth_token: authToken,
+        }),
       };
     } else if (selectedChannelType === 'Channel::Api') {
       channelData.webhook_url = '';
@@ -215,6 +348,8 @@
         {#if currentStep === 1}
           Choose a channel type to get started
         {:else if currentStep === 2}
+          Select a provider for {channelTypes.find(c => c.type === selectedChannelType)?.name}
+        {:else if currentStep === 3}
           Configure your {channelTypes.find(c => c.type === selectedChannelType)?.name} inbox
         {/if}
       </p>
@@ -224,17 +359,26 @@
   <!-- Progress Steps -->
   <div class="flex items-center gap-2">
     <div class="flex items-center gap-2">
-      <div class="flex h-8 w-8 items-center justify-center rounded-full {currentStep === 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'}">
-        1
+      <div class="flex h-8 w-8 items-center justify-center rounded-full {currentStep === 1 ? 'bg-blue-600 text-white' : currentStep > 1 ? 'bg-green-600 text-white' : 'bg-gray-200'}">
+        {#if currentStep > 1}✓{:else}1{/if}
       </div>
       <span class="text-sm {currentStep === 1 ? 'font-semibold' : 'text-gray-600'}">Select Channel</span>
     </div>
+    {#if needsProviderSelection(selectedChannelType)}
+      <div class="h-px w-12 bg-gray-300"></div>
+      <div class="flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-full {currentStep === 2 ? 'bg-blue-600 text-white' : currentStep > 2 ? 'bg-green-600 text-white' : 'bg-gray-200'}">
+          {#if currentStep > 2}✓{:else}2{/if}
+        </div>
+        <span class="text-sm {currentStep === 2 ? 'font-semibold' : 'text-gray-600'}">Select Provider</span>
+      </div>
+    {/if}
     <div class="h-px w-12 bg-gray-300"></div>
     <div class="flex items-center gap-2">
-      <div class="flex h-8 w-8 items-center justify-center rounded-full {currentStep === 2 ? 'bg-blue-600 text-white' : 'bg-gray-200'}">
-        2
+      <div class="flex h-8 w-8 items-center justify-center rounded-full {currentStep === 3 || (currentStep === 2 && !needsProviderSelection(selectedChannelType)) ? 'bg-blue-600 text-white' : 'bg-gray-200'}">
+        {needsProviderSelection(selectedChannelType) ? '3' : '2'}
       </div>
-      <span class="text-sm {currentStep === 2 ? 'font-semibold' : 'text-gray-600'}">Configure</span>
+      <span class="text-sm {currentStep === 3 || (currentStep === 2 && !needsProviderSelection(selectedChannelType)) ? 'font-semibold' : 'text-gray-600'}">Configure</span>
     </div>
   </div>
 
@@ -256,10 +400,60 @@
         </Card.Root>
       {/each}
     </div>
-  {:else if currentStep === 2}
-    <!-- Step 2: Configuration -->
+  {:else if currentStep === 2 && needsProviderSelection(selectedChannelType)}
+    <!-- Step 2: Provider Selection (for SMS and WhatsApp) -->
+    <div>
+      <h2 class="text-2xl font-bold mb-4">Select Provider</h2>
+      <p class="text-muted-foreground mb-6">
+        Choose a provider for your {channelTypes.find(c => c.type === selectedChannelType)?.name} channel
+      </p>
+      
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {#if selectedChannelType === 'Channel::Sms'}
+          {#each smsProviders as provider}
+            <Card.Root
+              class="hover:shadow-md transition-shadow cursor-pointer hover:border-blue-500"
+              onclick={() => handleProviderSelect(provider.value)}
+            >
+              <Card.Content class="p-6 text-center">
+                <div class="text-4xl mb-3">📞</div>
+                <h3 class="font-semibold text-lg mb-2">{provider.label}</h3>
+              </Card.Content>
+            </Card.Root>
+          {/each}
+        {:else if selectedChannelType === 'Channel::Whatsapp'}
+          {#each whatsappProviders as provider}
+            <Card.Root
+              class="hover:shadow-md transition-shadow cursor-pointer hover:border-blue-500"
+              onclick={() => handleProviderSelect(provider.value)}
+            >
+              <Card.Content class="p-6 text-center">
+                <div class="text-4xl mb-3">💬</div>
+                <h3 class="font-semibold text-lg mb-2">{provider.label}</h3>
+              </Card.Content>
+            </Card.Root>
+          {/each}
+        {/if}
+      </div>
+    </div>
+  {:else if currentStep === 3 || (currentStep === 2 && !needsProviderSelection(selectedChannelType))}
+    <!-- Step 3 (or 2 for non-provider channels): Configuration -->
     <Card.Root>
       <Card.Content class="p-6 space-y-6">
+        <!-- Provider indication -->
+        {#if selectedProvider}
+          <div class="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
+            <p class="text-sm text-blue-900">
+              <span class="font-semibold">Provider:</span> 
+              {#if selectedChannelType === 'Channel::Sms'}
+                {smsProviders.find(p => p.value === selectedProvider)?.label}
+              {:else if selectedChannelType === 'Channel::Whatsapp'}
+                {whatsappProviders.find(p => p.value === selectedProvider)?.label}
+              {/if}
+            </p>
+          </div>
+        {/if}
+        
         <!-- Basic Configuration -->
         <div>
           <h3 class="text-lg font-semibold mb-4">Basic Information</h3>
@@ -338,28 +532,331 @@
                 </p>
               </div>
             </div>
-          {:else if selectedChannelType === 'Channel::Sms' || selectedChannelType === 'Channel::Whatsapp'}
-            <div class="space-y-4">
-              <div>
-                <Label for="phoneNumber">Phone Number <span class="text-red-500">*</span></Label>
-                <Input
-                  id="phoneNumber"
-                  type="tel"
-                  bind:value={phoneNumber}
-                  placeholder="+1234567890"
-                  class={errors.phoneNumber ? 'border-red-500' : ''}
-                />
-                {#if errors.phoneNumber}
-                  <p class="text-sm text-red-500 mt-1">{errors.phoneNumber}</p>
+          {:else if selectedChannelType === 'Channel::Sms'}
+            {#if selectedProvider === 'twilio'}
+              <!-- Twilio SMS Configuration -->
+              <div class="space-y-4">
+                <div>
+                  <Label for="accountSid">Account SID <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="accountSid"
+                    bind:value={accountSid}
+                    placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    class={errors.accountSid ? 'border-red-500' : ''}
+                  />
+                  {#if errors.accountSid}
+                    <p class="text-sm text-red-500 mt-1">{errors.accountSid}</p>
+                  {/if}
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                  <Switch bind:checked={useApiKey} id="useApiKey" />
+                  <Label for="useApiKey">Use API Key instead of Auth Token</Label>
+                </div>
+                
+                {#if useApiKey}
+                  <div>
+                    <Label for="apiKeySid">API Key SID <span class="text-red-500">*</span></Label>
+                    <Input
+                      id="apiKeySid"
+                      bind:value={apiKeySid}
+                      placeholder="SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                      class={errors.apiKeySid ? 'border-red-500' : ''}
+                    />
+                    {#if errors.apiKeySid}
+                      <p class="text-sm text-red-500 mt-1">{errors.apiKeySid}</p>
+                    {/if}
+                  </div>
+                  
+                  <div>
+                    <Label for="apiKeySecret">API Key Secret <span class="text-red-500">*</span></Label>
+                    <Input
+                      id="apiKeySecret"
+                      type="password"
+                      bind:value={apiKeySecret}
+                      placeholder="Your API Key Secret"
+                      class={errors.apiKeySecret ? 'border-red-500' : ''}
+                    />
+                    {#if errors.apiKeySecret}
+                      <p class="text-sm text-red-500 mt-1">{errors.apiKeySecret}</p>
+                    {/if}
+                  </div>
+                {:else}
+                  <div>
+                    <Label for="authToken">Auth Token <span class="text-red-500">*</span></Label>
+                    <Input
+                      id="authToken"
+                      type="password"
+                      bind:value={authToken}
+                      placeholder="Your Auth Token"
+                      class={errors.authToken ? 'border-red-500' : ''}
+                    />
+                    {#if errors.authToken}
+                      <p class="text-sm text-red-500 mt-1">{errors.authToken}</p>
+                    {/if}
+                  </div>
                 {/if}
-                <p class="text-sm text-gray-600 mt-1">
-                  {selectedChannelType === 'Channel::Whatsapp' 
-                    ? 'WhatsApp Business API credentials will be configured after creation'
-                    : 'SMS provider credentials will be configured after creation'}
-                </p>
+                
+                <div class="flex items-center space-x-2">
+                  <Switch bind:checked={useMessagingService} id="useMessagingService" />
+                  <Label for="useMessagingService">Use Messaging Service SID</Label>
+                </div>
+                
+                {#if useMessagingService}
+                  <div>
+                    <Label for="messagingServiceSid">Messaging Service SID <span class="text-red-500">*</span></Label>
+                    <Input
+                      id="messagingServiceSid"
+                      bind:value={messagingServiceSid}
+                      placeholder="MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                      class={errors.messagingServiceSid ? 'border-red-500' : ''}
+                    />
+                    {#if errors.messagingServiceSid}
+                      <p class="text-sm text-red-500 mt-1">{errors.messagingServiceSid}</p>
+                    {/if}
+                  </div>
+                {:else}
+                  <div>
+                    <Label for="phoneNumber">Phone Number <span class="text-red-500">*</span></Label>
+                    <Input
+                      id="phoneNumber"
+                      type="tel"
+                      bind:value={phoneNumber}
+                      placeholder="+1234567890"
+                      class={errors.phoneNumber ? 'border-red-500' : ''}
+                    />
+                    {#if errors.phoneNumber}
+                      <p class="text-sm text-red-500 mt-1">{errors.phoneNumber}</p>
+                    {/if}
+                    <p class="text-sm text-gray-600 mt-1">E.164 format</p>
+                  </div>
+                {/if}
               </div>
-            </div>
+            {:else if selectedProvider === 'bandwidth'}
+              <!-- Bandwidth SMS Configuration -->
+              <div class="space-y-4">
+                <div>
+                  <Label for="bandwidthAccountId">Account ID <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="bandwidthAccountId"
+                    bind:value={bandwidthAccountId}
+                    placeholder="Your Bandwidth Account ID"
+                    class={errors.bandwidthAccountId ? 'border-red-500' : ''}
+                  />
+                  {#if errors.bandwidthAccountId}
+                    <p class="text-sm text-red-500 mt-1">{errors.bandwidthAccountId}</p>
+                  {/if}
+                </div>
+                
+                <div>
+                  <Label for="bandwidthUsername">Username <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="bandwidthUsername"
+                    bind:value={bandwidthUsername}
+                    placeholder="Your Bandwidth Username"
+                    class={errors.bandwidthUsername ? 'border-red-500' : ''}
+                  />
+                  {#if errors.bandwidthUsername}
+                    <p class="text-sm text-red-500 mt-1">{errors.bandwidthUsername}</p>
+                  {/if}
+                </div>
+                
+                <div>
+                  <Label for="bandwidthPassword">Password <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="bandwidthPassword"
+                    type="password"
+                    bind:value={bandwidthPassword}
+                    placeholder="Your Bandwidth Password"
+                    class={errors.bandwidthPassword ? 'border-red-500' : ''}
+                  />
+                  {#if errors.bandwidthPassword}
+                    <p class="text-sm text-red-500 mt-1">{errors.bandwidthPassword}</p>
+                  {/if}
+                </div>
+                
+                <div>
+                  <Label for="bandwidthApplicationId">Application ID <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="bandwidthApplicationId"
+                    bind:value={bandwidthApplicationId}
+                    placeholder="Your Bandwidth Application ID"
+                    class={errors.bandwidthApplicationId ? 'border-red-500' : ''}
+                  />
+                  {#if errors.bandwidthApplicationId}
+                    <p class="text-sm text-red-500 mt-1">{errors.bandwidthApplicationId}</p>
+                  {/if}
+                </div>
+                
+                <div>
+                  <Label for="phoneNumber">Phone Number <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    bind:value={phoneNumber}
+                    placeholder="+1234567890"
+                    class={errors.phoneNumber ? 'border-red-500' : ''}
+                  />
+                  {#if errors.phoneNumber}
+                    <p class="text-sm text-red-500 mt-1">{errors.phoneNumber}</p>
+                  {/if}
+                  <p class="text-sm text-gray-600 mt-1">E.164 format</p>
+                </div>
+              </div>
+            {/if}
+          {:else if selectedChannelType === 'Channel::Whatsapp'}
+            {#if selectedProvider === 'whatsapp_cloud'}
+              <!-- WhatsApp Cloud Configuration -->
+              <div class="space-y-4">
+                <div>
+                  <Label for="phoneNumberId">Phone Number ID <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="phoneNumberId"
+                    bind:value={phoneNumberId}
+                    placeholder="123456789012345"
+                    class={errors.phoneNumberId ? 'border-red-500' : ''}
+                  />
+                  {#if errors.phoneNumberId}
+                    <p class="text-sm text-red-500 mt-1">{errors.phoneNumberId}</p>
+                  {/if}
+                </div>
+                
+                <div>
+                  <Label for="businessAccountId">Business Account ID <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="businessAccountId"
+                    bind:value={businessAccountId}
+                    placeholder="123456789012345"
+                    class={errors.businessAccountId ? 'border-red-500' : ''}
+                  />
+                  {#if errors.businessAccountId}
+                    <p class="text-sm text-red-500 mt-1">{errors.businessAccountId}</p>
+                  {/if}
+                </div>
+                
+                <div>
+                  <Label for="accessToken">Access Token <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="accessToken"
+                    type="password"
+                    bind:value={accessToken}
+                    placeholder="Your WhatsApp Access Token"
+                    class={errors.accessToken ? 'border-red-500' : ''}
+                  />
+                  {#if errors.accessToken}
+                    <p class="text-sm text-red-500 mt-1">{errors.accessToken}</p>
+                  {/if}
+                </div>
+              </div>
+            {:else if selectedProvider === 'twilio'}
+              <!-- Twilio WhatsApp Configuration -->
+              <div class="space-y-4">
+                <div>
+                  <Label for="accountSid">Account SID <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="accountSid"
+                    bind:value={accountSid}
+                    placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    class={errors.accountSid ? 'border-red-500' : ''}
+                  />
+                  {#if errors.accountSid}
+                    <p class="text-sm text-red-500 mt-1">{errors.accountSid}</p>
+                  {/if}
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                  <Switch bind:checked={useApiKey} id="useApiKey" />
+                  <Label for="useApiKey">Use API Key instead of Auth Token</Label>
+                </div>
+                
+                {#if useApiKey}
+                  <div>
+                    <Label for="apiKeySid">API Key SID <span class="text-red-500">*</span></Label>
+                    <Input
+                      id="apiKeySid"
+                      bind:value={apiKeySid}
+                      placeholder="SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                      class={errors.apiKeySid ? 'border-red-500' : ''}
+                    />
+                    {#if errors.apiKeySid}
+                      <p class="text-sm text-red-500 mt-1">{errors.apiKeySid}</p>
+                    {/if}
+                  </div>
+                  
+                  <div>
+                    <Label for="apiKeySecret">API Key Secret <span class="text-red-500">*</span></Label>
+                    <Input
+                      id="apiKeySecret"
+                      type="password"
+                      bind:value={apiKeySecret}
+                      placeholder="Your API Key Secret"
+                      class={errors.apiKeySecret ? 'border-red-500' : ''}
+                    />
+                    {#if errors.apiKeySecret}
+                      <p class="text-sm text-red-500 mt-1">{errors.apiKeySecret}</p>
+                    {/if}
+                  </div>
+                {:else}
+                  <div>
+                    <Label for="authToken">Auth Token <span class="text-red-500">*</span></Label>
+                    <Input
+                      id="authToken"
+                      type="password"
+                      bind:value={authToken}
+                      placeholder="Your Auth Token"
+                      class={errors.authToken ? 'border-red-500' : ''}
+                    />
+                    {#if errors.authToken}
+                      <p class="text-sm text-red-500 mt-1">{errors.authToken}</p>
+                    {/if}
+                  </div>
+                {/if}
+                
+                <div>
+                  <Label for="phoneNumber">Phone Number <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    bind:value={phoneNumber}
+                    placeholder="+1234567890"
+                    class={errors.phoneNumber ? 'border-red-500' : ''}
+                  />
+                  {#if errors.phoneNumber}
+                    <p class="text-sm text-red-500 mt-1">{errors.phoneNumber}</p>
+                  {/if}
+                  <p class="text-sm text-gray-600 mt-1">E.164 format</p>
+                </div>
+              </div>
+            {:else if selectedProvider === '360dialog'}
+              <!-- 360Dialog WhatsApp Configuration -->
+              <div class="space-y-4">
+                <div>
+                  <Label for="dialog360ApiKey">API Key <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="dialog360ApiKey"
+                    type="password"
+                    bind:value={dialog360ApiKey}
+                    placeholder="Your 360Dialog API Key"
+                    class={errors.dialog360ApiKey ? 'border-red-500' : ''}
+                  />
+                  {#if errors.dialog360ApiKey}
+                    <p class="text-sm text-red-500 mt-1">{errors.dialog360ApiKey}</p>
+                  {/if}
+                </div>
+                
+                <div>
+                  <Label for="dialog360PartnerId">Partner ID (Optional)</Label>
+                  <Input
+                    id="dialog360PartnerId"
+                    bind:value={dialog360PartnerId}
+                    placeholder="Your Partner ID"
+                  />
+                  <p class="text-sm text-gray-600 mt-1">Leave empty if not applicable</p>
+                </div>
+              </div>
+            {/if}
           {:else if selectedChannelType === 'Channel::Voice'}
+            <!-- Twilio Voice Configuration -->
             <div class="space-y-4">
               <div>
                 <Label for="phoneNumber">Phone Number <span class="text-red-500">*</span></Label>
@@ -391,46 +888,53 @@
                 {/if}
               </div>
               
-              <div>
-                <Label for="authToken">Twilio Auth Token <span class="text-red-500">*</span></Label>
-                <Input
-                  id="authToken"
-                  type="password"
-                  bind:value={authToken}
-                  placeholder="Your Twilio Auth Token"
-                  class={errors.authToken ? 'border-red-500' : ''}
-                />
-                {#if errors.authToken}
-                  <p class="text-sm text-red-500 mt-1">{errors.authToken}</p>
-                {/if}
+              <div class="flex items-center space-x-2">
+                <Switch bind:checked={useApiKey} id="useApiKeyVoice" />
+                <Label for="useApiKeyVoice">Use API Key instead of Auth Token</Label>
               </div>
               
-              <div>
-                <Label for="apiKeySid">Twilio API Key SID <span class="text-red-500">*</span></Label>
-                <Input
-                  id="apiKeySid"
-                  bind:value={apiKeySid}
-                  placeholder="SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                  class={errors.apiKeySid ? 'border-red-500' : ''}
-                />
-                {#if errors.apiKeySid}
-                  <p class="text-sm text-red-500 mt-1">{errors.apiKeySid}</p>
-                {/if}
-              </div>
-              
-              <div>
-                <Label for="apiKeySecret">Twilio API Key Secret <span class="text-red-500">*</span></Label>
-                <Input
-                  id="apiKeySecret"
-                  type="password"
-                  bind:value={apiKeySecret}
-                  placeholder="Your Twilio API Key Secret"
-                  class={errors.apiKeySecret ? 'border-red-500' : ''}
-                />
-                {#if errors.apiKeySecret}
-                  <p class="text-sm text-red-500 mt-1">{errors.apiKeySecret}</p>
-                {/if}
-              </div>
+              {#if useApiKey}
+                <div>
+                  <Label for="apiKeySid">Twilio API Key SID <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="apiKeySid"
+                    bind:value={apiKeySid}
+                    placeholder="SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    class={errors.apiKeySid ? 'border-red-500' : ''}
+                  />
+                  {#if errors.apiKeySid}
+                    <p class="text-sm text-red-500 mt-1">{errors.apiKeySid}</p>
+                  {/if}
+                </div>
+                
+                <div>
+                  <Label for="apiKeySecret">Twilio API Key Secret <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="apiKeySecret"
+                    type="password"
+                    bind:value={apiKeySecret}
+                    placeholder="Your Twilio API Key Secret"
+                    class={errors.apiKeySecret ? 'border-red-500' : ''}
+                  />
+                  {#if errors.apiKeySecret}
+                    <p class="text-sm text-red-500 mt-1">{errors.apiKeySecret}</p>
+                  {/if}
+                </div>
+              {:else}
+                <div>
+                  <Label for="authToken">Twilio Auth Token <span class="text-red-500">*</span></Label>
+                  <Input
+                    id="authToken"
+                    type="password"
+                    bind:value={authToken}
+                    placeholder="Your Twilio Auth Token"
+                    class={errors.authToken ? 'border-red-500' : ''}
+                  />
+                  {#if errors.authToken}
+                    <p class="text-sm text-red-500 mt-1">{errors.authToken}</p>
+                  {/if}
+                </div>
+              {/if}
             </div>
           {:else if selectedChannelType === 'Channel::Api'}
             <div class="space-y-4">
