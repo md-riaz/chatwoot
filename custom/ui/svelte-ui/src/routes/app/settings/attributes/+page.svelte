@@ -11,21 +11,43 @@
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
+  import type { CustomAttribute } from '$lib/api/attributes';
+  import AttributeDialog from '$lib/components/attributes/AttributeDialog.svelte';
 
   let accountId = $derived($page.params.accountId);
   let attributes = $derived(attributesStore.sortedAttributes);
   let isLoading = $derived(attributesStore.isLoading);
+
+  let showCreateDialog = $state(false);
+  let showEditDialog = $state(false);
+  let editingAttribute = $state<CustomAttribute | null>(null);
 
   onMount(() => {
     attributesStore.fetchAttributes();
   });
 
   function handleCreateAttribute() {
-    alert('Create attribute functionality coming soon!');
+    showCreateDialog = true;
   }
 
-  function handleEditAttribute(attributeId: number) {
-    alert(`Edit attribute ${attributeId} functionality coming soon!`);
+  async function handleSubmitCreate(event: CustomEvent) {
+    const data = event.detail;
+    await attributesStore.createAttribute(data);
+    attributesStore.fetchAttributes();
+  }
+
+  function handleEditAttribute(event: Event, attribute: CustomAttribute) {
+    event.stopPropagation();
+    editingAttribute = attribute;
+    showEditDialog = true;
+  }
+
+  async function handleSubmitEdit(event: CustomEvent) {
+    if (!editingAttribute) return;
+    const data = event.detail;
+    await attributesStore.updateAttribute(editingAttribute.id, data);
+    attributesStore.fetchAttributes();
+    editingAttribute = null;
   }
 
   async function handleDeleteAttribute(
@@ -145,7 +167,7 @@
                 <Button
                   variant="outline"
                   size="sm"
-                  onclick={() => handleEditAttribute(attribute.id)}
+                  onclick={(e) => handleEditAttribute(e, attribute)}
                 >
                   Edit
                 </Button>
@@ -165,3 +187,17 @@
     </div>
   {/if}
 </div>
+
+<!-- Attribute Dialogs -->
+<AttributeDialog
+  bind:open={showCreateDialog}
+  mode="create"
+  on:submit={handleSubmitCreate}
+/>
+
+<AttributeDialog
+  bind:open={showEditDialog}
+  mode="edit"
+  attribute={editingAttribute}
+  on:submit={handleSubmitEdit}
+/>
