@@ -2,33 +2,27 @@
 
 namespace App\Http\Controllers\Api\V1\Conversations;
 
+use App\Actions\Conversations\ManageDraftMessageAction;
+use App\Data\Conversations\DraftMessageData;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DraftMessageResource;
 use App\Models\Account;
 use App\Models\Conversation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class DraftMessagesController extends Controller
 {
     /**
      * Get the draft message for a conversation.
      */
-    public function show(Account $account, Conversation $conversation): JsonResponse
+    public function show(Account $account, Conversation $conversation): DraftMessageResource
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        $cacheKey = $this->getDraftCacheKey($conversation);
-        $draftMessage = Cache::get($cacheKey);
+        $draftData = ManageDraftMessageAction::run()->getDraft($conversation, auth()->id());
 
-        if (! $draftMessage) {
-            return response()->json(['has_draft' => false]);
-        }
-
-        return response()->json([
-            'has_draft' => true,
-            'message' => $draftMessage,
-        ]);
+        return new DraftMessageResource($draftData);
     }
 
     /**
@@ -38,14 +32,19 @@ class DraftMessagesController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        $message = $request->input('draft_message.message', '');
+        $draftMessageData = DraftMessageData::from($request->input('draft_message'));
 
-        $cacheKey = $this->getDraftCacheKey($conversation);
-        
-        // Store draft for 24 hours
-        Cache::put($cacheKey, $message, now()->addDay());
+        $draftData = ManageDraftMessageAction::run()->saveDraft(
+            $conversation,
+            auth()->id(),
+            $draftMessageData->message,
+            $draftMessageData->updated_at
+        );
 
-        return response()->json(null, 200);
+        return response()->json([
+            'message' => 'Draft saved successfully',
+            'updated_at' => $draftData['updated_at'],
+        ]);
     }
 
     /**
@@ -55,17 +54,8 @@ class DraftMessagesController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        $cacheKey = $this->getDraftCacheKey($conversation);
-        Cache::forget($cacheKey);
+        ManageDraftMessageAction::run()->deleteDraft($conversation, auth()->id());
 
         return response()->json(null, 204);
-    }
-
-    /**
-     * Get the cache key for the draft message.
-     */
-    private function getDraftCacheKey(Conversation $conversation): string
-    {
-        return "conversation_draft_message:{$conversation->id}";
     }
 }
