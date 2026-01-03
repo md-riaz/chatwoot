@@ -1,14 +1,11 @@
 <?php
 
-namespace App\Services;
+namespace App\Repositories\Translation;
 
+use App\Repositories\BaseRepository;
 use GuzzleHttp\Client;
 
-/**
- * TranslationService with a pluggable provider.
- * Default provider: LibreTranslate (configurable via env LIBRE_TRANSLATE_URL and LIBRE_TRANSLATE_API_KEY).
- */
-class TranslationService
+class TranslationRepository extends BaseRepository
 {
     protected Client $http;
 
@@ -18,28 +15,9 @@ class TranslationService
     }
 
     /**
-     * Translate given text to the target language.
-     * Falls back to returning the original text on error.
-     *
-     * @param string $text
-     * @param string $targetLanguage
-     * @param string|null $sourceLanguage
-     * @return string
+     * Translate text using LibreTranslate
      */
-    public function translate(string $text, string $targetLanguage, ?string $sourceLanguage = null): string
-    {
-        $provider = env('TRANSLATION_PROVIDER', 'libre');
-
-        if ($provider === 'libre') {
-            return $this->translateWithLibre($text, $targetLanguage, $sourceLanguage);
-        }
-
-        // Add other providers (google, deepl) as needed.
-
-        return $text;
-    }
-
-    protected function translateWithLibre(string $text, string $targetLanguage, ?string $sourceLanguage = null): string
+    public function translateWithLibre(string $text, string $targetLanguage, ?string $sourceLanguage = null): string
     {
         $url = env('LIBRE_TRANSLATE_URL', 'https://libretranslate.com/translate');
         $apiKey = env('LIBRE_TRANSLATE_API_KEY');

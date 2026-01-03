@@ -1,27 +1,31 @@
 <?php
 
-namespace App\Services;
+namespace App\Actions\Config;
 
 use App\Models\Account;
-use App\Models\InstallationConfig;
+use App\Repositories\Config\ConfigRepository;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-/**
- * Feature Flag Service
- * 
- * Manages feature flags for accounts including default assignment,
- * premium feature filtering, and feature metadata management.
- */
-class FeatureFlagService
+class ManageFeatureFlagsAction
 {
+    use AsAction;
+
     private const CACHE_PREFIX = 'feature_flags:';
     private const CACHE_TTL = 3600; // 1 hour
 
+    private ConfigRepository $configRepository;
+
+    public function __construct()
+    {
+        $this->configRepository = new ConfigRepository();
+    }
+
     /**
-     * Get feature flag definitions.
+     * Get feature flag definitions
      */
-    public static function getFeatureDefinitions(): array
+    public function getFeatureDefinitions(): array
     {
         return [
             'shopify_integration' => [
@@ -124,11 +128,11 @@ class FeatureFlagService
     }
 
     /**
-     * Load feature defaults and create ACCOUNT_LEVEL_FEATURE_DEFAULTS config.
+     * Load feature defaults and create ACCOUNT_LEVEL_FEATURE_DEFAULTS config
      */
-    public static function loadFeatureDefaults(): void
+    public function loadFeatureDefaults(): void
     {
-        $features = self::getFeatureDefinitions();
+        $features = $this->getFeatureDefinitions();
         $defaultFeatures = [];
 
         foreach ($features as $key => $feature) {
@@ -138,7 +142,7 @@ class FeatureFlagService
         }
 
         // Store as configuration
-        InstallationConfig::setConfig(
+        $this->configRepository->setConfig(
             'ACCOUNT_LEVEL_FEATURE_DEFAULTS',
             $defaultFeatures,
             false
@@ -150,16 +154,16 @@ class FeatureFlagService
     }
 
     /**
-     * Assign default features to a new account.
+     * Assign default features to a new account
      */
-    public static function assignFeaturesToAccount(Account $account): void
+    public function assignFeaturesToAccount(Account $account): void
     {
-        $defaultFeatures = InstallationConfig::getConfig('ACCOUNT_LEVEL_FEATURE_DEFAULTS', []);
+        $defaultFeatures = $this->configRepository->getConfig('ACCOUNT_LEVEL_FEATURE_DEFAULTS', []);
         
         if (empty($defaultFeatures)) {
             // Load defaults if not set
-            self::loadFeatureDefaults();
-            $defaultFeatures = InstallationConfig::getConfig('ACCOUNT_LEVEL_FEATURE_DEFAULTS', []);
+            $this->loadFeatureDefaults();
+            $defaultFeatures = $this->configRepository->getConfig('ACCOUNT_LEVEL_FEATURE_DEFAULTS', []);
         }
 
         // Get current account features
@@ -182,9 +186,9 @@ class FeatureFlagService
     }
 
     /**
-     * Check if account has a specific feature enabled.
+     * Check if account has a specific feature enabled
      */
-    public static function isFeatureEnabled(Account $account, string $feature): bool
+    public function isFeatureEnabled(Account $account, string $feature): bool
     {
         $cacheKey = self::CACHE_PREFIX . 'account:' . $account->id . ':' . $feature;
         
@@ -195,11 +199,11 @@ class FeatureFlagService
     }
 
     /**
-     * Enable a feature for an account.
+     * Enable a feature for an account
      */
-    public static function enableFeature(Account $account, string $feature): bool
+    public function enableFeature(Account $account, string $feature): bool
     {
-        $features = self::getFeatureDefinitions();
+        $features = $this->getFeatureDefinitions();
         
         if (!isset($features[$feature])) {
             return false;
@@ -227,9 +231,9 @@ class FeatureFlagService
     }
 
     /**
-     * Disable a feature for an account.
+     * Disable a feature for an account
      */
-    public static function disableFeature(Account $account, string $feature): bool
+    public function disableFeature(Account $account, string $feature): bool
     {
         $currentFeatures = $account->features ?? [];
         
@@ -246,20 +250,11 @@ class FeatureFlagService
     }
 
     /**
-     * Get feature metadata for an account.
+     * Get all features available to an account
      */
-    public static function getFeatureMetadata(string $feature): ?array
+    public function getAvailableFeatures(Account $account): array
     {
-        $features = self::getFeatureDefinitions();
-        return $features[$feature] ?? null;
-    }
-
-    /**
-     * Get all features available to an account.
-     */
-    public static function getAvailableFeatures(Account $account): array
-    {
-        $features = self::getFeatureDefinitions();
+        $features = $this->getFeatureDefinitions();
         $availableFeatures = [];
 
         foreach ($features as $key => $feature) {
@@ -274,7 +269,7 @@ class FeatureFlagService
             }
 
             $availableFeatures[$key] = array_merge($feature, [
-                'enabled_for_account' => self::isFeatureEnabled($account, $key)
+                'enabled_for_account' => $this->isFeatureEnabled($account, $key)
             ]);
         }
 
@@ -282,29 +277,11 @@ class FeatureFlagService
     }
 
     /**
-     * Get enabled features for an account with metadata.
+     * Bulk update account features
      */
-    public static function getEnabledFeatures(Account $account): array
+    public function updateAccountFeatures(Account $account, array $features): array
     {
-        $accountFeatures = $account->features ?? [];
-        $features = self::getFeatureDefinitions();
-        $enabledFeatures = [];
-
-        foreach ($accountFeatures as $featureKey) {
-            if (isset($features[$featureKey])) {
-                $enabledFeatures[$featureKey] = $features[$featureKey];
-            }
-        }
-
-        return $enabledFeatures;
-    }
-
-    /**
-     * Bulk update account features.
-     */
-    public static function updateAccountFeatures(Account $account, array $features): array
-    {
-        $featureDefinitions = self::getFeatureDefinitions();
+        $featureDefinitions = $this->getFeatureDefinitions();
         $validFeatures = [];
         $errors = [];
 
@@ -346,14 +323,10 @@ class FeatureFlagService
     }
 
     /**
-     * Clear feature cache for an account.
+     * Clear feature cache for an account
      */
-    public static function clearAccountCache(Account $account): void
+    public function clearAccountCache(Account $account): void
     {
-        $pattern = self::CACHE_PREFIX . 'account:' . $account->id . '*';
-        
-        // This is a simplified cache clearing - in production you might want
-        // to use Redis pattern matching or cache tags
         Cache::forget(self::CACHE_PREFIX . 'account:' . $account->id);
     }
 }

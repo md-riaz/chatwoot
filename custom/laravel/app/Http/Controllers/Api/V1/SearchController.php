@@ -2,19 +2,15 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Search\PerformSearchAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SearchRequest;
 use App\Models\Account;
-use App\Services\SearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class SearchController extends Controller
 {
-    public function __construct(
-        private SearchService $searchService
-    ) {}
-
     /**
      * Search across conversations, contacts, messages, and articles.
      */
@@ -31,7 +27,7 @@ class SearchController extends Controller
                 'sort_order' => $request->getSortOrder(),
             ];
 
-            $results = $this->searchService->perform($query, $type, $user, $account, $params);
+            $results = PerformSearchAction::run()->handle($query, $type, $user, $account, $params);
 
             return response()->json([
                 'data' => $results,
@@ -71,7 +67,7 @@ class SearchController extends Controller
                 'sort_order' => $request->getSortOrder(),
             ];
 
-            $conversations = $this->searchService->filterConversations($query, $user, $account, $params);
+            $conversations = PerformSearchAction::run()->searchConversations($query, $user, $account, $params);
 
             // Convert to paginated response format
             $paginatedData = [
@@ -113,7 +109,7 @@ class SearchController extends Controller
                 'sort_order' => $request->getSortOrder(),
             ];
 
-            $contacts = $this->searchService->filterContacts($query, $user, $account, $params);
+            $contacts = PerformSearchAction::run()->searchContacts($query, $user, $account, $params);
 
             // Convert to paginated response format
             $paginatedData = [
@@ -155,7 +151,7 @@ class SearchController extends Controller
                 'sort_order' => $request->getSortOrder(),
             ];
 
-            $messages = $this->searchService->filterMessages($query, $user, $account, $params);
+            $messages = PerformSearchAction::run()->searchMessages($query, $user, $account, $params);
 
             // Convert to paginated response format
             $paginatedData = [
@@ -197,7 +193,7 @@ class SearchController extends Controller
                 'sort_order' => $request->getSortOrder(),
             ];
 
-            $articles = $this->searchService->filterArticles($query, $user, $account, $params);
+            $articles = PerformSearchAction::run()->searchArticles($query, $user, $account, $params);
 
             // Convert to paginated response format
             $paginatedData = [

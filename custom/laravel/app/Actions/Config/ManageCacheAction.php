@@ -1,26 +1,24 @@
 <?php
 
-namespace App\Services;
+namespace App\Actions\Config;
 
+use App\Repositories\Config\ConfigRepository;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-/**
- * Configuration Cache Service
- * 
- * Provides advanced configuration caching with warm-up, invalidation,
- * and performance optimization for production environments.
- */
-class ConfigCacheService
+class ManageCacheAction
 {
+    use AsAction;
+
     private const CACHE_PREFIX = 'config_cache:';
     private const CACHE_TTL = 7200; // 2 hours
     private const WARM_UP_BATCH_SIZE = 50;
 
     /**
-     * Configuration keys that should be cached for performance.
+     * Configuration keys that should be cached for performance
      */
     private const CRITICAL_CONFIG_KEYS = [
         'app.name',
@@ -46,10 +44,17 @@ class ConfigCacheService
         'horizon.trim.failed',
     ];
 
+    private ConfigRepository $configRepository;
+
+    public function __construct()
+    {
+        $this->configRepository = new ConfigRepository();
+    }
+
     /**
-     * Warm up configuration cache with critical settings.
+     * Warm up configuration cache with critical settings
      */
-    public static function warmUp(): array
+    public function warmUp(): array
     {
         $results = [
             'cached_keys' => 0,
@@ -120,9 +125,9 @@ class ConfigCacheService
     }
 
     /**
-     * Get cached configuration value with fallback.
+     * Get cached configuration value with fallback
      */
-    public static function get(string $key, $default = null)
+    public function get(string $key, $default = null)
     {
         $cacheKey = self::CACHE_PREFIX . $key;
         
@@ -143,9 +148,9 @@ class ConfigCacheService
     }
 
     /**
-     * Set configuration value and update cache.
+     * Set configuration value and update cache
      */
-    public static function set(string $key, $value): void
+    public function set(string $key, $value): void
     {
         Config::set($key, $value);
         
@@ -154,9 +159,9 @@ class ConfigCacheService
     }
 
     /**
-     * Clear configuration cache.
+     * Clear configuration cache
      */
-    public static function clear(string $key = null): void
+    public function clear(string $key = null): void
     {
         if ($key) {
             Cache::forget(self::CACHE_PREFIX . $key);
@@ -190,9 +195,9 @@ class ConfigCacheService
     }
 
     /**
-     * Get cache statistics.
+     * Get cache statistics
      */
-    public static function getStats(): array
+    public function getStats(): array
     {
         $stats = [
             'total_keys' => 0,
@@ -234,19 +239,15 @@ class ConfigCacheService
             Log::warning('Failed to get config cache stats', [
                 'error' => $e->getMessage()
             ]);
-            
-            // Fallback stats
-            $stats['cached_keys'] = 0;
-            $stats['memory_usage'] = 0;
         }
 
         return $stats;
     }
 
     /**
-     * Optimize configuration for production environment.
+     * Optimize configuration for production environment
      */
-    public static function optimizeForProduction(): array
+    public function optimizeForProduction(): array
     {
         $optimizations = [
             'config_cached' => false,
@@ -272,13 +273,6 @@ class ConfigCacheService
                 $optimizations['errors'][] = 'Routes not cached. Run: php artisan route:cache';
             }
 
-            // Check if views are cached
-            if (view()->getEngineResolver()->resolve('blade')->getCompiler()->isExpired('test')) {
-                $optimizations['errors'][] = 'Views not cached. Run: php artisan view:cache';
-            } else {
-                $optimizations['view_cached'] = true;
-            }
-
             // Check if events are cached
             if (app()->eventsAreCached()) {
                 $optimizations['event_cached'] = true;
@@ -301,73 +295,5 @@ class ConfigCacheService
         }
 
         return $optimizations;
-    }
-
-    /**
-     * Preload frequently accessed configurations.
-     */
-    public static function preloadFrequentConfigs(): void
-    {
-        $frequentConfigs = [
-            'app.timezone',
-            'app.locale',
-            'app.fallback_locale',
-            'database.connections.' . Config::get('database.default'),
-            'cache.stores.' . Config::get('cache.default'),
-            'queue.connections.' . Config::get('queue.default'),
-            'mail.mailers.' . Config::get('mail.default'),
-            'session.cookie',
-            'session.secure',
-            'session.same_site',
-        ];
-
-        foreach ($frequentConfigs as $key) {
-            self::get($key);
-        }
-    }
-
-    /**
-     * Monitor configuration cache performance.
-     */
-    public static function monitorPerformance(): array
-    {
-        $metrics = [
-            'cache_hits' => 0,
-            'cache_misses' => 0,
-            'avg_response_time' => 0,
-            'memory_efficiency' => 0,
-        ];
-
-        try {
-            // Test cache performance with sample keys
-            $testKeys = array_slice(self::CRITICAL_CONFIG_KEYS, 0, 10);
-            $startTime = microtime(true);
-            
-            foreach ($testKeys as $key) {
-                $cached = Cache::get(self::CACHE_PREFIX . $key);
-                if ($cached !== null) {
-                    $metrics['cache_hits']++;
-                } else {
-                    $metrics['cache_misses']++;
-                }
-            }
-
-            $metrics['avg_response_time'] = round(
-                ((microtime(true) - $startTime) / count($testKeys)) * 1000, 
-                2
-            );
-
-            $stats = self::getStats();
-            $metrics['memory_efficiency'] = $stats['memory_usage'] > 0 
-                ? round($stats['cached_keys'] / ($stats['memory_usage'] / 1024), 2)
-                : 0;
-
-        } catch (\Exception $e) {
-            Log::warning('Failed to monitor config cache performance', [
-                'error' => $e->getMessage()
-            ]);
-        }
-
-        return $metrics;
     }
 }

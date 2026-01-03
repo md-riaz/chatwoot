@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Agent\ManageCapacityAction;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\AgentCapacityPolicy;
@@ -37,8 +38,7 @@ class AgentCapacityPoliciesController extends Controller
 
         // Validate exclusion rules if provided
         if (!empty($validated['exclusion_rules'])) {
-            $capacityService = new \App\Services\AgentCapacityService();
-            $ruleErrors = $capacityService->validateExclusionRules($validated['exclusion_rules']);
+            $ruleErrors = ManageCapacityAction::run()->validateExclusionRules($validated['exclusion_rules']);
             
             if (!empty($ruleErrors)) {
                 return response()->json([
@@ -82,8 +82,7 @@ class AgentCapacityPoliciesController extends Controller
 
         // Validate exclusion rules if provided
         if (isset($validated['exclusion_rules']) && !empty($validated['exclusion_rules'])) {
-            $capacityService = new \App\Services\AgentCapacityService();
-            $ruleErrors = $capacityService->validateExclusionRules($validated['exclusion_rules']);
+            $ruleErrors = ManageCapacityAction::run()->validateExclusionRules($validated['exclusion_rules']);
             
             if (!empty($ruleErrors)) {
                 return response()->json([
@@ -227,8 +226,7 @@ class AgentCapacityPoliciesController extends Controller
         $inbox = \App\Models\Inbox::findOrFail($validated['inbox_id']);
         abort_unless($inbox->account_id === $account->id, 404);
 
-        $capacityService = new \App\Services\AgentCapacityService();
-        $agentsByStatus = $capacityService->getAgentsByCapacityStatus($inbox);
+        $agentsByStatus = ManageCapacityAction::run()->getAgentsByCapacityStatus($inbox);
 
         $stats = [];
         foreach ($agentCapacityPolicy->users as $user) {

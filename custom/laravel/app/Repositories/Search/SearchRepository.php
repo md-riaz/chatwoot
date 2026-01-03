@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Repositories\Search;
 
 use App\Models\Account;
 use App\Models\Article;
@@ -8,66 +8,33 @@ use App\Models\Contact;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\User;
+use App\Repositories\BaseRepository;
+use App\Repositories\Filter\FilterRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-/**
- * Enhanced Search service with performance optimizations and full-text search support.
- * Supports multiple search strategies: LIKE, GIN (PostgreSQL), and FULLTEXT (MySQL).
- */
-class SearchService
+class SearchRepository extends BaseRepository
 {
-    private PermissionFilterService $permissionFilterService;
+    private FilterRepository $filterRepository;
     private array $config;
 
-    public function __construct(PermissionFilterService $permissionFilterService)
+    public function __construct()
     {
-        $this->permissionFilterService = $permissionFilterService;
+        $this->filterRepository = new FilterRepository();
         $this->config = config('search', [
             'default_per_page' => 15,
             'max_per_page' => 100,
             'time_window_months' => 3,
             'enable_gin_search' => env('SEARCH_ENABLE_GIN', true),
-            'enable_advanced_search' => env('SEARCH_ENABLE_ADVANCED', false),
-            'cache_ttl' => 300, // 5 minutes
         ]);
     }
 
     /**
-     * Perform comprehensive search across all types or specific type.
+     * Search messages with optimized search strategies
      */
-    public function perform(
-        string $searchQuery,
-        string $searchType,
-        User $user,
-        Account $account,
-        array $params = []
-    ): array {
-        $cacheKey = $this->generateCacheKey($searchQuery, $searchType, $user->id, $account->id, $params);
-        
-        return Cache::remember($cacheKey, $this->config['cache_ttl'], function () use ($searchQuery, $searchType, $user, $account, $params) {
-            return match ($searchType) {
-                'Message' => ['messages' => $this->filterMessages($searchQuery, $user, $account, $params)],
-                'Conversation' => ['conversations' => $this->filterConversations($searchQuery, $user, $account, $params)],
-                'Contact' => ['contacts' => $this->filterContacts($searchQuery, $user, $account, $params)],
-                'Article' => ['articles' => $this->filterArticles($searchQuery, $user, $account, $params)],
-                default => [
-                    'contacts' => $this->filterContacts($searchQuery, $user, $account, $params),
-                    'messages' => $this->filterMessages($searchQuery, $user, $account, $params),
-                    'conversations' => $this->filterConversations($searchQuery, $user, $account, $params),
-                    'articles' => $this->filterArticles($searchQuery, $user, $account, $params),
-                ]
-            };
-        });
-    }
-
-    /**
-     * Filter messages with optimized search strategies.
-     */
-    public function filterMessages(string $searchQuery, User $user, Account $account, array $params = []): Collection
+    public function searchMessages(string $searchQuery, User $user, Account $account, array $params = []): Collection
     {
         $query = $this->messageBaseQuery($account);
         
@@ -79,8 +46,8 @@ class SearchService
         }
 
         // Apply permission-based filtering
-        if (!$this->permissionFilterService->shouldSkipInboxFiltering($user, $account)) {
-            $accessibleInboxIds = $this->permissionFilterService->getAccessibleInboxIds($user, $account);
+        if (!$this->filterRepository->shouldSkipInboxFiltering($user, $account)) {
+            $accessibleInboxIds = $this->filterRepository->getAccessibleInboxIds($user, $account);
             if ($accessibleInboxIds->isEmpty()) {
                 return collect();
             }
@@ -97,13 +64,13 @@ class SearchService
     }
 
     /**
-     * Filter conversations with optimized queries.
+     * Search conversations with optimized queries
      */
-    public function filterConversations(string $searchQuery, User $user, Account $account, array $params = []): Collection
+    public function searchConversations(string $searchQuery, User $user, Account $account, array $params = []): Collection
     {
-        $accessibleInboxIds = $this->permissionFilterService->getAccessibleInboxIds($user, $account);
+        $accessibleInboxIds = $this->filterRepository->getAccessibleInboxIds($user, $account);
         
-        if ($accessibleInboxIds->isEmpty() && !$this->permissionFilterService->shouldSkipInboxFiltering($user, $account)) {
+        if ($accessibleInboxIds->isEmpty() && !$this->filterRepository->shouldSkipInboxFiltering($user, $account)) {
             return collect();
         }
 
@@ -116,7 +83,7 @@ class SearchService
             );
 
         // Apply inbox filtering if needed
-        if (!$this->permissionFilterService->shouldSkipInboxFiltering($user, $account)) {
+        if (!$this->filterRepository->shouldSkipInboxFiltering($user, $account)) {
             $query->whereIn('conversations.inbox_id', $accessibleInboxIds);
         }
 
@@ -128,13 +95,13 @@ class SearchService
     }
 
     /**
-     * Filter contacts with permission-based access.
+     * Search contacts with permission-based access
      */
-    public function filterContacts(string $searchQuery, User $user, Account $account, array $params = []): Collection
+    public function searchContacts(string $searchQuery, User $user, Account $account, array $params = []): Collection
     {
-        $accessibleInboxIds = $this->permissionFilterService->getAccessibleInboxIds($user, $account);
+        $accessibleInboxIds = $this->filterRepository->getAccessibleInboxIds($user, $account);
         
-        if ($accessibleInboxIds->isEmpty() && !$this->permissionFilterService->shouldSkipInboxFiltering($user, $account)) {
+        if ($accessibleInboxIds->isEmpty() && !$this->filterRepository->shouldSkipInboxFiltering($user, $account)) {
             return collect();
         }
 
@@ -147,7 +114,7 @@ class SearchService
             });
 
         // Apply inbox filtering through contact_inboxes if needed
-        if (!$this->permissionFilterService->shouldSkipInboxFiltering($user, $account)) {
+        if (!$this->filterRepository->shouldSkipInboxFiltering($user, $account)) {
             $query->whereHas('contactInboxes', function ($contactInboxQuery) use ($accessibleInboxIds) {
                 $contactInboxQuery->whereIn('inbox_id', $accessibleInboxIds);
             });
@@ -160,9 +127,9 @@ class SearchService
     }
 
     /**
-     * Filter articles with full-text search support.
+     * Search articles with full-text search support
      */
-    public function filterArticles(string $searchQuery, User $user, Account $account, array $params = []): Collection
+    public function searchArticles(string $searchQuery, User $user, Account $account, array $params = []): Collection
     {
         // Check if Article model exists
         if (!class_exists(Article::class)) {
@@ -199,7 +166,7 @@ class SearchService
     }
 
     /**
-     * Get optimized base query for messages with time-based filtering.
+     * Get optimized base query for messages with time-based filtering
      */
     private function messageBaseQuery(Account $account): Builder
     {
@@ -209,7 +176,7 @@ class SearchService
     }
 
     /**
-     * Search messages using PostgreSQL GIN index.
+     * Search messages using PostgreSQL GIN index
      */
     private function searchMessagesWithGin(Builder $query, string $searchQuery): Builder
     {
@@ -219,7 +186,7 @@ class SearchService
     }
 
     /**
-     * Search messages using LIKE queries (fallback).
+     * Search messages using LIKE queries (fallback)
      */
     private function searchMessagesWithLike(Builder $query, string $searchQuery): Builder
     {
@@ -227,7 +194,7 @@ class SearchService
     }
 
     /**
-     * Prepare tsquery for PostgreSQL full-text search.
+     * Prepare tsquery for PostgreSQL full-text search
      */
     private function prepareTsQuery(string $searchQuery): string
     {
@@ -242,7 +209,7 @@ class SearchService
     }
 
     /**
-     * Check if GIN search should be used.
+     * Check if GIN search should be used
      */
     private function useGinSearch(): bool
     {
@@ -252,7 +219,7 @@ class SearchService
     }
 
     /**
-     * Check if GIN index exists for messages.
+     * Check if GIN index exists for messages
      */
     private function ginIndexExists(): bool
     {
@@ -267,71 +234,5 @@ class SearchService
             Log::warning('Failed to check GIN index existence', ['error' => $e->getMessage()]);
             return false;
         }
-    }
-
-    /**
-     * Generate cache key for search results.
-     */
-    private function generateCacheKey(string $searchQuery, string $searchType, int $userId, int $accountId, array $params): string
-    {
-        $paramsHash = md5(serialize($params));
-        return "search:{$accountId}:{$userId}:{$searchType}:" . md5($searchQuery) . ":{$paramsHash}";
-    }
-
-    /**
-     * Clear search cache for account.
-     */
-    public function clearSearchCache(Account $account): void
-    {
-        $pattern = "search:{$account->id}:*";
-        // Note: This is a simplified cache clearing. In production, you might want to use Redis SCAN
-        Cache::flush(); // For now, clear all cache - can be optimized later
-    }
-
-    // Legacy methods for backward compatibility
-    public function indexMessage(Message|array $message): void
-    {
-        // Clear cache when new messages are indexed
-        if ($message instanceof Message) {
-            $this->clearSearchCache($message->account);
-        }
-    }
-
-    public function removeMessage(int $messageId): void
-    {
-        // Clear cache when messages are removed
-        try {
-            $message = Message::find($messageId);
-            if ($message) {
-                $this->clearSearchCache($message->account);
-            }
-        } catch (\Exception $e) {
-            Log::warning('Failed to clear cache for removed message', ['message_id' => $messageId, 'error' => $e->getMessage()]);
-        }
-    }
-
-    /**
-     * Legacy search method for backward compatibility.
-     */
-    public function search(string $q, array $options = []): array
-    {
-        $limit = $options['limit'] ?? 50;
-        $accountId = $options['account_id'] ?? null;
-
-        $query = Message::query();
-        
-        if ($accountId) {
-            $query->where('account_id', $accountId);
-        }
-
-        // Use optimized search if possible
-        if ($this->useGinSearch()) {
-            $tsquery = $this->prepareTsQuery($q);
-            $query->whereRaw('to_tsvector(\'english\', content) @@ to_tsquery(?)', [$tsquery]);
-        } else {
-            $query->where('content', 'like', "%{$q}%");
-        }
-
-        return $query->limit($limit)->get()->toArray();
     }
 }

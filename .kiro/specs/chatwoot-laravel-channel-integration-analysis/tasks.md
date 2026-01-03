@@ -784,9 +784,9 @@ Based on comprehensive analysis findings from 30+ detailed reports in `.kiro/spe
     - Add participant management services
     - _Requirements: 1.1, 1.2_
 
-  - [ ] 22.5 Implement Draft Messages
+  - [-] 22.5 Implement Draft Messages
     - Review Rails draft messages from `APP_DIRECTORY_SCAN.md` if exists
-    - Analyze current Laravel implementation in `custom/laravel/app/Models/`
+    - Analyze current Laravel implementation in `custom/laravel/app/Models/` following AGENTS.md file for structure
     - Review existing draft controller in `custom/laravel/app/Http/Controllers/`
     - Create DraftMessage model
     - Implement DraftMessagesController

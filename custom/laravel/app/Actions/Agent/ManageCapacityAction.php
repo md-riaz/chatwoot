@@ -1,28 +1,32 @@
 <?php
 
-namespace App\Services;
+namespace App\Actions\Agent;
 
-use App\Models\AgentCapacityPolicy;
 use App\Models\Conversation;
 use App\Models\Inbox;
 use App\Models\User;
+use App\Repositories\Agent\CapacityRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-class AgentCapacityService
+class ManageCapacityAction
 {
+    use AsAction;
+
+    private CapacityRepository $capacityRepository;
+
+    public function __construct()
+    {
+        $this->capacityRepository = new CapacityRepository();
+    }
+
     /**
      * Get available agents for assignment based on capacity policies
      */
     public function getAvailableAgents(Inbox $inbox, ?Conversation $conversation = null): Collection
     {
         // Get all agents assigned to this inbox
-        $agents = $inbox->members()
-            ->whereHas('accountUsers', function ($query) use ($inbox) {
-                $query->where('account_id', $inbox->account_id)
-                    ->where('availability', 'online')
-                    ->where('active_at', true);
-            })
-            ->get();
+        $agents = $this->capacityRepository->getInboxAgents($inbox);
 
         // Filter agents based on capacity policies
         return $agents->filter(function ($agent) use ($inbox, $conversation) {
@@ -35,9 +39,7 @@ class AgentCapacityService
      */
     public function canAgentTakeConversation(User $agent, Inbox $inbox, ?Conversation $conversation = null): bool
     {
-        $accountUser = $agent->accountUsers()
-            ->where('account_id', $inbox->account_id)
-            ->first();
+        $accountUser = $this->capacityRepository->getAccountUser($agent, $inbox->account_id);
 
         if (!$accountUser || !$accountUser->agent_capacity_policy_id) {
             // No capacity policy assigned, agent can take conversation
@@ -64,65 +66,16 @@ class AgentCapacityService
     }
 
     /**
-     * Check if agent is within inbox capacity limit
-     */
-    private function checkInboxCapacityLimit(User $agent, Inbox $inbox, AgentCapacityPolicy $capacityPolicy): bool
-    {
-        $inboxLimit = $capacityPolicy->inboxCapacityLimits()
-            ->where('inbox_id', $inbox->id)
-            ->first();
-
-        if (!$inboxLimit) {
-            // No specific limit for this inbox
-            return true;
-        }
-
-        return !$inboxLimit->isLimitReached($agent);
-    }
-
-    /**
-     * Check if conversation passes exclusion rules
-     */
-    private function passesExclusionRules(Conversation $conversation, AgentCapacityPolicy $capacityPolicy): bool
-    {
-        $exclusionRules = $capacityPolicy->exclusion_rules ?? [];
-
-        // Check excluded labels
-        if (isset($exclusionRules['excluded_labels']) && !empty($exclusionRules['excluded_labels'])) {
-            $excludedLabels = $exclusionRules['excluded_labels'];
-            $conversationLabels = $conversation->labels->pluck('title')->toArray();
-            
-            if (array_intersect($conversationLabels, $excludedLabels)) {
-                return false; // Conversation has excluded labels
-            }
-        }
-
-        // Check time-based exclusion
-        if (isset($exclusionRules['exclude_older_than_hours'])) {
-            $hours = $exclusionRules['exclude_older_than_hours'];
-            $cutoffTime = now()->subHours($hours);
-            
-            if ($conversation->created_at < $cutoffTime) {
-                return false; // Conversation is too old
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * Get agent capacity statistics
      */
     public function getAgentCapacityStats(User $agent, Inbox $inbox): array
     {
-        $accountUser = $agent->accountUsers()
-            ->where('account_id', $inbox->account_id)
-            ->first();
+        $accountUser = $this->capacityRepository->getAccountUser($agent, $inbox->account_id);
 
         if (!$accountUser || !$accountUser->agent_capacity_policy_id) {
             return [
                 'has_capacity_policy' => false,
-                'current_conversations' => $this->getCurrentConversationCount($agent, $inbox),
+                'current_conversations' => $this->capacityRepository->getCurrentConversationCount($agent, $inbox),
                 'limit' => null,
                 'remaining_capacity' => null,
                 'at_capacity' => false,
@@ -130,11 +83,9 @@ class AgentCapacityService
         }
 
         $capacityPolicy = $accountUser->agentCapacityPolicy;
-        $inboxLimit = $capacityPolicy->inboxCapacityLimits()
-            ->where('inbox_id', $inbox->id)
-            ->first();
+        $inboxLimit = $this->capacityRepository->getInboxCapacityLimit($capacityPolicy, $inbox);
 
-        $currentCount = $this->getCurrentConversationCount($agent, $inbox);
+        $currentCount = $this->capacityRepository->getCurrentConversationCount($agent, $inbox);
 
         if (!$inboxLimit) {
             return [
@@ -158,26 +109,11 @@ class AgentCapacityService
     }
 
     /**
-     * Get current conversation count for agent in inbox
-     */
-    private function getCurrentConversationCount(User $agent, Inbox $inbox): int
-    {
-        return $agent->assignedConversations()
-            ->where('inbox_id', $inbox->id)
-            ->where('status', '!=', 'resolved')
-            ->count();
-    }
-
-    /**
      * Get agents grouped by their capacity status
      */
     public function getAgentsByCapacityStatus(Inbox $inbox): array
     {
-        $agents = $inbox->members()
-            ->whereHas('accountUsers', function ($query) use ($inbox) {
-                $query->where('account_id', $inbox->account_id);
-            })
-            ->get();
+        $agents = $this->capacityRepository->getInboxAgents($inbox);
 
         $available = [];
         $atCapacity = [];
@@ -228,5 +164,50 @@ class AgentCapacityService
         }
 
         return $errors;
+    }
+
+    /**
+     * Check if agent is within inbox capacity limit
+     */
+    private function checkInboxCapacityLimit(User $agent, Inbox $inbox, $capacityPolicy): bool
+    {
+        $inboxLimit = $this->capacityRepository->getInboxCapacityLimit($capacityPolicy, $inbox);
+
+        if (!$inboxLimit) {
+            // No specific limit for this inbox
+            return true;
+        }
+
+        return !$inboxLimit->isLimitReached($agent);
+    }
+
+    /**
+     * Check if conversation passes exclusion rules
+     */
+    private function passesExclusionRules(Conversation $conversation, $capacityPolicy): bool
+    {
+        $exclusionRules = $capacityPolicy->exclusion_rules ?? [];
+
+        // Check excluded labels
+        if (isset($exclusionRules['excluded_labels']) && !empty($exclusionRules['excluded_labels'])) {
+            $excludedLabels = $exclusionRules['excluded_labels'];
+            $conversationLabels = $conversation->labels->pluck('title')->toArray();
+            
+            if (array_intersect($conversationLabels, $excludedLabels)) {
+                return false; // Conversation has excluded labels
+            }
+        }
+
+        // Check time-based exclusion
+        if (isset($exclusionRules['exclude_older_than_hours'])) {
+            $hours = $exclusionRules['exclude_older_than_hours'];
+            $cutoffTime = now()->subHours($hours);
+            
+            if ($conversation->created_at < $cutoffTime) {
+                return false; // Conversation is too old
+            }
+        }
+
+        return true;
     }
 }

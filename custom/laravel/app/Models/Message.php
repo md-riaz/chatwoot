@@ -141,12 +141,10 @@ class Message extends Model
      */
     public function reindex(): void
     {
-        if (class_exists(\App\Services\SearchService::class)) {
+        if (class_exists(\App\Actions\Search\PerformSearchAction::class)) {
             try {
-                $svc = app(\App\Services\SearchService::class);
-                if (method_exists($svc, 'indexMessage')) {
-                    $svc->indexMessage($this);
-                }
+                // Clear search cache when message is reindexed
+                PerformSearchAction::run()->clearSearchCache($this->account);
             } catch (\Exception $e) {
             }
         }

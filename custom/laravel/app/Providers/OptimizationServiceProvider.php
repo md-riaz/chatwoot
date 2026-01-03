@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use App\Services\ConfigCacheService;
-use App\Services\DatabaseOptimizationService;
-use App\Services\QueueOptimizationService;
+use App\Actions\Config\ManageCacheAction;
+use App\Actions\System\OptimizeDatabaseAction;
+use App\Actions\System\OptimizeQueueAction;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Log;
 
@@ -21,10 +21,8 @@ class OptimizationServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Register optimization services as singletons
-        $this->app->singleton(ConfigCacheService::class);
-        $this->app->singleton(DatabaseOptimizationService::class);
-        $this->app->singleton(QueueOptimizationService::class);
+        // Actions are automatically resolved by Laravel's service container
+        // No need to register them as singletons since they use the AsAction trait
 
         // Merge optimization configuration
         $this->mergeConfigFrom(
@@ -92,11 +90,11 @@ class OptimizationServiceProvider extends ServiceProvider
             // Defer cache warm-up to avoid blocking application boot
             $this->app->booted(function () {
                 if (config('optimization.cache.config.enabled', true)) {
-                    ConfigCacheService::warmUp();
+                    ManageCacheAction::run()->warmUp();
                 }
 
                 if (config('optimization.cache.config.preload_frequent', true)) {
-                    ConfigCacheService::preloadFrequentConfigs();
+                    ManageCacheAction::run()->preloadFrequentConfigs();
                 }
             });
 
@@ -255,15 +253,15 @@ class OptimizationServiceProvider extends ServiceProvider
         return [
             'config_cache' => [
                 'enabled' => config('optimization.cache.config.enabled', true),
-                'stats' => ConfigCacheService::getStats(),
+                'stats' => ManageCacheAction::run()->getStats(),
             ],
             'database' => [
                 'optimization_enabled' => config('optimization.database.queries.optimize_indexes', true),
-                'metrics' => DatabaseOptimizationService::getPerformanceMetrics(),
+                'metrics' => OptimizeDatabaseAction::run()->getPerformanceMetrics(),
             ],
             'queue' => [
                 'optimization_enabled' => config('optimization.queue.optimization.enabled', true),
-                'health' => QueueOptimizationService::getQueueHealthStatus(),
+                'health' => OptimizeQueueAction::run()->monitorQueueHealth(),
             ],
             'memory' => [
                 'php_memory_limit' => ini_get('memory_limit'),
