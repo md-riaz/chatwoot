@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Contact Inboxes Table Migration
  * 
  * Contact-Inbox relationships - depends on contacts, inboxes
- * Junction table for contact-inbox mapping
+ * Must be created BEFORE conversations (conversations reference contact_inboxes)
  */
 return new class extends Migration
 {

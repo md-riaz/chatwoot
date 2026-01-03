@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Inboxes Table Migration
  * 
- * Inbox management - depends on accounts, channels (polymorphic)
- * Must be created after all channel tables
+ * Inbox management - depends on accounts, channels (polymorphic), portals
+ * Must be created after portals but before contact_inboxes
  */
 return new class extends Migration
 {
