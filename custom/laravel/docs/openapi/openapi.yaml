@@ -97,6 +97,8 @@ tags:
     description: Third-party integrations
   - name: Channels
     description: Channel-specific endpoints (WhatsApp, Facebook, Email, SMS, etc.)
+  - name: Voice
+    description: Voice calling functionality (Twilio integration, conferences, WebRTC)
   - name: Segments
     description: Contact segmentation and filtering
   - name: Audit Logs
@@ -1032,6 +1034,129 @@ components:
         updated_at:
           type: string
           format: date-time
+
+    VoiceChannel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        account_id:
+          type: integer
+          example: 1
+        phone_number:
+          type: string
+          pattern: '^\+[1-9]\d{1,14}$'
+          example: "+1234567890"
+          description: "Phone number in E.164 format"
+        provider:
+          type: string
+          enum: [twilio]
+          example: "twilio"
+        provider_config:
+          type: object
+          properties:
+            account_sid:
+              type: string
+              example: "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            auth_token:
+              type: string
+              example: "your_auth_token_here"
+            api_key_sid:
+              type: string
+              example: "SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            api_key_secret:
+              type: string
+              example: "your_api_key_secret_here"
+            twiml_app_sid:
+              type: string
+              example: "APxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        additional_attributes:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    VoiceCall:
+      type: object
+      properties:
+        conversation_id:
+          type: string
+          example: "101"
+          description: "Conversation display ID"
+        call_sid:
+          type: string
+          example: "CAxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          description: "Twilio call SID"
+        conference_sid:
+          type: string
+          example: "conf_1"
+          description: "Conference identifier"
+        status:
+          type: string
+          enum: [ringing, in-progress, completed, no-answer, failed]
+          example: "in-progress"
+        direction:
+          type: string
+          enum: [inbound, outbound]
+          example: "outbound"
+        duration:
+          type: integer
+          nullable: true
+          example: 120
+          description: "Call duration in seconds"
+        from_number:
+          type: string
+          example: "+1234567890"
+        to_number:
+          type: string
+          example: "+0987654321"
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    VoiceToken:
+      type: object
+      properties:
+        token:
+          type: string
+          description: "JWT token for Twilio Voice SDK"
+        identity:
+          type: string
+          example: "agent-1-account-1"
+        voice_enabled:
+          type: boolean
+          example: true
+        account_sid:
+          type: string
+          example: "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        agent_id:
+          type: integer
+          example: 1
+        account_id:
+          type: integer
+          example: 1
+        inbox_id:
+          type: integer
+          example: 1
+        phone_number:
+          type: string
+          example: "+1234567890"
+        twiml_endpoint:
+          type: string
+          example: "https://api.example.com/api/v1/webhooks/voice/call/1234567890"
+        has_twiml_app:
+          type: boolean
+          example: true
 
 paths:
   # Include path definitions from separate files

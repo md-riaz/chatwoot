@@ -1,12 +1,396 @@
 ---
 paths:
   # Voice Channel (Twilio)
-  /webhooks/voice/call/{phone}:
+  /accounts/{account_id}/channels/voice:
     post:
       tags:
         - Channels
+      summary: Create Voice channel
+      description: Create a new Twilio voice channel for phone calls
+      operationId: createVoiceChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - phone_number
+                - provider
+                - provider_config
+              properties:
+                name:
+                  type: string
+                  example: "Support Hotline"
+                phone_number:
+                  type: string
+                  pattern: '^\+[1-9]\d{1,14}$'
+                  example: "+1234567890"
+                  description: "Phone number in E.164 format"
+                provider:
+                  type: string
+                  enum: [twilio]
+                  example: "twilio"
+                provider_config:
+                  type: object
+                  required:
+                    - account_sid
+                    - auth_token
+                  properties:
+                    account_sid:
+                      type: string
+                      example: "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    auth_token:
+                      type: string
+                      example: "your_auth_token_here"
+                    api_key_sid:
+                      type: string
+                      example: "SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    api_key_secret:
+                      type: string
+                      example: "your_api_key_secret_here"
+                    twiml_app_sid:
+                      type: string
+                      example: "APxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      responses:
+        '201':
+          description: Voice channel created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: "Support Hotline"
+                      channel_type:
+                        type: string
+                        example: "App\\Models\\Channels\\Voice"
+                      channel:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          phone_number:
+                            type: string
+                          provider:
+                            type: string
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi.yaml#/components/schemas/Error'
+
+  /accounts/{account_id}/channels/voice/{inbox}:
+    patch:
+      tags:
+        - Channels
+      summary: Update Voice channel
+      description: Update voice channel configuration
+      operationId: updateVoiceChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Updated Support Hotline"
+                provider_config:
+                  type: object
+                  properties:
+                    account_sid:
+                      type: string
+                    auth_token:
+                      type: string
+                    api_key_sid:
+                      type: string
+                    api_key_secret:
+                      type: string
+      responses:
+        '200':
+          description: Voice channel updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+
+  # Voice Conference Management
+  /accounts/{account_id}/conference/token:
+    get:
+      tags:
+        - Voice
+      summary: Get WebRTC token
+      description: Generate a Twilio access token for WebRTC voice calls
+      operationId: getVoiceToken
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: inbox_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: Voice inbox ID
+      responses:
+        '200':
+          description: WebRTC token generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT token for Twilio Voice SDK
+                  identity:
+                    type: string
+                    example: "agent-1-account-1"
+                  voice_enabled:
+                    type: boolean
+                    example: true
+                  account_sid:
+                    type: string
+                    example: "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  agent_id:
+                    type: integer
+                    example: 1
+                  account_id:
+                    type: integer
+                    example: 1
+                  inbox_id:
+                    type: integer
+                    example: 1
+                  phone_number:
+                    type: string
+                    example: "+1234567890"
+                  twiml_endpoint:
+                    type: string
+                    example: "https://api.example.com/api/v1/webhooks/voice/call/1234567890"
+                  has_twiml_app:
+                    type: boolean
+                    example: true
+        '422':
+          description: Validation error
+
+  /accounts/{account_id}/conference:
+    post:
+      tags:
+        - Voice
+      summary: Join conference
+      description: Join an agent to a voice conference call
+      operationId: joinConference
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - conversation_id
+              properties:
+                conversation_id:
+                  type: string
+                  example: "101"
+                  description: Conversation display ID
+                call_sid:
+                  type: string
+                  example: "CAxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  description: Optional call SID if conversation has no identifier
+      responses:
+        '200':
+          description: Successfully joined conference
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  id:
+                    type: string
+                    example: "101"
+                  conference_sid:
+                    type: string
+                    example: "conf_1"
+                  using_webrtc:
+                    type: boolean
+                    example: true
+        '404':
+          description: Conversation not found
+        '422':
+          description: Validation error
+
+    delete:
+      tags:
+        - Voice
+      summary: End conference
+      description: End a voice conference call
+      operationId: endConference
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - conversation_id
+              properties:
+                conversation_id:
+                  type: string
+                  example: "101"
+                  description: Conversation display ID
+      responses:
+        '200':
+          description: Conference ended successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  id:
+                    type: string
+                    example: "101"
+        '404':
+          description: Conversation not found
+
+  # Voice Call Initiation
+  /accounts/{account_id}/contacts/{contact_id}/calls:
+    post:
+      tags:
+        - Voice
+      summary: Initiate outbound call
+      description: Start an outbound voice call to a contact
+      operationId: initiateOutboundCall
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - inbox_id
+              properties:
+                inbox_id:
+                  type: integer
+                  example: 1
+                  description: Voice inbox ID to use for the call
+      responses:
+        '200':
+          description: Call initiated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversation_id:
+                    type: string
+                    example: "101"
+                    description: Conversation display ID
+                  inbox_id:
+                    type: integer
+                    example: 1
+                  call_sid:
+                    type: string
+                    example: "CAxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    description: Twilio call SID
+                  conference_sid:
+                    type: string
+                    example: "conf_1"
+                    description: Conference identifier
+        '400':
+          description: Invalid request (e.g., contact has no phone number)
+        '404':
+          description: Contact or inbox not found
+        '422':
+          description: Validation error
+
+  # Voice Webhooks (Twilio)
+  /webhooks/voice/call/{phone}:
+    post:
+      tags:
+        - Voice
       summary: Twilio Voice Call Webhook
-      description: Handle incoming Twilio voice call and return TwiML conference response.
+      description: |
+        Handle incoming Twilio voice call and return TwiML conference response.
+        This endpoint processes both inbound calls from customers and outbound call legs.
+        
+        **Call Flow:**
+        1. Inbound calls create conversation and contact
+        2. Outbound calls sync with existing conversation
+        3. Agent legs (from client:) join existing conference
+        4. Returns TwiML to connect caller to conference
       operationId: twilioVoiceCallWebhook
       parameters:
         - name: phone
@@ -14,6 +398,8 @@ paths:
           required: true
           schema:
             type: string
+          description: Phone number digits (without +)
+          example: "1234567890"
       requestBody:
         required: true
         content:
@@ -23,12 +409,30 @@ paths:
               properties:
                 From:
                   type: string
+                  example: "+1234567890"
+                  description: Caller's phone number or client identifier
                 To:
                   type: string
+                  example: "+0987654321"
+                  description: Called phone number
                 CallSid:
                   type: string
+                  example: "CAxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  description: Unique call identifier
                 Direction:
                   type: string
+                  enum: [inbound, outbound-api, outbound-dial]
+                  example: "inbound"
+                  description: Call direction
+                CallDirection:
+                  type: string
+                  description: Alternative direction parameter
+                conversation_id:
+                  type: string
+                  description: Conversation display ID (for agent legs)
+                ParentCallSid:
+                  type: string
+                  description: Parent call SID for outbound dial legs
       responses:
         '200':
           description: TwiML conference response
@@ -36,13 +440,31 @@ paths:
             application/xml:
               schema:
                 type: string
+                example: |
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <Response>
+                    <Dial>
+                      <Conference startConferenceOnEnter="false" endConferenceOnExit="false" 
+                                statusCallback="https://api.example.com/webhooks/voice/conference_status/1234567890"
+                                statusCallbackEvent="start end join leave" statusCallbackMethod="POST"
+                                participantLabel="contact">conf_1</Conference>
+                    </Dial>
+                  </Response>
 
   /webhooks/voice/status/{phone}:
     post:
       tags:
-        - Channels
+        - Voice
       summary: Twilio Call Status Webhook
-      description: Handle Twilio call status events.
+      description: |
+        Handle Twilio call status events and update conversation state.
+        
+        **Status Mapping:**
+        - queued/initiated/ringing → ringing
+        - in-progress/answered → in-progress  
+        - completed → completed
+        - busy/no-answer → no-answer
+        - failed/canceled → failed
       operationId: twilioVoiceStatusWebhook
       parameters:
         - name: phone
@@ -50,6 +472,7 @@ paths:
           required: true
           schema:
             type: string
+          description: Phone number digits (without +)
       requestBody:
         required: true
         content:
@@ -59,11 +482,24 @@ paths:
               properties:
                 CallSid:
                   type: string
+                  example: "CAxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  description: Unique call identifier
                 CallStatus:
                   type: string
+                  enum: [queued, initiated, ringing, in-progress, completed, busy, no-answer, failed, canceled]
+                  example: "completed"
+                  description: Current call status
+                CallDuration:
+                  type: string
+                  example: "120"
+                  description: Call duration in seconds (for completed calls)
+                Timestamp:
+                  type: string
+                  format: date-time
+                  description: Event timestamp
       responses:
         '200':
-          description: Status processed
+          description: Status processed successfully
           content:
             application/json:
               schema:
@@ -71,13 +507,21 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
 
   /webhooks/voice/conference_status/{phone}:
     post:
       tags:
-        - Channels
+        - Voice
       summary: Twilio Conference Status Webhook
-      description: Handle Twilio conference status events.
+      description: |
+        Handle Twilio conference status events and manage call lifecycle.
+        
+        **Event Processing:**
+        - conference-start → Mark call as ringing
+        - participant-join (agent) → Mark call as in-progress
+        - participant-leave → Mark call as completed or no-answer
+        - conference-end → Finalize call as completed
       operationId: twilioVoiceConferenceStatusWebhook
       parameters:
         - name: phone
@@ -85,6 +529,7 @@ paths:
           required: true
           schema:
             type: string
+          description: Phone number digits (without +)
       requestBody:
         required: true
         content:
@@ -94,13 +539,29 @@ paths:
               properties:
                 ConferenceSid:
                   type: string
+                  example: "CFxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  description: Conference SID
+                FriendlyName:
+                  type: string
+                  example: "conf_1"
+                  description: Conference friendly name
                 StatusCallbackEvent:
                   type: string
+                  enum: [conference-start, participant-join, participant-leave, conference-end]
+                  example: "participant-join"
+                  description: Conference event type
+                CallSid:
+                  type: string
+                  example: "CAxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  description: Participant call SID
                 ParticipantLabel:
                   type: string
+                  enum: [agent, contact]
+                  example: "agent"
+                  description: Participant type
       responses:
         '200':
-          description: Conference event processed
+          description: Conference event processed successfully
           content:
             application/json:
               schema:
@@ -108,6 +569,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
 
   # WhatsApp Channel
   /accounts/{account_id}/channels/whatsapp:

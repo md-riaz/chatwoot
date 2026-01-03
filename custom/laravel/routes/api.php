@@ -91,6 +91,8 @@ use App\Http\Controllers\Api\V1\SamlSettingsController;
 use App\Http\Controllers\Api\V1\Channels\InstagramController;
 use App\Http\Controllers\Api\V1\Channels\VoiceController;
 use App\Http\Controllers\Api\V1\Channels\TiktokController;
+use App\Http\Controllers\Api\V1\CallsController;
+use App\Http\Controllers\Api\V1\ConferenceController;
 use App\Http\Controllers\Api\V1\Conversations\ParticipantsController;
 use App\Http\Controllers\Api\V1\Conversations\DraftMessagesController;
 use Illuminate\Support\Facades\Route;
@@ -391,6 +393,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('contacts/{contact}/destroy_custom_attributes', [ContactsController::class, 'destroyCustomAttributes']);
         Route::delete('contacts/{contact}/avatar', [ContactsController::class, 'avatar']);
         
+        // Voice calls for contacts
+        Route::post('contacts/{contact}/calls', [\App\Http\Controllers\Api\V1\CallsController::class, 'create']);
+        
         // Contact Notes
         Route::apiResource('contacts/{contact}/notes', ContactNotesController::class);
 
@@ -611,6 +616,13 @@ Route::middleware('auth:sanctum')->group(function () {
             // Voice (Twilio)
             Route::post('voice', [VoiceController::class, 'create']);
             Route::patch('voice/{inbox}', [VoiceController::class, 'update']);
+        });
+
+        // Conference (Voice calls)
+        Route::prefix('conference')->group(function () {
+            Route::get('token', [\App\Http\Controllers\Api\V1\ConferenceController::class, 'token']);
+            Route::post('/', [\App\Http\Controllers\Api\V1\ConferenceController::class, 'create']);
+            Route::delete('/', [\App\Http\Controllers\Api\V1\ConferenceController::class, 'destroy']);
         });
 
         // Integrations

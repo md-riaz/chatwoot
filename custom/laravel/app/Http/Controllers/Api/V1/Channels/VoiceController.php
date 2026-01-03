@@ -79,20 +79,22 @@ class VoiceController extends Controller
     public function callTwiml(Request $request, string $phone)
     {
         // 1. Find the Voice channel by phone number
-        $voice = Voice::where('phone_number', $phone)->firstOrFail();
+        $voice = Voice::where('phone_number', "+{$phone}")->firstOrFail();
         $inbox = $voice->inbox;
+        
         // 2. Resolve conversation (inbound/outbound/agent leg)
         $direction = $request->input('Direction', $request->input('CallDirection', 'inbound'));
         $from = $request->input('From');
         $callSid = $request->input('CallSid');
         $conversation = null;
+        
         if (str_starts_with($from, 'client:')) {
             // Agent leg: find by conversation_id or callSid
             $conversationId = $request->input('conversation_id');
             if ($conversationId) {
                 $conversation = $inbox->conversations()->where('display_id', $conversationId)->first();
             } else {
-                $conversation = $inbox->conversations()->where('additional_attributes->identifier', $callSid)->first();
+                $conversation = $inbox->conversations()->where('identifier', $callSid)->first();
             }
         } elseif ($direction === 'inbound') {
             // Inbound: resolve conversation via Action
@@ -103,17 +105,15 @@ class VoiceController extends Controller
                 $conversation = null;
             }
         } elseif (in_array($direction, ['outbound-api', 'outbound-dial'])) {
-            // Outbound: sync outbound leg
-            $conversation = $inbox->conversations()->where('additional_attributes->identifier', $callSid)->first();
-            if ($conversation) {
-                (new CallSessionSyncService($conversation, $callSid, $from, $request->input('To'), $direction))->perform();
-            }
+            // Outbound: find existing conversation
+            $conversation = $inbox->conversations()->where('identifier', $callSid)->first();
         }
+        
         // 3. Ensure conference_sid in additional_attributes
         if ($conversation) {
             $attrs = $conversation->additional_attributes ?? [];
             if (empty($attrs['conference_sid'])) {
-                $attrs['conference_sid'] = 'conf_' . $conversation->id;
+                $attrs['conference_sid'] = "conf_{$conversation->id}";
                 $conversation->additional_attributes = $attrs;
                 $conversation->save();
             }
@@ -121,22 +121,28 @@ class VoiceController extends Controller
         } else {
             $conferenceSid = 'conf_unknown';
         }
+        
         // 4. Generate TwiML for conference
         $isAgent = str_starts_with($from, 'client:');
         $participantLabel = $isAgent ? 'agent' : 'contact';
+        
+        $phoneDigits = ltrim($voice->phone_number, '+');
+        $conferenceStatusUrl = url("/api/v1/webhooks/voice/conference_status/{$phoneDigits}");
+        
         $twiml = '<?xml version="1.0" encoding="UTF-8"?>'
             . '<Response>'
             . '<Dial>'
             . '<Conference'
             . ' startConferenceOnEnter="' . ($isAgent ? 'true' : 'false') . '"'
             . ' endConferenceOnExit="false"'
-            . ' statusCallback="' . url("/api/v1/webhooks/voice/conference_status/{$phone}") . '"'
+            . ' statusCallback="' . htmlspecialchars($conferenceStatusUrl) . '"'
             . ' statusCallbackEvent="start end join leave"'
             . ' statusCallbackMethod="POST"'
-            . ' participantLabel="' . $participantLabel . '"'
-            . '>' . $conferenceSid . '</Conference>'
+            . ' participantLabel="' . htmlspecialchars($participantLabel) . '"'
+            . '>' . htmlspecialchars($conferenceSid) . '</Conference>'
             . '</Dial>'
             . '</Response>';
+        
         return response($twiml, 200)->header('Content-Type', 'application/xml');
     }
 
@@ -151,12 +157,20 @@ class VoiceController extends Controller
     {
         $callSid = $request->input('CallSid');
         $callStatus = $request->input('CallStatus');
-        $voice = Voice::where('phone_number', $phone)->first();
-        $inbox = $voice ? $voice->inbox : null;
-        $conversation = $inbox ? $inbox->conversations()->where('additional_attributes->identifier', $callSid)->first() : null;
-        if ($conversation) {
-            (new StatusUpdateService($conversation, $callSid, $callStatus, $request->all()))->perform();
+        
+        $voice = Voice::where('phone_number', "+{$phone}")->first();
+        
+        if (!$voice || !$voice->inbox) {
+            return response()->json(['success' => true]);
         }
+
+        \App\Actions\Voice\ProcessCallStatusUpdateAction::run(
+            $voice->inbox->account,
+            $callSid,
+            $callStatus,
+            $request->all()
+        );
+
         return response()->json(['success' => true]);
     }
 
@@ -173,12 +187,21 @@ class VoiceController extends Controller
         $event = $request->input('StatusCallbackEvent');
         $conferenceSid = $request->input('ConferenceSid');
         $participantLabel = $request->input('ParticipantLabel');
-        $voice = Voice::where('phone_number', $phone)->first();
-        $inbox = $voice ? $voice->inbox : null;
-        $conversation = $inbox ? $inbox->conversations()->where('additional_attributes->conference_sid', $conferenceSid)->first() : null;
-        if ($conversation) {
-            (new ConferenceManager($conversation, $event, $callSid, $participantLabel))->process();
+        
+        $voice = Voice::where('phone_number', "+{$phone}")->first();
+        
+        if (!$voice || !$voice->inbox) {
+            return response()->json(['success' => true]);
         }
+
+        \App\Actions\Voice\ProcessConferenceEventAction::run(
+            $voice->inbox->account,
+            $callSid,
+            $event,
+            $conferenceSid,
+            $participantLabel
+        );
+
         return response()->json(['success' => true]);
     }
 }

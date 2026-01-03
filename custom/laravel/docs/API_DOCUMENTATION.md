@@ -695,84 +695,225 @@ Manage in-app notifications for users.
 ## 23. Voice Channel (Twilio)
 
 ### Purpose
-Integrate Twilio voice calls and conferences with ClearLine. Handles incoming calls, call status, and conference events.
+Comprehensive voice calling functionality with Twilio integration. Supports inbound/outbound calls, agent conferences, WebRTC, and call management.
 
-### Endpoints
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/webhooks/voice/call/{phone}` | Twilio webhook for incoming calls (returns TwiML) |
-| POST | `/api/v1/webhooks/voice/status/{phone}` | Twilio webhook for call status events |
-| POST | `/api/v1/webhooks/voice/conference_status/{phone}` | Twilio webhook for conference status events |
+### Use Cases
+- **Inbound Calls**: Customers call support numbers, automatically create conversations
+- **Outbound Calls**: Agents initiate calls to contacts from the dashboard
+- **Conference Management**: Agents join calls via WebRTC or phone
+- **Call Tracking**: Monitor call status, duration, and outcomes
+- **Voice Messages**: Voice call activities appear in conversation timeline
 
-### Example Payloads
+### Channel Management Endpoints
 
-#### Incoming Call (TwiML)
+| Method | Endpoint | Description | Auth Required | Permission |
+|--------|----------|-------------|---------------|------------|
+| POST | `/api/v1/accounts/{account}/channels/voice` | Create voice channel | Yes | Admin |
+| PATCH | `/api/v1/accounts/{account}/channels/voice/{inbox}` | Update voice channel | Yes | Admin |
+
+### Voice Call Endpoints
+
+| Method | Endpoint | Description | Auth Required | Permission |
+|--------|----------|-------------|---------------|------------|
+| POST | `/api/v1/accounts/{account}/contacts/{contact}/calls` | Initiate outbound call | Yes | Agent |
+| GET | `/api/v1/accounts/{account}/conference/token` | Get WebRTC token | Yes | Agent |
+| POST | `/api/v1/accounts/{account}/conference` | Join conference | Yes | Agent |
+| DELETE | `/api/v1/accounts/{account}/conference` | End conference | Yes | Agent |
+
+### Webhook Endpoints (Twilio)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/v1/webhooks/voice/call/{phone}` | Voice call webhook (TwiML) | No |
+| POST | `/api/v1/webhooks/voice/status/{phone}` | Call status webhook | No |
+| POST | `/api/v1/webhooks/voice/conference_status/{phone}` | Conference status webhook | No |
+
+### Permission Setup
+- **Channel Management**: User must be administrator (role = 2)
+- **Voice Calls**: User must be agent (role >= 1) with inbox access
+- **Webhooks**: Validated by Twilio signature (recommended)
+
+### Example Workflows
+
+#### 1. Create Voice Channel
+```bash
+curl -X POST /api/v1/accounts/1/channels/voice \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Support Hotline",
+    "phone_number": "+1234567890",
+    "provider": "twilio",
+    "provider_config": {
+      "account_sid": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "auth_token": "your_auth_token_here",
+      "api_key_sid": "SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "api_key_secret": "your_api_key_secret_here"
+    }
+  }'
 ```
-POST /api/v1/webhooks/voice/call/+1234567890
+
+#### 2. Initiate Outbound Call
+```bash
+curl -X POST /api/v1/accounts/1/contacts/123/calls \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"inbox_id": 1}'
+```
+
+Response:
+```json
+{
+  "conversation_id": "101",
+  "inbox_id": 1,
+  "call_sid": "CAxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "conference_sid": "conf_1"
+}
+```
+
+#### 3. Get WebRTC Token
+```bash
+curl -X GET "/api/v1/accounts/1/conference/token?inbox_id=1" \
+  -H "Authorization: Bearer {token}"
+```
+
+Response:
+```json
+{
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "identity": "agent-1-account-1",
+  "voice_enabled": true,
+  "account_sid": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "agent_id": 1,
+  "phone_number": "+1234567890",
+  "twiml_endpoint": "https://api.example.com/api/v1/webhooks/voice/call/1234567890"
+}
+```
+
+#### 4. Join Conference
+```bash
+curl -X POST /api/v1/accounts/1/conference \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "conversation_id": "101",
+    "call_sid": "CAxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  }'
+```
+
+### Call Flow Architecture
+
+#### Inbound Call Flow
+1. **Customer calls** → Twilio receives call
+2. **Twilio webhook** → `POST /webhooks/voice/call/{phone}`
+3. **Create conversation** → Contact and conversation created automatically
+4. **TwiML response** → Directs caller to conference
+5. **Conference events** → Status updates via conference webhook
+6. **Agent joins** → Via WebRTC token or phone
+7. **Call tracking** → Status and duration tracked in conversation
+
+#### Outbound Call Flow
+1. **Agent initiates** → `POST /contacts/{id}/calls`
+2. **Create conversation** → Conversation and call message created
+3. **Twilio API call** → Call initiated to contact
+4. **Agent joins** → `POST /conference` with WebRTC token
+5. **Conference management** → Both parties connected in conference
+6. **Call completion** → Status updates and duration tracking
+
+### Webhook Payloads
+
+#### Incoming Call (TwiML Generation)
+```
+POST /api/v1/webhooks/voice/call/1234567890
 Content-Type: application/x-www-form-urlencoded
 
 From=+15551234567&To=+1234567890&CallSid=CA123...&Direction=inbound
 ```
-Response:
+
+Response (TwiML):
 ```xml
+<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Dial>
-    <Conference startConferenceOnEnter="false" endConferenceOnExit="false" ...>conf_123</Conference>
+    <Conference startConferenceOnEnter="false" 
+                endConferenceOnExit="false"
+                statusCallback="https://api.example.com/webhooks/voice/conference_status/1234567890"
+                statusCallbackEvent="start end join leave"
+                statusCallbackMethod="POST"
+                participantLabel="contact">conf_1</Conference>
   </Dial>
 </Response>
 ```
 
-#### Call Status Event
+#### Call Status Updates
 ```
-POST /api/v1/webhooks/voice/status/+1234567890
+POST /api/v1/webhooks/voice/status/1234567890
 Content-Type: application/x-www-form-urlencoded
 
-CallSid=CA123...&CallStatus=completed
+CallSid=CA123...&CallStatus=completed&CallDuration=120
 ```
 
-#### Conference Status Event
+#### Conference Events
 ```
-POST /api/v1/webhooks/voice/conference_status/+1234567890
+POST /api/v1/webhooks/voice/conference_status/1234567890
 Content-Type: application/x-www-form-urlencoded
 
-ConferenceSid=CF123...&StatusCallbackEvent=participant-join&ParticipantLabel=agent
+ConferenceSid=CF123...&StatusCallbackEvent=participant-join&ParticipantLabel=agent&CallSid=CA123...
 ```
 
-### Setup
-Configure your Twilio number to use these endpoints for voice and status callbacks. See the main README for more details.
+### Status Mapping
 
-### Purpose
-Connect various messaging channels to handle customer conversations.
+| Twilio Status | Internal Status | Description |
+|---------------|-----------------|-------------|
+| `queued`, `initiated`, `ringing` | `ringing` | Call is ringing |
+| `in-progress`, `answered` | `in-progress` | Call is active |
+| `completed` | `completed` | Call ended normally |
+| `busy`, `no-answer` | `no-answer` | Call not answered |
+| `failed`, `canceled` | `failed` | Call failed |
 
-### Available Channels
+### Configuration Requirements
 
-| Channel | Description | Controller |
-|---------|-------------|------------|
-| **Web Widget** | Embeddable chat widget | `WebWidgetController` |
-| **Email** | Email inbox with IMAP/SMTP | `EmailController` |
-| **WhatsApp** | WhatsApp Business API | `WhatsAppController` |
-| **Facebook** | Facebook Messenger | `FacebookController` |
-| **Twitter** | Twitter Direct Messages | `TwitterController` |
-| **Telegram** | Telegram Bot | `TelegramController` |
-| **SMS** | Twilio/Bandwidth SMS | `SmsController` |
-| **Line** | LINE Messaging API | `LineController` |
-| **API** | Custom API channel | `ApiController` |
+#### Twilio Setup
+1. **Account Credentials**: Account SID and Auth Token
+2. **API Keys**: For WebRTC token generation
+3. **TwiML Application**: For handling agent calls
+4. **Phone Number**: Configured with webhook URLs
+5. **Webhook URLs**: Point to your ClearLine instance
 
-### Endpoints Pattern (per channel)
+#### Required Webhook Configuration
+- **Voice URL**: `https://your-domain.com/api/v1/webhooks/voice/call/{phone}`
+- **Status Callback**: `https://your-domain.com/api/v1/webhooks/voice/status/{phone}`
+- **HTTP Method**: POST
+- **Content Type**: application/x-www-form-urlencoded
 
-| Method | Endpoint | Description | Auth Required | Permission |
-|--------|----------|-------------|---------------|------------|
-| POST | `/api/v1/accounts/{account}/channels/{type}` | Create channel | Yes | Admin |
-| PATCH | `/api/v1/accounts/{account}/channels/{type}/{id}` | Update channel | Yes | Admin |
-| POST | `/api/v1/webhooks/{type}` | Receive webhook | No | - |
+### Features Implemented
 
-### Permission Setup
-- **Create/Update**: User must be administrator (role = 2)
-- **Webhooks**: Verified by platform-specific signatures
+#### ✅ Core Functionality
+- ✅ **Voice Channel Creation**: Create and configure Twilio voice channels
+- ✅ **Inbound Call Handling**: Automatic conversation creation from incoming calls
+- ✅ **Outbound Call Initiation**: Agent-initiated calls to contacts
+- ✅ **Conference Management**: Multi-party conference calls with agents and contacts
+- ✅ **WebRTC Integration**: Browser-based calling for agents
+- ✅ **Call Status Tracking**: Real-time call status updates and duration tracking
+
+#### ✅ Advanced Features
+- ✅ **Message Integration**: Voice calls appear as messages in conversation timeline
+- ✅ **Agent Presence**: Track which agents are in conferences
+- ✅ **Call Recording**: Support for Twilio call recording (via Twilio configuration)
+- ✅ **Phone Number Validation**: E.164 format validation
+- ✅ **Provider Abstraction**: Extensible architecture for multiple voice providers
+- ✅ **Error Handling**: Comprehensive error handling and logging
+
+### Integration Notes
+- **Real-time Updates**: Voice call status changes broadcast via WebSocket
+- **Conversation Context**: Voice calls maintain full conversation context
+- **Agent Dashboard**: Voice controls integrated into agent interface
+- **Mobile Support**: WebRTC tokens work with Twilio Voice SDKs
+- **Scalability**: Conference-based architecture supports multiple concurrent calls
 
 ---
 
-## 23. Third-Party Integrations
+## 24. Third-Party Integrations
 
 ### Purpose
 Connect with external services for enhanced functionality.

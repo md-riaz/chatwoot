@@ -10,6 +10,7 @@ This directory contains comprehensive documentation for the ClearLine Laravel AP
 | [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | Original API reference with all endpoints, methods, and permissions |
 | [AUTHORIZATION.md](AUTHORIZATION.md) | Authorization system, roles, policies, and middleware |
 | [INTEGRATIONS.md](INTEGRATIONS.md) | Detailed guide for all channel and third-party integrations |
+| [VOICE_CHANNEL_GUIDE.md](VOICE_CHANNEL_GUIDE.md) | **Complete voice channel guide** with Twilio integration, WebRTC, and call management |
 | [EMAIL_CONFIGURATION.md](EMAIL_CONFIGURATION.md) | Email system configuration and customization |
 | [openapi/](openapi/) | **OpenAPI 3.0 specifications** for all API endpoints |
 
