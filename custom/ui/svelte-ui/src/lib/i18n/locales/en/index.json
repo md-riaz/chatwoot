@@ -1,0 +1,74 @@
+{
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "loading": "Loading...",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "export": "Export",
+    "import": "Import",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "conversations": "Conversations",
+    "contacts": "Contacts",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "conversation": {
+    "open": "Open",
+    "resolved": "Resolved",
+    "pending": "Pending",
+    "snoozed": "Snoozed",
+    "assign": "Assign",
+    "resolve": "Resolve",
+    "reopen": "Reopen",
+    "send_message": "Send message",
+    "type_message": "Type your message..."
+  },
+  "contact": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
+    "notes": "Notes",
+    "conversations": "Conversations",
+    "add_contact": "Add Contact",
+    "edit_contact": "Edit Contact"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "forgot_password": "Forgot password?",
+    "reset_password": "Reset password",
+    "remember_me": "Remember me"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalid_email": "Invalid email address",
+    "invalid_phone": "Invalid phone number",
+    "server_error": "Server error occurred",
+    "network_error": "Network error occurred",
+    "not_found": "Not found",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Forbidden"
+  },
+  "notifications": {
+    "success": "Success!",
+    "error": "Error!",
+    "warning": "Warning!",
+    "info": "Info"
+  }
+}
