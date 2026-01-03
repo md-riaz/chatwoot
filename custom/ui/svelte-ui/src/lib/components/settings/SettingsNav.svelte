@@ -3,7 +3,19 @@
    * SettingsNav - Settings navigation sidebar
    */
   
-  import { Settings, Users, Bell, Lock, Palette, Globe } from '@lucide/svelte';
+  import {
+    Settings,
+    Users,
+    Bell,
+    Lock,
+    Palette,
+    Globe,
+    UserCog,
+    Inbox,
+    FileText,
+    CreditCard,
+    Clock,
+  } from '@lucide/svelte';
   import { Button } from '$lib/components/ui/button';
   import { Badge } from '$lib/components/ui/badge';
   import { isRouteActive } from '$lib/routing/navigation';
@@ -18,16 +30,34 @@
   
   const navItems: SettingsNavItem[] = [
     {
-      id: 'general',
-      label: 'General',
-      icon: 'settings',
-      href: `${basePath}/general`,
-    },
-    {
       id: 'account',
       label: 'Account',
-      icon: 'users',
+      icon: 'settings',
       href: `${basePath}/account`,
+    },
+    {
+      id: 'profile',
+      label: 'Profile',
+      icon: 'users',
+      href: `${basePath}/profile`,
+    },
+    {
+      id: 'agents',
+      label: 'Agents',
+      icon: 'user-cog',
+      href: `${basePath}/agents`,
+    },
+    {
+      id: 'inboxes',
+      label: 'Inboxes',
+      icon: 'inbox',
+      href: `${basePath}/inboxes`,
+    },
+    {
+      id: 'attributes',
+      label: 'Custom Attributes',
+      icon: 'file-text',
+      href: `${basePath}/attributes`,
     },
     {
       id: 'notifications',
@@ -36,22 +66,34 @@
       href: `${basePath}/notifications`,
     },
     {
-      id: 'security',
-      label: 'Security',
-      icon: 'lock',
-      href: `${basePath}/security`,
+      id: 'billing',
+      label: 'Billing',
+      icon: 'credit-card',
+      href: `${basePath}/billing`,
     },
     {
-      id: 'appearance',
-      label: 'Appearance',
-      icon: 'palette',
-      href: `${basePath}/appearance`,
+      id: 'automation',
+      label: 'Automation',
+      icon: 'settings',
+      href: `${basePath}/automation`,
     },
     {
-      id: 'integrations',
-      label: 'Integrations',
-      icon: 'globe',
-      href: `${basePath}/integrations`,
+      id: 'macros',
+      label: 'Macros',
+      icon: 'file-text',
+      href: `${basePath}/macros`,
+    },
+    {
+      id: 'sla',
+      label: 'SLA',
+      icon: 'clock',
+      href: `${basePath}/sla`,
+    },
+    {
+      id: 'audit-logs',
+      label: 'Audit Logs',
+      icon: 'file-text',
+      href: `${basePath}/audit-logs`,
     },
   ];
   
@@ -63,6 +105,11 @@
       lock: Lock,
       palette: Palette,
       globe: Globe,
+      'user-cog': UserCog,
+      inbox: Inbox,
+      'file-text': FileText,
+      'credit-card': CreditCard,
+      clock: Clock,
     };
     return icons[iconName] || Settings;
   }
