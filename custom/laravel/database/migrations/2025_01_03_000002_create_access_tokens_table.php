@@ -22,32 +22,39 @@ return new class extends Migration
                 $table->index(['owner_type', 'owner_id']);
             });
         } else {
-            // Table exists, check if we need to add missing columns or indexes
-            Schema::table('access_tokens', function (Blueprint $table) {
-                // Check if owner columns exist (morphs creates owner_type and owner_id)
-                if (!Schema::hasColumn('access_tokens', 'owner_type')) {
-                    $table->string('owner_type')->nullable();
-                }
-                if (!Schema::hasColumn('access_tokens', 'owner_id')) {
-                    $table->unsignedBigInteger('owner_id')->nullable();
-                }
-                
-                // Add index only if it doesn't exist
-                // PostgreSQL will throw error if index already exists, so we use raw SQL with IF NOT EXISTS
-                if (DB::getDriverName() === 'pgsql') {
-                    try {
-                        DB::statement('CREATE INDEX IF NOT EXISTS access_tokens_owner_type_owner_id_index ON access_tokens (owner_type, owner_id)');
-                    } catch (\Exception $e) {
-                        // Index already exists, ignore
+            // Table exists, check if we need to add missing columns
+            $needsOwnerType = !Schema::hasColumn('access_tokens', 'owner_type');
+            $needsOwnerId = !Schema::hasColumn('access_tokens', 'owner_id');
+            
+            if ($needsOwnerType || $needsOwnerId) {
+                Schema::table('access_tokens', function (Blueprint $table) use ($needsOwnerType, $needsOwnerId) {
+                    if ($needsOwnerType) {
+                        $table->string('owner_type')->nullable();
                     }
-                } else {
-                    // For MySQL, check if index exists before creating
+                    if ($needsOwnerId) {
+                        $table->unsignedBigInteger('owner_id')->nullable();
+                    }
+                });
+            }
+            
+            // Add index only if it doesn't exist - use raw SQL to avoid Laravel's automatic index creation
+            if (DB::getDriverName() === 'pgsql') {
+                try {
+                    DB::statement('CREATE INDEX IF NOT EXISTS access_tokens_owner_type_owner_id_index ON access_tokens (owner_type, owner_id)');
+                } catch (\Exception $e) {
+                    // Index already exists, ignore
+                }
+            } else {
+                // For MySQL, check if index exists before creating
+                try {
                     $indexExists = DB::select("SHOW INDEX FROM access_tokens WHERE Key_name = 'access_tokens_owner_type_owner_id_index'");
                     if (empty($indexExists)) {
-                        $table->index(['owner_type', 'owner_id']);
+                        DB::statement('CREATE INDEX access_tokens_owner_type_owner_id_index ON access_tokens (owner_type, owner_id)');
                     }
+                } catch (\Exception $e) {
+                    // Index might already exist, ignore
                 }
-            });
+            }
         }
     }
 
@@ -75,14 +82,18 @@ return new class extends Migration
                     if (Schema::hasColumn('access_tokens', 'owner_id')) {
                         $table->dropColumn('owner_id');
                     }
-                    
-                    // Drop our index if it exists
-                    try {
-                        $table->dropIndex('access_tokens_owner_type_owner_id_index');
-                    } catch (\Exception $e) {
-                        // Index might not exist, ignore
-                    }
                 });
+                
+                // Drop our index if it exists using raw SQL
+                try {
+                    if (DB::getDriverName() === 'pgsql') {
+                        DB::statement('DROP INDEX IF EXISTS access_tokens_owner_type_owner_id_index');
+                    } else {
+                        DB::statement('DROP INDEX IF EXISTS access_tokens_owner_type_owner_id_index ON access_tokens');
+                    }
+                } catch (\Exception $e) {
+                    // Index might not exist, ignore
+                }
             }
         }
     }
