@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { labelsStore } from '$lib/stores/labels';
+	import { labelsStore } from '$lib/stores/labels.svelte';
 
 	// Get labels from store
 	const labels = $derived(labelsStore.allLabels);
