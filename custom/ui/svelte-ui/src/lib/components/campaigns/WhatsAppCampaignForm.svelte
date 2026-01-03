@@ -125,18 +125,18 @@
     isSubmitting = true;
     
     try {
-      const campaignData = {
+      const campaignData: CreateCampaignParams = {
         title: title.trim(),
-        inbox_id: inboxId,
-        template_id: templateId,
-        template_params: templateParams,
-        scheduled_at: new Date(scheduledAt).toISOString(),
+        inboxId: inboxId!,
+        templateId: templateId!,
+        templateParams: templateParams,
+        scheduledAt: new Date(scheduledAt).toISOString(),
         audience: selectedAudience.map(id => ({
-          id,
-          type: 'Label'
+          type: 'label',
+          values: [id.toString()]
         })),
-        campaign_type: 'one_off',
-        campaign_status: 'active'
+        campaignType: 'one_off',
+        enabled: true
       };
       
       dispatch('submit', campaignData);

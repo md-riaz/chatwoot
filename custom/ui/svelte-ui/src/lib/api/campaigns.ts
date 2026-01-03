@@ -59,7 +59,7 @@ export interface Campaign {
 export interface CreateCampaignParams {
   title: string;
   description?: string;
-  message: string;
+  message?: string;
   campaignType: typeof CAMPAIGN_TYPES[keyof typeof CAMPAIGN_TYPES];
   audience?: CampaignAudience[];
   enabled?: boolean;
@@ -67,6 +67,8 @@ export interface CreateCampaignParams {
   inboxId: number;
   senderId?: number;
   scheduledAt?: string;
+  templateId?: number;
+  templateParams?: Record<string, any>;
 }
 
 export interface UpdateCampaignParams extends Partial<CreateCampaignParams> {}
