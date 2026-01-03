@@ -20,6 +20,6 @@
   {...restProps}
 >
   {#if children}
-    {@render children()}
+    {@render children?.()}
   {/if}
 </div>
