@@ -51,9 +51,17 @@ return new class extends Migration
 
             // Full-text search for articles
             if (DB::getDriverName() === 'pgsql') {
-                DB::statement('CREATE INDEX CONCURRENTLY IF NOT EXISTS articles_content_gin_idx ON articles USING gin((to_tsvector(\'english\', COALESCE(title, \'\')) || to_tsvector(\'english\', COALESCE(content, \'\'))))');
+                try {
+                    DB::statement('CREATE INDEX IF NOT EXISTS articles_content_gin_idx ON articles USING gin((to_tsvector(\'english\', COALESCE(title, \'\')) || to_tsvector(\'english\', COALESCE(content, \'\'))))');
+                } catch (\Exception $e) {
+                    // Index might already exist, ignore error
+                }
             } elseif (DB::getDriverName() === 'mysql') {
-                DB::statement('ALTER TABLE articles ADD FULLTEXT articles_content_fulltext_idx (title, content)');
+                try {
+                    DB::statement('ALTER TABLE articles ADD FULLTEXT articles_content_fulltext_idx (title, content)');
+                } catch (\Exception $e) {
+                    // Index might already exist, ignore error
+                }
             }
         }
 
