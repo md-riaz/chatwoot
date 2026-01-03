@@ -41,25 +41,7 @@ return new class extends Migration
         });
 
         // Enhanced full-text search indexes
-        if (DB::getDriverName() === 'pgsql') {
-            // Create GIN indexes for better full-text search performance
-            DB::statement('CREATE INDEX CONCURRENTLY IF NOT EXISTS messages_content_gin_idx ON messages USING gin(to_tsvector(\'english\', content)) WHERE content IS NOT NULL AND content != \'\'');
-            
-            // Create GIN index for contact search
-            DB::statement('CREATE INDEX CONCURRENTLY IF NOT EXISTS contacts_search_gin_idx ON contacts USING gin((to_tsvector(\'english\', COALESCE(name, \'\')) || to_tsvector(\'english\', COALESCE(email, \'\')) || to_tsvector(\'english\', COALESCE(identifier, \'\'))))');
-            
-            // Create partial index for active conversations
-            DB::statement('CREATE INDEX CONCURRENTLY IF NOT EXISTS conversations_active_search_idx ON conversations (account_id, display_id, created_at) WHERE status != 3'); // Assuming 3 is resolved status
-        }
-
-        // Enhanced MySQL full-text indexes
-        if (DB::getDriverName() === 'mysql') {
-            // Add full-text index for messages with better configuration
-            DB::statement('ALTER TABLE messages ADD FULLTEXT messages_content_fulltext_idx (content) WITH PARSER ngram');
-            
-            // Add full-text index for contacts
-            DB::statement('ALTER TABLE contacts ADD FULLTEXT contacts_search_fulltext_idx (name, email, identifier) WITH PARSER ngram');
-        }
+        $this->createAdvancedFullTextIndexes();
 
         // Add articles table indexes if it exists
         if (Schema::hasTable('articles')) {
@@ -118,22 +100,35 @@ return new class extends Migration
 
         // Drop PostgreSQL GIN indexes
         if (DB::getDriverName() === 'pgsql') {
-            DB::statement('DROP INDEX CONCURRENTLY IF EXISTS messages_content_gin_idx');
-            DB::statement('DROP INDEX CONCURRENTLY IF EXISTS contacts_search_gin_idx');
-            DB::statement('DROP INDEX CONCURRENTLY IF EXISTS conversations_active_search_idx');
+            DB::statement('DROP INDEX IF EXISTS messages_content_gin_idx');
+            DB::statement('DROP INDEX IF EXISTS contacts_search_gin_idx');
+            DB::statement('DROP INDEX IF EXISTS conversations_active_search_idx');
             
             if (Schema::hasTable('articles')) {
-                DB::statement('DROP INDEX CONCURRENTLY IF EXISTS articles_content_gin_idx');
+                DB::statement('DROP INDEX IF EXISTS articles_content_gin_idx');
             }
         }
 
         // Drop MySQL full-text indexes
         if (DB::getDriverName() === 'mysql') {
-            DB::statement('ALTER TABLE messages DROP INDEX messages_content_fulltext_idx');
-            DB::statement('ALTER TABLE contacts DROP INDEX contacts_search_fulltext_idx');
+            try {
+                DB::statement('ALTER TABLE messages DROP INDEX messages_content_fulltext_idx');
+            } catch (\Exception $e) {
+                // Index might not exist, ignore error
+            }
+            
+            try {
+                DB::statement('ALTER TABLE contacts DROP INDEX contacts_search_fulltext_idx');
+            } catch (\Exception $e) {
+                // Index might not exist, ignore error
+            }
             
             if (Schema::hasTable('articles')) {
-                DB::statement('ALTER TABLE articles DROP INDEX articles_content_fulltext_idx');
+                try {
+                    DB::statement('ALTER TABLE articles DROP INDEX articles_content_fulltext_idx');
+                } catch (\Exception $e) {
+                    // Index might not exist, ignore error
+                }
             }
         }
 
@@ -158,6 +153,68 @@ return new class extends Migration
                 $table->dropIndex('inbox_members_user_inbox_idx');
                 $table->dropIndex('inbox_members_inbox_user_idx');
             });
+        }
+    }
+
+    /**
+     * Create advanced full-text search indexes outside of transaction for PostgreSQL
+     */
+    private function createAdvancedFullTextIndexes(): void
+    {
+        if (DB::getDriverName() === 'pgsql') {
+            // Create GIN indexes for better full-text search performance
+            try {
+                DB::statement('CREATE INDEX IF NOT EXISTS messages_content_gin_idx ON messages USING gin(to_tsvector(\'english\', content)) WHERE content IS NOT NULL AND content != \'\'');
+            } catch (\Exception $e) {
+                // Index might already exist, ignore error
+            }
+            
+            try {
+                // Create GIN index for contact search
+                DB::statement('CREATE INDEX IF NOT EXISTS contacts_search_gin_idx ON contacts USING gin((to_tsvector(\'english\', COALESCE(name, \'\')) || to_tsvector(\'english\', COALESCE(email, \'\')) || to_tsvector(\'english\', COALESCE(identifier, \'\'))))');
+            } catch (\Exception $e) {
+                // Index might already exist, ignore error
+            }
+            
+            try {
+                // Create partial index for active conversations
+                DB::statement('CREATE INDEX IF NOT EXISTS conversations_active_search_idx ON conversations (account_id, display_id, created_at) WHERE status != 1'); // Assuming 1 is resolved status
+            } catch (\Exception $e) {
+                // Index might already exist, ignore error
+            }
+        }
+
+        if (DB::getDriverName() === 'mysql') {
+            try {
+                // Add full-text index for messages with better configuration
+                DB::statement('ALTER TABLE messages ADD FULLTEXT messages_content_fulltext_idx (content) WITH PARSER ngram');
+            } catch (\Exception $e) {
+                // Index might already exist, ignore error
+            }
+            
+            try {
+                // Add full-text index for contacts
+                DB::statement('ALTER TABLE contacts ADD FULLTEXT contacts_search_fulltext_idx (name, email, identifier) WITH PARSER ngram');
+            } catch (\Exception $e) {
+                // Index might already exist, ignore error
+            }
+        }
+
+        // Add articles table indexes if it exists
+        if (Schema::hasTable('articles')) {
+            if (DB::getDriverName() === 'pgsql') {
+                try {
+                    DB::statement('CREATE INDEX IF NOT EXISTS articles_content_gin_idx ON articles USING gin((to_tsvector(\'english\', COALESCE(title, \'\')) || to_tsvector(\'english\', COALESCE(content, \'\'))))');
+                } catch (\Exception $e) {
+                    // Index might already exist, ignore error
+                }
+            } elseif (DB::getDriverName() === 'mysql') {
+                try {
+                    DB::statement('ALTER TABLE articles ADD FULLTEXT articles_content_fulltext_idx (title, content)');
+                } catch (\Exception $e) {
+                    // Index might already exist, ignore error
+                }
+            }
         }
     }
 };

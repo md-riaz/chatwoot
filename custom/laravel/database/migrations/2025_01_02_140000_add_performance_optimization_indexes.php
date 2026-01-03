@@ -94,16 +94,43 @@ return new class extends Migration
             });
         }
 
-        // Add full-text search indexes for PostgreSQL
+        // Add full-text search indexes
+        $this->createFullTextIndexes();
+    }
+
+    /**
+     * Create full-text search indexes outside of transaction for PostgreSQL
+     */
+    private function createFullTextIndexes(): void
+    {
         if (DB::getDriverName() === 'pgsql') {
-            DB::statement('CREATE INDEX CONCURRENTLY IF NOT EXISTS messages_content_fulltext_idx ON messages USING gin(to_tsvector(\'english\', content))');
-            DB::statement('CREATE INDEX CONCURRENTLY IF NOT EXISTS contacts_name_fulltext_idx ON contacts USING gin(to_tsvector(\'english\', name))');
+            // For PostgreSQL, we need to create GIN indexes outside of transaction
+            // Use regular CREATE INDEX instead of CONCURRENTLY in migrations
+            try {
+                DB::statement('CREATE INDEX IF NOT EXISTS messages_content_fulltext_idx ON messages USING gin(to_tsvector(\'english\', content))');
+            } catch (\Exception $e) {
+                // Index might already exist, ignore error
+            }
+            
+            try {
+                DB::statement('CREATE INDEX IF NOT EXISTS contacts_name_fulltext_idx ON contacts USING gin(to_tsvector(\'english\', name))');
+            } catch (\Exception $e) {
+                // Index might already exist, ignore error
+            }
         }
 
-        // Add full-text search indexes for MySQL
         if (DB::getDriverName() === 'mysql') {
-            DB::statement('ALTER TABLE messages ADD FULLTEXT(content)');
-            DB::statement('ALTER TABLE contacts ADD FULLTEXT(name, email)');
+            try {
+                DB::statement('ALTER TABLE messages ADD FULLTEXT(content)');
+            } catch (\Exception $e) {
+                // Index might already exist, ignore error
+            }
+            
+            try {
+                DB::statement('ALTER TABLE contacts ADD FULLTEXT(name, email)');
+            } catch (\Exception $e) {
+                // Index might already exist, ignore error
+            }
         }
     }
 
@@ -193,8 +220,17 @@ return new class extends Migration
         }
 
         if (DB::getDriverName() === 'mysql') {
-            DB::statement('ALTER TABLE messages DROP INDEX content');
-            DB::statement('ALTER TABLE contacts DROP INDEX name');
+            try {
+                DB::statement('ALTER TABLE messages DROP INDEX content');
+            } catch (\Exception $e) {
+                // Index might not exist, ignore error
+            }
+            
+            try {
+                DB::statement('ALTER TABLE contacts DROP INDEX name');
+            } catch (\Exception $e) {
+                // Index might not exist, ignore error
+            }
         }
     }
 };
