@@ -56,13 +56,13 @@ export interface Conversation {
 export interface Message {
   id: number;
   content: string;
-  messageType: 'incoming' | 'outgoing' | 'activity' | 'template';
+  message_type: number; // 0 = outgoing, 1 = incoming
   contentType: 'text' | 'input_select' | 'cards' | 'form' | 'article';
   contentAttributes: Record<string, any>;
-  createdAt: number;
+  created_at: number; // Unix timestamp in seconds
   private: boolean;
   attachments: Attachment[];
-  sender: User;
+  sender: User | null;
   conversationId: number;
   accountId: number;
   inboxId: number;
@@ -87,12 +87,13 @@ export interface Contact {
 
 export interface Attachment {
   id: number;
-  fileType: string;
+  file_type: string;
+  file_name?: string;
   accountId: number;
   extension: string | null;
-  dataUrl: string;
-  thumbUrl?: string;
-  fileSize: number;
+  data_url: string;
+  thumb_url?: string;
+  file_size: number;
 }
 
 export interface Inbox {
@@ -210,10 +211,10 @@ export function createMockMessage(overrides?: Partial<Message>): Message {
   return {
     id: 1,
     content: 'Test message content',
-    messageType: 'incoming',
+    message_type: 1, // incoming
     contentType: 'text',
     contentAttributes: {},
-    createdAt: Date.now(),
+    created_at: Math.floor(Date.now() / 1000), // Unix timestamp in seconds
     private: false,
     attachments: [],
     sender: createMockUser(),

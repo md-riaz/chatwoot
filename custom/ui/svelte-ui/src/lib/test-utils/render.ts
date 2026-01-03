@@ -1,4 +1,4 @@
-import { render as testingLibraryRender, type RenderResult } from '@testing-library/svelte';
+import { render as testingLibraryRender, type RenderResult } from '@testing-library/svelte/svelte5';
 import type { ComponentProps, SvelteComponent } from 'svelte';
 
 /**
