@@ -26,10 +26,10 @@
         <Bars radius={4} strokeWidth={1} />
         <Highlight area />
       </Svg>
-      <Tooltip header={(data) => data[xKey]} let:data>
+      <Tooltip header={(data) => data[xKey] || 'Unknown'} let:data>
         <div class="tooltip">
-          <div class="font-semibold">{data[xKey]}</div>
-          <div class="text-sm text-surface-content/50">{data[yKey]}</div>
+          <div class="font-semibold">{data[xKey] || 'N/A'}</div>
+          <div class="text-sm text-surface-content/50">{data[yKey] != null ? data[yKey] : 'N/A'}</div>
         </div>
       </Tooltip>
     </Chart>
