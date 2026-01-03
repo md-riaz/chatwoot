@@ -9,8 +9,8 @@
 - [x] **Phase 1: Core State Management and API - COMPLETE ✅ (7/7 tasks - 100%)**
 - [x] **Phase 2: Core UI Components - COMPLETE ✅ (7/7 tasks - 100%)**
 - [x] **Phase 3: Dashboard Pages - COMPLETE ✅ (7/7 tasks - 100%)**
-- [ ] Phase 4: Widget, Portal, Survey, SuperAdmin
-- [ ] Phase 5: Advanced Features
+- [ ] **Phase 4: Widget, Portal, Survey, SuperAdmin - IN PROGRESS 🚧 (0/7 tasks - 0%)**
+- [ ] **Phase 5: Advanced Features - READY 📋 (0/7 tasks - 0%)**
 - [ ] Phase 6: Testing
 - [ ] Phase 7: Documentation and Deployment
 
@@ -3246,5 +3246,1367 @@ Final integration testing, bug fixes, performance optimization, and deployment p
 - All apps: Mobile responsive, accessible, performant
 
 ### Next Phase: Phase 5 (Advanced Features)
+
+---
+
+## PHASE 5: Advanced Features (Weeks 21-24) - NOT STARTED 📋
+
+**Status**: NOT STARTED (0/7 tasks - 0%)
+**Started**: TBD
+**Priority**: P0 - CRITICAL (Essential for feature parity)
+
+### Overview
+
+Phase 5 focuses on migrating advanced features that enable automation, productivity enhancements, notifications, search, analytics, and compliance. These features are essential for complete functional parity with the Vue frontend and provide significant value to agents and administrators.
+
+### Prerequisites
+- ✅ Phase 0: Foundation complete (API client, stores, routing, i18n, WebSocket, utils)
+- ✅ Phase 1: Core stores complete (auth, conversations, messages, contacts, inboxes, teams, labels)
+- ✅ Phase 2: Core UI components complete (layout, conversations, messages, contacts, navigation)
+- ✅ Phase 3: Dashboard pages complete (all management pages and settings structure)
+- 🔄 Phase 4: Widget, Portal, Survey, SuperAdmin (can proceed in parallel)
+
+### Key Features
+1. **Automation Rules** - Workflow automation with conditions and actions
+2. **Macros** - Quick action templates for repetitive tasks
+3. **Notifications** - Real-time notification center with audio alerts
+4. **Advanced Search** - Global search with filters and keyboard navigation
+5. **Reports & Analytics** - Comprehensive dashboard with charts and metrics
+6. **SLA Management** - Service Level Agreement policies and tracking
+7. **Audit Logs** - Activity logging for compliance and debugging
+
+---
+
+### Task 5.1: Automation Rules Engine 📋
+**Priority**: P0 - CRITICAL
+**Estimated Time**: 14-18 hours
+**Status**: NOT STARTED
+**Dependencies**: Phase 0, Phase 1, Phase 3
+
+#### Context
+
+Automation rules allow administrators to create automated workflows that execute actions when specific conditions are met. For example: "When a conversation is created AND inbox is 'Support' AND message contains 'urgent', THEN assign to team 'Tier 2' AND add label 'High Priority'". The Vue implementation has a sophisticated rule builder with multiple condition types, operators, and actions.
+
+#### Vue Reference Files (app/javascript/dashboard/)
+
+**Store Modules**:
+- `store/modules/automations.js` - Automation CRUD and execution tracking
+  - State: records, uiFlags (isFetching, isCreating, isDeleting)
+  - Actions: get(), create(), update(), delete(), clone(), attachFile()
+  - Mutations: SET_AUTOMATIONS, ADD_AUTOMATION, UPDATE_AUTOMATION, DELETE_AUTOMATION
+  - Getters: getAutomations(), getAutomationById(), getUIFlags()
+
+**API Clients**:
+- `api/automation.js` - 5 API methods
+  - get(accountId) - GET /api/v1/accounts/{accountId}/automation_rules
+  - create(accountId, automation) - POST /api/v1/accounts/{accountId}/automation_rules
+  - update(accountId, automationId, automation) - PATCH /api/v1/accounts/{accountId}/automation_rules/{id}
+  - delete(accountId, automationId) - DELETE /api/v1/accounts/{accountId}/automation_rules/{id}
+  - clone(accountId, automationId) - POST /api/v1/accounts/{accountId}/automation_rules/{id}/clone
+  - attachFile(accountId, file) - POST /api/v1/accounts/{accountId}/automation_rules/attach_file
+
+**Components** (routes/dashboard/settings/automation/):
+- `Index.vue` - Main automation list page with add/edit/delete
+- `AddAutomationRule.vue` - Modal for creating new automation
+- `EditAutomationRule.vue` - Modal for editing existing automation
+- `AutomationRuleRow.vue` - Single automation display in list
+- `constants.js` - Condition types, operators, action types
+- `operators.js` - Operator definitions and validation logic
+
+**Composables**:
+- `composables/useAutomation.js` - Automation logic composable
+- `composables/useEditableAutomation.js` - Edit mode logic
+- `composables/useAutomationValues.js` - Value processing
+
+**Widget Components**:
+- `components/widgets/AutomationActionInput.vue` - Action value input
+- `components/widgets/AutomationActionTeamMessageInput.vue` - Team message input
+- `components/widgets/AutomationFileInput.vue` - File attachment input
+
+#### Svelte Files to Create
+
+**1. Automation API Client**
+```
+custom/ui/svelte-ui/src/lib/api/
+├── automation.ts                    # Automation API methods
+└── types/automation.ts              # TypeScript interfaces
+```
+
+**2. Automation Stores**
+```
+custom/ui/svelte-ui/src/lib/stores/
+├── automation.svelte.ts             # Automation store with Svelte 5 runes
+└── types/automation.ts              # Store-specific types
+```
+
+**3. Automation Components**
+```
+custom/ui/svelte-ui/src/lib/components/automation/
+├── AutomationList.svelte            # List of all automations
+├── AutomationRow.svelte             # Single automation display
+├── AutomationEditor.svelte          # Create/edit modal
+├── ConditionBuilder.svelte          # Visual condition builder
+├── ConditionRow.svelte              # Single condition with operator
+├── ActionBuilder.svelte             # Visual action builder
+├── ActionRow.svelte                 # Single action configuration
+├── AutomationPreview.svelte         # Preview automation before save
+├── FileAttachment.svelte            # File upload for actions
+├── constants.ts                     # Condition/action definitions
+├── operators.ts                     # Operator logic
+├── validation.ts                    # Validation rules
+└── types.ts                         # Component types
+```
+
+**4. Automation Pages**
+```
+custom/ui/svelte-ui/src/routes/app/settings/
+├── automation/
+│   └── +page.svelte                # Main automation settings page
+```
+
+#### Implementation Steps
+
+**Step 1: Create Automation API Client** (2-3 hours)
+
+```typescript
+// src/lib/api/automation.ts
+import api from './client';
+import type { 
+  Automation, 
+  CreateAutomationParams, 
+  UpdateAutomationParams,
+  AutomationListResponse 
+} from './types/automation';
+
+/**
+ * Get all automation rules for account
+ */
+export async function getAutomations(
+  accountId: number
+): Promise<AutomationListResponse> {
+  return api.get(`api/v1/accounts/${accountId}/automation_rules`).json();
+}
+
+/**
+ * Create new automation rule
+ */
+export async function createAutomation(
+  accountId: number,
+  params: CreateAutomationParams
+): Promise<Automation> {
+  return api.post(`api/v1/accounts/${accountId}/automation_rules`, {
+    json: params
+  }).json();
+}
+
+/**
+ * Update existing automation rule
+ */
+export async function updateAutomation(
+  accountId: number,
+  automationId: number,
+  params: UpdateAutomationParams
+): Promise<Automation> {
+  return api.patch(`api/v1/accounts/${accountId}/automation_rules/${automationId}`, {
+    json: params
+  }).json();
+}
+
+/**
+ * Delete automation rule
+ */
+export async function deleteAutomation(
+  accountId: number,
+  automationId: number
+): Promise<void> {
+  return api.delete(`api/v1/accounts/${accountId}/automation_rules/${automationId}`).json();
+}
+
+/**
+ * Clone automation rule
+ */
+export async function cloneAutomation(
+  accountId: number,
+  automationId: number
+): Promise<Automation> {
+  return api.post(`api/v1/accounts/${accountId}/automation_rules/${automationId}/clone`).json();
+}
+
+/**
+ * Attach file to automation action
+ */
+export async function attachFile(
+  accountId: number,
+  file: File
+): Promise<{ id: string; url: string }> {
+  const formData = new FormData();
+  formData.append('attachment', file);
+  
+  return api.post(`api/v1/accounts/${accountId}/automation_rules/attach_file`, {
+    body: formData
+  }).json();
+}
+```
+
+**Step 2: Create Automation Store** (3-4 hours)
+
+```typescript
+// src/lib/stores/automation.svelte.ts
+import * as automationApi from '$lib/api/automation';
+import { authStore } from './auth.svelte';
+import type { Automation, CreateAutomationParams, UpdateAutomationParams } from '$lib/api/types/automation';
+
+interface AutomationState {
+  all: Automation[];
+  selectedId: number | null;
+  isLoading: boolean;
+  isSaving: boolean;
+  isDeleting: boolean;
+  error: string | null;
+}
+
+class AutomationStore {
+  private state = $state<AutomationState>({
+    all: [],
+    selectedId: null,
+    isLoading: false,
+    isSaving: false,
+    isDeleting: false,
+    error: null
+  });
+
+  // Getters
+  get all() {
+    return this.state.all;
+  }
+
+  get isLoading() {
+    return this.state.isLoading;
+  }
+
+  get isSaving() {
+    return this.state.isSaving;
+  }
+
+  get isDeleting() {
+    return this.state.isDeleting;
+  }
+
+  get error() {
+    return this.state.error;
+  }
+
+  // Derived getters
+  get selectedAutomation() {
+    return $derived(
+      this.state.all.find(a => a.id === this.state.selectedId) || null
+    );
+  }
+
+  get activeAutomations() {
+    return $derived(
+      this.state.all.filter(a => a.active)
+    );
+  }
+
+  get sortedAutomations() {
+    return $derived(
+      [...this.state.all].sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+    );
+  }
+
+  // Actions
+  async fetchAutomations() {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    this.state.isLoading = true;
+    this.state.error = null;
+
+    try {
+      const response = await automationApi.getAutomations(accountId);
+      this.state.all = response.payload;
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to fetch automations';
+      console.error('Error fetching automations:', error);
+    } finally {
+      this.state.isLoading = false;
+    }
+  }
+
+  async createAutomation(params: CreateAutomationParams) {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return null;
+
+    this.state.isSaving = true;
+    this.state.error = null;
+
+    try {
+      const automation = await automationApi.createAutomation(accountId, params);
+      this.state.all = [...this.state.all, automation];
+      return automation;
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to create automation';
+      console.error('Error creating automation:', error);
+      return null;
+    } finally {
+      this.state.isSaving = false;
+    }
+  }
+
+  async updateAutomation(automationId: number, params: UpdateAutomationParams) {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return null;
+
+    this.state.isSaving = true;
+    this.state.error = null;
+
+    try {
+      const updated = await automationApi.updateAutomation(accountId, automationId, params);
+      this.state.all = this.state.all.map(a => 
+        a.id === automationId ? updated : a
+      );
+      return updated;
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to update automation';
+      console.error('Error updating automation:', error);
+      return null;
+    } finally {
+      this.state.isSaving = false;
+    }
+  }
+
+  async deleteAutomation(automationId: number) {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return false;
+
+    this.state.isDeleting = true;
+    this.state.error = null;
+
+    try {
+      await automationApi.deleteAutomation(accountId, automationId);
+      this.state.all = this.state.all.filter(a => a.id !== automationId);
+      return true;
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to delete automation';
+      console.error('Error deleting automation:', error);
+      return false;
+    } finally {
+      this.state.isDeleting = false;
+    }
+  }
+
+  async cloneAutomation(automationId: number) {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return null;
+
+    this.state.isSaving = true;
+    this.state.error = null;
+
+    try {
+      const cloned = await automationApi.cloneAutomation(accountId, automationId);
+      this.state.all = [...this.state.all, cloned];
+      return cloned;
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to clone automation';
+      console.error('Error cloning automation:', error);
+      return null;
+    } finally {
+      this.state.isSaving = false;
+    }
+  }
+
+  async uploadFile(file: File) {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return null;
+
+    try {
+      return await automationApi.attachFile(accountId, file);
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to upload file';
+      console.error('Error uploading file:', error);
+      return null;
+    }
+  }
+
+  selectAutomation(id: number | null) {
+    this.state.selectedId = id;
+  }
+
+  clearError() {
+    this.state.error = null;
+  }
+}
+
+export const automationStore = new AutomationStore();
+```
+
+**Step 3: Create Automation Constants** (1-2 hours)
+
+```typescript
+// src/lib/components/automation/constants.ts
+
+export const CONDITION_TYPES = {
+  // Message conditions
+  MESSAGE_CREATED: 'message_created',
+  MESSAGE_UPDATED: 'message_updated',
+  
+  // Conversation conditions
+  CONVERSATION_CREATED: 'conversation_created',
+  CONVERSATION_UPDATED: 'conversation_updated',
+  CONVERSATION_OPENED: 'conversation_opened',
+  CONVERSATION_RESOLVED: 'conversation_resolved',
+  
+  // Contact conditions
+  CONTACT_CREATED: 'contact_created',
+  CONTACT_UPDATED: 'contact_updated'
+} as const;
+
+export const ATTRIBUTE_KEYS = {
+  // Conversation attributes
+  STATUS: 'status',
+  ASSIGNEE_ID: 'assignee_id',
+  TEAM_ID: 'team_id',
+  INBOX_ID: 'inbox_id',
+  PRIORITY: 'priority',
+  BROWSER_LANGUAGE: 'browser_language',
+  COUNTRY_CODE: 'country_code',
+  REFERER: 'referer',
+  
+  // Message attributes
+  MESSAGE_TYPE: 'message_type',
+  CONTENT: 'content',
+  EMAIL_SUBJECT: 'email_subject',
+  
+  // Contact attributes
+  EMAIL: 'email',
+  PHONE_NUMBER: 'phone_number',
+  NAME: 'name',
+  CITY: 'city',
+  COUNTRY: 'country'
+} as const;
+
+export const OPERATORS = {
+  // Equality
+  EQUAL_TO: 'equal_to',
+  NOT_EQUAL_TO: 'not_equal_to',
+  
+  // Comparison
+  LESS_THAN: 'less_than',
+  GREATER_THAN: 'greater_than',
+  
+  // String matching
+  CONTAINS: 'contains',
+  DOES_NOT_CONTAIN: 'does_not_contain',
+  STARTS_WITH: 'starts_with',
+  ENDS_WITH: 'ends_with',
+  
+  // Presence
+  IS_PRESENT: 'is_present',
+  IS_NOT_PRESENT: 'is_not_present',
+  
+  // Array
+  IS_ANY_OF: 'is_any_of',
+  IS_NOT_ANY_OF: 'is_not_any_of'
+} as const;
+
+export const ACTION_TYPES = {
+  ASSIGN_AGENT: 'assign_agent',
+  ASSIGN_TEAM: 'assign_team',
+  ADD_LABEL: 'add_label',
+  REMOVE_LABEL: 'remove_label',
+  SEND_EMAIL_TO_TEAM: 'send_email_to_team',
+  SEND_MESSAGE: 'send_message',
+  SEND_WEBHOOK_EVENT: 'send_webhook_event',
+  SEND_ATTACHMENT: 'send_attachment',
+  MUTE_CONVERSATION: 'mute_conversation',
+  SNOOZE_CONVERSATION: 'snooze_conversation',
+  RESOLVE_CONVERSATION: 'resolve_conversation',
+  CHANGE_PRIORITY: 'change_priority',
+  ADD_PRIVATE_NOTE: 'add_private_note'
+} as const;
+
+export const OPERATOR_LABELS = {
+  [OPERATORS.EQUAL_TO]: 'is equal to',
+  [OPERATORS.NOT_EQUAL_TO]: 'is not equal to',
+  [OPERATORS.LESS_THAN]: 'is less than',
+  [OPERATORS.GREATER_THAN]: 'is greater than',
+  [OPERATORS.CONTAINS]: 'contains',
+  [OPERATORS.DOES_NOT_CONTAIN]: 'does not contain',
+  [OPERATORS.STARTS_WITH]: 'starts with',
+  [OPERATORS.ENDS_WITH]: 'ends with',
+  [OPERATORS.IS_PRESENT]: 'is present',
+  [OPERATORS.IS_NOT_PRESENT]: 'is not present',
+  [OPERATORS.IS_ANY_OF]: 'is any of',
+  [OPERATORS.IS_NOT_ANY_OF]: 'is not any of'
+} as const;
+
+export const ACTION_LABELS = {
+  [ACTION_TYPES.ASSIGN_AGENT]: 'Assign to agent',
+  [ACTION_TYPES.ASSIGN_TEAM]: 'Assign to team',
+  [ACTION_TYPES.ADD_LABEL]: 'Add label',
+  [ACTION_TYPES.REMOVE_LABEL]: 'Remove label',
+  [ACTION_TYPES.SEND_EMAIL_TO_TEAM]: 'Send email to team',
+  [ACTION_TYPES.SEND_MESSAGE]: 'Send message',
+  [ACTION_TYPES.SEND_WEBHOOK_EVENT]: 'Send webhook event',
+  [ACTION_TYPES.SEND_ATTACHMENT]: 'Send attachment',
+  [ACTION_TYPES.MUTE_CONVERSATION]: 'Mute conversation',
+  [ACTION_TYPES.SNOOZE_CONVERSATION]: 'Snooze conversation',
+  [ACTION_TYPES.RESOLVE_CONVERSATION]: 'Resolve conversation',
+  [ACTION_TYPES.CHANGE_PRIORITY]: 'Change priority',
+  [ACTION_TYPES.ADD_PRIVATE_NOTE]: 'Add private note'
+} as const;
+```
+
+**Step 4: Create Automation UI Components** (6-8 hours)
+
+Components will include:
+- `AutomationList.svelte` - Main list with add/edit/delete buttons
+- `AutomationRow.svelte` - Display automation with active toggle, edit, clone, delete
+- `AutomationEditor.svelte` - Modal for create/edit with form validation
+- `ConditionBuilder.svelte` - Visual builder for IF conditions
+- `ConditionRow.svelte` - Single condition with dropdown selections
+- `ActionBuilder.svelte` - Visual builder for THEN actions
+- `ActionRow.svelte` - Single action with configuration inputs
+
+**Step 5: Create Automation Settings Page** (2-3 hours)
+
+```svelte
+<!-- src/routes/app/settings/automation/+page.svelte -->
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { automationStore } from '$lib/stores/automation.svelte';
+  import AutomationList from '$lib/components/automation/AutomationList.svelte';
+  import AutomationEditor from '$lib/components/automation/AutomationEditor.svelte';
+  import { Button } from '$lib/components/ui/button';
+  import { Plus } from '@lucide/svelte';
+  
+  let showEditor = $state(false);
+  let editingAutomationId = $state<number | null>(null);
+  
+  const automations = $derived(automationStore.sortedAutomations);
+  const isLoading = $derived(automationStore.isLoading);
+  
+  onMount(() => {
+    automationStore.fetchAutomations();
+  });
+  
+  function handleAdd() {
+    editingAutomationId = null;
+    showEditor = true;
+  }
+  
+  function handleEdit(id: number) {
+    editingAutomationId = id;
+    showEditor = true;
+  }
+  
+  function handleClose() {
+    showEditor = false;
+    editingAutomationId = null;
+  }
+</script>
+
+<div class="automation-settings">
+  <div class="header">
+    <div>
+      <h1>Automation Rules</h1>
+      <p>Create automated workflows to save time and improve efficiency</p>
+    </div>
+    <Button onclick={handleAdd}>
+      <Plus class="h-4 w-4 mr-2" />
+      Add Automation
+    </Button>
+  </div>
+  
+  <AutomationList 
+    {automations}
+    {isLoading}
+    onedit={handleEdit}
+  />
+  
+  {#if showEditor}
+    <AutomationEditor
+      automationId={editingAutomationId}
+      onclose={handleClose}
+    />
+  {/if}
+</div>
+```
+
+#### Acceptance Criteria
+
+- [ ] Automation API client created with all 6 methods
+- [ ] Automation store created with Svelte 5 runes ($state, $derived)
+- [ ] All condition types, operators, and action types defined
+- [ ] AutomationList displays all automations with status
+- [ ] AutomationEditor allows creating/editing rules
+- [ ] ConditionBuilder supports visual rule creation
+- [ ] ActionBuilder supports visual action configuration
+- [ ] Active/inactive toggle works with optimistic updates
+- [ ] Clone automation creates exact copy
+- [ ] Delete automation with confirmation
+- [ ] File upload for attachments works
+- [ ] Validation prevents invalid configurations
+- [ ] Real-time updates when automations are created/modified
+- [ ] Mobile-responsive design
+- [ ] Keyboard navigation in editor
+- [ ] TypeScript types for all interfaces
+
+#### Validation Steps
+
+```typescript
+// Test automation store
+import { automationStore } from '$lib/stores/automation.svelte';
+
+// Fetch automations
+await automationStore.fetchAutomations();
+console.log('Automations:', automationStore.all);
+
+// Create automation
+const newAutomation = await automationStore.createAutomation({
+  name: 'Auto-assign urgent tickets',
+  description: 'Automatically assign urgent conversations to Tier 2 team',
+  eventName: 'conversation_created',
+  conditions: [
+    {
+      attributeKey: 'message_type',
+      filterOperator: 'equal_to',
+      values: ['incoming']
+    },
+    {
+      attributeKey: 'content',
+      filterOperator: 'contains',
+      values: ['urgent', 'critical']
+    }
+  ],
+  actions: [
+    {
+      actionName: 'assign_team',
+      actionParams: [2] // Team ID
+    },
+    {
+      actionName: 'add_label',
+      actionParams: ['urgent']
+    },
+    {
+      actionName: 'change_priority',
+      actionParams: ['high']
+    }
+  ],
+  active: true
+});
+
+console.log('Created:', newAutomation);
+
+// Test toggle active
+await automationStore.updateAutomation(newAutomation.id, {
+  active: false
+});
+
+// Test clone
+const cloned = await automationStore.cloneAutomation(newAutomation.id);
+console.log('Cloned:', cloned);
+
+// Test delete
+await automationStore.deleteAutomation(cloned.id);
+```
+
+---
+
+### Task 5.2: Macros System 📋
+**Priority**: P0 - CRITICAL
+**Estimated Time**: 12-16 hours
+**Status**: NOT STARTED
+**Dependencies**: Task 5.1 (shares similar patterns)
+
+#### Context
+
+Macros are predefined action templates that agents can execute with a single click or keyboard shortcut. They combine multiple actions (send message, assign agent, add label, resolve conversation) into one workflow. For example, a "Close with satisfaction" macro might send a "Thank you" message, add a "resolved-satisfied" label, and resolve the conversation.
+
+Macros are more agent-focused (manual execution) while automations are system-driven (automatic execution). The Vue implementation has a sophisticated macro editor with a visual node-based interface and supports file attachments, variables, and conditional visibility.
+
+#### Vue Reference Files
+
+**Store Module**:
+- `store/modules/macros.js` - Macro CRUD operations
+  - State: records, uiFlags
+  - Actions: get(), getSingleMacro(), create(), update(), delete(), execute()
+  - Getters: getMacros(), getMacroById(), getUIFlags()
+
+**API Client**:
+- `api/macros.js` - 6 API methods
+  - get(accountId) - GET /api/v1/accounts/{accountId}/macros
+  - getSingleMacro(accountId, macroId) - GET /api/v1/accounts/{accountId}/macros/{id}
+  - create(accountId, macro) - POST /api/v1/accounts/{accountId}/macros
+  - update(accountId, macroId, macro) - PATCH /api/v1/accounts/{accountId}/macros/{id}
+  - delete(accountId, macroId) - DELETE /api/v1/accounts/{accountId}/macros/{id}
+  - execute(accountId, macroId, conversationIds) - POST /api/v1/accounts/{accountId}/macros/{id}/execute
+
+**Components** (routes/dashboard/settings/macros/):
+- `Index.vue` - Main macros list page with table view
+- `MacroEditor.vue` - Visual macro editor with node-based UI
+- `MacroForm.vue` - Form for macro metadata (name, visibility)
+- `MacroNode.vue` - Single action node in visual editor
+- `MacroNodes.vue` - Container for all action nodes
+- `MacroProperties.vue` - Action configuration panel
+- `MacrosTableRow.vue` - Single macro row in table
+- `constants.js` - Action types and configuration
+- `macroHelper.js` - Macro validation and execution helpers
+
+**Composable**:
+- `composables/useMacros.js` - Macro logic composable
+
+#### Svelte Files to Create
+
+**1. Macros API Client**
+```
+custom/ui/svelte-ui/src/lib/api/
+├── macros.ts                        # Macros API methods
+└── types/macros.ts                  # TypeScript interfaces
+```
+
+**2. Macros Store**
+```
+custom/ui/svelte-ui/src/lib/stores/
+├── macros.svelte.ts                 # Macros store with Svelte 5 runes
+└── types/macros.ts                  # Store types
+```
+
+**3. Macro Components**
+```
+custom/ui/svelte-ui/src/lib/components/macros/
+├── MacrosList.svelte                # Table view of all macros
+├── MacrosTableRow.svelte            # Single macro row with actions
+├── MacroEditor.svelte               # Visual macro editor modal
+├── MacroForm.svelte                 # Macro metadata form
+├── MacroActionNodes.svelte          # Visual node container
+├── MacroActionNode.svelte           # Single action node
+├── MacroActionProperties.svelte     # Action configuration panel
+├── MacroExecutionDialog.svelte      # Execute macro dialog
+├── MacroSelector.svelte             # Dropdown for selecting macros
+├── constants.ts                     # Action types and configs
+├── validation.ts                    # Macro validation
+└── types.ts                         # Component types
+```
+
+**4. Macros Page**
+```
+custom/ui/svelte-ui/src/routes/app/settings/
+├── macros/
+│   └── +page.svelte                # Main macros settings page
+```
+
+#### Implementation Details
+
+**Macro Action Types**:
+- `assign_agent` - Assign conversation to specific agent
+- `assign_team` - Assign conversation to team
+- `add_label` - Add label(s) to conversation
+- `remove_label` - Remove label(s) from conversation
+- `send_message` - Send message (with template variables)
+- `send_email_transcript` - Email conversation transcript
+- `send_attachment` - Send file attachment
+- `change_priority` - Change conversation priority
+- `mute_conversation` - Mute conversation
+- `snooze_conversation` - Snooze conversation for X hours
+- `resolve_conversation` - Resolve conversation
+- `add_private_note` - Add internal note
+
+**Macro Visibility Options**:
+- `global` - All agents can use
+- `personal` - Only creator can use
+- `team` - Specific team(s) can use
+
+**Template Variables**:
+- `{{agent.name}}` - Current agent name
+- `{{contact.name}}` - Contact name
+- `{{contact.email}}` - Contact email
+- `{{conversation.id}}` - Conversation ID
+- `{{account.name}}` - Account name
+
+(Detailed implementation steps similar to Task 5.1...)
+
+#### Acceptance Criteria
+
+- [ ] Macros API client with all 6 methods
+- [ ] Macros store with Svelte 5 runes
+- [ ] MacrosList displays all macros in table
+- [ ] MacroEditor with visual node-based UI
+- [ ] Drag-to-reorder action nodes
+- [ ] Add/remove/configure actions
+- [ ] Template variable insertion in messages
+- [ ] File attachment support
+- [ ] Visibility configuration (global/personal/team)
+- [ ] Execute macro on single/multiple conversations
+- [ ] Keyboard shortcut assignment (optional)
+- [ ] Macro duplication
+- [ ] Delete macro with confirmation
+- [ ] Search and filter macros
+- [ ] Real-time updates
+- [ ] Mobile-responsive
+- [ ] Full TypeScript types
+
+#### Validation Steps
+
+```typescript
+// Test macros store
+import { macrosStore } from '$lib/stores/macros.svelte';
+
+// Fetch all macros
+await macrosStore.fetchMacros();
+console.log('Macros:', macrosStore.all);
+
+// Create macro
+const newMacro = await macrosStore.createMacro({
+  name: 'Close with Thank You',
+  visibility: 'global',
+  actions: [
+    {
+      actionName: 'send_message',
+      actionParams: {
+        message: 'Thank you for contacting us, {{contact.name}}! We appreciate your patience.'
+      }
+    },
+    {
+      actionName: 'add_label',
+      actionParams: ['resolved-satisfied']
+    },
+    {
+      actionName: 'resolve_conversation'
+    }
+  ]
+});
+
+console.log('Created:', newMacro);
+
+// Execute macro on conversation
+await macrosStore.executeMacro(newMacro.id, [conversationId]);
+```
+
+---
+
+### Task 5.3: Notifications & Audio Alerts 📋
+**Priority**: P0 - CRITICAL
+**Estimated Time**: 10-14 hours
+**Status**: NOT STARTED
+**Dependencies**: Phase 0 (WebSocket), Phase 1 (conversations, messages)
+
+#### Context
+
+The notification system provides real-time alerts for new messages, assignments, mentions, and other events. It includes a notification center UI, desktop notifications (via browser API), and audio alerts. The Vue implementation has a sophisticated notification store that tracks read/unread status, supports bulk actions, and integrates with browser permissions.
+
+#### Vue Reference Files
+
+**Store Module**:
+- `store/modules/notifications/` - Notification management
+  - `index.js` - Main module
+  - `getters.js` - Notification getters (unread count, filtered notifications)
+  - `actions.js` - Fetch, mark read, delete actions
+  - `mutations.js` - State mutations
+  - `helpers.spec.js` - Helper tests
+
+**API Client**:
+- `api/notifications.js` - Notification API
+  - getNotifications(page) - GET /api/v1/notifications
+  - getUnreadCount() - GET /api/v1/notifications/unread_count
+  - markAsRead(notificationId) - POST /api/v1/notifications/{id}/read
+  - markAllAsRead() - POST /api/v1/notifications/read_all
+  - deleteNotification(notificationId) - DELETE /api/v1/notifications/{id}
+  - deleteAll(type) - POST /api/v1/notifications/destroy_all
+
+**Components**:
+- `components-next/sidebar/SidebarNotificationBell.vue` - Notification bell icon with count
+- `components/NetworkNotification.vue` - Network status indicator
+- Various notification-related composables and utilities
+
+**User Notification Settings**:
+- `store/modules/userNotificationSettings.js` - Per-user notification preferences
+- `api/userNotificationSettings.js` - Settings API
+  - get(), update() - Manage sound, desktop, email notification preferences
+
+#### Svelte Files to Create
+
+**1. Notifications API**
+```
+custom/ui/svelte-ui/src/lib/api/
+├── notifications.ts                 # Notifications API
+├── notificationSettings.ts          # User preferences API
+└── types/notifications.ts           # TypeScript types
+```
+
+**2. Notifications Store**
+```
+custom/ui/svelte-ui/src/lib/stores/
+├── notifications.svelte.ts          # Notifications store
+├── notificationSettings.svelte.ts   # User settings store
+└── types/notifications.ts           # Store types
+```
+
+**3. Notification Components**
+```
+custom/ui/svelte-ui/src/lib/components/notifications/
+├── NotificationBell.svelte          # Bell icon with count badge
+├── NotificationCenter.svelte        # Dropdown panel with notifications
+├── NotificationItem.svelte          # Single notification display
+├── NotificationList.svelte          # List with infinite scroll
+├── NotificationSettings.svelte      # Preferences modal
+├── AudioNotification.svelte         # Audio player component
+├── DesktopNotification.svelte       # Browser notification wrapper
+├── utils.ts                         # Notification helpers
+└── types.ts                         # Component types
+```
+
+**4. Audio Utilities**
+```
+custom/ui/svelte-ui/src/lib/utils/
+├── audio.ts                         # Audio playback utilities
+└── browserNotifications.ts          # Browser notification API wrapper
+```
+
+#### Implementation Details
+
+**Notification Types**:
+- `conversation_creation` - New conversation created
+- `conversation_assignment` - Conversation assigned to agent
+- `assigned_conversation_new_message` - Message in assigned conversation
+- `participating_conversation_new_message` - Message in participated conversation
+- `conversation_mention` - Agent mentioned in message
+
+**Notification Actions**:
+- Mark as read (single/all)
+- Delete (single/all)
+- Navigate to conversation
+- Mute conversation
+- Quick reply
+
+**Audio Alert Types**:
+- New message sound
+- New conversation sound
+- Assignment sound
+- Mention sound
+
+**Desktop Notification**:
+- Request browser permission
+- Show native notification
+- Handle click to navigate
+- Auto-dismiss after timeout
+
+(Detailed implementation steps...)
+
+#### Acceptance Criteria
+
+- [ ] Notifications API client with all methods
+- [ ] Notifications store with real-time updates via WebSocket
+- [ ] Notification bell with unread count badge
+- [ ] Notification center dropdown
+- [ ] Infinite scroll for notification list
+- [ ] Mark as read (single/all)
+- [ ] Delete notifications (single/all)
+- [ ] Click notification navigates to conversation
+- [ ] Audio alerts for each notification type
+- [ ] Desktop notifications with browser API
+- [ ] Notification settings page
+- [ ] Toggle audio/desktop/email preferences
+- [ ] Do Not Disturb mode
+- [ ] Notification grouping by conversation
+- [ ] Real-time count updates
+- [ ] Mobile-responsive
+- [ ] Full TypeScript types
+
+---
+
+### Task 5.4: Advanced Search 📋
+**Priority**: P1 - HIGH
+**Estimated Time**: 10-12 hours
+**Status**: NOT STARTED
+**Dependencies**: Phase 1 (all core stores)
+
+#### Context
+
+Global search allows agents to quickly find conversations, contacts, and messages across the entire account. The Vue implementation supports full-text search, advanced filters, keyboard navigation (Cmd+K), and search suggestions.
+
+#### Vue Reference Files
+
+**API Client**:
+- `api/search.js` - Search API
+  - search(query, filters) - GET /api/v1/search
+  - searchConversations(query) - Conversation-specific search
+  - searchContacts(query) - Contact-specific search
+  - searchMessages(query) - Message full-text search
+
+**Components**:
+- Various search input components
+- `components/widgets/conversation/linear/SearchableDropdown.vue`
+- `components/ui/Dropdown/DropdownSearch.vue`
+
+#### Svelte Files to Create
+
+**1. Search API**
+```
+custom/ui/svelte-ui/src/lib/api/
+├── search.ts                        # Global search API
+└── types/search.ts                  # Search types
+```
+
+**2. Search Store**
+```
+custom/ui/svelte-ui/src/lib/stores/
+├── search.svelte.ts                 # Search state and history
+└── types/search.ts                  # Store types
+```
+
+**3. Search Components**
+```
+custom/ui/svelte-ui/src/lib/components/search/
+├── GlobalSearch.svelte              # Cmd+K search modal
+├── SearchInput.svelte               # Search input with suggestions
+├── SearchResults.svelte             # Results list
+├── SearchFilters.svelte             # Advanced filters panel
+├── SearchSuggestions.svelte         # Autocomplete suggestions
+├── RecentSearches.svelte            # Search history
+└── types.ts                         # Component types
+```
+
+**Search Features**:
+- Full-text search across conversations, contacts, messages
+- Advanced filters (date range, status, assignee, inbox, labels)
+- Keyboard shortcuts (Cmd+K to open, arrow keys to navigate)
+- Search history
+- Recent searches
+- Search suggestions/autocomplete
+- Highlight matching text
+- Navigate to results
+
+(Detailed implementation steps...)
+
+#### Acceptance Criteria
+
+- [ ] Global search API client
+- [ ] Search store with history
+- [ ] Cmd+K opens search modal
+- [ ] Search across conversations/contacts/messages
+- [ ] Advanced filters panel
+- [ ] Keyboard navigation (arrows, enter, esc)
+- [ ] Search suggestions
+- [ ] Recent searches display
+- [ ] Click result navigates to item
+- [ ] Highlight matching text in results
+- [ ] Clear search history
+- [ ] Mobile-responsive
+- [ ] Full TypeScript types
+
+---
+
+### Task 5.5: Reports & Analytics 📋
+**Priority**: P1 - HIGH
+**Estimated Time**: 14-18 hours
+**STATUS**: NOT STARTED
+**Dependencies**: Phase 1 (all core stores)
+
+#### Context
+
+The reports and analytics system provides comprehensive insights into team performance, conversation metrics, CSAT scores, and agent productivity. The Vue implementation has multiple report types with chart visualizations, date range filtering, and CSV export.
+
+#### Vue Reference Files
+
+**Store Modules**:
+- `store/modules/reports.js` - Account-level reports
+- `store/modules/summaryReports.js` - Summary/overview reports
+- `store/modules/SLAReports.js` - SLA compliance reports
+
+**API Clients**:
+- `api/reports.js` - Reports API (conversation metrics, agent performance)
+- `api/summaryReports.js` - Summary reports API
+- `api/csatReports.js` - CSAT reports API
+- `api/slaReports.js` - SLA reports API
+- `api/liveReports.js` - Real-time reports API
+
+**Components** (routes/dashboard/settings/reports/):
+- Report dashboard with charts
+- Date range picker
+- Filter controls
+- Export functionality
+
+**Report Types**:
+- Conversation metrics (volume, resolution time, first response time)
+- Agent performance (response time, resolution count, CSAT)
+- Team performance (workload distribution, efficiency)
+- CSAT scores (rating distribution, trend over time)
+- SLA compliance (met/missed, average times)
+- Label analytics
+- Traffic sources
+
+#### Svelte Files to Create
+
+**1. Reports API**
+```
+custom/ui/svelte-ui/src/lib/api/
+├── reports.ts                       # Reports API
+├── summaryReports.ts                # Summary reports
+├── csatReports.ts                   # CSAT reports
+├── slaReports.ts                    # SLA reports
+├── liveReports.ts                   # Real-time reports
+└── types/reports.ts                 # Report types
+```
+
+**2. Reports Stores**
+```
+custom/ui/svelte-ui/src/lib/stores/
+├── reports.svelte.ts                # Reports store
+├── summaryReports.svelte.ts         # Summary store
+└── types/reports.ts                 # Store types
+```
+
+**3. Reports Components**
+```
+custom/ui/svelte-ui/src/lib/components/reports/
+├── ReportsDashboard.svelte          # Main dashboard
+├── ConversationMetrics.svelte       # Conversation charts
+├── AgentPerformance.svelte          # Agent stats
+├── TeamPerformance.svelte           # Team stats
+├── CSATReports.svelte               # CSAT charts
+├── SLAReports.svelte                # SLA charts
+├── DateRangePicker.svelte           # Date filter
+├── ReportFilters.svelte             # Filter controls
+├── MetricCard.svelte                # Single metric display
+├── ChartCard.svelte                 # Chart container
+├── ExportButton.svelte              # CSV export
+└── types.ts                         # Component types
+```
+
+**4. Reports Pages**
+```
+custom/ui/svelte-ui/src/routes/app/
+├── reports/
+│   ├── +page.svelte                # Overview dashboard
+│   ├── conversations/+page.svelte  # Conversation reports
+│   ├── agents/+page.svelte         # Agent reports
+│   ├── teams/+page.svelte          # Team reports
+│   ├── csat/+page.svelte           # CSAT reports
+│   └── sla/+page.svelte            # SLA reports
+```
+
+**Chart Library**: Use Chart.js or Recharts for visualizations
+
+(Detailed implementation steps...)
+
+#### Acceptance Criteria
+
+- [ ] Reports API clients for all report types
+- [ ] Reports stores with caching
+- [ ] Reports dashboard page
+- [ ] Conversation metrics with charts
+- [ ] Agent performance reports
+- [ ] Team performance reports
+- [ ] CSAT reports with rating distribution
+- [ ] SLA reports with compliance metrics
+- [ ] Date range picker
+- [ ] Filter by inbox, team, agent, label
+- [ ] CSV export functionality
+- [ ] Real-time live reports
+- [ ] Responsive chart sizing
+- [ ] Loading states for charts
+- [ ] Empty states when no data
+- [ ] Full TypeScript types
+
+---
+
+### Task 5.6: SLA Management 📋
+**Priority**: P2 - MEDIUM
+**Estimated Time**: 10-12 hours
+**Status**: NOT STARTED
+**Dependencies**: Phase 1, Task 5.5
+
+#### Context
+
+SLA (Service Level Agreement) management allows administrators to define response and resolution time targets for conversations based on priority levels. The system tracks SLA compliance and sends alerts when SLAs are at risk of being breached.
+
+#### Vue Reference Files
+
+**Store Module**:
+- `store/modules/sla.js` - SLA policies CRUD
+
+**API Client**:
+- `api/sla.js` - SLA API
+- `api/slaReports.js` - SLA compliance reports
+
+**Components** (routes/dashboard/settings/sla/):
+- SLA policy list
+- SLA policy editor
+- SLA configuration form
+
+**SLA Features**:
+- First response time SLA
+- Next response time SLA  
+- Resolution time SLA
+- Business hours vs 24/7
+- Priority-based targets
+- Grace periods
+- Escalation rules
+
+#### Svelte Files to Create
+
+**1. SLA API**
+```
+custom/ui/svelte-ui/src/lib/api/
+├── sla.ts                           # SLA policies API
+└── types/sla.ts                     # SLA types
+```
+
+**2. SLA Store**
+```
+custom/ui/svelte-ui/src/lib/stores/
+├── sla.svelte.ts                    # SLA policies store
+└── types/sla.ts                     # Store types
+```
+
+**3. SLA Components**
+```
+custom/ui/svelte-ui/src/lib/components/sla/
+├── SLAList.svelte                   # List of SLA policies
+├── SLAEditor.svelte                 # Create/edit policy
+├── SLAForm.svelte                   # Policy configuration form
+├── SLATargets.svelte                # Time target inputs
+├── SLAIndicator.svelte              # Visual SLA status indicator
+├── SLABadge.svelte                  # SLA status badge
+└── types.ts                         # Component types
+```
+
+**4. SLA Pages**
+```
+custom/ui/svelte-ui/src/routes/app/settings/
+├── sla/
+│   └── +page.svelte                # SLA management page
+```
+
+(Detailed implementation steps...)
+
+#### Acceptance Criteria
+
+- [ ] SLA API client
+- [ ] SLA policies store
+- [ ] SLA list page
+- [ ] Create/edit SLA policy
+- [ ] Configure first response, next response, resolution targets
+- [ ] Priority-based SLA targets
+- [ ] Business hours configuration
+- [ ] SLA status indicators on conversations
+- [ ] SLA breach alerts
+- [ ] SLA reports integration
+- [ ] Full TypeScript types
+
+---
+
+### Task 5.7: Audit Logs 📋
+**Priority**: P2 - MEDIUM
+**Estimated Time**: 8-10 hours
+**Status**: NOT STARTED
+**Dependencies**: Phase 1
+
+#### Context
+
+Audit logs track all significant actions in the system for compliance, debugging, and security purposes. This includes conversation assignments, status changes, agent actions, setting modifications, and administrative actions.
+
+#### Vue Reference Files
+
+**Store Module**:
+- `store/modules/auditlogs.js` - Audit log fetching and filtering
+
+**API Client**:
+- API endpoints for fetching audit logs (TBD - check backend routes)
+
+**Components** (routes/dashboard/settings/auditlogs/):
+- Audit log list with timeline view
+- Filters (date range, user, action type)
+- Search functionality
+
+**Logged Events**:
+- Conversation actions (created, assigned, resolved, reopened)
+- Message actions (sent, deleted, edited)
+- Agent actions (logged in, logged out)
+- Team changes (added, removed, role changed)
+- Setting changes (inbox created, automation modified)
+- Contact actions (created, updated, merged)
+
+#### Svelte Files to Create
+
+**1. Audit Logs API**
+```
+custom/ui/svelte-ui/src/lib/api/
+├── auditLogs.ts                     # Audit logs API
+└── types/auditLogs.ts               # Types
+```
+
+**2. Audit Logs Store**
+```
+custom/ui/svelte-ui/src/lib/stores/
+├── auditLogs.svelte.ts              # Audit logs store
+└── types/auditLogs.ts               # Store types
+```
+
+**3. Audit Log Components**
+```
+custom/ui/svelte-ui/src/lib/components/auditLogs/
+├── AuditLogsList.svelte             # Timeline list view
+├── AuditLogItem.svelte              # Single log entry
+├── AuditLogFilters.svelte           # Filter controls
+├── AuditLogSearch.svelte            # Search functionality
+└── types.ts                         # Component types
+```
+
+**4. Audit Logs Page**
+```
+custom/ui/svelte-ui/src/routes/app/settings/
+├── audit-logs/
+│   └── +page.svelte                # Audit logs page
+```
+
+(Detailed implementation steps...)
+
+#### Acceptance Criteria
+
+- [ ] Audit logs API client
+- [ ] Audit logs store with pagination
+- [ ] Audit logs list page with timeline view
+- [ ] Filter by date range, user, action type
+- [ ] Search audit logs
+- [ ] Display user avatar and action details
+- [ ] Relative timestamps
+- [ ] Export audit logs to CSV
+- [ ] Infinite scroll/pagination
+- [ ] Mobile-responsive
+- [ ] Full TypeScript types
+
+---
+
+## Phase 5 Summary
+
+### Total Tasks: 7
+1. ✅ Task 5.1: Automation Rules Engine - 14-18 hours
+2. ✅ Task 5.2: Macros System - 12-16 hours
+3. ✅ Task 5.3: Notifications & Audio Alerts - 10-14 hours
+4. ✅ Task 5.4: Advanced Search - 10-12 hours
+5. ✅ Task 5.5: Reports & Analytics - 14-18 hours
+6. ✅ Task 5.6: SLA Management - 10-12 hours
+7. ✅ Task 5.7: Audit Logs - 8-10 hours
+
+### Total Estimated Time: 78-100 hours (3-4 weeks with 2-3 developers)
+
+### Success Metrics
+- Automation rules execute correctly based on conditions
+- Macros execute multiple actions in sequence
+- Notifications arrive in real-time with audio alerts
+- Search returns accurate results with keyboard navigation
+- Reports display comprehensive metrics with charts
+- SLA compliance tracked and visualized
+- Audit logs capture all significant actions
+- All features mobile-responsive and accessible
+- Full TypeScript type safety
+- Integration tests pass for all features
+
+### Next Phase: Phase 6 (Testing)
 
 ---
