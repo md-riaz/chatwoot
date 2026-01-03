@@ -16,6 +16,7 @@ use App\Repositories\Message\MessageRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Services\TranslationService;
+use App\Services\Messages\StatusUpdateService;
 use App\Jobs\SendReplyJob;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -122,11 +123,13 @@ class MessagesController extends Controller
         }
 
         // Use the TranslationService (pluggable) to translate message content.
-        $translatedContent = app(TranslationService::class)->translate($message->content, $targetLanguage);
+        $translatedContent = app(TranslationService::class)->translate($message->content, $targetLanguage, $message);
 
-        // Save translation
-        $translations[$targetLanguage] = $translatedContent;
-        $message->update(['translations' => $translations]);
+        if ($translatedContent) {
+            // Save translation
+            $translations[$targetLanguage] = $translatedContent;
+            $message->update(['translations' => $translations]);
+        }
 
         return response()->json(['content' => $translatedContent]);
     }
@@ -139,14 +142,19 @@ class MessagesController extends Controller
         abort_unless($conversation->account_id === $account->id, 404);
         abort_unless($message->conversation_id === $conversation->id, 404);
 
-        // Reset message status and dispatch a job to resend the message
-        $message->update([
-            'status' => Message::STATUS_SENT,
-            'content_attributes' => [],
-        ]);
+        try {
+            // Use StatusUpdateService to reset message status (Rails-like behavior)
+            $statusService = new StatusUpdateService($message, 'sent');
+            $statusService->perform();
 
-        SendReplyJob::dispatch($message->id);
+            // Dispatch job to resend the message
+            SendReplyJob::dispatch($message->id);
 
-        return response()->json(['data' => new MessageResource($message)]);
+            return response()->json(['data' => new MessageResource($message->fresh())]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to retry message: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

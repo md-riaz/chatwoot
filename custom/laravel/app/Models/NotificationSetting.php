@@ -54,6 +54,16 @@ class NotificationSetting extends Model
         return $this->getFlagsFor('push_flags');
     }
 
+    public function getAllEmailFlagsAttribute(): array
+    {
+        return array_keys(self::NOTIFICATION_TYPES);
+    }
+
+    public function getAllPushFlagsAttribute(): array
+    {
+        return array_keys(self::NOTIFICATION_TYPES);
+    }
+
     public function setSelectedEmailFlagsAttribute(?array $flags): void
     {
         $this->email_flags = $this->calculateFlagValue($flags ?? []);

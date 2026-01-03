@@ -44,6 +44,7 @@ describe('ManageDraftMessageAction', function () {
             expect($result)->toBeArray()
                 ->and($result['message'])->toBe($message)
                 ->and($result['user_id'])->toBe($this->user->id)
+                ->and($result['conversation_id'])->toBe($this->conversation->id)
                 ->and($result['updated_at'])->toBeString();
         });
     });
@@ -57,6 +58,7 @@ describe('ManageDraftMessageAction', function () {
             expect($result)->toBeArray()
                 ->and($result['message'])->toBe($message)
                 ->and($result['user_id'])->toBe($this->user->id)
+                ->and($result['conversation_id'])->toBe($this->conversation->id)
                 ->and($result['updated_at'])->toBeString();
         });
 
@@ -183,6 +185,35 @@ describe('ManageDraftMessageAction', function () {
             expect($draft1)->toBeNull()
                 ->and($draft2)->not->toBeNull()
                 ->and($draft2['message'])->toBe($message2);
+        });
+    });
+
+    describe('additional functionality', function () {
+        test('hasDraft returns correct boolean', function () {
+            expect($this->action->hasDraft($this->conversation, $this->user->id))->toBeFalse();
+            
+            $this->action->saveDraft($this->conversation, $this->user->id, 'Test message');
+            
+            expect($this->action->hasDraft($this->conversation, $this->user->id))->toBeTrue();
+        });
+
+        test('getDraftStats returns expected structure', function () {
+            $stats = $this->action->getDraftStats();
+            
+            expect($stats)->toBeArray()
+                ->and($stats)->toHaveKeys(['total_drafts', 'cache_driver', 'ttl_days']);
+        });
+
+        test('handles empty message gracefully', function () {
+            expect(fn() => $this->action->saveDraft($this->conversation, $this->user->id, ''))
+                ->toThrow(\InvalidArgumentException::class);
+        });
+
+        test('trims whitespace from messages', function () {
+            $message = '  Test message with whitespace  ';
+            $result = $this->action->saveDraft($this->conversation, $this->user->id, $message);
+            
+            expect($result['message'])->toBe('Test message with whitespace');
         });
     });
 });

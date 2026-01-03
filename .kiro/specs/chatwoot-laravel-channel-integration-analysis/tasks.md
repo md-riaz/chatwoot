@@ -759,8 +759,8 @@ Based on comprehensive analysis findings from 30+ detailed reports in `.kiro/spe
 - Implement comprehensive testing throughout development
 - Regular stakeholder review and feedback cycles
 
-  - [ ] 22.1 Continuous validation against Rails functionalityith advanced rules
-    - Implement AssignmentPoliciesController with inbox management
+  - [x] 22.1 Continuous validation against Rails functionalityith advanced rules
+    - Implement AssignmentPoliciesController with inbox management following rails backend implementation and AGENTS.md
     - Add policy evaluation service
     - Create migration and factory
     - _Requirements: 5.1, 7.1_
@@ -784,8 +784,8 @@ Based on comprehensive analysis findings from 30+ detailed reports in `.kiro/spe
     - Add participant management services
     - _Requirements: 1.1, 1.2_
 
-  - [ ] 22.5 Implement Draft Messages
-    - Review Rails draft messages from `APP_DIRECTORY_SCAN.md` if exists
+  - [x] 22.5 Implement Draft Messages
+    - Review Rails draft messages from `APP_DIRECTORY_SCAN.md` if exists if rails doesn't implement, laravel port will not either
     - Analyze current Laravel implementation in `custom/laravel/app/Models/` following AGENTS.md file for structure
     - Review existing draft controller in `custom/laravel/app/Http/Controllers/`
     - Create DraftMessage model
@@ -793,34 +793,34 @@ Based on comprehensive analysis findings from 30+ detailed reports in `.kiro/spe
     - Add auto-save and conflict resolution
     - _Requirements: 1.1, 1.2_
 
-  - [ ] 22.6 Implement Message Translation and Retry
-    - Review Rails message translation from `APP_DIRECTORY_SCAN.md` services section
-    - Analyze current Laravel message controller in `custom/laravel/app/Http/Controllers/`
+  - [x] 22.6 Implement Message Translation and Retry
+    - Review Rails message translation from `APP_DIRECTORY_SCAN.md` services section, if rails backend doesn't implement, laravel port won't also.
+    - Read AGENTS.md and Analyze current Laravel message controller in `custom/laravel/app/Http/Controllers/`
     - Review `custom/laravel/API_VERIFICATION_REPORT.md` for translation status
     - Add translation service integration
     - Implement message retry functionality
     - Add translation caching
     - _Requirements: 1.1, 1.2_
 
-  - [ ] 22.7 Implement Contact Import/Export
+  - [x] 22.7 Implement Contact Import/Export
     - Review Rails contact import from `APP_DIRECTORY_SCAN.md` jobs section
-    - Analyze current Laravel contacts controller in `custom/laravel/app/Http/Controllers/`
+    - Read AGENTS.md and Analyze current Laravel contacts controller in `custom/laravel/app/Http/Controllers/`
     - Review `custom/laravel/API_VERIFICATION_REPORT.md` for import/export status
     - Create contact import service with CSV/Excel support
     - Implement export functionality with filtering
     - Add progress tracking and error handling
     - _Requirements: 1.1, 1.2_
 
-  - [ ] 22.8 Implement Notification Settings
+  - [x] 22.8 Implement Notification Settings
     - Review Rails notification settings from `APP_DIRECTORY_SCAN.md` models section
-    - Analyze current Laravel implementation in `custom/laravel/app/Models/`
+    - Read AGENTS.md and Analyze current Laravel implementation in `custom/laravel/app/Models/`
     - Review existing notification controller in `custom/laravel/app/Http/Controllers/`
     - Create NotificationSetting model
     - Implement user-specific notification preferences
     - Add email/push notification controls
     - _Requirements: 2.1, 2.2_
 
-  - [ ] 22.9 Complete SAML SSO implementation
+  - [x] 22.9 Complete SAML SSO implementation
     - Review Rails SAML from `APP_DIRECTORY_SCAN.md` models and controllers
     - Analyze current Laravel SAML in `custom/laravel/app/Models/SamlSetting.php`
     - Review `custom/laravel/API_VERIFICATION_REPORT.md` for SAML status

@@ -115,6 +115,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the notification settings for this user.
+     */
+    public function notificationSettings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(NotificationSetting::class);
+    }
+
+    /**
      * Scope a query to only include online users.
      */
     public function scopeOnline($query)

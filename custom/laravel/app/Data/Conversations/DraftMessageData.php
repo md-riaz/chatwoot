@@ -14,8 +14,8 @@ class DraftMessageData extends Data
     public static function rules(): array
     {
         return [
-            'message' => ['required', 'string', 'max:10000'],
-            'updated_at' => ['sometimes', 'date'],
+            'message' => ['required', 'string', 'max:10000', 'min:1'],
+            'updated_at' => ['sometimes', 'nullable', 'date_format:Y-m-d\TH:i:s.u\Z'],
         ];
     }
 
@@ -23,8 +23,9 @@ class DraftMessageData extends Data
     {
         return [
             'message.required' => 'Draft message content is required.',
+            'message.min' => 'Draft message cannot be empty.',
             'message.max' => 'Draft message cannot exceed 10,000 characters.',
-            'updated_at.date' => 'Updated at must be a valid date.',
+            'updated_at.date_format' => 'Updated at must be a valid ISO 8601 date format.',
         ];
     }
 }

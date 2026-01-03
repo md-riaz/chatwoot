@@ -17,22 +17,27 @@ class NotificationSettingsController extends Controller
     {
         $user = auth()->user();
 
-        $setting = NotificationSetting::firstOrCreate(
-            [
+        $setting = $user->notificationSettings()
+            ->where('account_id', $account->id)
+            ->first();
+
+        if (!$setting) {
+            $setting = NotificationSetting::create([
                 'account_id' => $account->id,
                 'user_id' => $user->id,
-            ],
-            [
                 'email_flags' => 0,
                 'push_flags' => 0,
-            ]
-        );
+            ]);
+        }
 
         return response()->json([
-            'data' => [
-                'selected_email_flags' => $setting->selected_email_flags,
-                'selected_push_flags' => $setting->selected_push_flags,
-            ],
+            'id' => $setting->id,
+            'user_id' => $setting->user_id,
+            'account_id' => $setting->account_id,
+            'all_email_flags' => $setting->all_email_flags,
+            'selected_email_flags' => $setting->selected_email_flags,
+            'all_push_flags' => $setting->all_push_flags,
+            'selected_push_flags' => $setting->selected_push_flags,
         ]);
     }
 
@@ -45,21 +50,23 @@ class NotificationSettingsController extends Controller
 
         $validated = $request->validate([
             'notification_settings.selected_email_flags' => 'nullable|array',
-            'notification_settings.selected_email_flags.*' => 'string',
+            'notification_settings.selected_email_flags.*' => 'string|in:' . implode(',', array_keys(NotificationSetting::NOTIFICATION_TYPES)),
             'notification_settings.selected_push_flags' => 'nullable|array',
-            'notification_settings.selected_push_flags.*' => 'string',
+            'notification_settings.selected_push_flags.*' => 'string|in:' . implode(',', array_keys(NotificationSetting::NOTIFICATION_TYPES)),
         ]);
 
-        $setting = NotificationSetting::firstOrCreate(
-            [
+        $setting = $user->notificationSettings()
+            ->where('account_id', $account->id)
+            ->first();
+
+        if (!$setting) {
+            $setting = NotificationSetting::create([
                 'account_id' => $account->id,
                 'user_id' => $user->id,
-            ],
-            [
                 'email_flags' => 0,
                 'push_flags' => 0,
-            ]
-        );
+            ]);
+        }
 
         $notificationSettings = $validated['notification_settings'] ?? [];
 
@@ -74,10 +81,13 @@ class NotificationSettingsController extends Controller
         $setting->save();
 
         return response()->json([
-            'data' => [
-                'selected_email_flags' => $setting->selected_email_flags,
-                'selected_push_flags' => $setting->selected_push_flags,
-            ],
+            'id' => $setting->id,
+            'user_id' => $setting->user_id,
+            'account_id' => $setting->account_id,
+            'all_email_flags' => $setting->all_email_flags,
+            'selected_email_flags' => $setting->selected_email_flags,
+            'all_push_flags' => $setting->all_push_flags,
+            'selected_push_flags' => $setting->selected_push_flags,
         ]);
     }
 }

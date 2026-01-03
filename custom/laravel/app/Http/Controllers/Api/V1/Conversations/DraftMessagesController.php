@@ -10,6 +10,7 @@ use App\Models\Account;
 use App\Models\Conversation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class DraftMessagesController extends Controller
 {
@@ -20,7 +21,8 @@ class DraftMessagesController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        $draftData = ManageDraftMessageAction::run()->getDraft($conversation, auth()->id());
+        $action = new ManageDraftMessageAction();
+        $draftData = $action->getDraft($conversation, auth()->id());
 
         return new DraftMessageResource($draftData);
     }
@@ -32,19 +34,42 @@ class DraftMessagesController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        $draftMessageData = DraftMessageData::from($request->input('draft_message'));
+        try {
+            $draftMessageData = DraftMessageData::from($request->input('draft_message'));
 
-        $draftData = ManageDraftMessageAction::run()->saveDraft(
-            $conversation,
-            auth()->id(),
-            $draftMessageData->message,
-            $draftMessageData->updated_at
-        );
+            $action = new ManageDraftMessageAction();
+            $draftData = $action->saveDraft(
+                $conversation,
+                auth()->id(),
+                $draftMessageData->message,
+                $draftMessageData->updated_at
+            );
 
-        return response()->json([
-            'message' => 'Draft saved successfully',
-            'updated_at' => $draftData['updated_at'],
-        ]);
+            Log::info('Draft message saved', [
+                'conversation_id' => $conversation->id,
+                'user_id' => auth()->id(),
+                'message_length' => strlen($draftMessageData->message)
+            ]);
+
+            return response()->json([
+                'message' => 'Draft saved successfully',
+                'updated_at' => $draftData['updated_at'],
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('Draft message validation failed', [
+                'conversation_id' => $conversation->id,
+                'user_id' => auth()->id(),
+                'errors' => $e->errors()
+            ]);
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Failed to save draft message', [
+                'conversation_id' => $conversation->id,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -54,7 +79,13 @@ class DraftMessagesController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
-        ManageDraftMessageAction::run()->deleteDraft($conversation, auth()->id());
+        $action = new ManageDraftMessageAction();
+        $action->deleteDraft($conversation, auth()->id());
+
+        Log::info('Draft message deleted', [
+            'conversation_id' => $conversation->id,
+            'user_id' => auth()->id()
+        ]);
 
         return response()->json(null, 204);
     }

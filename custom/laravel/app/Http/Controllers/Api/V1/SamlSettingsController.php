@@ -32,6 +32,8 @@ class SamlSettingsController extends Controller
                 'has_certificate' => ! empty($setting->certificate),
                 'certificate_fingerprint' => $setting->certificate_fingerprint,
                 'saml_enabled' => $setting->samlEnabled(),
+                'metadata_url' => route('saml.metadata', ['account' => $account->id]),
+                'login_url' => route('saml.login', ['account' => $account->id]),
             ],
         ]);
     }
@@ -55,6 +57,9 @@ class SamlSettingsController extends Controller
         // Validate certificate format
         $this->validateCertificate($validated['certificate']);
 
+        // Validate identity provider configuration
+        $this->validateIdpConfiguration($validated);
+
         $setting = AccountSamlSetting::updateOrCreate(
             ['account_id' => $account->id],
             $validated
@@ -69,6 +74,8 @@ class SamlSettingsController extends Controller
                 'has_certificate' => ! empty($setting->certificate),
                 'certificate_fingerprint' => $setting->certificate_fingerprint,
                 'saml_enabled' => $setting->samlEnabled(),
+                'metadata_url' => route('saml.metadata', ['account' => $account->id]),
+                'login_url' => route('saml.login', ['account' => $account->id]),
             ],
         ], 201);
     }
@@ -96,6 +103,11 @@ class SamlSettingsController extends Controller
             $this->validateCertificate($validated['certificate']);
         }
 
+        // Validate identity provider configuration if provided
+        if (isset($validated['sso_url']) || isset($validated['idp_entity_id'])) {
+            $this->validateIdpConfiguration(array_merge($setting->toArray(), $validated));
+        }
+
         $setting->update($validated);
 
         return response()->json([
@@ -107,6 +119,8 @@ class SamlSettingsController extends Controller
                 'has_certificate' => ! empty($setting->certificate),
                 'certificate_fingerprint' => $setting->certificate_fingerprint,
                 'saml_enabled' => $setting->samlEnabled(),
+                'metadata_url' => route('saml.metadata', ['account' => $account->id]),
+                'login_url' => route('saml.login', ['account' => $account->id]),
             ],
         ]);
     }
@@ -137,6 +151,77 @@ class SamlSettingsController extends Controller
             throw ValidationException::withMessages([
                 'certificate' => ['The certificate must be a valid X.509 certificate.']
             ]);
+        }
+    }
+
+    /**
+     * Validate identity provider configuration
+     */
+    private function validateIdpConfiguration(array $data): void
+    {
+        // Validate SSO URL is accessible
+        if (isset($data['sso_url'])) {
+            $ssoUrl = $data['sso_url'];
+            
+            // Basic URL validation
+            if (!filter_var($ssoUrl, FILTER_VALIDATE_URL)) {
+                throw ValidationException::withMessages([
+                    'sso_url' => ['The SSO URL must be a valid URL.']
+                ]);
+            }
+
+            // Check if URL uses HTTPS (recommended for production)
+            if (app()->environment('production') && !str_starts_with($ssoUrl, 'https://')) {
+                throw ValidationException::withMessages([
+                    'sso_url' => ['The SSO URL should use HTTPS in production.']
+                ]);
+            }
+        }
+
+        // Validate Entity ID format
+        if (isset($data['idp_entity_id'])) {
+            $entityId = $data['idp_entity_id'];
+            
+            if (empty($entityId)) {
+                throw ValidationException::withMessages([
+                    'idp_entity_id' => ['The Identity Provider Entity ID is required.']
+                ]);
+            }
+
+            // Entity ID should be a URI or URL
+            if (!filter_var($entityId, FILTER_VALIDATE_URL) && !preg_match('/^urn:/', $entityId)) {
+                throw ValidationException::withMessages([
+                    'idp_entity_id' => ['The Identity Provider Entity ID must be a valid URI or URL.']
+                ]);
+            }
+        }
+
+        // Validate role mappings structure
+        if (isset($data['role_mappings']) && is_array($data['role_mappings'])) {
+            foreach ($data['role_mappings'] as $group => $mapping) {
+                if (!is_array($mapping)) {
+                    throw ValidationException::withMessages([
+                        'role_mappings' => ['Each role mapping must be an array.']
+                    ]);
+                }
+
+                // Validate role mapping has either 'role' or 'custom_role_id'
+                if (!isset($mapping['role']) && !isset($mapping['custom_role_id'])) {
+                    throw ValidationException::withMessages([
+                        'role_mappings' => ["Role mapping for group '{$group}' must specify either 'role' or 'custom_role_id'."]
+                    ]);
+                }
+
+                // Validate role values
+                if (isset($mapping['role'])) {
+                    $validRoles = ['agent', 'administrator'];
+                    if (!in_array($mapping['role'], $validRoles)) {
+                        throw ValidationException::withMessages([
+                            'role_mappings' => ["Invalid role '{$mapping['role']}' for group '{$group}'. Valid roles are: " . implode(', ', $validRoles)]
+                        ]);
+                    }
+                }
+            }
         }
     }
 }

@@ -83,13 +83,26 @@ class AutoAssignConversationAction
             ->with('assignmentPolicy')
             ->first();
 
-            $policy = $inboxPolicy && $inboxPolicy->assignmentPolicy ? $inboxPolicy->assignmentPolicy : null;
-
-        // Apply fair distribution constraints if configured
-            $fairWindow = $policy ? $policy->fair_distribution_window : null;
-            $fairLimit = $policy ? $policy->fair_distribution_limit : null;
+        $policy = $inboxPolicy && $inboxPolicy->assignmentPolicy ? $inboxPolicy->assignmentPolicy : null;
 
         $candidateAgents = $inboxMembers;
+
+        // Apply fair distribution constraints if configured - exactly like Rails RateLimiter
+        if ($policy && $policy->fair_distribution_limit && $policy->fair_distribution_window) {
+            $since = now()->subSeconds($policy->fair_distribution_window);
+            $recentCounts = DB::table('conversations')
+                ->where('inbox_id', $inbox->id)
+                ->where('updated_at', '>=', $since)
+                ->whereNotNull('assignee_id')
+                ->select('assignee_id', DB::raw('count(*) as cnt'))
+                ->groupBy('assignee_id')
+                ->pluck('cnt', 'assignee_id')
+                ->toArray();
+
+            $candidateAgents = $candidateAgents->filter(function ($agent) use ($recentCounts, $policy) {
+                return ($recentCounts[$agent->id] ?? 0) < $policy->fair_distribution_limit;
+            });
+        }
 
         // Team preference: if conversation is assigned to a team with auto-assign enabled,
         // prefer team members who are also part of the inbox.
@@ -167,8 +180,8 @@ class AutoAssignConversationAction
             $candidateAgents = $capacityFiltered;
         }
 
-        // If policy exists and indicates round-robin (0), try to pick the next agent in rotation
-        if ($policy && (int) $policy->assignment_order === 0) {
+        // Sort agents by assignment policy - exactly like Rails AssignmentService
+        if ($policy && $policy->assignment_order === 0) { // round_robin like Rails
             // Determine last assignment times per agent for this inbox
             $lastAssigned = DB::table('conversations')
                 ->where('inbox_id', $inbox->id)
@@ -179,62 +192,17 @@ class AutoAssignConversationAction
                 ->pluck('last_assigned', 'assignee_id')
                 ->toArray();
 
-            // Sort inbox members by their last assignment (oldest first), missing entries come first
-            $sorted = $candidateAgents->sortBy(function ($agent) use ($lastAssigned) {
-                return $lastAssigned[$agent->id] ?? null;
+            $candidateAgents = $candidateAgents->sortBy(function ($agent) use ($lastAssigned) {
+                return $lastAssigned[$agent->id] ?? '1970-01-01 00:00:00';
             });
-
-            // Apply fair distribution filter if configured: prefer agents under recent assignment limit
-            if ($fairWindow && $fairLimit) {
-                $since = now()->subSeconds((int) $fairWindow);
-                $recentCounts = DB::table('conversations')
-                    ->where('inbox_id', $inbox->id)
-                    ->where('updated_at', '>=', $since)
-                    ->whereNotNull('assignee_id')
-                    ->select('assignee_id', DB::raw('count(*) as cnt'))
-                    ->groupBy('assignee_id')
-                    ->pluck('cnt', 'assignee_id')
-                    ->toArray();
-
-                $filtered = $sorted->filter(function ($agent) use ($recentCounts, $fairLimit) {
-                    return ($recentCounts[$agent->id] ?? 0) < (int) $fairLimit;
-                });
-
-                if ($filtered->isNotEmpty()) {
-                    return $filtered->first();
-                }
-            }
-
-            return $sorted->first();
+        } else {
+            // Default: balanced assignment (least open conversations)
+            $candidateAgents = $candidateAgents->sortBy(function ($agent) use ($openCounts) {
+                return $openCounts[$agent->id] ?? 0;
+            });
         }
 
-        // Default: balanced assignment (least open conversations)
-        $byLoad = $candidateAgents->sortBy(function ($agent) use ($openCounts) {
-            return $openCounts[$agent->id] ?? 0;
-        });
-
-        // If fair distribution is configured, prefer agents below the recent assignment limit
-        if ($policy && $fairWindow && $fairLimit) {
-            $since = now()->subSeconds((int) $fairWindow);
-            $recentCounts = DB::table('conversations')
-                ->where('inbox_id', $inbox->id)
-                ->where('updated_at', '>=', $since)
-                ->whereNotNull('assignee_id')
-                ->select('assignee_id', DB::raw('count(*) as cnt'))
-                ->groupBy('assignee_id')
-                ->pluck('cnt', 'assignee_id')
-                ->toArray();
-
-            $filtered = $byLoad->filter(function ($agent) use ($recentCounts, $fairLimit) {
-                return ($recentCounts[$agent->id] ?? 0) < (int) $fairLimit;
-            });
-
-            if ($filtered->isNotEmpty()) {
-                return $filtered->first();
-            }
-        }
-
-        return $byLoad->first();
+        return $candidateAgents->first();
     }
 
     /**

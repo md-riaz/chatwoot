@@ -380,6 +380,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('contacts/import', [ContactsController::class, 'import']);
         // Check import status by import id
         Route::get('contacts/imports/{import_id}/status', [ContactsController::class, 'importStatus']);
+        // Download failed import records
+        Route::get('contacts/imports/{import_id}/failed', [ContactsController::class, 'downloadFailedImport']);
         // Queue export
         Route::post('contacts/export', [ContactsController::class, 'export']);
         // Secure download endpoint for latest export for the authenticated user

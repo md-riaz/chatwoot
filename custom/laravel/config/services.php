@@ -55,4 +55,9 @@ return [
         'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v15.0'),
     ],
 
+    'google_translate' => [
+        'project_id' => env('GOOGLE_TRANSLATE_PROJECT_ID'),
+        'credentials' => env('GOOGLE_TRANSLATE_CREDENTIALS') ? json_decode(env('GOOGLE_TRANSLATE_CREDENTIALS'), true) : null,
+    ],
+
 ];

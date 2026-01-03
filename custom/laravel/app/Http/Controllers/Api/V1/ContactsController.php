@@ -96,9 +96,11 @@ class ContactsController extends Controller
      */
     public function import(Request $request, Account $account): JsonResponse
     {
-        if (! $request->hasFile('import_file')) {
-            return response()->json(['error' => 'Import file is required'], 422);
-        }
+        $request->validate([
+            'import_file' => 'required|file|mimes:csv,txt,xlsx,xls|max:10240', // 10MB max
+            'mapping' => 'sometimes|array',
+            'duplicate_handling' => 'sometimes|in:skip,update,create_duplicate'
+        ]);
 
         $file = $request->file('import_file');
         $path = $file->store('imports');
@@ -107,13 +109,19 @@ class ContactsController extends Controller
         $mapping = $request->input('mapping', []); // e.g. {"csv_name":"name","csv_email":"email"}
         $duplicateHandling = $request->input('duplicate_handling', 'skip'); // skip|update|create_duplicate
 
-        $importResult = StartDataImportAction::run($account, (int) auth()->id(), $path, $mapping, $duplicateHandling);
+        try {
+            $importResult = StartDataImportAction::run($account, (int) auth()->id(), $path, $mapping, $duplicateHandling);
 
-        return response()->json([
-            'message' => 'Import queued',
-            'import_id' => $importResult['import_id'],
-            'data_import_id' => $importResult['data_import_id'],
-        ], 202);
+            return response()->json([
+                'message' => 'Import queued successfully',
+                'import_id' => $importResult['import_id'],
+                'data_import_id' => $importResult['data_import_id'],
+            ], 202);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to queue import: ' . $e->getMessage()
+            ], 422);
+        }
     }
 
     /**
@@ -135,13 +143,28 @@ class ContactsController extends Controller
      */
     public function export(Request $request, Account $account): JsonResponse
     {
+        $request->validate([
+            'column_names' => 'sometimes|array',
+            'column_names.*' => 'string|in:id,name,email,phone_number,identifier,blocked,created_at,updated_at,last_activity_at',
+            'payload' => 'sometimes|array',
+            'label' => 'sometimes|string'
+        ]);
+
         $columnNames = $request->input('column_names', []);
         $filterParams = $request->only(['payload', 'label']);
 
-        // Queue export job
-        \App\Jobs\ExportContactsJob::dispatch($account->id, auth()->id(), $columnNames, $filterParams);
+        try {
+            // Queue export job
+            \App\Jobs\ExportContactsJob::dispatch($account->id, auth()->id(), $columnNames, $filterParams);
 
-        return response()->json(['message' => 'Export queued'], 202);
+            return response()->json([
+                'message' => 'Export queued successfully. You will be notified when it\'s ready.'
+            ], 202);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to queue export: ' . $e->getMessage()
+            ], 422);
+        }
     }
 
     /**
@@ -155,10 +178,31 @@ class ContactsController extends Controller
         $path = Cache::get($cacheKey);
 
         if (! $path || ! \Illuminate\Support\Facades\Storage::exists($path)) {
-            return response()->json(['error' => 'not_found'], 404);
+            return response()->json(['error' => 'Export file not found or expired'], 404);
         }
 
         return \Illuminate\Support\Facades\Storage::download($path);
+    }
+
+    /**
+     * Download failed import records CSV.
+     */
+    public function downloadFailedImport(Account $account, string $importId): JsonResponse|\Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $import = \App\Models\DataImport::where('account_id', $account->id)
+            ->where('meta->tracking_token', $importId)
+            ->first();
+
+        if (!$import) {
+            return response()->json(['error' => 'Import not found'], 404);
+        }
+
+        $failedRecordsFile = $import->meta['failed_records_file'] ?? null;
+        if (!$failedRecordsFile || !\Illuminate\Support\Facades\Storage::exists($failedRecordsFile)) {
+            return response()->json(['error' => 'Failed records file not found'], 404);
+        }
+
+        return \Illuminate\Support\Facades\Storage::download($failedRecordsFile, 'failed_import_' . $importId . '.csv');
     }
 
     /**

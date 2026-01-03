@@ -11,6 +11,9 @@ The Draft Messages feature allows users to save draft messages for conversations
 - **Conflict resolution**: Basic timestamp-based conflict detection to prevent overwriting newer drafts
 - **Cache-based storage**: Uses Laravel's cache system for fast access and automatic expiration
 - **7-day retention**: Drafts are automatically cleaned up after 7 days
+- **Input validation**: Comprehensive validation with proper error messages
+- **Logging**: Detailed logging for debugging and monitoring
+- **Error handling**: Robust error handling with graceful degradation
 
 ## API Endpoints
 
@@ -63,10 +66,11 @@ DELETE /api/v1/accounts/{account}/conversations/{conversation}/draft_messages
 
 ### Architecture
 
-- **Controller**: `DraftMessagesController` - Handles HTTP requests
-- **Action**: `ManageDraftMessageAction` - Contains business logic
-- **Data**: `DraftMessageData` - Validates and structures request data
+- **Controller**: `DraftMessagesController` - Handles HTTP requests with comprehensive error handling
+- **Action**: `ManageDraftMessageAction` - Contains business logic with logging and validation
+- **Data**: `DraftMessageData` - Validates and structures request data with enhanced validation
 - **Resource**: `DraftMessageResource` - Formats API responses
+- **Command**: `CleanupDraftMessages` - Console command for maintenance
 
 ### Storage
 
@@ -78,12 +82,38 @@ conversation_draft_message:{conversation_id}:user:{user_id}
 ### Validation
 
 - Message content is required and limited to 10,000 characters
-- Optional timestamp validation for conflict detection
+- Message cannot be empty or contain only whitespace
+- Optional timestamp validation for conflict detection with ISO 8601 format
 - Account access is verified through middleware
+- Input is automatically trimmed
 
 ### Conflict Resolution
 
 When a client provides an `updated_at` timestamp, the system checks if the stored draft has a newer timestamp. If so, a validation error is returned to prevent overwriting newer changes.
+
+### Error Handling
+
+- Comprehensive exception handling with logging
+- Graceful degradation on cache failures
+- Detailed error messages for validation failures
+- Proper HTTP status codes
+
+### Logging
+
+The system logs:
+- Draft save/delete operations with metadata
+- Validation failures with context
+- Cache operation failures
+- Performance metrics
+
+## Console Commands
+
+### Cleanup Expired Drafts
+```bash
+php artisan drafts:cleanup
+```
+
+This command can be scheduled to run periodically for maintenance, though the cache TTL handles most cleanup automatically.
 
 ## Frontend Integration
 
@@ -111,16 +141,21 @@ async function saveDraft(message) {
       },
       body: JSON.stringify({
         draft_message: {
-          message: message,
+          message: message.trim(), // Trim whitespace
           updated_at: lastUpdatedAt // For conflict detection
         }
       })
     });
     
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    
     const data = await response.json();
     lastUpdatedAt = data.updated_at;
   } catch (error) {
     console.error('Failed to save draft:', error);
+    handleSaveError(error);
   }
 }
 ```
@@ -133,8 +168,11 @@ async function saveDraft(message) {
     // ... save request
   } catch (error) {
     if (error.status === 422) {
-      // Handle conflict - show user a message about newer changes
-      showConflictDialog();
+      const errorData = await error.response.json();
+      if (errorData.errors?.['draft_message.updated_at']) {
+        // Handle conflict - show user a message about newer changes
+        showConflictDialog();
+      }
     }
   }
 }
@@ -145,8 +183,8 @@ async function saveDraft(message) {
 The feature includes comprehensive tests:
 
 - **Unit tests**: `ManageDraftMessageActionTest.php` - Tests the business logic
-- **Feature tests**: `DraftMessagesTest.php` - Tests the API endpoints
-- **Coverage**: User isolation, conflict detection, validation, authorization
+- **Feature tests**: `DraftMessagesControllerTest.php` - Tests the API endpoints
+- **Coverage**: User isolation, conflict detection, validation, authorization, error handling
 
 ## Security
 
@@ -155,6 +193,7 @@ The feature includes comprehensive tests:
 - User-specific draft isolation
 - Input validation and sanitization
 - Rate limiting through Laravel's default throttling
+- Comprehensive logging for audit trails
 
 ## Performance
 
@@ -162,3 +201,19 @@ The feature includes comprehensive tests:
 - Automatic expiration (7 days) prevents cache bloat
 - Minimal database impact (no database storage)
 - Efficient key structure for quick lookups
+- Optimized for high-frequency auto-save operations
+
+## Monitoring
+
+The system provides monitoring capabilities:
+- Draft statistics via `getDraftStats()` method
+- Comprehensive logging for operations
+- Error tracking and alerting
+- Performance metrics collection
+
+## Maintenance
+
+- Automatic cleanup via cache TTL
+- Manual cleanup command available
+- Comprehensive error logging
+- Health check capabilities

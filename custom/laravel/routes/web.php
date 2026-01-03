@@ -24,8 +24,20 @@ Route::get('/', function () {
     ]);
 });
 
-// API and Auth endpoints (handled by Laravel controllers)
-// These should be defined in routes/api.php and routes/auth.php as needed
+// SAML Authentication Routes
+use App\Http\Controllers\Api\V1\Auth\SamlController;
+
+Route::prefix('saml')->group(function () {
+    Route::get('config/{account}', [SamlController::class, 'config'])->name('saml.config');
+    Route::get('metadata/{account}', [SamlController::class, 'metadata'])->name('saml.metadata');
+    Route::get('login/{account}', [SamlController::class, 'login'])->name('saml.login');
+    Route::post('acs/{account}', [SamlController::class, 'acs'])->name('saml.acs');
+    Route::get('sls/{account}', [SamlController::class, 'sls'])->name('saml.sls');
+    Route::post('sls/{account}', [SamlController::class, 'sls'])->name('saml.sls.post');
+});
+
+// SAML token endpoint for SPA
+Route::get('auth/saml/token', [SamlController::class, 'token'])->name('saml.token');
 
 // SPA catch-all: Serve SvelteKit index.html for /app and all subroutes
 Route::get('/app/{any}', function () {

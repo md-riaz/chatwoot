@@ -21,10 +21,13 @@ describe('Notification Settings Show', function () {
 
         $response->assertOk()
             ->assertJsonStructure([
-                'data' => [
-                    'selected_email_flags',
-                    'selected_push_flags',
-                ],
+                'id',
+                'user_id',
+                'account_id',
+                'all_email_flags',
+                'selected_email_flags',
+                'all_push_flags',
+                'selected_push_flags',
             ]);
     });
 
