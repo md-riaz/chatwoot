@@ -61,7 +61,7 @@
           class="w-40"
         />
         <Button onclick={handleRefresh} disabled={isLoading}>
-          <RefreshCw class="{isLoading ? 'h-4 w-4 mr-2 animate-spin' : 'h-4 w-4 mr-2'}" />
+          <RefreshCw class="h-4 w-4 mr-2 {isLoading ? 'animate-spin' : ''}" />
           Refresh
         </Button>
       </div>
