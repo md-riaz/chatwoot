@@ -5,6 +5,8 @@
   import { companiesStore } from '$lib/stores/companies.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import type { Company } from '$lib/api/companies';
+  import CompanyDialog from '$lib/components/companies/CompanyDialog.svelte';
 
   let accountId = $derived($page.params.accountId);
   let isLoading = $derived(companiesStore.isLoading);
@@ -12,12 +14,36 @@
   let searchQuery = $state('');
   let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  let showCreateDialog = $state(false);
+  let showEditDialog = $state(false);
+  let editingCompany = $state<Company | null>(null);
+
   onMount(() => {
     companiesStore.fetchCompanies({ page: 1, sort: 'name' });
   });
 
   function handleCreateCompany() {
-    goto(`/app/${accountId}/companies/new`);
+    showCreateDialog = true;
+  }
+
+  async function handleSubmitCreate(event: CustomEvent) {
+    const data = event.detail;
+    await companiesStore.createCompany(data);
+    companiesStore.fetchCompanies({ page: 1, sort: 'name' });
+  }
+
+  function handleEditCompany(event: Event, company: Company) {
+    event.stopPropagation();
+    editingCompany = company;
+    showEditDialog = true;
+  }
+
+  async function handleSubmitEdit(event: CustomEvent) {
+    if (!editingCompany) return;
+    const data = event.detail;
+    await companiesStore.updateCompany(editingCompany.id, data);
+    companiesStore.fetchCompanies({ page: 1, sort: 'name' });
+    editingCompany = null;
   }
 
   function handleViewCompany(companyId: number) {
@@ -196,6 +222,13 @@
               View
             </Button>
             <Button
+              variant="outline"
+              size="sm"
+              onclick={(e) => handleEditCompany(e, company)}
+            >
+              Edit
+            </Button>
+            <Button
               variant="destructive"
               size="sm"
               onclick={(e) => handleDeleteCompany(e, company.id, company.name)}
@@ -210,6 +243,20 @@
     <!-- Pagination would go here if needed -->
   {/if}
 </div>
+
+<!-- Company Dialogs -->
+<CompanyDialog
+  bind:open={showCreateDialog}
+  mode="create"
+  on:submit={handleSubmitCreate}
+/>
+
+<CompanyDialog
+  bind:open={showEditDialog}
+  mode="edit"
+  company={editingCompany}
+  on:submit={handleSubmitEdit}
+/>
 
 <style>
   .line-clamp-2 {

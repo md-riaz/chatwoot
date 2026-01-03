@@ -10,17 +10,43 @@
   import { agentsStore } from '$lib/stores/agents.svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
+  import type { Agent } from '$lib/api/agents';
+  import AgentDialog from '$lib/components/agents/AgentDialog.svelte';
 
   let accountId = $derived($page.params.accountId);
   let agents = $derived(agentsStore.sortedAgents);
   let isLoading = $derived(agentsStore.isLoading);
+
+  let showCreateDialog = $state(false);
+  let showEditDialog = $state(false);
+  let editingAgent = $state<Agent | null>(null);
 
   onMount(() => {
     agentsStore.fetchAgents();
   });
 
   function handleAddAgent() {
-    goto(`/app/${accountId}/settings/agents/new`);
+    showCreateDialog = true;
+  }
+
+  async function handleSubmitCreate(event: CustomEvent) {
+    const data = event.detail;
+    await agentsStore.createAgent(data);
+    agentsStore.fetchAgents();
+  }
+
+  function handleEditAgent(event: Event, agent: Agent) {
+    event.stopPropagation();
+    editingAgent = agent;
+    showEditDialog = true;
+  }
+
+  async function handleSubmitEdit(event: CustomEvent) {
+    if (!editingAgent) return;
+    const data = event.detail;
+    await agentsStore.updateAgent(editingAgent.id, data);
+    agentsStore.fetchAgents();
+    editingAgent = null;
   }
 
   function handleViewAgent(agentId: number) {
@@ -113,6 +139,13 @@
                 >
                   {agent.availabilityStatus}
                 </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onclick={(e) => handleEditAgent(e, agent)}
+                >
+                  Edit
+                </Button>
               </div>
             </div>
           </Card.Content>
@@ -121,3 +154,17 @@
     </div>
   {/if}
 </div>
+
+<!-- Agent Dialogs -->
+<AgentDialog
+  bind:open={showCreateDialog}
+  mode="create"
+  on:submit={handleSubmitCreate}
+/>
+
+<AgentDialog
+  bind:open={showEditDialog}
+  mode="edit"
+  agent={editingAgent}
+  on:submit={handleSubmitEdit}
+/>
