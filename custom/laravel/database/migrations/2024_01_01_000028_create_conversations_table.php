@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Conversations Table Migration
  * 
- * Core conversation management - depends on accounts, inboxes, contacts, teams, users, campaigns
+ * Core conversation management - depends on accounts, inboxes, contacts, teams, users, campaigns, sla_policies, agent_bots, contact_inboxes
+ * ALL dependencies now exist before this migration
  */
 return new class extends Migration
 {

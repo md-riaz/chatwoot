@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Agent Bots Table Migration
  * 
  * Bot management - depends on accounts
+ * Must be created BEFORE conversations (conversations reference agent_bots)
  */
 return new class extends Migration
 {
