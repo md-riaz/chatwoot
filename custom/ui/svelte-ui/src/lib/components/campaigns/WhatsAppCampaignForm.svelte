@@ -1,26 +1,29 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import { Button } from '$lib/components/ui/button';
-  import { Select } from '$lib/components/ui/select';
+  import * as Select from '$lib/components/ui/select';
   import { Badge } from '$lib/components/ui/badge';
   import { campaignsStore } from '$lib/stores/campaigns.svelte';
   import { inboxesStore } from '$lib/stores/inboxes.svelte';
   import { labelsStore } from '$lib/stores/labels.svelte';
+  import type { Campaign, CreateCampaignParams } from '$lib/api/campaigns';
   
   interface Props {
     mode?: 'create' | 'edit';
-    campaign?: any;
-    onsubmit?: (data: any) => void;
-    oncancel?: () => void;
+    campaign?: Campaign | null;
   }
   
   let {
     mode = 'create',
-    campaign = null,
-    onsubmit,
-    oncancel
+    campaign = null
   }: Props = $props();
+  
+  const dispatch = createEventDispatcher<{
+    submit: CreateCampaignParams;
+    cancel: void;
+  }>();
   
   // Form state
   let title = $state(campaign?.title || '');
@@ -136,13 +139,7 @@
         campaign_status: 'active'
       };
       
-      if (mode === 'create') {
-        await campaignsStore.createCampaign(campaignData);
-      } else if (campaign?.id) {
-        await campaignsStore.updateCampaign(campaign.id, campaignData);
-      }
-      
-      if (onsubmit) onsubmit(campaignData);
+      dispatch('submit', campaignData);
     } catch (error) {
       console.error('Failed to save WhatsApp campaign:', error);
       errors.submit = 'Failed to save campaign. Please try again.';
@@ -152,7 +149,7 @@
   }
   
   function handleCancel() {
-    if (oncancel) oncancel();
+    dispatch('cancel');
   }
   
   function handleAudienceChange(labelId: string) {

@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { Dialog } from '$lib/components/ui/dialog';
+  import { createEventDispatcher } from 'svelte';
+  import * as Dialog from '$lib/components/ui/dialog';
   import WhatsAppCampaignForm from './WhatsAppCampaignForm.svelte';
+  import type { Campaign, CreateCampaignParams } from '$lib/api/campaigns';
   
   interface Props {
     open?: boolean;
     mode?: 'create' | 'edit';
-    campaign?: any;
+    campaign?: Campaign | null;
   }
   
   let {
@@ -14,14 +16,18 @@
     campaign = null
   }: Props = $props();
   
-  let onsubmit: ((data: any) => void) | undefined = $state();
+  const dispatch = createEventDispatcher<{
+    submit: CreateCampaignParams;
+    close: void;
+  }>();
   
-  function handleSubmit(data: any) {
-    if (onsubmit) onsubmit(data);
+  function handleSubmit(data: CreateCampaignParams) {
+    dispatch('submit', data);
     open = false;
   }
   
   function handleCancel() {
+    dispatch('close');
     open = false;
   }
 </script>
@@ -42,8 +48,8 @@
     <WhatsAppCampaignForm 
       {mode}
       {campaign}
-      onsubmit={handleSubmit}
-      oncancel={handleCancel}
+      on:submit={(e) => handleSubmit(e.detail)}
+      on:cancel={handleCancel}
     />
   </Dialog.Content>
 </Dialog.Root>
