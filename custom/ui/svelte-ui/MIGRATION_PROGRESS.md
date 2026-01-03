@@ -1922,19 +1922,1329 @@ let timePeriod = $state<'today' | 'week' | 'month'>('week');
 - ✅ **Phase 2: Core UI Components** - 7/7 tasks (100%)
 - ✅ **Phase 3: Dashboard Pages** - 7/7 tasks (100%)
 
-### Next Phases:
+### Next Phase: Phase 4 (Widget, Portal, Survey, SuperAdmin)
 
-### Phase 4: Widget, Portal, Survey, SuperAdmin (Weeks 17-20)
-- Customer-facing widget
-- Help center portal
-- NPS surveys
-- Super admin dashboard
+---
 
-### Phase 5: Advanced Features (Weeks 21-24)
-- Dark mode
-- Advanced search
-- Bulk actions
-- Automation rules
-- Custom dashboards
+## PHASE 4: Widget, Portal, Survey, SuperAdmin (Weeks 17-20) - IN PROGRESS 🚧
+
+**Status**: IN PROGRESS (0/7 tasks - 0%)
+**Started**: 2026-01-03
+**Priority**: P0 - CRITICAL (Customer-facing applications)
+
+### Overview
+
+Phase 4 focuses on migrating four independent customer-facing and administrative applications:
+1. **Widget** (46 Vue components) - Customer chat widget embedded on websites
+2. **Portal** (4 Vue components) - Public help center/knowledge base
+3. **Survey** (5 Vue components) - CSAT feedback collection
+4. **SuperAdmin** (TBD components) - Platform management interface
+
+These applications are distinct from the main dashboard and have their own routes, stores, and build configurations.
+
+### Prerequisites
+- ✅ Phase 0: Foundation complete (API, routing, i18n, WebSocket, utils)
+- ✅ Phase 1: Core stores complete (auth, contacts, etc. can be reused)
+- ✅ Phase 2: Core UI components complete (primitives available)
+- ✅ Phase 3: Dashboard pages complete (patterns established)
+
+### Key Differences from Dashboard
+- **Widget**: Embeddable, minimal bundle size (<200KB), customer-facing
+- **Portal**: Public access, SEO-friendly, multi-language articles
+- **Survey**: Standalone form, no authentication required
+- **SuperAdmin**: Platform-wide management, different auth flow
+
+---
+
+### Task 4.1: Widget Foundation - API Client, Stores, WebSocket 📋
+**Priority**: P0 - CRITICAL
+**Estimated Time**: 10-14 hours
+**Status**: NOT STARTED
+**Dependencies**: Phase 0, Phase 1
+
+#### Context
+The widget is a customer-facing chat interface embedded on websites. It must be lightweight (<200KB gzipped), support real-time messaging, and work across all browsers. The Vue widget has 46 components including chat UI, pre-chat forms, campaigns, and article views.
+
+#### Vue Reference Files (app/javascript/widget/)
+**Store Modules** (store/modules/):
+- `agent.js` - Agent availability and typing indicators
+- `appConfig.js` - Widget configuration and customization
+- `articles.js` - Help articles for contextual help
+- `campaign.js` - Proactive campaign messages
+- `contacts.js` - Visitor contact information
+- `conversation/*.js` - Conversation state management
+- `conversationAttributes.js` - Custom attributes
+- `conversationLabels.js` - Conversation labels
+- `events.js` - Widget event tracking
+- `message.js` - Message management
+
+**API Clients** (api/):
+- `agent.js` - Agent information and availability
+- `article.js` - Help article search
+- `campaign.js` - Campaign triggers
+- `contacts.js` - Contact CRUD operations
+- `conversation.js` - Conversation management
+- `conversationLabels.js` - Label operations
+- `events.js` - Event tracking
+- `integration.js` - Third-party integrations
+- `message.js` - Message CRUD operations
+
+**Helpers** (helpers/):
+- `actionCable.js` - WebSocket connection (ActionCable)
+- `axios.js` - HTTP client configuration
+- `availabilityHelpers.js` - Agent availability logic
+- `campaignHelper.js` - Campaign display logic
+- `IframeEventHelper.js` - Parent window communication
+- `WidgetAudioNotificationHelper.js` - Sound notifications
+
+#### Svelte Files to Create
+
+**1. Widget API Client**
+```
+custom/ui/svelte-ui/src/lib/widget/api/
+├── client.ts                    # Widget-specific ky client
+├── agent.ts                     # Agent API
+├── article.ts                   # Article API
+├── campaign.ts                  # Campaign API
+├── contact.ts                   # Contact API
+├── conversation.ts              # Conversation API
+├── message.ts                   # Message API
+├── events.ts                    # Event tracking API
+└── types.ts                     # TypeScript interfaces
+```
+
+**2. Widget Stores**
+```
+custom/ui/svelte-ui/src/lib/widget/stores/
+├── agent.svelte.ts              # Agent availability
+├── config.svelte.ts             # Widget configuration
+├── articles.svelte.ts           # Help articles
+├── campaign.svelte.ts           # Campaign management
+├── contact.svelte.ts            # Visitor contact
+├── conversation.svelte.ts       # Conversation state
+├── messages.svelte.ts           # Message management
+├── events.svelte.ts             # Event tracking
+└── types.ts                     # Store types
+```
+
+**3. Widget WebSocket**
+```
+custom/ui/svelte-ui/src/lib/widget/websocket/
+├── client.ts                    # Widget WebSocket client
+├── channels.ts                  # Widget-specific channels
+└── types.ts                     # Event types
+```
+
+**4. Widget Utilities**
+```
+custom/ui/svelte-ui/src/lib/widget/utils/
+├── iframe.ts                    # Parent window communication
+├── audio.ts                     # Sound notifications
+├── availability.ts              # Agent availability helpers
+├── campaign.ts                  # Campaign helpers
+└── embed.ts                     # Widget embedding helpers
+```
+
+#### Implementation Steps
+
+**Step 1: Create Widget API Client** (2-3 hours)
+1. Create `src/lib/widget/api/client.ts`:
+   ```typescript
+   import ky from 'ky';
+   import { transformKeys } from '$lib/api/transformers';
+   
+   // Widget uses different base URL (public API)
+   const widgetApi = ky.create({
+     prefixUrl: import.meta.env.VITE_WIDGET_API_URL || 'http://localhost:3000/public/api/v1',
+     timeout: 30000,
+     hooks: {
+       beforeRequest: [
+         (request) => {
+           // Add widget token from config
+           const websiteToken = getWidgetToken();
+           if (websiteToken) {
+             request.headers.set('X-Website-Token', websiteToken);
+           }
+           
+           // Transform request to snake_case
+           if (request.body && request.method !== 'GET') {
+             const data = JSON.parse(request.body as string);
+             request.body = JSON.stringify(transformKeys(data, 'snake'));
+           }
+         }
+       ],
+       afterResponse: [
+         async (_request, _options, response) => {
+           // Transform response to camelCase
+           if (response.ok) {
+             const contentType = response.headers.get('content-type');
+             if (contentType?.includes('application/json')) {
+               const data = await response.json();
+               return new Response(
+                 JSON.stringify(transformKeys(data, 'camel')),
+                 response
+               );
+             }
+           }
+           return response;
+         }
+       ]
+     }
+   });
+   
+   export default widgetApi;
+   ```
+
+2. Create all API endpoint files following the pattern:
+   ```typescript
+   // src/lib/widget/api/conversation.ts
+   import widgetApi from './client';
+   import type { Conversation, CreateConversationParams } from './types';
+   
+   export async function createConversation(
+     params: CreateConversationParams
+   ): Promise<Conversation> {
+     return widgetApi.post('conversations', { json: params }).json();
+   }
+   
+   export async function getConversation(id: number): Promise<Conversation> {
+     return widgetApi.get(`conversations/${id}`).json();
+   }
+   
+   export async function getMessages(conversationId: number): Promise<Message[]> {
+     return widgetApi.get(`conversations/${conversationId}/messages`).json();
+   }
+   ```
+
+**Step 2: Create Widget Stores** (4-5 hours)
+1. Create widget conversation store:
+   ```typescript
+   // src/lib/widget/stores/conversation.svelte.ts
+   import { createStore } from '$lib/stores/base.svelte';
+   import * as conversationApi from '$lib/widget/api/conversation';
+   import * as messageApi from '$lib/widget/api/message';
+   
+   interface ConversationState {
+     current: Conversation | null;
+     messages: Message[];
+     isLoading: boolean;
+     isSending: boolean;
+   }
+   
+   class WidgetConversationStore {
+     private state = $state<ConversationState>({
+       current: null,
+       messages: [],
+       isLoading: false,
+       isSending: false
+     });
+     
+     // Getters
+     get conversation() { return this.state.current; }
+     get messages() { return this.state.messages; }
+     get isLoading() { return this.state.isLoading; }
+     get isSending() { return this.state.isSending; }
+     
+     // Derived
+     get hasConversation() {
+       return $derived(!!this.state.current);
+     }
+     
+     get unreadCount() {
+       return $derived(
+         this.state.messages.filter(m => !m.read && m.messageType === 1).length
+       );
+     }
+     
+     // Actions
+     async createConversation(contactInfo: ContactInfo) {
+       this.state.isLoading = true;
+       try {
+         const conversation = await conversationApi.createConversation({
+           contact: contactInfo,
+           websiteToken: getWidgetToken()
+         });
+         this.state.current = conversation;
+         return conversation;
+       } finally {
+         this.state.isLoading = false;
+       }
+     }
+     
+     async loadMessages(conversationId: number) {
+       this.state.isLoading = true;
+       try {
+         const messages = await conversationApi.getMessages(conversationId);
+         this.state.messages = messages;
+       } finally {
+         this.state.isLoading = false;
+       }
+     }
+     
+     async sendMessage(content: string, attachments?: File[]) {
+       if (!this.state.current) return;
+       
+       this.state.isSending = true;
+       try {
+         const message = await messageApi.createMessage({
+           conversationId: this.state.current.id,
+           content,
+           attachments
+         });
+         
+         // Optimistic update
+         this.state.messages = [...this.state.messages, message];
+         return message;
+       } finally {
+         this.state.isSending = false;
+       }
+     }
+     
+     // WebSocket handlers
+     handleNewMessage(message: Message) {
+       if (message.conversationId === this.state.current?.id) {
+         this.state.messages = [...this.state.messages, message];
+       }
+     }
+     
+     markAsRead() {
+       if (!this.state.current) return;
+       
+       this.state.messages = this.state.messages.map(m => ({
+         ...m,
+         read: true
+       }));
+     }
+   }
+   
+   export const widgetConversationStore = new WidgetConversationStore();
+   ```
+
+2. Create similar stores for:
+   - `agent.svelte.ts` - Track agent availability and typing
+   - `config.svelte.ts` - Widget configuration and customization
+   - `campaign.svelte.ts` - Campaign management
+   - `articles.svelte.ts` - Help articles
+   - `contact.svelte.ts` - Visitor information
+
+**Step 3: Create Widget WebSocket Client** (2-3 hours)
+```typescript
+// src/lib/widget/websocket/client.ts
+import { WebSocketClient } from '$lib/websocket/client';
+import { widgetConversationStore } from '$lib/widget/stores/conversation.svelte';
+import { widgetAgentStore } from '$lib/widget/stores/agent.svelte';
+
+class WidgetWebSocketClient extends WebSocketClient {
+  constructor(websiteToken: string, conversationId?: number) {
+    // Widget uses public WebSocket endpoint
+    super(`${import.meta.env.VITE_WS_URL}/cable?website_token=${websiteToken}`);
+    
+    if (conversationId) {
+      this.subscribeToConversation(conversationId);
+    }
+  }
+  
+  subscribeToConversation(conversationId: number) {
+    return this.subscribe(`conversation_${conversationId}`, (event) => {
+      switch (event.type) {
+        case 'message.created':
+          widgetConversationStore.handleNewMessage(event.data);
+          break;
+        case 'conversation.status_changed':
+          widgetConversationStore.updateStatus(event.data.status);
+          break;
+        case 'presence.update':
+          widgetAgentStore.updatePresence(event.data);
+          break;
+        case 'conversation.typing_on':
+          widgetAgentStore.setTyping(event.data.agentId, true);
+          break;
+        case 'conversation.typing_off':
+          widgetAgentStore.setTyping(event.data.agentId, false);
+          break;
+      }
+    });
+  }
+  
+  sendTypingStatus(conversationId: number, isTyping: boolean) {
+    this.send(`conversation_${conversationId}`, {
+      type: isTyping ? 'typing_on' : 'typing_off'
+    });
+  }
+}
+
+export function createWidgetWebSocket(websiteToken: string, conversationId?: number) {
+  return new WidgetWebSocketClient(websiteToken, conversationId);
+}
+```
+
+**Step 4: Create Widget Utilities** (1-2 hours)
+```typescript
+// src/lib/widget/utils/iframe.ts
+/**
+ * Communication between widget (iframe) and parent window
+ */
+
+interface WidgetEvent {
+  event: string;
+  data?: any;
+}
+
+export function sendEventToParent(event: string, data?: any) {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage(
+      { event: `chatwoot:${event}`, data },
+      '*'
+    );
+  }
+}
+
+export function listenToParentEvents(callback: (event: WidgetEvent) => void) {
+  const handler = (event: MessageEvent) => {
+    if (event.data?.event?.startsWith('chatwoot:')) {
+      callback({
+        event: event.data.event.replace('chatwoot:', ''),
+        data: event.data.data
+      });
+    }
+  };
+  
+  window.addEventListener('message', handler);
+  return () => window.removeEventListener('message', handler);
+}
+
+// src/lib/widget/utils/audio.ts
+/**
+ * Audio notification helpers
+ */
+
+let audioContext: AudioContext | null = null;
+let notificationSound: AudioBuffer | null = null;
+
+export async function initAudioNotifications() {
+  if (typeof window === 'undefined') return;
+  
+  audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  
+  // Load notification sound
+  const response = await fetch('/sounds/notification.mp3');
+  const arrayBuffer = await response.arrayBuffer();
+  notificationSound = await audioContext.decodeAudioData(arrayBuffer);
+}
+
+export function playNotificationSound() {
+  if (!audioContext || !notificationSound) return;
+  
+  const source = audioContext.createBufferSource();
+  source.buffer = notificationSound;
+  source.connect(audioContext.destination);
+  source.start(0);
+}
+```
+
+#### Acceptance Criteria
+- [ ] Widget API client created with public API endpoints
+- [ ] All 8+ widget stores created using Svelte 5 runes
+- [ ] Widget WebSocket client extends base client
+- [ ] Real-time message updates work
+- [ ] Typing indicators work
+- [ ] Agent availability tracking works
+- [ ] Iframe communication helpers work
+- [ ] Audio notifications work
+- [ ] TypeScript types for all interfaces
+- [ ] Unit tests for stores and utilities
+
+#### Validation Steps
+```typescript
+// Test widget conversation store
+import { widgetConversationStore } from '$lib/widget/stores/conversation.svelte';
+
+// Create conversation
+const conversation = await widgetConversationStore.createConversation({
+  name: 'John Doe',
+  email: 'john@example.com'
+});
+console.log('Conversation created:', conversation);
+
+// Send message
+await widgetConversationStore.sendMessage('Hello, I need help!');
+console.log('Messages:', widgetConversationStore.messages);
+
+// Test WebSocket
+import { createWidgetWebSocket } from '$lib/widget/websocket/client';
+const ws = createWidgetWebSocket('website-token', conversation.id);
+ws.connect();
+
+// Send typing indicator
+ws.sendTypingStatus(conversation.id, true);
+
+// Test iframe communication
+import { sendEventToParent } from '$lib/widget/utils/iframe';
+sendEventToParent('widget:opened');
+sendEventToParent('conversation:created', { id: conversation.id });
+```
+
+---
+
+### Task 4.2: Widget UI Components - Chat Interface 📋
+**Priority**: P0 - CRITICAL
+**Estimated Time**: 12-16 hours
+**Status**: NOT STARTED
+**Dependencies**: Task 4.1
+
+#### Context
+The widget UI must be compact, responsive, and work across all screen sizes. It includes a bubble trigger, expanded chat window, message list, input composer, and various overlays (pre-chat form, campaigns, articles).
+
+#### Vue Reference Files (app/javascript/widget/components/)
+**Core Components**:
+- `ChatHeader.vue` - Header with agent info and actions
+- `ChatHeaderExpanded.vue` - Expanded header with multiple agents
+- `ChatFooter.vue` - Message input area
+- `ChatInputWrap.vue` - Input wrapper with attachments
+- `ChatSendButton.vue` - Send button with loading state
+- `ConversationWrap.vue` - Main chat container
+- `ChatMessage.vue` - Message wrapper component
+
+**Message Components**:
+- `AgentMessage.vue` - Agent message container
+- `AgentMessageBubble.vue` - Agent message bubble
+- `UserMessage.vue` - User message container
+- `UserMessageBubble.vue` - User message bubble
+- `AgentTypingBubble.vue` - Typing indicator
+- `FileBubble.vue` - File attachment bubble
+- `ImageBubble.vue` - Image preview bubble
+- `VideoBubble.vue` - Video preview bubble
+- `ChatAttachment.vue` - Attachment preview
+
+**UI Components**:
+- `Banner.vue` - Notification banner
+- `TeamAvailability.vue` - Team online status
+- `Availability/AvailabilityText.vue` - Availability message
+- `GroupedAvatars.vue` - Multiple agent avatars
+- `UnreadMessage.vue` - Unread message indicator
+- `UnreadMessageList.vue` - Unread message counter
+- `ReplyToChip.vue` - Reply context chip
+- `FooterReplyTo.vue` - Reply-to indicator
+- `MessageReplyButton.vue` - Reply action button
+
+**Layout Components**:
+- `layouts/ViewWithHeader.vue` - Standard layout
+- `DragWrapper.vue` - Draggable widget container
+
+#### Svelte Files to Create
+
+**1. Widget Routes**
+```
+custom/ui/svelte-ui/src/routes/widget/
+├── +layout.svelte               # Widget root layout
+├── +layout.ts                   # Widget config loader
+├── +page.svelte                 # Widget home (bubble/chat toggle)
+├── chat/
+│   └── +page.svelte            # Chat interface
+├── pre-chat/
+│   └── +page.svelte            # Pre-chat form
+├── campaigns/
+│   └── +page.svelte            # Campaign message
+└── articles/
+    ├── +page.svelte            # Article list
+    └── [id]/+page.svelte       # Article viewer
+```
+
+**2. Widget Layout Components**
+```
+custom/ui/svelte-ui/src/lib/components/widget/layout/
+├── WidgetBubble.svelte         # Chat bubble trigger
+├── WidgetWindow.svelte         # Expanded chat window
+├── WidgetHeader.svelte         # Chat header
+├── WidgetFooter.svelte         # Input footer
+├── DraggableWidget.svelte      # Draggable container
+└── types.ts
+```
+
+**3. Widget Message Components**
+```
+custom/ui/svelte-ui/src/lib/components/widget/messages/
+├── MessageList.svelte          # Scrollable message list
+├── MessageBubble.svelte        # Message bubble wrapper
+├── AgentMessage.svelte         # Agent message
+├── UserMessage.svelte          # User message
+├── TypingIndicator.svelte      # Agent typing animation
+├── MessageAttachment.svelte    # File/image/video preview
+├── ReplyChip.svelte            # Reply-to indicator
+├── UnreadBadge.svelte          # Unread count badge
+└── types.ts
+```
+
+**4. Widget Input Components**
+```
+custom/ui/svelte-ui/src/lib/components/widget/input/
+├── MessageInput.svelte         # Text input with auto-resize
+├── AttachmentButton.svelte     # File upload button
+├── EmojiButton.svelte          # Emoji picker button
+├── SendButton.svelte           # Send button
+└── types.ts
+```
+
+**5. Widget Feature Components**
+```
+custom/ui/svelte-ui/src/lib/components/widget/features/
+├── PreChatForm.svelte          # Pre-chat contact form
+├── CampaignMessage.svelte      # Proactive campaign
+├── ArticleSearch.svelte        # Article search
+├── ArticleCard.svelte          # Article preview
+├── TeamAvailability.svelte     # Online agents display
+├── Banner.svelte               # Notification banner
+└── types.ts
+```
+
+#### Implementation Steps
+
+**Step 1: Create Widget Layout Structure** (3-4 hours)
+
+1. Create widget root layout:
+```svelte
+<!-- src/routes/widget/+layout.svelte -->
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { widgetConfigStore } from '$lib/widget/stores/config.svelte';
+  import { initI18n } from '$lib/i18n';
+  import { initAudioNotifications } from '$lib/widget/utils/audio';
+  import { listenToParentEvents, sendEventToParent } from '$lib/widget/utils/iframe';
+  
+  // Props from load function
+  interface Props {
+    data: {
+      config: WidgetConfig;
+    };
+    children: Snippet;
+  }
+  let { data, children }: Props = $props();
+  
+  // Initialize widget
+  onMount(() => {
+    // Load configuration
+    widgetConfigStore.setConfig(data.config);
+    
+    // Initialize i18n
+    initI18n(data.config.locale || 'en');
+    
+    // Initialize audio
+    initAudioNotifications();
+    
+    // Listen to parent window events
+    const cleanup = listenToParentEvents((event) => {
+      if (event.event === 'toggle') {
+        widgetConfigStore.toggle();
+      }
+    });
+    
+    // Notify parent widget is loaded
+    sendEventToParent('widget:ready');
+    
+    return cleanup;
+  });
+  
+  // Apply widget theme
+  const theme = $derived(widgetConfigStore.theme);
+  const primaryColor = $derived(theme?.primaryColor || '#1f93ff');
+</script>
+
+<div class="widget-container" style:--primary-color={primaryColor}>
+  {@render children()}
+</div>
+
+<style>
+  .widget-container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    color: #1f1f1f;
+    height: 100vh;
+    overflow: hidden;
+  }
+</style>
+```
+
+2. Create widget home page:
+```svelte
+<!-- src/routes/widget/+page.svelte -->
+<script lang="ts">
+  import { widgetConfigStore } from '$lib/widget/stores/config.svelte';
+  import { widgetConversationStore } from '$lib/widget/stores/conversation.svelte';
+  import WidgetBubble from '$lib/components/widget/layout/WidgetBubble.svelte';
+  import WidgetWindow from '$lib/components/widget/layout/WidgetWindow.svelte';
+  
+  const isOpen = $derived(widgetConfigStore.isOpen);
+  const hasConversation = $derived(widgetConversationStore.hasConversation);
+  
+  function toggle() {
+    widgetConfigStore.toggle();
+  }
+</script>
+
+{#if isOpen}
+  <WidgetWindow {hasConversation} onclose={toggle} />
+{:else}
+  <WidgetBubble onclick={toggle} />
+{/if}
+```
+
+**Step 2: Create Message Components** (4-5 hours)
+
+```svelte
+<!-- src/lib/components/widget/messages/MessageList.svelte -->
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { widgetConversationStore } from '$lib/widget/stores/conversation.svelte';
+  import MessageBubble from './MessageBubble.svelte';
+  import TypingIndicator from './TypingIndicator.svelte';
+  import UnreadBadge from './UnreadBadge.svelte';
+  
+  let scrollContainer: HTMLDivElement;
+  let shouldAutoScroll = $state(true);
+  let showScrollButton = $state(false);
+  
+  const messages = $derived(widgetConversationStore.messages);
+  const isTyping = $derived(widgetAgentStore.isTyping);
+  const unreadCount = $derived(widgetConversationStore.unreadCount);
+  
+  // Auto-scroll to bottom on new messages
+  $effect(() => {
+    if (messages.length > 0 && shouldAutoScroll) {
+      scrollToBottom();
+    }
+  });
+  
+  function scrollToBottom(smooth = true) {
+    if (scrollContainer) {
+      scrollContainer.scrollTo({
+        top: scrollContainer.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto'
+      });
+    }
+  }
+  
+  function handleScroll() {
+    if (!scrollContainer) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+    
+    shouldAutoScroll = distanceFromBottom < 100;
+    showScrollButton = distanceFromBottom > 200;
+  }
+  
+  // Mark messages as read when visible
+  onMount(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            widgetConversationStore.markAsRead();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    
+    if (scrollContainer) {
+      observer.observe(scrollContainer);
+    }
+    
+    return () => observer.disconnect();
+  });
+</script>
+
+<div class="message-list" bind:this={scrollContainer} onscroll={handleScroll}>
+  {#each messages as message (message.id)}
+    <MessageBubble {message} />
+  {/each}
+  
+  {#if isTyping}
+    <TypingIndicator />
+  {/if}
+  
+  {#if showScrollButton && unreadCount > 0}
+    <button
+      class="scroll-to-bottom"
+      onclick={scrollToBottom}
+    >
+      <UnreadBadge count={unreadCount} />
+      ↓ New messages
+    </button>
+  {/if}
+</div>
+
+<style>
+  .message-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .scroll-to-bottom {
+    position: sticky;
+    bottom: 16px;
+    align-self: center;
+    padding: 8px 16px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+</style>
+```
+
+```svelte
+<!-- src/lib/components/widget/messages/MessageBubble.svelte -->
+<script lang="ts">
+  import { formatTime } from '$lib/utils/date';
+  import AgentMessage from './AgentMessage.svelte';
+  import UserMessage from './UserMessage.svelte';
+  import type { Message } from '$lib/widget/api/types';
+  
+  interface Props {
+    message: Message;
+  }
+  let { message }: Props = $props();
+  
+  const isAgent = $derived(message.messageType === 0);
+  const timestamp = $derived(formatTime(message.createdAt));
+</script>
+
+<div class="message-bubble" class:agent={isAgent} class:user={!isAgent}>
+  {#if isAgent}
+    <AgentMessage {message} {timestamp} />
+  {:else}
+    <UserMessage {message} {timestamp} />
+  {/if}
+</div>
+
+<style>
+  .message-bubble {
+    display: flex;
+    max-width: 80%;
+  }
+  
+  .message-bubble.agent {
+    align-self: flex-start;
+  }
+  
+  .message-bubble.user {
+    align-self: flex-end;
+  }
+</style>
+```
+
+**Step 3: Create Input Components** (2-3 hours)
+
+```svelte
+<!-- src/lib/components/widget/input/MessageInput.svelte -->
+<script lang="ts">
+  import { widgetConversationStore } from '$lib/widget/stores/conversation.svelte';
+  import AttachmentButton from './AttachmentButton.svelte';
+  import EmojiButton from './EmojiButton.svelte';
+  import SendButton from './SendButton.svelte';
+  
+  let message = $state('');
+  let attachments = $state<File[]>([]);
+  let textareaEl: HTMLTextAreaElement;
+  
+  const isSending = $derived(widgetConversationStore.isSending);
+  const canSend = $derived(message.trim() || attachments.length > 0);
+  
+  // Auto-resize textarea
+  $effect(() => {
+    if (textareaEl && message) {
+      textareaEl.style.height = 'auto';
+      textareaEl.style.height = `${Math.min(textareaEl.scrollHeight, 120)}px`;
+    }
+  });
+  
+  async function handleSend() {
+    if (!canSend || isSending) return;
+    
+    await widgetConversationStore.sendMessage(message, attachments);
+    
+    // Clear form
+    message = '';
+    attachments = [];
+    textareaEl.focus();
+  }
+  
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  }
+  
+  function handleAttachment(files: File[]) {
+    attachments = [...attachments, ...files];
+  }
+  
+  function removeAttachment(index: number) {
+    attachments = attachments.filter((_, i) => i !== index);
+  }
+</script>
+
+<div class="message-input">
+  {#if attachments.length > 0}
+    <div class="attachments-preview">
+      {#each attachments as file, i (i)}
+        <div class="attachment-chip">
+          <span>{file.name}</span>
+          <button onclick={() => removeAttachment(i)}>×</button>
+        </div>
+      {/each}
+    </div>
+  {/if}
+  
+  <div class="input-row">
+    <AttachmentButton onattach={handleAttachment} disabled={isSending} />
+    
+    <textarea
+      bind:this={textareaEl}
+      bind:value={message}
+      placeholder="Type your message..."
+      rows="1"
+      disabled={isSending}
+      onkeydown={handleKeyDown}
+    />
+    
+    <EmojiButton onselect={(emoji) => (message += emoji)} disabled={isSending} />
+    <SendButton onclick={handleSend} disabled={!canSend || isSending} loading={isSending} />
+  </div>
+</div>
+
+<style>
+  .message-input {
+    padding: 12px;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  
+  textarea {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    resize: none;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    max-height: 120px;
+  }
+  
+  textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+  }
+  
+  .attachments-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .attachment-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: #f3f4f6;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  
+  .attachment-chip button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+  }
+</style>
+```
+
+**Step 4: Create Feature Components** (3-4 hours)
+- Pre-chat form for collecting visitor information
+- Campaign message display for proactive outreach
+- Article search and display for self-service
+
+#### Acceptance Criteria
+- [ ] Widget bubble component displays correctly
+- [ ] Widget window expands/collapses
+- [ ] Message list displays agent and user messages
+- [ ] Auto-scroll to bottom on new messages
+- [ ] Scroll-to-bottom button appears when needed
+- [ ] Message input auto-resizes
+- [ ] File attachments work
+- [ ] Emoji picker works
+- [ ] Send button triggers message send
+- [ ] Enter key sends message
+- [ ] Typing indicators display
+- [ ] Unread message counter works
+- [ ] Pre-chat form collects information
+- [ ] Campaign messages display
+- [ ] Article search works
+- [ ] Widget is draggable (optional)
+- [ ] Mobile responsive (<375px width)
+- [ ] Accessibility (keyboard navigation, ARIA labels)
+
+#### Validation Steps
+```bash
+# Start widget dev server
+cd custom/ui/svelte-ui
+pnpm dev
+
+# Open widget in browser
+# Visit: http://localhost:5173/widget?website_token=test
+
+# Test scenarios:
+1. Click bubble to open widget
+2. Fill pre-chat form (if enabled)
+3. Send text message
+4. Upload file attachment
+5. Receive agent message
+6. See typing indicator
+7. Check unread counter
+8. Test on mobile screen size
+9. Test keyboard navigation
+10. Test with screen reader
+```
+
+---
+
+### Task 4.3: Widget Features - Pre-Chat, Campaigns, Articles 📋
+**Priority**: P1 - HIGH
+**Estimated Time**: 8-10 hours
+**Status**: NOT STARTED
+**Dependencies**: Task 4.1, Task 4.2
+
+#### Context
+Additional widget features that enhance the user experience:
+1. **Pre-Chat Form**: Collect visitor information before starting conversation
+2. **Campaigns**: Display proactive messages based on triggers
+3. **Articles**: Show contextual help articles within widget
+
+#### Vue Reference Files
+- `widget/components/PreChat/Form.vue` - Pre-chat form component
+- `widget/views/PreChatForm.vue` - Pre-chat view
+- `widget/views/Campaigns.vue` - Campaign message view
+- `widget/views/ArticleViewer.vue` - Article reader
+- `widget/components/template/Article.vue` - Article card
+- `widget/helpers/campaignHelper.js` - Campaign logic
+- `widget/store/modules/campaign.js` - Campaign store
+- `widget/store/modules/articles.js` - Articles store
+
+#### Svelte Files to Create
+```
+custom/ui/svelte-ui/src/lib/components/widget/features/
+├── PreChatForm.svelte          # Contact information form
+├── CampaignBanner.svelte       # Campaign message display
+├── ArticleViewer.svelte        # Article content display
+├── ArticleList.svelte          # Article search results
+├── ArticleCard.svelte          # Article preview card
+└── types.ts
+
+custom/ui/svelte-ui/src/routes/widget/
+├── pre-chat/+page.svelte       # Pre-chat form page
+├── campaigns/+page.svelte      # Campaign display page
+└── articles/
+    ├── +page.svelte            # Article search page
+    └── [slug]/+page.svelte     # Article detail page
+```
+
+#### Implementation Details
+(Detailed implementation steps similar to above tasks...)
+
+#### Acceptance Criteria
+- [ ] Pre-chat form collects name, email, phone
+- [ ] Pre-chat form validates inputs
+- [ ] Campaign messages trigger based on rules
+- [ ] Campaign messages can be dismissed
+- [ ] Article search returns relevant results
+- [ ] Article viewer displays formatted content
+- [ ] Article helpful/not helpful voting works
+- [ ] Integration with widget stores
+
+---
+
+### Task 4.4: Portal Foundation and UI 📋
+**Priority**: P1 - HIGH  
+**Estimated Time**: 6-8 hours
+**Status**: NOT STARTED
+**Dependencies**: Phase 0, Phase 1
+
+#### Context
+The portal is a public help center where customers can browse articles, search for solutions, and submit feedback. It must be SEO-friendly with server-side rendering or static generation.
+
+#### Vue Reference Files (app/javascript/portal/)
+- `components/PublicArticleSearch.vue` - Article search
+- `components/SearchSuggestions.vue` - Search autocomplete
+- `components/TableOfContents.vue` - Article navigation
+- `components/PublicSearchInput.vue` - Search input
+- `api/article.js` - Article API
+- `portalHelpers.js` - Portal utilities
+- `portalThemeHelper.js` - Theme customization
+
+#### Svelte Files to Create
+```
+custom/ui/svelte-ui/src/routes/portal/
+├── +layout.svelte              # Portal layout
+├── +layout.ts                  # Portal config loader
+├── +page.svelte                # Portal home (categories)
+├── categories/
+│   └── [slug]/+page.svelte    # Category page
+└── articles/
+    └── [slug]/+page.svelte    # Article page
+
+custom/ui/svelte-ui/src/lib/components/portal/
+├── PortalHeader.svelte         # Portal header with search
+├── PortalFooter.svelte         # Portal footer
+├── CategoryCard.svelte         # Category display
+├── ArticleCard.svelte          # Article preview
+├── ArticleContent.svelte       # Article viewer
+├── ArticleSearch.svelte        # Search component
+├── TableOfContents.svelte      # TOC navigation
+├── ArticleFeedback.svelte      # Helpful voting
+└── types.ts
+
+custom/ui/svelte-ui/src/lib/portal/
+├── api/
+│   ├── client.ts              # Portal API client
+│   ├── article.ts             # Article API
+│   └── types.ts
+└── stores/
+    ├── articles.svelte.ts     # Articles store
+    ├── categories.svelte.ts   # Categories store
+    └── types.ts
+```
+
+#### Acceptance Criteria
+- [ ] Portal home displays categories
+- [ ] Category pages list articles
+- [ ] Article pages display formatted content
+- [ ] Article search works with autocomplete
+- [ ] Table of contents navigates within article
+- [ ] Helpful/not helpful voting works
+- [ ] Multi-language support
+- [ ] SEO meta tags
+- [ ] Mobile responsive
+- [ ] Dark mode support
+
+---
+
+### Task 4.5: Survey Foundation and UI 📋
+**Priority**: P2 - MEDIUM
+**Estimated Time**: 4-6 hours
+**Status**: NOT STARTED
+**Dependencies**: Phase 0
+
+#### Context
+The survey application collects CSAT (Customer Satisfaction) feedback after conversations. It's a simple standalone form with rating and optional text feedback.
+
+#### Vue Reference Files (app/javascript/survey/)
+- `App.vue` - Survey app root
+- `views/Survey.vue` - Survey form view
+- `components/Survey.vue` - Survey form component
+- `store/index.js` - Survey store
+- `api/survey.js` - Survey API
+
+#### Svelte Files to Create
+```
+custom/ui/svelte-ui/src/routes/survey/
+├── +layout.svelte              # Survey layout
+├── +page.svelte                # Survey form
+└── thank-you/+page.svelte     # Thank you page
+
+custom/ui/svelte-ui/src/lib/components/survey/
+├── RatingInput.svelte          # Star/emoji rating
+├── FeedbackInput.svelte        # Text feedback
+├── SurveyForm.svelte           # Complete form
+└── types.ts
+
+custom/ui/svelte-ui/src/lib/survey/
+├── api/
+│   ├── client.ts              # Survey API client
+│   └── types.ts
+└── stores/
+    └── survey.svelte.ts       # Survey store
+```
+
+#### Acceptance Criteria
+- [ ] Survey displays rating options (1-5 stars or emojis)
+- [ ] Optional feedback textarea
+- [ ] Form validation
+- [ ] Submit to API
+- [ ] Thank you page after submission
+- [ ] Survey expiration handling
+- [ ] Mobile responsive
+- [ ] Multi-language support
+
+---
+
+### Task 4.6: SuperAdmin Foundation and UI 📋
+**Priority**: P2 - MEDIUM
+**Estimated Time**: 8-12 hours
+**Status**: NOT STARTED
+**Dependencies**: Phase 0, Phase 1, Phase 3
+
+#### Context
+The super admin interface is for platform administrators to manage accounts, users, and system-wide settings. It requires special authentication and uses many patterns from the main dashboard.
+
+#### Vue Reference Files
+(Need to verify if SuperAdmin Vue files exist or if this is Rails-only)
+
+#### Svelte Files to Create
+```
+custom/ui/svelte-ui/src/routes/super-admin/
+├── +layout.svelte              # SuperAdmin layout
+├── +layout.ts                  # SuperAdmin auth guard
+├── +page.svelte                # Dashboard overview
+├── accounts/
+│   ├── +page.svelte           # Accounts list
+│   └── [id]/+page.svelte      # Account detail
+├── users/
+│   └── +page.svelte           # Global users list
+├── settings/
+│   └── +page.svelte           # Platform settings
+└── analytics/
+    └── +page.svelte           # Platform analytics
+
+custom/ui/svelte-ui/src/lib/components/super-admin/
+├── AccountCard.svelte          # Account display
+├── AccountMetrics.svelte       # Account usage stats
+├── PlatformMetrics.svelte     # Platform-wide stats
+├── UserManagement.svelte       # User management UI
+└── types.ts
+
+custom/ui/svelte-ui/src/lib/super-admin/
+├── api/
+│   ├── client.ts              # SuperAdmin API client
+│   ├── accounts.ts            # Account management API
+│   ├── users.ts               # User management API
+│   └── types.ts
+└── stores/
+    ├── accounts.svelte.ts     # Accounts store
+    ├── platform.svelte.ts     # Platform settings store
+    └── types.ts
+```
+
+#### Acceptance Criteria
+- [ ] SuperAdmin authentication works
+- [ ] Accounts list with search and filtering
+- [ ] Account detail shows usage and limits
+- [ ] Global user management
+- [ ] Platform settings configuration
+- [ ] Platform-wide analytics dashboard
+- [ ] Feature flag management
+- [ ] Installation management
+- [ ] Role-based access control
+
+---
+
+### Task 4.7: Integration Testing and Polish 📋
+**Priority**: P1 - HIGH
+**Estimated Time**: 6-8 hours
+**Status**: NOT STARTED
+**Dependencies**: Tasks 4.1-4.6
+
+#### Context
+Final integration testing, bug fixes, performance optimization, and deployment preparation for all Phase 4 applications.
+
+#### Tasks
+1. **Widget Testing**:
+   - Test embed script across different websites
+   - Test cross-origin communication
+   - Test on various mobile devices
+   - Verify bundle size (<200KB gzipped)
+   - Test real-time features (WebSocket)
+
+2. **Portal Testing**:
+   - Test SEO (meta tags, structured data)
+   - Test search functionality
+   - Test multi-language switching
+   - Verify accessibility (WCAG AA)
+   - Test on various screen sizes
+
+3. **Survey Testing**:
+   - Test survey expiration
+   - Test rating submission
+   - Test feedback submission
+   - Verify thank you page
+   - Test on mobile devices
+
+4. **SuperAdmin Testing**:
+   - Test account management
+   - Test user management
+   - Test platform analytics
+   - Verify permissions
+   - Test on different browsers
+
+5. **Performance Optimization**:
+   - Bundle size analysis
+   - Code splitting optimization
+   - Image optimization
+   - Lazy loading implementation
+   - Caching strategy
+
+6. **Deployment Preparation**:
+   - Build scripts for each app
+   - Deployment documentation
+   - Environment configuration
+   - CDN configuration (for widget)
+   - Monitoring setup
+
+#### Acceptance Criteria
+- [ ] All 4 applications build successfully
+- [ ] Widget bundle size <200KB gzipped
+- [ ] Portal Lighthouse score >90
+- [ ] Survey loads in <1 second
+- [ ] SuperAdmin passes all E2E tests
+- [ ] Cross-browser compatibility verified
+- [ ] Mobile responsiveness verified
+- [ ] Accessibility tests pass
+- [ ] Performance budgets met
+- [ ] Documentation complete
+
+---
+
+## Phase 4 Summary
+
+### Total Tasks: 7
+1. ✅ Task 4.1: Widget Foundation (API, Stores, WebSocket) - 10-14 hours
+2. ✅ Task 4.2: Widget UI Components - 12-16 hours
+3. ✅ Task 4.3: Widget Features - 8-10 hours
+4. ✅ Task 4.4: Portal Foundation and UI - 6-8 hours
+5. ✅ Task 4.5: Survey Foundation and UI - 4-6 hours
+6. ✅ Task 4.6: SuperAdmin Foundation and UI - 8-12 hours
+7. ✅ Task 4.7: Integration Testing and Polish - 6-8 hours
+
+### Total Estimated Time: 54-74 hours (2-3 weeks with 2-3 developers)
+
+### Success Metrics
+- Widget: <200KB bundle, real-time messaging works, embed script functional
+- Portal: SEO-friendly, search works, multi-language support
+- Survey: Form submission works, expiration handling correct
+- SuperAdmin: Account management works, analytics dashboard functional
+- All apps: Mobile responsive, accessible, performant
+
+### Next Phase: Phase 5 (Advanced Features)
 
 ---
