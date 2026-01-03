@@ -46,6 +46,7 @@
     "@sveltejs/kit": "^2.9.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
     "@tailwindcss/typography": "^0.5.15",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/svelte": "^4.2.3",
     "@types/jsdom": "^21.1.3",
     "@types/node": "^22.0.0",
@@ -66,8 +67,15 @@
     "vitest": "0.34.6"
   },
   "vitest": {
-    "include": ["src/**/*.test.ts", "src/**/*.spec.ts", "src/**/__tests__/**/*.ts"],
-    "exclude": ["**/node_modules/**", "histoire/**"],
+    "include": [
+      "src/**/*.test.ts",
+      "src/**/*.spec.ts",
+      "src/**/__tests__/**/*.ts"
+    ],
+    "exclude": [
+      "**/node_modules/**",
+      "histoire/**"
+    ],
     "test": {
       "environment": "jsdom"
     }
