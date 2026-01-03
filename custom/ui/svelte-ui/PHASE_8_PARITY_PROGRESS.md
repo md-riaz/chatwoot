@@ -34,12 +34,13 @@
 
 #### 4. Inbox Configuration ✅ COMPLETE
 - ✅ InboxWizard.svelte (multi-step) - NEW!
-- ✅ Channel type selector (Website, API, Email, WhatsApp, SMS)
+- ✅ Channel type selector (Website, API, Email, WhatsApp, SMS, Voice)
 - ✅ Channel-specific configuration forms
   - ✅ Website widget config (URL, color)
   - ✅ Email config (email address)
   - ✅ WhatsApp config (phone number)
   - ✅ SMS config (phone number)
+  - ✅ Voice config (phone number, Twilio credentials) - NEW!
   - ✅ API channel config
 - ✅ Greeting message configuration
 - ✅ Auto-assignment settings

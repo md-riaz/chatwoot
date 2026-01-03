@@ -39,6 +39,12 @@
   let phoneNumber = $state('');
   let apiKey = $state('');
   
+  // Voice channel specific (Twilio)
+  let accountSid = $state('');
+  let authToken = $state('');
+  let apiKeySid = $state('');
+  let apiKeySecret = $state('');
+  
   // Errors
   let errors = $state<Record<string, string>>({});
   
@@ -72,6 +78,12 @@
       name: 'SMS',
       icon: '💌',
       description: 'SMS channel',
+    },
+    {
+      type: 'Channel::Voice',
+      name: 'Voice',
+      icon: '📞',
+      description: 'Voice calls via Twilio',
     },
   ];
   
@@ -117,6 +129,24 @@
       errors.phoneNumber = 'Phone number is required';
     }
     
+    if (selectedChannelType === 'Channel::Voice') {
+      if (!phoneNumber.trim()) {
+        errors.phoneNumber = 'Phone number is required';
+      }
+      if (!accountSid.trim()) {
+        errors.accountSid = 'Twilio Account SID is required';
+      }
+      if (!authToken.trim()) {
+        errors.authToken = 'Twilio Auth Token is required';
+      }
+      if (!apiKeySid.trim()) {
+        errors.apiKeySid = 'Twilio API Key SID is required';
+      }
+      if (!apiKeySecret.trim()) {
+        errors.apiKeySecret = 'Twilio API Key Secret is required';
+      }
+    }
+    
     return Object.keys(errors).length === 0;
   }
   
@@ -142,6 +172,15 @@
     } else if (selectedChannelType === 'Channel::Whatsapp') {
       channelData.phone_number = phoneNumber;
       channelData.provider = 'whatsapp_cloud';
+    } else if (selectedChannelType === 'Channel::Voice') {
+      channelData.phone_number = phoneNumber;
+      channelData.provider = 'twilio';
+      channelData.provider_config = {
+        account_sid: accountSid,
+        auth_token: authToken,
+        api_key_sid: apiKeySid,
+        api_key_secret: apiKeySecret,
+      };
     } else if (selectedChannelType === 'Channel::Api') {
       channelData.webhook_url = '';
     }
@@ -318,6 +357,79 @@
                     ? 'WhatsApp Business API credentials will be configured after creation'
                     : 'SMS provider credentials will be configured after creation'}
                 </p>
+              </div>
+            </div>
+          {:else if selectedChannelType === 'Channel::Voice'}
+            <div class="space-y-4">
+              <div>
+                <Label for="phoneNumber">Phone Number <span class="text-red-500">*</span></Label>
+                <Input
+                  id="phoneNumber"
+                  type="tel"
+                  bind:value={phoneNumber}
+                  placeholder="+1234567890"
+                  class={errors.phoneNumber ? 'border-red-500' : ''}
+                />
+                {#if errors.phoneNumber}
+                  <p class="text-sm text-red-500 mt-1">{errors.phoneNumber}</p>
+                {/if}
+                <p class="text-sm text-gray-600 mt-1">
+                  Your Twilio phone number in E.164 format
+                </p>
+              </div>
+              
+              <div>
+                <Label for="accountSid">Twilio Account SID <span class="text-red-500">*</span></Label>
+                <Input
+                  id="accountSid"
+                  bind:value={accountSid}
+                  placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  class={errors.accountSid ? 'border-red-500' : ''}
+                />
+                {#if errors.accountSid}
+                  <p class="text-sm text-red-500 mt-1">{errors.accountSid}</p>
+                {/if}
+              </div>
+              
+              <div>
+                <Label for="authToken">Twilio Auth Token <span class="text-red-500">*</span></Label>
+                <Input
+                  id="authToken"
+                  type="password"
+                  bind:value={authToken}
+                  placeholder="Your Twilio Auth Token"
+                  class={errors.authToken ? 'border-red-500' : ''}
+                />
+                {#if errors.authToken}
+                  <p class="text-sm text-red-500 mt-1">{errors.authToken}</p>
+                {/if}
+              </div>
+              
+              <div>
+                <Label for="apiKeySid">Twilio API Key SID <span class="text-red-500">*</span></Label>
+                <Input
+                  id="apiKeySid"
+                  bind:value={apiKeySid}
+                  placeholder="SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  class={errors.apiKeySid ? 'border-red-500' : ''}
+                />
+                {#if errors.apiKeySid}
+                  <p class="text-sm text-red-500 mt-1">{errors.apiKeySid}</p>
+                {/if}
+              </div>
+              
+              <div>
+                <Label for="apiKeySecret">Twilio API Key Secret <span class="text-red-500">*</span></Label>
+                <Input
+                  id="apiKeySecret"
+                  type="password"
+                  bind:value={apiKeySecret}
+                  placeholder="Your Twilio API Key Secret"
+                  class={errors.apiKeySecret ? 'border-red-500' : ''}
+                />
+                {#if errors.apiKeySecret}
+                  <p class="text-sm text-red-500 mt-1">{errors.apiKeySecret}</p>
+                {/if}
               </div>
             </div>
           {:else if selectedChannelType === 'Channel::Api'}
