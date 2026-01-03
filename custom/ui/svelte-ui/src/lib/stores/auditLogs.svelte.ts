@@ -65,11 +65,11 @@ class AuditLogsStore {
 
   // Derived getters
   get hasLogs() {
-    return $derived(this.state.logs.length > 0);
+    return (this.state.logs.length > 0);
   }
 
   get hasMorePages() {
-    return $derived(this.state.currentPage < this.state.totalPages);
+    return (this.state.currentPage < this.state.totalPages);
   }
 
   // Actions

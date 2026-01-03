@@ -56,19 +56,19 @@ class NotificationsStore {
 
   // Derived getters
   get unreadNotifications() {
-    return $derived(
+    return (
       this.state.all.filter(n => !n.readAt)
     );
   }
 
   get readNotifications() {
-    return $derived(
+    return (
       this.state.all.filter(n => n.readAt)
     );
   }
 
   get sortedNotifications() {
-    return $derived(
+    return (
       [...this.state.all].sort((a, b) => 
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
@@ -76,7 +76,7 @@ class NotificationsStore {
   }
 
   get hasUnread() {
-    return $derived(this.state.unreadCount > 0);
+    return (this.state.unreadCount > 0);
   }
 
   // Actions

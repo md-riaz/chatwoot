@@ -6,7 +6,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Select from '$lib/components/ui/select/select-native.svelte';
-	import { superAdminAPI } from '$lib/api/superAdmin';
+	import { superAdminApi } from '$lib/api/superAdmin';
 
 	let creating = false;
 	let avatarFile: File | null = null;
@@ -28,11 +28,11 @@
 
 		creating = true;
 		try {
-			const user = await superAdminAPI.users.create(formData);
+			const user = await superAdminApi.users.create(formData);
 
 			// Upload avatar if selected
 			if (avatarFile && user.id) {
-				await superAdminAPI.users.uploadAvatar(user.id, avatarFile);
+				await superAdminApi.users.uploadAvatar(user.id, avatarFile);
 			}
 
 			toast.success('User created successfully');

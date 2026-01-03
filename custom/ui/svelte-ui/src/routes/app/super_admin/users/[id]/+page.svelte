@@ -9,7 +9,7 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Select from '$lib/components/ui/select/select-native.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
-	import { superAdminAPI } from '$lib/api/superAdmin';
+	import { superAdminApi } from '$lib/api/superAdmin';
 
 	let userId = $page.params.id;
 	let user: any = null;
@@ -29,7 +29,7 @@
 	async function loadUser() {
 		loading = true;
 		try {
-			user = await superAdminAPI.users.get(userId);
+			user = await superAdminApi.users.get(userId);
 			formData = {
 				name: user.name || '',
 				display_name: user.display_name || '',
@@ -52,11 +52,11 @@
 		saving = true;
 		try {
 			// Update user info
-			await superAdminAPI.users.update(userId, formData);
+			await superAdminApi.users.update(userId, formData);
 
 			// Upload avatar if selected
 			if (avatarFile) {
-				await superAdminAPI.users.uploadAvatar(userId, avatarFile);
+				await superAdminApi.users.uploadAvatar(userId, avatarFile);
 			}
 
 			toast.success('User updated successfully');
@@ -73,7 +73,7 @@
 		if (!confirm('Are you sure you want to delete this user?')) return;
 
 		try {
-			await superAdminAPI.users.delete(userId);
+			await superAdminApi.users.delete(userId);
 			toast.success('User deleted successfully');
 			goto('/app/super_admin/users');
 		} catch (error: any) {
@@ -84,7 +84,7 @@
 
 	async function handleConfirmEmail() {
 		try {
-			await superAdminAPI.users.confirmEmail(userId);
+			await superAdminApi.users.confirmEmail(userId);
 			toast.success('Email confirmed successfully');
 			await loadUser();
 		} catch (error: any) {
@@ -96,10 +96,10 @@
 	async function handleToggleLock() {
 		try {
 			if (user.locked) {
-				await superAdminAPI.users.unlock(userId);
+				await superAdminApi.users.unlock(userId);
 				toast.success('User unlocked successfully');
 			} else {
-				await superAdminAPI.users.lock(userId);
+				await superAdminApi.users.lock(userId);
 				toast.success('User locked successfully');
 			}
 			await loadUser();
@@ -113,7 +113,7 @@
 		if (!confirm('Are you sure you want to delete this avatar?')) return;
 
 		try {
-			await superAdminAPI.users.deleteAvatar(userId);
+			await superAdminApi.users.deleteAvatar(userId);
 			avatarPreview = null;
 			avatarFile = null;
 			toast.success('Avatar deleted successfully');

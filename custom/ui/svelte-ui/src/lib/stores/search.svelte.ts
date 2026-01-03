@@ -62,29 +62,29 @@ class SearchStore {
 
   // Derived getters
   get conversationResults() {
-    return $derived(
+    return (
       this.state.results.filter(r => r.type === 'conversation')
     );
   }
 
   get contactResults() {
-    return $derived(
+    return (
       this.state.results.filter(r => r.type === 'contact')
     );
   }
 
   get messageResults() {
-    return $derived(
+    return (
       this.state.results.filter(r => r.type === 'message')
     );
   }
 
   get hasResults() {
-    return $derived(this.state.results.length > 0);
+    return (this.state.results.length > 0);
   }
 
   get hasQuery() {
-    return $derived(this.state.query.trim().length > 0);
+    return (this.state.query.trim().length > 0);
   }
 
   // Actions

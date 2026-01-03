@@ -32,11 +32,11 @@ class PortalCategoriesStore {
 
   // Derived values
   get topLevelCategories() {
-    return $derived(this.categories.filter((c) => !c.parentCategoryId));
+    return (this.categories.filter((c) => !c.parentCategoryId));
   }
 
   get hasCategories() {
-    return $derived(this.categories.length > 0);
+    return (this.categories.length > 0);
   }
 
   // Actions

@@ -32,11 +32,11 @@ class WidgetArticlesStore {
 
   // Derived values
   get hasArticles() {
-    return $derived(this.articles.length > 0);
+    return (this.articles.length > 0);
   }
 
   get hasSelection() {
-    return $derived(!!this.selectedArticle);
+    return (!!this.selectedArticle);
   }
 
   // Actions

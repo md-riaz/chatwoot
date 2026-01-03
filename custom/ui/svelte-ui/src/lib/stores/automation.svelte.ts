@@ -53,19 +53,19 @@ class AutomationStore {
 
   // Derived getters
   get selectedAutomation() {
-    return $derived(
+    return (
       this.state.all.find(a => a.id === this.state.selectedId) || null
     );
   }
 
   get activeAutomations() {
-    return $derived(
+    return (
       this.state.all.filter(a => a.active)
     );
   }
 
   get sortedAutomations() {
-    return $derived(
+    return (
       [...this.state.all].sort((a, b) => 
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
@@ -73,11 +73,11 @@ class AutomationStore {
   }
 
   get automationCount() {
-    return $derived(this.state.all.length);
+    return (this.state.all.length);
   }
 
   get activeCount() {
-    return $derived(this.state.all.filter(a => a.active).length);
+    return (this.state.all.filter(a => a.active).length);
   }
 
   // Actions

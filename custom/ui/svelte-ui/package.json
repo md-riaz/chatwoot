@@ -2,7 +2,7 @@
   "name": "@chatwoot/svelte-ui",
   "version": "1.0.0",
   "type": "module",
-  "description": "Chatwoot UI components built with SvelteKit + shadcn-svelte + Histoire",
+  "description": "Chatwoot UI components built with SvelteKit + shadcn-svelte",
   "scripts": {
     "test": "vitest",
     "test:watch": "vitest --watch",
@@ -12,10 +12,7 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "eslint .",
-    "format": "prettier --write .",
-    "story:dev": "histoire dev",
-    "story:build": "histoire build",
-    "story:preview": "histoire preview"
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -54,7 +51,6 @@
     "@types/testing-library__jest-dom": "^5.14.2",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.0.0",
-    "histoire": "^0.17.17",
     "jsdom": "^22.1.0",
     "postcss": "^8.4.49",
     "prettier": "^3.4.0",
@@ -74,8 +70,7 @@
       "src/**/__tests__/**/*.ts"
     ],
     "exclude": [
-      "**/node_modules/**",
-      "histoire/**"
+      "**/node_modules/**"
     ],
     "test": {
       "environment": "jsdom"

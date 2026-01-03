@@ -7,7 +7,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import DataTable from '$lib/components/DataTable.svelte';
-	import { superAdminAPI } from '$lib/api/superAdmin';
+	import { superAdminApi } from '$lib/api/superAdmin';
 
 	let users: any[] = [];
 	let loading = true;
@@ -18,7 +18,7 @@
 	async function loadUsers() {
 		loading = true;
 		try {
-			const data = await superAdminAPI.users.list({
+			const data = await superAdminApi.users.list({
 				page: currentPage,
 				per_page: 20,
 				search: searchQuery || undefined

@@ -53,19 +53,19 @@ class SLAStore {
 
   // Derived getters
   get selectedPolicy() {
-    return $derived(
+    return (
       this.state.all.find(p => p.id === this.state.selectedId) || null
     );
   }
 
   get sortedPolicies() {
-    return $derived(
+    return (
       [...this.state.all].sort((a, b) => a.name.localeCompare(b.name))
     );
   }
 
   get policyCount() {
-    return $derived(this.state.all.length);
+    return (this.state.all.length);
   }
 
   // Actions

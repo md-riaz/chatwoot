@@ -31,27 +31,27 @@ class WidgetConfigStore {
 
   // Derived values
   get websiteToken() {
-    return $derived(this.config?.websiteToken || '');
+    return (this.config?.websiteToken || '');
   }
 
   get locale() {
-    return $derived(this.config?.locale || 'en');
+    return (this.config?.locale || 'en');
   }
 
   get position() {
-    return $derived(this.config?.position || 'right');
+    return (this.config?.position || 'right');
   }
 
   get widgetColor() {
-    return $derived(this.config?.widgetColor || '#1f93ff');
+    return (this.config?.widgetColor || '#1f93ff');
   }
 
   get preChatFormEnabled() {
-    return $derived(this.config?.preChatFormEnabled || false);
+    return (this.config?.preChatFormEnabled || false);
   }
 
   get businessName() {
-    return $derived(this.config?.businessName || 'Support Team');
+    return (this.config?.businessName || 'Support Team');
   }
 
   // Actions

@@ -7,7 +7,7 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
-	import { superAdminAPI } from '$lib/api/superAdmin';
+	import { superAdminApi } from '$lib/api/superAdmin';
 
 	type Tab = 'general' | 'platform' | 'system' | 'security' | 'integration';
 
@@ -27,7 +27,7 @@
 	async function loadSettings() {
 		loading = true;
 		try {
-			settings = await superAdminAPI.settings.get();
+			settings = await superAdminApi.settings.get();
 		} catch (error) {
 			toast.error('Failed to load settings');
 			console.error(error);
@@ -39,7 +39,7 @@
 	async function handleSave() {
 		saving = true;
 		try {
-			await superAdminAPI.settings.update(settings);
+			await superAdminApi.settings.update(settings);
 			toast.success('Settings updated successfully');
 		} catch (error: any) {
 			toast.error(error.message || 'Failed to update settings');
