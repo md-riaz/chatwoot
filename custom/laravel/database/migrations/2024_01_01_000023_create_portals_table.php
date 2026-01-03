@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Portals Table Migration
  * 
  * Help center portals - depends on accounts
+ * Must be created BEFORE inboxes (inboxes reference portals)
  */
 return new class extends Migration
 {

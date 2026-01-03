@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * SLA Policies Table Migration
  * 
  * Service Level Agreement policies - depends on accounts
+ * Must be created BEFORE conversations (conversations reference sla_policies)
  */
 return new class extends Migration
 {
