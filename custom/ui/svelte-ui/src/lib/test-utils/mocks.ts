@@ -74,11 +74,15 @@ export interface Contact {
   id: number;
   name: string;
   email?: string;
-  phoneNumber?: string;
+  phone_number?: string;
+  phoneNumber?: string; // Legacy field
   identifier?: string;
-  avatarUrl?: string;
+  avatar_url?: string;
+  avatarUrl?: string; // Legacy field
+  thumbnail?: string;
   customAttributes: Record<string, any>;
-  availabilityStatus?: 'online' | 'offline' | 'busy';
+  availability_status?: 'online' | 'offline' | 'busy';
+  availabilityStatus?: 'online' | 'offline' | 'busy'; // Legacy field
   conversationsCount: number;
   lastActivityAt?: string;
   createdAt: string;
@@ -235,10 +239,14 @@ export function createMockContact(overrides?: Partial<Contact>): Contact {
     id: 1,
     name: 'Test Contact',
     email: 'contact@example.com',
+    phone_number: '+1234567890',
     phoneNumber: '+1234567890',
     identifier: 'test-identifier',
+    avatar_url: 'https://example.com/contact-avatar.jpg',
     avatarUrl: 'https://example.com/contact-avatar.jpg',
+    thumbnail: undefined,
     customAttributes: {},
+    availability_status: 'online',
     availabilityStatus: 'online',
     conversationsCount: 0,
     lastActivityAt: '2024-01-01T00:00:00.000Z',
