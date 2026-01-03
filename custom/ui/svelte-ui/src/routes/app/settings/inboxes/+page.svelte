@@ -7,38 +7,17 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
+  import { inboxesStore } from '$lib/stores/inboxes.svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
 
   let accountId = $derived($page.params.accountId);
-  let inboxes = $state([
-    {
-      id: 1,
-      name: 'Website Chat',
-      channelType: 'web',
-      status: 'active',
-      conversationsCount: 42,
-    },
-    {
-      id: 2,
-      name: 'Support Email',
-      channelType: 'email',
-      status: 'active',
-      conversationsCount: 158,
-    },
-    {
-      id: 3,
-      name: 'WhatsApp Business',
-      channelType: 'whatsapp',
-      status: 'inactive',
-      conversationsCount: 0,
-    },
-  ]);
-  let isLoading = $state(false);
+  let inboxes = $derived(inboxesStore.sortedInboxes);
+  let isLoading = $derived(inboxesStore.isLoading);
 
   onMount(() => {
-    // TODO: Fetch inboxes from API
+    inboxesStore.fetchInboxes();
   });
 
   function handleCreateInbox() {
@@ -51,18 +30,27 @@
 
   function getChannelIcon(channelType: string) {
     const icons: Record<string, string> = {
-      web: '💬',
-      email: '📧',
-      whatsapp: '📱',
-      sms: '💌',
-      facebook: '📘',
-      twitter: '🐦',
+      'Channel::WebWidget': '💬',
+      'Channel::Api': '🔌',
+      'Channel::Email': '📧',
+      'Channel::Whatsapp': '📱',
+      'Channel::Sms': '💌',
+      'Channel::Twilio': '💌',
+      'Channel::FacebookPage': '📘',
+      'Channel::TwitterProfile': '🐦',
+      'Channel::Line': '💚',
+      'Channel::Telegram': '✈️',
     };
     return icons[channelType] || '📮';
   }
 
   function getStatusBadge(status: string) {
     return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+  }
+
+  function getConversationsCount(inbox: any): number {
+    // Try to get count from various possible locations
+    return inbox.conversationsCount || inbox.conversations_count || 0;
   }
 </script>
 
@@ -120,7 +108,7 @@
                 <div>
                   <h3 class="font-semibold text-lg">{inbox.name}</h3>
                   <p class="text-sm text-gray-600 capitalize">
-                    {inbox.channelType}
+                    {inbox.channelType.replace('Channel::', '')}
                   </p>
                 </div>
               </div>
@@ -128,15 +116,15 @@
 
             <div class="flex items-center justify-between">
               <div class="text-sm">
-                <span class="font-medium">{inbox.conversationsCount}</span>
+                <span class="font-medium">{getConversationsCount(inbox)}</span>
                 <span class="text-gray-600"> conversations</span>
               </div>
               <span
                 class="px-2 py-1 rounded text-xs font-medium {getStatusBadge(
-                  inbox.status
+                  inbox.enableAutoAssignment ? 'active' : 'inactive'
                 )}"
               >
-                {inbox.status}
+                {inbox.enableAutoAssignment ? 'active' : 'inactive'}
               </span>
             </div>
           </Card.Content>

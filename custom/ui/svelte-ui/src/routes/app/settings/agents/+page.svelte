@@ -7,32 +7,16 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
+  import { agentsStore } from '$lib/stores/agents.svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
 
   let accountId = $derived($page.params.accountId);
-  let agents = $state([
-    {
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com',
-      role: 'administrator',
-      status: 'online',
-      avatarUrl: null,
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      role: 'agent',
-      status: 'offline',
-      avatarUrl: null,
-    },
-  ]);
-  let isLoading = $state(false);
+  let agents = $derived(agentsStore.sortedAgents);
+  let isLoading = $derived(agentsStore.isLoading);
 
   onMount(() => {
-    // TODO: Fetch agents from API
+    agentsStore.fetchAgents();
   });
 
   function handleAddAgent() {
@@ -124,10 +108,10 @@
                 </span>
                 <span
                   class="px-3 py-1 rounded-full text-xs font-medium {getStatusBadgeClass(
-                    agent.status
+                    agent.availabilityStatus
                   )}"
                 >
-                  {agent.status}
+                  {agent.availabilityStatus}
                 </span>
               </div>
             </div>

@@ -7,40 +7,17 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
+  import { attributesStore } from '$lib/stores/attributes.svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
 
   let accountId = $derived($page.params.accountId);
-  let attributes = $state([
-    {
-      id: 1,
-      name: 'Department',
-      key: 'department',
-      type: 'list',
-      appliesTo: 'contact',
-      values: ['Sales', 'Support', 'Engineering'],
-    },
-    {
-      id: 2,
-      name: 'Priority',
-      key: 'priority',
-      type: 'list',
-      appliesTo: 'conversation',
-      values: ['High', 'Medium', 'Low'],
-    },
-    {
-      id: 3,
-      name: 'Company Size',
-      key: 'company_size',
-      type: 'number',
-      appliesTo: 'contact',
-    },
-  ]);
-  let isLoading = $state(false);
+  let attributes = $derived(attributesStore.sortedAttributes);
+  let isLoading = $derived(attributesStore.isLoading);
 
   onMount(() => {
-    // TODO: Fetch attributes from API
+    attributesStore.fetchAttributes();
   });
 
   function handleCreateAttribute() {
@@ -57,13 +34,13 @@
     attributeName: string
   ) {
     event.stopPropagation();
+    const attributeData = attributes.find((a) => a.id === attributeId);
     if (
       confirm(
-        `Are you sure you want to delete "${attributeName}"? This will remove the attribute from all ${attributes.find((a) => a.id === attributeId)?.appliesTo}s.`
+        `Are you sure you want to delete "${attributeName}"? This will remove the attribute from all ${attributeData?.attributeModel === 'contact_attribute' ? 'contacts' : 'conversations'}.`
       )
     ) {
-      attributes = attributes.filter((a) => a.id !== attributeId);
-      alert('Attribute deleted!');
+      await attributesStore.deleteAttribute(attributeId);
     }
   }
 
@@ -79,9 +56,13 @@
   }
 
   function getAppliesToBadgeClass(appliesTo: string) {
-    return appliesTo === 'contact'
+    return appliesTo === 'contact_attribute'
       ? 'bg-indigo-100 text-indigo-800'
       : 'bg-teal-100 text-teal-800';
+  }
+
+  function getAppliesToLabel(appliesTo: string) {
+    return appliesTo === 'contact_attribute' ? 'contact' : 'conversation';
   }
 </script>
 
@@ -135,26 +116,26 @@
             <div class="flex items-center justify-between">
               <div class="flex-1">
                 <div class="flex items-center gap-3 mb-2">
-                  <h3 class="font-semibold text-lg">{attribute.name}</h3>
+                  <h3 class="font-semibold text-lg">{attribute.attributeDisplayName}</h3>
                   <span
                     class="px-2 py-1 rounded text-xs font-medium {getTypeBadgeClass(
-                      attribute.type
+                      attribute.attributeDisplayType
                     )}"
                   >
-                    {attribute.type}
+                    {attribute.attributeDisplayType}
                   </span>
                   <span
                     class="px-2 py-1 rounded text-xs font-medium {getAppliesToBadgeClass(
-                      attribute.appliesTo
+                      attribute.attributeModel
                     )}"
                   >
-                    {attribute.appliesTo}
+                    {getAppliesToLabel(attribute.attributeModel)}
                   </span>
                 </div>
-                <p class="text-sm text-gray-600">Key: {attribute.key}</p>
-                {#if attribute.values && attribute.values.length > 0}
+                <p class="text-sm text-gray-600">Key: {attribute.attributeKey}</p>
+                {#if attribute.attributeValues && attribute.attributeValues.length > 0}
                   <div class="mt-2 flex flex-wrap gap-1">
-                    {#each attribute.values as value}
+                    {#each attribute.attributeValues as value}
                       <Badge variant="outline" class="text-xs">{value}</Badge>
                     {/each}
                   </div>
@@ -172,7 +153,7 @@
                   variant="destructive"
                   size="sm"
                   onclick={(e) =>
-                    handleDeleteAttribute(e, attribute.id, attribute.name)}
+                    handleDeleteAttribute(e, attribute.id, attribute.attributeDisplayName)}
                 >
                   Delete
                 </Button>
