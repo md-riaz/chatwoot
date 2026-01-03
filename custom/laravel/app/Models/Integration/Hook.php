@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Hook extends Model
 {
-    protected $table = 'integration_hooks';
+    protected $table = 'integrations_hooks';
 
     protected $fillable = [
         'account_id',
@@ -27,12 +27,13 @@ class Hook extends Model
         'access_token' => 'encrypted',
     ];
 
-    // Enums
-    public const STATUS_ENABLED = 'enabled';
-    public const STATUS_DISABLED = 'disabled';
+    // Status constants (mapping to existing integer values)
+    public const STATUS_DISABLED = 0;
+    public const STATUS_ENABLED = 1;
     
-    public const HOOK_TYPE_ACCOUNT = 'account';
-    public const HOOK_TYPE_INBOX = 'inbox';
+    // Hook type constants (mapping to existing integer values)
+    public const HOOK_TYPE_ACCOUNT = 0;
+    public const HOOK_TYPE_INBOX = 1;
 
     public function account(): BelongsTo
     {
@@ -76,6 +77,38 @@ class Hook extends Model
 
     public function isEnabled(): bool
     {
-        return $this->status === self::STATUS_ENABLED;
+        return $this->status == self::STATUS_ENABLED;
+    }
+
+    // Accessor for status as string (for backward compatibility)
+    public function getStatusAttribute($value): string
+    {
+        return $value == self::STATUS_ENABLED ? 'enabled' : 'disabled';
+    }
+
+    // Mutator for status from string
+    public function setStatusAttribute($value): void
+    {
+        if (is_string($value)) {
+            $this->attributes['status'] = $value === 'enabled' ? self::STATUS_ENABLED : self::STATUS_DISABLED;
+        } else {
+            $this->attributes['status'] = $value;
+        }
+    }
+
+    // Accessor for hook_type as string (for backward compatibility)
+    public function getHookTypeAttribute($value): string
+    {
+        return $value == self::HOOK_TYPE_INBOX ? 'inbox' : 'account';
+    }
+
+    // Mutator for hook_type from string
+    public function setHookTypeAttribute($value): void
+    {
+        if (is_string($value)) {
+            $this->attributes['hook_type'] = $value === 'inbox' ? self::HOOK_TYPE_INBOX : self::HOOK_TYPE_ACCOUNT;
+        } else {
+            $this->attributes['hook_type'] = $value;
+        }
     }
 }
