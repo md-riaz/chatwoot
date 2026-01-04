@@ -13,11 +13,10 @@
         goto('/app');
       } else {
         // User is not authenticated, redirect to login
-        // You can change this to '/register' if you want register as default
-        goto('/app'); // Redirecting to /app which will handle auth check
+        goto('/auth/login');
       }
     } else {
-      goto('/app');
+      goto('/auth/login');
     }
     loading = false;
   });
