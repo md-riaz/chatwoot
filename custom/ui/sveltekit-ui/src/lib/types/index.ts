@@ -1,16 +1,43 @@
 // Domain-level TypeScript interfaces for type safety
 
+export interface AccountUser {
+	id: number;
+	name: string;
+	status: 'active' | 'suspended';
+	active_at?: string;
+	role: 'administrator' | 'agent';
+	permissions?: string[];
+	availability?: 'online' | 'offline' | 'busy';
+	availability_status?: string;
+	auto_offline?: boolean;
+}
+
 export interface User {
 	id: number;
 	name: string;
 	display_name?: string;
+	available_name?: string;
 	email: string;
-	role: 'administrator' | 'agent';
+	role?: 'administrator' | 'agent';
 	avatar_url?: string;
 	locked?: boolean;
 	email_confirmed?: boolean;
+	confirmed?: boolean;
 	created_at?: string;
 	updated_at?: string;
+	// Additional fields from backend
+	type?: 'User' | 'SuperAdmin';
+	access_token?: string;
+	account_id?: number;
+	inviter_id?: number;
+	provider?: string;
+	pubsub_token?: string;
+	hmac_identifier?: string;
+	message_signature?: string;
+	uid?: string;
+	custom_attributes?: Record<string, unknown>;
+	ui_settings?: Record<string, unknown>;
+	accounts?: AccountUser[];
 }
 
 export interface Account {
@@ -118,8 +145,7 @@ export interface ApiError {
 }
 
 export interface AuthResponse {
-	token: string;
-	user: User;
+	data: User;
 }
 
 export interface OnboardingData {

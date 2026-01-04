@@ -34,11 +34,18 @@
 		submitting = true;
 		
 		try {
-			const { token, user } = await authApi.login(formData.email, formData.password);
-			authStore.login(token, user);
+			const { token, client, uid, user } = await authApi.login(formData.email, formData.password);
+			authStore.login(token, user, client, uid);
 			
 			toast.success('Logged in successfully!');
-			goto('/app/super_admin/dashboard');
+			
+			// Redirect based on user type
+			if (user.type === 'SuperAdmin') {
+				goto('/app/super_admin/dashboard');
+			} else {
+				// TODO: Redirect to account dashboard when regular routes are implemented
+				goto('/app/super_admin/dashboard');
+			}
 		} catch (error: any) {
 			if (error.response?.status === 401) {
 				toast.error('Invalid email or password');

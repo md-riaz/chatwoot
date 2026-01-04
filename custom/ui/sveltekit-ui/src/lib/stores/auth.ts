@@ -24,13 +24,17 @@ function createAuthStore() {
 		init: () => {
 			if (browser) {
 				const token = localStorage.getItem('auth_token');
+				const client = localStorage.getItem('auth_client');
+				const uid = localStorage.getItem('auth_uid');
 				const userStr = localStorage.getItem('user');
-				if (token && userStr) {
+				if (token && client && uid && userStr) {
 					try {
 						const user = JSON.parse(userStr);
 						set({ isAuthenticated: true, user, token, loading: false });
 					} catch {
 						localStorage.removeItem('auth_token');
+						localStorage.removeItem('auth_client');
+						localStorage.removeItem('auth_uid');
 						localStorage.removeItem('user');
 						set({ ...initialState, loading: false });
 					}
@@ -39,9 +43,11 @@ function createAuthStore() {
 				}
 			}
 		},
-		login: (token: string, user: User) => {
+		login: (token: string, user: User, client?: string, uid?: string) => {
 			if (browser) {
 				localStorage.setItem('auth_token', token);
+				if (client) localStorage.setItem('auth_client', client);
+				if (uid) localStorage.setItem('auth_uid', uid);
 				localStorage.setItem('user', JSON.stringify(user));
 			}
 			set({ isAuthenticated: true, user, token, loading: false });
@@ -49,6 +55,8 @@ function createAuthStore() {
 		logout: () => {
 			if (browser) {
 				localStorage.removeItem('auth_token');
+				localStorage.removeItem('auth_client');
+				localStorage.removeItem('auth_uid');
 				localStorage.removeItem('user');
 			}
 			set({ isAuthenticated: false, user: null, token: null, loading: false });
