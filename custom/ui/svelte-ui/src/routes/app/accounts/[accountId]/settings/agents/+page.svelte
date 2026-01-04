@@ -50,7 +50,7 @@
   }
 
   function handleViewAgent(agentId: number) {
-    goto(`/app/${accountId}/settings/agents/${agentId}`);
+    goto(`/app/accounts/${accountId}/settings/agents/${agentId}`);
   }
 
   function getRoleBadgeClass(role: string) {

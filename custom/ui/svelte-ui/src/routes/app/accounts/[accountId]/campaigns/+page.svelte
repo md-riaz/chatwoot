@@ -81,7 +81,7 @@
   }
 
   function handleViewCampaign(campaignId: number) {
-    goto(`/app/${accountId}/campaigns/${campaignId}`);
+    goto(`/app/accounts/${accountId}/campaigns/${campaignId}`);
   }
 
   async function handleDeleteCampaign(campaignId: number) {
