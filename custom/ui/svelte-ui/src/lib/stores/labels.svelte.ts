@@ -46,7 +46,8 @@ class LabelsStore {
     }
     
     // Fall back to user's current account ID (with null safety)
-    return authStore.currentUser?.accountId || 0;
+    // Returns 0 if user is not logged in
+    return authStore.currentUser?.accountId ?? 0;
   }
 
   // Getter for sorted labels (alphabetically by title)
