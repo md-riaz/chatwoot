@@ -19,8 +19,8 @@ class TranslationRepository extends BaseRepository
      */
     public function translateWithLibre(string $text, string $targetLanguage, ?string $sourceLanguage = null): string
     {
-        $url = env('LIBRE_TRANSLATE_URL', 'https://libretranslate.com/translate');
-        $apiKey = env('LIBRE_TRANSLATE_API_KEY');
+        $url = config('services.libre_translate.url');
+        $apiKey = config('services.libre_translate.api_key');
 
         try {
             $params = [

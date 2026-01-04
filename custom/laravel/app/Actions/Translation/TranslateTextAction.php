@@ -21,7 +21,7 @@ class TranslateTextAction
      */
     public function handle(string $text, string $targetLanguage, ?string $sourceLanguage = null): string
     {
-        $provider = env('TRANSLATION_PROVIDER', 'libre');
+        $provider = config('translation.default');
 
         if ($provider === 'libre') {
             return $this->translationRepository->translateWithLibre($text, $targetLanguage, $sourceLanguage);

@@ -75,7 +75,7 @@ class FacebookController extends Controller
     public function webhook(Request $request): JsonResponse
     {
         // Verify X-Hub-Signature (sha256) if present
-        $appSecret = Config::get('services.facebook.app_secret') ?? env('FACEBOOK_APP_SECRET');
+        $appSecret = config('services.facebook.app_secret');
         $signature = $request->header('X-Hub-Signature-256') ?? $request->header('X-Hub-Signature');
         $raw = $request->getContent();
 

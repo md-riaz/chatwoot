@@ -25,8 +25,8 @@ class PerformSearchAction
             'default_per_page' => 15,
             'max_per_page' => 100,
             'time_window_months' => 3,
-            'enable_gin_search' => env('SEARCH_ENABLE_GIN', true),
-            'enable_advanced_search' => env('SEARCH_ENABLE_ADVANCED', false),
+            'enable_gin_search' => true,
+            'enable_advanced_search' => false,
             'cache_ttl' => 300, // 5 minutes
         ]);
     }

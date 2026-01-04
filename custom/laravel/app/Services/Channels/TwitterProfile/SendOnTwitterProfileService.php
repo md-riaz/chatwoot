@@ -20,8 +20,8 @@ class SendOnTwitterProfileService extends BaseSendOnChannelService
         $token = $channel->twitter_access_token;
         $tokenSecret = $channel->twitter_access_token_secret;
 
-        $consumerKey = env('TWITTER_CONSUMER_KEY');
-        $consumerSecret = env('TWITTER_CONSUMER_SECRET');
+        $consumerKey = config('services.twitter.consumer_key');
+        $consumerSecret = config('services.twitter.consumer_secret');
 
         if (empty($consumerKey) || empty($consumerSecret) || empty($token) || empty($tokenSecret)) {
             $this->message->update(['status' => Message::STATUS_FAILED, 'external_error' => 'Twitter credentials missing']);

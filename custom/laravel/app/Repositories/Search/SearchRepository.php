@@ -27,7 +27,7 @@ class SearchRepository extends BaseRepository
             'default_per_page' => 15,
             'max_per_page' => 100,
             'time_window_months' => 3,
-            'enable_gin_search' => env('SEARCH_ENABLE_GIN', true),
+            'enable_gin_search' => true,
         ]);
     }
 

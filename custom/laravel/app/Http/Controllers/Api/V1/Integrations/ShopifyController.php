@@ -186,8 +186,8 @@ class ShopifyController extends Controller
             'account_id' => $request->input('account_id'),
         ], now()->addMinutes(5));
 
-        $clientId = Config::get('services.shopify.client_id') ?? env('SHOPIFY_API_KEY');
-        $scopes = Config::get('services.shopify.scopes', 'read_products,read_orders,read_customers');
+        $clientId = config('services.shopify.client_id');
+        $scopes = config('services.shopify.scopes');
         $redirectUri = URL::to('/api/v1/callbacks/shopify/callback');
 
         $installUrl = "https://{$shop}/admin/oauth/authorize?client_id={$clientId}&scope={$scopes}&redirect_uri=".urlencode($redirectUri)."&state={$state}";
@@ -213,8 +213,8 @@ class ShopifyController extends Controller
             return response()->json(['error' => 'shop mismatch'], 403);
         }
 
-        $clientId = Config::get('services.shopify.client_id') ?? env('SHOPIFY_API_KEY');
-        $clientSecret = Config::get('services.shopify.client_secret') ?? env('SHOPIFY_API_SECRET');
+        $clientId = config('services.shopify.client_id');
+        $clientSecret = config('services.shopify.client_secret');
 
         $response = Http::asForm()->post("https://{$shop}/admin/oauth/access_token", [
             'client_id' => $clientId,

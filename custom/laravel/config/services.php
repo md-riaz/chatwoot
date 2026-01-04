@@ -72,4 +72,34 @@ return [
         'phone_number' => env('TWILIO_PHONE_NUMBER'),
     ],
 
+    'libre_translate' => [
+        'url' => env('LIBRE_TRANSLATE_URL', 'https://libretranslate.com/translate'),
+        'api_key' => env('LIBRE_TRANSLATE_API_KEY'),
+    ],
+
+    'facebook' => [
+        'graph_url' => env('FACEBOOK_GRAPH_URL', 'https://graph.facebook.com'),
+        'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v15.0'),
+    ],
+
+    'twitter' => [
+        'consumer_key' => env('TWITTER_CONSUMER_KEY'),
+        'consumer_secret' => env('TWITTER_CONSUMER_SECRET'),
+    ],
+
+    'facebook' => [
+        'app_id' => env('FACEBOOK_APP_ID'),
+        'app_secret' => env('FACEBOOK_APP_SECRET'),
+        'verify_token' => env('FACEBOOK_VERIFY_TOKEN'),
+    ],
+
+    'shopify' => [
+        'client_id' => env('SHOPIFY_CLIENT_ID'),
+        'client_secret' => env('SHOPIFY_CLIENT_SECRET'),
+        'api_key' => env('SHOPIFY_API_KEY'),
+        'api_secret' => env('SHOPIFY_API_SECRET'),
+        'scopes' => env('SHOPIFY_SCOPES', 'read_products,read_orders,read_customers'),
+        'api_version' => env('SHOPIFY_API_VERSION', '2023-10'),
+    ],
+
 ];

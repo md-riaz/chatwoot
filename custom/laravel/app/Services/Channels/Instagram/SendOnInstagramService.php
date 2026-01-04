@@ -19,8 +19,8 @@ class SendOnInstagramService extends BaseSendOnChannelService
         $accessToken = $channel->access_token;
         $instagramId = $channel->instagram_id ?: 'me';
 
-        $baseUrl = env('FACEBOOK_GRAPH_URL', 'https://graph.facebook.com');
-        $version = env('FACEBOOK_GRAPH_VERSION', 'v15.0');
+        $baseUrl = config('services.facebook.graph_url');
+        $version = config('services.facebook.graph_version');
 
         $url = "{$baseUrl}/{$version}/{$instagramId}/messages?access_token={$accessToken}";
         $payload = $this->buildPayload();

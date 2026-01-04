@@ -18,8 +18,8 @@ class SendOnFacebookService extends BaseSendOnChannelService
         $channel = $this->channel();
         $pageToken = $channel->page_access_token;
 
-        $baseUrl = env('FACEBOOK_GRAPH_URL', 'https://graph.facebook.com');
-        $version = env('FACEBOOK_GRAPH_VERSION', 'v15.0');
+        $baseUrl = config('services.facebook.graph_url');
+        $version = config('services.facebook.graph_version');
 
         try {
             if (! empty($this->message->content)) {
