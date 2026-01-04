@@ -39,7 +39,7 @@ class ProcessTiktokWebhookJob implements ShouldQueue
             return;
         }
 
-        $inbox = \App\Models\Inbox::where('channel_type', \App\Models\Channels\Tiktok::class)->first();
+        $inbox = \App\Models\Inbox::where('channel_type', \App\Models\Channels\TikTok::class)->first();
         if (! $inbox) {
             Log::warning('TikTok webhook: no inbox configured');
             return;

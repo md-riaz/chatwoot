@@ -2,7 +2,7 @@
 
 namespace App\Services\Channels\Tiktok;
 
-use App\Models\Channels\Tiktok;
+use App\Models\Channels\TikTok;
 use App\Services\GlobalConfigService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -17,9 +17,9 @@ use Illuminate\Support\Facades\Cache;
  */
 class TiktokTokenService
 {
-    protected Tiktok $channel;
+    protected TikTok $channel;
 
-    public function __construct(Tiktok $channel)
+    public function __construct(TikTok $channel)
     {
         $this->channel = $channel;
     }
