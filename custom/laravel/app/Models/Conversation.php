@@ -9,12 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Conversation extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     // Status constants
     public const STATUS_OPEN = 0;
