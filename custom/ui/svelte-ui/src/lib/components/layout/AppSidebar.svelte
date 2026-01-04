@@ -31,8 +31,11 @@
   
   let { isOpen = true, onClose, class: className = '' }: Props = $props();
   
+  // Get current accountId from route params
+  const accountId = $derived($page.params.accountId);
+  
   // Navigation sections
-  const navigationSections: SidebarSection[] = [
+  const navigationSections: SidebarSection[] = $derived([
     {
       id: 'main',
       items: [
@@ -40,21 +43,21 @@
           id: 'home',
           label: 'Home',
           icon: 'home',
-          href: '/app',
+          href: accountId ? `/app/accounts/${accountId}` : '/app',
           badge: 0,
         },
         {
           id: 'conversations',
           label: 'Conversations',
           icon: 'message-square',
-          href: '/app/conversations',
+          href: accountId ? `/app/accounts/${accountId}/conversations` : '/app/conversations',
           badge: 12,
         },
         {
           id: 'contacts',
           label: 'Contacts',
           icon: 'users',
-          href: '/app/contacts',
+          href: accountId ? `/app/accounts/${accountId}/contacts` : '/app/contacts',
           badge: 0,
         },
       ],
@@ -67,21 +70,21 @@
           id: 'inboxes',
           label: 'Inboxes',
           icon: 'inbox',
-          href: '/app/inboxes',
+          href: accountId ? `/app/accounts/${accountId}/inboxes` : '/app/inboxes',
           badge: 0,
         },
         {
           id: 'labels',
           label: 'Labels',
           icon: 'tags',
-          href: '/app/labels',
+          href: accountId ? `/app/accounts/${accountId}/labels` : '/app/labels',
           badge: 0,
         },
         {
           id: 'reports',
           label: 'Reports',
           icon: 'bar-chart-3',
-          href: '/app/reports',
+          href: accountId ? `/app/accounts/${accountId}/reports` : '/app/reports',
           badge: 0,
         },
       ],
@@ -94,12 +97,12 @@
           id: 'settings',
           label: 'Settings',
           icon: 'settings',
-          href: '/app/settings',
+          href: accountId ? `/app/accounts/${accountId}/settings` : '/app/settings',
           badge: 0,
         },
       ],
     },
-  ];
+  ]);
   
   // Icon component mapper
   function getIconComponent(iconName: string) {
