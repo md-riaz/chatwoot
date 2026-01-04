@@ -1,10 +1,12 @@
 
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { get } from 'svelte/store';
 	import { authStore } from '$lib/stores/auth';
 	import { onboardingApi } from '$lib/api/client';
+	
+	let unsubscribe: (() => void) | null = null;
 	
 	onMount(async () => {
 		try {
@@ -23,16 +25,24 @@
 		// The store's loading state will be false once initialized
 		let authState = get(authStore);
 		if (authState.loading) {
-			// Wait for initialization by subscribing briefly
-			const unsubscribe = authStore.subscribe(state => {
+			// Wait for initialization by subscribing
+			unsubscribe = authStore.subscribe(state => {
 				if (!state.loading) {
-					unsubscribe();
-					authState = state;
-					performRedirect(authState.isAuthenticated);
+					if (unsubscribe) unsubscribe();
+					unsubscribe = null;
+					performRedirect(state.isAuthenticated);
 				}
 			});
 		} else {
 			performRedirect(authState.isAuthenticated);
+		}
+	});
+	
+	onDestroy(() => {
+		// Clean up subscription if component unmounts before auth loads
+		if (unsubscribe) {
+			unsubscribe();
+			unsubscribe = null;
 		}
 	});
 	
