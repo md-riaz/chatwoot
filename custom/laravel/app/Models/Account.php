@@ -387,8 +387,16 @@ class Account extends Model
     }
 
     /**
-     * Set locale from string code
-     * Converts locale code string (e.g., 'en') to Locale enum
+     * Set locale from string code, enum, or integer
+     * 
+     * Converts various locale representations to integer for database storage:
+     * - string: Locale code (e.g., 'en', 'fr') - most common use case
+     * - Locale: Enum instance (e.g., Locale::EN) - direct enum assignment
+     * - int: Raw integer value (e.g., 0, 3) - internal use, avoid in application code
+     * 
+     * @param string|Locale|int $value The locale value in any supported format
+     * @return void
+     * @throws \InvalidArgumentException If string code is invalid
      */
     public function setLocaleAttribute(string|Locale|int $value): void
     {
