@@ -15,12 +15,32 @@ cd custom/ui/svelte-ui
 # Install dependencies
 pnpm install
 
+# Copy and configure environment variables
+cp .env.example .env
+# Edit .env and set VITE_API_BASE_URL and VITE_WS_URL
+
 # Start development server
 pnpm dev
 
 # Start Histoire story viewer
 pnpm story:dev
 ```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file with the following variables:
+
+```bash
+# Backend API URL
+VITE_API_BASE_URL=http://localhost:8000
+
+# WebSocket URL for real-time updates (Laravel Reverb)
+VITE_WS_URL=ws://localhost:8080/app
+```
+
+For detailed WebSocket and CORS configuration, see [WEBSOCKET_SETUP.md](./WEBSOCKET_SETUP.md).
 
 ## 📁 Project Structure
 

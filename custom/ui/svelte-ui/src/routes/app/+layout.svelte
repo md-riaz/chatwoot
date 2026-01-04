@@ -44,7 +44,16 @@
     
     // Initialize WebSocket connection
     const token = localStorage.getItem('auth_token');
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/cable';
+    // Use configured WebSocket URL or construct from API base URL
+    let wsUrl = import.meta.env.VITE_WS_URL;
+    
+    if (!wsUrl) {
+      // Fallback: construct from API base URL
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+      const url = new URL(apiUrl);
+      const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+      wsUrl = `${protocol}//${url.host}/app`;
+    }
     
     if (token) {
       wsClient = new WebSocketClient({
