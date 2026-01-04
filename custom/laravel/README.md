@@ -27,6 +27,56 @@ ClearLine is a scalable, sustainable customer engagement platform built on Larav
 
 ## Setup Guide
 
+### CORS Configuration for API-Only Setup
+
+ClearLine includes built-in CORS support for API-only deployments with separate frontends. This allows your application to serve as a backend API while your frontend runs on a different domain.
+
+#### Configuration
+
+CORS settings are configured in `config/cors.php` and can be customized via environment variables:
+
+```bash
+# .env configuration
+# Use * for all origins (development only) or specify comma-separated origins
+# Example: http://localhost:3000,https://yourdomain.com
+CORS_ALLOWED_ORIGINS=*
+```
+
+For production, always specify exact origins:
+
+```bash
+# Production example
+CORS_ALLOWED_ORIGINS=https://app.yourdomain.com,https://admin.yourdomain.com
+```
+
+#### Default CORS Settings
+
+- **Allowed Paths**: `api/*`, `sanctum/csrf-cookie`, `broadcasting/auth`
+- **Allowed Methods**: All HTTP methods
+- **Allowed Headers**: All headers
+- **Credentials Support**: Enabled (for cookie-based authentication)
+
+#### Testing CORS
+
+After configuring CORS, test it with a simple request:
+
+```bash
+curl -H "Origin: http://localhost:3000" \
+     -H "Access-Control-Request-Method: POST" \
+     -H "Access-Control-Request-Headers: Content-Type" \
+     -X OPTIONS \
+     http://localhost:8000/api/v1/accounts
+```
+
+You should see CORS headers in the response:
+```
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: *
+Access-Control-Allow-Headers: *
+```
+
+---
+
 ### Option 1: Docker Deployment (Recommended)
 
 The fastest way to get ClearLine running is with Docker:
@@ -56,6 +106,31 @@ For detailed Docker instructions, see [README.docker.md](README.docker.md).
 - Redis 7+
 - Node.js 18+ (for frontend assets, if needed)
 
+#### Automated Environment Setup (Recommended)
+
+Use the automated setup script to install and configure all prerequisites:
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/clearline.git
+cd clearline/custom/laravel
+
+# Run environment setup (requires sudo)
+sudo bash deploy/setup-environment.sh
+```
+
+This script will:
+- Check and install PHP 8.2+ with required extensions
+- Install Composer
+- Install PostgreSQL 16
+- Install Redis 7
+- Install Nginx and Supervisor
+- Provide configuration guidance
+
+#### Manual Setup Steps
+
+If you prefer manual setup or the automated script doesn't support your OS:
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/your-org/clearline.git
@@ -72,6 +147,7 @@ Edit `.env` to set your database, Redis, mail, and app URL settings. Key variabl
 - `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
 - `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`
 - `APP_URL` (your public URL)
+- `CORS_ALLOWED_ORIGINS` (comma-separated frontend origins)
 
 ```bash
 # 4. Run database migrations
@@ -269,21 +345,117 @@ See [README.docker.md](README.docker.md) for complete Docker deployment instruct
 
 ### Manual Deployment
 
-### Production Configuration
+#### Prerequisites
 
-1. Copy production environment file:
-   ```bash
-   cp deploy/.env.production.example .env
-   ```
+Before deploying, ensure your server meets the minimum requirements:
 
-2. Configure your database, Redis, and mail settings
+**System Requirements:**
+- Ubuntu 20.04+ / Debian 11+ / CentOS 8+ / RHEL 8+
+- PHP 8.2+ with extensions: pdo, pdo_pgsql, pgsql, redis, mbstring, xml, curl, zip, bcmath, intl, ctype, fileinfo, json, tokenizer
+- Composer 2+
+- PostgreSQL 14+ (16+ recommended)
+- Redis 7+
+- Nginx or Apache
+- Supervisor (for queue workers and WebSocket server)
 
-3. Run production optimizations:
-   ```bash
-   php artisan config:cache
-   php artisan route:cache
-   php artisan view:cache
-   ```
+#### Step 1: Environment Setup
+
+Use the automated environment setup script to prepare your server:
+
+```bash
+# Run as root or with sudo
+sudo bash deploy/setup-environment.sh
+```
+
+This script will:
+- Verify and install PHP 8.2+ with all required extensions
+- Install Composer
+- Install and configure PostgreSQL 16
+- Install and configure Redis 7
+- Install Nginx and Supervisor
+- Provide step-by-step configuration guidance
+
+Or manually install each component if the script doesn't support your OS.
+
+#### Step 2: Database Setup
+
+Create the PostgreSQL database and user:
+
+```bash
+sudo -u postgres psql
+CREATE DATABASE clearline_production;
+CREATE USER clearline WITH PASSWORD 'your_secure_password';
+GRANT ALL PRIVILEGES ON DATABASE clearline_production TO clearline;
+\q
+```
+
+#### Step 3: Application Setup
+
+```bash
+# Clone repository
+cd /var/www
+git clone <your-repository-url> html
+cd html/custom/laravel
+
+# Copy and configure environment file
+cp deploy/.env.production.example .env
+# Edit .env with your settings
+
+# Generate application key
+php artisan key:generate
+
+# Install dependencies
+composer install --no-dev --optimize-autoloader
+
+# Run migrations
+php artisan migrate --force
+
+# Seed initial data
+php artisan db:seed
+
+# Install Horizon assets
+php artisan horizon:install
+```
+
+#### Step 4: Production Optimizations
+
+```bash
+# Cache configuration
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan event:cache
+```
+
+#### Step 5: Configure CORS for Frontend
+
+Edit your `.env` file to specify allowed frontend origins:
+
+```bash
+# For production, specify exact origins
+CORS_ALLOWED_ORIGINS=https://app.yourdomain.com,https://admin.yourdomain.com
+```
+
+#### Step 6: Continuous Deployment
+
+For subsequent deployments, use the enhanced deployment script:
+
+```bash
+cd /var/www/html/custom/laravel
+bash deploy/deploy.sh
+```
+
+The deployment script will:
+- ✓ Verify PHP version (8.2+)
+- ✓ Check required PHP extensions
+- ✓ Verify Composer installation
+- ✓ Test database connectivity
+- ✓ Test Redis connectivity
+- ✓ Pull latest code
+- ✓ Install dependencies
+- ✓ Run migrations
+- ✓ Clear and rebuild caches
+- ✓ Restart queue workers and WebSocket server
 
 ### Supervisor Configuration
 
@@ -291,6 +463,42 @@ Supervisor configuration files are provided in `deploy/supervisor/`:
 - `laravel-worker.conf` - Queue workers
 - `laravel-horizon.conf` - Horizon dashboard
 - `laravel-reverb.conf` - WebSocket server
+
+Copy these files to `/etc/supervisor/conf.d/` and reload supervisor:
+
+```bash
+sudo cp deploy/supervisor/*.conf /etc/supervisor/conf.d/
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start all
+```
+
+### Troubleshooting
+
+**Problem: CORS errors from frontend**
+- Verify `CORS_ALLOWED_ORIGINS` in `.env` includes your frontend domain
+- Check that origins don't have trailing slashes
+- Clear config cache: `php artisan config:clear`
+
+**Problem: Database connection failed**
+- Verify PostgreSQL is running: `sudo systemctl status postgresql`
+- Check database credentials in `.env`
+- Ensure PostgreSQL accepts connections from your app server
+
+**Problem: Redis connection failed**
+- Verify Redis is running: `sudo systemctl status redis`
+- Check Redis configuration in `.env`
+- Test connection: `redis-cli ping`
+
+**Problem: Queue jobs not processing**
+- Check Horizon status: `php artisan horizon:status`
+- View Horizon logs: `tail -f storage/logs/horizon.log`
+- Restart workers: `php artisan horizon:terminate`
+
+**Problem: WebSocket not connecting**
+- Check Reverb is running via Supervisor
+- Verify `REVERB_HOST` and `REVERB_PORT` in `.env`
+- Check firewall allows WebSocket port (default: 8080)
 
 ## Testing
 
