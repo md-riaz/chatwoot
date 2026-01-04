@@ -6,6 +6,8 @@ This guide explains how to configure WebSocket connections for real-time communi
 
 The Svelte UI connects to the Laravel backend via WebSocket for real-time updates (new messages, notifications, etc.). The backend uses Laravel Reverb as the WebSocket server.
 
+**Using Cloudflare?** See [CLOUDFLARE_REVERB_SETUP.md](./CLOUDFLARE_REVERB_SETUP.md) for specific configuration with Cloudflare proxy.
+
 ## Environment Variables
 
 ### Frontend (Svelte UI)
@@ -179,8 +181,20 @@ WebSocket connection error: ...
 WebSocket closed: ...
 ```
 
+## Using Cloudflare Proxy?
+
+If you're using Cloudflare with proxy enabled (orange cloud), see the dedicated guide:
+[CLOUDFLARE_REVERB_SETUP.md](./CLOUDFLARE_REVERB_SETUP.md)
+
+**Quick Cloudflare Configuration:**
+- SSL/TLS mode: **Flexible** (Cloudflare handles SSL, origin uses HTTP)
+- `REVERB_SCHEME=http` (in Laravel .env)
+- `VITE_WS_URL=wss://your-domain.com/app` (frontend uses wss://)
+- Set `X-Forwarded-Proto https` in nginx
+
 ## Additional Resources
 
+- [Cloudflare Reverb Setup Guide](./CLOUDFLARE_REVERB_SETUP.md) - Complete guide for Cloudflare configuration
 - [Laravel Reverb Documentation](https://laravel.com/docs/11.x/reverb)
 - [WebSocket API (MDN)](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
 - [CORS Documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)

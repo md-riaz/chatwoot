@@ -124,8 +124,8 @@ export interface SMTPSettings {
 /**
  * Get list of inboxes
  */
-export async function getInboxes(params?: InboxListParams): Promise<Inbox[]> {
-  const response = await api.get('inboxes', {
+export async function getInboxes(accountId: number, params?: InboxListParams): Promise<Inbox[]> {
+  const response = await api.get(`api/v1/accounts/${accountId}/inboxes`, {
     searchParams: params,
   }).json<Inbox[]>();
   return response;
@@ -134,16 +134,16 @@ export async function getInboxes(params?: InboxListParams): Promise<Inbox[]> {
 /**
  * Get single inbox by ID
  */
-export async function getInbox(inboxId: number): Promise<Inbox> {
-  const response = await api.get(`inboxes/${inboxId}`).json<Inbox>();
+export async function getInbox(accountId: number, inboxId: number): Promise<Inbox> {
+  const response = await api.get(`api/v1/accounts/${accountId}/inboxes/${inboxId}`).json<Inbox>();
   return response;
 }
 
 /**
  * Create new inbox
  */
-export async function createInbox(params: CreateInboxParams): Promise<Inbox> {
-  const response = await api.post('inboxes', {
+export async function createInbox(accountId: number, params: CreateInboxParams): Promise<Inbox> {
+  const response = await api.post(`api/v1/accounts/${accountId}/inboxes`, {
     json: params,
   }).json<Inbox>();
   return response;
@@ -153,6 +153,7 @@ export async function createInbox(params: CreateInboxParams): Promise<Inbox> {
  * Update inbox
  */
 export async function updateInbox(
+  accountId: number,
   inboxId: number,
   params: UpdateInboxParams
 ): Promise<Inbox> {
@@ -171,14 +172,14 @@ export async function updateInbox(
       }
     });
 
-    const response = await api.patch(`inboxes/${inboxId}`, {
+    const response = await api.patch(`api/v1/accounts/${accountId}/inboxes/${inboxId}`, {
       body: formData,
     }).json<Inbox>();
     return response;
   }
 
   // Otherwise use JSON
-  const response = await api.patch(`inboxes/${inboxId}`, {
+  const response = await api.patch(`api/v1/accounts/${accountId}/inboxes/${inboxId}`, {
     json: params,
   }).json<Inbox>();
   return response;
@@ -187,30 +188,30 @@ export async function updateInbox(
 /**
  * Delete inbox
  */
-export async function deleteInbox(inboxId: number): Promise<void> {
-  await api.delete(`inboxes/${inboxId}`);
+export async function deleteInbox(accountId: number, inboxId: number): Promise<void> {
+  await api.delete(`api/v1/accounts/${accountId}/inboxes/${inboxId}`);
 }
 
 /**
  * Delete inbox avatar
  */
-export async function deleteInboxAvatar(inboxId: number): Promise<void> {
-  await api.delete(`inboxes/${inboxId}/avatar`);
+export async function deleteInboxAvatar(accountId: number, inboxId: number): Promise<void> {
+  await api.delete(`api/v1/accounts/${accountId}/inboxes/${inboxId}/avatar`);
 }
 
 /**
  * Get agent bot for inbox
  */
-export async function getAgentBot(inboxId: number): Promise<any> {
-  const response = await api.get(`inboxes/${inboxId}/agent_bot`).json();
+export async function getAgentBot(accountId: number, inboxId: number): Promise<any> {
+  const response = await api.get(`api/v1/accounts/${accountId}/inboxes/${inboxId}/agent_bot`).json();
   return response;
 }
 
 /**
  * Set agent bot for inbox
  */
-export async function setAgentBot(inboxId: number, botId: number | null): Promise<void> {
-  await api.post(`inboxes/${inboxId}/set_agent_bot`, {
+export async function setAgentBot(accountId: number, inboxId: number, botId: number | null): Promise<void> {
+  await api.post(`api/v1/accounts/${accountId}/inboxes/${inboxId}/set_agent_bot`, {
     json: {
       agent_bot: botId,
     },
@@ -220,16 +221,16 @@ export async function setAgentBot(inboxId: number, botId: number | null): Promis
 /**
  * Sync WhatsApp templates for inbox
  */
-export async function syncTemplates(inboxId: number): Promise<MessageTemplate[]> {
-  const response = await api.post(`inboxes/${inboxId}/sync_templates`).json<MessageTemplate[]>();
+export async function syncTemplates(accountId: number, inboxId: number): Promise<MessageTemplate[]> {
+  const response = await api.post(`api/v1/accounts/${accountId}/inboxes/${inboxId}/sync_templates`).json<MessageTemplate[]>();
   return response;
 }
 
 /**
  * Get campaigns for inbox
  */
-export async function getCampaigns(inboxId: number): Promise<any[]> {
-  const response = await api.get(`inboxes/${inboxId}/campaigns`).json<any[]>();
+export async function getCampaigns(accountId: number, inboxId: number): Promise<any[]> {
+  const response = await api.get(`api/v1/accounts/${accountId}/inboxes/${inboxId}/campaigns`).json<any[]>();
   return response;
 }
 
@@ -237,10 +238,11 @@ export async function getCampaigns(inboxId: number): Promise<any[]> {
  * Update IMAP settings
  */
 export async function updateIMAPSettings(
+  accountId: number,
   inboxId: number,
   settings: IMAPSettings
 ): Promise<Inbox> {
-  const response = await api.patch(`inboxes/${inboxId}`, {
+  const response = await api.patch(`api/v1/accounts/${accountId}/inboxes/${inboxId}`, {
     json: settings,
   }).json<Inbox>();
   return response;
@@ -250,10 +252,11 @@ export async function updateIMAPSettings(
  * Update SMTP settings
  */
 export async function updateSMTPSettings(
+  accountId: number,
   inboxId: number,
   settings: SMTPSettings
 ): Promise<Inbox> {
-  const response = await api.patch(`inboxes/${inboxId}`, {
+  const response = await api.patch(`api/v1/accounts/${accountId}/inboxes/${inboxId}`, {
     json: settings,
   }).json<Inbox>();
   return response;
