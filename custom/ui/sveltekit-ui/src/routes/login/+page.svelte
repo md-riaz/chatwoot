@@ -34,13 +34,13 @@
 		submitting = true;
 		
 		try {
-			const { token, client, uid, user } = await authApi.login(formData.email, formData.password);
-			authStore.login(token, user, client, uid);
+			const { token, user } = await authApi.login(formData.email, formData.password);
+			authStore.login(token, user);
 			
 			toast.success('Logged in successfully!');
 			
-			// Redirect based on user type
-			if (user.type === 'SuperAdmin') {
+			// Redirect based on user roles
+			if (user.roles?.includes('super_admin')) {
 				goto('/app/super_admin/dashboard');
 			} else {
 				// Regular user - no account routes exist yet, show message

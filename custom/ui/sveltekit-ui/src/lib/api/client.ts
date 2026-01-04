@@ -18,8 +18,8 @@ import type {
 } from '$lib/types';
 
 const API_BASE_URL = browser
-	? import.meta.env.VITE_API_URL || 'http://localhost:3000'
-	: 'http://localhost:3000';
+	? import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+	: 'http://localhost:8000/api/v1';
 
 // Create API client with default configuration
 export const api = ky.create({
@@ -28,35 +28,17 @@ export const api = ky.create({
 	hooks: {
 		beforeRequest: [
 			(request) => {
-				// Add authentication headers if available (devise_token_auth format)
+				// Add authentication token if available
 				if (browser) {
 					const token = localStorage.getItem('auth_token');
-					const client = localStorage.getItem('auth_client');
-					const uid = localStorage.getItem('auth_uid');
-					
-					if (token && client && uid) {
-						request.headers.set('access-token', token);
-						request.headers.set('client', client);
-						request.headers.set('uid', uid);
+					if (token) {
+						request.headers.set('Authorization', `Bearer ${token}`);
 					}
 				}
 			}
 		],
 		afterResponse: [
 			async (request, options, response) => {
-				// Store auth headers from response (devise_token_auth)
-				if (browser && response.ok) {
-					const token = response.headers.get('access-token');
-					const client = response.headers.get('client');
-					const uid = response.headers.get('uid');
-					
-					if (token && client && uid) {
-						localStorage.setItem('auth_token', token);
-						localStorage.setItem('auth_client', client);
-						localStorage.setItem('auth_uid', uid);
-					}
-				}
-				
 				// Handle 401 Unauthorized - redirect to login
 				// Prevent redirect loop by checking current path
 				if (response.status === 401 && browser) {
@@ -64,8 +46,6 @@ export const api = ky.create({
 					// Only redirect if not already on login or onboarding pages
 					if (currentPath !== '/login' && currentPath !== '/onboarding') {
 						localStorage.removeItem('auth_token');
-						localStorage.removeItem('auth_client');
-						localStorage.removeItem('auth_uid');
 						localStorage.removeItem('user');
 						goto('/login');
 					}
@@ -181,43 +161,16 @@ export const superAdminApi = {
 
 // Authentication API endpoints
 export const authApi = {
-	login: async (email: string, password: string) => {
-		const response = await api.post('auth/sign_in', { json: { email, password } });
-		const data = await response.json<AuthResponse>();
-		// Extract token from headers (devise_token_auth sends it in access-token header)
-		const token = response.headers.get('access-token');
-		const client = response.headers.get('client');
-		const uid = response.headers.get('uid');
-		
-		// Ensure all required headers are present
-		if (!token || !client || !uid) {
-			throw new Error('Authentication headers missing from response');
-		}
-		
-		return { token, client, uid, user: data.data };
-	},
-	logout: () => api.delete('auth/sign_out').json<{ success: boolean }>(),
-	getCurrentUser: () => api.get('auth/validate_token').json<AuthResponse>().then(res => res.data)
+	login: (email: string, password: string) =>
+		api.post('auth/login', { json: { email, password } }).json<AuthResponse>(),
+	logout: () => api.post('auth/logout').json<{ success: boolean }>(),
+	getCurrentUser: () => api.get('auth/me').json<User>()
 };
 
 // Onboarding API endpoints
 export const onboardingApi = {
 	checkOnboardingStatus: () => api.get('installation/onboarding/status').json<OnboardingData>(),
-	completeOnboarding: async (data: { name: string; company: string; email: string; password: string }) => {
-		const response = await api.post('installation/onboarding', { json: data });
-		const responseData = await response.json<AuthResponse>();
-		// Extract token from headers
-		const token = response.headers.get('access-token');
-		const client = response.headers.get('client');
-		const uid = response.headers.get('uid');
-		
-		// Ensure all required headers are present
-		if (!token || !client || !uid) {
-			throw new Error('Authentication headers missing from onboarding response');
-		}
-		
-		return { token, client, uid, user: responseData.data };
-	}
+	completeOnboarding: (data: { name: string; company: string; email: string; password: string }) => api.post('installation/onboarding', { json: data }).json<AuthResponse>()
 };
 
 // Simplified API export for components

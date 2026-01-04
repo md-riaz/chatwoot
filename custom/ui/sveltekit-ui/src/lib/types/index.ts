@@ -2,41 +2,30 @@
 
 export interface UserAccount {
 	id: number;
-	name: string;
-	status: 'active' | 'suspended';
+	name: string | null;
+	role: string;
+	availability?: number;
 	active_at?: string;
-	role: 'administrator' | 'agent';
-	permissions?: string[];
-	availability?: 'online' | 'offline' | 'busy';
-	availability_status?: string;
-	auto_offline?: boolean;
 }
 
 export interface User {
 	id: number;
 	name: string;
 	display_name?: string;
-	available_name?: string;
 	email: string;
 	role?: 'administrator' | 'agent';
 	avatar_url?: string;
 	locked?: boolean;
 	email_confirmed?: boolean;
-	confirmed?: boolean;
 	created_at?: string;
 	updated_at?: string;
-	// Additional fields from backend
-	type?: 'User' | 'SuperAdmin';
-	access_token?: string;
-	account_id?: number;
-	inviter_id?: number;
-	provider?: string;
-	pubsub_token?: string;
-	hmac_identifier?: string;
-	message_signature?: string;
-	uid?: string;
+	phone_number?: string;
+	availability?: number;
 	custom_attributes?: Record<string, unknown>;
-	ui_settings?: Record<string, unknown>;
+	email_verified_at?: string;
+	// Roles from Spatie Permission
+	roles?: string[];
+	// Accounts the user belongs to
 	accounts?: UserAccount[];
 }
 
@@ -144,10 +133,9 @@ export interface ApiError {
 	status?: number;
 }
 
-// AuthResponse matches the Rails backend format (devise_token_auth)
-// The actual auth token, client, and uid come from response headers, not body
 export interface AuthResponse {
-	data: User;
+	token: string;
+	user: User;
 }
 
 export interface OnboardingData {

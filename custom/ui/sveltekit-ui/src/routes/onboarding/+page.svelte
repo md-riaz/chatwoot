@@ -56,13 +56,19 @@
 		submitting = true;
 		
 		try {
-			const { token, client, uid, user } = await onboardingApi.completeOnboarding(formData);
+			   await onboardingApi.completeOnboarding(formData);
 			
 			toast.success('Super admin account created successfully!');
 			
-			// Log in with the returned credentials
-			authStore.login(token, user, client, uid);
-			goto('/app/super_admin/dashboard');
+			// Try to log in automatically
+			try {
+				const { token, user } = await authApi.login(formData.email, formData.password);
+				authStore.login(token, user);
+				goto('/app/super_admin/dashboard');
+			} catch {
+				// Login failed, redirect to login page
+				goto('/login');
+			}
 		} catch (error: any) {
 			if (error.response?.errors) {
 				errors = error.response.errors;

@@ -14,8 +14,8 @@ export const load: LayoutLoad = async () => {
 		try {
 			const user = await authApi.getCurrentUser();
 			
-			// Check if user is a super admin
-			if (user.type !== 'SuperAdmin') {
+			// Check if user has super_admin role
+			if (!user.roles?.includes('super_admin')) {
 				// User is not a super admin, redirect to login with error
 				throw redirect(307, '/login?error=not_authorized');
 			}
@@ -24,8 +24,6 @@ export const load: LayoutLoad = async () => {
 		} catch (error) {
 			// Token is invalid or expired
 			localStorage.removeItem('auth_token');
-			localStorage.removeItem('auth_client');
-			localStorage.removeItem('auth_uid');
 			localStorage.removeItem('user');
 			throw redirect(307, '/login');
 		}
