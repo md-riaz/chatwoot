@@ -66,3 +66,11 @@ export interface ApiErrorResponse {
   errors?: Record<string, string[]>;
   error?: string;
 }
+
+/**
+ * Onboarding status response
+ */
+export interface OnboardingData {
+  onboardingPending: boolean;
+  adminExists?: boolean;
+}
