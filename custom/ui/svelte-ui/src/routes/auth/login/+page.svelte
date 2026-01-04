@@ -31,12 +31,20 @@
       
       if (response.user) {
         localStorage.setItem('current_user', JSON.stringify(response.user));
+        
+        // Redirect based on user roles
+        if (response.user.roles?.includes('super_admin')) {
+          // Super admin - redirect to super admin dashboard
+          toast.success('Logged in successfully!');
+          await goto('/app/super_admin/dashboard');
+          return;
+        }
       }
       
       // Show success message
       toast.success('Logged in successfully!');
       
-      // Redirect to app
+      // Regular user - redirect to app
       // TODO: Update to redirect to /app/accounts/{accountId}/conversations for Vue parity
       await goto('/app');
     } catch (err: any) {

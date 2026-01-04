@@ -24,7 +24,7 @@ function getAuthToken(): string | null {
  * Create base ky instance with configuration
  */
 const createApiClient = (): KyInstance => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
   return ky.create({
     prefixUrl: baseUrl,

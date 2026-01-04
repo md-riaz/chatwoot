@@ -21,6 +21,15 @@ class UserResource extends JsonResource
             'email_verified_at' => $this->email_verified_at?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
+            // Add roles and accounts information
+            'roles' => $this->roles->pluck('name'),
+            'accounts' => $this->accountUsers->map(fn($accountUser) => [
+                'id' => $accountUser->account_id,
+                'name' => $accountUser->account->name ?? null,
+                'role' => $accountUser->role,
+                'availability' => $accountUser->availability,
+                'active_at' => $accountUser->active_at?->toISOString(),
+            ]),
         ];
     }
 }

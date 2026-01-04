@@ -35,6 +35,8 @@ export interface CurrentUser {
   uiSettings?: Record<string, any>;
   accessToken?: string;
   confirmed?: boolean;
+  // Added for super admin support
+  roles?: string[];
 }
 
 /**
