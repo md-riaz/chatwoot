@@ -1,0 +1,34 @@
+# Netlify Configuration for Chatwoot Svelte UI
+# This configuration ensures SPA routing works correctly with page refreshes
+
+[build]
+  # Build command
+  command = "pnpm run build"
+  # Directory to publish
+  publish = "build"
+
+# SPA fallback - redirect all routes to index.html
+# This allows client-side routing to work when users refresh the page
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for better performance and security
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    # Cache control for HTML files - always revalidate
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/_app/immutable/*"
+  [headers.values]
+    # Cache immutable assets for 1 year
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    # Cache static assets for 1 year
+    Cache-Control = "public, max-age=31536000, immutable"

@@ -13,7 +13,7 @@ export function isAuthenticated(): boolean {
   if (typeof localStorage === 'undefined') return false;
   
   try {
-    const token = localStorage.getItem('chatwoot_auth_token');
+    const token = localStorage.getItem('auth_token');
     return !!token;
   } catch {
     return false;
@@ -27,7 +27,7 @@ export function getCurrentUser(): any | null {
   if (typeof localStorage === 'undefined') return null;
   
   try {
-    const userStr = localStorage.getItem('chatwoot_current_user');
+    const userStr = localStorage.getItem('current_user');
     return userStr ? JSON.parse(userStr) : null;
   } catch {
     return null;

@@ -43,7 +43,7 @@
     }
     
     // Initialize WebSocket connection
-    const token = localStorage.getItem('chatwoot_auth_token');
+    const token = localStorage.getItem('auth_token');
     const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/cable';
     
     if (token) {

@@ -9,7 +9,7 @@ import type { LayoutLoad } from './$types';
 export const load: LayoutLoad = async () => {
   // Check if user is already authenticated (client-side check)
   if (typeof localStorage !== 'undefined') {
-    const token = localStorage.getItem('chatwoot_auth_token');
+    const token = localStorage.getItem('auth_token');
     
     if (token) {
       // Redirect to app dashboard
