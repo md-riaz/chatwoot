@@ -18,7 +18,7 @@ enum Locale: int
     case IT = 6;    // Italiano
     case JA = 7;    // 日本語
     case KO = 8;    // 한국어
-    case PT = 9;    // Português
+    case PT = 9;    // Português (European Portuguese)
     case RU = 10;   // русский
     case ZH = 11;   // 中文
     case ES = 12;   // Español
@@ -102,21 +102,32 @@ enum Locale: int
     }
 
     /**
+     * Normalize locale code to standard format
+     * Handles case-insensitive input and ensures proper casing for mixed-case codes
+     * 
+     * @param string $code The locale code to normalize
+     * @return string Normalized locale code
+     */
+    private static function normalizeCode(string $code): string
+    {
+        $lower = strtolower($code);
+        
+        // Handle special cases with uppercase after underscore to match Rails
+        return match($lower) {
+            'pt_br' => 'pt_BR',
+            'zh_tw' => 'zh_TW',
+            'zh_cn' => 'zh_CN',
+            default => $lower,
+        };
+    }
+
+    /**
      * Get locale from code string (e.g., 'en' => Locale::EN)
      * Handles both lowercase and mixed case (e.g., 'pt_br' and 'pt_BR')
      */
     public static function fromCode(string $code): self
     {
-        // Normalize: lowercase the base, preserve underscore case pattern for known mixed-case codes
-        $normalized = strtolower($code);
-        
-        // Handle special cases with uppercase after underscore
-        $normalized = match($normalized) {
-            'pt_br' => 'pt_BR',
-            'zh_tw' => 'zh_TW',
-            'zh_cn' => 'zh_CN',
-            default => $normalized,
-        };
+        $normalized = self::normalizeCode($code);
         
         return match($normalized) {
             'en' => self::EN,

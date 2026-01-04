@@ -95,6 +95,21 @@ class AccountLocaleTest extends TestCase
     }
 
     /** @test */
+    public function it_validates_integer_locale_values()
+    {
+        $account = new Account();
+        $account->name = 'Test Account';
+        
+        // Valid integer should work
+        $account->locale = 0; // EN
+        $this->assertEquals(0, $account->getAttributes()['locale']);
+        
+        // Invalid integer should throw ValueError
+        $this->expectException(\ValueError::class);
+        $account->locale = 999; // Invalid locale value
+    }
+
+    /** @test */
     public function it_can_handle_locale_from_factory()
     {
         $account = Account::factory()->create([

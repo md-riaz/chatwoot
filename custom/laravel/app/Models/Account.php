@@ -397,6 +397,7 @@ class Account extends Model
      * @param string|Locale|int $value The locale value in any supported format
      * @return void
      * @throws \InvalidArgumentException If string code is invalid
+     * @throws \ValueError If integer value doesn't correspond to a valid locale
      */
     public function setLocaleAttribute(string|Locale|int $value): void
     {
@@ -405,7 +406,13 @@ class Account extends Model
         } elseif (is_string($value)) {
             $this->attributes['locale'] = Locale::fromCode($value)->value;
         } else {
-            $this->attributes['locale'] = $value;
+            // Validate that integer corresponds to a valid enum value
+            try {
+                $enum = Locale::from($value);
+                $this->attributes['locale'] = $enum->value;
+            } catch (\ValueError $e) {
+                throw new \ValueError("Invalid locale integer value: $value. Must be a valid Locale enum value.");
+            }
         }
     }
 }
