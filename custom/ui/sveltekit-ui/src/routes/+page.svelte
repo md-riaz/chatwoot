@@ -6,8 +6,6 @@
 	import { authStore } from '$lib/stores/auth';
 	import { onboardingApi } from '$lib/api/client';
 	
-	let loading = true;
-	
 	onMount(async () => {
 		try {
 			// Check if onboarding is needed first
@@ -53,11 +51,9 @@
 	<title>Chatwoot</title>
 </svelte:head>
 
-{#if loading}
-	<div class="flex min-h-screen items-center justify-center bg-background">
-		<div class="text-center">
-			<div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-			<p class="mt-2 text-sm text-muted-foreground">Loading...</p>
-		</div>
+<div class="flex min-h-screen items-center justify-center bg-background">
+	<div class="text-center">
+		<div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
+		<p class="mt-2 text-sm text-muted-foreground">Loading...</p>
 	</div>
-{/if}
+</div>
