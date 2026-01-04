@@ -38,7 +38,9 @@
         await goto('/auth/login');
       }
     } catch (error) {
-      // If API not available, assume onboarding is needed
+      // If API not available or returns error, assume onboarding is needed
+      // This handles the case where the system is being set up for the first time
+      console.error('Failed to check onboarding status:', error);
       needsOnboarding = true;
     } finally {
       loading = false;
