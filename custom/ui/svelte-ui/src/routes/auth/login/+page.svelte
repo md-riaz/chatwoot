@@ -30,8 +30,8 @@
       // Simulate successful login for testing
       if (email && password) {
         // Set a temporary token for testing
-        localStorage.setItem('chatwoot_auth_token', 'test-token');
-        localStorage.setItem('chatwoot_current_user', JSON.stringify({
+        localStorage.setItem('auth_token', 'test-token');
+        localStorage.setItem('current_user', JSON.stringify({
           id: 1,
           name: 'Test User',
           email: email,

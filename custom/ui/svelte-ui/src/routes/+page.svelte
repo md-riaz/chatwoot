@@ -2,11 +2,9 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   
-  // Note: svelte-ui uses 'chatwoot_auth_token' while sveltekit-ui uses 'auth_token'
-  // This is consistent with each project's existing implementation
   onMount(() => {
     if (typeof localStorage !== 'undefined') {
-      const token = localStorage.getItem('chatwoot_auth_token');
+      const token = localStorage.getItem('auth_token');
       if (token) {
         // User is authenticated, redirect to app
         goto('/app');
