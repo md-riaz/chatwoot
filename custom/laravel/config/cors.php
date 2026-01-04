@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => function () {
+    'allowed_origins' => (function () {
         $origins = env('CORS_ALLOWED_ORIGINS', '');
         
         // Warn if using wildcard in production
@@ -28,7 +28,7 @@ return [
         }
         
         return $origins ? explode(',', $origins) : [];
-    },
+    })(),
 
     'allowed_origins_patterns' => [],
 
