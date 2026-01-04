@@ -13,7 +13,7 @@ export const load: LayoutLoad = async ({ url }) => {
     
     if (!token) {
       // Redirect to login page with return URL
-      throw redirect(302, `/auth/login?redirect=${encodeURIComponent(url.pathname)}`);
+      throw redirect(302, `/app/login?redirect=${encodeURIComponent(url.pathname)}`);
     }
   }
   

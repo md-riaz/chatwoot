@@ -16,7 +16,7 @@
       goto(`/app/accounts/${currentAccount.id}`, { replaceState: true });
     } else {
       // If no account, redirect to login or onboarding
-      goto('/auth/login', { replaceState: true });
+      goto('/app/login', { replaceState: true });
     }
   });
 </script>

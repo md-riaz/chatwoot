@@ -10,10 +10,10 @@
         goto('/app');
       } else {
         // User is not authenticated, redirect to login
-        goto('/auth/login');
+        goto('/app/login');
       }
     } else {
-      goto('/auth/login');
+      goto('/app/login');
     }
   });
 </script>

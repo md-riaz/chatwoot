@@ -43,7 +43,7 @@
 	
 	function handleLogout() {
 		authStore.logout();
-		goto('/login');
+		goto('/app/login');
 	}
 	
 	function isActive(href: string): boolean {
