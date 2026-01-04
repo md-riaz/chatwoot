@@ -12,7 +12,7 @@ class AccountResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'locale' => $this->locale,
+            'locale' => $this->locale?->getCode() ?? 'en',
             'domain' => $this->domain,
             'support_email' => $this->support_email,
             'settings' => $this->settings,

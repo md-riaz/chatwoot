@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Locale;
 use App\Models\Concerns\CacheKeys;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -35,6 +36,7 @@ class Account extends Model
         'limits' => 'array',
         'status' => 'integer',
         'conversation_required_attributes' => 'array',
+        'locale' => Locale::class,
     ];
 
     /**
@@ -373,5 +375,41 @@ class Account extends Model
     public function autoResolveIgnoreWaiting(): bool
     {
         return (bool) data_get($this->settings, 'auto_resolve_ignore_waiting', false);
+    }
+
+    /**
+     * Get the locale attribute as a string code (e.g., 'en')
+     * This allows backwards compatibility with code expecting locale as string
+     */
+    public function getLocaleCodeAttribute(): string
+    {
+        return $this->locale?->getCode() ?? 'en';
+    }
+
+    /**
+     * Set locale from string code, enum, or integer
+     * 
+     * Converts various locale representations to integer for database storage:
+     * - string: Locale code (e.g., 'en', 'fr') - most common use case
+     * - Locale: Enum instance (e.g., Locale::EN) - direct enum assignment
+     * - int: Raw integer value (e.g., 0, 3) - internal use, avoid in application code
+     * 
+     * @param string|Locale|int $value The locale value in any supported format
+     * @return void
+     * @throws \InvalidArgumentException If string code is invalid
+     * @throws \ValueError If integer value doesn't correspond to a valid locale
+     */
+    public function setLocaleAttribute(string|Locale|int $value): void
+    {
+        if ($value instanceof Locale) {
+            $this->attributes['locale'] = $value->value;
+        } elseif (is_string($value)) {
+            $this->attributes['locale'] = Locale::fromCode($value)->value;
+        } else {
+            // Validate that integer corresponds to a valid enum value
+            // Locale::from() will throw ValueError if invalid
+            Locale::from($value);
+            $this->attributes['locale'] = $value;
+        }
     }
 }
