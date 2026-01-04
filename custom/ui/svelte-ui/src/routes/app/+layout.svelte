@@ -50,9 +50,15 @@
     if (!wsUrl) {
       // Fallback: construct from API base URL
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
-      const url = new URL(apiUrl);
-      const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-      wsUrl = `${protocol}//${url.host}/app`;
+      try {
+        const url = new URL(apiUrl);
+        const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+        wsUrl = `${protocol}//${url.host}/app`;
+      } catch (error) {
+        console.error('Invalid API URL, falling back to default WebSocket URL:', error);
+        // Fallback to a sensible default
+        wsUrl = 'ws://localhost:8080/app';
+      }
     }
     
     if (token) {
