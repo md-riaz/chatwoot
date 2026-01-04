@@ -87,17 +87,24 @@
         // Login failed, redirect to login page
         await goto('/auth/login');
       }
-    } catch (error: any) {
-      if (error.response?.data?.errors) {
-        // Laravel validation errors
-        const apiErrors = error.response.data.errors;
-        errors = Object.entries(apiErrors).reduce((acc, [key, value]) => {
-          acc[key] = Array.isArray(value) ? value.join(', ') : String(value);
-          return acc;
-        }, {} as Record<string, string>);
-      } else if (error.response?.data?.error) {
-        toast.error(error.response.data.error);
-      } else if (error.message) {
+    } catch (error: unknown) {
+      // Type guard for error with response property
+      if (error && typeof error === 'object' && 'response' in error) {
+        const responseError = error as { response?: { data?: { errors?: Record<string, unknown>; error?: string } } };
+        
+        if (responseError.response?.data?.errors) {
+          // Laravel validation errors
+          const apiErrors = responseError.response.data.errors;
+          errors = Object.entries(apiErrors).reduce((acc, [key, value]) => {
+            acc[key] = Array.isArray(value) ? value.join(', ') : String(value);
+            return acc;
+          }, {} as Record<string, string>);
+        } else if (responseError.response?.data?.error) {
+          toast.error(String(responseError.response.data.error));
+        } else {
+          toast.error('Failed to create admin account');
+        }
+      } else if (error instanceof Error) {
         toast.error(error.message);
       } else {
         toast.error('Failed to create admin account');
