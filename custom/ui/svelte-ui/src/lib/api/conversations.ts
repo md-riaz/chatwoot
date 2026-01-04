@@ -45,23 +45,40 @@ export interface Conversation {
   id: number;
   accountId: number;
   inboxId: number;
+  contactId: number;
+  assigneeId?: number;
+  teamId?: number;
+  displayId: number;
   status: ConversationStatus;
-  priority: ConversationPriority;
-  agentLastSeenAt: number;
-  canReply: boolean;
-  contactLastSeenAt: number;
+  priority?: ConversationPriority;
+  uuid?: string;
   customAttributes: Record<string, any>;
-  labels: string[];
-  muted: boolean;
-  snoozedUntil: number | null;
-  timestamp: number;
-  unreadCount: number;
-  firstReplyCreatedAt: number | null;
-  waitingSince: number | null;
-  lastActivityAt: number;
-  additionalAttributes: Record<string, any>;
-  meta: {
-    sender: {
+  firstReplyCreatedAt?: string | null;
+  lastActivityAt: string;
+  waitingSince?: string | null;
+  snoozedUntil?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  // Client-side properties
+  agentLastSeenAt?: number;
+  canReply?: boolean;
+  contactLastSeenAt?: number;
+  labels?: string[];
+  muted?: boolean;
+  timestamp?: number;
+  unreadCount?: number;
+  additionalAttributes?: Record<string, any>;
+  // Relationships (when loaded)
+  contact?: any;
+  inbox?: any;
+  assignee?: any;
+  messagesCount?: number;
+  messages?: Message[];
+  allMessagesLoaded?: boolean;
+  dataFetched?: boolean;
+  // Meta info (client-side computed)
+  meta?: {
+    sender?: {
       id: number;
       name: string;
       email: string;
@@ -81,9 +98,6 @@ export interface Conversation {
     };
     channel?: string;
   };
-  messages?: Message[];
-  allMessagesLoaded?: boolean;
-  dataFetched?: boolean;
 }
 
 /**

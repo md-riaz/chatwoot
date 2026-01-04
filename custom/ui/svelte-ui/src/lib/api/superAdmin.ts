@@ -12,59 +12,66 @@ export interface Account {
   name: string;
   locale?: string;
   domain?: string;
-  support_email?: string;
-  auto_resolve_duration?: number | null;
-  created_at: string;
-  updated_at: string;
+  supportEmail?: string;
+  autoResolveDuration?: number | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface User {
   id: number;
   email: string;
   name: string;
-  display_name?: string;
-  avatar_url?: string;
+  displayName?: string;
+  phoneNumber?: string;
+  avatarUrl?: string;
+  availability?: string;
+  emailVerifiedAt?: string;
   role?: string;
+  roles?: string[];
   confirmed?: boolean;
   locked?: boolean;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
+  accountsCount?: number;
+  accounts?: Account[];
+  accountUsers?: AccountUser[];
 }
 
 export interface DashboardData {
-  accounts_count: number;
-  users_count: number;
-  conversations_count: number;
-  messages_count: number;
-  agents_count: number;
-  recent_accounts: Account[];
-  recent_users: User[];
+  accountsCount: number;
+  usersCount: number;
+  conversationsCount: number;
+  messagesCount: number;
+  agentsCount: number;
+  recentAccounts: Account[];
+  recentUsers: User[];
 }
 
 export interface AgentBot {
   id: number;
   name: string;
   description?: string;
-  outgoing_url?: string;
-  bot_type?: string;
-  bot_config?: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
+  outgoingUrl?: string;
+  botType?: string;
+  botConfig?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PlatformApp {
   id: number;
   name: string;
   description?: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AccessToken {
   id: number;
   name: string;
   token: string;
-  created_at: string;
+  createdAt: string;
 }
 
 export interface InstallationConfig {
@@ -72,35 +79,35 @@ export interface InstallationConfig {
   name: string;
   locked: boolean;
   value: string | null;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AccountUser {
   id: number;
-  user_id: number;
-  account_id: number;
+  userId: number;
+  accountId: number;
   role: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AuditLog {
   id: number;
-  auditable_type: string;
-  auditable_id: number;
-  associated_type?: string;
-  associated_id?: number;
-  user_id?: number;
-  user_type?: string;
+  auditableType: string;
+  auditableId: number;
+  associatedType?: string;
+  associatedId?: number;
+  userId?: number;
+  userType?: string;
   username?: string;
   action: string;
-  audited_changes?: Record<string, unknown>;
+  auditedChanges?: Record<string, unknown>;
   version: number;
   comment?: string;
-  remote_address?: string;
-  request_uuid?: string;
-  created_at: string;
+  remoteAddress?: string;
+  requestUuid?: string;
+  createdAt: string;
 }
 
 export interface Setting {
@@ -108,15 +115,16 @@ export interface Setting {
   name: string;
   value?: string | null;
   locked?: boolean;
-  created_at?: string;
-  updated_at?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PaginationParams {
   page?: number;
-  per_page?: number;
-  sort_by?: string;
+  perPage?: number;
+  sortBy?: string;
   order?: 'asc' | 'desc';
+  [key: string]: string | number | boolean | undefined;
 }
 
 /**
@@ -290,7 +298,7 @@ export const superAdminApi = {
     return api.get('super_admin/account_users', { searchParams: params as Record<string, string> }).json();
   },
 
-  createAccountUser: async (data: { user_id: number; account_id: number; role: string }): Promise<AccountUser> => {
+  createAccountUser: async (data: { userId: number; accountId: number; role: string }): Promise<AccountUser> => {
     return api.post('super_admin/account_users', { json: data }).json();
   },
 

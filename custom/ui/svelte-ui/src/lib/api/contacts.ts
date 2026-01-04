@@ -4,22 +4,27 @@ import type { PaginatedResponse } from './types';
 // Contact interfaces
 export interface Contact {
   id: number;
+  accountId: number;
   name: string;
   email: string | null;
   phoneNumber: string | null;
   identifier: string | null;
-  thumbnail: string | null;
+  avatarUrl: string | null;
   customAttributes: Record<string, any>;
   additionalAttributes: Record<string, any>;
-  company: string | null;
-  city: string | null;
-  country: string | null;
-  countryCode: string | null;
-  availabilityStatus: string | null;
-  lastActivityAt: number | null;
+  lastActivityAt: string | null;
   createdAt: string;
-  conversations: any[];
-  socialProfiles: SocialProfile[];
+  updatedAt?: string;
+  conversationsCount?: number;
+  // Legacy support
+  thumbnail?: string | null;
+  company?: string | null;
+  city?: string | null;
+  country?: string | null;
+  countryCode?: string | null;
+  availabilityStatus?: string | null;
+  conversations?: any[];
+  socialProfiles?: SocialProfile[];
 }
 
 export interface SocialProfile {

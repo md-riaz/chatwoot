@@ -23,7 +23,7 @@
   };
   
   const displayName = $derived(contact.name || 'Unknown');
-  const avatarUrl = $derived(contact.thumbnail || '');
+  const avatarUrl = $derived(contact.avatarUrl || contact.thumbnail || '');
   const status = $derived(contact.availabilityStatus);
 </script>
 
