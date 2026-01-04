@@ -7,19 +7,26 @@
 	import { onboardingApi } from '$lib/api/client';
 	
 	let unsubscribe: (() => void) | null = null;
+	let hasRedirected = false;
 	
 	onMount(async () => {
 		try {
 			// Check if onboarding is needed first
 			const status = await onboardingApi.checkOnboardingStatus();
-			if (status?.needs_onboarding) {
+			// If status is returned and needs_onboarding is true, redirect to onboarding
+			if (status && status.needs_onboarding === true) {
+				hasRedirected = true;
 				goto('/onboarding');
 				return;
 			}
+			// If status is falsy or needs_onboarding is not explicitly true, continue to auth check
 		} catch (error) {
 			// If onboarding check fails, continue with auth check
 			console.debug('Onboarding check failed, proceeding with auth check');
 		}
+		
+		// Prevent multiple redirects
+		if (hasRedirected) return;
 		
 		// Wait for auth store to initialize
 		// The store's loading state will be false once initialized
@@ -27,9 +34,11 @@
 		if (authState.loading) {
 			// Wait for initialization by subscribing
 			unsubscribe = authStore.subscribe(state => {
-				if (!state.loading) {
-					if (unsubscribe) unsubscribe();
-					unsubscribe = null;
+				if (!state.loading && !hasRedirected) {
+					if (unsubscribe) {
+						unsubscribe();
+						unsubscribe = null;
+					}
 					performRedirect(state.isAuthenticated);
 				}
 			});
@@ -47,6 +56,9 @@
 	});
 	
 	function performRedirect(isAuthenticated: boolean) {
+		if (hasRedirected) return;
+		hasRedirected = true;
+		
 		if (isAuthenticated) {
 			// User is authenticated, redirect to app
 			goto('/app/super_admin/dashboard');
