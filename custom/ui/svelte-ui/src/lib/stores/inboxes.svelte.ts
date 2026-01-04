@@ -51,8 +51,13 @@ class InboxesStore {
       }
     }
     
-    // Fall back to user's current account ID
-    return authStore.currentUser.accountId || 0;
+    // Fall back to user's current account ID (with null safety)
+    return authStore.currentUser?.accountId || 0;
+  }
+
+  // Helper to validate accountId before API calls
+  private isValidAccountId(): boolean {
+    return this.currentAccountId > 0;
   }
 
   // Getter for sorted inboxes (alphabetically by name)
@@ -119,7 +124,7 @@ class InboxesStore {
    */
   async fetchInboxes(params?: InboxListParams): Promise<void> {
     // Validate accountId before making API call
-    if (!this.currentAccountId || this.currentAccountId === 0) {
+    if (!this.isValidAccountId()) {
       console.error('Cannot fetch inboxes: invalid account ID');
       return;
     }
@@ -143,7 +148,7 @@ class InboxesStore {
    */
   async fetchInbox(inboxId: number): Promise<void> {
     // Validate accountId before making API call
-    if (!this.currentAccountId || this.currentAccountId === 0) {
+    if (!this.isValidAccountId()) {
       console.error('Cannot fetch inbox: invalid account ID');
       return;
     }
@@ -167,7 +172,7 @@ class InboxesStore {
    */
   async createInbox(params: CreateInboxParams): Promise<Inbox | null> {
     // Validate accountId before making API call
-    if (!this.currentAccountId || this.currentAccountId === 0) {
+    if (!this.isValidAccountId()) {
       console.error('Cannot create inbox: invalid account ID');
       this.error = 'Invalid account ID';
       return null;
