@@ -28,6 +28,7 @@ return new class extends Migration
             $table->json('internal_attributes')->default('{}');
             $table->json('settings')->default('{}');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index('status');
             $table->index('domain');

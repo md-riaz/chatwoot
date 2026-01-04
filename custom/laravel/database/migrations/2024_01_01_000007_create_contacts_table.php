@@ -32,6 +32,7 @@ return new class extends Migration
             $table->boolean('blocked')->default(false);
             $table->integer('contact_type')->default(0);
             $table->timestamps();
+            $table->softDeletes();
 
             // Indexes for performance
             $table->index(['account_id', 'email']);

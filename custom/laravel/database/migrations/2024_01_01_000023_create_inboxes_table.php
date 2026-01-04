@@ -35,6 +35,7 @@ return new class extends Migration
             $table->foreignId('portal_id')->nullable()->constrained()->nullOnDelete();
             $table->json('csat_config')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index('account_id');
             $table->index(['channel_type', 'channel_id']);

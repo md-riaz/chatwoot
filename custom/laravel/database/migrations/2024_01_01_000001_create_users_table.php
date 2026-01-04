@@ -40,6 +40,7 @@ return new class extends Migration
             // Laravel auth fields
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
 
             // Performance indexes
             $table->index(['uid', 'provider']);

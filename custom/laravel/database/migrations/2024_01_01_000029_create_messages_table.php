@@ -33,6 +33,7 @@ return new class extends Migration
             $table->integer('sentiment')->nullable(); // -1: negative, 0: neutral, 1: positive
             $table->json('translations')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             // Performance indexes
             $table->index('account_id');
