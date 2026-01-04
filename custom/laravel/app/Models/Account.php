@@ -407,12 +407,9 @@ class Account extends Model
             $this->attributes['locale'] = Locale::fromCode($value)->value;
         } else {
             // Validate that integer corresponds to a valid enum value
-            try {
-                $enum = Locale::from($value);
-                $this->attributes['locale'] = $enum->value;
-            } catch (\ValueError $e) {
-                throw new \ValueError("Invalid locale integer value: $value. Must be a valid Locale enum value.");
-            }
+            // Locale::from() will throw ValueError if invalid
+            Locale::from($value);
+            $this->attributes['locale'] = $value;
         }
     }
 }
