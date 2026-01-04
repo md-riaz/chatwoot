@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Locale;
 use App\Models\Concerns\CacheKeys;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -35,6 +36,7 @@ class Account extends Model
         'limits' => 'array',
         'status' => 'integer',
         'conversation_required_attributes' => 'array',
+        'locale' => Locale::class,
     ];
 
     /**
@@ -373,5 +375,29 @@ class Account extends Model
     public function autoResolveIgnoreWaiting(): bool
     {
         return (bool) data_get($this->settings, 'auto_resolve_ignore_waiting', false);
+    }
+
+    /**
+     * Get the locale attribute as a string code (e.g., 'en')
+     * This allows backwards compatibility with code expecting locale as string
+     */
+    public function getLocaleCodeAttribute(): string
+    {
+        return $this->locale?->getCode() ?? 'en';
+    }
+
+    /**
+     * Set locale from string code
+     * Converts locale code string (e.g., 'en') to Locale enum
+     */
+    public function setLocaleAttribute(string|Locale|int $value): void
+    {
+        if ($value instanceof Locale) {
+            $this->attributes['locale'] = $value->value;
+        } elseif (is_string($value)) {
+            $this->attributes['locale'] = Locale::fromCode($value)->value;
+        } else {
+            $this->attributes['locale'] = $value;
+        }
     }
 }
