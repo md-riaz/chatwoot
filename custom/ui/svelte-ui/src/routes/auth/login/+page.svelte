@@ -39,13 +39,20 @@
           await goto('/app/super_admin/dashboard');
           return;
         }
+        
+        // Regular user - redirect to their account's conversations page
+        if (response.user.accounts && response.user.accounts.length > 0) {
+          const firstAccount = response.user.accounts[0];
+          toast.success('Logged in successfully!');
+          await goto(`/app/accounts/${firstAccount.id}/conversations`);
+          return;
+        }
       }
       
       // Show success message
       toast.success('Logged in successfully!');
       
-      // Regular user - redirect to app
-      // TODO: Update to redirect to /app/accounts/{accountId}/conversations for Vue parity
+      // Fallback: redirect to app root (should not happen if user has accounts)
       await goto('/app');
     } catch (err: any) {
       if (err.response?.data?.errors) {
