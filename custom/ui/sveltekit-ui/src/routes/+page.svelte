@@ -32,7 +32,7 @@
 			goto('/login');
 		}
 		
-		loading = false;
+		// Note: loading = false is not needed as goto() will unmount the component
 	});
 </script>
 
