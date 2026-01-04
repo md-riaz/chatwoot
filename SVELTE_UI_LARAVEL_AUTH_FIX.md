@@ -2,7 +2,9 @@
 
 ## Overview
 
-This PR fixes the SvelteKit UI authentication to work with the Laravel backend (not Rails). The project is migrating from Vue frontend + Rails backend to SvelteKit frontend + Laravel backend.
+This PR fixes the SvelteKit UI authentication to work with the Laravel backend. The project is migrating from Vue frontend + Rails backend to SvelteKit frontend + Laravel backend.
+
+**IMPORTANT:** The correct SvelteKit directory is `custom/ui/svelte-ui`, not `custom/ui/sveltekit-ui` (which has been deleted).
 
 ## Changes Made
 
@@ -33,55 +35,57 @@ public function toArray(Request $request): array
 
 ### 2. Frontend Type Definition
 
-**File**: `custom/ui/sveltekit-ui/src/lib/types/index.ts`
+**File**: `custom/ui/svelte-ui/src/lib/api/auth.ts`
 
-Updated User interface to match Laravel's UserResource:
+Updated CurrentUser interface to match Laravel's UserResource:
 ```typescript
-export interface UserAccount {
+export interface CurrentUser {
     id: number;
-    name: string | null;
-    role: string;
-    availability?: number;
-    active_at?: string;
-}
-
-export interface User {
-    id: number;
-    name: string;
+    accountId: number;
+    accounts: UserAccount[];
     email: string;
-    // ... other fields ...
-    roles?: string[];        // From Spatie Permission
-    accounts?: UserAccount[]; // User's account memberships
+    name: string;
+    // ... other existing fields ...
+    roles?: string[];  // Added for super admin support
 }
 ```
 
 ### 3. API Client Configuration
 
-**File**: `custom/ui/sveltekit-ui/src/lib/api/client.ts`
+**File**: `custom/ui/svelte-ui/src/lib/api/client.ts`
 
 Configured for Laravel backend:
-- **Base URL**: `http://localhost:8000/api/v1` (Laravel default)
-- **Auth Method**: Bearer token (Laravel Sanctum)
+- **Base URL**: `http://localhost:8000` (Laravel default)
+- **Auth Method**: ****** (Laravel Sanctum)
 - **Endpoints**:
   - Login: `POST /api/v1/auth/login`
   - Logout: `POST /api/v1/auth/logout`
   - Get User: `GET /api/v1/auth/me`
 
 ```typescript
-// Authentication uses Bearer token
-beforeRequest: [
-    (request) => {
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-            request.headers.set('Authorization', `Bearer ${token}`);
+// API client uses ******
+const createApiClient = (): KyInstance => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  
+  return ky.create({
+    // ...
+    hooks: {
+      beforeRequest: [
+        (request) => {
+          const token = getAuthToken();
+          if (token) {
+            request.headers.set('Authorization', `******;
+          }
         }
+      ]
     }
-]
+  });
+};
 ```
 
 ### 4. Super Admin Authorization
 
-**File**: `custom/ui/sveltekit-ui/src/routes/app/super_admin/+layout.ts`
+**File**: `custom/ui/svelte-ui/src/routes/app/super_admin/+layout.ts`
 
 Uses Spatie Permission roles to check for super admin access:
 ```typescript
@@ -93,16 +97,14 @@ if (!user.roles?.includes('super_admin')) {
 
 ### 5. Login Flow
 
-**File**: `custom/ui/sveltekit-ui/src/routes/login/+page.svelte`
+**File**: `custom/ui/svelte-ui/src/routes/auth/login/+page.svelte`
 
 Redirects based on user roles:
 ```typescript
-if (user.roles?.includes('super_admin')) {
-    goto('/app/super_admin/dashboard');
+if (response.user.roles?.includes('super_admin')) {
+    await goto('/app/super_admin/dashboard');
 } else {
-    // Regular users - account routes don't exist yet
-    toast.error('Regular account interface not yet available...');
-    authStore.logout();
+    await goto('/app');
 }
 ```
 
@@ -138,9 +140,9 @@ if (user.roles?.includes('super_admin')) {
 
 ### API Requests
 
-All subsequent API requests include the Bearer token:
+All subsequent API requests include the ******
 ```
-Authorization: Bearer 1|abc123...
+Authorization: ******
 ```
 
 ### Logout Process
@@ -165,6 +167,16 @@ The Laravel backend has `EnsureSuperAdmin` middleware that also checks:
 $request->user()->hasRole('super_admin')
 ```
 
+## Directory Structure
+
+```
+custom/ui/
+├── storybooks/     # Component storybooks
+└── svelte-ui/      # ✅ CORRECT: SvelteKit SPA project
+```
+
+**Note:** The `custom/ui/sveltekit-ui` directory was created by mistake and has been completely deleted.
+
 ## Testing
 
 ### Prerequisites
@@ -183,7 +195,7 @@ php artisan db:seed  # Seeds a super admin user
 
 3. **SvelteKit Dev Server**:
 ```bash
-cd custom/ui/sveltekit-ui
+cd custom/ui/svelte-ui
 pnpm install
 pnpm dev
 ```
@@ -191,7 +203,7 @@ pnpm dev
 ### Test Cases
 
 #### 1. Super Admin Login
-- Navigate to `/login`
+- Navigate to `/auth/login`
 - Enter super admin credentials
 - Should redirect to `/app/super_admin/dashboard`
 - User info should display in sidebar
@@ -204,39 +216,38 @@ pnpm dev
 
 #### 3. Regular User Login
 - Login with a user without super_admin role
-- Should see error message
-- Auth should be cleared (logout)
+- Should redirect to `/app` (regular app interface)
 - Should NOT be able to access super admin routes
 
 #### 4. API Token Validation
 - After login, check localStorage for `auth_token`
-- All API requests should include `Authorization: Bearer <token>` header
+- All API requests should include `Authorization: ****** header
 - Token should be validated by Laravel on each request
 
 #### 5. Logout
 - Click logout button
-- Should redirect to `/login`
+- Should redirect to `/auth/login`
 - Token should be removed from localStorage
 - Should not be able to access protected routes
 
 ## Files Changed
 
 1. `custom/laravel/app/Http/Resources/User/UserResource.php` - Added roles and accounts
-2. `custom/ui/sveltekit-ui/src/lib/types/index.ts` - Updated User interface
-3. `custom/ui/sveltekit-ui/src/lib/api/client.ts` - Laravel endpoints and Bearer token
-4. `custom/ui/sveltekit-ui/src/routes/app/super_admin/+layout.ts` - Role-based auth
-5. `custom/ui/sveltekit-ui/src/routes/login/+page.svelte` - Role-based redirect
+2. `custom/ui/svelte-ui/src/lib/api/auth.ts` - Added roles to CurrentUser
+3. `custom/ui/svelte-ui/src/lib/api/client.ts` - Laravel base URL (8000)
+4. `custom/ui/svelte-ui/src/routes/app/super_admin/+layout.ts` - Role-based auth
+5. `custom/ui/svelte-ui/src/routes/auth/login/+page.svelte` - Role-based redirect
 
 ## Configuration
 
 ### Environment Variables
 
-**SvelteKit** (`.env`):
+**SvelteKit** (`.env` in `custom/ui/svelte-ui`):
 ```
-VITE_API_URL=http://localhost:8000/api/v1
+VITE_API_BASE_URL=http://localhost:8000
 ```
 
-**Laravel** (`.env`):
+**Laravel** (`.env` in `custom/laravel`):
 ```
 APP_URL=http://localhost:8000
 ```
@@ -251,10 +262,10 @@ APP_URL=http://localhost:8000
 
 ## Known Limitations
 
-1. **Regular Account Routes**: Not yet implemented. Regular users cannot login until account routes are created.
-2. **URL Structure**: Current URLs don't include account ID (`/app/settings/inboxes` vs `/app/accounts/:accountId/settings/inboxes`). Will be addressed in separate PR.
+1. **Regular Account Routes**: Regular account routes already exist in svelte-ui
+2. **URL Structure**: Current URLs don't include account ID in some places. Will be addressed in future PR.
 
-## Migration from Rails
+## Migration Notes
 
 This codebase was originally using Rails backend. The authentication has been updated to work with Laravel:
 
@@ -262,15 +273,18 @@ This codebase was originally using Rails backend. The authentication has been up
 |--------|-------------|---------------|
 | Port | 3000 | 8000 |
 | Auth Library | devise_token_auth | Laravel Sanctum |
-| Token Format | Headers: access-token, client, uid | Bearer token |
+| Token Format | Headers: access-token, client, uid | ****** |
 | User Type Check | `user.type === 'SuperAdmin'` | `user.roles?.includes('super_admin')` |
 | Roles System | Built-in type field | Spatie Permission package |
-| Login Endpoint | `/auth/sign_in` | `/api/v1/auth/login` |
 | Response Format | `{ data: { ...user } }` | `{ token, user }` |
+| Frontend Dir | N/A | `custom/ui/svelte-ui` |
 
-## Next Steps
+## Summary
 
-1. Test the authentication flow with Laravel backend
-2. Create regular account routes for non-super-admin users
-3. Implement URL structure with account ID
-4. Add account switching functionality
+- ✅ All changes applied to correct directory: `custom/ui/svelte-ui`
+- ✅ Laravel backend returns roles and accounts data
+- ✅ Frontend checks super_admin role for authorization
+- ✅ API configured for Laravel (port 8000, ****** auth)
+- ✅ Wrong directory (`custom/ui/sveltekit-ui`) completely deleted
+- ✅ Build succeeds
+- ✅ No security vulnerabilities
