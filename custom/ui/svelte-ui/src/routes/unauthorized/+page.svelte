@@ -27,10 +27,10 @@
     </div>
     
     <div class="flex gap-4 justify-center">
-      <Button onclick={goBack} variant="outline">
+      <Button on:click={goBack} variant="outline">
         Go Back
       </Button>
-      <Button onclick={goToLogin}>
+      <Button on:click={goToLogin}>
         Go to Login
       </Button>
     </div>
