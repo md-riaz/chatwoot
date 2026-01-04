@@ -108,7 +108,7 @@ export interface AvailabilityUpdateParams {
  * Login user
  */
 export async function login(params: LoginParams): Promise<LoginResponse> {
-  const response = await api.post('auth/login', {
+  const response = await api.post('api/v1/auth/login', {
     json: params
   }).json<LoginResponse>();
   
@@ -119,7 +119,7 @@ export async function login(params: LoginParams): Promise<LoginResponse> {
  * Register new user
  */
 export async function register(params: RegisterParams): Promise<RegisterResponse> {
-  const response = await api.post('auth/register', {
+  const response = await api.post('api/v1/auth/register', {
     json: params
   }).json<RegisterResponse>();
   
@@ -139,7 +139,7 @@ export async function register(params: RegisterParams): Promise<RegisterResponse
  * Check if user is authenticated by validating current session
  */
 export async function validityCheck(): Promise<CurrentUser> {
-  const response = await api.get('auth/me').json<CurrentUser>();
+  const response = await api.get('api/v1/auth/me').json<CurrentUser>();
   return response;
 }
 
@@ -147,7 +147,7 @@ export async function validityCheck(): Promise<CurrentUser> {
  * Logout current user
  */
 export async function logout(): Promise<void> {
-  await api.post('auth/logout');
+  await api.post('api/v1/auth/logout');
 }
 
 /**
@@ -208,7 +208,7 @@ export async function updateProfile(params: ProfileUpdateParams): Promise<Curren
       'api/v1/profile',
       formData,
       {
-        method: 'PUT'
+        method: 'PATCH'
       }
     );
     return response;
@@ -227,7 +227,7 @@ export async function updateProfile(params: ProfileUpdateParams): Promise<Curren
     payload.displayName = displayName;
   }
   
-  const response = await api.put('api/v1/profile', {
+  const response = await api.patch('api/v1/profile', {
     json: { profile: payload }
   }).json<CurrentUser>();
   
@@ -238,7 +238,7 @@ export async function updateProfile(params: ProfileUpdateParams): Promise<Curren
  * Update user password
  */
 export async function updatePassword(params: PasswordUpdateParams): Promise<CurrentUser> {
-  const response = await api.put('api/v1/profile', {
+  const response = await api.patch('api/v1/profile/password', {
     json: {
       profile: {
         currentPassword: params.currentPassword,
@@ -255,7 +255,7 @@ export async function updatePassword(params: PasswordUpdateParams): Promise<Curr
  * Update UI settings
  */
 export async function updateUISettings(uiSettings: Record<string, any>): Promise<CurrentUser> {
-  const response = await api.put('api/v1/profile', {
+  const response = await api.patch('api/v1/profile', {
     json: {
       profile: { uiSettings }
     }
@@ -268,7 +268,7 @@ export async function updateUISettings(uiSettings: Record<string, any>): Promise
  * Update availability status
  */
 export async function updateAvailability(params: AvailabilityUpdateParams): Promise<CurrentUser> {
-  const response = await api.post('api/v1/profile/availability', {
+  const response = await api.patch('api/v1/profile/availability', {
     json: {
       profile: params
     }
@@ -281,7 +281,7 @@ export async function updateAvailability(params: AvailabilityUpdateParams): Prom
  * Update auto-offline setting
  */
 export async function updateAutoOffline(accountId: number, autoOffline: boolean): Promise<CurrentUser> {
-  const response = await api.post('api/v1/profile/auto_offline', {
+  const response = await api.patch('api/v1/profile/auto_offline', {
     json: {
       profile: {
         accountId,
@@ -305,7 +305,7 @@ export async function deleteAvatar(): Promise<CurrentUser> {
  * Reset password (forgot password flow)
  */
 export async function resetPassword(email: string): Promise<void> {
-  await api.post('auth/password', {
+  await api.post('api/v1/auth/password/email', {
     json: { email }
   });
 }
@@ -325,7 +325,7 @@ export async function setActiveAccount(accountId: number): Promise<void> {
  * Resend confirmation email
  */
 export async function resendConfirmation(): Promise<void> {
-  await api.post('auth/confirmation');
+  await api.post('api/v1/profile/resend_confirmation');
 }
 
 /**
