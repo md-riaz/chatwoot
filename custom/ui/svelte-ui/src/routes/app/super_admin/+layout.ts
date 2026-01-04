@@ -7,7 +7,7 @@ export const load: LayoutLoad = async () => {
 	if (browser) {
 		const token = localStorage.getItem('auth_token');
 		if (!token) {
-			throw redirect(307, '/login');
+			throw redirect(307, '/app/login');
 		}
 
 		// Verify token validity and check if user is super admin
@@ -17,7 +17,7 @@ export const load: LayoutLoad = async () => {
 			// Check if user has super_admin role
 			if (!user.roles?.includes('super_admin')) {
 				// User is not a super admin, redirect to login with error
-				throw redirect(307, '/login?error=not_authorized');
+				throw redirect(307, '/app/login?error=not_authorized');
 			}
 			
 			// Token is valid and user is super admin, proceed
@@ -25,7 +25,7 @@ export const load: LayoutLoad = async () => {
 			// Token is invalid or expired
 			localStorage.removeItem('auth_token');
 			localStorage.removeItem('user');
-			throw redirect(307, '/login');
+			throw redirect(307, '/app/login');
 		}
 	}
 	

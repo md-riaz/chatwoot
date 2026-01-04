@@ -124,7 +124,7 @@
   
   <div class="text-center text-sm text-muted-foreground">
     Don't have an account?{' '}
-    <a href="/auth/register" class="text-primary hover:underline">
+    <a href="/app/auth/signup" class="text-primary hover:underline">
       Sign up
     </a>
   </div>

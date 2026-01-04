@@ -35,7 +35,7 @@
       
       if (!needsOnboarding) {
         // Onboarding already complete, redirect to login
-        await goto('/auth/login');
+        await goto('/app/login');
       }
     } catch (error) {
       // If API not available or returns error, assume onboarding is needed
@@ -87,7 +87,7 @@
         await goto('/app');
       } catch {
         // Login failed, redirect to login page
-        await goto('/auth/login');
+        await goto('/app/login');
       }
     } catch (error: unknown) {
       // Type guard for error with response property
