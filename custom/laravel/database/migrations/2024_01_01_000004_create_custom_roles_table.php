@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
             $table->json('permissions')->default('[]');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->unique(['name', 'account_id']);
         });

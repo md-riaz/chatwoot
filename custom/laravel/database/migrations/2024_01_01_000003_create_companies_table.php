@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('contacts_count')->default(0);
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['name', 'account_id']);
             $table->unique(['domain', 'account_id'], 'companies_domain_account_unique');

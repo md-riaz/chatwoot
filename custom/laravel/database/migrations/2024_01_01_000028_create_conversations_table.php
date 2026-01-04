@@ -41,6 +41,7 @@ return new class extends Migration
             $table->timestamp('waiting_since')->nullable();
             $table->foreignId('assignee_agent_bot_id')->nullable()->constrained('agent_bots')->nullOnDelete();
             $table->timestamps();
+            $table->softDeletes();
 
             // Performance indexes
             $table->index('account_id');
