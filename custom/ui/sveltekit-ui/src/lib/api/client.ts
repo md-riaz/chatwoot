@@ -185,9 +185,15 @@ export const authApi = {
 		const response = await api.post('auth/sign_in', { json: { email, password } });
 		const data = await response.json<AuthResponse>();
 		// Extract token from headers (devise_token_auth sends it in access-token header)
-		const token = response.headers.get('access-token') || '';
-		const client = response.headers.get('client') || '';
-		const uid = response.headers.get('uid') || '';
+		const token = response.headers.get('access-token');
+		const client = response.headers.get('client');
+		const uid = response.headers.get('uid');
+		
+		// Ensure all required headers are present
+		if (!token || !client || !uid) {
+			throw new Error('Authentication headers missing from response');
+		}
+		
 		return { token, client, uid, user: data.data };
 	},
 	logout: () => api.delete('auth/sign_out').json<{ success: boolean }>(),
@@ -201,9 +207,15 @@ export const onboardingApi = {
 		const response = await api.post('installation/onboarding', { json: data });
 		const responseData = await response.json<AuthResponse>();
 		// Extract token from headers
-		const token = response.headers.get('access-token') || '';
-		const client = response.headers.get('client') || '';
-		const uid = response.headers.get('uid') || '';
+		const token = response.headers.get('access-token');
+		const client = response.headers.get('client');
+		const uid = response.headers.get('uid');
+		
+		// Ensure all required headers are present
+		if (!token || !client || !uid) {
+			throw new Error('Authentication headers missing from onboarding response');
+		}
+		
 		return { token, client, uid, user: responseData.data };
 	}
 };

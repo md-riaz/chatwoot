@@ -43,8 +43,9 @@
 			if (user.type === 'SuperAdmin') {
 				goto('/app/super_admin/dashboard');
 			} else {
-				// TODO: Redirect to account dashboard when regular routes are implemented
-				goto('/app/super_admin/dashboard');
+				// Regular user - no account routes exist yet, show message
+				toast.error('Regular account interface not yet available. Please use the mobile app or contact support.');
+				authStore.logout(); // Clear auth since we can't provide proper interface
 			}
 		} catch (error: any) {
 			if (error.response?.status === 401) {

@@ -144,6 +144,8 @@ export interface ApiError {
 	status?: number;
 }
 
+// AuthResponse matches the Rails backend format (devise_token_auth)
+// The actual auth token, client, and uid come from response headers, not body
 export interface AuthResponse {
 	data: User;
 }

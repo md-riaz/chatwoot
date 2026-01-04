@@ -27,11 +27,14 @@ function createAuthStore() {
 				const client = localStorage.getItem('auth_client');
 				const uid = localStorage.getItem('auth_uid');
 				const userStr = localStorage.getItem('user');
+				
+				// All three tokens are required for valid session
 				if (token && client && uid && userStr) {
 					try {
 						const user = JSON.parse(userStr);
 						set({ isAuthenticated: true, user, token, loading: false });
 					} catch {
+						// Invalid user data, clear everything
 						localStorage.removeItem('auth_token');
 						localStorage.removeItem('auth_client');
 						localStorage.removeItem('auth_uid');
@@ -39,6 +42,13 @@ function createAuthStore() {
 						set({ ...initialState, loading: false });
 					}
 				} else {
+					// Incomplete auth state, clear everything to ensure consistency
+					if (token || client || uid || userStr) {
+						localStorage.removeItem('auth_token');
+						localStorage.removeItem('auth_client');
+						localStorage.removeItem('auth_uid');
+						localStorage.removeItem('user');
+					}
 					set({ ...initialState, loading: false });
 				}
 			}
