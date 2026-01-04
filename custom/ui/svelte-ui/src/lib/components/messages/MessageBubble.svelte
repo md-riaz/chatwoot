@@ -20,17 +20,17 @@
   // Derived values
   const variant = $derived(() => {
     if (message.private) return 'private';
-    if (message.message_type === 1) return 'incoming'; // Customer message
+    if (message.messageType === 1) return 'incoming'; // Customer message
     return 'outgoing'; // Agent message
   });
   
   const senderName = $derived(message.sender?.name || 'Unknown');
-  const senderAvatar = $derived(message.sender?.avatar || '');
+  const senderAvatar = $derived(message.sender?.avatarUrl || message.sender?.thumbnail || '');
   
   const timestamp = $derived(() => {
-    if (!message.created_at) return '';
+    if (!message.createdAt) return '';
     try {
-      const date = new Date(message.created_at * 1000);
+      const date = new Date(message.createdAt);
       return date.toLocaleTimeString('en-US', { 
         hour: '2-digit', 
         minute: '2-digit' 
@@ -77,22 +77,23 @@
     {#if message.attachments && message.attachments.length > 0}
       <div class="mt-2 space-y-2">
         {#each message.attachments as attachment}
-          {#if attachment.file_type === 'image'}
+          {#if attachment.fileType === 'image'}
             <img 
-              src={attachment.data_url} 
-              alt={attachment.file_name || 'Image'}
+              src={attachment.dataUrl} 
+              alt="Image"
               class="max-w-xs rounded-lg"
             />
           {:else}
             <a 
-              href={attachment.data_url}
-              download={attachment.file_name}
+              href={attachment.dataUrl}
               class="flex items-center gap-2 p-2 bg-background rounded-md border text-sm hover:bg-accent"
             >
-              <span class="flex-1 truncate">{attachment.file_name}</span>
+              <span class="flex-1 truncate">File</span>
+              {#if attachment.fileSize}
               <Badge variant="outline" class="text-xs">
-                {(attachment.file_size / 1024).toFixed(1)} KB
+                {(attachment.fileSize / 1024).toFixed(1)} KB
               </Badge>
+              {/if}
             </a>
           {/if}
         {/each}

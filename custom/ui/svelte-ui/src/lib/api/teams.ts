@@ -26,6 +26,7 @@ export interface TeamMember {
 export interface TeamListParams {
   page?: number;
   perPage?: number;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface CreateTeamParams {

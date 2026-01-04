@@ -34,6 +34,7 @@ export interface CompanyListParams {
   perPage?: number;
   sort?: string;
   q?: string;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface CompanySearchParams {

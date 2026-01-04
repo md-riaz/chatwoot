@@ -19,6 +19,7 @@ export interface AttributeListParams {
   page?: number;
   perPage?: number;
   attributeModel?: 'contact_attribute' | 'conversation_attribute';
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface CreateAttributeParams {

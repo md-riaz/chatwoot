@@ -72,6 +72,7 @@ export interface TemplateComponent {
 export interface InboxListParams {
   page?: number;
   perPage?: number;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface CreateInboxParams {

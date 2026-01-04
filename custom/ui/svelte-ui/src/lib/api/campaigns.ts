@@ -78,6 +78,7 @@ export interface CampaignListParams {
   perPage?: number;
   inboxId?: number;
   campaignType?: string;
+  [key: string]: string | number | boolean | undefined;
 }
 
 /**

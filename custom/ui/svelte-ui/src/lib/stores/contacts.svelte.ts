@@ -84,7 +84,7 @@ class ContactsStore {
         params
       );
 
-      this.allContacts = response.payload || [];
+      this.allContacts = response.data || [];
       this.currentPage = params.page || 1;
       this.hasMorePages = !!response.meta?.nextPage;
     } catch (err: any) {
@@ -112,7 +112,7 @@ class ContactsStore {
         page
       );
 
-      this.allContacts = response.payload || [];
+      this.allContacts = response.data || [];
       this.currentPage = page;
       this.hasMorePages = !!response.meta?.nextPage;
     } catch (err: any) {
@@ -139,7 +139,7 @@ class ContactsStore {
         filters
       );
 
-      this.allContacts = response.payload || [];
+      this.allContacts = response.data || [];
       this.currentPage = filters.page || 1;
       this.hasMorePages = !!response.meta?.nextPage;
     } catch (err: any) {

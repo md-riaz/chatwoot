@@ -45,23 +45,40 @@ export interface Conversation {
   id: number;
   accountId: number;
   inboxId: number;
+  contactId: number;
+  assigneeId?: number;
+  teamId?: number;
+  displayId: number;
   status: ConversationStatus;
-  priority: ConversationPriority;
-  agentLastSeenAt: number;
-  canReply: boolean;
-  contactLastSeenAt: number;
+  priority?: ConversationPriority;
+  uuid?: string;
   customAttributes: Record<string, any>;
-  labels: string[];
-  muted: boolean;
-  snoozedUntil: number | null;
-  timestamp: number;
-  unreadCount: number;
-  firstReplyCreatedAt: number | null;
-  waitingSince: number | null;
-  lastActivityAt: number;
-  additionalAttributes: Record<string, any>;
-  meta: {
-    sender: {
+  firstReplyCreatedAt?: string | null;
+  lastActivityAt: string;
+  waitingSince?: string | null;
+  snoozedUntil?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  // Client-side properties
+  agentLastSeenAt?: number;
+  canReply?: boolean;
+  contactLastSeenAt?: number;
+  labels?: string[];
+  muted?: boolean;
+  timestamp?: number;
+  unreadCount?: number;
+  additionalAttributes?: Record<string, any>;
+  // Relationships (when loaded)
+  contact?: any;
+  inbox?: any;
+  assignee?: any;
+  messagesCount?: number;
+  messages?: Message[];
+  allMessagesLoaded?: boolean;
+  dataFetched?: boolean;
+  // Meta info (client-side computed)
+  meta?: {
+    sender?: {
       id: number;
       name: string;
       email: string;
@@ -81,9 +98,6 @@ export interface Conversation {
     };
     channel?: string;
   };
-  messages?: Message[];
-  allMessagesLoaded?: boolean;
-  dataFetched?: boolean;
 }
 
 /**
@@ -98,6 +112,7 @@ export interface ConversationListParams {
   teamId?: number;
   page?: number;
   sortBy?: 'latest' | 'oldest' | 'unread' | 'priority';
+  [key: string]: string | number | boolean | string[] | undefined;
 }
 
 /**
@@ -120,12 +135,14 @@ export async function getConversations(params: ConversationListParams): Promise<
   }).json<{ data: { payload: Conversation[]; meta: any } }>();
   
   return {
-    items: response.data.payload,
-    page: queryParams.page || 1,
-    perPage: 20,
-    totalPages: response.data.meta?.total_pages || 1,
-    totalCount: response.data.meta?.count || 0,
-    hasMore: (queryParams.page || 1) < (response.data.meta?.total_pages || 1)
+    data: response.data.payload,
+    meta: {
+      currentPage: queryParams.page || 1,
+      nextPage: (queryParams.page || 1) < (response.data.meta?.total_pages || 1) ? (queryParams.page || 1) + 1 : null,
+      prevPage: (queryParams.page || 1) > 1 ? (queryParams.page || 1) - 1 : null,
+      totalPages: response.data.meta?.total_pages || 1,
+      totalCount: response.data.meta?.count || 0
+    }
   };
 }
 

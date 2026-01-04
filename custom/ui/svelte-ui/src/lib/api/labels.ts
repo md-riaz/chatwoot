@@ -15,6 +15,7 @@ export interface Label {
 export interface LabelListParams {
   page?: number;
   perPage?: number;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface CreateLabelParams {
