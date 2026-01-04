@@ -316,6 +316,40 @@ export const superAdminApi = {
   }
 };
 
+// Simplified API export for components (adds convenience wrappers)
+export const superAdminAPI = {
+  dashboard: {
+    get: () => superAdminApi.getDashboard(),
+    status: () => superAdminApi.getInstanceStatus()
+  },
+  accounts: {
+    list: (params?: PaginationParams) => superAdminApi.getAccounts(params),
+    get: (id: string) => superAdminApi.getAccount(parseInt(id)),
+    create: (data: Partial<Account>) => superAdminApi.createAccount(data),
+    update: (id: string, data: Partial<Account>) => superAdminApi.updateAccount(parseInt(id), data),
+    delete: (id: string) => superAdminApi.deleteAccount(parseInt(id))
+  },
+  users: {
+    list: (params?: PaginationParams) => superAdminApi.getUsers(params),
+    get: (id: string) => superAdminApi.getUser(parseInt(id)),
+    create: (data: Partial<User> & { password: string }) => superAdminApi.createUser(data),
+    update: (id: string, data: Partial<User>) => superAdminApi.updateUser(parseInt(id), data),
+    delete: (id: string) => superAdminApi.deleteUser(parseInt(id)),
+    uploadAvatar: (id: string, file: File) => superAdminApi.uploadUserAvatar(parseInt(id), file),
+    deleteAvatar: (id: string) => superAdminApi.deleteUserAvatar(parseInt(id)),
+    confirmEmail: (id: string) => superAdminApi.confirmUserEmail(parseInt(id)),
+    lock: (id: string) => superAdminApi.lockUser(parseInt(id)),
+    unlock: (id: string) => superAdminApi.unlockUser(parseInt(id))
+  },
+  settings: {
+    get: () => superAdminApi.getSettings(),
+    getGrouped: () => superAdminApi.getSettingsGrouped(),
+    update: (data: Record<string, unknown>) => superAdminApi.updateSettings(data),
+    create: (data: Partial<Setting>) => superAdminApi.createSetting(data),
+    delete: (name: string) => superAdminApi.deleteSetting(name)
+  }
+};
+
 // Export authApi for compatibility with SuperAdmin routes
 export const authApi = {
   getCurrentUser: async (): Promise<User> => {

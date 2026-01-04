@@ -23,8 +23,8 @@
   };
   
   const displayName = $derived(contact.name || 'Unknown');
-  const avatarUrl = $derived(contact.thumbnail || contact.avatar_url || '');
-  const status = $derived(contact.availability_status);
+  const avatarUrl = $derived(contact.thumbnail || '');
+  const status = $derived(contact.availabilityStatus);
 </script>
 
 <div class="flex items-center gap-3">

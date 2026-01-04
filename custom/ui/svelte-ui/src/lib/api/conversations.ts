@@ -98,6 +98,7 @@ export interface ConversationListParams {
   teamId?: number;
   page?: number;
   sortBy?: 'latest' | 'oldest' | 'unread' | 'priority';
+  [key: string]: string | number | boolean | string[] | undefined;
 }
 
 /**
@@ -120,12 +121,14 @@ export async function getConversations(params: ConversationListParams): Promise<
   }).json<{ data: { payload: Conversation[]; meta: any } }>();
   
   return {
-    items: response.data.payload,
-    page: queryParams.page || 1,
-    perPage: 20,
-    totalPages: response.data.meta?.total_pages || 1,
-    totalCount: response.data.meta?.count || 0,
-    hasMore: (queryParams.page || 1) < (response.data.meta?.total_pages || 1)
+    data: response.data.payload,
+    meta: {
+      currentPage: queryParams.page || 1,
+      nextPage: (queryParams.page || 1) < (response.data.meta?.total_pages || 1) ? (queryParams.page || 1) + 1 : null,
+      prevPage: (queryParams.page || 1) > 1 ? (queryParams.page || 1) - 1 : null,
+      totalPages: response.data.meta?.total_pages || 1,
+      totalCount: response.data.meta?.count || 0
+    }
   };
 }
 

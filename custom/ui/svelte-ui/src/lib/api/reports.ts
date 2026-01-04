@@ -36,6 +36,7 @@ export interface ReportFilters {
   until?: string;
   type?: 'account' | 'agent' | 'team' | 'label' | 'inbox';
   id?: number;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface ReportsResponse {
