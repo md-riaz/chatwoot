@@ -198,6 +198,13 @@ class InboxesStore {
    * Update inbox
    */
   async updateInbox(inboxId: number, params: UpdateInboxParams): Promise<Inbox | null> {
+    // Validate accountId before making API call
+    if (!this.isValidAccountId()) {
+      console.error('Cannot update inbox: invalid account ID');
+      this.error = 'Invalid account ID';
+      return null;
+    }
+
     this.uiFlags.isUpdating = true;
     this.error = null;
 
@@ -218,6 +225,13 @@ class InboxesStore {
    * Delete inbox
    */
   async deleteInbox(inboxId: number): Promise<boolean> {
+    // Validate accountId before making API call
+    if (!this.isValidAccountId()) {
+      console.error('Cannot delete inbox: invalid account ID');
+      this.error = 'Invalid account ID';
+      return false;
+    }
+
     this.uiFlags.isDeleting = true;
     this.error = null;
 
@@ -243,6 +257,13 @@ class InboxesStore {
    * Delete inbox avatar
    */
   async deleteInboxAvatar(inboxId: number): Promise<boolean> {
+    // Validate accountId before making API call
+    if (!this.isValidAccountId()) {
+      console.error('Cannot delete inbox avatar: invalid account ID');
+      this.error = 'Invalid account ID';
+      return false;
+    }
+
     this.error = null;
 
     try {
@@ -267,6 +288,13 @@ class InboxesStore {
    * Get agent bot for inbox
    */
   async getAgentBot(inboxId: number): Promise<any> {
+    // Validate accountId before making API call
+    if (!this.isValidAccountId()) {
+      console.error('Cannot get agent bot: invalid account ID');
+      this.error = 'Invalid account ID';
+      return null;
+    }
+
     this.error = null;
 
     try {
@@ -283,6 +311,13 @@ class InboxesStore {
    * Set agent bot for inbox
    */
   async setAgentBot(inboxId: number, botId: number | null): Promise<boolean> {
+    // Validate accountId before making API call
+    if (!this.isValidAccountId()) {
+      console.error('Cannot set agent bot: invalid account ID');
+      this.error = 'Invalid account ID';
+      return false;
+    }
+
     this.error = null;
 
     try {
@@ -303,6 +338,13 @@ class InboxesStore {
    * Sync WhatsApp templates for inbox
    */
   async syncTemplates(inboxId: number): Promise<MessageTemplate[]> {
+    // Validate accountId before making API call
+    if (!this.isValidAccountId()) {
+      console.error('Cannot sync templates: invalid account ID');
+      this.error = 'Invalid account ID';
+      return [];
+    }
+
     this.uiFlags.isSyncingTemplates = true;
     this.error = null;
 
@@ -330,6 +372,13 @@ class InboxesStore {
    * Update IMAP settings
    */
   async updateIMAPSettings(inboxId: number, settings: IMAPSettings): Promise<boolean> {
+    // Validate accountId before making API call
+    if (!this.isValidAccountId()) {
+      console.error('Cannot update IMAP settings: invalid account ID');
+      this.error = 'Invalid account ID';
+      return false;
+    }
+
     this.uiFlags.isUpdatingIMAP = true;
     this.error = null;
 
@@ -350,6 +399,13 @@ class InboxesStore {
    * Update SMTP settings
    */
   async updateSMTPSettings(inboxId: number, settings: SMTPSettings): Promise<boolean> {
+    // Validate accountId before making API call
+    if (!this.isValidAccountId()) {
+      console.error('Cannot update SMTP settings: invalid account ID');
+      this.error = 'Invalid account ID';
+      return false;
+    }
+
     this.uiFlags.isUpdatingSMTP = true;
     this.error = null;
 
