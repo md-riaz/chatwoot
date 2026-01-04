@@ -23,13 +23,13 @@ class WidgetCampaignStore {
 
   // Derived values
   get activeCampaigns() {
-    return $derived(
+    return (
       this.campaigns.filter((c) => c.enabled && !this.dismissedIds.has(c.id))
     );
   }
 
   get hasActiveCampaigns() {
-    return $derived(this.activeCampaigns.length > 0);
+    return (this.activeCampaigns.length > 0);
   }
 
   // Actions

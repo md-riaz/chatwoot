@@ -37,7 +37,7 @@ class SurveyStore {
 
   // Derived values
   get isExpired() {
-    return $derived(() => {
+    return (() => {
       if (!this.survey) return false;
       const expiryDate = new Date(this.survey.expiresAt);
       return expiryDate < new Date();
@@ -45,7 +45,7 @@ class SurveyStore {
   }
 
   get isPending() {
-    return $derived(this.survey?.status === 'pending');
+    return (this.survey?.status === 'pending');
   }
 
   // Actions

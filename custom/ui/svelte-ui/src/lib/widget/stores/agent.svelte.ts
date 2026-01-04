@@ -23,23 +23,23 @@ class WidgetAgentStore {
 
   // Derived values
   get isAnyAgentOnline() {
-    return $derived(
+    return (
       this.agents.some((agent) => agent.availabilityStatus === 'online')
     );
   }
 
   get onlineAgents() {
-    return $derived(
+    return (
       this.agents.filter((agent) => agent.availabilityStatus === 'online')
     );
   }
 
   get isAnyAgentTyping() {
-    return $derived(this.typingAgentIds.size > 0);
+    return (this.typingAgentIds.size > 0);
   }
 
   get typingAgentNames() {
-    return $derived(
+    return (
       this.agents
         .filter((agent) => this.typingAgentIds.has(agent.id))
         .map((agent) => agent.name)

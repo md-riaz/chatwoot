@@ -319,7 +319,7 @@
     <div class="absolute bottom-full left-0 mb-2 z-50 w-full max-w-md">
       <div class="bg-popover border rounded-lg shadow-lg p-4">
         <FileUpload.Root
-          {onFilesSelected: handleFileSelect}
+          onFilesSelected={handleFileSelect}
           multiple={true}
           accept="image/*,application/pdf,.doc,.docx"
           maxSize={10 * 1024 * 1024}

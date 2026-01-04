@@ -6,7 +6,7 @@
  */
 
 import ky, { type KyInstance } from 'ky';
-import { transformKeys } from '$lib/api/transformers';
+import { transformKeysTo } from '$lib/api/transformers';
 
 let widgetApiInstance: KyInstance | null = null;
 let currentWebsiteToken: string | null = null;
@@ -49,7 +49,7 @@ export function getWidgetApi(websiteToken?: string): KyInstance {
             if (contentType?.includes('application/json')) {
               try {
                 const data = JSON.parse(request.body as string);
-                const transformed = transformKeys(data, 'snake');
+                const transformed = transformKeysTo(data, 'snake');
                 request.body = JSON.stringify(transformed);
               } catch (e) {
                 // If parsing fails, leave body as is
@@ -67,7 +67,7 @@ export function getWidgetApi(websiteToken?: string): KyInstance {
             if (contentType?.includes('application/json')) {
               try {
                 const data = await response.clone().json();
-                const transformed = transformKeys(data, 'camel');
+                const transformed = transformKeysTo(data, 'camel');
                 return new Response(JSON.stringify(transformed), {
                   status: response.status,
                   statusText: response.statusText,

@@ -59,31 +59,31 @@ class MacrosStore {
 
   // Derived getters
   get selectedMacro() {
-    return $derived(
+    return (
       this.state.all.find(m => m.id === this.state.selectedId) || null
     );
   }
 
   get globalMacros() {
-    return $derived(
+    return (
       this.state.all.filter(m => m.visibility === 'global')
     );
   }
 
   get personalMacros() {
-    return $derived(
+    return (
       this.state.all.filter(m => m.visibility === 'personal')
     );
   }
 
   get sortedMacros() {
-    return $derived(
+    return (
       [...this.state.all].sort((a, b) => a.name.localeCompare(b.name))
     );
   }
 
   get macroCount() {
-    return $derived(this.state.all.length);
+    return (this.state.all.length);
   }
 
   // Actions

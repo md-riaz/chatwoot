@@ -61,27 +61,21 @@ class ReportsStore {
 
   // Derived getters
   get topAgents() {
-    return $derived(
-      [...this.state.agentMetrics]
-        .sort((a, b) => b.conversationsCount - a.conversationsCount)
-        .slice(0, 5)
-    );
+    return [...this.state.agentMetrics]
+      .sort((a, b) => b.conversationsCount - a.conversationsCount)
+      .slice(0, 5);
   }
 
   get topTeams() {
-    return $derived(
-      [...this.state.teamMetrics]
-        .sort((a, b) => b.conversationsCount - a.conversationsCount)
-        .slice(0, 5)
-    );
+    return [...this.state.teamMetrics]
+      .sort((a, b) => b.conversationsCount - a.conversationsCount)
+      .slice(0, 5);
   }
 
   get hasData() {
-    return $derived(
-      !!this.state.conversationMetrics || 
+    return !!this.state.conversationMetrics || 
       this.state.agentMetrics.length > 0 || 
-      this.state.teamMetrics.length > 0
-    );
+      this.state.teamMetrics.length > 0;
   }
 
   // Helper methods

@@ -38,21 +38,21 @@ class WidgetConversationStore {
 
   // Derived values
   get hasConversation() {
-    return $derived(!!this.current);
+    return (!!this.current);
   }
 
   get conversationId() {
-    return $derived(this.current?.id || null);
+    return (this.current?.id || null);
   }
 
   get unreadCount() {
-    return $derived(
+    return (
       this.messages.filter((m) => !m.read && m.messageType === 0).length
     );
   }
 
   get sortedMessages() {
-    return $derived([...this.messages].sort((a, b) => 
+    return ([...this.messages].sort((a, b) => 
       new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     ));
   }
