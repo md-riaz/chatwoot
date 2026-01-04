@@ -5,6 +5,7 @@
    */
   
   import type { Snippet } from 'svelte';
+  import { page } from '$app/stores';
   import SettingsNav from '$lib/components/settings/SettingsNav.svelte';
   import { ArrowLeft } from '@lucide/svelte';
   import { Button } from '$lib/components/ui/button';
@@ -15,6 +16,10 @@
   }
   
   let { children }: Props = $props();
+  
+  // Get accountId from route params
+  const accountId = $derived($page.params.accountId);
+  const basePath = $derived(`/app/accounts/${accountId}/settings`);
 </script>
 
 <div class="flex h-full">
@@ -25,7 +30,7 @@
         variant="ghost"
         size="sm"
         class="gap-2"
-        onclick={() => goto('/app')}
+        onclick={() => goto(`/app/accounts/${accountId}`)}
       >
         <ArrowLeft class="h-4 w-4" />
         Back to Dashboard
@@ -34,7 +39,7 @@
     
     <h2 class="text-lg font-semibold mb-4">Settings</h2>
     
-    <SettingsNav />
+    <SettingsNav {basePath} />
   </div>
   
   <!-- Settings Content Area -->

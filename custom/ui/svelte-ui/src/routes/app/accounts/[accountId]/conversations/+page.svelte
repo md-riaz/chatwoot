@@ -13,6 +13,9 @@
   import { ArrowLeft } from '@lucide/svelte';
   import { Button } from '$lib/components/ui/button';
   
+  // Get accountId from route params
+  const accountId = $derived($page.params.accountId);
+  
   // Get selected conversation from URL or store
   const selectedId = $derived(conversationsStore.selectedConversationId);
   const conversation = $derived(
@@ -20,12 +23,12 @@
   );
   
   function handleConversationSelect(conversationId: number) {
-    goto(`/app/conversations/${conversationId}`);
+    goto(`/app/accounts/${accountId}/conversations/${conversationId}`);
   }
   
   function handleBack() {
     conversationsStore.selectConversation(null);
-    goto('/app/conversations');
+    goto(`/app/accounts/${accountId}/conversations`);
   }
   
   // Show detail view on mobile when conversation is selected

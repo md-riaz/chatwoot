@@ -148,7 +148,7 @@
         selectedProvider = '';
       }
     } else {
-      goto(`/app/${accountId}/settings/inboxes`);
+      goto(`/app/accounts/${accountId}/settings/inboxes`);
     }
   }
   
@@ -332,7 +332,7 @@
     const inbox = await inboxesStore.createInbox(params);
     
     if (inbox) {
-      goto(`/app/${accountId}/settings/inboxes`);
+      goto(`/app/accounts/${accountId}/settings/inboxes`);
     }
   }
 </script>

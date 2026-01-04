@@ -47,7 +47,7 @@
   }
 
   function handleViewCompany(companyId: number) {
-    goto(`/app/${accountId}/companies/${companyId}`);
+    goto(`/app/accounts/${accountId}/companies/${companyId}`);
   }
 
   async function handleDeleteCompany(

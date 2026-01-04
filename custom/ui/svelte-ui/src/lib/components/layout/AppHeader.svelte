@@ -11,6 +11,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { authStore } from '$lib/stores/auth.svelte';
   import { navigate } from '$lib/routing/navigation';
+  import { page } from '$app/stores';
   import type { AccountInfo, UserMenuItem } from './types';
   
   interface Props {
@@ -23,17 +24,18 @@
   const currentUser = $derived(authStore.currentUser);
   const currentAccount = $derived(authStore.currentAccount);
   const isLoggedIn = $derived(authStore.isLoggedIn);
+  const accountId = $derived($page.params.accountId);
   
   // Local state
   let notificationCount = $state(0);
   
   // User menu items
-  const userMenuItems: UserMenuItem[] = [
+  const userMenuItems: UserMenuItem[] = $derived([
     {
       id: 'profile',
       label: 'Profile Settings',
       icon: 'user',
-      onClick: () => navigate('/profile'),
+      onClick: () => navigate(accountId ? `/app/accounts/${accountId}/settings/profile` : '/profile'),
     },
     {
       id: 'divider1',
@@ -44,7 +46,7 @@
       id: 'settings',
       label: 'Account Settings',
       icon: 'settings',
-      onClick: () => navigate('/settings'),
+      onClick: () => navigate(accountId ? `/app/accounts/${accountId}/settings` : '/settings'),
     },
     {
       id: 'help',
@@ -63,14 +65,20 @@
       icon: 'log-out',
       onClick: () => authStore.logout(),
     },
-  ];
+  ]);
   
   function handleAccountSwitch(accountId: number) {
     authStore.setActiveAccount(accountId);
+    // Navigate to the new account's dashboard
+    navigate(`/app/accounts/${accountId}`);
   }
   
   function handleNotificationsClick() {
-    navigate('/notifications');
+    if (accountId) {
+      navigate(`/app/accounts/${accountId}/notifications`);
+    } else {
+      navigate('/notifications');
+    }
   }
 </script>
 
@@ -167,7 +175,7 @@
       <Button
         variant="ghost"
         size="icon"
-        onclick={() => navigate('/settings')}
+        onclick={() => navigate(accountId ? `/app/accounts/${accountId}/settings` : '/settings')}
         aria-label="Settings"
         class="hidden md:inline-flex"
       >

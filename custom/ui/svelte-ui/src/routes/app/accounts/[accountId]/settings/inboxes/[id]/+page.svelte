@@ -105,7 +105,7 @@
     
     const success = await inboxesStore.deleteInbox(inboxId);
     if (success) {
-      goto(`/app/${accountId}/settings/inboxes`);
+      goto(`/app/accounts/${accountId}/settings/inboxes`);
     } else {
       errorMessage = inboxesStore.error || 'Failed to delete inbox';
     }
@@ -135,7 +135,7 @@
 <div class="space-y-6">
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-4">
-      <Button variant="ghost" onclick={() => goto(`/app/${accountId}/settings/inboxes`)}>
+      <Button variant="ghost" onclick={() => goto(`/app/accounts/${accountId}/settings/inboxes`)}>
         ← Back to Inboxes
       </Button>
       {#if inbox}
@@ -269,7 +269,7 @@
         </Card.Root>
 
         <div class="flex justify-end gap-3">
-          <Button variant="outline" onclick={() => goto(`/app/${accountId}/settings/inboxes`)}>
+          <Button variant="outline" onclick={() => goto(`/app/accounts/${accountId}/settings/inboxes`)}>
             Cancel
           </Button>
           <Button onclick={handleUpdate} disabled={isUpdating}>

@@ -21,11 +21,11 @@
   });
 
   function handleCreateInbox() {
-    goto(`/app/${accountId}/settings/inboxes/new`);
+    goto(`/app/accounts/${accountId}/settings/inboxes/new`);
   }
 
   function handleViewInbox(inboxId: number) {
-    goto(`/app/${accountId}/settings/inboxes/${inboxId}`);
+    goto(`/app/accounts/${accountId}/settings/inboxes/${inboxId}`);
   }
 
   function getChannelIcon(channelType: string) {
