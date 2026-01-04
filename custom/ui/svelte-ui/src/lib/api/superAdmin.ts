@@ -133,194 +133,194 @@ export interface PaginationParams {
 export const superAdminApi = {
   // Dashboard
   getDashboard: async (): Promise<DashboardData> => {
-    return api.get('super_admin/dashboard').json();
+    return api.get('api/v1/super_admin/dashboard').json();
   },
 
   getInstanceStatus: async (): Promise<Record<string, unknown>> => {
-    return api.get('super_admin/instance_status').json();
+    return api.get('api/v1/super_admin/instance_status').json();
   },
 
   // Accounts
   getAccounts: async (params?: PaginationParams): Promise<{ data: Account[] }> => {
-    return api.get('super_admin/accounts', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/accounts', { searchParams: params as Record<string, string> }).json();
   },
 
   getAccount: async (id: number): Promise<Account> => {
-    return api.get(`super_admin/accounts/${id}`).json();
+    return api.get(`api/v1/super_admin/accounts/${id}`).json();
   },
 
   createAccount: async (data: Partial<Account>): Promise<Account> => {
-    return api.post('super_admin/accounts', { json: data }).json();
+    return api.post('api/v1/super_admin/accounts', { json: data }).json();
   },
 
   updateAccount: async (id: number, data: Partial<Account>): Promise<Account> => {
-    return api.put(`super_admin/accounts/${id}`, { json: data }).json();
+    return api.put(`api/v1/super_admin/accounts/${id}`, { json: data }).json();
   },
 
   deleteAccount: async (id: number): Promise<{ success: boolean }> => {
-    return api.delete(`super_admin/accounts/${id}`).json();
+    return api.delete(`api/v1/super_admin/accounts/${id}`).json();
   },
 
   // Users
   getUsers: async (params?: PaginationParams): Promise<{ data: User[] }> => {
-    return api.get('super_admin/users', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/users', { searchParams: params as Record<string, string> }).json();
   },
 
   getUser: async (id: number): Promise<User> => {
-    return api.get(`super_admin/users/${id}`).json();
+    return api.get(`api/v1/super_admin/users/${id}`).json();
   },
 
   createUser: async (data: Partial<User> & { password: string }): Promise<User> => {
-    return api.post('super_admin/users', { json: data }).json();
+    return api.post('api/v1/super_admin/users', { json: data }).json();
   },
 
   updateUser: async (id: number, data: Partial<User>): Promise<User> => {
-    return api.put(`super_admin/users/${id}`, { json: data }).json();
+    return api.put(`api/v1/super_admin/users/${id}`, { json: data }).json();
   },
 
   deleteUser: async (id: number): Promise<{ success: boolean }> => {
-    return api.delete(`super_admin/users/${id}`).json();
+    return api.delete(`api/v1/super_admin/users/${id}`).json();
   },
 
   uploadUserAvatar: async (id: number, file: File): Promise<User> => {
     const formData = new FormData();
     formData.append('avatar', file);
-    return api.post(`super_admin/users/${id}/avatar`, { body: formData }).json();
+    return api.post(`api/v1/super_admin/users/${id}/avatar`, { body: formData }).json();
   },
 
   deleteUserAvatar: async (id: number): Promise<User> => {
-    return api.delete(`super_admin/users/${id}/avatar`).json();
+    return api.delete(`api/v1/super_admin/users/${id}/avatar`).json();
   },
 
   confirmUserEmail: async (id: number): Promise<User> => {
-    return api.post(`super_admin/users/${id}/confirm`).json();
+    return api.post(`api/v1/super_admin/users/${id}/confirm`).json();
   },
 
   lockUser: async (id: number): Promise<User> => {
-    return api.post(`super_admin/users/${id}/lock`).json();
+    return api.post(`api/v1/super_admin/users/${id}/lock`).json();
   },
 
   unlockUser: async (id: number): Promise<User> => {
-    return api.post(`super_admin/users/${id}/unlock`).json();
+    return api.post(`api/v1/super_admin/users/${id}/unlock`).json();
   },
 
   // Settings
   getSettings: async (): Promise<Setting[]> => {
-    return api.get('super_admin/settings').json();
+    return api.get('api/v1/super_admin/settings').json();
   },
 
   getSettingsGrouped: async (): Promise<Record<string, Setting[]>> => {
-    return api.get('super_admin/settings/show').json();
+    return api.get('api/v1/super_admin/settings/show').json();
   },
 
   updateSettings: async (data: Record<string, unknown>): Promise<{ success: boolean }> => {
-    return api.patch('super_admin/settings', { json: data }).json();
+    return api.patch('api/v1/super_admin/settings', { json: data }).json();
   },
 
   createSetting: async (data: Partial<Setting>): Promise<Setting> => {
-    return api.post('super_admin/settings', { json: data }).json();
+    return api.post('api/v1/super_admin/settings', { json: data }).json();
   },
 
   deleteSetting: async (name: string): Promise<{ success: boolean }> => {
-    return api.delete(`super_admin/settings/${name}`).json();
+    return api.delete(`api/v1/super_admin/settings/${name}`).json();
   },
 
   // Agent Bots
   getAgentBots: async (params?: PaginationParams): Promise<{ data: AgentBot[] }> => {
-    return api.get('super_admin/agent_bots', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/agent_bots', { searchParams: params as Record<string, string> }).json();
   },
 
   getAgentBot: async (id: number): Promise<AgentBot> => {
-    return api.get(`super_admin/agent_bots/${id}`).json();
+    return api.get(`api/v1/super_admin/agent_bots/${id}`).json();
   },
 
   createAgentBot: async (data: Partial<AgentBot>): Promise<AgentBot> => {
-    return api.post('super_admin/agent_bots', { json: data }).json();
+    return api.post('api/v1/super_admin/agent_bots', { json: data }).json();
   },
 
   updateAgentBot: async (id: number, data: Partial<AgentBot>): Promise<AgentBot> => {
-    return api.put(`super_admin/agent_bots/${id}`, { json: data }).json();
+    return api.put(`api/v1/super_admin/agent_bots/${id}`, { json: data }).json();
   },
 
   deleteAgentBot: async (id: number): Promise<{ success: boolean }> => {
-    return api.delete(`super_admin/agent_bots/${id}`).json();
+    return api.delete(`api/v1/super_admin/agent_bots/${id}`).json();
   },
 
   // Platform Apps
   getPlatformApps: async (params?: PaginationParams): Promise<{ data: PlatformApp[] }> => {
-    return api.get('super_admin/platform_apps', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/platform_apps', { searchParams: params as Record<string, string> }).json();
   },
 
   getPlatformApp: async (id: number): Promise<PlatformApp> => {
-    return api.get(`super_admin/platform_apps/${id}`).json();
+    return api.get(`api/v1/super_admin/platform_apps/${id}`).json();
   },
 
   createPlatformApp: async (data: Partial<PlatformApp>): Promise<PlatformApp> => {
-    return api.post('super_admin/platform_apps', { json: data }).json();
+    return api.post('api/v1/super_admin/platform_apps', { json: data }).json();
   },
 
   updatePlatformApp: async (id: number, data: Partial<PlatformApp>): Promise<PlatformApp> => {
-    return api.put(`super_admin/platform_apps/${id}`, { json: data }).json();
+    return api.put(`api/v1/super_admin/platform_apps/${id}`, { json: data }).json();
   },
 
   deletePlatformApp: async (id: number): Promise<{ success: boolean }> => {
-    return api.delete(`super_admin/platform_apps/${id}`).json();
+    return api.delete(`api/v1/super_admin/platform_apps/${id}`).json();
   },
 
   // Access Tokens
   getAccessTokens: async (params?: PaginationParams): Promise<{ data: AccessToken[] }> => {
-    return api.get('super_admin/access_tokens', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/access_tokens', { searchParams: params as Record<string, string> }).json();
   },
 
   createAccessToken: async (data: { name: string }): Promise<AccessToken> => {
-    return api.post('super_admin/access_tokens', { json: data }).json();
+    return api.post('api/v1/super_admin/access_tokens', { json: data }).json();
   },
 
   deleteAccessToken: async (id: number): Promise<{ success: boolean }> => {
-    return api.delete(`super_admin/access_tokens/${id}`).json();
+    return api.delete(`api/v1/super_admin/access_tokens/${id}`).json();
   },
 
   // Installation Configs
   getInstallationConfigs: async (params?: PaginationParams): Promise<{ data: InstallationConfig[] }> => {
-    return api.get('super_admin/installation_configs', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/installation_configs', { searchParams: params as Record<string, string> }).json();
   },
 
   getInstallationConfig: async (id: number): Promise<InstallationConfig> => {
-    return api.get(`super_admin/installation_configs/${id}`).json();
+    return api.get(`api/v1/super_admin/installation_configs/${id}`).json();
   },
 
   updateInstallationConfig: async (id: number, data: Partial<InstallationConfig>): Promise<InstallationConfig> => {
-    return api.patch(`super_admin/installation_configs/${id}`, { json: data }).json();
+    return api.patch(`api/v1/super_admin/installation_configs/${id}`, { json: data }).json();
   },
 
   // Account Users
   getAccountUsers: async (params?: PaginationParams): Promise<{ data: AccountUser[] }> => {
-    return api.get('super_admin/account_users', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/account_users', { searchParams: params as Record<string, string> }).json();
   },
 
   createAccountUser: async (data: { userId: number; accountId: number; role: string }): Promise<AccountUser> => {
-    return api.post('super_admin/account_users', { json: data }).json();
+    return api.post('api/v1/super_admin/account_users', { json: data }).json();
   },
 
   updateAccountUser: async (id: number, data: { role?: string }): Promise<AccountUser> => {
-    return api.put(`super_admin/account_users/${id}`, { json: data }).json();
+    return api.put(`api/v1/super_admin/account_users/${id}`, { json: data }).json();
   },
 
   deleteAccountUser: async (id: number): Promise<{ success: boolean }> => {
-    return api.delete(`super_admin/account_users/${id}`).json();
+    return api.delete(`api/v1/super_admin/account_users/${id}`).json();
   },
 
   // Audit Logs
   getAuditLogs: async (params?: PaginationParams): Promise<{ data: AuditLog[] }> => {
-    return api.get('super_admin/audit_logs', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/audit_logs', { searchParams: params as Record<string, string> }).json();
   },
 
   // Cache
   clearCache: async (type?: string): Promise<{ success: boolean }> => {
     if (type) {
-      return api.post(`super_admin/cache/clear/${type}`).json();
+      return api.post(`api/v1/super_admin/cache/clear/${type}`).json();
     }
-    return api.post('super_admin/cache/clear').json();
+    return api.post('api/v1/super_admin/cache/clear').json();
   }
 };
 
@@ -361,7 +361,7 @@ export const superAdminAPI = {
 // Export authApi for compatibility with SuperAdmin routes
 export const authApi = {
   getCurrentUser: async (): Promise<User> => {
-    return api.get('me').json();
+    return api.get('api/v1/auth/me').json();
   }
 };
 
