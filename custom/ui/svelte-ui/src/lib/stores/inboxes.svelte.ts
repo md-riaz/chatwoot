@@ -110,7 +110,7 @@ class InboxesStore {
     this.error = null;
 
     try {
-      const inboxes = await inboxesAPI.getInboxes(params);
+      const inboxes = await inboxesAPI.getInboxes(this.currentAccountId, params);
       this.allInboxes = inboxes;
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch inboxes';
@@ -128,7 +128,7 @@ class InboxesStore {
     this.error = null;
 
     try {
-      const inbox = await inboxesAPI.getInbox(inboxId);
+      const inbox = await inboxesAPI.getInbox(this.currentAccountId, inboxId);
       this.addOrUpdateInbox(inbox);
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch inbox';
@@ -146,7 +146,7 @@ class InboxesStore {
     this.error = null;
 
     try {
-      const inbox = await inboxesAPI.createInbox(params);
+      const inbox = await inboxesAPI.createInbox(this.currentAccountId, params);
       this.allInboxes = [...this.allInboxes, inbox];
       return inbox;
     } catch (err: any) {
@@ -166,7 +166,7 @@ class InboxesStore {
     this.error = null;
 
     try {
-      const updatedInbox = await inboxesAPI.updateInbox(inboxId, params);
+      const updatedInbox = await inboxesAPI.updateInbox(this.currentAccountId, inboxId, params);
       this.addOrUpdateInbox(updatedInbox);
       return updatedInbox;
     } catch (err: any) {
@@ -190,7 +190,7 @@ class InboxesStore {
     this.allInboxes = this.allInboxes.filter((inbox) => inbox.id !== inboxId);
 
     try {
-      await inboxesAPI.deleteInbox(inboxId);
+      await inboxesAPI.deleteInbox(this.currentAccountId, inboxId);
       return true;
     } catch (err: any) {
       // Rollback on error
@@ -210,7 +210,7 @@ class InboxesStore {
     this.error = null;
 
     try {
-      await inboxesAPI.deleteInboxAvatar(inboxId);
+      await inboxesAPI.deleteInboxAvatar(this.currentAccountId, inboxId);
       
       // Update inbox in store
       const inbox = this.allInboxes.find((i) => i.id === inboxId);
@@ -234,7 +234,7 @@ class InboxesStore {
     this.error = null;
 
     try {
-      const bot = await inboxesAPI.getAgentBot(inboxId);
+      const bot = await inboxesAPI.getAgentBot(this.currentAccountId, inboxId);
       return bot;
     } catch (err: any) {
       this.error = err.message || 'Failed to get agent bot';
@@ -250,7 +250,7 @@ class InboxesStore {
     this.error = null;
 
     try {
-      await inboxesAPI.setAgentBot(inboxId, botId);
+      await inboxesAPI.setAgentBot(this.currentAccountId, inboxId, botId);
       
       // Refresh inbox data
       await this.fetchInbox(inboxId);
@@ -271,7 +271,7 @@ class InboxesStore {
     this.error = null;
 
     try {
-      const templates = await inboxesAPI.syncTemplates(inboxId);
+      const templates = await inboxesAPI.syncTemplates(this.currentAccountId, inboxId);
       
       // Update inbox with new templates
       const inbox = this.allInboxes.find((i) => i.id === inboxId);
@@ -298,7 +298,7 @@ class InboxesStore {
     this.error = null;
 
     try {
-      const updatedInbox = await inboxesAPI.updateIMAPSettings(inboxId, settings);
+      const updatedInbox = await inboxesAPI.updateIMAPSettings(this.currentAccountId, inboxId, settings);
       this.addOrUpdateInbox(updatedInbox);
       return true;
     } catch (err: any) {
@@ -318,7 +318,7 @@ class InboxesStore {
     this.error = null;
 
     try {
-      const updatedInbox = await inboxesAPI.updateSMTPSettings(inboxId, settings);
+      const updatedInbox = await inboxesAPI.updateSMTPSettings(this.currentAccountId, inboxId, settings);
       this.addOrUpdateInbox(updatedInbox);
       return true;
     } catch (err: any) {

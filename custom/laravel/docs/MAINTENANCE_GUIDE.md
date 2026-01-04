@@ -101,7 +101,7 @@ redis-cli ping >> $LOG_FILE 2>&1
 
 # 9. WebSocket Server Check
 echo "[$DATE] Checking WebSocket server..." >> $LOG_FILE
-curl -s -H "Connection: Upgrade" -H "Upgrade: websocket" http://localhost:8080/app > /dev/null
+curl -s -H "Connection: Upgrade" -H "Upgrade: websocket" http://localhost:8080/ws > /dev/null
 if [ $? -eq 0 ]; then
     echo "[$DATE] WebSocket server OK" >> $LOG_FILE
 else

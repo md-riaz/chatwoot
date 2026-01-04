@@ -301,7 +301,7 @@ server {
     }
 
     # WebSocket Proxy (Reverb)
-    location /app {
+    location /ws {
         proxy_pass http://127.0.0.1:8080;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -714,7 +714,7 @@ sudo supervisorctl status clearline-reverb
 tail -f /var/log/supervisor/clearline-reverb.log
 
 # Test WebSocket connection
-curl -H "Connection: Upgrade" -H "Upgrade: websocket" http://your-domain.com:8080/app
+curl -H "Connection: Upgrade" -H "Upgrade: websocket" http://your-domain.com:8080/ws
 ```
 
 #### 5. High Memory Usage
