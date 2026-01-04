@@ -22,7 +22,9 @@ class LocaleEnumTest extends TestCase
         $this->assertEquals(Locale::EN, Locale::fromCode('en'));
         $this->assertEquals(Locale::FR, Locale::fromCode('fr'));
         $this->assertEquals(Locale::ES, Locale::fromCode('es'));
-        $this->assertEquals(Locale::PT_BR, Locale::fromCode('pt_br'));
+        $this->assertEquals(Locale::PT_BR, Locale::fromCode('pt_BR'));
+        $this->assertEquals(Locale::ZH_TW, Locale::fromCode('zh_TW'));
+        $this->assertEquals(Locale::ZH_CN, Locale::fromCode('zh_CN'));
     }
 
     /** @test */
@@ -30,6 +32,12 @@ class LocaleEnumTest extends TestCase
     {
         $this->assertEquals(Locale::EN, Locale::fromCode('EN'));
         $this->assertEquals(Locale::FR, Locale::fromCode('FR'));
+        
+        // Also handles mixed case locale codes
+        $this->assertEquals(Locale::PT_BR, Locale::fromCode('pt_br'));
+        $this->assertEquals(Locale::PT_BR, Locale::fromCode('PT_BR'));
+        $this->assertEquals(Locale::ZH_TW, Locale::fromCode('zh_tw'));
+        $this->assertEquals(Locale::ZH_CN, Locale::fromCode('ZH_CN'));
     }
 
     /** @test */

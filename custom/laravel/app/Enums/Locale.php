@@ -103,10 +103,22 @@ enum Locale: int
 
     /**
      * Get locale from code string (e.g., 'en' => Locale::EN)
+     * Handles both lowercase and mixed case (e.g., 'pt_br' and 'pt_BR')
      */
     public static function fromCode(string $code): self
     {
-        return match(strtolower($code)) {
+        // Normalize: lowercase the base, preserve underscore case pattern for known mixed-case codes
+        $normalized = strtolower($code);
+        
+        // Handle special cases with uppercase after underscore
+        $normalized = match($normalized) {
+            'pt_br' => 'pt_BR',
+            'zh_tw' => 'zh_TW',
+            'zh_cn' => 'zh_CN',
+            default => $normalized,
+        };
+        
+        return match($normalized) {
             'en' => self::EN,
             'ar' => self::AR,
             'nl' => self::NL,
@@ -123,11 +135,11 @@ enum Locale: int
             'ml' => self::ML,
             'ca' => self::CA,
             'el' => self::EL,
-            'pt_br' => self::PT_BR,
+            'pt_BR' => self::PT_BR,
             'ro' => self::RO,
             'ta' => self::TA,
             'fa' => self::FA,
-            'zh_tw' => self::ZH_TW,
+            'zh_TW' => self::ZH_TW,
             'vi' => self::VI,
             'da' => self::DA,
             'tr' => self::TR,
@@ -137,7 +149,7 @@ enum Locale: int
             'sv' => self::SV,
             'hu' => self::HU,
             'no' => self::NO,
-            'zh_cn' => self::ZH_CN,
+            'zh_CN' => self::ZH_CN,
             'pl' => self::PL,
             'sk' => self::SK,
             'uk' => self::UK,
