@@ -10,6 +10,7 @@ import type {
   SMTPSettings,
   MessageTemplate,
 } from '$lib/api/inboxes';
+import { authStore } from './auth.svelte';
 
 /**
  * Inboxes Store using Svelte 5 Runes
@@ -40,7 +41,18 @@ class InboxesStore {
   // Getter for current account ID from route
   get currentAccountId(): number {
     const pageStore = get(page);
-    return Number(pageStore.params.accountId);
+    const routeAccountId = pageStore.params.accountId;
+    
+    // Try to get accountId from route params first
+    if (routeAccountId) {
+      const parsed = parseInt(routeAccountId, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        return parsed;
+      }
+    }
+    
+    // Fall back to user's current account ID
+    return authStore.currentUser.accountId || 0;
   }
 
   // Getter for sorted inboxes (alphabetically by name)
@@ -106,6 +118,12 @@ class InboxesStore {
    * Fetch all inboxes
    */
   async fetchInboxes(params?: InboxListParams): Promise<void> {
+    // Validate accountId before making API call
+    if (!this.currentAccountId || this.currentAccountId === 0) {
+      console.error('Cannot fetch inboxes: invalid account ID');
+      return;
+    }
+
     this.uiFlags.isFetching = true;
     this.error = null;
 
@@ -124,6 +142,12 @@ class InboxesStore {
    * Fetch single inbox
    */
   async fetchInbox(inboxId: number): Promise<void> {
+    // Validate accountId before making API call
+    if (!this.currentAccountId || this.currentAccountId === 0) {
+      console.error('Cannot fetch inbox: invalid account ID');
+      return;
+    }
+
     this.uiFlags.isFetchingItem = true;
     this.error = null;
 
@@ -142,6 +166,13 @@ class InboxesStore {
    * Create new inbox
    */
   async createInbox(params: CreateInboxParams): Promise<Inbox | null> {
+    // Validate accountId before making API call
+    if (!this.currentAccountId || this.currentAccountId === 0) {
+      console.error('Cannot create inbox: invalid account ID');
+      this.error = 'Invalid account ID';
+      return null;
+    }
+
     this.uiFlags.isCreating = true;
     this.error = null;
 

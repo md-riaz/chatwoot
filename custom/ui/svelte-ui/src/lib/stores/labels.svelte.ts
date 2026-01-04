@@ -7,6 +7,7 @@ import type {
   CreateLabelParams,
   UpdateLabelParams,
 } from '$lib/api/labels';
+import { authStore } from './auth.svelte';
 
 /**
  * Labels Store using Svelte 5 Runes
@@ -34,7 +35,18 @@ class LabelsStore {
   // Getter for current account ID from route
   get currentAccountId(): number {
     const pageStore = get(page);
-    return Number(pageStore.params.accountId);
+    const routeAccountId = pageStore.params.accountId;
+    
+    // Try to get accountId from route params first
+    if (routeAccountId) {
+      const parsed = parseInt(routeAccountId, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        return parsed;
+      }
+    }
+    
+    // Fall back to user's current account ID
+    return authStore.currentUser.accountId || 0;
   }
 
   // Getter for sorted labels (alphabetically by title)
