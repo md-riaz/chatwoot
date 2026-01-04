@@ -150,6 +150,9 @@ print_info "Testing Redis connection..."
 if php -r "
     require 'vendor/autoload.php';
     try {
+        if (!class_exists('Redis')) {
+            exit(1);
+        }
         \$redis = new Redis();
         \$host = getenv('REDIS_HOST') ?: '127.0.0.1';
         \$port = getenv('REDIS_PORT') ?: 6379;

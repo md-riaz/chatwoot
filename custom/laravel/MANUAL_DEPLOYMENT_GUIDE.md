@@ -171,7 +171,7 @@ sudo systemctl enable postgresql-16
 sudo -u postgres psql
 
 CREATE DATABASE clearline_production;
-CREATE USER clearline WITH PASSWORD 'your_secure_password';
+CREATE USER clearline WITH PASSWORD 'CHANGE_THIS_PASSWORD';
 GRANT ALL PRIVILEGES ON DATABASE clearline_production TO clearline;
 \q
 ```
