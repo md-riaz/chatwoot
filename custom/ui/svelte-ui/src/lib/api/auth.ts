@@ -38,6 +38,46 @@ export interface CurrentUser {
 }
 
 /**
+ * Login parameters
+ */
+export interface LoginParams {
+  email: string;
+  password: string;
+}
+
+/**
+ * Login response
+ */
+export interface LoginResponse {
+  user: CurrentUser;
+  token: string;
+}
+
+/**
+ * Register parameters
+ */
+export interface RegisterParams {
+  name: string;
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+}
+
+/**
+ * Register response
+ */
+export interface RegisterResponse {
+  message: string;
+  data: {
+    user: CurrentUser;
+    token: string;
+    email_confirmation_sent: boolean;
+  };
+  user?: CurrentUser;
+  token?: string;
+}
+
+/**
  * Profile update parameters
  */
 export interface ProfileUpdateParams {
@@ -65,18 +105,49 @@ export interface AvailabilityUpdateParams {
 }
 
 /**
+ * Login user
+ */
+export async function login(params: LoginParams): Promise<LoginResponse> {
+  const response = await api.post('auth/login', {
+    json: params
+  }).json<LoginResponse>();
+  
+  return response;
+}
+
+/**
+ * Register new user
+ */
+export async function register(params: RegisterParams): Promise<RegisterResponse> {
+  const response = await api.post('auth/register', {
+    json: params
+  }).json<RegisterResponse>();
+  
+  // Normalize response structure
+  if (response.data) {
+    return {
+      ...response,
+      user: response.data.user,
+      token: response.data.token
+    };
+  }
+  
+  return response;
+}
+
+/**
  * Check if user is authenticated by validating current session
  */
 export async function validityCheck(): Promise<CurrentUser> {
-  const response = await api.get('api/v1/profile').json<ApiResponse<CurrentUser>>();
-  return response.data || response as any;
+  const response = await api.get('auth/me').json<CurrentUser>();
+  return response;
 }
 
 /**
  * Logout current user
  */
 export async function logout(): Promise<void> {
-  await api.delete('auth/sign_out');
+  await api.post('auth/logout');
 }
 
 /**
