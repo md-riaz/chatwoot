@@ -22,11 +22,6 @@ return [
     'allowed_origins' => (function () {
         $origins = env('CORS_ALLOWED_ORIGINS', '');
         
-        // Warn if using wildcard in production
-        if ($origins === '*' && app()->environment('production')) {
-            logger()->warning('CORS is configured to allow all origins (*) in production. This is a security risk. Please set CORS_ALLOWED_ORIGINS to specific domains.');
-        }
-        
         return $origins ? explode(',', $origins) : [];
     })(),
 

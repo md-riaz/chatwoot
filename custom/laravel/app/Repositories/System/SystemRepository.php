@@ -3,6 +3,7 @@
 namespace App\Repositories\System;
 
 use App\Repositories\BaseRepository;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class SystemRepository extends BaseRepository

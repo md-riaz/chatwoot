@@ -6,7 +6,7 @@ return [
 
     'path' => env('HORIZON_PATH', 'horizon'),
 
-    'use' => env('HORIZON_USE', 'default'),
+    'use' => 'default',
 
     'middleware' => ['web'],
 
