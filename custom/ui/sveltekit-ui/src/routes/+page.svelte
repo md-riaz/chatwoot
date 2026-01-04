@@ -28,11 +28,12 @@
 		// Prevent multiple redirects
 		if (hasRedirected) return;
 		
-		// Wait for auth store to initialize
-		// The store's loading state will be false once initialized
+		// Wait for auth store to initialize if needed
+		// The layout component calls authStore.init() in its onMount
+		// We check the loading state and wait if initialization is still in progress
 		let authState = get(authStore);
 		if (authState.loading) {
-			// Wait for initialization by subscribing
+			// Wait for initialization by subscribing until loading is complete
 			unsubscribe = authStore.subscribe(state => {
 				if (!state.loading && !hasRedirected) {
 					if (unsubscribe) {
@@ -43,6 +44,7 @@
 				}
 			});
 		} else {
+			// Auth store already initialized, perform redirect immediately
 			performRedirect(authState.isAuthenticated);
 		}
 	});
