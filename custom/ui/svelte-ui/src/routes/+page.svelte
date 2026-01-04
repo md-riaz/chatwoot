@@ -5,6 +5,8 @@
   let loading = true;
   
   // Redirect based on authentication status
+  // Note: svelte-ui uses 'chatwoot_auth_token' while sveltekit-ui uses 'auth_token'
+  // This is consistent with each project's existing implementation
   onMount(async () => {
     if (typeof localStorage !== 'undefined') {
       const token = localStorage.getItem('chatwoot_auth_token');

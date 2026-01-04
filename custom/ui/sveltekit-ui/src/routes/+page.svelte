@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
 	import { authStore } from '$lib/stores/auth';
 	import { onboardingApi } from '$lib/api/client';
 	
@@ -20,15 +21,10 @@
 			console.debug('Onboarding check failed, proceeding with auth check');
 		}
 		
-		// Check authentication status
-		const auth = authStore;
-		let isAuthenticated = false;
+		// Check authentication status using get() to properly access store value
+		const authState = get(authStore);
 		
-		auth.subscribe(state => {
-			isAuthenticated = state.isAuthenticated;
-		});
-		
-		if (isAuthenticated) {
+		if (authState.isAuthenticated) {
 			// User is authenticated, redirect to app
 			goto('/app/super_admin/dashboard');
 		} else {
