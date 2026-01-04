@@ -92,7 +92,7 @@
         // Laravel validation errors
         const apiErrors = error.response.data.errors;
         errors = Object.entries(apiErrors).reduce((acc, [key, value]) => {
-          acc[key] = Array.isArray(value) ? value.join(', ') : value;
+          acc[key] = Array.isArray(value) ? value.join(', ') : String(value);
           return acc;
         }, {} as Record<string, string>);
       } else if (error.response?.data?.error) {

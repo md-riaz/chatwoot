@@ -39,7 +39,7 @@ export interface OnboardingResponse {
 export async function checkOnboardingStatus(): Promise<OnboardingData> {
   const response = await api.get('api/v1/installation/onboarding/status', {
     skipAuth: true
-  }).json<OnboardingData>();
+  } as any).json<OnboardingData>();
   
   return response;
 }
@@ -53,7 +53,7 @@ export async function completeOnboarding(params: OnboardingParams): Promise<Onbo
       user: params
     },
     skipAuth: true
-  }).json<OnboardingResponse>();
+  } as any).json<OnboardingResponse>();
   
   return response;
 }
