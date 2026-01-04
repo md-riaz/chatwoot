@@ -12,14 +12,15 @@
   import { Button } from '$lib/components/ui/button';
   import { goto } from '$app/navigation';
   
-  // Get conversation ID from route params
+  // Get params from route
+  const accountId = $derived($page.params.accountId);
   const conversationId = $derived(parseInt($page.params.id));
   const conversation = $derived(
     conversationsStore.allConversations.find(c => c.id === conversationId)
   );
   
   function handleBack() {
-    goto('/app/conversations');
+    goto(`/app/accounts/${accountId}/conversations`);
   }
 </script>
 
