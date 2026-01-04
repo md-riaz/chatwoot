@@ -19,15 +19,15 @@ Create a `.env` file in `custom/ui/svelte-ui/` with the following:
 VITE_API_BASE_URL=https://your-domain.com
 
 # WebSocket URL for Laravel Reverb
-# Format: wss://your-domain.com/app (production with TLS)
-#         ws://localhost:8080/app (local development)
-VITE_WS_URL=wss://your-domain.com/app
+# Format: wss://your-domain.com/ws (production with TLS)
+#         ws://localhost:8080/ws (local development)
+VITE_WS_URL=wss://your-domain.com/ws
 ```
 
 **Important Notes:**
 - Use `wss://` (WebSocket Secure) for production deployments with HTTPS
 - Use `ws://` only for local development without TLS
-- The `/app` path is the default Laravel Reverb endpoint
+- The `/ws` path is the default Laravel Reverb endpoint
 - If `VITE_WS_URL` is not set, the app will construct it from `VITE_API_BASE_URL`
 
 ### Backend (Laravel)
@@ -59,7 +59,7 @@ WebSocket connection to 'ws://localhost:8000/cable?token=...' failed
 **Solution:**
 Set the `VITE_WS_URL` environment variable in your frontend `.env` file:
 ```bash
-VITE_WS_URL=wss://your-domain.com/app
+VITE_WS_URL=wss://your-domain.com/ws
 ```
 
 ### Issue: CORS policy error
@@ -86,7 +86,7 @@ WebSocket connects with `ws://` instead of `wss://` in production.
 **Solution:**
 1. Ensure `VITE_WS_URL` uses `wss://` protocol:
    ```bash
-   VITE_WS_URL=wss://your-domain.com/app
+   VITE_WS_URL=wss://your-domain.com/ws
    ```
 
 2. Verify Laravel Reverb is configured for HTTPS:
@@ -103,7 +103,7 @@ Your nginx configuration should include WebSocket support. **Note:** CORS for We
 
 ```nginx
 # WebSocket proxy for Laravel Reverb
-location /app {
+location /ws {
     proxy_pass http://websocket;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -126,7 +126,7 @@ For local development:
 1. **Frontend `.env`:**
    ```bash
    VITE_API_BASE_URL=http://localhost:8000
-   VITE_WS_URL=ws://localhost:8080/app
+   VITE_WS_URL=ws://localhost:8080/ws
    ```
 
 2. **Backend `.env`:**
@@ -149,7 +149,7 @@ For production deployment (e.g., Netlify frontend + Laravel backend):
 1. **Frontend `.env` (Netlify environment variables):**
    ```bash
    VITE_API_BASE_URL=https://api.your-domain.com
-   VITE_WS_URL=wss://api.your-domain.com/app
+   VITE_WS_URL=wss://api.your-domain.com/ws
    ```
 
 2. **Backend `.env`:**
@@ -189,7 +189,7 @@ If you're using Cloudflare with proxy enabled (orange cloud), see the dedicated 
 **Quick Cloudflare Configuration:**
 - SSL/TLS mode: **Flexible** (Cloudflare handles SSL, origin uses HTTP)
 - `REVERB_SCHEME=http` (in Laravel .env)
-- `VITE_WS_URL=wss://your-domain.com/app` (frontend uses wss://)
+- `VITE_WS_URL=wss://your-domain.com/ws` (frontend uses wss://)
 - Set `X-Forwarded-Proto https` in nginx
 
 ## Additional Resources

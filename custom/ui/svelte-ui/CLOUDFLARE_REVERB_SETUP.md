@@ -45,7 +45,7 @@ REVERB_SCHEME=http                      # Origin uses HTTP, Cloudflare adds HTTP
 **Frontend Environment Variables:**
 ```bash
 VITE_API_BASE_URL=https://clearline.mdriaz.com.bd
-VITE_WS_URL=wss://clearline.mdriaz.com.bd/app
+VITE_WS_URL=wss://clearline.mdriaz.com.bd/ws
 ```
 
 **Important:** Clients connect with `wss://` (secure WebSocket) because Cloudflare provides the SSL layer.
@@ -77,7 +77,7 @@ REVERB_TLS_KEY=/path/to/private.key
 **Frontend Environment Variables:**
 ```bash
 VITE_API_BASE_URL=https://clearline.mdriaz.com.bd
-VITE_WS_URL=wss://clearline.mdriaz.com.bd/app
+VITE_WS_URL=wss://clearline.mdriaz.com.bd/ws
 ```
 
 ### Option 3: Direct Connection (Bypass Cloudflare for WebSocket)
@@ -101,7 +101,7 @@ REVERB_SCHEME=https
 **Frontend Environment Variables:**
 ```bash
 VITE_API_BASE_URL=https://api.clearline.mdriaz.com.bd
-VITE_WS_URL=wss://ws.clearline.mdriaz.com.bd/app
+VITE_WS_URL=wss://ws.clearline.mdriaz.com.bd/ws
 ```
 
 **Note:** This requires your server to have a valid SSL certificate (Let's Encrypt recommended).
@@ -164,7 +164,7 @@ server {
 
 1. Open browser DevTools → Network tab
 2. Filter by "WS" (WebSocket)
-3. You should see connection to `wss://clearline.mdriaz.com.bd/app`
+3. You should see connection to `wss://clearline.mdriaz.com.bd/ws`
 4. Status should be "101 Switching Protocols"
 5. Check Console for "WebSocket connected" message
 

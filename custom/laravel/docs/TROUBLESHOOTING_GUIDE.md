@@ -42,7 +42,7 @@ redis-cli ping
 php artisan horizon:status
 
 # Check WebSocket server
-curl -H "Connection: Upgrade" -H "Upgrade: websocket" http://localhost:8080/app
+curl -H "Connection: Upgrade" -H "Upgrade: websocket" http://localhost:8080/ws
 ```
 
 ### Log Analysis
@@ -509,7 +509,7 @@ cat config/horizon.php
 sudo supervisorctl status clearline-reverb
 
 # Test WebSocket connection
-curl -H "Connection: Upgrade" -H "Upgrade: websocket" http://localhost:8080/app
+curl -H "Connection: Upgrade" -H "Upgrade: websocket" http://localhost:8080/ws
 
 # Check Reverb logs
 tail -f /var/log/supervisor/clearline-reverb.log
@@ -547,7 +547,7 @@ netstat -tlnp | grep :8080
 3. **Nginx Proxy Issues:**
    ```nginx
    # Update Nginx configuration for WebSocket proxy
-   location /app {
+   location /ws {
        proxy_pass http://127.0.0.1:8080;
        proxy_http_version 1.1;
        proxy_set_header Upgrade $http_upgrade;

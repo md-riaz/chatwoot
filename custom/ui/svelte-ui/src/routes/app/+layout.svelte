@@ -26,7 +26,7 @@
   // Note: Default ports - Laravel API: 8000, Reverb WebSocket: 8080
   // In production, both typically use the same domain with reverse proxy
   const DEFAULT_API_URL = 'http://localhost:8000';
-  const DEFAULT_WS_URL = 'ws://localhost:8080/app';
+  const DEFAULT_WS_URL = 'ws://localhost:8080/ws';
   
   // Toggle mobile menu
   function toggleMobileMenu() {
@@ -59,7 +59,7 @@
       try {
         const url = new URL(apiUrl);
         const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-        wsUrl = `${protocol}//${url.host}/app`;
+        wsUrl = `${protocol}//${url.host}/ws`;
       } catch (error) {
         console.error('Invalid API URL, falling back to default WebSocket URL:', error);
         // Use sensible default for local development

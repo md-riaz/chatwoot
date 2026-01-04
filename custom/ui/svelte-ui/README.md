@@ -37,7 +37,7 @@ Create a `.env` file with the following variables:
 VITE_API_BASE_URL=http://localhost:8000
 
 # WebSocket URL for real-time updates (Laravel Reverb)
-VITE_WS_URL=ws://localhost:8080/app
+VITE_WS_URL=ws://localhost:8080/ws
 ```
 
 For detailed WebSocket and CORS configuration, see [WEBSOCKET_SETUP.md](./WEBSOCKET_SETUP.md).
