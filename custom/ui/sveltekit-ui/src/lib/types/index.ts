@@ -1,6 +1,6 @@
 // Domain-level TypeScript interfaces for type safety
 
-export interface AccountUser {
+export interface UserAccount {
 	id: number;
 	name: string;
 	status: 'active' | 'suspended';
@@ -37,7 +37,7 @@ export interface User {
 	uid?: string;
 	custom_attributes?: Record<string, unknown>;
 	ui_settings?: Record<string, unknown>;
-	accounts?: AccountUser[];
+	accounts?: UserAccount[];
 }
 
 export interface Account {
