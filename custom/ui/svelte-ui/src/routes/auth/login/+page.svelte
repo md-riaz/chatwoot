@@ -37,6 +37,7 @@
       toast.success('Logged in successfully!');
       
       // Redirect to app
+      // TODO: Update to redirect to /app/accounts/{accountId}/conversations for Vue parity
       await goto('/app');
     } catch (err: any) {
       if (err.response?.data?.errors) {
