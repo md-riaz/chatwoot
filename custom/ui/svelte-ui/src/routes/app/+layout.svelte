@@ -22,6 +22,10 @@
   let mobileMenuOpen = $state(false);
   let wsClient: WebSocketClient | null = null;
   
+  // WebSocket configuration constants
+  const DEFAULT_API_URL = 'http://localhost:3000';
+  const DEFAULT_WS_URL = 'ws://localhost:8080/app';
+  
   // Toggle mobile menu
   function toggleMobileMenu() {
     mobileMenuOpen = !mobileMenuOpen;
@@ -49,15 +53,15 @@
     
     if (!wsUrl) {
       // Fallback: construct from API base URL
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || DEFAULT_API_URL;
       try {
         const url = new URL(apiUrl);
         const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
         wsUrl = `${protocol}//${url.host}/app`;
       } catch (error) {
         console.error('Invalid API URL, falling back to default WebSocket URL:', error);
-        // Fallback to a sensible default
-        wsUrl = 'ws://localhost:8080/app';
+        // Use sensible default for local development
+        wsUrl = DEFAULT_WS_URL;
       }
     }
     
