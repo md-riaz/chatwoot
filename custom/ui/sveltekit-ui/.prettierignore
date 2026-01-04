@@ -1,9 +1,0 @@
-# Ignore files for Prettier
-node_modules/
-.svelte-kit/
-build/
-dist/
-.DS_Store
-*.log
-pnpm-lock.yaml
-package-lock.json
