@@ -21,19 +21,32 @@
 			console.debug('Onboarding check failed, proceeding with auth check');
 		}
 		
-		// Check authentication status using get() to properly access store value
-		const authState = get(authStore);
-		
-		if (authState.isAuthenticated) {
+		// Wait for auth store to initialize
+		// The store's loading state will be false once initialized
+		let authState = get(authStore);
+		if (authState.loading) {
+			// Wait for initialization by subscribing briefly
+			const unsubscribe = authStore.subscribe(state => {
+				if (!state.loading) {
+					unsubscribe();
+					authState = state;
+					performRedirect(authState.isAuthenticated);
+				}
+			});
+		} else {
+			performRedirect(authState.isAuthenticated);
+		}
+	});
+	
+	function performRedirect(isAuthenticated: boolean) {
+		if (isAuthenticated) {
 			// User is authenticated, redirect to app
 			goto('/app/super_admin/dashboard');
 		} else {
 			// User is not authenticated, redirect to login
 			goto('/login');
 		}
-		
-		// Note: loading = false is not needed as goto() will unmount the component
-	});
+	}
 </script>
 
 <svelte:head>

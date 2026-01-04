@@ -16,9 +16,9 @@
 
 # Headers for better performance and security
 [[headers]]
-  for = "/*"
+  for = "/*.html"
   [headers.values]
-    # Cache control for HTML
+    # Cache control for HTML files - always revalidate
     Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
