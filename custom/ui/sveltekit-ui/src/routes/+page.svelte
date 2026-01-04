@@ -13,13 +13,13 @@
 		try {
 			// Check if onboarding is needed first
 			const status = await onboardingApi.checkOnboardingStatus();
-			// If status is returned and needs_onboarding is true, redirect to onboarding
-			if (status && status.needs_onboarding === true) {
+			// If status indicates onboarding is needed, redirect to onboarding page
+			if (status?.needs_onboarding) {
 				hasRedirected = true;
 				goto('/onboarding');
 				return;
 			}
-			// If status is falsy or needs_onboarding is not explicitly true, continue to auth check
+			// Otherwise, continue to authentication check below
 		} catch (error) {
 			// If onboarding check fails, continue with auth check
 			console.debug('Onboarding check failed, proceeding with auth check');
