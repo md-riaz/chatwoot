@@ -23,6 +23,8 @@
   let wsClient: WebSocketClient | null = null;
   
   // WebSocket configuration constants
+  // Note: API typically runs on port 3000 (Rails) or 8000 (Laravel)
+  // Reverb WebSocket server runs on port 8080 by default
   const DEFAULT_API_URL = 'http://localhost:3000';
   const DEFAULT_WS_URL = 'ws://localhost:8080/app';
   

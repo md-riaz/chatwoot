@@ -97,7 +97,7 @@ WebSocket connects with `ws://` instead of `wss://` in production.
 
 ## Nginx Configuration
 
-Your nginx configuration should include WebSocket support:
+Your nginx configuration should include WebSocket support. **Note:** CORS for WebSocket connections is handled by Laravel Reverb server, not nginx.
 
 ```nginx
 # WebSocket proxy for Laravel Reverb
@@ -112,12 +112,10 @@ location /app {
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_cache_bypass $http_upgrade;
     proxy_read_timeout 86400;
-    
-    # CORS headers for WebSocket
-    add_header 'Access-Control-Allow-Origin' $http_origin always;
-    add_header 'Access-Control-Allow-Credentials' 'true' always;
 }
 ```
+
+**Important:** Do not add CORS headers in nginx for WebSocket endpoints. Laravel Reverb handles CORS internally based on your `CORS_ALLOWED_ORIGINS` environment variable.
 
 ## Development Setup
 
