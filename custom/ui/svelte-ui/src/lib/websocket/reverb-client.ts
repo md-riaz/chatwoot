@@ -62,11 +62,10 @@ export class ReverbClient {
       pusherConfig.wsPath = '/ws';
       pusherConfig.wssPath = '/ws';
     } else {
-      // Direct connection (development) - use Reverb's ports and paths
+      // Direct connection (development) - use Reverb's ports and default Pusher paths
       pusherConfig.wsPort = this.config.port;
       pusherConfig.wssPort = this.config.port;
-      pusherConfig.wsPath = `/app/${this.config.key}`;
-      pusherConfig.wssPath = `/app/${this.config.key}`;
+      // Don't set wsPath - Pusher.js will automatically use /app/{key}
     }
 
     this.pusher = new Pusher(this.config.key, pusherConfig);

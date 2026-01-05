@@ -549,8 +549,8 @@ Update your frontend environment for the correct WebSocket configuration:
 ```bash
 # Frontend .env (Svelte UI)
 VITE_API_BASE_URL=http://127.0.0.1:8000
-# Development: Direct connection to Reverb
-VITE_WS_URL=ws://127.0.0.1:8080/app/your-app-key
+# Development: Direct connection to Reverb (Pusher.js adds /app/{key} automatically)
+VITE_WS_URL=ws://127.0.0.1:8080
 # Production: Proxied through Nginx
 # VITE_WS_URL=wss://your-domain.com/ws
 ```
@@ -621,7 +621,7 @@ netstat -tlnp | grep :8080
 ```bash
 # Using wscat (install: npm install -g wscat)
 # Development: Direct connection to Reverb
-wscat -c ws://127.0.0.1:8080/app/your-app-key
+wscat -c ws://127.0.0.1:8080/app/clearline-app-key
 # Production: Proxied connection
 wscat -c wss://your-domain.com/ws
 
@@ -631,8 +631,8 @@ wscat -c wss://your-domain.com/ws
 3. **Browser Console Test**:
 ```javascript
 // In browser console
-// Development: Direct connection
-const ws = new WebSocket('ws://127.0.0.1:8080/app/your-app-key');
+// Development: Direct connection (Pusher.js constructs full URL)
+const ws = new WebSocket('ws://127.0.0.1:8080/app/clearline-app-key');
 // Production: Proxied connection
 const ws = new WebSocket('wss://your-domain.com/ws');
 ws.onopen = () => console.log('Connected');

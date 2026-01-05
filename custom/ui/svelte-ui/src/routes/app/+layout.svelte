@@ -57,28 +57,33 @@
       let wsHost = '127.0.0.1';
       let wsPort = 8080;
       let useTLS = false;
-      let reverbKey = 'clearline-app-key';
+      let reverbKey = 'clearline-app-key'; // Default key from Laravel .env
       
       try {
         const url = new URL(wsUrl);
         wsHost = url.hostname;
+        useTLS = url.protocol === 'wss:';
         
         // Handle different URL formats:
-        // Direct Reverb: ws://host:port/app/{key}
+        // Direct Reverb: ws://host:port (Pusher.js will add /app/{key})
         // Proxied: ws://host/ws or wss://host/ws
-        if (url.pathname.startsWith('/app/')) {
-          // Direct connection to Reverb - extract key from path
+        if (url.pathname === '/' || url.pathname === '') {
+          // Direct connection to Reverb - use port from URL or default
+          wsPort = url.port ? parseInt(url.port) : 8080;
+        } else if (url.pathname.startsWith('/ws')) {
+          // Proxied connection - use standard ports
+          wsPort = url.port ? parseInt(url.port) : (url.protocol === 'wss:' ? 443 : 80);
+        } else if (url.pathname.startsWith('/app/')) {
+          // Legacy format with key in path - extract key and use direct connection
           const pathParts = url.pathname.split('/');
           if (pathParts.length >= 3) {
             reverbKey = pathParts[2];
           }
           wsPort = url.port ? parseInt(url.port) : 8080;
         } else {
-          // Proxied connection - use standard ports
-          wsPort = url.port ? parseInt(url.port) : (url.protocol === 'wss:' ? 443 : 80);
+          // Unknown format - assume direct connection
+          wsPort = url.port ? parseInt(url.port) : 8080;
         }
-        
-        useTLS = url.protocol === 'wss:';
       } catch (error) {
         console.error('Invalid WebSocket URL, using defaults:', error);
       }

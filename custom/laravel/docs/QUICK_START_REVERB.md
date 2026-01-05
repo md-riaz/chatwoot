@@ -68,7 +68,7 @@ php artisan queue:work
 ```bash
 # Frontend .env (custom/ui/svelte-ui/.env)
 VITE_API_BASE_URL=http://127.0.0.1:8000
-VITE_WS_URL=ws://127.0.0.1:8080/app/your-generated-key
+VITE_WS_URL=ws://127.0.0.1:8080
 ```
 
 ### 6. Build and Deploy Frontend
@@ -151,7 +151,8 @@ wscat -c ws://127.0.0.1:8080/app/your-app-key
 
 ```javascript
 // In browser console (development - direct connection)
-const ws = new WebSocket('ws://127.0.0.1:8080/app/your-app-key');
+// Note: Pusher.js automatically adds /app/{key} to the URL
+const ws = new WebSocket('ws://127.0.0.1:8080/app/clearline-app-key');
 ws.onopen = () => console.log('✅ WebSocket Connected');
 ws.onmessage = (e) => console.log('📨 Message:', e.data);
 ws.onerror = (e) => console.log('❌ Error:', e);
