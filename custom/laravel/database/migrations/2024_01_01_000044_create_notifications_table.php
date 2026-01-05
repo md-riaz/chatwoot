@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamp('read_at')->nullable();
             $table->timestamp('snoozed_until')->nullable();
             $table->timestamp('last_activity_at')->nullable();
-            $table->json('meta')->default('{}');
+            $table->json('meta')->nullable();
             $table->timestamps();
 
             $table->index('account_id');

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
             $table->string('name', 255);
             $table->text('description')->nullable();
-            $table->json('exclusion_rules')->default('{}');
+            $table->json('exclusion_rules')->nullable();
             $table->timestamps();
 
             $table->index('account_id');

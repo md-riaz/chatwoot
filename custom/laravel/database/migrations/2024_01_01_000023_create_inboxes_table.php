@@ -30,7 +30,7 @@ return new class extends Migration
             $table->boolean('working_hours_enabled')->default(false);
             $table->string('timezone')->default('UTC');
             $table->text('out_of_office_message')->nullable();
-            $table->json('auto_assignment_config')->default('{}');
+            $table->json('auto_assignment_config')->nullable();
             $table->boolean('lock_to_single_conversation')->default(false);
             $table->foreignId('portal_id')->nullable()->constrained()->nullOnDelete();
             $table->json('csat_config')->nullable();

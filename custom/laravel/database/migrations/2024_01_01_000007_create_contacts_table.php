@@ -26,8 +26,8 @@ return new class extends Migration
             $table->string('identifier')->nullable(); // External identifier
             $table->foreignId('company_id')->nullable()->constrained()->nullOnDelete();
             $table->text('avatar_url')->nullable();
-            $table->json('custom_attributes')->default('{}');
-            $table->json('additional_attributes')->default('{}');
+            $table->json('custom_attributes')->nullable();
+            $table->json('additional_attributes')->nullable();
             $table->timestamp('last_activity_at')->nullable();
             $table->boolean('blocked')->default(false);
             $table->integer('contact_type')->default(0);

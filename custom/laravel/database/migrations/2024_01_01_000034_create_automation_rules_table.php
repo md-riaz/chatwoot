@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('event_name'); // conversation_created, message_created, etc.
-            $table->json('conditions')->default('{}');
-            $table->json('actions')->default('{}');
+            $table->json('conditions')->nullable();
+            $table->json('actions')->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();
 

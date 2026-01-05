@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('app_id')->nullable();
             $table->integer('hook_type')->default(0);
             $table->integer('status')->default(1);
-            $table->jsonb('settings')->default(new \Illuminate\Database\Query\Expression("'{}'::jsonb"));
+            $table->jsonb('settings')->nullable();
             $table->string('reference_id')->nullable();
             $table->string('access_token')->nullable();
             $table->timestamps();

@@ -24,10 +24,10 @@ return new class extends Migration
             $table->boolean('enabled')->default(true);
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
             $table->foreignId('inbox_id')->constrained()->cascadeOnDelete();
-            $table->json('trigger_rules')->default('{}');
+            $table->json('trigger_rules')->nullable();
             $table->integer('campaign_type')->default(0); // 0: ongoing, 1: one_off
             $table->integer('campaign_status')->default(0); // 0: active, 1: paused, 2: completed
-            $table->json('audience')->default('[]');
+            $table->json('audience')->nullable();
             $table->timestamp('scheduled_at')->nullable();
             $table->boolean('trigger_only_during_business_hours')->default(false);
             $table->json('template_params')->nullable();

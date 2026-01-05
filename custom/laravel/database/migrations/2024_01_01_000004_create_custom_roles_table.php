@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
-            $table->json('permissions')->default('[]');
+            $table->json('permissions')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

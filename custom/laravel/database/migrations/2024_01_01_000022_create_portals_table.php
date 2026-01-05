@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('page_title')->nullable();
             $table->text('header_text')->nullable();
             $table->boolean('archived')->default(false);
-            $table->json('config')->default('{"allowed_locales": ["en"]}');
+            $table->json('config')->nullable();
             $table->json('ssl_settings')->nullable();
             $table->timestamps();
 

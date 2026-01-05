@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('smtp_authentication')->default('login');
             $table->string('smtp_openssl_verify_mode')->default('none');
             $table->boolean('smtp_enable_ssl_tls')->default(false);
-            $table->json('provider_config')->default('{}');
+            $table->json('provider_config')->nullable();
             $table->string('provider')->nullable();
             $table->boolean('verified_for_sending')->default(false);
             $table->timestamps();

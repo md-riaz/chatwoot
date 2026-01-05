@@ -34,8 +34,8 @@ return new class extends Migration
             // System fields
             $table->string('pubsub_token')->unique()->nullable();
             $table->json('tokens')->nullable(); // OAuth tokens
-            $table->json('ui_settings')->default('{}');
-            $table->json('custom_attributes')->default('{}');
+            $table->json('ui_settings')->nullable();
+            $table->json('custom_attributes')->nullable();
             
             // Laravel auth fields
             $table->rememberToken();

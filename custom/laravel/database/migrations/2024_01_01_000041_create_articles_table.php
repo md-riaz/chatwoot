@@ -29,7 +29,7 @@ return new class extends Migration
             $table->integer('position')->nullable();
             $table->integer('views')->default(0);
             $table->string('locale')->default('en');
-            $table->json('meta')->default('{}');
+            $table->json('meta')->nullable();
             $table->timestamps();
 
             $table->index('account_id');

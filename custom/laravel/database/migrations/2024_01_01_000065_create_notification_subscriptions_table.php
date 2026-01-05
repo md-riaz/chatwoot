@@ -13,7 +13,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->integer('subscription_type');
-            $table->jsonb('subscription_attributes')->default(new Expression("'{}'::jsonb"));
+            $table->jsonb('subscription_attributes')->nullable();
             $table->timestamps();
             $table->string('identifier')->nullable();
 

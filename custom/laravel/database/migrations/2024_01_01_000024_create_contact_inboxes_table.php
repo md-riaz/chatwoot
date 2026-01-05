@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('contact_id')->constrained()->cascadeOnDelete();
             $table->foreignId('inbox_id')->constrained()->cascadeOnDelete();
-            $table->text('source_id'); // External source identifier
+            $table->string('source_id', 500); // External source identifier
             $table->boolean('hmac_verified')->default(false);
             $table->string('pubsub_token')->unique()->nullable();
             $table->timestamps();

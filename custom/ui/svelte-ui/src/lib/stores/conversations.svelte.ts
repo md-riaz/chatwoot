@@ -6,10 +6,10 @@
  * Additional features like filtering, sorting, and advanced actions can be added incrementally.
  */
 
-import { get } from 'svelte/store';
 import { page } from '$app/stores';
+import type { Conversation, ConversationListParams, ConversationPriority, ConversationStatus } from '$lib/api/conversations';
 import * as conversationsAPI from '$lib/api/conversations';
-import type { Conversation, ConversationStatus, ConversationPriority, ConversationListParams } from '$lib/api/conversations';
+import { get } from 'svelte/store';
 
 /**
  * Sort type for conversations
@@ -124,7 +124,9 @@ class ConversationsStore {
         ...params
       });
       
-      this.setConversations(response.items);
+      // Handle Laravel pagination format
+      const conversations = response?.data || response?.items || response || [];
+      this.setConversations(conversations);
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch conversations';
       throw err;
@@ -433,6 +435,12 @@ class ConversationsStore {
    * Set conversations list (merge with existing)
    */
   private setConversations(conversations: Conversation[]) {
+    // Add null safety check
+    if (!conversations || !Array.isArray(conversations)) {
+      console.warn('setConversations called with invalid data:', conversations);
+      return;
+    }
+    
     const newConversations = [...this.allConversations];
     
     conversations.forEach(conversation => {

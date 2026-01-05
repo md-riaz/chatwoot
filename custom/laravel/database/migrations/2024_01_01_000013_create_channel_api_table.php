@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('identifier')->nullable();
             $table->string('hmac_token')->nullable();
             $table->boolean('hmac_mandatory')->default(false);
-            $table->json('additional_attributes')->default('{}');
+            $table->json('additional_attributes')->nullable();
             $table->timestamps();
 
             $table->unique('hmac_token');

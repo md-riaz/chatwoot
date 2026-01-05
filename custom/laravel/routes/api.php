@@ -1,6 +1,6 @@
 <?php
 
-
+use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\Api\V1\AccountsController;
 use App\Http\Controllers\Api\V1\AgentBotsController;
 use App\Http\Controllers\Api\V1\AgentsController;
@@ -281,6 +281,9 @@ Route::prefix('platform')->group(function () {
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
+    // Broadcasting authentication for WebSocket channels
+    Broadcast::routes();
+    
     // Auth routes
     Route::prefix('auth')->group(function () {
         Route::post('logout', [LoginController::class, 'logout']);

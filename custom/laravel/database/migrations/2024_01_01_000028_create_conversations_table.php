@@ -34,8 +34,8 @@ return new class extends Migration
             $table->timestamp('first_reply_created_at')->nullable();
             $table->timestamp('last_activity_at')->useCurrent();
             $table->timestamp('snoozed_until')->nullable();
-            $table->json('additional_attributes')->default('{}');
-            $table->json('custom_attributes')->default('{}');
+            $table->json('additional_attributes')->nullable();
+            $table->json('custom_attributes')->nullable();
             $table->text('cached_label_list')->nullable();
             $table->foreignId('sla_policy_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamp('waiting_since')->nullable();

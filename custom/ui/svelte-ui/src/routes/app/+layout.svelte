@@ -4,12 +4,12 @@
    * Main application shell with header and sidebar
    */
   
-  import type { Snippet } from 'svelte';
-  import { onMount } from 'svelte';
   import AppHeader from '$lib/components/layout/AppHeader.svelte';
   import AppSidebar from '$lib/components/layout/AppSidebar.svelte';
   import { authStore } from '$lib/stores/auth.svelte';
-  import { WebSocketClient } from '$lib/websocket/client';
+  import { ReverbClient, getReverbClient } from '$lib/websocket/reverb-client';
+  import type { Snippet } from 'svelte';
+  import { onMount } from 'svelte';
   
   interface Props {
     children: Snippet;
@@ -20,7 +20,7 @@
   // Local state
   let sidebarOpen = $state(true);
   let mobileMenuOpen = $state(false);
-  let wsClient: WebSocketClient | null = null;
+  let reverbClient: ReverbClient | null = null;
   
   // WebSocket configuration constants
   // Note: Default ports - Laravel API: 8000, Reverb WebSocket: 8080
@@ -68,18 +68,26 @@
     }
     
     if (token) {
-      wsClient = new WebSocketClient({
-        url: wsUrl,
-        token,
+      reverbClient = getReverbClient({
+        host: '127.0.0.1',
+        port: 8080,
+        key: 'clearline-app-key',
+        forceTLS: false,
+        authEndpoint: `${import.meta.env.VITE_API_BASE_URL || DEFAULT_API_URL}/api/broadcasting/auth`,
+        auth: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       });
       
-      wsClient.connect();
+      reverbClient.connect();
     }
     
     // Cleanup on unmount
     return () => {
-      if (wsClient) {
-        wsClient.disconnect();
+      if (reverbClient) {
+        reverbClient.disconnect();
       }
     };
   });

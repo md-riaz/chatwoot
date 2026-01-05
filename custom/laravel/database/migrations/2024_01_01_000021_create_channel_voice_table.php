@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('phone_number')->unique();
             $table->string('provider')->default('twilio');
             $table->json('provider_config');
-            $table->json('additional_attributes')->default('{}');
+            $table->json('additional_attributes')->nullable();
             $table->timestamps();
 
             $table->index('account_id');

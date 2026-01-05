@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('visibility')->default(0); // 0: personal, 1: global
             $table->foreignId('created_by_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->json('actions')->default('{}');
+            $table->json('actions')->nullable();
             $table->timestamps();
 
             $table->index('account_id');

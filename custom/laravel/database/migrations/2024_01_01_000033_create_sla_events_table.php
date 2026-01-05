@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('event_type'); // first_response, next_response, resolution
             $table->timestamp('expected_at');
             $table->timestamp('actual_at')->nullable();
-            $table->json('meta')->default('{}');
+            $table->json('meta')->nullable();
             $table->timestamps();
 
             $table->index('account_id');

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('default_value')->nullable();
             $table->integer('attribute_model')->default(0); // 0: contact_attribute, 1: conversation_attribute
             $table->text('attribute_description')->nullable();
-            $table->json('attribute_values')->default('[]');
+            $table->json('attribute_values')->nullable();
             $table->string('regex_pattern')->nullable();
             $table->string('regex_cue')->nullable();
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();

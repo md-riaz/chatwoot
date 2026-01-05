@@ -23,7 +23,7 @@ return new class extends Migration
             $table->float('coordinates_long')->default(0.0);
             $table->string('fallback_title')->nullable();
             $table->string('extension')->nullable();
-            $table->json('meta')->default('{}');
+            $table->json('meta')->nullable();
             $table->timestamps();
 
             $table->index('message_id');

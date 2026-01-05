@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('url');
             $table->integer('webhook_type')->default(0); // 0: account, 1: inbox
-            $table->json('subscriptions')->default('[]'); // Array of event types
+            $table->json('subscriptions')->nullable(); // Array of event types
             $table->timestamps();
 
             $table->index('account_id');

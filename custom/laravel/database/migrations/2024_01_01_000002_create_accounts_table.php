@@ -23,10 +23,10 @@ return new class extends Migration
             $table->bigInteger('feature_flags')->default(0);
             $table->integer('auto_resolve_duration')->nullable();
             $table->integer('status')->default(0);
-            $table->json('limits')->default('{}');
-            $table->json('custom_attributes')->default('{}');
-            $table->json('internal_attributes')->default('{}');
-            $table->json('settings')->default('{}');
+            $table->json('limits')->nullable();
+            $table->json('custom_attributes')->nullable();
+            $table->json('internal_attributes')->nullable();
+            $table->json('settings')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
