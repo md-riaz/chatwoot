@@ -42,7 +42,7 @@ class BulkAutoAssignConversationsAction
 
     private function assignIfPossible(Inbox $inbox, $conversation): bool
     {
-        if ($conversation->assignee_id || $conversation->status !== 'open') {
+        if ($conversation->assignee_id || $conversation->status !== \App\Models\Conversation::STATUS_OPEN) {
             return false;
         }
         $agent = $this->findAvailableAgent($inbox);

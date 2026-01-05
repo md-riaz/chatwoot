@@ -87,7 +87,7 @@ class AgentCapacityPolicy extends Model
 
         $currentCount = $user->assignedConversations()
             ->where('inbox_id', $inbox->id)
-            ->where('status', '!=', 'resolved')
+            ->where('status', '!=', \App\Models\Conversation::STATUS_RESOLVED)
             ->count();
 
         return $currentCount >= $limit->conversation_limit;

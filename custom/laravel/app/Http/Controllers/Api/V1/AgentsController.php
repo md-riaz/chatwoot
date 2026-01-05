@@ -98,8 +98,6 @@ class AgentsController extends Controller
         if (isset($validated['availability'])) {
             $pivotData['availability'] = UserAvailability::tryFrom($validated['availability']) ?? UserAvailability::ONLINE;
         }
-            $pivotData['availability'] = $validated['availability'];
-        }
 
         if (! empty($pivotData)) {
             $account->users()->updateExistingPivot($agent->id, $pivotData);

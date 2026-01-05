@@ -252,7 +252,7 @@ class ProcessShopifyWebhookJob implements ShouldQueue
             $conversation = Conversation::where('account_id', $account->id)
                 ->where('inbox_id', $inbox->id)
                 ->where('contact_id', $contact->id)
-                ->where('status', '!=', 'resolved')
+                ->where('status', '!=', \App\Models\Conversation::STATUS_RESOLVED)
                 ->first();
 
             if (!$conversation) {
@@ -260,7 +260,7 @@ class ProcessShopifyWebhookJob implements ShouldQueue
                     'account_id' => $account->id,
                     'inbox_id' => $inbox->id,
                     'contact_id' => $contact->id,
-                    'status' => 'open',
+                    'status' => \App\Models\Conversation::STATUS_OPEN,
                     'additional_attributes' => [
                         'shopify_order_id' => $orderSummary['order_id'],
                         'shopify_order_number' => $orderSummary['order_number'],

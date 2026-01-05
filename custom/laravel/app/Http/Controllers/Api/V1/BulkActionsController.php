@@ -166,7 +166,7 @@ class BulkActionsController extends Controller
                     break;
 
                 case 'resolve':
-                    $conversation->update(['status' => 'resolved']);
+                    $conversation->update(['status' => \App\Models\Conversation::STATUS_RESOLVED]);
                     $updated++;
                     break;
             }

@@ -56,7 +56,7 @@ class InboxCapacityLimit extends Model
     {
         return $user->assignedConversations()
             ->where('inbox_id', $this->inbox_id)
-            ->where('status', '!=', 'resolved')
+            ->where('status', '!=', \App\Models\Conversation::STATUS_RESOLVED)
             ->count();
     }
 

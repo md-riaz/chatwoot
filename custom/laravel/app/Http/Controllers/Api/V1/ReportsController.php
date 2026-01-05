@@ -45,10 +45,14 @@ class ReportsController extends Controller
             ->whereBetween('created_at', [$since, $until])
             ->selectRaw('
                 COUNT(*) as total_count,
-                SUM(CASE WHEN status = "open" THEN 1 ELSE 0 END) as open_count,
-                SUM(CASE WHEN status = "resolved" THEN 1 ELSE 0 END) as resolved_count,
-                SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) as pending_count
-            ')
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as open_count,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as resolved_count,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as pending_count
+            ', [
+                \App\Models\Conversation::STATUS_OPEN,
+                \App\Models\Conversation::STATUS_RESOLVED,
+                \App\Models\Conversation::STATUS_PENDING
+            ])
             ->first();
 
         return response()->json(['data' => $metrics]);
@@ -75,8 +79,8 @@ class ReportsController extends Controller
                 users.name,
                 users.email,
                 COUNT(*) as conversations_count,
-                SUM(CASE WHEN conversations.status = "resolved" THEN 1 ELSE 0 END) as resolved_count
-            ')
+                SUM(CASE WHEN conversations.status = ? THEN 1 ELSE 0 END) as resolved_count
+            ', [\App\Models\Conversation::STATUS_RESOLVED])
             ->get();
 
         return response()->json(['data' => $agents]);
@@ -102,8 +106,8 @@ class ReportsController extends Controller
                 inboxes.id,
                 inboxes.name,
                 COUNT(*) as conversations_count,
-                SUM(CASE WHEN conversations.status = "resolved" THEN 1 ELSE 0 END) as resolved_count
-            ')
+                SUM(CASE WHEN conversations.status = ? THEN 1 ELSE 0 END) as resolved_count
+            ', [\App\Models\Conversation::STATUS_RESOLVED])
             ->get();
 
         return response()->json(['data' => $inboxes]);
@@ -129,8 +133,8 @@ class ReportsController extends Controller
                 teams.id,
                 teams.name,
                 COUNT(*) as conversations_count,
-                SUM(CASE WHEN conversations.status = "resolved" THEN 1 ELSE 0 END) as resolved_count
-            ')
+                SUM(CASE WHEN conversations.status = ? THEN 1 ELSE 0 END) as resolved_count
+            ', [\App\Models\Conversation::STATUS_RESOLVED])
             ->get();
 
         return response()->json(['data' => $teams]);
@@ -187,7 +191,7 @@ class ReportsController extends Controller
             'conversations_count' => $conversations->count(),
             'incoming_count' => (clone $conversations)->where('messages.message_type', 0)->count(),
             'outgoing_count' => (clone $conversations)->where('messages.message_type', 1)->count(),
-            'resolutions_count' => (clone $conversations)->where('status', 'resolved')->count(),
+            'resolutions_count' => (clone $conversations)->where('status', \App\Models\Conversation::STATUS_RESOLVED)->count(),
         ];
     }
 }

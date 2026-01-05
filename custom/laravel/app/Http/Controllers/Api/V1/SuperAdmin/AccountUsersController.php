@@ -212,7 +212,6 @@ class AccountUsersController extends Controller
             $adminCount = AccountUser::where('account_id', $accountUser->account_id)
                 ->where('role', AccountUserRole::ADMINISTRATOR)
                 ->count();
-                ->count();
 
             if ($adminCount <= 1) {
                 return response()->json([

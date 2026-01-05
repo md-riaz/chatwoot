@@ -68,10 +68,10 @@ class ConversationRepository extends BaseRepository
 
         return [
             'all_count' => (clone $query)->count(),
-            'open_count' => (clone $query)->where('status', 'open')->count(),
-            'resolved_count' => (clone $query)->where('status', 'resolved')->count(),
-            'pending_count' => (clone $query)->where('status', 'pending')->count(),
-            'snoozed_count' => (clone $query)->where('status', 'snoozed')->count(),
+            'open_count' => (clone $query)->where('status', \App\Models\Conversation::STATUS_OPEN)->count(),
+            'resolved_count' => (clone $query)->where('status', \App\Models\Conversation::STATUS_RESOLVED)->count(),
+            'pending_count' => (clone $query)->where('status', \App\Models\Conversation::STATUS_PENDING)->count(),
+            'snoozed_count' => (clone $query)->where('status', \App\Models\Conversation::STATUS_SNOOZED)->count(),
             'unassigned_count' => (clone $query)->whereNull('assignee_id')->where('status', 'open')->count(),
         ];
     }

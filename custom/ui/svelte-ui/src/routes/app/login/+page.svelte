@@ -33,12 +33,12 @@
         localStorage.setItem('current_user', JSON.stringify(response.user));
         
         // Redirect based on user roles
-        if (response.user.roles?.includes('super_admin')) {
-          // Super admin - redirect to super admin dashboard
-          toast.success('Logged in successfully!');
-          await goto('/app/super_admin/dashboard');
-          return;
-        }
+        // if (response.user.roles?.includes('super_admin')) {
+        //   // Super admin - redirect to super admin dashboard
+        //   toast.success('Logged in successfully!');
+        //   await goto('/app/super_admin/dashboard');
+        //   return;
+        // }
         
         // Regular user - redirect to their account's conversations page
         if (response.user.accounts && response.user.accounts.length > 0) {

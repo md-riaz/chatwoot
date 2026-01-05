@@ -755,25 +755,55 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('settings/reset', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'reset']);
 
         // Accounts
-        Route::apiResource('accounts', SuperAdminAccountsController::class);
+        Route::apiResource('accounts', SuperAdminAccountsController::class)->names([
+            'index' => 'super_admin.accounts.index',
+            'show' => 'super_admin.accounts.show',
+            'store' => 'super_admin.accounts.store',
+            'update' => 'super_admin.accounts.update',
+            'destroy' => 'super_admin.accounts.destroy'
+        ]);
         Route::post('accounts/{account}/seed', [SuperAdminAccountsController::class, 'seed']);
         Route::post('accounts/{account}/reset_cache', [SuperAdminAccountsController::class, 'resetCache']);
 
         // Users
-        Route::apiResource('users', SuperAdminUsersController::class);
+        Route::apiResource('users', SuperAdminUsersController::class)->names([
+            'index' => 'super_admin.users.index',
+            'show' => 'super_admin.users.show',
+            'store' => 'super_admin.users.store',
+            'update' => 'super_admin.users.update',
+            'destroy' => 'super_admin.users.destroy'
+        ]);
         Route::delete('users/{user}/avatar', [SuperAdminUsersController::class, 'destroyAvatar']);
 
         // Account Users (Cross-account user management)
-        Route::apiResource('account_users', \App\Http\Controllers\Api\V1\SuperAdmin\AccountUsersController::class);
+        Route::apiResource('account_users', \App\Http\Controllers\Api\V1\SuperAdmin\AccountUsersController::class)->names([
+            'index' => 'super_admin.account_users.index',
+            'show' => 'super_admin.account_users.show',
+            'store' => 'super_admin.account_users.store',
+            'update' => 'super_admin.account_users.update',
+            'destroy' => 'super_admin.account_users.destroy'
+        ]);
         Route::post('account_users/bulk', [\App\Http\Controllers\Api\V1\SuperAdmin\AccountUsersController::class, 'bulkStore']);
         Route::get('account_users/stats', [\App\Http\Controllers\Api\V1\SuperAdmin\AccountUsersController::class, 'stats']);
 
         // Agent Bots (Global)
-        Route::apiResource('agent_bots', SuperAdminAgentBotsController::class);
+        Route::apiResource('agent_bots', SuperAdminAgentBotsController::class)->names([
+            'index' => 'super_admin.agent_bots.index',
+            'show' => 'super_admin.agent_bots.show',
+            'store' => 'super_admin.agent_bots.store',
+            'update' => 'super_admin.agent_bots.update',
+            'destroy' => 'super_admin.agent_bots.destroy'
+        ]);
         Route::delete('agent_bots/{agentBot}/avatar', [SuperAdminAgentBotsController::class, 'destroyAvatar']);
 
         // Platform Apps
-        Route::apiResource('platform_apps', PlatformAppsController::class);
+        Route::apiResource('platform_apps', PlatformAppsController::class)->names([
+            'index' => 'super_admin.platform_apps.index',
+            'show' => 'super_admin.platform_apps.show',
+            'store' => 'super_admin.platform_apps.store',
+            'update' => 'super_admin.platform_apps.update',
+            'destroy' => 'super_admin.platform_apps.destroy'
+        ]);
         Route::post('platform_apps/{platformApp}/regenerate_token', [PlatformAppsController::class, 'regenerateToken']);
 
         // Installation Configs

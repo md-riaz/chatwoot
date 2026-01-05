@@ -55,7 +55,7 @@ class CapacityRepository extends BaseRepository
     {
         return $agent->assignedConversations()
             ->where('inbox_id', $inbox->id)
-            ->where('status', '!=', 'resolved')
+            ->where('status', '!=', \App\Models\Conversation::STATUS_RESOLVED)
             ->count();
     }
 }

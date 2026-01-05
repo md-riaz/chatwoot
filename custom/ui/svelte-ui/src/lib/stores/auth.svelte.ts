@@ -102,6 +102,13 @@ class AuthStore {
   }
   
   /**
+   * Validate current session (alias for validityCheck for compatibility)
+   */
+  async validateSession() {
+    return this.validityCheck();
+  }
+  
+  /**
    * Initialize user session
    */
   async setUser() {
