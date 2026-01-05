@@ -1,7 +1,7 @@
-import { redirect } from '@sveltejs/kit';
 import { browser } from '$app/environment';
-import type { LayoutLoad } from './$types';
 import { authApi } from '$lib/api/superAdmin';
+import { redirect } from '@sveltejs/kit';
+import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async () => {
 	if (browser) {
@@ -22,6 +22,8 @@ export const load: LayoutLoad = async () => {
 			
 			// Token is valid and user is super admin, proceed
 		} catch (error) {
+			console.log(error);
+			
 			// Token is invalid or expired
 			localStorage.removeItem('auth_token');
 			localStorage.removeItem('user');
