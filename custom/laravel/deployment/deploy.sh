@@ -122,10 +122,19 @@ sudo -u www-data php artisan storage:link
 
 log "Configuring Nginx..."
 if [ -f "deployment/nginx/clearline.conf" ]; then
-    sudo cp "deployment/nginx/clearline.conf" "$NGINX_CONFIG"
+    # Update the Nginx configuration with the actual Reverb app key
+    REVERB_APP_KEY=$(grep REVERB_APP_KEY= "$APP_DIR/.env" | cut -d'=' -f2)
+    if [ -n "$REVERB_APP_KEY" ]; then
+        # Replace the default app key in Nginx config
+        sudo sed "s/clearline-app-key/$REVERB_APP_KEY/g" "deployment/nginx/clearline.conf" > /tmp/clearline.conf
+        sudo mv /tmp/clearline.conf "$NGINX_CONFIG"
+    else
+        sudo cp "deployment/nginx/clearline.conf" "$NGINX_CONFIG"
+    fi
+    
     sudo nginx -t || error "Nginx configuration test failed"
     sudo systemctl reload nginx
-    log "Nginx configuration updated"
+    log "Nginx configuration updated with Reverb app key: $REVERB_APP_KEY"
 else
     warning "Nginx configuration file not found at deployment/nginx/clearline.conf"
 fi

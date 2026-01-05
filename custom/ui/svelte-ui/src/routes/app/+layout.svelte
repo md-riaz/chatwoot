@@ -50,29 +50,44 @@
     
     // Initialize WebSocket connection
     const token = localStorage.getItem('auth_token');
-    // Use configured WebSocket URL or construct from API base URL
-    let wsUrl = import.meta.env.VITE_WS_URL;
-    
-    if (!wsUrl) {
-      // Fallback: construct from API base URL
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || DEFAULT_API_URL;
-      try {
-        const url = new URL(apiUrl);
-        const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-        wsUrl = `${protocol}//${url.host}/ws`;
-      } catch (error) {
-        console.error('Invalid API URL, falling back to default WebSocket URL:', error);
-        // Use sensible default for local development
-        wsUrl = DEFAULT_WS_URL;
-      }
-    }
     
     if (token) {
+      // Get WebSocket URL from environment or construct default
+      const wsUrl = import.meta.env.VITE_WS_URL || DEFAULT_WS_URL;
+      let wsHost = '127.0.0.1';
+      let wsPort = 8080;
+      let useTLS = false;
+      let reverbKey = 'clearline-app-key';
+      
+      try {
+        const url = new URL(wsUrl);
+        wsHost = url.hostname;
+        
+        // Handle different URL formats:
+        // Direct Reverb: ws://host:port/app/{key}
+        // Proxied: ws://host/ws or wss://host/ws
+        if (url.pathname.startsWith('/app/')) {
+          // Direct connection to Reverb - extract key from path
+          const pathParts = url.pathname.split('/');
+          if (pathParts.length >= 3) {
+            reverbKey = pathParts[2];
+          }
+          wsPort = url.port ? parseInt(url.port) : 8080;
+        } else {
+          // Proxied connection - use standard ports
+          wsPort = url.port ? parseInt(url.port) : (url.protocol === 'wss:' ? 443 : 80);
+        }
+        
+        useTLS = url.protocol === 'wss:';
+      } catch (error) {
+        console.error('Invalid WebSocket URL, using defaults:', error);
+      }
+      
       reverbClient = getReverbClient({
-        host: '127.0.0.1',
-        port: 8080,
-        key: 'clearline-app-key',
-        forceTLS: false,
+        host: wsHost,
+        port: wsPort,
+        key: reverbKey,
+        forceTLS: useTLS,
         authEndpoint: `${import.meta.env.VITE_API_BASE_URL || DEFAULT_API_URL}/api/broadcasting/auth`,
         auth: {
           headers: {
@@ -83,13 +98,6 @@
       
       reverbClient.connect();
     }
-    
-    // Cleanup on unmount
-    return () => {
-      if (reverbClient) {
-        reverbClient.disconnect();
-      }
-    };
   });
 </script>
 

@@ -76,7 +76,7 @@ Complete checklist for deploying ClearLine to production with Laravel Reverb Web
 - [ ] Frontend environment configured:
   ```bash
   VITE_API_BASE_URL=https://your-domain.com
-  VITE_WS_URL=wss://your-domain.com/app/your-reverb-app-key
+  VITE_WS_URL=wss://your-domain.com/ws
   ```
 
 ## Nginx Configuration
@@ -236,7 +236,7 @@ tail -f storage/logs/laravel.log
 supervisorctl status clearline-reverb:*
 
 # Test WebSocket connection
-wscat -c wss://your-domain.com/app/your-app-key
+wscat -c wss://your-domain.com/ws
 
 # View Reverb logs
 tail -f storage/logs/reverb.log

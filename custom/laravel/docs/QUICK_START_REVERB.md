@@ -99,7 +99,7 @@ REVERB_HOST=0.0.0.0
 
 # Frontend production .env
 VITE_API_BASE_URL=https://your-domain.com
-VITE_WS_URL=wss://your-domain.com/app/your-production-key
+VITE_WS_URL=wss://your-domain.com/ws
 ```
 
 ### 2. Deploy with Script
@@ -150,11 +150,14 @@ wscat -c ws://127.0.0.1:8080/app/your-app-key
 ### Browser Test
 
 ```javascript
-// In browser console
+// In browser console (development - direct connection)
 const ws = new WebSocket('ws://127.0.0.1:8080/app/your-app-key');
 ws.onopen = () => console.log('✅ WebSocket Connected');
 ws.onmessage = (e) => console.log('📨 Message:', e.data);
 ws.onerror = (e) => console.log('❌ Error:', e);
+
+// Production (proxied connection)
+const ws = new WebSocket('wss://your-domain.com/ws');
 ```
 
 ## 🐛 Common Issues

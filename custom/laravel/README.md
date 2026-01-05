@@ -544,15 +544,18 @@ php artisan reverb:start --host=127.0.0.1 --port=8080 &
 
 ### Frontend Configuration
 
-Update your frontend environment to match the Reverb configuration:
+Update your frontend environment for the correct WebSocket configuration:
 
 ```bash
 # Frontend .env (Svelte UI)
 VITE_API_BASE_URL=http://127.0.0.1:8000
-VITE_WS_URL=ws://127.0.0.1:8080/app/your-unique-app-key
+# Development: Direct connection to Reverb
+VITE_WS_URL=ws://127.0.0.1:8080/app/your-app-key
+# Production: Proxied through Nginx
+# VITE_WS_URL=wss://your-domain.com/ws
 ```
 
-**Important**: The `VITE_WS_URL` must include `/app/{REVERB_APP_KEY}` path for Pusher compatibility.
+**Important**: The frontend connects to `/ws` path which Nginx proxies to Reverb's `/app/{REVERB_APP_KEY}` endpoint.
 
 ### Production Setup
 
@@ -588,10 +591,10 @@ stopwaitsecs=3600
 #### 3. Nginx Configuration
 The WebSocket proxy is included in the provided Nginx configuration (`deployment/nginx/clearline.conf`). Key points:
 
-- WebSocket requests to `/app/` are proxied to Reverb
+- WebSocket requests to `/ws` are proxied to Reverb's `/app/{key}` endpoint
 - Upgrade headers are properly set
 - SSL termination is handled by Nginx
-- Frontend connects via `wss://your-domain.com/app/your-app-key`
+- Frontend connects via `wss://your-domain.com/ws` (production) or direct to Reverb (development)
 
 #### 4. Firewall Configuration
 ```bash
@@ -617,7 +620,10 @@ netstat -tlnp | grep :8080
 2. **Test WebSocket Connection**:
 ```bash
 # Using wscat (install: npm install -g wscat)
+# Development: Direct connection to Reverb
 wscat -c ws://127.0.0.1:8080/app/your-app-key
+# Production: Proxied connection
+wscat -c wss://your-domain.com/ws
 
 # Should connect and show Pusher welcome message
 ```
@@ -625,7 +631,10 @@ wscat -c ws://127.0.0.1:8080/app/your-app-key
 3. **Browser Console Test**:
 ```javascript
 // In browser console
+// Development: Direct connection
 const ws = new WebSocket('ws://127.0.0.1:8080/app/your-app-key');
+// Production: Proxied connection
+const ws = new WebSocket('wss://your-domain.com/ws');
 ws.onopen = () => console.log('Connected');
 ws.onmessage = (e) => console.log('Message:', e.data);
 ```

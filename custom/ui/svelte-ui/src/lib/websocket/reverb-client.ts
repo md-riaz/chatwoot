@@ -43,16 +43,33 @@ export class ReverbClient {
       return;
     }
 
-    this.pusher = new Pusher(this.config.key, {
+    // Determine if this is a proxied connection (no port or standard HTTP/HTTPS ports)
+    const isProxied = !this.config.port || this.config.port === 80 || this.config.port === 443;
+    
+    const pusherConfig: any = {
       wsHost: this.config.host,
-      wsPort: this.config.port,
-      wssPort: this.config.port,
       forceTLS: this.config.forceTLS || false,
       enabledTransports: ['ws', 'wss'],
       cluster: this.config.cluster || '',
       authEndpoint: this.config.authEndpoint,
       auth: this.config.auth,
-    });
+    };
+
+    if (isProxied) {
+      // Proxied connection (production) - use standard ports and paths
+      pusherConfig.wsPort = this.config.forceTLS ? 443 : 80;
+      pusherConfig.wssPort = 443;
+      pusherConfig.wsPath = '/ws';
+      pusherConfig.wssPath = '/ws';
+    } else {
+      // Direct connection (development) - use Reverb's ports and paths
+      pusherConfig.wsPort = this.config.port;
+      pusherConfig.wssPort = this.config.port;
+      pusherConfig.wsPath = `/app/${this.config.key}`;
+      pusherConfig.wssPath = `/app/${this.config.key}`;
+    }
+
+    this.pusher = new Pusher(this.config.key, pusherConfig);
 
     // Connection event handlers
     this.pusher.connection.bind('connected', () => {

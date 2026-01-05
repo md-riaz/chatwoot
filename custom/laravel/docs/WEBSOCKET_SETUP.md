@@ -178,14 +178,14 @@ VITE_WS_URL=wss://your-domain.com/app/prod-secure-app-key-here
 Update `custom/ui/svelte-ui/.env`:
 
 ```bash
-# API Base URL
+# Frontend .env
 VITE_API_BASE_URL=https://your-domain.com
 
-# WebSocket URL - MUST include /app/{REVERB_APP_KEY}
-VITE_WS_URL=wss://your-domain.com/app/prod-secure-app-key-here
-
-# For development
-# VITE_WS_URL=ws://127.0.0.1:8080/app/clearline-dev-key
+# WebSocket URL - Development vs Production
+# Development: Direct connection to Reverb
+VITE_WS_URL=ws://127.0.0.1:8080/app/your-reverb-app-key
+# Production: Proxied through Nginx /ws path
+# VITE_WS_URL=wss://your-domain.com/ws
 ```
 
 ### 2. WebSocket Client Usage
@@ -227,30 +227,34 @@ client.subscribePrivate('user.123', 'notification', (data) => {
 
 ### 1. WebSocket Proxy Setup
 
-The provided Nginx configuration (`deployment/nginx/clearline.conf`) includes WebSocket support:
+The provided Nginx configuration (`deployment/nginx/clearline.conf`) includes WebSocket support with `/ws` path proxy:
 
 ```nginx
-# WebSocket proxy for Reverb
-location /app/ {
-    # Check if this is a WebSocket upgrade request
-    if ($http_upgrade = "websocket") {
-        proxy_pass http://reverb;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-        
-        # WebSocket timeout settings
-        proxy_read_timeout 86400;
-        proxy_send_timeout 86400;
-    }
+# WebSocket proxy for Laravel Reverb
+location /ws {
+    # Rewrite /ws to /app/{key} for Reverb compatibility
+    rewrite ^/ws(.*)$ /app/$reverb_app_key$1 break;
     
-    # If not WebSocket, serve static files
-    try_files $uri $uri/ /app/index.html;
+    proxy_pass http://reverb;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_cache_bypass $http_upgrade;
+    
+    # WebSocket timeout settings
+    proxy_read_timeout 86400;
+    proxy_send_timeout 86400;
+}
+
+# Map to get Reverb app key from environment
+map $host $reverb_app_key {
+    default "clearline-app-key";
+    # Add specific mappings if needed:
+    # clearline.example.com "production-app-key";
 }
 
 # Upstream for Reverb
