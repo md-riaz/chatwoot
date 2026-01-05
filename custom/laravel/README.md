@@ -500,6 +500,172 @@ sudo supervisorctl start all
 - Verify `REVERB_HOST` and `REVERB_PORT` in `.env`
 - Check firewall allows WebSocket port (default: 8080)
 
+---
+
+## WebSocket Configuration (Laravel Reverb)
+
+ClearLine uses Laravel Reverb for real-time WebSocket communication, providing instant messaging, live notifications, and real-time updates.
+
+### Development Setup
+
+1. **Install Reverb** (if not already installed):
+```bash
+php artisan install:broadcasting
+```
+
+2. **Configure Environment Variables**:
+```bash
+# .env
+BROADCAST_CONNECTION=reverb
+
+# Reverb WebSocket Configuration
+REVERB_APP_ID=123456
+REVERB_APP_KEY=your-unique-app-key
+REVERB_APP_SECRET=your-unique-app-secret
+REVERB_HOST=127.0.0.1
+REVERB_PORT=8080
+REVERB_SCHEME=http
+```
+
+3. **Generate Reverb Credentials**:
+```bash
+# Generate unique credentials automatically
+php artisan reverb:install
+```
+
+4. **Start Reverb Server**:
+```bash
+# Development
+php artisan reverb:start --host=127.0.0.1 --port=8080 --debug
+
+# Background process
+php artisan reverb:start --host=127.0.0.1 --port=8080 &
+```
+
+### Frontend Configuration
+
+Update your frontend environment to match the Reverb configuration:
+
+```bash
+# Frontend .env (Svelte UI)
+VITE_API_BASE_URL=http://127.0.0.1:8000
+VITE_WS_URL=ws://127.0.0.1:8080/app/your-unique-app-key
+```
+
+**Important**: The `VITE_WS_URL` must include `/app/{REVERB_APP_KEY}` path for Pusher compatibility.
+
+### Production Setup
+
+#### 1. Environment Configuration
+```bash
+# Production .env
+REVERB_APP_ID=your-production-app-id
+REVERB_APP_KEY=your-production-app-key
+REVERB_APP_SECRET=your-production-app-secret
+REVERB_HOST=0.0.0.0
+REVERB_PORT=8080
+REVERB_SCHEME=https  # Use HTTPS in production
+```
+
+#### 2. Supervisor Configuration
+Create `/etc/supervisor/conf.d/laravel-reverb.conf`:
+```ini
+[program:laravel-reverb]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/clearline/artisan reverb:start --host=0.0.0.0 --port=8080
+directory=/var/www/clearline
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/www/clearline/storage/logs/reverb.log
+stopwaitsecs=3600
+```
+
+#### 3. Nginx Configuration
+The WebSocket proxy is included in the provided Nginx configuration (`deployment/nginx/clearline.conf`). Key points:
+
+- WebSocket requests to `/app/` are proxied to Reverb
+- Upgrade headers are properly set
+- SSL termination is handled by Nginx
+- Frontend connects via `wss://your-domain.com/app/your-app-key`
+
+#### 4. Firewall Configuration
+```bash
+# Allow WebSocket port
+sudo ufw allow 8080/tcp
+
+# Or if using Nginx proxy (recommended)
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+```
+
+### Testing WebSocket Connection
+
+1. **Check Reverb Status**:
+```bash
+# Check if Reverb is running
+ps aux | grep reverb
+
+# Check port is listening
+netstat -tlnp | grep :8080
+```
+
+2. **Test WebSocket Connection**:
+```bash
+# Using wscat (install: npm install -g wscat)
+wscat -c ws://127.0.0.1:8080/app/your-app-key
+
+# Should connect and show Pusher welcome message
+```
+
+3. **Browser Console Test**:
+```javascript
+// In browser console
+const ws = new WebSocket('ws://127.0.0.1:8080/app/your-app-key');
+ws.onopen = () => console.log('Connected');
+ws.onmessage = (e) => console.log('Message:', e.data);
+```
+
+### Troubleshooting
+
+**Connection Refused**:
+- Verify Reverb is running: `php artisan reverb:start`
+- Check port availability: `netstat -tlnp | grep :8080`
+- Verify firewall allows the port
+
+**Authentication Errors**:
+- Ensure `REVERB_APP_KEY` matches between backend and frontend
+- Check broadcasting auth route is accessible: `/broadcasting/auth`
+- Verify user is authenticated with valid Sanctum token
+
+**SSL/TLS Issues in Production**:
+- Use `wss://` instead of `ws://` for HTTPS sites
+- Ensure SSL certificates are valid
+- Check Nginx WebSocket proxy configuration
+
+**Performance Issues**:
+- Monitor Reverb logs: `tail -f storage/logs/reverb.log`
+- Check Redis connection for scaling
+- Consider multiple Reverb instances with load balancing
+
+### Scaling WebSocket Connections
+
+For high-traffic applications, enable Redis scaling:
+
+```bash
+# .env
+REVERB_SCALING_ENABLED=true
+REVERB_SCALING_CHANNEL=reverb
+```
+
+This allows multiple Reverb instances to share connection state via Redis.
+
+---
+
 ## Testing
 
 ### Test Verification ✅
