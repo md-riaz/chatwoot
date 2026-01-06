@@ -13,8 +13,22 @@ export interface Account {
   domain?: string;
   supportEmail?: string;
   autoResolveDuration?: number | null;
+  status?: 'active' | 'suspended';
+  usersCount?: number;
+  inboxesCount?: number;
+  conversationsCount?: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface AccountsListResponse {
+  data: Account[];
+  meta: {
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
+  };
 }
 
 export interface User {
@@ -38,13 +52,15 @@ export interface User {
 }
 
 export interface DashboardData {
-  accountsCount: number;
-  usersCount: number;
-  conversationsCount: number;
-  messagesCount: number;
-  agentsCount: number;
-  recentAccounts: Account[];
-  recentUsers: User[];
+  accountsCount: string;
+  usersCount: string;
+  conversationsCount: string;
+  inboxesCount: string;
+  chartData: [string, number][];
+}
+
+export interface DashboardResponse {
+  data: DashboardData;
 }
 
 export interface AgentBot {
@@ -132,7 +148,8 @@ export interface PaginationParams {
 export const superAdminApi = {
   // Dashboard
   getDashboard: async (): Promise<DashboardData> => {
-    return api.get('api/v1/super_admin/dashboard').json();
+    const response: DashboardResponse = await api.get('api/v1/super_admin/dashboard').json();
+    return response.data;
   },
 
   getInstanceStatus: async (): Promise<Record<string, unknown>> => {
@@ -140,7 +157,7 @@ export const superAdminApi = {
   },
 
   // Accounts
-  getAccounts: async (params?: PaginationParams): Promise<{ data: Account[] }> => {
+  getAccounts: async (params?: PaginationParams): Promise<AccountsListResponse> => {
     return api.get('api/v1/super_admin/accounts', { searchParams: params as Record<string, string> }).json();
   },
 

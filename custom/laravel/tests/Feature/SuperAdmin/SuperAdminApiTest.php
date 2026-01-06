@@ -44,20 +44,11 @@ class SuperAdminApiTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
-                    'accounts_count',
-                    'users_count',
-                    'conversations_count',
-                    'messages_count',
-                    'contacts_count',
-                    'inboxes_count',
-                    'agent_bots_count',
-                    'active_accounts',
-                    'recent_signups',
-                    'account_status',
-                    'user_roles',
-                    'growth',
-                    'system_health',
-                    'recent_activity',
+                    'accountsCount',
+                    'usersCount',
+                    'inboxesCount',
+                    'conversationsCount',
+                    'chartData'
                 ]
             ]);
     }

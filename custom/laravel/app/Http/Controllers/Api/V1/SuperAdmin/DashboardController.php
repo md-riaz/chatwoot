@@ -11,13 +11,14 @@ class DashboardController extends Controller
 {
     /**
      * Show super admin dashboard metrics and overview.
+     * Returns data in the same format as Rails superadmin dashboard.
      */
     public function index(): JsonResponse
     {
-        $metrics = Cache::remember('super_admin_dashboard_metrics', 300, function () {
+        $data = Cache::remember('super_admin_dashboard_metrics', 300, function () {
             return CalculateDashboardMetricsAction::run();
         });
 
-        return response()->json(['data' => $metrics]);
+        return response()->json(['data' => $data]);
     }
 }

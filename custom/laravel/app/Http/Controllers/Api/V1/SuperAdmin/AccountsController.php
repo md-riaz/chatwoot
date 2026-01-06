@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1\SuperAdmin;
 
+use App\Actions\SuperAdmin\CreateAccountAction;
+use App\Actions\SuperAdmin\GetAccountAction;
+use App\Actions\SuperAdmin\ListAccountsAction;
+use App\Actions\SuperAdmin\UpdateAccountAction;
+use App\Data\SuperAdmin\AccountData;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use Illuminate\Http\JsonResponse;
@@ -10,32 +15,28 @@ use Illuminate\Support\Facades\Cache;
 
 class AccountsController extends Controller
 {
+    public function __construct(
+        private ListAccountsAction $listAccounts,
+        private GetAccountAction $getAccount,
+        private CreateAccountAction $createAccount,
+        private UpdateAccountAction $updateAccount
+    ) {}
+
     /**
      * List all accounts (paginated).
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Account::query();
+        $result = $this->listAccounts->handle(
+            perPage: (int) $request->input('per_page', 20),
+            page: (int) $request->input('page', 1),
+            search: $request->input('search'),
+            status: $request->input('status'),
+            recent: $request->boolean('recent', false),
+            markedForDeletion: $request->boolean('marked_for_deletion', false)
+        );
 
-        // Search filter
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('domain', 'like', "%{$search}%");
-            });
-        }
-
-        // Status filter
-        if ($request->has('status')) {
-            $query->where('status', $request->input('status'));
-        }
-
-        $accounts = $query->withCount(['users', 'inboxes', 'conversations'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($request->input('per_page', 25));
-
-        return response()->json($accounts);
+        return response()->json($result->toArray());
     }
 
     /**
@@ -43,12 +44,9 @@ class AccountsController extends Controller
      */
     public function show(Account $account): JsonResponse
     {
-        $account->loadCount(['users', 'inboxes', 'conversations', 'contacts']);
-        $account->load(['users' => function ($q) {
-            $q->limit(10);
-        }]);
+        $result = $this->getAccount->handle($account->id);
 
-        return response()->json(['data' => $account]);
+        return response()->json(['data' => $result->toArray()]);
     }
 
     /**
@@ -56,19 +54,10 @@ class AccountsController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'locale' => 'string|max:10',
-            'domain' => 'nullable|string|max:255|unique:accounts,domain',
-            'support_email' => 'nullable|email',
-            'settings' => 'nullable|array',
-            'features' => 'nullable|array',
-            'limits' => 'nullable|array',
-        ]);
+        $data = AccountData::from($request->validated());
+        $result = $this->createAccount->handle($data);
 
-        $account = Account::create($validated);
-
-        return response()->json(['data' => $account], 201);
+        return response()->json(['data' => $result->toArray()], 201);
     }
 
     /**
@@ -76,28 +65,14 @@ class AccountsController extends Controller
      */
     public function update(Request $request, Account $account): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'string|max:255',
-            'locale' => 'string|max:10',
-            'domain' => 'nullable|string|max:255|unique:accounts,domain,'.$account->id,
-            'support_email' => 'nullable|email',
-            'settings' => 'nullable|array',
-            'features' => 'nullable|array',
-            'limits' => 'nullable|array',
-            'status' => 'integer|in:0,1',
+        $data = AccountData::from([
+            ...$request->validated(),
+            'id' => $account->id,
         ]);
 
-        // Handle feature flags
-        if ($request->has('enabled_features')) {
-            $validated['features'] = array_merge(
-                $account->features ?? [],
-                $request->input('enabled_features')
-            );
-        }
+        $result = $this->updateAccount->handle($account->id, $data);
 
-        $account->update($validated);
-
-        return response()->json(['data' => $account]);
+        return response()->json(['data' => $result->toArray()]);
     }
 
     /**
@@ -105,7 +80,6 @@ class AccountsController extends Controller
      */
     public function destroy(Account $account): JsonResponse
     {
-        // Queue account deletion
         $account->delete();
 
         return response()->json([
@@ -131,7 +105,6 @@ class AccountsController extends Controller
      */
     public function resetCache(Account $account): JsonResponse
     {
-        // Clear account-specific cache
         Cache::forget("account_{$account->id}_settings");
         Cache::forget("account_{$account->id}_features");
         Cache::tags(["account_{$account->id}"])->flush();
