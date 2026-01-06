@@ -7,7 +7,7 @@
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { ArrowLeft, Save, Trash2 } from 'lucide-svelte';
+	import { ArrowLeft, Database, RefreshCw, Save, Trash2 } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	
@@ -20,13 +20,18 @@
 		status: 'active',
 		locale: 'en',
 		domain: '',
-		auto_resolve_duration: ''
+		auto_resolve_duration: '',
+		selected_feature_flags: [] as string[],
+		all_features: {} as Record<string, boolean>
 	});
 
 	let errors = $state<Record<string, string>>({});
 	
 	// Confirm dialog state
 	let showDeleteConfirm = $state(false);
+	let showSeedConfirm = $state(false);
+	let showResetCacheConfirm = $state(false);
+	let actionLoading = $state(false);
 	
 	async function loadAccount() {
 		loading = true;
@@ -37,7 +42,9 @@
 				   status: account.status || 'active',
 				   locale: account.locale || 'en',
 				   domain: account.domain || '',
-				   auto_resolve_duration: String(account.auto_resolve_duration ?? '')
+				   auto_resolve_duration: String(account.auto_resolve_duration ?? ''),
+				   selected_feature_flags: account.selected_feature_flags || [],
+				   all_features: account.all_features || {}
 			   };
 		} catch (error: any) {
 			toast.error(error.message || 'Failed to load account');
@@ -61,7 +68,8 @@
 			   await superAdminApi.updateAccount(accountId, {
 				   ...formData,
 				   status: formData.status as 'active' | 'suspended' | undefined,
-				   auto_resolve_duration: formData.auto_resolve_duration ? Number(formData.auto_resolve_duration) : undefined
+				   auto_resolve_duration: formData.auto_resolve_duration ? Number(formData.auto_resolve_duration) : undefined,
+				   selected_feature_flags: formData.selected_feature_flags
 			   });
 			toast.success('Account updated successfully');
 			goto('/app/super_admin/accounts');
@@ -80,6 +88,14 @@
 		showDeleteConfirm = true;
 	}
 	
+	function openSeedConfirm() {
+		showSeedConfirm = true;
+	}
+	
+	function openResetCacheConfirm() {
+		showResetCacheConfirm = true;
+	}
+	
 	   async function handleDelete() {
 		   try {
 			   await superAdminApi.deleteAccount(accountId);
@@ -90,9 +106,37 @@
 			   throw err; // Re-throw to keep dialog open on error
 		   }
 	   }
+	   
+	   async function handleSeedAccount() {
+		   actionLoading = true;
+		   try {
+			   const response = await superAdminApi.seedAccount(accountId);
+			   toast.success(response.message || 'Account seeding triggered');
+		   } catch (err: any) {
+			   toast.error(err.message || 'Failed to seed account');
+			   throw err; // Re-throw to keep dialog open on error
+		   } finally {
+			   actionLoading = false;
+		   }
+	   }
+	   
+	   async function handleResetCache() {
+		   actionLoading = true;
+		   try {
+			   const response = await superAdminApi.resetAccountCache(accountId);
+			   toast.success(response.message || 'Cache keys cleared');
+		   } catch (err: any) {
+			   toast.error(err.message || 'Failed to reset cache');
+			   throw err; // Re-throw to keep dialog open on error
+		   } finally {
+			   actionLoading = false;
+		   }
+	   }
 	
-	   // Remove handleSeedData and handleResetCache as these methods do not exist
-	
+	   function handleFeaturesChange(features: string[]) {
+		   formData.selected_feature_flags = features;
+	   }
+	   
 	   onMount(() => {
 		   loadAccount();
 	   });
@@ -119,7 +163,14 @@
 			</div>
 		</div>
 		<div class="flex items-center space-x-2">
-			   <!-- Removed Reset Cache and Seed Data buttons -->
+			<Button variant="outline" onclick={openSeedConfirm} disabled={loading || actionLoading}>
+				<Database class="h-4 w-4 mr-2" />
+				Seed Account
+			</Button>
+			<Button variant="outline" onclick={openResetCacheConfirm} disabled={loading || actionLoading}>
+				<RefreshCw class="h-4 w-4 mr-2" />
+				Reset Cache
+			</Button>
 			<Button variant="destructive" onclick={openDeleteConfirm}>
 				<Trash2 class="h-4 w-4 mr-2" />
 				Delete
@@ -146,6 +197,7 @@
 							<Input
 								id="name"
 								type="text"
+								bind:value={formData.name}
 								disabled={submitting}
 								class={errors.name ? 'border-destructive' : ''}
 							/>
@@ -214,6 +266,17 @@
 				{/if}
 			   </CardContent>
 		   </Card>
+		   
+		   {#if !loading}
+			   <div class="mt-6">
+				   <FeatureFlagManager
+					   selectedFeatures={formData.selected_feature_flags}
+					   allFeatures={formData.all_features}
+					   onFeaturesChange={handleFeaturesChange}
+					   disabled={submitting}
+				   />
+			   </div>
+		   {/if}
 	</section>
 </div>
 
@@ -227,4 +290,18 @@
 	onConfirm={handleDelete}
 />
 
-<!-- Removed Seed Data ConfirmDialog -->
+<ConfirmDialog
+	bind:open={showSeedConfirm}
+	title="Seed Account"
+	description="This will populate the account with demo data including sample conversations, contacts, and inboxes. This action may take a few minutes to complete."
+	confirmText="Seed Account"
+	onConfirm={handleSeedAccount}
+/>
+
+<ConfirmDialog
+	bind:open={showResetCacheConfirm}
+	title="Reset Cache"
+	description="This will clear all cached data for this account including settings and feature flags. The cache will be rebuilt automatically as needed."
+	confirmText="Reset Cache"
+	onConfirm={handleResetCache}
+/>

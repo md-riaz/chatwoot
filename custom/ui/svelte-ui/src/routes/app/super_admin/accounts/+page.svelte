@@ -11,6 +11,8 @@
 	let accounts: any[] = [];
 	let searchQuery = '';
 	let statusFilter = '';
+	let recentFilter = false;
+	let markedForDeletionFilter = false;
 	let pagination = {
 		page: 1,
 		perPage: 20,
@@ -21,6 +23,12 @@
 	const columns = [
 		{ key: 'id', label: 'ID', sortable: true },
 		{ key: 'name', label: 'Name', sortable: true },
+		{ 
+			key: 'locale', 
+			label: 'Locale', 
+			sortable: false,
+			render: (value: string) => value?.toUpperCase() || 'EN'
+		},
 		{ 
 			key: 'users_count', 
 			label: 'Users', 
@@ -33,15 +41,6 @@
 			sortable: false,
 			render: (value: number) => String(value || 0)
 		},
-		{ 
-			key: 'created_at', 
-			label: 'Created At', 
-			sortable: true,
-			render: (value: string) => {
-				if (!value) return '-';
-				return new Date(value).toLocaleDateString();
-			}
-		},
 		{
 			key: 'status',
 			label: 'Status',
@@ -51,7 +50,8 @@
 					suspended: 'rgb(229, 70, 102)'
 				};
 				const color = statusColors[value] || 'rgb(var(--slate-11))';
-				return `<span style="color: ${color}; font-weight: 500;">${value || 'active'}</span>`;
+				const displayValue = value === 'active' ? 'Active' : 'Suspended';
+				return `<span style="color: ${color}; font-weight: 500;">${displayValue}</span>`;
 			}
 		}
 	];
@@ -70,6 +70,14 @@
 			
 			if (statusFilter) {
 				params.status = statusFilter;
+			}
+			
+			if (recentFilter) {
+				params.recent = true;
+			}
+			
+			if (markedForDeletionFilter) {
+				params.marked_for_deletion = true;
 			}
 			
 			const response = await superAdminApi.getAccounts(params);
@@ -99,6 +107,16 @@
 	}
 	
 	function handleStatusFilterChange() {
+		pagination.page = 1;
+		loadAccounts();
+	}
+	
+	function handleRecentFilterChange() {
+		pagination.page = 1;
+		loadAccounts();
+	}
+	
+	function handleMarkedForDeletionFilterChange() {
 		pagination.page = 1;
 		loadAccounts();
 	}
@@ -138,7 +156,7 @@
 					<Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 					<input
 						type="text"
-						placeholder="Search accounts..."
+						placeholder="Search accounts by name, domain, or ID..."
 						bind:value={searchQuery}
 						class="pl-10 px-3 py-2 border rounded-md bg-background text-foreground w-full"
 						on:keydown={(e: KeyboardEvent) => e.key === 'Enter' && handleSearch()}
@@ -154,6 +172,24 @@
 				<option value="active">Active</option>
 				<option value="suspended">Suspended</option>
 			</select>
+			<label class="flex items-center space-x-2">
+				<input 
+					type="checkbox" 
+					bind:checked={recentFilter}
+					on:change={handleRecentFilterChange}
+					class="rounded"
+				/>
+				<span class="text-sm">Recent (30 days)</span>
+			</label>
+			<label class="flex items-center space-x-2">
+				<input 
+					type="checkbox" 
+					bind:checked={markedForDeletionFilter}
+					on:change={handleMarkedForDeletionFilterChange}
+					class="rounded"
+				/>
+				<span class="text-sm">Marked for deletion</span>
+			</label>
 			<Button variant="outline" onclick={handleSearch}>
 				Search
 			</Button>

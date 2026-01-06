@@ -39,6 +39,16 @@ class UpdateAccountAction
         if ($data->manually_managed_features !== null) {
             $internalAttributes['manually_managed_features'] = $data->manually_managed_features;
         }
+        
+        // Handle selected_feature_flags - convert to features array
+        $features = $data->features ?? $account->features ?? [];
+        if ($data->selected_feature_flags !== null) {
+            // Reset features and apply selected flags
+            $features = [];
+            foreach ($data->selected_feature_flags as $flag) {
+                $features[$flag] = true;
+            }
+        }
 
         $accountRepository->update($id, [
             'name' => $data->name,
@@ -50,7 +60,7 @@ class UpdateAccountAction
             'limits' => $data->limits,
             'custom_attributes' => $data->custom_attributes,
             'internal_attributes' => $internalAttributes,
-            'features' => $data->features,
+            'features' => $features,
             'status' => $data->status === 'active' ? 0 : 1,
         ]);
 

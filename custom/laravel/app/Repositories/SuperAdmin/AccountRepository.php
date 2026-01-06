@@ -25,28 +25,29 @@ class AccountRepository extends BaseRepository
     ): LengthAwarePaginator {
         $query = $this->model->query();
 
-        // Search filter
+        // Search filter - matches Rails search behavior
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('domain', 'like', "%{$search}%");
+                    ->orWhere('domain', 'like', "%{$search}%")
+                    ->orWhere('id', 'like', "%{$search}%");
             });
         }
 
-        // Status filter
+        // Status filter - matches Rails enum values
         if ($status) {
             $statusValue = $status === 'active' ? 0 : 1;
             $query->where('status', $statusValue);
         }
 
-        // Recent filter (30 days)
+        // Recent filter (30 days) - matches Rails COLLECTION_FILTERS
         if ($recent) {
             $query->where('created_at', '>', now()->subDays(30));
         }
 
-        // Marked for deletion filter
+        // Marked for deletion filter - matches Rails custom_attributes check
         if ($markedForDeletion) {
-            $query->whereJsonLength('custom_attributes->marked_for_deletion_at', '>', 0);
+            $query->whereNotNull('custom_attributes->marked_for_deletion_at');
         }
 
         return $query

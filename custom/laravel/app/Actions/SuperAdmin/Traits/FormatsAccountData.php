@@ -15,25 +15,107 @@ trait FormatsAccountData
         return new AccountData(
             id: $account->id,
             name: $account->name,
-            locale: $account->locale instanceof \App\Enums\Locale ? $account->locale->getCode() : $account->locale,
+            locale: $this->formatLocale($account->locale),
             domain: $account->domain,
             support_email: $account->support_email,
             auto_resolve_duration: $account->auto_resolve_duration,
             settings: $account->settings,
-            limits: $account->limits,
+            limits: $this->formatLimits($account),
             custom_attributes: $account->custom_attributes,
-            internal_attributes: $account->internal_attributes,
-            features: $account->features,
-            manually_managed_features: $account->internal_attributes['manually_managed_features'] ?? [],
+            internal_attributes: $account->internal_attributes ?? [],
+            features: $account->features ?? [],
+            manually_managed_features: $this->getManuallyManagedFeatures($account),
+            selected_feature_flags: $this->getSelectedFeatureFlags($account),
             all_features: $this->getAllFeatures($account),
-            status: $account->status === 0 ? 'active' : 'suspended',
+            status: $this->formatStatus($account->status),
             users_count: $account->users_count ?? 0,
             inboxes_count: $account->inboxes_count ?? 0,
             conversations_count: $account->conversations_count ?? 0,
             contacts_count: $account->contacts_count ?? 0,
-            created_at: $account->created_at->toIso8601String(),
-            updated_at: $account->updated_at->toIso8601String(),
+            created_at: $account->created_at?->toIso8601String() ?? '',
+            updated_at: $account->updated_at?->toIso8601String() ?? '',
         );
+    }
+
+    /**
+     * Format locale to string code
+     */
+    private function formatLocale($locale): ?string
+    {
+        if ($locale instanceof \App\Enums\Locale) {
+            return $locale->getCode();
+        }
+        
+        if (is_int($locale)) {
+            try {
+                return \App\Enums\Locale::from($locale)->getCode();
+            } catch (\ValueError) {
+                return 'en'; // fallback
+            }
+        }
+        
+        return $locale;
+    }
+
+    /**
+     * Format account status
+     */
+    private function formatStatus(int $status): string
+    {
+        return $status === 0 ? 'active' : 'suspended';
+    }
+
+    /**
+     * Format account limits for super admin context
+     */
+    private function formatLimits(Account $account): array
+    {
+        $limits = $account->limits ?? [];
+        
+        // Ensure consistent structure matching Rails
+        return [
+            'agents' => $limits['agents'] ?? null,
+            'inboxes' => $limits['inboxes'] ?? null,
+            'captain_responses' => $limits['captain_responses'] ?? null,
+            'captain_documents' => $limits['captain_documents'] ?? null,
+        ];
+    }
+
+    /**
+     * Get manually managed features (Chatwoot Cloud specific)
+     */
+    private function getManuallyManagedFeatures(Account $account): array
+    {
+        // Only show manually managed features in Chatwoot Cloud deployment
+        if (!config('app.chatwoot_cloud', false)) {
+            return [];
+        }
+
+        return $account->internal_attributes['manually_managed_features'] ?? [];
+    }
+
+    /**
+     * Get selected feature flags (Rails-style enabled features)
+     */
+    private function getSelectedFeatureFlags(Account $account): array
+    {
+        $features = $account->features ?? [];
+        $selectedFlags = [];
+        
+        // Convert enabled features to Rails-style selected_feature_flags array
+        foreach ($features as $feature => $enabled) {
+            if ($enabled) {
+                $selectedFlags[] = $feature;
+            }
+        }
+        
+        // Add manually managed features if in Chatwoot Cloud
+        if (config('app.chatwoot_cloud', false)) {
+            $manuallyManaged = $this->getManuallyManagedFeatures($account);
+            $selectedFlags = array_merge($selectedFlags, $manuallyManaged);
+        }
+        
+        return array_unique($selectedFlags);
     }
 
     /**
@@ -41,9 +123,8 @@ trait FormatsAccountData
      */
     private function getAllFeatures(Account $account): array
     {
-        // This would be the equivalent of Rails AccountFeaturesField
-        // Return available features based on enterprise/community edition
-        $features = [
+        // Base features available to all accounts
+        $regularFeatures = [
             // Communication Channels
             'live_chat' => true,
             'email' => true,
@@ -53,9 +134,19 @@ trait FormatsAccountData
             'whatsapp' => true,
             'telegram' => true,
             'line' => true,
+            'tiktok' => true,
             
             // Product Features
             'help_center' => true,
+            'macros' => true,
+            'canned_responses' => true,
+            'labels' => true,
+            'teams' => true,
+            'custom_attributes' => true,
+            'automation_rules' => true,
+            'webhooks' => true,
+            'campaigns' => true,
+            'reports' => true,
             
             // OAuth & Authentication
             'google' => true,
@@ -67,18 +158,36 @@ trait FormatsAccountData
             'shopify' => true,
         ];
 
-        // Add enterprise features if available
-        if (config('app.enterprise', false)) {
-            $features = array_merge($features, [
-                'captain' => true,
-                'saml' => true,
-                'custom_branding' => true,
-                'agent_capacity' => true,
-                'audit_logs' => true,
-                'disable_branding' => true,
-            ]);
+        // Premium/Enterprise features
+        $premiumFeatures = [
+            'captain' => config('app.enterprise', false),
+            'saml' => config('app.enterprise', false),
+            'custom_branding' => config('app.enterprise', false),
+            'agent_capacity' => config('app.enterprise', false),
+            'audit_logs' => config('app.enterprise', false),
+            'disable_branding' => config('app.enterprise', false),
+            'advanced_reporting' => config('app.enterprise', false),
+            'crm_integration' => config('app.enterprise', false),
+            'notion_integration' => config('app.enterprise', false),
+        ];
+
+        // Merge features based on account capabilities
+        $allFeatures = array_merge($regularFeatures, $premiumFeatures);
+
+        // Apply account-specific feature overrides
+        $accountFeatures = $account->features ?? [];
+        foreach ($accountFeatures as $feature => $enabled) {
+            $allFeatures[$feature] = (bool) $enabled;
         }
 
-        return $features;
+        // Apply manually managed features if in Chatwoot Cloud
+        if (config('app.chatwoot_cloud', false)) {
+            $manuallyManaged = $this->getManuallyManagedFeatures($account);
+            foreach ($manuallyManaged as $feature) {
+                $allFeatures[$feature] = true;
+            }
+        }
+
+        return $allFeatures;
     }
 }

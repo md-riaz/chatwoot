@@ -69,8 +69,22 @@ class AccountsController extends Controller
             'internal_attributes' => 'nullable|array',
             'features' => 'nullable|array',
             'manually_managed_features' => 'nullable|array',
+            'selected_feature_flags' => 'nullable|array',
+            'enabled_features' => 'nullable|array',
             'status' => 'nullable|string|in:active,suspended',
         ]);
+
+        // Handle Rails-style feature flag processing
+        if ($request->has('enabled_features')) {
+            $validated['selected_feature_flags'] = array_keys($request->input('enabled_features', []));
+        }
+
+        // Handle limits processing like Rails: permitted_params[:limits].to_h.compact
+        if (isset($validated['limits']) && is_array($validated['limits'])) {
+            $validated['limits'] = array_filter($validated['limits'], function($value) {
+                return $value !== null && $value !== '';
+            });
+        }
 
         $data = AccountData::from($validated);
         $result = $this->createAccount->handle($data);
@@ -95,8 +109,22 @@ class AccountsController extends Controller
             'internal_attributes' => 'nullable|array',
             'features' => 'nullable|array',
             'manually_managed_features' => 'nullable|array',
+            'selected_feature_flags' => 'nullable|array',
+            'enabled_features' => 'nullable|array',
             'status' => 'nullable|string|in:active,suspended',
         ]);
+
+        // Handle Rails-style feature flag processing
+        if ($request->has('enabled_features')) {
+            $validated['selected_feature_flags'] = array_keys($request->input('enabled_features', []));
+        }
+
+        // Handle limits processing like Rails: permitted_params[:limits].to_h.compact
+        if (isset($validated['limits']) && is_array($validated['limits'])) {
+            $validated['limits'] = array_filter($validated['limits'], function($value) {
+                return $value !== null && $value !== '';
+            });
+        }
 
         $data = AccountData::from([
             ...$validated,

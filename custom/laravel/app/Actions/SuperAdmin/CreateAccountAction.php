@@ -34,6 +34,14 @@ class CreateAccountAction
             $internalAttributes['manually_managed_features'] = $data->manually_managed_features;
         }
         
+        // Handle selected_feature_flags - convert to features array
+        $features = $data->features ?? [];
+        if ($data->selected_feature_flags !== null) {
+            foreach ($data->selected_feature_flags as $flag) {
+                $features[$flag] = true;
+            }
+        }
+        
         $account = $accountRepository->create([
             'name' => $data->name,
             'locale' => $localeValue,
@@ -44,7 +52,7 @@ class CreateAccountAction
             'limits' => $data->limits,
             'custom_attributes' => $data->custom_attributes,
             'internal_attributes' => $internalAttributes,
-            'features' => $data->features,
+            'features' => $features,
             'status' => $data->status === 'active' ? 0 : 1,
         ]);
 

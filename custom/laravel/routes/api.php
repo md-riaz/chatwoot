@@ -777,6 +777,10 @@ Route::middleware('auth:sanctum')->group(function () {
             'destroy' => 'super_admin.users.destroy'
         ]);
         Route::delete('users/{user}/avatar', [SuperAdminUsersController::class, 'destroyAvatar']);
+        Route::post('users/{user}/avatar', [SuperAdminUsersController::class, 'uploadAvatar']);
+        Route::post('users/{user}/confirm', [SuperAdminUsersController::class, 'confirmEmail']);
+        Route::post('users/{user}/lock', [SuperAdminUsersController::class, 'lock']);
+        Route::post('users/{user}/unlock', [SuperAdminUsersController::class, 'unlock']);
 
         // Account Users (Cross-account user management)
         Route::apiResource('account_users', \App\Http\Controllers\Api\V1\SuperAdmin\AccountUsersController::class)->names([

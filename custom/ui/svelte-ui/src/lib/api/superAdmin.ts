@@ -17,6 +17,10 @@ export interface Account {
   usersCount?: number;
   inboxesCount?: number;
   conversationsCount?: number;
+  contactsCount?: number;
+  selectedFeatureFlags?: string[];
+  allFeatures?: Record<string, boolean>;
+  features?: Record<string, boolean>;
   createdAt: string;
   updatedAt: string;
 }
@@ -44,6 +48,7 @@ export interface User {
   roles?: string[];
   confirmed?: boolean;
   locked?: boolean;
+  customAttributes?: Record<string, any>;
   createdAt: string;
   updatedAt: string;
   accountsCount?: number;
@@ -162,19 +167,30 @@ export const superAdminApi = {
   },
 
   getAccount: async (id: number): Promise<Account> => {
-    return api.get(`api/v1/super_admin/accounts/${id}`).json();
+    const response = await api.get(`api/v1/super_admin/accounts/${id}`).json<{ data: Account }>();
+    return response.data;
   },
 
   createAccount: async (data: Partial<Account>): Promise<Account> => {
-    return api.post('api/v1/super_admin/accounts', { json: data }).json();
+    const response = await api.post('api/v1/super_admin/accounts', { json: data }).json<{ data: Account }>();
+    return response.data;
   },
 
   updateAccount: async (id: number, data: Partial<Account>): Promise<Account> => {
-    return api.put(`api/v1/super_admin/accounts/${id}`, { json: data }).json();
+    const response = await api.put(`api/v1/super_admin/accounts/${id}`, { json: data }).json<{ data: Account }>();
+    return response.data;
   },
 
   deleteAccount: async (id: number): Promise<{ success: boolean }> => {
     return api.delete(`api/v1/super_admin/accounts/${id}`).json();
+  },
+
+  seedAccount: async (id: number): Promise<{ message: string }> => {
+    return api.post(`api/v1/super_admin/accounts/${id}/seed`).json();
+  },
+
+  resetAccountCache: async (id: number): Promise<{ message: string }> => {
+    return api.post(`api/v1/super_admin/accounts/${id}/reset_cache`).json();
   },
 
   // Users
@@ -183,15 +199,18 @@ export const superAdminApi = {
   },
 
   getUser: async (id: number): Promise<User> => {
-    return api.get(`api/v1/super_admin/users/${id}`).json();
+    const response = await api.get(`api/v1/super_admin/users/${id}`).json<{ data: User }>();
+    return response.data;
   },
 
   createUser: async (data: Partial<User> & { password: string }): Promise<User> => {
-    return api.post('api/v1/super_admin/users', { json: data }).json();
+    const response = await api.post('api/v1/super_admin/users', { json: data }).json<{ data: User }>();
+    return response.data;
   },
 
   updateUser: async (id: number, data: Partial<User>): Promise<User> => {
-    return api.put(`api/v1/super_admin/users/${id}`, { json: data }).json();
+    const response = await api.put(`api/v1/super_admin/users/${id}`, { json: data }).json<{ data: User }>();
+    return response.data;
   },
 
   deleteUser: async (id: number): Promise<{ success: boolean }> => {
@@ -201,23 +220,27 @@ export const superAdminApi = {
   uploadUserAvatar: async (id: number, file: File): Promise<User> => {
     const formData = new FormData();
     formData.append('avatar', file);
-    return api.post(`api/v1/super_admin/users/${id}/avatar`, { body: formData }).json();
+    const response = await api.post(`api/v1/super_admin/users/${id}/avatar`, { body: formData }).json<{ data: User }>();
+    return response.data;
   },
 
-  deleteUserAvatar: async (id: number): Promise<User> => {
+  deleteUserAvatar: async (id: number): Promise<{ message: string }> => {
     return api.delete(`api/v1/super_admin/users/${id}/avatar`).json();
   },
 
   confirmUserEmail: async (id: number): Promise<User> => {
-    return api.post(`api/v1/super_admin/users/${id}/confirm`).json();
+    const response = await api.post(`api/v1/super_admin/users/${id}/confirm`).json<{ data: User }>();
+    return response.data;
   },
 
   lockUser: async (id: number): Promise<User> => {
-    return api.post(`api/v1/super_admin/users/${id}/lock`).json();
+    const response = await api.post(`api/v1/super_admin/users/${id}/lock`).json<{ data: User }>();
+    return response.data;
   },
 
   unlockUser: async (id: number): Promise<User> => {
-    return api.post(`api/v1/super_admin/users/${id}/unlock`).json();
+    const response = await api.post(`api/v1/super_admin/users/${id}/unlock`).json<{ data: User }>();
+    return response.data;
   },
 
   // Settings

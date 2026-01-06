@@ -124,6 +124,29 @@ class UsersController extends Controller
     }
 
     /**
+     * Upload user avatar.
+     */
+    public function uploadAvatar(Request $request, User $user): JsonResponse
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('avatars', $filename, 'public');
+            
+            $user->update(['avatar_url' => '/storage/' . $path]);
+        }
+
+        return response()->json([
+            'data' => $user->fresh(),
+            'message' => 'Avatar uploaded successfully.'
+        ]);
+    }
+
+    /**
      * Delete user avatar.
      */
     public function destroyAvatar(User $user): JsonResponse
@@ -131,5 +154,54 @@ class UsersController extends Controller
         $user->update(['avatar_url' => null]);
 
         return response()->json(['message' => 'Avatar deleted.']);
+    }
+
+    /**
+     * Confirm user email (equivalent to Rails skip_reconfirmation!).
+     */
+    public function confirmEmail(User $user): JsonResponse
+    {
+        $user->update(['email_verified_at' => now()]);
+
+        return response()->json([
+            'data' => $user->fresh(),
+            'message' => 'User email confirmed successfully.'
+        ]);
+    }
+
+    /**
+     * Lock a user account.
+     */
+    public function lock(User $user): JsonResponse
+    {
+        // In Laravel, we can use a 'locked_at' timestamp or a boolean field
+        // For now, we'll use a custom attribute to track lock status
+        $customAttributes = $user->custom_attributes ?? [];
+        $customAttributes['locked_at'] = now()->toISOString();
+        $customAttributes['locked'] = true;
+        
+        $user->update(['custom_attributes' => $customAttributes]);
+
+        return response()->json([
+            'data' => $user->fresh(),
+            'message' => 'User locked successfully.'
+        ]);
+    }
+
+    /**
+     * Unlock a user account.
+     */
+    public function unlock(User $user): JsonResponse
+    {
+        $customAttributes = $user->custom_attributes ?? [];
+        unset($customAttributes['locked_at']);
+        $customAttributes['locked'] = false;
+        
+        $user->update(['custom_attributes' => $customAttributes]);
+
+        return response()->json([
+            'data' => $user->fresh(),
+            'message' => 'User unlocked successfully.'
+        ]);
     }
 }

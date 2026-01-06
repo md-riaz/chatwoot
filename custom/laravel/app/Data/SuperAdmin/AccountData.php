@@ -38,6 +38,8 @@ class AccountData extends Data
         #[Nullable]
         public ?array $manually_managed_features = null,
         #[Nullable]
+        public ?array $selected_feature_flags = null,
+        #[Nullable]
         public ?array $all_features = null,
         #[In(['active', 'suspended'])]
         public string $status = 'active',

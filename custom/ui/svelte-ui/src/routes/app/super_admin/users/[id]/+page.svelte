@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { toast } from 'svelte-sonner';
-	import { ChevronLeft, Save, Trash2, Mail, Lock, Unlock, Upload, X } from 'lucide-svelte';
+	import { page } from '$app/stores';
+	import { superAdminApi } from '$lib/api/superAdmin';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Select from '$lib/components/ui/select/select-native.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
-	import { superAdminApi } from '$lib/api/superAdmin';
+	import { ChevronLeft, Lock, Mail, Save, Trash2, Unlock, Upload, X } from 'lucide-svelte';
+	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	let userId = $page.params.id;
 	let user: any = null;
@@ -29,16 +29,16 @@
 	async function loadUser() {
 		loading = true;
 		try {
-			user = await superAdminApi.users.get(userId);
+			user = await superAdminApi.getUser(parseInt(userId));
 			formData = {
 				name: user.name || '',
-				display_name: user.display_name || '',
+				display_name: user.displayName || '',
 				email: user.email || '',
 				role: user.role || 'agent',
 				password: ''
 			};
-			if (user.avatar_url) {
-				avatarPreview = user.avatar_url;
+			if (user.avatarUrl) {
+				avatarPreview = user.avatarUrl;
 			}
 		} catch (error) {
 			toast.error('Failed to load user');
@@ -52,11 +52,11 @@
 		saving = true;
 		try {
 			// Update user info
-			await superAdminApi.users.update(userId, formData);
+			await superAdminApi.updateUser(parseInt(userId), formData);
 
 			// Upload avatar if selected
 			if (avatarFile) {
-				await superAdminApi.users.uploadAvatar(userId, avatarFile);
+				await superAdminApi.uploadUserAvatar(parseInt(userId), avatarFile);
 			}
 
 			toast.success('User updated successfully');
@@ -73,7 +73,7 @@
 		if (!confirm('Are you sure you want to delete this user?')) return;
 
 		try {
-			await superAdminApi.users.delete(userId);
+			await superAdminApi.deleteUser(parseInt(userId));
 			toast.success('User deleted successfully');
 			goto('/app/super_admin/users');
 		} catch (error: any) {
@@ -84,7 +84,7 @@
 
 	async function handleConfirmEmail() {
 		try {
-			await superAdminApi.users.confirmEmail(userId);
+			await superAdminApi.confirmUserEmail(parseInt(userId));
 			toast.success('Email confirmed successfully');
 			await loadUser();
 		} catch (error: any) {
@@ -95,11 +95,11 @@
 
 	async function handleToggleLock() {
 		try {
-			if (user.locked) {
-				await superAdminApi.users.unlock(userId);
+			if (isUserLocked()) {
+				await superAdminApi.unlockUser(parseInt(userId));
 				toast.success('User unlocked successfully');
 			} else {
-				await superAdminApi.users.lock(userId);
+				await superAdminApi.lockUser(parseInt(userId));
 				toast.success('User locked successfully');
 			}
 			await loadUser();
@@ -113,7 +113,7 @@
 		if (!confirm('Are you sure you want to delete this avatar?')) return;
 
 		try {
-			await superAdminApi.users.deleteAvatar(userId);
+			await superAdminApi.deleteUserAvatar(parseInt(userId));
 			avatarPreview = null;
 			avatarFile = null;
 			toast.success('Avatar deleted successfully');
@@ -122,6 +122,14 @@
 			toast.error(error.message || 'Failed to delete avatar');
 			console.error(error);
 		}
+	}
+	
+	function isUserConfirmed(): boolean {
+		return !!user?.emailVerifiedAt;
+	}
+	
+	function isUserLocked(): boolean {
+		return user?.customAttributes?.locked === true;
 	}
 
 	function handleFileSelect(e: Event) {
@@ -157,7 +165,7 @@
 		</div>
 		<div class="flex items-center gap-3">
 			{#if !loading && user}
-				{#if !user.confirmed}
+				{#if !isUserConfirmed()}
 					<Button variant="outline" onclick={handleConfirmEmail}>
 						<Mail class="h-4 w-4 mr-2" />
 						Confirm Email
@@ -167,7 +175,7 @@
 					variant="outline"
 					onclick={handleToggleLock}
 				>
-					{#if user.locked}
+					{#if isUserLocked()}
 						<Unlock class="h-4 w-4 mr-2" />
 						Unlock User
 					{:else}
