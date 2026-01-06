@@ -4,13 +4,13 @@
    * Manage user profile information
    */
 
-  import { onMount } from 'svelte';
-  import * as Card from '$lib/components/ui/card';
+  import * as authAPI from '$lib/api/auth';
   import { Button } from '$lib/components/ui/button';
+  import * as Card from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import { authStore } from '$lib/stores/auth.svelte';
-  import * as authAPI from '$lib/api/auth';
+  import { onMount } from 'svelte';
 
   let name = $state('');
   let email = $state('');
@@ -24,7 +24,7 @@
 
   onMount(() => {
     // Load current user data
-    if (authStore.currentUser) {
+    if (authStore.currentUser.id) {
       name = authStore.currentUser.displayName || authStore.currentUser.name || '';
       email = authStore.currentUser.email || '';
     }

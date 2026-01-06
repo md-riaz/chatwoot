@@ -104,16 +104,16 @@
 
 <div class="w-full h-full">
 	<!-- Header -->
-	<header class="px-8 py-6 border-b bg-white dark:bg-slate-1 flex items-center justify-between" style="border-color: rgb(var(--slate-6));">
+	<header class="px-8 py-6 border-b bg-card flex items-center justify-between" role="banner">
 		<div class="flex items-center space-x-4">
 			<Button variant="ghost" size="sm" onclick={() => goto('/app/super_admin/accounts')}>
 				<ArrowLeft class="h-4 w-4" />
 			</Button>
 			<div>
-				<h1 class="text-2xl font-semibold" style="color: rgb(var(--slate-12));">
+				<h1 class="text-2xl font-semibold text-foreground">
 					{loading ? 'Loading...' : formData.name || 'Edit Account'}
 				</h1>
-				<p class="text-sm mt-1" style="color: rgb(var(--slate-11));">
+				<p class="text-sm mt-1 text-muted-foreground">
 					Account ID: {accountId}
 				</p>
 			</div>

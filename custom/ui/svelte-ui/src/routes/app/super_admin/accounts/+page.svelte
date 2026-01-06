@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { superAdminApi } from '$lib/api/superAdmin';
+	import DataTable from '$lib/components/DataTable.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import DataTable from '$lib/components/DataTable.svelte';
-	import { Plus, Search, RefreshCw, Trash2, Settings as SettingsIcon } from 'lucide-svelte';
+	import { Plus, RefreshCw, Search } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	
 	let loading = true;
@@ -86,12 +86,12 @@
 
 <div class="w-full h-full">
 	<!-- Header -->
-	<header class="px-8 py-6 border-b bg-white dark:bg-slate-1 flex items-center justify-between" style="border-color: rgb(var(--slate-6));">
+	<header class="px-8 py-6 border-b bg-card flex items-center justify-between" role="banner">
 		<div>
-			<h1 class="text-2xl font-semibold" style="color: rgb(var(--slate-12));">
+			<h1 class="text-2xl font-semibold text-foreground">
 				Accounts
 			</h1>
-			<p class="text-sm mt-1" style="color: rgb(var(--slate-11));">
+			<p class="text-sm mt-1 text-muted-foreground">
 				Manage all accounts in your Chatwoot instance
 			</p>
 		</div>
@@ -107,7 +107,7 @@
 		<div class="mb-6 flex items-center space-x-4">
 			<div class="flex-1 max-w-md">
 				<div class="relative">
-					<Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" style="color: rgb(var(--slate-10));" />
+					<Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 					<Input
 						type="text"
 						placeholder="Search accounts..."
@@ -132,7 +132,7 @@
 			data={accounts}
 			{loading}
 			{pagination}
-			{onRowClick}
+			onRowClick={handleRowClick}
 			onPageChange={handlePageChange}
 		/>
 	</section>

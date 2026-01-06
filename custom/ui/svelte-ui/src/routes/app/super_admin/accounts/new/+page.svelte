@@ -48,15 +48,15 @@
 
 <div class="w-full h-full">
 	<!-- Header -->
-	<header class="px-8 py-6 border-b bg-white dark:bg-slate-1 flex items-center" style="border-color: rgb(var(--slate-6));">
+	<header class="px-8 py-6 border-b bg-card flex items-center" role="banner">
 		<Button variant="ghost" size="sm" onclick={() => goto('/app/super_admin/accounts')}>
 			<ArrowLeft class="h-4 w-4" />
 		</Button>
 		<div class="ml-4">
-			<h1 class="text-2xl font-semibold" style="color: rgb(var(--slate-12));">
+			<h1 class="text-2xl font-semibold text-foreground">
 				New Account
 			</h1>
-			<p class="text-sm mt-1" style="color: rgb(var(--slate-11));">
+			<p class="text-sm mt-1 text-muted-foreground">
 				Create a new account in your Chatwoot instance
 			</p>
 		</div>
@@ -95,7 +95,7 @@
 							placeholder="en"
 							disabled={submitting}
 						/>
-						<p class="text-xs" style="color: rgb(var(--slate-10));">
+						<p class="text-xs text-muted-foreground">
 							Default language for this account
 						</p>
 					</div>

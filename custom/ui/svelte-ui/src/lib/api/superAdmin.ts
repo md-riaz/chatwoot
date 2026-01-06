@@ -4,7 +4,6 @@
  */
 
 import api from './client';
-import type { ApiResponse } from './types';
 
 // SuperAdmin-specific types
 export interface Account {
@@ -361,9 +360,11 @@ export const superAdminAPI = {
 // Export authApi for compatibility with SuperAdmin routes
 export const authApi = {
   getCurrentUser: async (): Promise<User> => {
-    return api.get('api/v1/auth/me').json();
+    const response = await api.get('api/v1/auth/me').json<{ data: User }>();
+    return response.data;
   }
 };
 
 // Export as 'api' for convenience
 export { superAdminApi as api };
+

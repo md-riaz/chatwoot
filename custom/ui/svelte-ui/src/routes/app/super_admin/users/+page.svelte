@@ -1,13 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { toast } from 'svelte-sonner';
-	import { RefreshCw, Plus, CheckCircle, Clock, Lock } from 'lucide-svelte';
+	import { superAdminApi } from '$lib/api/superAdmin';
+	import DataTable from '$lib/components/DataTable.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
-	import DataTable from '$lib/components/DataTable.svelte';
-	import { superAdminApi } from '$lib/api/superAdmin';
+	import { Plus, RefreshCw } from 'lucide-svelte';
+	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	let users: any[] = [];
 	let loading = true;
@@ -87,9 +86,9 @@
 	];
 </script>
 
-<div class="h-full flex flex-col bg-white dark:bg-slate-1">
-	<div class="flex items-center justify-between px-8 py-6 border-b border-slate-6">
-		<h1 class="text-2xl font-semibold text-slate-12">Users</h1>
+<div class="h-full flex flex-col bg-background">
+	<div class="flex items-center justify-between px-8 py-6 border-b bg-card">
+		<h1 class="text-2xl font-semibold text-foreground">Users</h1>
 		<div class="flex items-center gap-3">
 			<div class="relative">
 				<Input

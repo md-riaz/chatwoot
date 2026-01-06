@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { toast } from 'svelte-sonner';
-	import { Save, Settings as SettingsIcon, Shield, Cog, Plug, Globe } from 'lucide-svelte';
+	import { superAdminApi } from '$lib/api/superAdmin';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
-	import { superAdminApi } from '$lib/api/superAdmin';
+	import { Cog, Globe, Plug, Save, Settings as SettingsIcon, Shield } from 'lucide-svelte';
+	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	type Tab = 'general' | 'platform' | 'system' | 'security' | 'integration';
 
@@ -54,9 +54,9 @@
 	});
 </script>
 
-<div class="h-full flex flex-col bg-white dark:bg-slate-1">
-	<div class="flex items-center justify-between px-8 py-6 border-b border-slate-6">
-		<h1 class="text-2xl font-semibold text-slate-12">Settings</h1>
+<div class="h-full flex flex-col bg-background">
+	<div class="flex items-center justify-between px-8 py-6 border-b bg-card">
+		<h1 class="text-2xl font-semibold text-foreground">Settings</h1>
 		<Button onclick={handleSave} disabled={saving || loading}>
 			<Save class="h-4 w-4 mr-2" />
 			{saving ? 'Saving...' : 'Save Changes'}

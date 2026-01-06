@@ -4,16 +4,14 @@
    * Redirects to the user's default account
    */
   
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth.svelte';
+  import { onMount } from 'svelte';
   
   onMount(() => {
-    const currentAccount = authStore.currentAccount;
-    
-    if (currentAccount?.id) {
+    if (authStore.currentAccount?.id) {
       // Redirect to the current account's dashboard
-      goto(`/app/accounts/${currentAccount.id}`, { replaceState: true });
+      goto(`/app/accounts/${authStore.currentAccount.id}`, { replaceState: true });
     } else {
       // If no account, redirect to login or onboarding
       goto('/app/login', { replaceState: true });

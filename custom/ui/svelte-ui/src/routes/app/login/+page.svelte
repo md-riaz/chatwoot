@@ -4,15 +4,15 @@
    * User authentication page
    */
   
+  import { goto } from '$app/navigation';
+  import { login } from '$lib/api/auth';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
-  import { login } from '$lib/api/auth';
-  import { goto } from '$app/navigation';
   import { toast } from 'svelte-sonner';
   
-  let email = $state('');
-  let password = $state('');
+  let email = $state('mdriaz@alpha.net.bd');
+  let password = $state('12345678');
   let error = $state('');
   let loading = $state(false);
   
@@ -33,12 +33,12 @@
         localStorage.setItem('current_user', JSON.stringify(response.user));
         
         // Redirect based on user roles
-        // if (response.user.roles?.includes('super_admin')) {
-        //   // Super admin - redirect to super admin dashboard
-        //   toast.success('Logged in successfully!');
-        //   await goto('/app/super_admin/dashboard');
-        //   return;
-        // }
+        if (response.user.roles?.includes('super_admin')) {
+          // Super admin - redirect to super admin dashboard
+          toast.success('Logged in successfully!');
+          await goto('/app/super_admin/dashboard');
+          return;
+        }
         
         // Regular user - redirect to their account's conversations page
         if (response.user.accounts && response.user.accounts.length > 0) {

@@ -4,11 +4,10 @@
  */
 
 import { goto } from '$app/navigation';
-import { page } from '$app/stores';
-import { get } from 'svelte/store';
+import { page } from '$app/state';
+import type { AvailabilityUpdateParams, CurrentUser, PasswordUpdateParams, ProfileUpdateParams } from '$lib/api/auth';
 import * as authAPI from '$lib/api/auth';
-import type { CurrentUser, ProfileUpdateParams, PasswordUpdateParams, AvailabilityUpdateParams } from '$lib/api/auth';
-import { saveToStorage, loadFromStorage, clearStorage } from './persistence';
+import { clearStorage, loadFromStorage, saveToStorage } from './persistence';
 
 /**
  * Initial user state
@@ -22,15 +21,15 @@ const initialUser: CurrentUser = {
 };
 
 /**
- * Auth store state using Svelte 5 runes
+ * Auth store using Svelte 5 runes
  */
 class AuthStore {
-  // Reactive state
+  // Reactive state using runes
   currentUser = $state<CurrentUser>(loadFromStorage<CurrentUser>('current_user') || initialUser);
   isFetching = $state<boolean>(true);
   error = $state<string | null>(null);
   
-  // Computed values (getters) using $derived
+  // Computed values using $derived
   isLoggedIn = $derived(!!this.currentUser.id);
   currentUserId = $derived(this.currentUser.id);
   uiSettings = $derived(this.currentUser.uiSettings || {});
@@ -41,8 +40,7 @@ class AuthStore {
    * Get current account ID from route params
    */
   get currentAccountId(): number | null {
-    const pageData = get(page);
-    const accountId = pageData?.params?.accountId;
+    const accountId = page.params?.accountId;
     return accountId ? Number(accountId) : null;
   }
   
@@ -52,7 +50,6 @@ class AuthStore {
   get currentAccount() {
     const accountId = this.currentAccountId;
     if (!accountId) return null;
-    
     return this.currentUser.accounts.find(acc => acc.id === accountId) || null;
   }
   

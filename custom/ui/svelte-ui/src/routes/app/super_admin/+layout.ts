@@ -16,13 +16,14 @@ export const load: LayoutLoad = async () => {
 			
 			// Check if user has super_admin role
 			if (!user.roles?.includes('super_admin')) {
+				console.log('User does not have super_admin role:', user);
+				
 				// User is not a super admin, redirect to login with error
 				throw redirect(307, '/app/login?error=not_authorized');
 			}
 			
 			// Token is valid and user is super admin, proceed
 		} catch (error) {
-			console.log(error);
 			
 			// Token is invalid or expired
 			localStorage.removeItem('auth_token');

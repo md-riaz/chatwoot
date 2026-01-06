@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { api } from '$lib/api/superAdmin';
 	import DataTable from '$lib/components/DataTable.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { Plus, RefreshCw, Search } from 'lucide-svelte';
-	import { api } from '$lib/api/superAdmin';
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	let agentBots: any[] = [];
@@ -78,9 +78,9 @@
 
 <div class="flex h-full flex-col">
 	<!-- Header -->
-	<div class="border-b border-slate-6 bg-white px-8 py-6 dark:bg-slate-1">
+	<div class="border-b bg-card px-8 py-6">
 		<div class="flex items-center justify-between">
-			<h1 class="text-2xl font-semibold text-slate-12">Agent Bots</h1>
+			<h1 class="text-2xl font-semibold text-foreground">Agent Bots</h1>
 			<Button
 				on:click={() => goto('/app/super_admin/agent-bots/new')}
 				class="bg-iris-9 text-white hover:bg-iris-10"
@@ -92,7 +92,7 @@
 	</div>
 
 	<!-- Content -->
-	<div class="flex-1 overflow-auto bg-white p-8 dark:bg-slate-1">
+	<div class="flex-1 overflow-auto bg-background p-8">
 		<!-- Search and Actions -->
 		<div class="mb-6 flex items-center gap-4">
 			<div class="relative flex-1">

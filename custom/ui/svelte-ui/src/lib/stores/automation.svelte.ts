@@ -3,13 +3,13 @@
  * Manages automation rules state using Svelte 5 runes
  */
 
+import type {
+    Automation,
+    CreateAutomationParams,
+    UpdateAutomationParams
+} from '$lib/api/automation';
 import * as automationApi from '$lib/api/automation';
 import { authStore } from './auth.svelte';
-import type { 
-  Automation, 
-  CreateAutomationParams, 
-  UpdateAutomationParams 
-} from '$lib/api/automation';
 
 interface AutomationState {
   all: Automation[];

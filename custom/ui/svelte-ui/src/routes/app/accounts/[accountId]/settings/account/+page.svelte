@@ -4,12 +4,12 @@
    * Manage account-level settings like name, language, timezone
    */
 
-  import { onMount } from 'svelte';
-  import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
+  import * as Card from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import { authStore } from '$lib/stores/auth.svelte';
+  import { onMount } from 'svelte';
 
   let accountName = $state('');
   let language = $state('en');
