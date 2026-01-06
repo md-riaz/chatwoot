@@ -32,8 +32,9 @@ class ListAccountsAction
             markedForDeletion: $markedForDeletion
         );
 
+        // Convert to raw arrays (like DashboardData.chartData)
         $accounts = collect($paginated->items())->map(
-            fn($account) => $this->formatAccount($account)
+            fn($account) => $this->formatAccount($account)->toArray()
         )->toArray();
 
         $meta = new AccountsListMetaData(

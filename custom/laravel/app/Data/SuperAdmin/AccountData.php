@@ -31,11 +31,20 @@ class AccountData extends Data
         public ?array $limits = null,
         #[Nullable]
         public ?array $custom_attributes = null,
+        #[Nullable]
+        public ?array $internal_attributes = null,
+        #[Nullable]
+        public ?array $features = null,
+        #[Nullable]
+        public ?array $manually_managed_features = null,
+        #[Nullable]
+        public ?array $all_features = null,
         #[In(['active', 'suspended'])]
         public string $status = 'active',
         public int|Optional $users_count = 0,
         public int|Optional $inboxes_count = 0,
         public int|Optional $conversations_count = 0,
+        public int|Optional $contacts_count = 0,
         public string|Optional $created_at = '',
         public string|Optional $updated_at = '',
     ) {}

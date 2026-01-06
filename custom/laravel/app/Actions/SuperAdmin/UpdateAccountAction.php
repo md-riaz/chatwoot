@@ -22,14 +22,35 @@ class UpdateAccountAction
             throw new \Exception("Account not found");
         }
 
+        // Convert locale string to enum if needed
+        $localeValue = $data->locale;
+        if (is_string($data->locale)) {
+            try {
+                $localeEnum = \App\Enums\Locale::fromCode($data->locale);
+                $localeValue = $localeEnum->value;
+            } catch (\InvalidArgumentException $e) {
+                // Keep existing locale if invalid code provided
+                $localeValue = $account->locale instanceof \App\Enums\Locale ? $account->locale->value : $account->locale;
+            }
+        }
+
+        // Handle manually_managed_features in internal_attributes
+        $internalAttributes = $data->internal_attributes ?? $account->internal_attributes ?? [];
+        if ($data->manually_managed_features !== null) {
+            $internalAttributes['manually_managed_features'] = $data->manually_managed_features;
+        }
+
         $accountRepository->update($id, [
             'name' => $data->name,
-            'locale' => $data->locale,
+            'locale' => $localeValue,
             'domain' => $data->domain,
             'support_email' => $data->support_email,
             'auto_resolve_duration' => $data->auto_resolve_duration,
             'settings' => $data->settings,
             'limits' => $data->limits,
+            'custom_attributes' => $data->custom_attributes,
+            'internal_attributes' => $internalAttributes,
+            'features' => $data->features,
             'status' => $data->status === 'active' ? 0 : 1,
         ]);
 

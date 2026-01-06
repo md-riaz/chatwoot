@@ -50,7 +50,7 @@ class AccountRepository extends BaseRepository
         }
 
         return $query
-            ->withCount(['users', 'inboxes', 'conversations'])
+            ->withCount(['users', 'inboxes', 'conversations', 'contacts'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
     }

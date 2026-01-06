@@ -36,7 +36,10 @@ class AccountsController extends Controller
             markedForDeletion: $request->boolean('marked_for_deletion', false)
         );
 
-        return response()->json($result->toArray());
+        return response()->json([
+            'data' => $result->data,
+            'meta' => $result->meta
+        ]);
     }
 
     /**
@@ -54,7 +57,22 @@ class AccountsController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $data = AccountData::from($request->validated());
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'locale' => 'nullable|string|max:10',
+            'domain' => 'nullable|string|max:255|unique:accounts,domain',
+            'support_email' => 'nullable|email',
+            'auto_resolve_duration' => 'nullable|integer',
+            'settings' => 'nullable|array',
+            'limits' => 'nullable|array',
+            'custom_attributes' => 'nullable|array',
+            'internal_attributes' => 'nullable|array',
+            'features' => 'nullable|array',
+            'manually_managed_features' => 'nullable|array',
+            'status' => 'nullable|string|in:active,suspended',
+        ]);
+
+        $data = AccountData::from($validated);
         $result = $this->createAccount->handle($data);
 
         return response()->json(['data' => $result->toArray()], 201);
@@ -65,9 +83,25 @@ class AccountsController extends Controller
      */
     public function update(Request $request, Account $account): JsonResponse
     {
+        $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'locale' => 'nullable|string|max:10',
+            'domain' => 'nullable|string|max:255|unique:accounts,domain,' . $account->id,
+            'support_email' => 'nullable|email',
+            'auto_resolve_duration' => 'nullable|integer',
+            'settings' => 'nullable|array',
+            'limits' => 'nullable|array',
+            'custom_attributes' => 'nullable|array',
+            'internal_attributes' => 'nullable|array',
+            'features' => 'nullable|array',
+            'manually_managed_features' => 'nullable|array',
+            'status' => 'nullable|string|in:active,suspended',
+        ]);
+
         $data = AccountData::from([
-            ...$request->validated(),
+            ...$validated,
             'id' => $account->id,
+            'name' => $validated['name'] ?? $account->name, // Ensure name is always present
         ]);
 
         $result = $this->updateAccount->handle($account->id, $data);

@@ -21,8 +21,10 @@ class Account extends Model
         'locale',
         'domain',
         'support_email',
+        'auto_resolve_duration',
         'settings',
         'custom_attributes',
+        'internal_attributes',
         'features',
         'limits',
         'status',
@@ -32,6 +34,7 @@ class Account extends Model
     protected $casts = [
         'settings' => 'array',
         'custom_attributes' => 'array',
+        'internal_attributes' => 'array',
         'features' => 'array',
         'limits' => 'array',
         'status' => 'integer',
