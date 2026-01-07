@@ -24,7 +24,7 @@
 			key: 'created_at',
 			label: 'Created At',
 			sortable: true,
-			render: (row: any) => new Date(row.created_at).toLocaleString()
+			render: (value: any, row: any) => value ? new Date(value).toLocaleString() : ''
 		}
 	];
 

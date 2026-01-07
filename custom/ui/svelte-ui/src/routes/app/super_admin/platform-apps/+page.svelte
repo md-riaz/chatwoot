@@ -1,12 +1,12 @@
 <script lang="ts">
-import { onMount } from 'svelte';
 import { goto } from '$app/navigation';
 import { api } from '$lib/api/superAdmin';
 import DataTable from '$lib/components/DataTable.svelte';
 import Button from '$lib/components/ui/button/button.svelte';
 import Input from '$lib/components/ui/input/input.svelte';
+import { Plus, RefreshCw } from 'lucide-svelte';
+import { onMount } from 'svelte';
 import { toast } from 'svelte-sonner';
-import { RefreshCw, Plus } from 'lucide-svelte';
 
 let platformApps: any[] = [];
 let loading = true;
@@ -22,13 +22,13 @@ const columns = [
 key: 'webhook_url',
 label: 'Webhook URL',
 sortable: false,
-render: (row: any) => row.webhook_url || '—'
+render: (value: any, row: any) => value || '—'
 },
 {
 key: 'created_at',
 label: 'Created At',
 sortable: true,
-render: (row: any) => new Date(row.created_at).toLocaleDateString()
+render: (value: any, row: any) => value ? new Date(value).toLocaleDateString() : ''
 }
 ];
 
