@@ -773,7 +773,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('accounts/{account}/seed', [SuperAdminAccountsController::class, 'seed']);
         Route::post('accounts/{account}/reset_cache', [SuperAdminAccountsController::class, 'resetCache']);
 
-        // Users
+        // Users - Custom routes first to avoid conflicts with apiResource
+        Route::delete('users/{user}/avatar', [SuperAdminUsersController::class, 'destroyAvatar']);
+        Route::post('users/{user}/avatar', [SuperAdminUsersController::class, 'uploadAvatar']);
+        Route::post('users/{user}/confirm', [SuperAdminUsersController::class, 'confirmEmail']);
+        Route::post('users/{user}/lock', [SuperAdminUsersController::class, 'lock']);
+        Route::post('users/{user}/unlock', [SuperAdminUsersController::class, 'unlock']);
+        
+        // Users - Resource routes
         Route::apiResource('users', SuperAdminUsersController::class)->names([
             'index' => 'super_admin.users.index',
             'show' => 'super_admin.users.show',
@@ -781,11 +788,6 @@ Route::middleware('auth:sanctum')->group(function () {
             'update' => 'super_admin.users.update',
             'destroy' => 'super_admin.users.destroy'
         ]);
-        Route::delete('users/{user}/avatar', [SuperAdminUsersController::class, 'destroyAvatar']);
-        Route::post('users/{user}/avatar', [SuperAdminUsersController::class, 'uploadAvatar']);
-        Route::post('users/{user}/confirm', [SuperAdminUsersController::class, 'confirmEmail']);
-        Route::post('users/{user}/lock', [SuperAdminUsersController::class, 'lock']);
-        Route::post('users/{user}/unlock', [SuperAdminUsersController::class, 'unlock']);
 
         // Account Users (Cross-account user management)
         Route::apiResource('account_users', \App\Http\Controllers\Api\V1\SuperAdmin\AccountUsersController::class)->names([

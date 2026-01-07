@@ -10,11 +10,15 @@ properties:
     type: string
   avatar_url:
     type: string
+    nullable: true
+    description: URL to the user's avatar image
   confirmed:
     type: boolean
+    description: Whether the user's email has been confirmed
   display_name:
     type: string
     nullable: true
+    description: Display name for the user
   message_signature:
     type: string
     nullable: true
@@ -33,16 +37,34 @@ properties:
   role:
     type: string
     enum: ['agent', 'administrator']
+    description: Account-level role for the user
   ui_settings:
     type: object
   uid:
     type: string
   type:
     type: string
+    enum: ['User', 'SuperAdmin']
     nullable: true
+    description: Platform-level user type (Rails STI compatibility)
+  locked:
+    type: boolean
+    description: Whether the user account is locked
+  phone_number:
+    type: string
+    nullable: true
+    description: User's phone number
   custom_attributes:
     type: object
     description: Available for users who are created through platform APIs and has custom attributes associated.
+  created_at:
+    type: string
+    format: date-time
+    description: User creation timestamp
+  updated_at:
+    type: string
+    format: date-time
+    description: User last update timestamp
   accounts:
     type: array
     items:

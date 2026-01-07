@@ -11,7 +11,7 @@
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
-	let userId = $page.params.id;
+	let userId: string = $page.params.id || '';
 	let user: any = null;
 	let loading = true;
 	let saving = false;
@@ -27,12 +27,14 @@
 	};
 
 	async function loadUser() {
+		if (!userId) return;
+		
 		loading = true;
 		try {
 			user = await superAdminApi.getUser(parseInt(userId));
 			formData = {
 				name: user.name || '',
-				display_name: user.displayName || '',
+				display_name: user.displayName || '', // Use camelCase from API
 				email: user.email || '',
 				role: user.role || 'agent',
 				password: ''
@@ -49,6 +51,8 @@
 	}
 
 	async function handleSave() {
+		if (!userId) return;
+		
 		saving = true;
 		try {
 			// Update user info
@@ -70,7 +74,7 @@
 	}
 
 	async function handleDelete() {
-		if (!confirm('Are you sure you want to delete this user?')) return;
+		if (!userId || !confirm('Are you sure you want to delete this user?')) return;
 
 		try {
 			await superAdminApi.deleteUser(parseInt(userId));
@@ -83,6 +87,8 @@
 	}
 
 	async function handleConfirmEmail() {
+		if (!userId) return;
+		
 		try {
 			await superAdminApi.confirmUserEmail(parseInt(userId));
 			toast.success('Email confirmed successfully');
@@ -94,6 +100,8 @@
 	}
 
 	async function handleToggleLock() {
+		if (!userId) return;
+		
 		try {
 			if (isUserLocked()) {
 				await superAdminApi.unlockUser(parseInt(userId));
@@ -110,7 +118,7 @@
 	}
 
 	async function handleDeleteAvatar() {
-		if (!confirm('Are you sure you want to delete this avatar?')) return;
+		if (!userId || !confirm('Are you sure you want to delete this avatar?')) return;
 
 		try {
 			await superAdminApi.deleteUserAvatar(parseInt(userId));
@@ -125,11 +133,11 @@
 	}
 	
 	function isUserConfirmed(): boolean {
-		return !!user?.emailVerifiedAt;
+		return !!user?.confirmed || !!user?.emailVerifiedAt; // Check both possible field names
 	}
 	
 	function isUserLocked(): boolean {
-		return user?.customAttributes?.locked === true;
+		return user?.locked === true || user?.customAttributes?.locked === true; // Check both possible field names
 	}
 
 	function handleFileSelect(e: Event) {
@@ -150,15 +158,15 @@
 	});
 </script>
 
-<div class="h-full flex flex-col bg-white dark:bg-slate-1">
-	<div class="flex items-center justify-between px-8 py-6 border-b border-slate-6">
+<div class="h-full flex flex-col bg-background">
+	<div class="flex items-center justify-between px-8 py-6 border-b bg-card">
 		<div class="flex items-center gap-4">
 			<Button variant="ghost" size="icon" onclick={() => goto('/app/super_admin/users')}>
 				<ChevronLeft class="h-5 w-5" />
 			</Button>
 			<div>
-				<div class="text-xs text-slate-11 mb-1">Users / Edit</div>
-				<h1 class="text-2xl font-semibold text-slate-12">
+				<div class="text-xs text-muted-foreground mb-1">Users / Edit</div>
+				<h1 class="text-2xl font-semibold text-foreground">
 					{loading ? 'Loading...' : user?.name || 'User Details'}
 				</h1>
 			</div>
@@ -214,19 +222,19 @@
 								<img
 									src={avatarPreview}
 									alt="User avatar"
-									class="h-32 w-32 rounded-lg object-cover border border-slate-6"
+									class="h-32 w-32 rounded-lg object-cover border border-border"
 								/>
 								<button
 									type="button"
 									onclick={handleDeleteAvatar}
-									class="absolute -top-2 -right-2 p-1 bg-ruby-9 text-white rounded-full hover:bg-ruby-10 transition"
+									class="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
 								>
 									<X class="h-4 w-4" />
 								</button>
 							</div>
 						{:else}
-							<div class="h-32 w-32 rounded-lg border-2 border-dashed border-slate-6 flex items-center justify-center bg-slate-2">
-								<Upload class="h-8 w-8 text-slate-9" />
+							<div class="h-32 w-32 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted">
+								<Upload class="h-8 w-8 text-muted-foreground" />
 							</div>
 						{/if}
 						<div>
@@ -238,11 +246,11 @@
 								id="avatar-upload"
 							/>
 							<Label for="avatar-upload" class="cursor-pointer">
-								<div class="px-4 py-2 bg-slate-2 hover:bg-slate-3 rounded-lg border border-slate-6 text-sm font-medium text-slate-12 transition">
+								<div class="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg border border-border text-sm font-medium text-foreground transition-colors">
 									{avatarPreview ? 'Change Avatar' : 'Upload Avatar'}
 								</div>
 							</Label>
-							<p class="text-xs text-slate-10 mt-1">PNG, JPG up to 2MB</p>
+							<p class="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
 						</div>
 					</div>
 				</div>
@@ -265,13 +273,25 @@
 					<Input id="email" type="email" bind:value={formData.email} required />
 				</div>
 
-				<!-- Role -->
+				<!-- User Type (Read-only) -->
+				{#if user?.type === 'SuperAdmin'}
+					<div class="space-y-2">
+						<Label>User Type</Label>
+						<div class="px-3 py-2 bg-muted rounded-lg border border-border">
+							<span class="text-sm font-medium text-foreground">Super Administrator</span>
+							<p class="text-xs text-muted-foreground mt-1">Platform-level administrator with full system access</p>
+						</div>
+					</div>
+				{/if}
+
+				<!-- Role (Account-level) -->
 				<div class="space-y-2">
-					<Label for="role">Role *</Label>
+					<Label for="role">Account Role *</Label>
 					<Select id="role" bind:value={formData.role}>
 						<option value="administrator">Administrator</option>
 						<option value="agent">Agent</option>
 					</Select>
+					<p class="text-xs text-muted-foreground">Role within the current account</p>
 				</div>
 
 				<!-- Password -->

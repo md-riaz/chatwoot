@@ -15,7 +15,11 @@ class EnsureSuperAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || ! $request->user()->hasRole('super_admin')) {
+        $user = $request->user();
+        
+        // Check both the type field (Rails parity) and Spatie role (Laravel implementation)
+        if (! $user || 
+            ($user->type !== 'SuperAdmin' && ! $user->hasRole('super_admin'))) {
             return response()->json([
                 'error' => 'Unauthorized. Super admin access required.',
             ], 403);

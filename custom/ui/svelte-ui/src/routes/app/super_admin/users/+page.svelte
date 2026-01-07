@@ -25,13 +25,6 @@
 				per_page: 20,
 				search: searchQuery || undefined
 			});
-			console.log('API Response:', response);
-			console.log('Users data:', response.data);
-			if (response.data && response.data.length > 0) {
-				console.log('First user:', response.data[0]);
-				console.log('First user created_at:', response.data[0].created_at);
-				console.log('First user createdAt:', response.data[0].createdAt);
-			}
 			users = response.data || [];
 			totalPages = response.last_page || 1;
 			totalCount = response.total || 0;
@@ -112,7 +105,6 @@
 			key: 'createdAt', 
 			label: 'Created At',
 			render: (value: any, user: any) => {
-				console.log('Render createdAt - value:', value, 'user.createdAt:', user.createdAt, 'user.created_at:', user.created_at);
 				if (value) {
 					return new Date(value).toLocaleDateString();
 				}

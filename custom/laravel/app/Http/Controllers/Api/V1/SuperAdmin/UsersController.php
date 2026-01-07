@@ -11,6 +11,42 @@ use Illuminate\Support\Facades\Hash;
 class UsersController extends Controller
 {
     /**
+     * Transform user data to match Rails API format
+     */
+    private function transformUser($user): array
+    {
+        // Get the account-level role (similar to Rails active_account_user.role)
+        $accountRole = $user->accountUsers->first()?->role_name ?? 'agent';
+        
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'display_name' => $user->display_name,
+            'phone_number' => $user->phone_number,
+            'avatar_url' => $user->getApiAvatarUrl(), // Use Rails-compatible method
+            'availability' => $user->availability,
+            'confirmed' => !is_null($user->email_verified_at),
+            'locked' => $user->custom_attributes['locked'] ?? false,
+            'type' => $user->type ?? 'User', // Rails STI type field
+            'role' => $accountRole, // Account-level role (agent/administrator)
+            'roles' => $user->getRoleNames()->toArray(), // Global roles for debugging
+            'accounts_count' => $user->accounts_count ?? $user->accountUsers->count(),
+            'custom_attributes' => $user->custom_attributes,
+            'created_at' => $user->created_at?->toISOString(),
+            'updated_at' => $user->updated_at?->toISOString(),
+            'accounts' => $user->accountUsers->map(function ($accountUser) {
+                return [
+                    'id' => $accountUser->account_id,
+                    'name' => $accountUser->account->name ?? '',
+                    'role' => $accountUser->role_name,
+                    'availability' => $accountUser->availability_name,
+                    'active_at' => $accountUser->active_at,
+                ];
+            }),
+        ];
+    }
+    /**
      * List all users (paginated).
      */
     public function index(Request $request): JsonResponse
@@ -39,32 +75,7 @@ class UsersController extends Controller
 
         // Transform users to match Rails format while keeping Laravel pagination
         $users->getCollection()->transform(function ($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'display_name' => $user->display_name,
-                'phone_number' => $user->phone_number,
-                'avatar_url' => $user->avatar_url,
-                'availability' => $user->availability,
-                'confirmed' => !is_null($user->email_verified_at),
-                'locked' => $user->custom_attributes['locked'] ?? false,
-                'role' => $user->getRoleNames()->first() ?? 'agent',
-                'roles' => $user->getRoleNames()->toArray(),
-                'accounts_count' => $user->accounts_count,
-                'custom_attributes' => $user->custom_attributes,
-                'created_at' => $user->created_at?->toISOString(),
-                'updated_at' => $user->updated_at?->toISOString(),
-                'accounts' => $user->accountUsers->map(function ($accountUser) {
-                    return [
-                        'id' => $accountUser->account_id,
-                        'name' => $accountUser->account->name ?? '',
-                        'role' => $accountUser->role_name,
-                        'availability' => $accountUser->availability_name,
-                        'active_at' => $accountUser->active_at,
-                    ];
-                }),
-            ];
+            return $this->transformUser($user);
         });
 
         return response()->json($users);
@@ -77,33 +88,7 @@ class UsersController extends Controller
     {
         $user->load(['roles', 'accountUsers.account']);
 
-        $transformedUser = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'display_name' => $user->display_name,
-            'phone_number' => $user->phone_number,
-            'avatar_url' => $user->avatar_url,
-            'availability' => $user->availability,
-            'confirmed' => !is_null($user->email_verified_at),
-            'locked' => $user->custom_attributes['locked'] ?? false,
-            'role' => $user->getRoleNames()->first() ?? 'agent',
-            'roles' => $user->getRoleNames()->toArray(),
-            'custom_attributes' => $user->custom_attributes,
-            'created_at' => $user->created_at?->toISOString(),
-            'updated_at' => $user->updated_at?->toISOString(),
-            'accounts' => $user->accountUsers->map(function ($accountUser) {
-                return [
-                    'id' => $accountUser->account_id,
-                    'name' => $accountUser->account->name ?? '',
-                    'role' => $accountUser->role_name,
-                    'availability' => $accountUser->availability_name,
-                    'active_at' => $accountUser->active_at,
-                ];
-            }),
-        ];
-
-        return response()->json(['data' => $transformedUser]);
+        return response()->json(['data' => $this->transformUser($user)]);
     }
 
     /**
@@ -117,7 +102,8 @@ class UsersController extends Controller
             'password' => 'required|string|min:8',
             'display_name' => 'nullable|string|max:255',
             'phone_number' => 'nullable|string|max:20',
-            'role' => 'nullable|string|in:agent,admin,super_admin',
+            'role' => 'nullable|string|in:agent,administrator',
+            'type' => 'nullable|string|in:User,SuperAdmin',
         ]);
 
         $user = User::create([
@@ -126,42 +112,23 @@ class UsersController extends Controller
             'password' => Hash::make($validated['password']),
             'display_name' => $validated['display_name'] ?? null,
             'phone_number' => $validated['phone_number'] ?? null,
+            'type' => $validated['type'] ?? 'User', // Default to User type
             'email_verified_at' => now(),
         ]);
 
-        if (isset($validated['role'])) {
-            $user->assignRole($validated['role']);
+        // Assign Spatie role based on type
+        if (($validated['type'] ?? 'User') === 'SuperAdmin') {
+            $user->assignRole('super_admin');
+        } else {
+            // For regular users, assign account-level role via AccountUser
+            if (isset($validated['role'])) {
+                $user->assignRole($validated['role']);
+            }
         }
 
         $user->load(['roles', 'accountUsers.account']);
 
-        $transformedUser = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'display_name' => $user->display_name,
-            'phone_number' => $user->phone_number,
-            'avatar_url' => $user->avatar_url,
-            'availability' => $user->availability,
-            'confirmed' => !is_null($user->email_verified_at),
-            'locked' => $user->custom_attributes['locked'] ?? false,
-            'role' => $user->getRoleNames()->first() ?? 'agent',
-            'roles' => $user->getRoleNames()->toArray(),
-            'custom_attributes' => $user->custom_attributes,
-            'created_at' => $user->created_at?->toISOString(),
-            'updated_at' => $user->updated_at?->toISOString(),
-            'accounts' => $user->accountUsers->map(function ($accountUser) {
-                return [
-                    'id' => $accountUser->account_id,
-                    'name' => $accountUser->account->name ?? '',
-                    'role' => $accountUser->role_name,
-                    'availability' => $accountUser->availability_name,
-                    'active_at' => $accountUser->active_at,
-                ];
-            }),
-        ];
-
-        return response()->json(['data' => $transformedUser], 201);
+        return response()->json(['data' => $this->transformUser($user)], 201);
     }
 
     /**
@@ -195,33 +162,7 @@ class UsersController extends Controller
         $user->update($validated);
         $user->load(['roles', 'accountUsers.account']);
 
-        $transformedUser = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'display_name' => $user->display_name,
-            'phone_number' => $user->phone_number,
-            'avatar_url' => $user->avatar_url,
-            'availability' => $user->availability,
-            'confirmed' => !is_null($user->email_verified_at),
-            'locked' => $user->custom_attributes['locked'] ?? false,
-            'role' => $user->getRoleNames()->first() ?? 'agent',
-            'roles' => $user->getRoleNames()->toArray(),
-            'custom_attributes' => $user->custom_attributes,
-            'created_at' => $user->created_at?->toISOString(),
-            'updated_at' => $user->updated_at?->toISOString(),
-            'accounts' => $user->accountUsers->map(function ($accountUser) {
-                return [
-                    'id' => $accountUser->account_id,
-                    'name' => $accountUser->account->name ?? '',
-                    'role' => $accountUser->role_name,
-                    'availability' => $accountUser->availability_name,
-                    'active_at' => $accountUser->active_at,
-                ];
-            }),
-        ];
-
-        return response()->json(['data' => $transformedUser]);
+        return response()->json(['data' => $this->transformUser($user)]);
     }
 
     /**
@@ -240,49 +181,25 @@ class UsersController extends Controller
     public function uploadAvatar(Request $request, User $user): JsonResponse
     {
         $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:15360', // 15MB max
         ]);
 
-        if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('avatars', $filename, 'public');
-            
-            $user->update(['avatar_url' => '/storage/' . $path]);
+        try {
+            if ($request->hasFile('avatar')) {
+                $avatarUrl = $user->uploadAvatar($request->file('avatar'));
+            }
+
+            $user->load(['roles', 'accountUsers.account']);
+
+            return response()->json([
+                'data' => $this->transformUser($user),
+                'message' => 'Avatar uploaded successfully.'
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 422);
         }
-
-        $user->load(['roles', 'accountUsers.account']);
-
-        $transformedUser = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'display_name' => $user->display_name,
-            'phone_number' => $user->phone_number,
-            'avatar_url' => $user->avatar_url,
-            'availability' => $user->availability,
-            'confirmed' => !is_null($user->email_verified_at),
-            'locked' => $user->custom_attributes['locked'] ?? false,
-            'role' => $user->getRoleNames()->first() ?? 'agent',
-            'roles' => $user->getRoleNames()->toArray(),
-            'custom_attributes' => $user->custom_attributes,
-            'created_at' => $user->created_at?->toISOString(),
-            'updated_at' => $user->updated_at?->toISOString(),
-            'accounts' => $user->accountUsers->map(function ($accountUser) {
-                return [
-                    'id' => $accountUser->account_id,
-                    'name' => $accountUser->account->name ?? '',
-                    'role' => $accountUser->role_name,
-                    'availability' => $accountUser->availability_name,
-                    'active_at' => $accountUser->active_at,
-                ];
-            }),
-        ];
-
-        return response()->json([
-            'data' => $transformedUser,
-            'message' => 'Avatar uploaded successfully.'
-        ]);
     }
 
     /**
@@ -290,9 +207,9 @@ class UsersController extends Controller
      */
     public function destroyAvatar(User $user): JsonResponse
     {
-        $user->update(['avatar_url' => null]);
+        $user->deleteAvatar();
 
-        return response()->json(['message' => 'Avatar deleted.']);
+        return response()->json(['message' => 'Avatar deleted successfully.']);
     }
 
     /**
@@ -303,34 +220,8 @@ class UsersController extends Controller
         $user->update(['email_verified_at' => now()]);
         $user->load(['roles', 'accountUsers.account']);
 
-        $transformedUser = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'display_name' => $user->display_name,
-            'phone_number' => $user->phone_number,
-            'avatar_url' => $user->avatar_url,
-            'availability' => $user->availability,
-            'confirmed' => !is_null($user->email_verified_at),
-            'locked' => $user->custom_attributes['locked'] ?? false,
-            'role' => $user->getRoleNames()->first() ?? 'agent',
-            'roles' => $user->getRoleNames()->toArray(),
-            'custom_attributes' => $user->custom_attributes,
-            'created_at' => $user->created_at?->toISOString(),
-            'updated_at' => $user->updated_at?->toISOString(),
-            'accounts' => $user->accountUsers->map(function ($accountUser) {
-                return [
-                    'id' => $accountUser->account_id,
-                    'name' => $accountUser->account->name ?? '',
-                    'role' => $accountUser->role_name,
-                    'availability' => $accountUser->availability_name,
-                    'active_at' => $accountUser->active_at,
-                ];
-            }),
-        ];
-
         return response()->json([
-            'data' => $transformedUser,
+            'data' => $this->transformUser($user),
             'message' => 'User email confirmed successfully.'
         ]);
     }
@@ -349,34 +240,8 @@ class UsersController extends Controller
         $user->update(['custom_attributes' => $customAttributes]);
         $user->load(['roles', 'accountUsers.account']);
 
-        $transformedUser = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'display_name' => $user->display_name,
-            'phone_number' => $user->phone_number,
-            'avatar_url' => $user->avatar_url,
-            'availability' => $user->availability,
-            'confirmed' => !is_null($user->email_verified_at),
-            'locked' => $user->custom_attributes['locked'] ?? false,
-            'role' => $user->getRoleNames()->first() ?? 'agent',
-            'roles' => $user->getRoleNames()->toArray(),
-            'custom_attributes' => $user->custom_attributes,
-            'created_at' => $user->created_at?->toISOString(),
-            'updated_at' => $user->updated_at?->toISOString(),
-            'accounts' => $user->accountUsers->map(function ($accountUser) {
-                return [
-                    'id' => $accountUser->account_id,
-                    'name' => $accountUser->account->name ?? '',
-                    'role' => $accountUser->role_name,
-                    'availability' => $accountUser->availability_name,
-                    'active_at' => $accountUser->active_at,
-                ];
-            }),
-        ];
-
         return response()->json([
-            'data' => $transformedUser,
+            'data' => $this->transformUser($user),
             'message' => 'User locked successfully.'
         ]);
     }
@@ -393,34 +258,8 @@ class UsersController extends Controller
         $user->update(['custom_attributes' => $customAttributes]);
         $user->load(['roles', 'accountUsers.account']);
 
-        $transformedUser = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'display_name' => $user->display_name,
-            'phone_number' => $user->phone_number,
-            'avatar_url' => $user->avatar_url,
-            'availability' => $user->availability,
-            'confirmed' => !is_null($user->email_verified_at),
-            'locked' => $user->custom_attributes['locked'] ?? false,
-            'role' => $user->getRoleNames()->first() ?? 'agent',
-            'roles' => $user->getRoleNames()->toArray(),
-            'custom_attributes' => $user->custom_attributes,
-            'created_at' => $user->created_at?->toISOString(),
-            'updated_at' => $user->updated_at?->toISOString(),
-            'accounts' => $user->accountUsers->map(function ($accountUser) {
-                return [
-                    'id' => $accountUser->account_id,
-                    'name' => $accountUser->account->name ?? '',
-                    'role' => $accountUser->role_name,
-                    'availability' => $accountUser->availability_name,
-                    'active_at' => $accountUser->active_at,
-                ];
-            }),
-        ];
-
         return response()->json([
-            'data' => $transformedUser,
+            'data' => $this->transformUser($user),
             'message' => 'User unlocked successfully.'
         ]);
     }

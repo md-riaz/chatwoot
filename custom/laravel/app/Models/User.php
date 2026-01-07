@@ -10,11 +10,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use App\Traits\HasAccountRoles;
+use App\Traits\Avatarable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes, HasAccountRoles;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes, HasAccountRoles, Avatarable;
 
     /**
      * The attributes that are mass assignable.
@@ -26,8 +27,9 @@ class User extends Authenticatable
         'email',
         'password',
         'display_name',
-        'phone_number',
         'avatar_url',
+        'phone_number',
+        'type',
         'availability',
         'custom_attributes',
         'confirmation_token',
