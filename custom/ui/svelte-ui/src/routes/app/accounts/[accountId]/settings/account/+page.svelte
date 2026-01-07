@@ -8,12 +8,13 @@
   import * as Card from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
+  import * as Select from '$lib/components/ui/select';
   import { authStore } from '$lib/stores/auth.svelte';
   import { onMount } from 'svelte';
 
   let accountName = $state('');
-  let language = $state('en');
-  let timezone = $state('UTC');
+  let language = $state({ value: 'en' });
+  let timezone = $state({ value: 'UTC' });
   let isSaving = $state(false);
   let successMessage = $state<string | null>(null);
 
@@ -24,8 +25,8 @@
     }
     // Try to load language and timezone from UI settings
     if (authStore.uiSettings) {
-      language = authStore.uiSettings.language || 'en';
-      timezone = authStore.uiSettings.timezone || 'UTC';
+      language = { value: authStore.uiSettings.language || 'en' };
+      timezone = { value: authStore.uiSettings.timezone || 'UTC' };
     }
   });
 
@@ -37,8 +38,8 @@
       // For now, just update UI settings
       await authStore.updateUISettings({
         ...authStore.uiSettings,
-        language,
-        timezone,
+        language: language.value,
+        timezone: timezone.value,
       });
       
       successMessage = 'Settings saved successfully!';
@@ -86,31 +87,33 @@
 
       <div class="space-y-2">
         <Label for="language">Language</Label>
-        <select
-          id="language"
-          bind:value={language}
-          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-        >
-          <option value="en">English</option>
-          <option value="es">Spanish</option>
-          <option value="fr">French</option>
-          <option value="de">German</option>
-        </select>
+        <Select.Root bind:selected={language}>
+          <Select.Trigger id="language">
+            <Select.Value placeholder="Select language" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="en">English</Select.Item>
+            <Select.Item value="es">Spanish</Select.Item>
+            <Select.Item value="fr">French</Select.Item>
+            <Select.Item value="de">German</Select.Item>
+          </Select.Content>
+        </Select.Root>
       </div>
 
       <div class="space-y-2">
         <Label for="timezone">Timezone</Label>
-        <select
-          id="timezone"
-          bind:value={timezone}
-          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-        >
-          <option value="UTC">UTC</option>
-          <option value="America/New_York">Eastern Time</option>
-          <option value="America/Chicago">Central Time</option>
-          <option value="America/Los_Angeles">Pacific Time</option>
-          <option value="Europe/London">London</option>
-        </select>
+        <Select.Root bind:selected={timezone}>
+          <Select.Trigger id="timezone">
+            <Select.Value placeholder="Select timezone" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="UTC">UTC</Select.Item>
+            <Select.Item value="America/New_York">Eastern Time</Select.Item>
+            <Select.Item value="America/Chicago">Central Time</Select.Item>
+            <Select.Item value="America/Los_Angeles">Pacific Time</Select.Item>
+            <Select.Item value="Europe/London">London</Select.Item>
+          </Select.Content>
+        </Select.Root>
       </div>
     </Card.Content>
     <Card.Footer>

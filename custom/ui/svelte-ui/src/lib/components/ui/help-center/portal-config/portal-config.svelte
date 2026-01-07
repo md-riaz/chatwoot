@@ -4,6 +4,7 @@
   import { Label } from '$lib/components/ui/label';
   import { Textarea } from '$lib/components/ui/textarea';
   import { Card } from '$lib/components/ui/card';
+  import * as Select from '$lib/components/ui/select';
 
   export let config: {
     siteName: string;
@@ -30,6 +31,16 @@
 
   const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
   const fonts = ['Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat'];
+
+  let fontFamilyValue = $state({ value: config.fontFamily });
+
+  $effect(() => {
+    config.fontFamily = fontFamilyValue.value;
+  });
+
+  $effect(() => {
+    fontFamilyValue = { value: config.fontFamily };
+  });
 
   function handleSave() {
     onSave(config);
@@ -88,15 +99,16 @@
 
       <div class="space-y-2">
         <Label for="fontFamily">Font Family</Label>
-        <select
-          id="fontFamily"
-          bind:value={config.fontFamily}
-          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-        >
-          {#each fonts as font}
-            <option value={font}>{font}</option>
-          {/each}
-        </select>
+        <Select.Root bind:selected={fontFamilyValue}>
+          <Select.Trigger id="fontFamily">
+            <Select.Value placeholder="Select font" />
+          </Select.Trigger>
+          <Select.Content>
+            {#each fonts as font}
+              <Select.Item value={font}>{font}</Select.Item>
+            {/each}
+          </Select.Content>
+        </Select.Root>
       </div>
     </Card>
 

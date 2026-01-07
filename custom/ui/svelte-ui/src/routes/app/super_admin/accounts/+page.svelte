@@ -3,6 +3,7 @@
 	import { superAdminApi } from '$lib/api/superAdmin';
 	import DataTable from '$lib/components/DataTable.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import * as Select from '$lib/components/ui/select';
 	import { Plus, RefreshCw, Search } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -10,7 +11,7 @@
 	let loading = true;
 	let accounts: any[] = [];
 	let searchQuery = '';
-	let statusFilter = '';
+	let statusFilter = $state({ value: '' });
 	let recentFilter = false;
 	let markedForDeletionFilter = false;
 	let pagination = {
@@ -140,6 +141,19 @@
 		loadAccounts();
 	}
 	
+	let initialized = false;
+	$effect(() => {
+		// Watch for status filter changes (skip initial load)
+		if (initialized) {
+			statusFilter.value;
+			handleStatusFilterChange();
+		}
+	});
+	
+	onMount(() => {
+		initialized = true;
+	});
+	
 	function handleRecentFilterChange() {
 		pagination.page = 1;
 		loadAccounts();
@@ -192,15 +206,16 @@
 					/>
 				</div>
 			</div>
-			<select 
-				bind:value={statusFilter}
-				on:change={handleStatusFilterChange}
-				class="px-3 py-2 border rounded-md bg-background text-foreground"
-			>
-				<option value="">All Statuses</option>
-				<option value="active">Active</option>
-				<option value="suspended">Suspended</option>
-			</select>
+			<Select.Root bind:selected={statusFilter}>
+				<Select.Trigger class="w-[180px]">
+					<Select.Value placeholder="All Statuses" />
+				</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="">All Statuses</Select.Item>
+					<Select.Item value="active">Active</Select.Item>
+					<Select.Item value="suspended">Suspended</Select.Item>
+				</Select.Content>
+			</Select.Root>
 			<label class="flex items-center space-x-2">
 				<input 
 					type="checkbox" 
