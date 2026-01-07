@@ -5,6 +5,7 @@
   import { Textarea } from '$lib/components/ui/textarea';
   import { Badge } from '$lib/components/ui/badge';
   import { Switch } from '$lib/components/ui/switch';
+  import * as Select from '$lib/components/ui/select';
 
   export let article: {
     id?: string;
@@ -36,6 +37,25 @@
 
   let newTag = '';
   let charCount = 0;
+
+  // Wrapped values for shadcn-svelte select
+  let categoryValue = $state({ value: article.category });
+  let localeValue = $state({ value: article.locale });
+
+  // Sync back to article
+  $effect(() => {
+    article.category = categoryValue.value;
+  });
+
+  $effect(() => {
+    article.locale = localeValue.value;
+  });
+
+  // Sync from article when it changes externally
+  $effect(() => {
+    categoryValue = { value: article.category };
+    localeValue = { value: article.locale };
+  });
 
   $: charCount = article.content.length;
 
@@ -106,29 +126,30 @@
     <div class="grid grid-cols-2 gap-4">
       <div class="space-y-2">
         <Label for="category">Category</Label>
-        <select
-          id="category"
-          bind:value={article.category}
-          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <option value="">Select category</option>
-          {#each categories as cat}
-            <option value={cat}>{cat}</option>
-          {/each}
-        </select>
+        <Select.Root bind:selected={categoryValue}>
+          <Select.Trigger id="category">
+            <Select.Value placeholder="Select category" />
+          </Select.Trigger>
+          <Select.Content>
+            {#each categories as cat}
+              <Select.Item value={cat}>{cat}</Select.Item>
+            {/each}
+          </Select.Content>
+        </Select.Root>
       </div>
 
       <div class="space-y-2">
         <Label for="locale">Locale</Label>
-        <select
-          id="locale"
-          bind:value={article.locale}
-          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {#each locales as loc}
-            <option value={loc}>{loc.toUpperCase()}</option>
-          {/each}
-        </select>
+        <Select.Root bind:selected={localeValue}>
+          <Select.Trigger id="locale">
+            <Select.Value placeholder="Select locale" />
+          </Select.Trigger>
+          <Select.Content>
+            {#each locales as loc}
+              <Select.Item value={loc}>{loc.toUpperCase()}</Select.Item>
+            {/each}
+          </Select.Content>
+        </Select.Root>
       </div>
     </div>
 

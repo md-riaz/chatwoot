@@ -3,6 +3,7 @@
   import { Badge } from '$lib/components/ui/badge';
   import { Button } from '$lib/components/ui/button';
   import { Card } from '$lib/components/ui/card';
+  import * as Select from '$lib/components/ui/select';
 
   export let results: {
     id: string;
@@ -21,13 +22,13 @@
   export let searching = false;
 
   let query = '';
-  let selectedCategory = '';
-  let selectedLocale = '';
+  let selectedCategory = $state({ value: '' });
+  let selectedLocale = $state({ value: '' });
 
   function handleSearch() {
     const filters: { category?: string; locale?: string } = {};
-    if (selectedCategory) filters.category = selectedCategory;
-    if (selectedLocale) filters.locale = selectedLocale;
+    if (selectedCategory.value) filters.category = selectedCategory.value;
+    if (selectedLocale.value) filters.locale = selectedLocale.value;
     onSearch(query, filters);
   }
 
@@ -59,27 +60,31 @@
 
     <div class="flex gap-2">
       {#if categories.length > 0}
-        <select
-          bind:value={selectedCategory}
-          class="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-        >
-          <option value="">All Categories</option>
-          {#each categories as cat}
-            <option value={cat}>{cat}</option>
-          {/each}
-        </select>
+        <Select.Root bind:selected={selectedCategory}>
+          <Select.Trigger class="w-[180px]">
+            <Select.Value placeholder="All Categories" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="">All Categories</Select.Item>
+            {#each categories as cat}
+              <Select.Item value={cat}>{cat}</Select.Item>
+            {/each}
+          </Select.Content>
+        </Select.Root>
       {/if}
 
       {#if locales.length > 0}
-        <select
-          bind:value={selectedLocale}
-          class="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-        >
-          <option value="">All Languages</option>
-          {#each locales as locale}
-            <option value={locale}>{locale.toUpperCase()}</option>
+        <Select.Root bind:selected={selectedLocale}>
+          <Select.Trigger class="w-[180px]">
+            <Select.Value placeholder="All Languages" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="">All Languages</Select.Item>
+            {#each locales as locale}
+              <Select.Item value={locale}>{locale.toUpperCase()}</Select.Item>
           {/each}
-        </select>
+          </Select.Content>
+        </Select.Root>
       {/if}
     </div>
   </div>
