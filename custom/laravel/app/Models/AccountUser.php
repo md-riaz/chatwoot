@@ -15,6 +15,7 @@ class AccountUser extends Model
     protected $fillable = [
         'account_id',
         'user_id',
+        'inviter_id',
         'role',
         'custom_role_id',
         'agent_capacity_policy_id',
@@ -46,6 +47,14 @@ class AccountUser extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the user who invited this account user.
+     */
+    public function inviter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'inviter_id');
     }
 
     /**

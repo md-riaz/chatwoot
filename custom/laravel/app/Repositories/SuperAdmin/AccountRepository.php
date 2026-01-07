@@ -63,9 +63,15 @@ class AccountRepository extends BaseRepository
     {
         return $this->model
             ->withCount(['users', 'inboxes', 'conversations', 'contacts'])
-            ->with(['users' => function ($q) {
-                $q->limit(10);
-            }])
+            ->with([
+                'accountUsers' => function ($q) {
+                    $q->with([
+                        'user:id,name,email,display_name',
+                        'inviter:id,name,email,display_name'
+                    ])
+                    ->orderBy('created_at', 'desc');
+                }
+            ])
             ->find($id);
     }
 }

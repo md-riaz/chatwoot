@@ -27,6 +27,7 @@ trait FormatsAccountData
             manually_managed_features: $this->getManuallyManagedFeatures($account),
             selected_feature_flags: $this->getSelectedFeatureFlags($account),
             all_features: $this->getAllFeatures($account),
+            account_users: $this->formatAccountUsers($account),
             status: $this->formatStatus($account->status),
             users_count: $account->users_count ?? 0,
             inboxes_count: $account->inboxes_count ?? 0,
@@ -189,5 +190,42 @@ trait FormatsAccountData
         }
 
         return $allFeatures;
+    }
+
+    /**
+     * Format account users for API response
+     */
+    private function formatAccountUsers(Account $account): array
+    {
+        if (!$account->relationLoaded('accountUsers')) {
+            return [];
+        }
+
+        return $account->accountUsers->map(function ($accountUser) {
+            return [
+                'id' => $accountUser->id,
+                'user_id' => $accountUser->user_id,
+                'account_id' => $accountUser->account_id,
+                'role' => $accountUser->role->value,
+                'role_name' => $accountUser->role->getName(),
+                'availability' => $accountUser->availability->value,
+                'availability_name' => $accountUser->availability->getName(),
+                'active_at' => $accountUser->active_at,
+                'created_at' => $accountUser->created_at?->toIso8601String(),
+                'updated_at' => $accountUser->updated_at?->toIso8601String(),
+                'user' => $accountUser->user ? [
+                    'id' => $accountUser->user->id,
+                    'name' => $accountUser->user->name,
+                    'email' => $accountUser->user->email,
+                    'display_name' => $accountUser->user->display_name,
+                ] : null,
+                'inviter' => $accountUser->inviter ? [
+                    'id' => $accountUser->inviter->id,
+                    'name' => $accountUser->inviter->name,
+                    'email' => $accountUser->inviter->email,
+                    'display_name' => $accountUser->inviter->display_name,
+                ] : null,
+            ];
+        })->toArray();
     }
 }

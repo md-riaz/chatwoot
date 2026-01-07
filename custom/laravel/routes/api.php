@@ -756,6 +756,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('settings/{name}', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'destroy']);
         Route::get('settings/categories', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'categories']);
         Route::post('settings/reset', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'reset']);
+        Route::get('settings/refresh', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'refresh']);
+
+        // App Config
+        Route::get('app_config', [\App\Http\Controllers\Api\V1\SuperAdmin\AppConfigController::class, 'show']);
+        Route::post('app_config', [\App\Http\Controllers\Api\V1\SuperAdmin\AppConfigController::class, 'create']);
 
         // Accounts
         Route::apiResource('accounts', SuperAdminAccountsController::class)->names([

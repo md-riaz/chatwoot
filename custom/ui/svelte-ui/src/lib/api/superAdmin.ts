@@ -21,6 +21,11 @@ export interface Account {
   selectedFeatureFlags?: string[];
   allFeatures?: Record<string, boolean>;
   features?: Record<string, boolean>;
+  settings?: Record<string, any>;
+  limits?: Record<string, any>;
+  customAttributes?: Record<string, any>;
+  internalAttributes?: Record<string, any>;
+  accountUsers?: AccountUser[];
   createdAt: string;
   updatedAt: string;
 }
@@ -107,9 +112,25 @@ export interface AccountUser {
   id: number;
   userId: number;
   accountId: number;
-  role: string;
+  role: number;
+  roleName: string;
+  availability: number;
+  availabilityName: string;
+  activeAt?: string | null;
   createdAt: string;
   updatedAt: string;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+    displayName?: string;
+  };
+  inviter?: {
+    id: number;
+    name: string;
+    email: string;
+    displayName?: string;
+  };
 }
 
 export interface AuditLog {
@@ -345,7 +366,7 @@ export const superAdminApi = {
     return api.put(`api/v1/super_admin/account_users/${id}`, { json: data }).json();
   },
 
-  deleteAccountUser: async (id: number): Promise<{ success: boolean }> => {
+  deleteAccountUser: async (id: number): Promise<{ message: string }> => {
     return api.delete(`api/v1/super_admin/account_users/${id}`).json();
   },
 

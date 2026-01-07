@@ -320,4 +320,30 @@ class AccountUsersController extends Controller
         return response()->json(['data' => $stats]);
     }
 
+    /**
+     * Get role name from role enum value.
+     */
+    private function getRoleName($role): string
+    {
+        if ($role instanceof AccountUserRole) {
+            return $role->name;
+        }
+        
+        // Handle integer values
+        return AccountUserRole::tryFrom($role)?->name ?? 'unknown';
+    }
+
+    /**
+     * Get availability name from availability enum value.
+     */
+    private function getAvailabilityName($availability): string
+    {
+        if ($availability instanceof UserAvailability) {
+            return $availability->name;
+        }
+        
+        // Handle integer values
+        return UserAvailability::tryFrom($availability)?->name ?? 'unknown';
+    }
+
 }

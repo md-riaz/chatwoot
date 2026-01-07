@@ -37,10 +37,11 @@ class CalculateDashboardMetricsAction
 
     /**
      * Format number with delimiters (matching Rails number_with_delimiter)
+     * Rails uses comma as thousands separator by default
      */
     private function formatNumber(int $number): string
     {
-        return number_format($number);
+        return number_format($number, 0, '.', ',');
     }
 
     /**
@@ -49,32 +50,35 @@ class CalculateDashboardMetricsAction
      */
     private function getConversationChartData(): array
     {
+        // Match Rails date range exactly: 30.days.ago..2.seconds.ago
         $endDate = Carbon::now()->subSeconds(2);
         $startDate = Carbon::now()->subDays(30);
 
-        // Get conversations grouped by date
-        $conversations = Conversation::select(
-            DB::raw('DATE(created_at) as date'),
-            DB::raw('COUNT(*) as count')
-        )
-        ->whereBetween('created_at', [$startDate, $endDate])
-        ->groupBy(DB::raw('DATE(created_at)'))
-        ->orderBy('date')
-        ->get();
+        // Get conversations grouped by date (using unscoped like Rails)
+        $conversations = Conversation::withoutGlobalScopes()
+            ->select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('date')
+            ->get();
 
-        // Convert to array format matching Rails output: [[date, count], [date, count], ...]
+        // Convert to array format matching Rails groupdate output: [[date, count], [date, count], ...]
         $chartData = [];
         
-        // Create a complete date range with zero counts for missing dates
-        $currentDate = $startDate->copy();
+        // Create a complete date range with zero counts for missing dates (like Rails groupdate)
+        $currentDate = $startDate->copy()->startOfDay();
         $conversationsByDate = $conversations->keyBy('date');
         
-        while ($currentDate->lte($endDate)) {
+        while ($currentDate->lte($endDate->startOfDay())) {
             $dateString = $currentDate->format('Y-m-d');
             $count = $conversationsByDate->has($dateString) 
                 ? (int) $conversationsByDate[$dateString]->count 
                 : 0;
             
+            // Rails groupdate returns [date_string, count] format
             $chartData[] = [$dateString, $count];
             $currentDate->addDay();
         }

@@ -58,7 +58,7 @@ class Account extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'account_users')
-            ->withPivot('role', 'availability', 'settings', 'active_at')
+            ->withPivot('role', 'availability', 'active_at')
             ->withTimestamps();
     }
 
@@ -245,7 +245,23 @@ class Account extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('status', 1);
+        return $query->where('status', 0);
+    }
+
+    /**
+     * Check if account is active.
+     */
+    public function getActiveAttribute(): bool
+    {
+        return $this->status === 0;
+    }
+
+    /**
+     * Check if account is suspended.
+     */
+    public function getSuspendedAttribute(): bool
+    {
+        return $this->status === 1;
     }
 
     /**

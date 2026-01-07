@@ -251,6 +251,32 @@ class SettingsController extends Controller
     }
 
     /**
+     * Refresh settings cache and reload from database.
+     */
+    public function refresh(): JsonResponse
+    {
+        // Clear all settings-related caches
+        Cache::forget('super_admin_settings');
+        Cache::forget('super_admin_settings_grouped');
+        Cache::forget('super_admin_setting_categories');
+        
+        // Clear any other configuration caches
+        Cache::forget('config');
+        
+        // Force reload settings from database
+        $settings = InstallationConfig::all()->keyBy('name');
+        
+        // Warm up the cache with fresh data
+        Cache::put('super_admin_settings', $settings, 300);
+        
+        return response()->json([
+            'message' => 'Settings cache refreshed successfully',
+            'settings_count' => $settings->count(),
+            'timestamp' => now()->toISOString(),
+        ]);
+    }
+
+    /**
      * Validate setting key format.
      */
     private function isValidSettingKey(string $key): bool

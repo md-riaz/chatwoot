@@ -21,29 +21,58 @@
 	};
 	
 	const columns = [
-		{ key: 'id', label: 'ID', sortable: true },
+		{ key: 'id', label: 'ID', sortable: true, width: '80px' },
 		{ key: 'name', label: 'Name', sortable: true },
 		{ 
 			key: 'locale', 
 			label: 'Locale', 
 			sortable: false,
+			width: '100px',
 			render: (value: string) => value?.toUpperCase() || 'EN'
 		},
 		{ 
-			key: 'users_count', 
+			key: 'usersCount', 
 			label: 'Users', 
 			sortable: false,
-			render: (value: number) => String(value || 0)
+			width: '80px',
+			render: (value: number) => {
+				return `<span class="font-medium text-blue-600">${value ?? 0}</span>`;
+			}
 		},
 		{ 
-			key: 'conversations_count', 
+			key: 'inboxesCount', 
+			label: 'Inboxes', 
+			sortable: false,
+			width: '80px',
+			render: (value: number) => {
+				const count = value ?? 0;
+				return `<span class="font-medium text-green-600">${count}</span>`;
+			}
+		},
+		{ 
+			key: 'conversationsCount', 
 			label: 'Conversations', 
 			sortable: false,
-			render: (value: number) => String(value || 0)
+			width: '120px',
+			render: (value: number) => {
+				const count = value ?? 0;
+				return `<span class="font-medium text-purple-600">${count}</span>`;
+			}
+		},
+		{ 
+			key: 'contactsCount', 
+			label: 'Contacts', 
+			sortable: false,
+			width: '100px',
+			render: (value: number) => {
+				const count = value ?? 0;
+				return `<span class="font-medium text-orange-600">${count}</span>`;
+			}
 		},
 		{
 			key: 'status',
 			label: 'Status',
+			width: '100px',
 			render: (value: string) => {
 				const statusColors: Record<string, string> = {
 					active: 'rgb(18, 165, 148)',

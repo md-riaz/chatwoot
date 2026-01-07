@@ -69,7 +69,7 @@ class User extends Authenticatable
     public function accounts(): BelongsToMany
     {
         return $this->belongsToMany(Account::class, 'account_users')
-            ->withPivot('role', 'availability', 'settings', 'active_at')
+            ->withPivot('role', 'availability', 'active_at')
             ->withTimestamps();
     }
 

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { cn } from '$lib/utils';
-  import { Checkbox } from '$lib/components/ui/checkbox';
   import { Button } from '$lib/components/ui/button';
+  import { Checkbox } from '$lib/components/ui/checkbox';
+  import { cn } from '$lib/utils';
   import { ChevronLeft, ChevronRight } from 'lucide-svelte';
 
   interface Column {

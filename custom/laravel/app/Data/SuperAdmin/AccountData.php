@@ -41,6 +41,8 @@ class AccountData extends Data
         public ?array $selected_feature_flags = null,
         #[Nullable]
         public ?array $all_features = null,
+        #[Nullable]
+        public ?array $account_users = null,
         #[In(['active', 'suspended'])]
         public string $status = 'active',
         public int|Optional $users_count = 0,
