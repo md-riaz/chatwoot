@@ -35,7 +35,9 @@ export interface CurrentUser {
   uiSettings?: Record<string, any>;
   accessToken?: string;
   confirmed?: boolean;
-  // Added for super admin support
+  // Platform-level user type (Rails STI compatibility)
+  type?: 'User' | 'SuperAdmin';
+  // Deprecated: Use type field instead
   roles?: string[];
 }
 
