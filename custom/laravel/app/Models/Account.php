@@ -25,7 +25,7 @@ class Account extends Model
         'settings',
         'custom_attributes',
         'internal_attributes',
-        'features',
+        'feature_flags',
         'limits',
         'status',
         'conversation_required_attributes',
@@ -35,7 +35,7 @@ class Account extends Model
         'settings' => 'array',
         'custom_attributes' => 'array',
         'internal_attributes' => 'array',
-        'features' => 'array',
+        'feature_flags' => 'integer',
         'limits' => 'array',
         'status' => 'integer',
         'conversation_required_attributes' => 'array',
@@ -203,14 +203,44 @@ class Account extends Model
      */
     public function feature_enabled(string $feature): bool
     {
-        $features = $this->features ?? [];
+        $flagMap = [
+            'email' => 1,
+            'sms' => 2,
+            'messenger' => 4,
+            'telegram' => 8,
+            'whatsapp' => 16,
+            'tiktok' => 32,
+            'instagram' => 64,
+            'line' => 128,
+            'macros' => 256,
+            'labels' => 512,
+            'teams' => 1024,
+            'reports' => 2048,
+            'campaigns' => 4096,
+            'webhooks' => 8192,
+            'google' => 16384,
+            'microsoft' => 32768,
+            'linear' => 65536,
+            'slack' => 131072,
+            'shopify' => 262144,
+            'cannedResponses' => 524288,
+            'helpCenter' => 1048576,
+            'automationRules' => 2097152,
+            'customAttributes' => 4194304,
+            'liveChat' => 8388608,
+            // Enterprise features
+            'assignment_v2' => 16777216,
+            'inbox_assistant' => 33554432,
+            'advanced_reporting' => 67108864,
+            'crm_integration' => 134217728,
+            'notion_integration' => 268435456,
+        ];
         
-        // Check if feature is explicitly enabled
-        if (isset($features[$feature])) {
-            return (bool) $features[$feature];
+        if (isset($flagMap[$feature])) {
+            return ($this->feature_flags & $flagMap[$feature]) !== 0;
         }
         
-        // Default feature availability based on account type/plan
+        // Default feature availability for unknown features
         $defaultFeatures = [
             'assignment_v2' => true,
             'inbox_assistant' => false, // Enterprise feature
@@ -269,8 +299,7 @@ class Account extends Model
      */
     public function featureEnabled(string $feature): bool
     {
-        $features = $this->features ?? [];
-        return in_array($feature, $features);
+        return $this->feature_enabled($feature);
     }
 
     /**
@@ -288,15 +317,40 @@ class Account extends Model
      */
     public function enableFeature(string $feature): bool
     {
-        $features = $this->features ?? [];
+        $flagMap = [
+            'email' => 1,
+            'sms' => 2,
+            'messenger' => 4,
+            'telegram' => 8,
+            'whatsapp' => 16,
+            'tiktok' => 32,
+            'instagram' => 64,
+            'line' => 128,
+            'macros' => 256,
+            'labels' => 512,
+            'teams' => 1024,
+            'reports' => 2048,
+            'campaigns' => 4096,
+            'webhooks' => 8192,
+            'google' => 16384,
+            'microsoft' => 32768,
+            'linear' => 65536,
+            'slack' => 131072,
+            'shopify' => 262144,
+            'cannedResponses' => 524288,
+            'helpCenter' => 1048576,
+            'automationRules' => 2097152,
+            'customAttributes' => 4194304,
+            'liveChat' => 8388608,
+        ];
         
-        if (!in_array($feature, $features)) {
-            $features[] = $feature;
-            $this->features = $features;
+        if (isset($flagMap[$feature])) {
+            $this->feature_flags |= $flagMap[$feature];
             $this->save();
+            return true;
         }
         
-        return true;
+        return false;
     }
 
     /**
@@ -304,15 +358,40 @@ class Account extends Model
      */
     public function disableFeature(string $feature): bool
     {
-        $features = $this->features ?? [];
+        $flagMap = [
+            'email' => 1,
+            'sms' => 2,
+            'messenger' => 4,
+            'telegram' => 8,
+            'whatsapp' => 16,
+            'tiktok' => 32,
+            'instagram' => 64,
+            'line' => 128,
+            'macros' => 256,
+            'labels' => 512,
+            'teams' => 1024,
+            'reports' => 2048,
+            'campaigns' => 4096,
+            'webhooks' => 8192,
+            'google' => 16384,
+            'microsoft' => 32768,
+            'linear' => 65536,
+            'slack' => 131072,
+            'shopify' => 262144,
+            'cannedResponses' => 524288,
+            'helpCenter' => 1048576,
+            'automationRules' => 2097152,
+            'customAttributes' => 4194304,
+            'liveChat' => 8388608,
+        ];
         
-        if (in_array($feature, $features)) {
-            $features = array_values(array_diff($features, [$feature]));
-            $this->features = $features;
+        if (isset($flagMap[$feature])) {
+            $this->feature_flags &= ~$flagMap[$feature];
             $this->save();
+            return true;
         }
         
-        return true;
+        return false;
     }
 
     /**
@@ -320,7 +399,41 @@ class Account extends Model
      */
     public function getEnabledFeatures(): array
     {
-        return $this->features ?? [];
+        $flagMap = [
+            'email' => 1,
+            'sms' => 2,
+            'messenger' => 4,
+            'telegram' => 8,
+            'whatsapp' => 16,
+            'tiktok' => 32,
+            'instagram' => 64,
+            'line' => 128,
+            'macros' => 256,
+            'labels' => 512,
+            'teams' => 1024,
+            'reports' => 2048,
+            'campaigns' => 4096,
+            'webhooks' => 8192,
+            'google' => 16384,
+            'microsoft' => 32768,
+            'linear' => 65536,
+            'slack' => 131072,
+            'shopify' => 262144,
+            'cannedResponses' => 524288,
+            'helpCenter' => 1048576,
+            'automationRules' => 2097152,
+            'customAttributes' => 4194304,
+            'liveChat' => 8388608,
+        ];
+        
+        $enabledFeatures = [];
+        foreach ($flagMap as $feature => $flag) {
+            if (($this->feature_flags & $flag) !== 0) {
+                $enabledFeatures[] = $feature;
+            }
+        }
+        
+        return $enabledFeatures;
     }
 
     /**

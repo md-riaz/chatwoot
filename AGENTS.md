@@ -45,6 +45,44 @@ This document provides context and guidelines for AI agents working on the Chatw
 └── AGENTS.md                     # This file
 ```
 
+## Migration Scope & Feature Exclusions
+
+### Included Features
+**All enterprise and standard features must be migrated EXCEPT the exclusions listed below:**
+
+- ✅ **Authentication & Authorization**: SAML, custom roles, permissions
+- ✅ **Advanced Reporting**: Custom dashboards, analytics, metrics
+- ✅ **Audit Logs**: Activity tracking, compliance features
+- ✅ **Custom Branding**: White-label customization, themes
+- ✅ **Agent Capacity Management**: Workload distribution, capacity policies
+- ✅ **Advanced Integrations**: CRM, Notion, Linear, Slack, etc.
+- ✅ **Enterprise Channels**: All communication channels and their features
+- ✅ **Help Center**: Knowledge base, articles, categories
+- ✅ **Automation**: Rules, macros, workflows
+- ✅ **Team Management**: Teams, roles, hierarchies
+- ✅ **Custom Attributes**: Account and contact customization
+- ✅ **Webhooks & API**: External integrations and callbacks
+
+### Excluded Features
+**The following features are explicitly EXCLUDED from the migration:**
+
+- ❌ **Copilot**: AI assistant functionality and related features
+- ❌ **Captain**: AI-powered features, responses, and document processing
+- ❌ **AI/ML Components**: Any machine learning or artificial intelligence features
+
+### Rationale for Exclusions
+- **Copilot & Captain**: These AI-powered features require specialized infrastructure, models, and processing capabilities that are outside the scope of the current migration
+- **Complexity**: AI features add significant complexity to both backend processing and frontend interfaces
+- **Dependencies**: These features often depend on external AI services and specialized data processing pipelines
+- **Focus**: Excluding AI features allows the migration to focus on core business functionality and user experience
+
+### Implementation Guidelines
+1. **Remove AI References**: When migrating code, remove or comment out copilot/captain related functionality
+2. **Feature Flags**: Ensure AI features are disabled in feature flag configurations
+3. **Database**: Skip migration of AI-related tables and data structures
+4. **Frontend**: Exclude AI-related UI components and workflows
+5. **Documentation**: Mark AI features as "Not Implemented" in API documentation
+
 ## Migration Patterns & Guidelines
 
 ### Backend Migration (Rails → Laravel)
@@ -372,6 +410,9 @@ test('renders account information', () => {
 7. **NEVER manually convert camelCase/snake_case** - The API transformation layer handles this automatically
 8. **Always use camelCase in frontend code** - Even when you know the backend uses snake_case
 9. **Don't bypass the API client** - Always use the configured API client to ensure transformations work
+10. **Don't migrate excluded features** - Skip copilot/captain functionality entirely
+11. **Don't leave AI feature stubs** - Remove AI-related code completely rather than leaving empty implementations
+12. **Don't enable AI feature flags** - Ensure copilot/captain features remain disabled in all environments
 
 ## Additional Documentation References
 

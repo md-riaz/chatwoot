@@ -23,7 +23,7 @@ trait FormatsAccountData
             limits: $this->formatLimits($account),
             custom_attributes: $account->custom_attributes,
             internal_attributes: $account->internal_attributes ?? [],
-            features: $account->features ?? [],
+            features: $this->getSelectedFeatureFlags($account),
             manually_managed_features: $this->getManuallyManagedFeatures($account),
             selected_feature_flags: $this->getSelectedFeatureFlags($account),
             all_features: $this->getAllFeatures($account),
@@ -100,12 +100,38 @@ trait FormatsAccountData
      */
     private function getSelectedFeatureFlags(Account $account): array
     {
-        $features = $account->features ?? [];
+        $flagMap = [
+            'email' => 1,
+            'sms' => 2,
+            'messenger' => 4,
+            'telegram' => 8,
+            'whatsapp' => 16,
+            'tiktok' => 32,
+            'instagram' => 64,
+            'line' => 128,
+            'macros' => 256,
+            'labels' => 512,
+            'teams' => 1024,
+            'reports' => 2048,
+            'campaigns' => 4096,
+            'webhooks' => 8192,
+            'google' => 16384,
+            'microsoft' => 32768,
+            'linear' => 65536,
+            'slack' => 131072,
+            'shopify' => 262144,
+            'cannedResponses' => 524288,
+            'helpCenter' => 1048576,
+            'automationRules' => 2097152,
+            'customAttributes' => 4194304,
+            'liveChat' => 8388608,
+        ];
+        
         $selectedFlags = [];
         
-        // Convert enabled features to Rails-style selected_feature_flags array
-        foreach ($features as $feature => $enabled) {
-            if ($enabled) {
+        // Convert bitmask to array of enabled features
+        foreach ($flagMap as $feature => $flag) {
+            if (($account->feature_flags & $flag) !== 0) {
                 $selectedFlags[] = $feature;
             }
         }
@@ -175,10 +201,10 @@ trait FormatsAccountData
         // Merge features based on account capabilities
         $allFeatures = array_merge($regularFeatures, $premiumFeatures);
 
-        // Apply account-specific feature overrides
-        $accountFeatures = $account->features ?? [];
-        foreach ($accountFeatures as $feature => $enabled) {
-            $allFeatures[$feature] = (bool) $enabled;
+        // Apply account-specific feature overrides from bitmask
+        $selectedFeatures = $this->getSelectedFeatureFlags($account);
+        foreach ($selectedFeatures as $feature) {
+            $allFeatures[$feature] = true;
         }
 
         // Apply manually managed features if in Chatwoot Cloud

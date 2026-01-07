@@ -40,13 +40,42 @@ class UpdateAccountAction
             $internalAttributes['manually_managed_features'] = $data->manually_managed_features;
         }
         
-        // Handle selected_feature_flags - convert to features array
-        $features = $data->features ?? $account->features ?? [];
+        // Handle selected_feature_flags - convert to feature_flags bitmask
+        $featureFlags = $account->feature_flags ?? 0;
         if ($data->selected_feature_flags !== null) {
-            // Reset features and apply selected flags
-            $features = [];
+            // Convert feature flags array to bitmask (Rails-style)
+            $featureFlags = 0;
+            $flagMap = [
+                'email' => 1,
+                'sms' => 2,
+                'messenger' => 4,
+                'telegram' => 8,
+                'whatsapp' => 16,
+                'tiktok' => 32,
+                'instagram' => 64,
+                'line' => 128,
+                'macros' => 256,
+                'labels' => 512,
+                'teams' => 1024,
+                'reports' => 2048,
+                'campaigns' => 4096,
+                'webhooks' => 8192,
+                'google' => 16384,
+                'microsoft' => 32768,
+                'linear' => 65536,
+                'slack' => 131072,
+                'shopify' => 262144,
+                'cannedResponses' => 524288,
+                'helpCenter' => 1048576,
+                'automationRules' => 2097152,
+                'customAttributes' => 4194304,
+                'liveChat' => 8388608,
+            ];
+            
             foreach ($data->selected_feature_flags as $flag) {
-                $features[$flag] = true;
+                if (isset($flagMap[$flag])) {
+                    $featureFlags |= $flagMap[$flag];
+                }
             }
         }
 
@@ -60,7 +89,7 @@ class UpdateAccountAction
             'limits' => $data->limits,
             'custom_attributes' => $data->custom_attributes,
             'internal_attributes' => $internalAttributes,
-            'features' => $features,
+            'feature_flags' => $featureFlags,
             'status' => $data->status === 'active' ? 0 : 1,
         ]);
 
