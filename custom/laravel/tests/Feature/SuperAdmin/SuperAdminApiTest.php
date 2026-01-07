@@ -29,9 +29,8 @@ class SuperAdminApiTest extends TestCase
         $this->superAdmin = User::factory()->create([
             'email' => 'superadmin@example.com',
             'name' => 'Super Admin',
+            'type' => 'SuperAdmin', // Use type field instead of role
         ]);
-        
-        $this->superAdmin->assignRole('super_admin');
     }
 
     /** @test */

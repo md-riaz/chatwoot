@@ -12,7 +12,7 @@ class UserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->hasRole('super_admin');
+        return $this->user() && $this->user()->type === 'SuperAdmin';
     }
 
     /**

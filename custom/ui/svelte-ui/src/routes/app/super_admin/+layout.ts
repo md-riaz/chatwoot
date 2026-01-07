@@ -14,9 +14,9 @@ export const load: LayoutLoad = async () => {
 		try {
 			const user = await authApi.getCurrentUser();
 			
-			// Check if user has super_admin role
-			if (!user.roles?.includes('super_admin')) {
-				console.log('User does not have super_admin role:', user);
+			// Check if user has SuperAdmin type
+			if (user.type !== 'SuperAdmin') {
+				console.log('User does not have SuperAdmin type:', user);
 				
 				// User is not a super admin, redirect to login with error
 				throw redirect(307, '/app/login?error=not_authorized');

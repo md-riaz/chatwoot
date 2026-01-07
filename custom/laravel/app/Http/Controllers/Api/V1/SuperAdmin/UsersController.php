@@ -116,15 +116,8 @@ class UsersController extends Controller
             'email_verified_at' => now(),
         ]);
 
-        // Assign Spatie role based on type
-        if (($validated['type'] ?? 'User') === 'SuperAdmin') {
-            $user->assignRole('super_admin');
-        } else {
-            // For regular users, assign account-level role via AccountUser
-            if (isset($validated['role'])) {
-                $user->assignRole($validated['role']);
-            }
-        }
+        // Note: For regular users, account-level role is set via AccountUser model
+        // SuperAdmin type is a platform-level designation, not a Spatie role
 
         $user->load(['roles', 'accountUsers.account']);
 
