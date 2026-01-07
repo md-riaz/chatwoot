@@ -59,7 +59,11 @@ export interface User {
   avatarUrl?: string;
   availability?: string;
   emailVerifiedAt?: string;
+  // Platform-level user type (Rails STI compatibility)
+  type?: 'User' | 'SuperAdmin';
+  // Account-level role
   role?: string;
+  // Deprecated: Use type field for platform-level, role for account-level
   roles?: string[];
   confirmed?: boolean;
   locked?: boolean;

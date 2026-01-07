@@ -107,10 +107,8 @@ class InstallationOnboardingController extends Controller
                     'email' => $userData['email'],
                     'password' => Hash::make($userData['password']),
                     'email_verified_at' => now(), // confirmed = true
+                    'type' => 'SuperAdmin', // Set type instead of role
                 ]);
-
-                // Assign super admin role
-                $user->assignRole('super_admin');
 
                 // Link user to account as administrator
                 AccountUser::create([

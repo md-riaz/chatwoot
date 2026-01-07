@@ -12,7 +12,7 @@
   }
   
   function goToLogin() {
-    goto('/auth/login');
+    goto('/app/login');
   }
 </script>
 

@@ -8,7 +8,7 @@ import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ url }) => {
   // Paths that don't require authentication
-  const publicPaths = ['/app/login', '/app/auth/signup', '/app/unauthorized'];
+  const publicPaths = ['/app/login', '/app/signup', '/app/unauthorized'];
   
   // Skip auth check for public paths
   if (publicPaths.some(path => url.pathname.startsWith(path))) {
