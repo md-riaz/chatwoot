@@ -345,6 +345,233 @@ npm run dev # http://localhost:5173
 - Use Laravel migrations to match Rails schema
 - Maintain data integrity during transition
 
+## Laravel-Rails API Parity Guidelines
+
+**CRITICAL**: Maintaining functional parity between Rails backend and Laravel API is essential for seamless migration. Follow these patterns to ensure consistency:
+
+### 1. Pagination Format Consistency
+
+**Laravel Standard (Maintain This)**:
+```php
+// Laravel Controller - Use built-in pagination
+$users = User::query()
+    ->with(['roles', 'accountUsers.account'])
+    ->paginate($request->input('per_page', 25));
+
+// Transform collection while preserving Laravel pagination structure
+$users->getCollection()->transform(function ($user) {
+    return [
+        'id' => $user->id,
+        'name' => $user->name,
+        // ... other fields
+    ];
+});
+
+return response()->json($users); // Returns Laravel's standard pagination format
+```
+
+**Laravel Pagination Response Format**:
+```json
+{
+  "data": [...],
+  "current_page": 1,
+  "last_page": 5,
+  "per_page": 25,
+  "total": 100,
+  "from": 1,
+  "to": 25,
+  "path": "http://localhost:8000/api/v1/users",
+  "links": {...}
+}
+```
+
+**Frontend Handling**:
+```typescript
+// TypeScript interface for Laravel pagination
+interface UsersListResponse {
+  data: User[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number | null;
+  to: number | null;
+}
+
+// Component usage
+const response = await api.getUsers(params);
+users = response.data;           // User array
+totalPages = response.last_page; // Laravel pagination
+totalCount = response.total;     // Total records
+```
+
+### 2. Data Transformation for Rails Parity
+
+**User Data Structure (Rails Compatible)**:
+```php
+// Laravel Controller - Transform to match Rails format
+$users->getCollection()->transform(function ($user) {
+    return [
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'display_name' => $user->display_name,
+        'phone_number' => $user->phone_number,
+        'avatar_url' => $user->avatar_url,
+        'availability' => $user->availability,
+        
+        // Rails compatibility fields
+        'confirmed' => !is_null($user->email_verified_at),
+        'locked' => $user->custom_attributes['locked'] ?? false,
+        'role' => $user->getRoleNames()->first() ?? 'agent',
+        'roles' => $user->getRoleNames()->toArray(),
+        'accounts_count' => $user->accounts_count,
+        'custom_attributes' => $user->custom_attributes,
+        
+        // ISO timestamp format (Rails compatible)
+        'created_at' => $user->created_at?->toISOString(),
+        'updated_at' => $user->updated_at?->toISOString(),
+        
+        // Account relationships
+        'accounts' => $user->accountUsers->map(function ($accountUser) {
+            return [
+                'id' => $accountUser->account_id,
+                'name' => $accountUser->account->name ?? '',
+                'role' => $accountUser->role_name,
+                'availability' => $accountUser->availability_name,
+                'active_at' => $accountUser->active_at,
+            ];
+        }),
+    ];
+});
+```
+
+### 3. Status Field Mapping
+
+**Rails → Laravel Field Mapping**:
+```php
+// Confirmation status
+'confirmed' => !is_null($user->email_verified_at)  // Rails: confirmed?, Laravel: email_verified_at
+
+// Lock status  
+'locked' => $user->custom_attributes['locked'] ?? false  // Rails: locked?, Laravel: custom_attributes.locked
+
+// Role information
+'role' => $user->getRoleNames()->first() ?? 'agent'  // Rails: role, Laravel: Spatie roles
+'roles' => $user->getRoleNames()->toArray()          // Rails: roles, Laravel: Spatie roles array
+
+// Availability
+'availability' => $user->availability  // Rails: availability, Laravel: availability enum
+```
+
+### 4. Relationship Data Structure
+
+**Account-User Relationships**:
+```php
+// Ensure account relationships match Rails format
+'accounts' => $user->accountUsers->map(function ($accountUser) {
+    return [
+        'id' => $accountUser->account_id,
+        'name' => $accountUser->account->name ?? '',
+        'role' => $accountUser->role_name,        // Use enum getName() method
+        'availability' => $accountUser->availability_name,  // Use enum getName() method
+        'active_at' => $accountUser->active_at,
+    ];
+})
+```
+
+### 5. API Response Consistency Rules
+
+**CRITICAL RULES for API Parity**:
+
+1. **Always check Rails backend first** - Before implementing Laravel endpoints, examine the Rails equivalent:
+   ```bash
+   # Find Rails controllers
+   find app/controllers -name "*users*" -type f
+   
+   # Check Rails API views/serializers
+   find app/views -name "*user*" -type f
+   ```
+
+2. **Maintain Laravel conventions** - Don't override Laravel's built-in patterns:
+   - Use Laravel's standard pagination format
+   - Use `transform()` on collections, not custom response structures
+   - Preserve Laravel's response metadata (links, path, etc.)
+
+3. **Field name consistency** - Ensure field names match between Rails and Laravel:
+   ```php
+   // Good: Match Rails field names
+   'confirmed' => !is_null($user->email_verified_at)
+   
+   // Bad: Use Laravel-specific names
+   'email_verified' => !is_null($user->email_verified_at)
+   ```
+
+4. **Timestamp format standardization**:
+   ```php
+   // Always use ISO format for Rails compatibility
+   'created_at' => $user->created_at?->toISOString()
+   'updated_at' => $user->updated_at?->toISOString()
+   ```
+
+5. **Frontend TypeScript interfaces** - Update interfaces to match Laravel responses:
+   ```typescript
+   // Update API client return types
+   getUsers: async (params?: PaginationParams): Promise<UsersListResponse>
+   
+   // Not: Promise<{ data: User[] }>
+   ```
+
+### 6. Testing Parity
+
+**Verify API Parity**:
+```php
+// Laravel Test - Ensure response matches Rails format
+test('users index returns rails-compatible format', function () {
+    $user = User::factory()->create();
+    
+    $response = $this->getJson('/api/v1/super_admin/users');
+    
+    $response->assertOk()
+        ->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id', 'name', 'email', 'confirmed', 'locked', 
+                    'role', 'roles', 'accounts_count', 'created_at'
+                ]
+            ],
+            'current_page', 'last_page', 'total'
+        ]);
+});
+```
+
+**Frontend Integration Testing**:
+```typescript
+// Test that frontend correctly handles Laravel pagination
+test('handles Laravel pagination format', async () => {
+  const mockResponse = {
+    data: [{ id: 1, name: 'Test User' }],
+    current_page: 1,
+    last_page: 5,
+    total: 100
+  };
+  
+  // Verify component handles response correctly
+  expect(component.users).toEqual(mockResponse.data);
+  expect(component.totalPages).toBe(mockResponse.last_page);
+});
+```
+
+### 7. Common Parity Pitfalls to Avoid
+
+1. **Don't override Laravel pagination** - Use `transform()` instead of custom response structures
+2. **Don't ignore Rails field names** - Always check Rails API responses for field naming
+3. **Don't skip relationship data** - Include all Rails relationship data in Laravel responses
+4. **Don't forget enum transformations** - Convert Laravel enums to Rails-compatible strings
+5. **Don't use different timestamp formats** - Always use ISO strings for consistency
+
+This ensures seamless migration while maintaining both Laravel best practices and Rails API compatibility.
+
 ## Code Quality Standards
 
 ### Backend (Laravel)
@@ -413,6 +640,17 @@ test('renders account information', () => {
 10. **Don't migrate excluded features** - Skip copilot/captain functionality entirely
 11. **Don't leave AI feature stubs** - Remove AI-related code completely rather than leaving empty implementations
 12. **Don't enable AI feature flags** - Ensure copilot/captain features remain disabled in all environments
+
+### Laravel-Rails API Parity Pitfalls
+
+13. **NEVER override Laravel pagination format** - Use `transform()` on collections, maintain Laravel's standard pagination structure
+14. **Always check Rails backend first** - Examine Rails controllers/serializers before implementing Laravel endpoints
+15. **Don't use Laravel-specific field names in API responses** - Maintain Rails field naming for compatibility (e.g., `confirmed` not `email_verified`)
+16. **Don't ignore Rails relationship structures** - Include all Rails relationship data in Laravel API responses
+17. **Don't skip enum transformations** - Convert Laravel enums to Rails-compatible string values using `getName()` methods
+18. **Don't use different timestamp formats** - Always use `toISOString()` for Rails compatibility
+19. **Don't forget to update TypeScript interfaces** - Match Laravel pagination response structure in frontend types
+20. **Don't bypass Laravel conventions for Rails compatibility** - Transform data while preserving Laravel patterns
 
 ## Additional Documentation References
 
@@ -526,6 +764,71 @@ When working on this migration:
 6. **Reference original Rails code** for business logic understanding
 7. **IMPORTANT**: Always use camelCase in frontend code - API transformation is automatic
 8. **Check API transformation layer** in `src/lib/api/transformers.ts` and `src/lib/api/client.ts`
+
+### Rails Backend Parity Workflow
+
+**CRITICAL**: Before implementing any Laravel API endpoint, follow this workflow:
+
+1. **Find Rails equivalent**:
+   ```bash
+   # Search for Rails controllers
+   find app/controllers -name "*users*" -type f
+   find app/controllers -name "*accounts*" -type f
+   
+   # Search for API views/serializers
+   find app/views -name "*user*" -type f
+   find app/views -name "*account*" -type f
+   ```
+
+2. **Analyze Rails response structure**:
+   ```ruby
+   # Check Rails controller actions
+   # Look for render json: statements
+   # Examine jbuilder templates in app/views/
+   ```
+
+3. **Identify Rails field mappings**:
+   ```ruby
+   # Rails model methods to check:
+   user.confirmed?        # → Laravel: !is_null($user->email_verified_at)
+   user.locked?           # → Laravel: $user->custom_attributes['locked'] ?? false
+   user.role              # → Laravel: $user->getRoleNames()->first()
+   user.account_users     # → Laravel: $user->accountUsers relationship
+   ```
+
+4. **Implement Laravel with Rails parity**:
+   ```php
+   // Use transform() to match Rails structure
+   $users->getCollection()->transform(function ($user) {
+       return [
+           // Match Rails field names exactly
+           'confirmed' => !is_null($user->email_verified_at),
+           'locked' => $user->custom_attributes['locked'] ?? false,
+           // Include all Rails relationship data
+           'accounts' => $user->accountUsers->map(...),
+       ];
+   });
+   ```
+
+5. **Update frontend TypeScript interfaces**:
+   ```typescript
+   // Match Laravel pagination format
+   interface UsersListResponse {
+     data: User[];
+     current_page: number;
+     last_page: number;
+     total: number;
+   }
+   ```
+
+6. **Test parity**:
+   ```bash
+   # Compare API responses
+   curl http://rails-app/api/v1/users
+   curl http://laravel-app/api/v1/super_admin/users
+   
+   # Verify field names and structure match
+   ```
 
 ## Getting Help
 

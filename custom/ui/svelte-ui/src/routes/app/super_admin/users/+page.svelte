@@ -8,22 +8,26 @@
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
+	let searchInput: HTMLInputElement | null = null;
+
 	let users: any[] = [];
 	let loading = true;
 	let searchQuery = '';
 	let currentPage = 1;
 	let totalPages = 1;
+	let totalCount = 0;
 
 	async function loadUsers() {
 		loading = true;
 		try {
-			const data = await superAdminApi.users.list({
+			const response = await superAdminApi.getUsers({
 				page: currentPage,
 				per_page: 20,
 				search: searchQuery || undefined
 			});
-			users = data.users || [];
-			totalPages = data.meta?.pages || 1;
+			users = response.data || [];
+			totalPages = response.last_page || 1;
+			totalCount = response.total || 0;
 		} catch (error) {
 			toast.error('Failed to load users');
 			console.error(error);
@@ -39,12 +43,27 @@
 		}
 	}
 
+	function handleSearchInput() {
+		// Debounce search or trigger on Enter
+		// For now, we'll just trigger on Enter key
+	}
+
 	function handleRowClick(user: any) {
 		goto(`/app/super_admin/users/${user.id}`);
 	}
 
 	onMount(() => {
 		loadUsers();
+		
+		// Add event listener for search input
+		if (searchInput) {
+			searchInput.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter') {
+					currentPage = 1;
+					loadUsers();
+				}
+			});
+		}
 	});
 
 	const columns = [
@@ -82,7 +101,16 @@
 				return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border bg-teal-2 text-teal-11 border-teal-6">Active</span>';
 			}
 		},
-		{ key: 'created_at', label: 'Created At' }
+		{ 
+			key: 'created_at', 
+			label: 'Created At',
+			render: (user: any) => {
+				if (user.created_at) {
+					return new Date(user.created_at).toLocaleDateString();
+				}
+				return '';
+			}
+		}
 	];
 </script>
 
@@ -95,7 +123,7 @@
 					type="text"
 					placeholder="Search users..."
 					bind:value={searchQuery}
-					onkeydown={handleSearch}
+					bind:ref={searchInput}
 					class="w-64"
 				/>
 			</div>
@@ -114,14 +142,16 @@
 			{columns}
 			data={users}
 			{loading}
-			{currentPage}
-			{totalPages}
+			pagination={{
+				page: currentPage,
+				perPage: 20,
+				total: totalCount
+			}}
 			onPageChange={(page) => {
 				currentPage = page;
 				loadUsers();
 			}}
 			onRowClick={handleRowClick}
-			emptyMessage="No users found"
 		/>
 	</div>
 </div>

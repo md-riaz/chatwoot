@@ -40,6 +40,16 @@ export interface AccountsListResponse {
   };
 }
 
+export interface UsersListResponse {
+  data: User[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number | null;
+  to: number | null;
+}
+
 export interface User {
   id: number;
   email: string;
@@ -215,7 +225,7 @@ export const superAdminApi = {
   },
 
   // Users
-  getUsers: async (params?: PaginationParams): Promise<{ data: User[] }> => {
+  getUsers: async (params?: PaginationParams): Promise<UsersListResponse> => {
     return api.get('api/v1/super_admin/users', { searchParams: params as Record<string, string> }).json();
   },
 
