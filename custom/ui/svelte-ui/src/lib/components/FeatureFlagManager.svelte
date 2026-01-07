@@ -98,18 +98,18 @@
 		<div class="space-y-4">
 			{#each regularFeatureCategories as [category, features]}
 				<div>
-					<h4 class="text-sm font-medium text-slate-700 mb-3">{category}</h4>
+					<h4 class="text-sm font-medium text-foreground mb-3">{category}</h4>
 					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 						{#each features as feature}
-							<div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-slate-200">
-								<span class="text-sm text-slate-700">{formatFeatureName(feature)}</span>
+							<div class="flex items-center justify-between p-3 bg-card rounded-lg shadow-sm border border-border hover:bg-accent/50 transition-colors">
+								<span class="text-sm text-foreground">{formatFeatureName(feature)}</span>
 								<input
 									type="checkbox"
 									id={feature}
 									checked={isFeatureSelected(feature)}
 									disabled={disabled}
 									onchange={(e) => handleFeatureToggle(feature, e.currentTarget.checked)}
-									class="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-600 {disabled ? 'opacity-50 cursor-not-allowed' : ''}"
+									class="h-4 w-4 rounded border-input text-primary focus:ring-primary focus:ring-offset-2 focus:ring-offset-background {disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
 								/>
 							</div>
 						{/each}
@@ -121,19 +121,19 @@
 
 	<!-- Premium Features -->
 	{#if premiumFeatureCategories.length > 0}
-		<div class="border-t border-slate-200 pt-6">
+		<div class="border-t border-border pt-6">
 			<div class="space-y-4">
 				{#each premiumFeatureCategories as [category, features]}
 					<div>
-						<h4 class="text-sm font-medium text-slate-700 mb-3">{category}</h4>
+						<h4 class="text-sm font-medium text-foreground mb-3">{category}</h4>
 						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 							{#each features as feature}
-								<div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-slate-200">
+								<div class="flex items-center justify-between p-3 bg-card rounded-lg shadow-sm border border-border hover:bg-accent/50 transition-colors">
 									<div class="flex items-center gap-2">
-										<span class="text-amber-500">
+										<span class="text-amber-500 dark:text-amber-400">
 											<Star class="h-4 w-4" fill="currentColor" />
 										</span>
-										<span class="text-sm text-slate-700">{formatFeatureName(feature)}</span>
+										<span class="text-sm text-foreground">{formatFeatureName(feature)}</span>
 									</div>
 									<input
 										type="checkbox"
@@ -141,7 +141,7 @@
 										checked={isFeatureSelected(feature)}
 										disabled={disabled}
 										onchange={(e) => handleFeatureToggle(feature, e.currentTarget.checked)}
-										class="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-600 {disabled ? 'opacity-50 cursor-not-allowed' : ''}"
+										class="h-4 w-4 rounded border-input text-primary focus:ring-primary focus:ring-offset-2 focus:ring-offset-background {disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
 									/>
 								</div>
 							{/each}
@@ -154,19 +154,19 @@
 
 	<!-- Show any additional features not in categories -->
 	{#if Object.keys(allFeatures).some(f => !Object.values(featureCategories).flat().includes(f))}
-		<div class="border-t border-slate-200 pt-6">
-			<h4 class="text-sm font-medium text-slate-700 mb-3">Other Features</h4>
+		<div class="border-t border-border pt-6">
+			<h4 class="text-sm font-medium text-foreground mb-3">Other Features</h4>
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 				{#each Object.keys(allFeatures) as feature}
 					{#if !Object.values(featureCategories).flat().includes(feature) && isFeatureAvailable(feature)}
-						<div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-slate-200">
+						<div class="flex items-center justify-between p-3 bg-card rounded-lg shadow-sm border border-border hover:bg-accent/50 transition-colors">
 							<div class="flex items-center gap-2">
 								{#if isPremiumFeature(feature)}
-									<span class="text-amber-500">
+									<span class="text-amber-500 dark:text-amber-400">
 										<Star class="h-4 w-4" fill="currentColor" />
 									</span>
 								{/if}
-								<span class="text-sm text-slate-700">{formatFeatureName(feature)}</span>
+								<span class="text-sm text-foreground">{formatFeatureName(feature)}</span>
 							</div>
 							<input
 								type="checkbox"
@@ -174,7 +174,7 @@
 								checked={isFeatureSelected(feature)}
 								disabled={disabled}
 								onchange={(e) => handleFeatureToggle(feature, e.currentTarget.checked)}
-								class="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-600 {disabled ? 'opacity-50 cursor-not-allowed' : ''}"
+								class="h-4 w-4 rounded border-input text-primary focus:ring-primary focus:ring-offset-2 focus:ring-offset-background {disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
 							/>
 						</div>
 					{/if}
