@@ -6,6 +6,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import * as Select from '$lib/components/ui/select';
 	import { ArrowLeft, Save } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -16,7 +17,7 @@
 
 	let formData = $state({
 		name: '',
-		status: 'active',
+		status: { value: 'active' },
 		locale: 'en',
 		domain: '',
 		supportEmail: '',
@@ -36,7 +37,7 @@
 			   const account = await superAdminApi.getAccount(accountId);
 			   formData = {
 				   name: account.name || '',
-				   status: account.status || 'active',
+				   status: { value: account.status || 'active' },
 				   locale: account.locale || 'en',
 				   domain: account.domain || '',
 				   supportEmail: account.supportEmail || '',
@@ -68,7 +69,7 @@
 		try {
 			   await superAdminApi.updateAccount(accountId, {
 				   name: formData.name,
-				   status: formData.status as 'active' | 'suspended' | undefined,
+				   status: formData.status.value as 'active' | 'suspended' | undefined,
 				   locale: formData.locale,
 				   domain: formData.domain,
 				   supportEmail: formData.supportEmail,
@@ -160,15 +161,15 @@
 								
 								<div>
 									<Label for="status">Status</Label>
-									<select
-										id="status"
-										bind:value={formData.status}
-										disabled={submitting}
-										class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-									>
-										<option value="active">Active</option>
-										<option value="suspended">Suspended</option>
-									</select>
+									<Select.Root bind:selected={formData.status} disabled={submitting}>
+										<Select.Trigger id="status">
+											<Select.Value placeholder="Select status" />
+										</Select.Trigger>
+										<Select.Content>
+											<Select.Item value="active">Active</Select.Item>
+											<Select.Item value="suspended">Suspended</Select.Item>
+										</Select.Content>
+									</Select.Root>
 								</div>
 								
 								<div>

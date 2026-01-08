@@ -32,8 +32,8 @@
       if (response.user) {
         localStorage.setItem('current_user', JSON.stringify(response.user));
         
-        // Redirect based on user roles
-        if (response.user.roles?.includes('super_admin')) {
+        // Redirect based on user type
+        if (response.user.type === 'SuperAdmin') {
           // Super admin - redirect to super admin dashboard
           toast.success('Logged in successfully!');
           await goto('/app/super_admin/dashboard');
@@ -124,7 +124,7 @@
   
   <div class="text-center text-sm text-muted-foreground">
     Don't have an account?{' '}
-    <a href="/app/auth/signup" class="text-primary hover:underline">
+    <a href="/app/signup" class="text-primary hover:underline">
       Sign up
     </a>
   </div>

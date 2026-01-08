@@ -4,6 +4,7 @@
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import { Textarea } from '$lib/components/ui/textarea';
+  import * as Select from '$lib/components/ui/select';
 
   interface Props {
     inboxes?: Array<{ id: string; name: string; channelType: string }>;
@@ -14,29 +15,29 @@
 
   let { inboxes = [], onSubmit, onCancel, class: className }: Props = $props();
   
-  let selectedInbox = $state('');
+  let selectedInbox = $state({ value: '' });
   let contact = $state('');
   let message = $state('');
 
   function handleSubmit(e: Event) {
     e.preventDefault();
-    onSubmit?.({ inbox: selectedInbox, contact, message });
+    onSubmit?.({ inbox: selectedInbox.value, contact, message });
   }
 </script>
 
 <form class={cn('space-y-4', className)} onsubmit={handleSubmit}>
-  <div>
+  <div class="space-y-2">
     <Label for="inbox">Inbox</Label>
-    <select 
-      id="inbox"
-      bind:value={selectedInbox}
-      class="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-    >
-      <option value="">Select an inbox</option>
-      {#each inboxes as inbox}
-        <option value={inbox.id}>{inbox.name} ({inbox.channelType})</option>
-      {/each}
-    </select>
+    <Select.Root bind:selected={selectedInbox}>
+      <Select.Trigger id="inbox">
+        <Select.Value placeholder="Select an inbox" />
+      </Select.Trigger>
+      <Select.Content>
+        {#each inboxes as inbox}
+          <Select.Item value={inbox.id}>{inbox.name} ({inbox.channelType})</Select.Item>
+        {/each}
+      </Select.Content>
+    </Select.Root>
   </div>
 
   <div>
@@ -51,7 +52,7 @@
 
   <div class="flex justify-end gap-2 pt-4">
     <Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
-    <Button type="submit" disabled={!selectedInbox || !contact || !message}>
+    <Button type="submit" disabled={!selectedInbox.value || !contact || !message}>
       Start Conversation
     </Button>
   </div>

@@ -64,15 +64,14 @@ CREATE TABLE account_users (
 
 ### Middleware: EnsureSuperAdmin
 ```php
-// Checks both type field (Rails parity) and Spatie role (Laravel implementation)
-if (! $user || 
-    ($user->type !== 'SuperAdmin' && ! $user->hasRole('super_admin'))) {
+// Checks type field (Rails parity) - super_admin is now a user type, not a role
+if (! $user || $user->type !== 'SuperAdmin') {
     return response()->json(['error' => 'Unauthorized'], 403);
 }
 ```
 
 ### Permission System
-- **Platform Level**: Spatie Permissions (`super_admin` role)
+- **Platform Level**: User type field (`type = 'SuperAdmin'`)
 - **Account Level**: AccountUser model with enum roles
 - **Custom Roles**: Enterprise feature via CustomRole model
 
@@ -232,21 +231,30 @@ enum AccountUserRole: int {
 
 ## Migration Guide
 
-### From Spatie-Only to Rails Parity
+### From Spatie-Only to Type Field
 1. **Add type field**: Already exists in users table
-2. **Update middleware**: Check both type and Spatie role
+2. **Update middleware**: Check only type field
 3. **Update API responses**: Use account-level roles
 4. **Frontend updates**: Handle both type and role fields
+5. **Remove role assignments**: Set type directly instead of using Spatie roles for platform-level access
 
 ### User Type Migration
 ```php
-// Set type based on existing Spatie roles
-User::chunk(100, function ($users) {
-    foreach ($users as $user) {
-        $type = $user->hasRole('super_admin') ? 'SuperAdmin' : 'User';
-        $user->update(['type' => $type]);
-    }
-});
+// Set type field directly when creating users
+User::create([
+    'name' => 'Admin User',
+    'email' => 'admin@example.com',
+    'type' => 'SuperAdmin', // Platform-level type
+    'email_verified_at' => now(),
+]);
+
+// Regular users default to 'User' type
+User::create([
+    'name' => 'Regular User',
+    'email' => 'user@example.com',
+    'type' => 'User', // Default type
+    'email_verified_at' => now(),
+]);
 ```
 
 ## Testing
@@ -259,6 +267,14 @@ test('super admin middleware checks type field', function () {
     $this->actingAs($user)
          ->get('/api/v1/super_admin/users')
          ->assertOk();
+});
+
+test('regular user cannot access super admin routes', function () {
+    $user = User::factory()->create(['type' => 'User']);
+    
+    $this->actingAs($user)
+         ->get('/api/v1/super_admin/users')
+         ->assertForbidden();
 });
 
 test('avatar upload validates file size', function () {

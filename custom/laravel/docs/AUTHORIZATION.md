@@ -26,13 +26,14 @@ Users have roles within each account they belong to, stored in the `account_user
 | **Agent** | 1 | Standard team member |
 | **Administrator** | 2 | Full account access |
 
-### System-Level Roles
+### System-Level User Types
 
-System-wide roles managed via Spatie Permission package.
+System-wide user types stored in the `users.type` field (Rails STI compatibility).
 
-| Role | Description |
+| Type | Description |
 |------|-------------|
-| **super_admin** | Platform administrator with access to all accounts |
+| **User** | Regular user with account-level roles |
+| **SuperAdmin** | Platform administrator with access to all accounts |
 
 ---
 
@@ -90,7 +91,10 @@ Route::prefix('super_admin')
 ```php
 public function handle(Request $request, Closure $next): Response
 {
-    if (!$request->user() || !$request->user()->hasRole('super_admin')) {
+    $user = $request->user();
+    
+    // Check the type field (Rails parity) - super_admin is now a user type, not a role
+    if (! $user || $user->type !== 'SuperAdmin') {
         return response()->json([
             'error' => 'Unauthorized. Super admin access required.',
         ], 403);

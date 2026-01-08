@@ -2,6 +2,7 @@
   import { cn } from '$lib/utils';
   import { Button } from '$lib/components/ui/button';
   import { Badge } from '$lib/components/ui/badge';
+  import * as Select from '$lib/components/ui/select';
 
   interface FilterCondition {
     attributeKey: string;
@@ -44,51 +45,90 @@
 
   const operators = $derived(selectedFilterType?.operators || []);
   const options = $derived(selectedFilterType?.options || []);
+
+  // Wrap primitive values in objects for shadcn-svelte select
+  let queryOperatorValue = $state({ value: condition.queryOperator || 'and' });
+  let attributeKeyValue = $state({ value: condition.attributeKey || '' });
+  let filterOperatorValue = $state({ value: condition.filterOperator || '' });
+  let filterValueValue = $state({ value: condition.values[0] || '' });
+
+  // Sync back to condition when select values change
+  $effect(() => {
+    condition.queryOperator = queryOperatorValue.value as 'and' | 'or';
+  });
+
+  $effect(() => {
+    condition.attributeKey = attributeKeyValue.value;
+  });
+
+  $effect(() => {
+    condition.filterOperator = filterOperatorValue.value;
+  });
+
+  $effect(() => {
+    if (condition.values.length === 0) {
+      condition.values = [''];
+    }
+    condition.values[0] = filterValueValue.value;
+  });
+
+  // Sync from condition when it changes externally
+  $effect(() => {
+    queryOperatorValue = { value: condition.queryOperator || 'and' };
+    attributeKeyValue = { value: condition.attributeKey || '' };
+    filterOperatorValue = { value: condition.filterOperator || '' };
+    filterValueValue = { value: condition.values[0] || '' };
+  });
 </script>
 
 <div class={cn('flex items-center gap-2 p-2', className)} {...restProps}>
   {#if showQueryOperator}
-    <select
-      class="h-8 px-2 text-sm border rounded-md bg-background"
-      bind:value={condition.queryOperator}
-    >
-      <option value="and">AND</option>
-      <option value="or">OR</option>
-    </select>
+    <Select.Root bind:selected={queryOperatorValue}>
+      <Select.Trigger class="h-8 w-[80px]">
+        <Select.Value />
+      </Select.Trigger>
+      <Select.Content>
+        <Select.Item value="and">AND</Select.Item>
+        <Select.Item value="or">OR</Select.Item>
+      </Select.Content>
+    </Select.Root>
   {/if}
 
-  <select
-    class="h-8 px-2 text-sm border rounded-md bg-background min-w-[140px]"
-    bind:value={condition.attributeKey}
-  >
-    <option value="">Select attribute...</option>
-    {#each filterTypes as filterType}
-      <option value={filterType.attributeKey}>{filterType.label}</option>
-    {/each}
-  </select>
+  <Select.Root bind:selected={attributeKeyValue}>
+    <Select.Trigger class="h-8 min-w-[140px]">
+      <Select.Value placeholder="Select attribute..." />
+    </Select.Trigger>
+    <Select.Content>
+      {#each filterTypes as filterType}
+        <Select.Item value={filterType.attributeKey}>{filterType.label}</Select.Item>
+      {/each}
+    </Select.Content>
+  </Select.Root>
 
   {#if condition.attributeKey}
-    <select
-      class="h-8 px-2 text-sm border rounded-md bg-background min-w-[120px]"
-      bind:value={condition.filterOperator}
-    >
-      <option value="">Select operator...</option>
-      {#each operators as operator}
-        <option value={operator.value}>{operator.label}</option>
-      {/each}
-    </select>
+    <Select.Root bind:selected={filterOperatorValue}>
+      <Select.Trigger class="h-8 min-w-[120px]">
+        <Select.Value placeholder="Select operator..." />
+      </Select.Trigger>
+      <Select.Content>
+        {#each operators as operator}
+          <Select.Item value={operator.value}>{operator.label}</Select.Item>
+        {/each}
+      </Select.Content>
+    </Select.Root>
   {/if}
 
   {#if condition.filterOperator && options.length > 0}
-    <select
-      class="h-8 px-2 text-sm border rounded-md bg-background min-w-[140px]"
-      bind:value={condition.values[0]}
-    >
-      <option value="">Select value...</option>
-      {#each options as option}
-        <option value={option.value}>{option.label}</option>
-      {/each}
-    </select>
+    <Select.Root bind:selected={filterValueValue}>
+      <Select.Trigger class="h-8 min-w-[140px]">
+        <Select.Value placeholder="Select value..." />
+      </Select.Trigger>
+      <Select.Content>
+        {#each options as option}
+          <Select.Item value={option.value}>{option.label}</Select.Item>
+        {/each}
+      </Select.Content>
+    </Select.Root>
   {:else if condition.filterOperator}
     <input
       type="text"
