@@ -4,6 +4,7 @@
 	import { superAdminApi } from '$lib/api/superAdmin';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import FeatureFlagManager from '$lib/components/FeatureFlagManager.svelte';
+	import UserAssignmentForm from '$lib/components/UserAssignmentForm.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, Database, Edit, RefreshCw, Trash2 } from 'lucide-svelte';
 	import { onMount } from 'svelte';
@@ -205,6 +206,22 @@
 	   function handleFeaturesChange(features: string[]) {
 		   formData.selectedFeatureFlags = features;
 	   }
+
+	   // Handle user assignment
+	   function handleUserAssigned(accountUser: any) {
+		   // Add the new account user to the list
+		   accountUsers = [...accountUsers, accountUser];
+		   
+		   // Update the users count
+		   formData.usersCount = formData.usersCount + 1;
+		   
+		   toast.success('User assigned to account successfully');
+	   }
+
+	   // Get existing user IDs to filter from search
+	   function getExistingUserIds(): number[] {
+		   return accountUsers.map(au => au.user_id || au.userId).filter(Boolean);
+	   }
 	   
 	   onMount(() => {
 		   loadAccount();
@@ -341,7 +358,15 @@
 					<h2 class="text-lg font-medium text-foreground">Account Users</h2>
 					<p class="text-sm text-muted-foreground mt-1">Users with access to this account</p>
 				</div>
-				<div class="p-6">
+				<div class="p-6 space-y-6">
+					<!-- User Assignment Form -->
+					<UserAssignmentForm 
+						{accountId} 
+						onUserAssigned={handleUserAssigned}
+						existingUserIds={getExistingUserIds()}
+					/>
+
+					<!-- Existing Users Table -->
 					{#if accountUsers && accountUsers.length > 0}
 						<div class="overflow-x-auto">
 							<table class="w-full">

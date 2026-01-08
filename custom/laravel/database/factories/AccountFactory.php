@@ -34,17 +34,17 @@ class AccountFactory extends Factory
                 'agents' => 100,
                 'inboxes' => 50,
             ],
-            'status' => 1,
+            'status' => 0, // 0 = Active, 1 = Suspended
         ];
     }
 
     /**
-     * Indicate that the account is inactive.
+     * Indicate that the account is suspended.
      */
-    public function inactive(): static
+    public function suspended(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 0,
+            'status' => 1, // 1 = Suspended
         ]);
     }
 }

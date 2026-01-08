@@ -107,10 +107,10 @@ class InstallationConfig extends Model
      */
     protected static function booted(): void
     {
-        static::saved(function () {
+        static::saved(function ($config) {
             Cache::forget('installation_configs');
             // Clear specific config cache
-            Cache::forget('global_config:' . static::$name ?? '');
+            Cache::forget('global_config:' . $config->name);
         });
 
         static::deleted(function ($config) {

@@ -18,6 +18,12 @@
 	let avatarFile: File | null = null;
 	let avatarPreview: string | null = null;
 
+	// Account users data
+	let accountUsers = $state<any[]>([]);
+	let showRemoveAccountConfirm = $state(false);
+	let selectedAccountUser = $state<any>(null);
+	let actionLoading = $state(false);
+
 	let formData = {
 		name: '',
 		display_name: '',
@@ -44,6 +50,9 @@
 			if (user.avatarUrl) {
 				avatarPreview = user.avatarUrl;
 			}
+
+			// Load account users (like Rails HasMany relationship)
+			accountUsers = user.accountUsers || [];
 		} catch (error) {
 			toast.error('Failed to load user');
 			console.error(error);
@@ -156,6 +165,43 @@
 				avatarPreview = e.target?.result as string;
 			};
 			reader.readAsDataURL(file);
+		}
+	}
+
+	// Handle account assignment
+	function handleAccountAssigned(accountUser: any) {
+		// Add the new account user to the list
+		accountUsers = [...accountUsers, accountUser];
+		toast.success('User assigned to account successfully');
+	}
+
+	// Get existing account IDs to filter from search
+	function getExistingAccountIds(): number[] {
+		return accountUsers.map(au => au.account_id || au.accountId).filter(Boolean);
+	}
+
+	// Handle remove user from account
+	function openRemoveAccountConfirm(accountUser: any) {
+		selectedAccountUser = accountUser;
+		showRemoveAccountConfirm = true;
+	}
+
+	async function handleRemoveFromAccount() {
+		if (!selectedAccountUser) return;
+		
+		actionLoading = true;
+		try {
+			const response = await superAdminApi.deleteAccountUser(selectedAccountUser.id);
+			toast.success(response.message || 'User removed from account successfully');
+			
+			// Remove the account user from the local state
+			accountUsers = accountUsers.filter(au => au.id !== selectedAccountUser.id);
+		} catch (err: any) {
+			toast.error(err.message || 'Failed to remove user from account');
+			throw err; // Re-throw to keep dialog open on error
+		} finally {
+			actionLoading = false;
+			selectedAccountUser = null;
 		}
 	}
 
@@ -332,7 +378,79 @@
 						Set the date and time when the user's email was confirmed (Rails Field::DateTime parity)
 					</p>
 				</div>
+
+				<!-- Account Assignments Section -->
+				<div class="space-y-4 pt-6 border-t border-border">
+					<div>
+						<h3 class="text-lg font-medium text-foreground mb-2">Account Assignments</h3>
+						<p class="text-sm text-muted-foreground mb-4">Accounts this user has access to</p>
+					</div>
+
+					<!-- Account Assignment Form -->
+					<AccountAssignmentForm 
+						userId={parseInt(userId)} 
+						onAccountAssigned={handleAccountAssigned}
+						existingAccountIds={getExistingAccountIds()}
+					/>
+
+					<!-- Existing Account Assignments -->
+					{#if accountUsers && accountUsers.length > 0}
+						<div class="space-y-3">
+							{#each accountUsers as accountUser}
+								<div class="flex items-center justify-between p-4 border border-border rounded-lg bg-card">
+									<div class="flex items-center space-x-4">
+										<Building class="h-5 w-5 text-muted-foreground" />
+										<div>
+											<div class="font-medium text-foreground">{accountUser.account?.name || 'Unknown Account'}</div>
+											{#if accountUser.account?.domain}
+												<div class="text-sm text-muted-foreground">{accountUser.account.domain}</div>
+											{/if}
+											<div class="flex items-center space-x-2 mt-1">
+												<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {accountUser.role === 1 ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'}">
+													{accountUser.roleName || (accountUser.role === 1 ? 'Administrator' : 'Agent')}
+												</span>
+												{#if accountUser.createdAt}
+													<span class="text-xs text-muted-foreground">
+														Joined {new Date(accountUser.createdAt).toLocaleDateString()}
+													</span>
+												{/if}
+											</div>
+										</div>
+									</div>
+									<div class="flex items-center space-x-2">
+										<Button variant="outline" size="sm" onclick={() => goto(`/app/super_admin/accounts/${accountUser.accountId || accountUser.account_id}`)}>
+											View Account
+										</Button>
+										<Button 
+											variant="outline" 
+											size="sm" 
+											onclick={() => openRemoveAccountConfirm(accountUser)}
+											class="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20"
+										>
+											<Trash2 class="h-3 w-3 mr-1" />
+											Remove
+										</Button>
+									</div>
+								</div>
+							{/each}
+						</div>
+					{:else}
+						<div class="text-sm text-muted-foreground p-4 border border-dashed border-border rounded-lg text-center">
+							No account assignments found
+						</div>
+					{/if}
+				</div>
 			</div>
 		{/if}
 	</div>
 </div>
+
+<!-- Confirm Dialog -->
+<ConfirmDialog
+	bind:open={showRemoveAccountConfirm}
+	title="Remove User from Account"
+	description={selectedAccountUser ? `Are you sure you want to remove this user from "${selectedAccountUser.account?.name}"? This action cannot be undone.` : 'Are you sure you want to remove this user from the account?'}
+	confirmText="Remove User"
+	variant="destructive"
+	onConfirm={handleRemoveFromAccount}
+/>

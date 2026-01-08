@@ -86,6 +86,10 @@ class InstallationOnboardingController extends Controller
 
         try {
             return DB::transaction(function () use ($userData, $redisKey) {
+                // Ensure configuration is loaded before creating account
+                $configLoader = new \App\Services\ConfigLoaderService();
+                $configLoader->process();
+
                 // Create account using existing action
                 $accountData = new AccountData(
                     id: Optional::create(),
@@ -96,7 +100,7 @@ class InstallationOnboardingController extends Controller
                     settings: Optional::create(),
                     features: Optional::create(),
                     limits: Optional::create(),
-                    status: 1
+                    status: 0  // 0 = Active, 1 = Suspended
                 );
                 
                 $account = $this->createAccount->handle($accountData);
@@ -126,10 +130,13 @@ class InstallationOnboardingController extends Controller
                         'id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
+                        'type' => $user->type,
                     ],
                     'account' => [
                         'id' => $account->id,
                         'name' => $account->name,
+                        'enabled_features' => $account->getEnabledFeatures(),
+                        'feature_flags' => $account->feature_flags,
                     ]
                 ], 201);
             });
