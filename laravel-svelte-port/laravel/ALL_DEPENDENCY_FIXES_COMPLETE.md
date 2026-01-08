@@ -55,7 +55,7 @@ Based on complete dependency analysis, I've fixed ALL issues:
 ## 🚀 **READY TO RUN:**
 
 ```bash
-cd custom/laravel
+cd laravel-svelte-port/laravel
 php artisan migrate:fresh
 ```
 

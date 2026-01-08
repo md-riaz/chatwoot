@@ -4,13 +4,13 @@
 
 This PR fixes the SvelteKit UI authentication to work with the Laravel backend. The project is migrating from Vue frontend + Rails backend to SvelteKit frontend + Laravel backend.
 
-**IMPORTANT:** The correct SvelteKit directory is `custom/ui/svelte-ui`, not `custom/ui/sveltekit-ui` (which has been deleted).
+**IMPORTANT:** The correct SvelteKit directory is `laravel-svelte-port/svelte-ui`, not `custom/ui/sveltekit-ui` (which has been deleted).
 
 ## Changes Made
 
 ### 1. Laravel Backend - UserResource Enhancement
 
-**File**: `custom/laravel/app/Http/Resources/User/UserResource.php`
+**File**: `laravel-svelte-port/laravel/app/Http/Resources/User/UserResource.php`
 
 Added critical fields to the user API response:
 - `roles`: Array of role names from Spatie Permission package
@@ -35,7 +35,7 @@ public function toArray(Request $request): array
 
 ### 2. Frontend Type Definition
 
-**File**: `custom/ui/svelte-ui/src/lib/api/auth.ts`
+**File**: `laravel-svelte-port/svelte-ui/src/lib/api/auth.ts`
 
 Updated CurrentUser interface to match Laravel's UserResource:
 ```typescript
@@ -52,7 +52,7 @@ export interface CurrentUser {
 
 ### 3. API Client Configuration
 
-**File**: `custom/ui/svelte-ui/src/lib/api/client.ts`
+**File**: `laravel-svelte-port/svelte-ui/src/lib/api/client.ts`
 
 Configured for Laravel backend:
 - **Base URL**: `http://localhost:8000` (Laravel default)
@@ -85,7 +85,7 @@ const createApiClient = (): KyInstance => {
 
 ### 4. Super Admin Authorization
 
-**File**: `custom/ui/svelte-ui/src/routes/app/super_admin/+layout.ts`
+**File**: `laravel-svelte-port/svelte-ui/src/routes/app/super_admin/+layout.ts`
 
 Uses Spatie Permission roles to check for super admin access:
 ```typescript
@@ -97,7 +97,7 @@ if (!user.roles?.includes('super_admin')) {
 
 ### 5. Login Flow
 
-**File**: `custom/ui/svelte-ui/src/routes/auth/login/+page.svelte`
+**File**: `laravel-svelte-port/svelte-ui/src/routes/auth/login/+page.svelte`
 
 Redirects based on user roles:
 ```typescript
@@ -170,7 +170,7 @@ $request->user()->hasRole('super_admin')
 ## Directory Structure
 
 ```
-custom/ui/
+laravel-svelte-port/
 ├── storybooks/     # Component storybooks
 └── svelte-ui/      # ✅ CORRECT: SvelteKit SPA project
 ```
@@ -183,7 +183,7 @@ custom/ui/
 
 1. **Laravel Backend Running** on port 8000:
 ```bash
-cd custom/laravel
+cd laravel-svelte-port/laravel
 php artisan serve
 ```
 
@@ -195,7 +195,7 @@ php artisan db:seed  # Seeds a super admin user
 
 3. **SvelteKit Dev Server**:
 ```bash
-cd custom/ui/svelte-ui
+cd laravel-svelte-port/svelte-ui
 pnpm install
 pnpm dev
 ```
@@ -232,22 +232,22 @@ pnpm dev
 
 ## Files Changed
 
-1. `custom/laravel/app/Http/Resources/User/UserResource.php` - Added roles and accounts
-2. `custom/ui/svelte-ui/src/lib/api/auth.ts` - Added roles to CurrentUser
-3. `custom/ui/svelte-ui/src/lib/api/client.ts` - Laravel base URL (8000)
-4. `custom/ui/svelte-ui/src/routes/app/super_admin/+layout.ts` - Role-based auth
-5. `custom/ui/svelte-ui/src/routes/auth/login/+page.svelte` - Role-based redirect
+1. `laravel-svelte-port/laravel/app/Http/Resources/User/UserResource.php` - Added roles and accounts
+2. `laravel-svelte-port/svelte-ui/src/lib/api/auth.ts` - Added roles to CurrentUser
+3. `laravel-svelte-port/svelte-ui/src/lib/api/client.ts` - Laravel base URL (8000)
+4. `laravel-svelte-port/svelte-ui/src/routes/app/super_admin/+layout.ts` - Role-based auth
+5. `laravel-svelte-port/svelte-ui/src/routes/auth/login/+page.svelte` - Role-based redirect
 
 ## Configuration
 
 ### Environment Variables
 
-**SvelteKit** (`.env` in `custom/ui/svelte-ui`):
+**SvelteKit** (`.env` in `laravel-svelte-port/svelte-ui`):
 ```
 VITE_API_BASE_URL=http://localhost:8000
 ```
 
-**Laravel** (`.env` in `custom/laravel`):
+**Laravel** (`.env` in `laravel-svelte-port/laravel`):
 ```
 APP_URL=http://localhost:8000
 ```
@@ -277,11 +277,11 @@ This codebase was originally using Rails backend. The authentication has been up
 | User Type Check | `user.type === 'SuperAdmin'` | `user.roles?.includes('super_admin')` |
 | Roles System | Built-in type field | Spatie Permission package |
 | Response Format | `{ data: { ...user } }` | `{ token, user }` |
-| Frontend Dir | N/A | `custom/ui/svelte-ui` |
+| Frontend Dir | N/A | `laravel-svelte-port/svelte-ui` |
 
 ## Summary
 
-- ✅ All changes applied to correct directory: `custom/ui/svelte-ui`
+- ✅ All changes applied to correct directory: `laravel-svelte-port/svelte-ui`
 - ✅ Laravel backend returns roles and accounts data
 - ✅ Frontend checks super_admin role for authorization
 - ✅ API configured for Laravel (port 8000, ****** auth)

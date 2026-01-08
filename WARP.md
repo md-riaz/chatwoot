@@ -10,8 +10,8 @@ Authoritative migration and implementation rules are in `AGENTS.md`. Future agen
 
 High‑level structure:
 - Root: original Chatwoot Rails app and Vue frontend (still used as the reference implementation and, in many cases, as the production app).
-- `custom/laravel/`: ClearLine Laravel 12 API backend aiming for Rails API parity.
-- `custom/ui/svelte-ui/`: SvelteKit SPA used as the new UI layer talking to the Laravel API.
+- `laravel-svelte-port/laravel/`: ClearLine Laravel 12 API backend aiming for Rails API parity.
+- `laravel-svelte-port/svelte-ui/`: SvelteKit SPA used as the new UI layer talking to the Laravel API.
 
 ## Commands & workflows
 
@@ -45,13 +45,13 @@ All Node commands use `pnpm` (see root `package.json`).
 - Build the JS SDK in library mode (see `vite.config.ts`):
   - `BUILD_MODE=library pnpm build:sdk`
 
-### Laravel backend (ClearLine, `custom/laravel/`)
+### Laravel backend (ClearLine, `laravel-svelte-port/laravel/`)
 
-All PHP tooling is managed via Composer (see `custom/laravel/composer.json`). Detailed setup and deployment instructions are in `custom/laravel/README.md` and `custom/laravel/docs/README.md`.
+All PHP tooling is managed via Composer (see `laravel-svelte-port/laravel/composer.json`). Detailed setup and deployment instructions are in `laravel-svelte-port/laravel/README.md` and `laravel-svelte-port/laravel/docs/README.md`.
 
 **Initial setup (typical local workflow)**
 - From repo root:
-  - `cd custom/laravel`
+  - `cd laravel-svelte-port/laravel`
 - Install PHP dependencies:
   - `composer install`
 - Create and configure environment:
@@ -78,10 +78,10 @@ Composer also defines a `setup` script that chains common steps:
 - Start Reverb WebSocket server (ports/host configured via `.env`):
   - `php artisan reverb:start`
 
-Refer to `custom/laravel/README.md` and `custom/laravel/docs/VOICE_CHANNEL_GUIDE.md` / `WEBSOCKET_SETUP` sections for production‑grade setups.
+Refer to `laravel-svelte-port/laravel/README.md` and `laravel-svelte-port/laravel/docs/VOICE_CHANNEL_GUIDE.md` / `WEBSOCKET_SETUP` sections for production‑grade setups.
 
 **Tests (Pest/PHPUnit)**
-From `custom/laravel/`:
+From `laravel-svelte-port/laravel/`:
 - Run the full test suite with Pest:
   - `./vendor/bin/pest`
 - With coverage:
@@ -100,12 +100,12 @@ There is also a Composer test script that clears config cache and runs `php arti
 - The Laravel project includes a verification helper to compare Laravel tests against Rails APIs:
   - `php verify_tests_against_rails.php`
 
-### SvelteKit SPA (new UI, `custom/ui/svelte-ui/`)
+### SvelteKit SPA (new UI, `laravel-svelte-port/svelte-ui/`)
 
-All commands in this section run from `custom/ui/svelte-ui/` (see its `README.md` and `package.json`).
+All commands in this section run from `laravel-svelte-port/svelte-ui/` (see its `README.md` and `package.json`).
 
 **Setup**
-- `cd custom/ui/svelte-ui`
+- `cd laravel-svelte-port/svelte-ui`
 - Install dependencies:
   - `pnpm install`
 - Configure environment:
@@ -123,7 +123,7 @@ All commands in this section run from `custom/ui/svelte-ui/` (see its `README.md
 **Build**
 - Production build (SPA, output to `build/`):
   - `pnpm build`
-- In SPA deployments where Laravel serves the UI, built assets are typically copied into the Laravel `public` tree (see instructions in `AGENTS.md` and `custom/laravel/AGENTS.md`).
+- In SPA deployments where Laravel serves the UI, built assets are typically copied into the Laravel `public` tree (see instructions in `AGENTS.md` and `laravel-svelte-port/laravel/AGENTS.md`).
 
 **Tests and checks**
 - Run all Vitest tests:
@@ -145,8 +145,8 @@ All commands in this section run from `custom/ui/svelte-ui/` (see its `README.md
 
 There are effectively **three major subsystems**:
 1. **Rails backend + Vue frontend** (original Chatwoot app in the root Rails app and `app/javascript`), still used as the canonical reference for business logic and API behavior.
-2. **ClearLine Laravel API backend** in `custom/laravel/`, targeting functional parity with the Rails APIs while following modern Laravel patterns.
-3. **SvelteKit SPA frontend** in `custom/ui/svelte-ui/`, built as a standalone SPA that consumes the Laravel API.
+2. **ClearLine Laravel API backend** in `laravel-svelte-port/laravel/`, targeting functional parity with the Rails APIs while following modern Laravel patterns.
+3. **SvelteKit SPA frontend** in `laravel-svelte-port/svelte-ui/`, built as a standalone SPA that consumes the Laravel API.
 
 The migration strategy is to:
 - Keep the **Rails app as the behavioral spec**.
@@ -155,9 +155,9 @@ The migration strategy is to:
 
 ### Laravel backend (ClearLine)
 
-Core ideas (see `AGENTS.md`, `custom/laravel/FOLDER_STRUCTURE.md`, and `custom/laravel/docs/README.md`):
+Core ideas (see `AGENTS.md`, `laravel-svelte-port/laravel/FOLDER_STRUCTURE.md`, and `laravel-svelte-port/laravel/docs/README.md`):
 
-- **Layered architecture** under `custom/laravel/app/`:
+- **Layered architecture** under `laravel-svelte-port/laravel/app/`:
   - `Actions/`: Lorisleiva Laravel Actions encapsulate business logic (e.g., `CreateAccountAction`, `AssignConversationAction`). Controllers should primarily delegate to Actions.
   - `Data/`: Spatie Data DTOs for request/response payloads and filters, organized by domain (Account, Conversation, Message, Contact, Inbox, etc.). Prefer Data objects for type‑safe input and output.
   - `Repositories/`: Data access layer wrapping Eloquent queries; controllers/Actions should not issue complex queries directly against models.
@@ -170,28 +170,28 @@ Core ideas (see `AGENTS.md`, `custom/laravel/FOLDER_STRUCTURE.md`, and `custom/l
   - `Models/`: Eloquent models, including polymorphic channel models and multi‑tenant account‑scoped entities.
   - `Policies/` and middleware (`EnsureAccountAccess`, `EnsureAccountAdmin`, `EnsureSuperAdmin`): authorization layer for account‑scoped and super‑admin operations.
 
-- **Routes** (see `custom/laravel/routes/`):
+- **Routes** (see `laravel-svelte-port/laravel/routes/`):
   - `api.php`: versioned APIs under `/api/v1/...` for accounts, conversations, contacts, inboxes, super admin, etc.
   - `auth.php`: authentication endpoints under `/auth/*`.
   - `web.php`: SPA fallback routes (e.g. `/app/*`) for serving the Svelte UI when integrated.
 
 - **Super Admin API**:
-  - Comprehensive platform‑level administration under `/api/v1/super_admin/*` (dashboard, accounts, users, settings, cache, audit logs, etc.) with **Rails parity** as documented in `custom/laravel/docs/API_DOCUMENTATION_COMPLETE.md`.
+  - Comprehensive platform‑level administration under `/api/v1/super_admin/*` (dashboard, accounts, users, settings, cache, audit logs, etc.) with **Rails parity** as documented in `laravel-svelte-port/laravel/docs/API_DOCUMENTATION_COMPLETE.md`.
   - Access controlled via `EnsureSuperAdmin` middleware.
 
 - **Queues, WebSockets, Voice**:
   - Queues and long‑running work via Laravel Horizon (`horizon` service provider and supervisor configs in `deploy/supervisor/`).
-  - WebSockets via Laravel Reverb (see Reverb configuration sections in `custom/laravel/README.md`).
-  - Twilio voice channel webhooks under `/api/v1/webhooks/voice/*` (call, status, conference_status), documented in `custom/laravel/README.md` and `custom/laravel/docs/VOICE_CHANNEL_GUIDE.md`.
+  - WebSockets via Laravel Reverb (see Reverb configuration sections in `laravel-svelte-port/laravel/README.md`).
+  - Twilio voice channel webhooks under `/api/v1/webhooks/voice/*` (call, status, conference_status), documented in `laravel-svelte-port/laravel/README.md` and `laravel-svelte-port/laravel/docs/VOICE_CHANNEL_GUIDE.md`.
 
 - **Documentation set** (central references):
-  - `custom/laravel/README.md`: End‑to‑end setup, onboarding flow, deployment, Reverb configuration, and test commands.
-  - `custom/laravel/docs/README.md`: Index into API docs, OpenAPI specs, deployment, troubleshooting, migration, and maintenance.
-  - `custom/laravel/FOLDER_STRUCTURE.md`: Detailed folder‑by‑folder architectural overview.
+  - `laravel-svelte-port/laravel/README.md`: End‑to‑end setup, onboarding flow, deployment, Reverb configuration, and test commands.
+  - `laravel-svelte-port/laravel/docs/README.md`: Index into API docs, OpenAPI specs, deployment, troubleshooting, migration, and maintenance.
+  - `laravel-svelte-port/laravel/FOLDER_STRUCTURE.md`: Detailed folder‑by‑folder architectural overview.
 
-### SvelteKit SPA (`custom/ui/svelte-ui/`)
+### SvelteKit SPA (`laravel-svelte-port/svelte-ui/`)
 
-- **Svelte 5 + runes**: Components heavily use runes like `$state`, `$derived`, `$effect`, `$props`; see `custom/ui/svelte-ui/llms.txt` for in‑depth guidance.
+- **Svelte 5 + runes**: Components heavily use runes like `$state`, `$derived`, `$effect`, `$props`; see `laravel-svelte-port/svelte-ui/llms.txt` for in‑depth guidance.
 - **Design system**: shadcn‑svelte style components and `bits-ui` primitives under `src/lib/components/ui/`, with Histoire stories (`*.story.svelte`) for each component.
 - **Project structure** (see its `README.md`):
   - `src/routes/`: route‑level pages and layouts, configured for SPA mode (adapter‑static with `fallback: 'index.html'`).
@@ -234,7 +234,7 @@ Future agents working on the Laravel API must respect these parity constraints:
   - Include Rails‑equivalent relationship structures, e.g. user `accounts` arrays with `id`, `name`, `role`, `availability`, etc., where Rails exposes them.
 
 - **Testing**:
-  - When adding/altering endpoints, write feature tests that assert JSON structure compatibility with Rails (see examples in `AGENTS.md` and the tests under `custom/laravel/tests/Feature`).
+  - When adding/altering endpoints, write feature tests that assert JSON structure compatibility with Rails (see examples in `AGENTS.md` and the tests under `laravel-svelte-port/laravel/tests/Feature`).
 
 ### Feature scope: AI and excluded functionality
 
@@ -257,13 +257,13 @@ When implementing or modifying behavior, prefer reading and aligning with these 
   - `AGENTS.md`
 
 - **Laravel backend**:
-  - `custom/laravel/FOLDER_STRUCTURE.md` – canonical overview of how the Laravel app is organized.
-  - `custom/laravel/README.md` – setup, onboarding, super‑admin features, deployment, and Reverb details.
-  - `custom/laravel/docs/README.md` – index into API, deployment, migration, troubleshooting, and maintenance docs.
+  - `laravel-svelte-port/laravel/FOLDER_STRUCTURE.md` – canonical overview of how the Laravel app is organized.
+  - `laravel-svelte-port/laravel/README.md` – setup, onboarding, super‑admin features, deployment, and Reverb details.
+  - `laravel-svelte-port/laravel/docs/README.md` – index into API, deployment, migration, troubleshooting, and maintenance docs.
 
 - **Svelte SPA**:
-  - `custom/ui/svelte-ui/README.md` – SPA usage, environment, and components.
-  - `custom/ui/svelte-ui/llms.txt` – Svelte 5 runes and component patterns for LLMs.
+  - `laravel-svelte-port/svelte-ui/README.md` – SPA usage, environment, and components.
+  - `laravel-svelte-port/svelte-ui/llms.txt` – Svelte 5 runes and component patterns for LLMs.
 
 - **Original Rails/Vue app**:
   - Controllers/serializers/views under `app/` and Vue code under `app/javascript/` for the source‑of‑truth behavior and responses.

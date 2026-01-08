@@ -136,13 +136,13 @@ This file creates a NEW table and was not consolidated because it's not modifyin
 ```bash
 # Before: 73 migration files
 # After:  67 migration files
-cd custom/laravel/database/migrations && ls -1 *.php | wc -l
+cd laravel-svelte-port/laravel/database/migrations && ls -1 *.php | wc -l
 ```
 
 ### Verify 2026 Migrations
 ```bash
 # Should only show access_tokens table creation
-ls -1 custom/laravel/database/migrations/2026_*.php
+ls -1 laravel-svelte-port/laravel/database/migrations/2026_*.php
 ```
 
 ### Test Migrations
@@ -276,7 +276,7 @@ CREATE TABLE media (
 ## Migration File Structure (After)
 
 ```
-custom/laravel/database/migrations/
+laravel-svelte-port/laravel/database/migrations/
 ├── 0001_01_01_000000_create_laravel_framework_tables.php
 ├── 2024_01_01_000001_create_users_table.php              ← Modified
 ├── 2024_01_01_000002_create_accounts_table.php

@@ -55,13 +55,13 @@ Consolidated 6 redundant Laravel migration files into their base table creation 
 ## Quick Verification
 ```bash
 # Count migrations (should be 68)
-ls -1 custom/laravel/database/migrations/*.php | wc -l
+ls -1 laravel-svelte-port/laravel/database/migrations/*.php | wc -l
 
 # Test migrations
 php artisan migrate:fresh
 
 # Verify 2026 files (should only be access_tokens)
-ls custom/laravel/database/migrations/2026_*.php
+ls laravel-svelte-port/laravel/database/migrations/2026_*.php
 ```
 
 ## Benefits
@@ -72,7 +72,7 @@ ls custom/laravel/database/migrations/2026_*.php
 5. **Perfect for db:wipe** workflow
 
 ## Documentation Files
-- `custom/laravel/database/migrations/CONSOLIDATION_SUMMARY.md` - Detailed technical summary
+- `laravel-svelte-port/laravel/database/migrations/CONSOLIDATION_SUMMARY.md` - Detailed technical summary
 - `MIGRATION_CONSOLIDATION_REPORT.md` - Executive report with analysis
 - `QUICK_REFERENCE.md` - This file
 

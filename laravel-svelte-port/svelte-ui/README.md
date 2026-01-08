@@ -10,7 +10,7 @@ This is a SvelteKit SPA project designed to work as the frontend for Chatwoot's 
 
 ```bash
 # Navigate to the svelte-ui directory
-cd custom/ui/svelte-ui
+cd laravel-svelte-port/svelte-ui
 
 # Install dependencies
 pnpm install

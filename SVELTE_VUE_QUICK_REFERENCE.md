@@ -103,7 +103,7 @@ Impact: Build fails completely
    - 12 major sections
    - Route, component, and store comparisons
 
-2. `/custom/ui/svelte-ui/BUILD_STATUS.md`
+2. `/laravel-svelte-port/svelte-ui/BUILD_STATUS.md`
    - Build status and issues
    - How to build instructions
    - Next steps to fix
@@ -116,8 +116,8 @@ Impact: Build fails completely
 ## Documentation Links
 
 - **Main Analysis:** `/SVELTE_VUE_COMPARISON.md`
-- **Build Status:** `/custom/ui/svelte-ui/BUILD_STATUS.md`
-- **Svelte-UI README:** `/custom/ui/svelte-ui/README.md`
+- **Build Status:** `/laravel-svelte-port/svelte-ui/BUILD_STATUS.md`
+- **Svelte-UI README:** `/laravel-svelte-port/svelte-ui/README.md`
 
 ---
 

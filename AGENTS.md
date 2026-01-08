@@ -11,8 +11,8 @@ This document provides context and guidelines for AI agents working on the Chatw
 - WebSocket: ActionCable (Rails)
 
 **Target System:**
-- Backend: Laravel API (`custom/laravel/`)
-- Frontend: SvelteKit SPA (`custom/ui/svelte-ui/`)
+- Backend: Laravel API (`laravel-svelte-port/laravel/`)
+- Frontend: SvelteKit SPA (`laravel-svelte-port/svelte-ui/`)
 - Database: PostgreSQL (maintained)
 - WebSocket: Laravel Reverb
 
@@ -21,7 +21,7 @@ This document provides context and guidelines for AI agents working on the Chatw
 ```
 /
 ├── app/                          # Original Rails backend
-├── custom/
+├── laravel-svelte-port/
 │   ├── laravel/                  # New Laravel API backend
 │   │   ├── app/
 │   │   │   ├── Actions/          # Business logic (preferred pattern)
@@ -35,13 +35,12 @@ This document provides context and guidelines for AI agents working on the Chatw
 │   │   │   ├── auth.php          # Auth routes (/auth/*)
 │   │   │   └── web.php           # SPA fallback routes (/app/*)
 │   │   └── database/
-│   └── ui/
-│       └── svelte-ui/            # New SvelteKit frontend
-│           ├── src/
-│           │   ├── routes/       # SvelteKit routes
-│           │   ├── lib/          # Shared components/utilities
-│           │   └── app.html      # SPA entry point
-│           └── build/            # Built assets (copied to Laravel public/)
+│   └── svelte-ui/                # New SvelteKit frontend
+│       ├── src/
+│       │   ├── routes/           # SvelteKit routes
+│       │   ├── lib/              # Shared components/utilities
+│       │   └── app.html          # SPA entry point
+│       └── build/                # Built assets (copied to Laravel public/)
 └── AGENTS.md                     # This file
 ```
 
@@ -292,13 +291,13 @@ This ensures consistent code style while maintaining compatibility between front
 ### 1. Setting Up Development Environment
 ```bash
 # Laravel backend
-cd custom/laravel
+cd laravel-svelte-port/laravel
 composer install
 php artisan migrate
 php artisan serve # http://localhost:8000
 
 # SvelteKit frontend  
-cd custom/ui/svelte-ui
+cd laravel-svelte-port/svelte-ui
 npm install
 npm run dev # http://localhost:5173
 ```
@@ -407,7 +406,7 @@ php artisan installation:initialize --enable-onboarding
 php artisan test tests/Feature/Onboarding/SuperAdminOnboardingTest.php
 ```
 
-**✅ Documentation:** Complete implementation guide in `custom/laravel/ONBOARDING_IMPLEMENTATION.md`
+**✅ Documentation:** Complete implementation guide in `laravel-svelte-port/laravel/ONBOARDING_IMPLEMENTATION.md`
 
 ### ✅ COMPLETED: Account Seeding Feature Parity
 
@@ -894,7 +893,7 @@ test('renders account information', () => {
 ## Additional Documentation References
 
 ### Laravel Development Guidelines
-**File**: `custom/laravel/AGENTS.md`
+**File**: `laravel-svelte-port/laravel/AGENTS.md`
 
 Key Laravel-specific patterns to follow:
 - **Actions Pattern**: Use `lorisleiva/laravel-actions` for business logic
@@ -918,7 +917,7 @@ pnpm test                # Vitest for JS
 ```
 
 ### SvelteKit Development Guidelines
-**File**: `custom/ui/svelte-ui/llms.txt`
+**File**: `laravel-svelte-port/svelte-ui/llms.txt`
 
 Comprehensive Svelte 5 documentation including:
 - **Runes System**: `$state`, `$derived`, `$effect`, `$props`, `$bindable`
@@ -950,24 +949,24 @@ Comprehensive Svelte 5 documentation including:
 ## SPA Integration Patterns
 
 ### Asset Build & Deployment
-Following `custom/laravel/AGENTS.md` patterns:
+Following `laravel-svelte-port/laravel/AGENTS.md` patterns:
 
 1. **Development**:
    ```bash
    # Frontend (http://localhost:5173)
-   cd custom/ui/svelte-ui && npm run dev
+   cd laravel-svelte-port/svelte-ui && npm run dev
    
    # Backend (http://localhost:8000)  
-   cd custom/laravel && php artisan serve
+   cd laravel-svelte-port/laravel && php artisan serve
    ```
 
 2. **Production**:
    ```bash
    # Build SvelteKit SPA
-   cd custom/ui/svelte-ui && npm run build
+   cd laravel-svelte-port/svelte-ui && npm run build
    
    # Copy to Laravel public directory
-   cp -r build/* ../../laravel/public/app/
+   cp -r build/* ../laravel/public/app/
    ```
 
 ### Routing Configuration
@@ -992,11 +991,11 @@ export default {
 
 When working on this migration:
 
-1. **Always check existing patterns** in `custom/laravel/` and `custom/ui/svelte-ui/`
+1. **Always check existing patterns** in `laravel-svelte-port/laravel/` and `laravel-svelte-port/svelte-ui/`
 2. **Reference documentation files**:
-   - `custom/laravel/AGENTS.md` for Laravel patterns
-   - `custom/ui/svelte-ui/llms.txt` for Svelte 5 documentation
-   - `custom/laravel/FOLDER_STRUCTURE.md` for architecture details
+   - `laravel-svelte-port/laravel/AGENTS.md` for Laravel patterns
+   - `laravel-svelte-port/svelte-ui/llms.txt` for Svelte 5 documentation
+   - `laravel-svelte-port/laravel/FOLDER_STRUCTURE.md` for architecture details
 3. **Follow the Action → Repository → Model flow** for backend development
 4. **Use Svelte 5 runes** for reactive state management (`$state`, `$derived`, `$effect`)
 5. **Maintain API consistency** with proper versioning and resource formatting
@@ -1071,10 +1070,10 @@ When working on this migration:
 
 ## Getting Help
 
-- **Laravel Patterns**: Check `custom/laravel/AGENTS.md` and existing implementations
-- **Svelte Patterns**: Reference `custom/ui/svelte-ui/llms.txt` for comprehensive documentation
-- **Architecture**: Review `custom/laravel/FOLDER_STRUCTURE.md` for structure guidelines
-- **API Consistency**: Look at existing API endpoints in `custom/laravel/routes/`
+- **Laravel Patterns**: Check `laravel-svelte-port/laravel/AGENTS.md` and existing implementations
+- **Svelte Patterns**: Reference `laravel-svelte-port/svelte-ui/llms.txt` for comprehensive documentation
+- **Architecture**: Review `laravel-svelte-port/laravel/FOLDER_STRUCTURE.md` for structure guidelines
+- **API Consistency**: Look at existing API endpoints in `laravel-svelte-port/laravel/routes/`
 - **Business Logic**: Check original Rails code for context and requirements
 
 ---
