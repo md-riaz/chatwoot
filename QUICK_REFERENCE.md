@@ -22,7 +22,7 @@ Consolidated 6 redundant Laravel migration files into their base table creation 
 
 ### Files Modified: 2
 ```
-2024_01_01_000001_create_users_table.php → Added avatar_url, phone_number
+2024_01_01_000001_create_users_table.php → Added phone_number (NOT avatar_url - virtual attribute)
 2024_01_01_000053_create_media_table.php → Added down() method
 ```
 
@@ -34,8 +34,8 @@ Consolidated 6 redundant Laravel migration files into their base table creation 
 ## Tables Affected
 
 ### 1. users
-- ✓ Added: `avatar_url` (nullable)
 - ✓ Added: `phone_number` (nullable)
+- ✗ NOT Added: `avatar_url` - provided by HasAvatar trait as virtual attribute
 - ✓ Skipped: `additional_attributes` (was added then removed)
 
 ### 2. agent_bots

@@ -9,8 +9,9 @@ This document summarizes the migration consolidation performed to eliminate redu
 **File Modified:** `2024_01_01_000001_create_users_table.php`
 
 **Columns Added:**
-- `avatar_url` (string, nullable) - For user profile avatars
 - `phone_number` (string, nullable) - For user contact information
+
+**Note:** `avatar_url` was **NOT** added to the database. The `HasAvatar` trait provides this as a virtual attribute via Spatie Media Library. The trait's accessor (`getAvatarUrlAttribute()`) dynamically computes the avatar URL from the media collection, making a database column unnecessary.
 
 **Migration Files Removed:**
 - ✗ `2026_01_07_113914_add_avatar_url_to_users_table.php` - Consolidated into base table
@@ -33,7 +34,6 @@ Schema::create('users', function (Blueprint $table) {
     
     // Profile fields
     $table->string('display_name')->nullable();
-    $table->string('avatar_url')->nullable();        // ✓ ADDED
     $table->string('phone_number')->nullable();      // ✓ ADDED
     $table->string('type')->nullable();
     $table->integer('availability')->default(0);
@@ -209,7 +209,7 @@ php artisan migrate:status
 
 After consolidation, verify:
 - [ ] All migrations run successfully with `php artisan migrate:fresh`
-- [ ] `users` table has `avatar_url` and `phone_number` columns
+- [ ] `users` table has `phone_number` column (avatar_url is virtual via HasAvatar trait)
 - [ ] `agent_bots` table has nullable `account_id` with proper foreign key
 - [ ] `media` table uses Spatie Media Library structure
 - [ ] `access_tokens` table is created successfully

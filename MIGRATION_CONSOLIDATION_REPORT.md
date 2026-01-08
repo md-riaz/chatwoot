@@ -18,7 +18,7 @@ Successfully consolidated 6 redundant migration files into their base table crea
 
 #### Files Removed (4):
 ```
-✗ 2026_01_07_113914_add_avatar_url_to_users_table.php
+✗ 2026_01_07_113914_add_avatar_url_to_users_table.php (avatar_url was a mistake, phone_number kept)
 ✗ 2026_01_08_113846_add_additional_attributes_to_users_and_agent_bots_tables.php
 ✗ 2026_01_08_122025_remove_additional_attributes_from_users_and_agent_bots.php
 ✗ 2026_01_08_123959_remove_additional_attributes_from_users_and_agent_bots.php
@@ -27,12 +27,12 @@ Successfully consolidated 6 redundant migration files into their base table crea
 #### Migration Timeline Analysis:
 ```
 Step 1: Base table created with core fields
-Step 2: Added avatar_url + phone_number
+Step 2: Added avatar_url (MISTAKE - not needed with Spatie Media Library) + phone_number
 Step 3: Added additional_attributes
 Step 4: Removed additional_attributes
 Step 5: Removed additional_attributes (again)
 
-Net Result: Only avatar_url + phone_number remain
+Net Result: Only phone_number remains (avatar_url removed - provided by HasAvatar trait)
 ```
 
 #### File Modified:
@@ -45,9 +45,9 @@ $table->string('type')->nullable();
 
 // AFTER:
 $table->string('display_name')->nullable();
-$table->string('avatar_url')->nullable();        // ← ADDED
 $table->string('phone_number')->nullable();      // ← ADDED
 $table->string('type')->nullable();
+// Note: avatar_url NOT added - HasAvatar trait provides it as a virtual attribute
 ```
 
 ---
@@ -196,7 +196,7 @@ CREATE TABLE users (
     name VARCHAR NOT NULL,
     email VARCHAR UNIQUE NOT NULL,
     display_name VARCHAR,
-    avatar_url VARCHAR,        -- From 2026_01_07 migration
+    avatar_url VARCHAR,        -- From 2026_01_07 migration (MISTAKE - see note below)
     phone_number VARCHAR,      -- From 2026_01_07 migration
     type VARCHAR,
     ...
@@ -208,13 +208,16 @@ CREATE TABLE users (
     name VARCHAR NOT NULL,
     email VARCHAR UNIQUE NOT NULL,
     display_name VARCHAR,
-    avatar_url VARCHAR,        -- Now in base creation
-    phone_number VARCHAR,      -- Now in base creation
+    phone_number VARCHAR,      -- In base creation
     type VARCHAR,
     ...
 );
 
-✓ IDENTICAL SCHEMA
+-- NOTE: avatar_url is NOT in the database table.
+-- The HasAvatar trait provides it as a virtual attribute via accessor.
+-- Media Library stores avatars in the 'media' table with polymorphic relation.
+
+✓ CORRECTED SCHEMA (avatar_url removed - virtual attribute only)
 ```
 
 ### Agent Bots Table
