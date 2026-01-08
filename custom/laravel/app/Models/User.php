@@ -10,12 +10,13 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use App\Traits\HasAccountRoles;
-use App\Traits\Avatarable;
+use App\Traits\HasAvatar;
+use Spatie\MediaLibrary\HasMedia;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes, HasAccountRoles, Avatarable;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes, HasAccountRoles, HasAvatar;
 
     /**
      * The attributes that are mass assignable.
@@ -27,7 +28,6 @@ class User extends Authenticatable
         'email',
         'password',
         'display_name',
-        'avatar_url',
         'phone_number',
         'type',
         'availability',

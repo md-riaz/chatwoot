@@ -196,7 +196,7 @@ class MessagesController extends BaseController
             'sender' => $message->sender ? [
                 'id' => $message->sender->id,
                 'name' => $message->sender->name ?? 'Agent',
-                'avatar_url' => $message->sender->avatar_url ?? null,
+                'avatar_url' => $message->sender->getAvatarUrl() ?? null,
                 'type' => $message->sender_type === \App\Models\Contact::class ? 'contact' : 'agent',
             ] : null,
         ];

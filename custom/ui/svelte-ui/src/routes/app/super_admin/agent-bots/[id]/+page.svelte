@@ -234,10 +234,14 @@
 						<!-- Avatar Upload -->
 						<div class="space-y-2">
 							<Label>Bot Avatar</Label>
-							<div class="flex items-center gap-4">
+							<div class="flex items-start gap-4">
 								{#if avatarPreview}
 									<div class="relative">
-										<img src={avatarPreview} alt="Bot avatar" class="h-16 w-16 rounded-full object-cover" />
+										<img 
+											src={avatarPreview} 
+											alt="Bot avatar" 
+											class="h-32 w-32 rounded-lg object-cover border border-border"
+										/>
 										<button
 											type="button"
 											onclick={avatarFile ? removeAvatar : handleAvatarDelete}
@@ -247,17 +251,25 @@
 										</button>
 									</div>
 								{:else}
-									<div class="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-										<Upload class="h-6 w-6 text-muted-foreground" />
+									<div class="h-32 w-32 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted">
+										<Upload class="h-8 w-8 text-muted-foreground" />
 									</div>
 								{/if}
-								<label class="cursor-pointer">
-									<Button type="button" variant="outline" size="sm">
-										<Upload class="h-4 w-4 mr-2" />
-										Upload Avatar
-									</Button>
-									<input type="file" accept="image/*" onchange={handleAvatarSelect} class="hidden" />
-								</label>
+								<div>
+									<input
+										type="file"
+										accept="image/*"
+										onchange={handleAvatarSelect}
+										class="hidden"
+										id="avatar-upload"
+									/>
+									<Label for="avatar-upload" class="cursor-pointer">
+										<div class="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg border border-border text-sm font-medium text-foreground transition-colors">
+											{avatarPreview ? 'Change Avatar' : 'Upload Avatar'}
+										</div>
+									</Label>
+									<p class="text-xs text-muted-foreground mt-1">PNG, JPG up to 15MB</p>
+								</div>
 							</div>
 						</div>
 

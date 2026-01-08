@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             $table->string('outgoing_url')->nullable();
-            $table->foreignId('account_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('account_id')->nullable()->constrained()->nullOnDelete();
             $table->integer('bot_type')->default(0); // 0: webhook, 1: csml
             $table->json('bot_config')->nullable();
             $table->timestamps();

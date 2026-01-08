@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "google/cloud-translate": "^1.18",
+        "intervention/image": "^3.11",
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.41",
         "laravel/reverb": "^1.6",
@@ -17,6 +18,7 @@
         "phpoffice/phpspreadsheet": "*",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-data": "^4.18",
+        "spatie/laravel-medialibrary": "^11.17",
         "spatie/laravel-permission": "^6.24",
         "symfony/yaml": "^6.0",
         "twilio/sdk": "^8.3"

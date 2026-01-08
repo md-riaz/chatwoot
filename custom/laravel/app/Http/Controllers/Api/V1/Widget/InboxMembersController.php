@@ -29,7 +29,7 @@ class InboxMembersController extends BaseController
                 return [
                     'id' => $member->user->id,
                     'name' => $member->user->name,
-                    'avatar_url' => $member->user->avatar_url,
+                    'avatar_url' => $member->user->getAvatarUrl(),
                     'availability_status' => $member->user->availability ?? 'offline',
                 ];
             }),

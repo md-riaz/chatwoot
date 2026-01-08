@@ -298,15 +298,18 @@ export const superAdminApi = {
   },
 
   getAgentBot: async (id: number): Promise<AgentBot> => {
-    return api.get(`api/v1/super_admin/agent_bots/${id}`).json();
+    const response = await api.get(`api/v1/super_admin/agent_bots/${id}`).json() as { data: AgentBot };
+    return response.data;
   },
 
   createAgentBot: async (data: Partial<AgentBot>): Promise<AgentBot> => {
-    return api.post('api/v1/super_admin/agent_bots', { json: data }).json();
+    const response = await api.post('api/v1/super_admin/agent_bots', { json: data }).json() as { data: AgentBot };
+    return response.data;
   },
 
   updateAgentBot: async (id: number, data: Partial<AgentBot>): Promise<AgentBot> => {
-    return api.put(`api/v1/super_admin/agent_bots/${id}`, { json: data }).json();
+    const response = await api.put(`api/v1/super_admin/agent_bots/${id}`, { json: data }).json() as { data: AgentBot };
+    return response.data;
   },
 
   deleteAgentBot: async (id: number): Promise<{ success: boolean }> => {
@@ -316,7 +319,8 @@ export const superAdminApi = {
   uploadAgentBotAvatar: async (id: number, file: File): Promise<AgentBot> => {
     const formData = new FormData();
     formData.append('avatar', file);
-    return api.post(`api/v1/super_admin/agent_bots/${id}/avatar`, { body: formData }).json();
+    const response = await api.post(`api/v1/super_admin/agent_bots/${id}/avatar`, { body: formData }).json() as { data: AgentBot };
+    return response.data;
   },
 
   deleteAgentBotAvatar: async (id: number): Promise<{ message: string }> => {

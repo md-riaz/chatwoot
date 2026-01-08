@@ -28,7 +28,7 @@ class ContactsController extends BaseController
             'email' => $contact->email,
             'name' => $contact->name,
             'phone_number' => $contact->phone_number,
-            'avatar_url' => $contact->avatar_url,
+            'avatar_url' => $contact->getAvatarUrl(),
             'identifier' => $contact->identifier,
             'custom_attributes' => $contact->custom_attributes ?? [],
         ]);
@@ -69,7 +69,7 @@ class ContactsController extends BaseController
             'email' => $contact->email,
             'name' => $contact->name,
             'phone_number' => $contact->phone_number,
-            'avatar_url' => $contact->avatar_url,
+            'avatar_url' => $contact->getAvatarUrl(),
             'identifier' => $contact->identifier,
             'custom_attributes' => $contact->custom_attributes ?? [],
         ]);
@@ -168,7 +168,7 @@ class ContactsController extends BaseController
             'email' => $contact->email,
             'name' => $contact->name,
             'phone_number' => $contact->phone_number,
-            'avatar_url' => $contact->avatar_url,
+            'avatar_url' => $contact->getAvatarUrl(),
             'identifier' => $contact->identifier,
             'custom_attributes' => $contact->custom_attributes ?? [],
             'pubsub_token' => $contactInbox->source_id,

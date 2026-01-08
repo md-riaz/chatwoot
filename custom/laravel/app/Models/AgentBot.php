@@ -3,7 +3,8 @@
 namespace App\Models;
 
 use App\Models\Concerns\AccessTokenable;
-use App\Traits\Avatarable;
+use App\Traits\HasAvatar;
+use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,9 +12,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-class AgentBot extends Model
+class AgentBot extends Model implements HasMedia
 {
-    use HasFactory, AccessTokenable, Avatarable;
+    use HasFactory, AccessTokenable, HasAvatar;
 
     // Bot type constants
     public const TYPE_WEBHOOK = 0;
@@ -25,7 +26,6 @@ class AgentBot extends Model
         'outgoing_url',
         'bot_type',
         'bot_config',
-        'avatar_url',
     ];
 
     protected $casts = [

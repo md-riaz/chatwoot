@@ -330,10 +330,35 @@ npm run dev # http://localhost:5173
 - Laravel: Laravel Reverb
 - Frontend: Native WebSocket API or Socket.io client
 
-### 3. File Uploads
-- Rails: Active Storage
-- Laravel: Laravel Storage with S3/local disk
-- Frontend: FormData with progress tracking
+### 3. File Uploads & Avatar Management
+- **Rails**: Active Storage with `has_one_attached :avatar`
+- **Laravel**: Spatie Media Library (Laravel ecosystem standard)
+  - Uses `HasMedia` interface and `InteractsWithMedia` trait
+  - Automatic image conversions and variants (thumb, medium, large)
+  - Built-in optimization and validation
+  - Integrates with Laravel's file storage system
+- **Frontend**: FormData with progress tracking
+
+**Laravel Avatar Implementation:**
+```php
+// Model
+class User extends Model implements HasMedia
+{
+    use HasAvatar; // Laravel-native trait
+}
+
+// Usage
+$user->uploadAvatar($file);           // Upload with automatic processing
+$url = $user->getAvatarUrl('medium'); // Get variant URL
+$user->deleteAvatar();               // Clean deletion
+```
+
+**Key Benefits:**
+- ✅ **Laravel ecosystem standard** (Spatie Media Library)
+- ✅ **Automatic image optimization** and variant generation
+- ✅ **Simple, clean API** following Laravel conventions
+- ✅ **Community maintained** with extensive documentation
+- ✅ **Perfect Horizon/Redis integration** for background processing
 
 ### 4. Background Jobs
 - Rails: Sidekiq
@@ -584,7 +609,7 @@ $users->getCollection()->transform(function ($user) {
         'email' => $user->email,
         'display_name' => $user->display_name,
         'phone_number' => $user->phone_number,
-        'avatar_url' => $user->avatar_url,
+        'avatar_url' => $user->getAvatarUrl(), // Laravel-native method
         'availability' => $user->availability,
         
         // Rails compatibility fields
@@ -808,9 +833,40 @@ test('renders account information', () => {
 11. **Don't leave AI feature stubs** - Remove AI-related code completely rather than leaving empty implementations
 12. **Don't enable AI feature flags** - Ensure copilot/captain features remain disabled in all environments
 
+### Laravel-Native Implementation Guidelines
+
+13. **Use Laravel ecosystem packages** - Prefer Spatie packages, Laravel-native solutions over custom implementations
+    ```php
+    // ✅ GOOD - Use Spatie Media Library for file attachments
+    class User extends Model implements HasMedia
+    {
+        use HasAvatar; // Laravel-native trait
+    }
+    
+    // ❌ BAD - Don't create custom file upload systems
+    trait CustomAvatarable { /* 400+ lines of custom logic */ }
+    ```
+
+14. **Leverage Laravel's built-in features** - Don't reinvent what Laravel already provides well
+    ```php
+    // ✅ GOOD - Simple dispatch closures for background jobs
+    dispatch(function () use ($model) {
+        $model->fetchGravatarAvatar();
+    })->delay(now()->addSeconds(30));
+    
+    // ❌ BAD - Don't create complex custom job classes for simple tasks
+    class ComplexAvatarFromGravatarJob implements ShouldQueue { /* ... */ }
+    ```
+
+15. **Maintain functional parity, not implementation parity** - Focus on same functionality, not same code structure
+    - ✅ Same API endpoints and responses
+    - ✅ Same user-facing functionality  
+    - ❌ Don't copy Rails internal patterns
+    - ❌ Don't add Rails-specific fields like `additional_attributes` unless actually needed
+
 ### Laravel Configuration Pitfalls
 
-13. **NEVER use `app()` helper in config files** - Config files are loaded before the application container is available
+16. **NEVER use `app()` helper in config files** - Config files are loaded before the application container is available
     ```php
     // ❌ BAD - Will cause "Target class [env] does not exist" error
     'enable_feature' => env('ENABLE_FEATURE', !app()->environment('production'))
@@ -818,20 +874,20 @@ test('renders account information', () => {
     // ✅ GOOD - Use env() directly for environment checks
     'enable_feature' => env('ENABLE_FEATURE', env('APP_ENV', 'production') !== 'production')
     ```
-14. **Don't use Laravel helpers in config loading** - Stick to basic PHP and `env()` function only
-15. **Always provide fallback values in config** - Use `env('KEY', 'default_value')` pattern consistently
+17. **Don't use Laravel helpers in config loading** - Stick to basic PHP and `env()` function only
+18. **Always provide fallback values in config** - Use `env('KEY', 'default_value')` pattern consistently
 
 ### Laravel-Rails API Parity Pitfalls
 
-16. **NEVER override Laravel pagination format** - Use `transform()` on collections, maintain Laravel's standard pagination structure
-17. **Always check Rails backend first** - Examine Rails controllers/serializers before implementing Laravel endpoints
-18. **Don't use Laravel-specific field names in API responses** - Maintain Rails field naming for compatibility (e.g., `confirmed` not `email_verified`)
-19. **Don't ignore Rails relationship structures** - Include all Rails relationship data in Laravel API responses
-20. **Don't skip enum transformations** - Convert Laravel enums to Rails-compatible string values using `getName()` methods
-21. **Don't use different timestamp formats** - Always use `toISOString()` for Rails compatibility
-22. **Don't forget to update TypeScript interfaces** - Match Laravel pagination response structure in frontend types
-23. **Don't bypass Laravel conventions for Rails compatibility** - Transform data while preserving Laravel patterns
-24. **Don't use incorrect pagination field names** - Use `last_page` not `total_pages`, `total` not `count`
+19. **NEVER override Laravel pagination format** - Use `transform()` on collections, maintain Laravel's standard pagination structure
+20. **Always check Rails backend first** - Examine Rails controllers/serializers before implementing Laravel endpoints
+21. **Don't use Laravel-specific field names in API responses** - Maintain Rails field naming for compatibility (e.g., `confirmed` not `email_verified`)
+22. **Don't ignore Rails relationship structures** - Include all Rails relationship data in Laravel API responses
+23. **Don't skip enum transformations** - Convert Laravel enums to Rails-compatible string values using `getName()` methods
+24. **Don't use different timestamp formats** - Always use `toISOString()` for Rails compatibility
+25. **Don't forget to update TypeScript interfaces** - Match Laravel pagination response structure in frontend types
+26. **Don't bypass Laravel conventions for Rails compatibility** - Transform data while preserving Laravel patterns
+27. **Don't use incorrect pagination field names** - Use `last_page` not `total_pages`, `total` not `count`
 25. **Don't mix pagination formats** - Be consistent within the same application area (prefer Laravel standard)
 26. **Don't ignore Laravel's built-in pagination** - Use `paginate()` method instead of custom pagination logic
 

@@ -106,7 +106,7 @@ class DyteService
 
     private function addParticipant(string $meetingId, User $user, Hook $hook): array
     {
-        $avatarUrl = $user->avatar_url ?: config('app.url') . '/integrations/dyte/user.png';
+        $avatarUrl = $user->getAvatarUrl() ?: config('app.url') . '/integrations/dyte/user.png';
 
         $response = Http::withHeaders([
             'Authorization' => "Basic " . base64_encode("{$hook->settings['organization_id']}:{$hook->settings['api_key']}"),

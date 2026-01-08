@@ -135,4 +135,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Avatar Settings
+    |--------------------------------------------------------------------------
+    |
+    | These settings control avatar functionality including Gravatar integration.
+    | Laravel-native approach using Spatie Media Library.
+    |
+    */
+
+    'auto_fetch_gravatar' => env('AUTO_FETCH_GRAVATAR', true),
+    'disable_gravatar' => env('DISABLE_GRAVATAR', false),
+
 ];

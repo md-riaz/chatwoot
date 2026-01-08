@@ -38,7 +38,7 @@ class AgentBotsController extends Controller
                 'description' => $bot->description,
                 'outgoing_url' => $bot->outgoing_url,
                 'bot_type' => $bot->bot_type,
-                'avatar_url' => $bot->avatar_url,
+                'avatar_url' => $bot->getAvatarUrl(),
                 'account_id' => $bot->account_id ?? 0, // Return 0 for global bots
                 'account' => $bot->account ? [
                     'id' => $bot->account->id,
@@ -66,7 +66,7 @@ class AgentBotsController extends Controller
                 'description' => $agentBot->description,
                 'outgoing_url' => $agentBot->outgoing_url,
                 'bot_type' => $agentBot->bot_type,
-                'avatar_url' => $agentBot->avatar_url,
+                'avatar_url' => $agentBot->getAvatarUrl(),
                 'account_id' => $agentBot->account_id ?? 0, // Return 0 for global bots
                 'account' => $agentBot->account ? [
                     'id' => $agentBot->account->id,
@@ -88,7 +88,7 @@ class AgentBotsController extends Controller
             'description' => 'nullable|string',
             'outgoing_url' => 'nullable|url',
             'account_id' => 'nullable|integer',
-            'bot_type' => 'nullable|string|in:webhook,csml,dialogflow',
+            'bot_type' => 'nullable|integer|in:0',
             'bot_config' => 'nullable|array',
         ]);
 
@@ -104,8 +104,8 @@ class AgentBotsController extends Controller
             }
         }
 
-        // Default bot_type to webhook if not provided
-        $validated['bot_type'] = $validated['bot_type'] ?? 'webhook';
+        // Default bot_type to webhook (0) if not provided
+        $validated['bot_type'] = $validated['bot_type'] ?? AgentBot::TYPE_WEBHOOK;
 
         $bot = AgentBot::create($validated);
         $bot->load('account:id,name');
@@ -117,7 +117,7 @@ class AgentBotsController extends Controller
                 'description' => $bot->description,
                 'outgoing_url' => $bot->outgoing_url,
                 'bot_type' => $bot->bot_type,
-                'avatar_url' => $bot->avatar_url,
+                'avatar_url' => $bot->getAvatarUrl(),
                 'account_id' => $bot->account_id ?? 0, // Return 0 for global bots
                 'account' => $bot->account ? [
                     'id' => $bot->account->id,
@@ -139,7 +139,7 @@ class AgentBotsController extends Controller
             'description' => 'nullable|string',
             'outgoing_url' => 'nullable|url',
             'account_id' => 'nullable|integer',
-            'bot_type' => 'string|in:webhook,csml,dialogflow',
+            'bot_type' => 'integer|in:0',
             'bot_config' => 'nullable|array',
         ]);
 
@@ -165,7 +165,7 @@ class AgentBotsController extends Controller
                 'description' => $agentBot->description,
                 'outgoing_url' => $agentBot->outgoing_url,
                 'bot_type' => $agentBot->bot_type,
-                'avatar_url' => $agentBot->avatar_url,
+                'avatar_url' => $agentBot->getAvatarUrl(),
                 'account_id' => $agentBot->account_id ?? 0, // Return 0 for global bots
                 'account' => $agentBot->account ? [
                     'id' => $agentBot->account->id,
@@ -193,12 +193,12 @@ class AgentBotsController extends Controller
     public function uploadAvatar(Request $request, AgentBot $agentBot): JsonResponse
     {
         $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:15360', // 15MB max
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:15360', // 15MB max
         ]);
 
         try {
             if ($request->hasFile('avatar')) {
-                $avatarUrl = $agentBot->uploadAvatar($request->file('avatar'));
+                $media = $agentBot->uploadAvatar($request->file('avatar'));
             }
 
             $agentBot->load('account:id,name');
@@ -210,7 +210,7 @@ class AgentBotsController extends Controller
                     'description' => $agentBot->description,
                     'outgoing_url' => $agentBot->outgoing_url,
                     'bot_type' => $agentBot->bot_type,
-                    'avatar_url' => $agentBot->avatar_url,
+                    'avatar_url' => $agentBot->getAvatarUrl(),
                     'account_id' => $agentBot->account_id ?? 0, // Return 0 for global bots
                     'account' => $agentBot->account ? [
                         'id' => $agentBot->account->id,
@@ -221,7 +221,7 @@ class AgentBotsController extends Controller
                 ],
                 'message' => 'Avatar uploaded successfully.'
             ]);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
             ], 422);
@@ -233,7 +233,7 @@ class AgentBotsController extends Controller
      */
     public function destroyAvatar(AgentBot $agentBot): JsonResponse
     {
-        $agentBot->update(['avatar_url' => null]);
+        $agentBot->deleteAvatar();
 
         return response()->json(['message' => 'Avatar deleted.']);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,9 +11,11 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Contact extends Model
+use Spatie\MediaLibrary\HasMedia;
+
+class Contact extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasAvatar;
 
     protected $fillable = [
         'account_id',
@@ -21,7 +24,6 @@ class Contact extends Model
         'email',
         'phone_number',
         'identifier',
-        'avatar_url',
         'custom_attributes',
         'additional_attributes',
         'last_activity_at',

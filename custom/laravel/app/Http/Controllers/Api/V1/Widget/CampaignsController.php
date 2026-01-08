@@ -44,7 +44,7 @@ class CampaignsController extends BaseController
                     'sender' => $campaign->sender ? [
                         'id' => $campaign->sender->id,
                         'name' => $campaign->sender->name,
-                        'avatar_url' => $campaign->sender->avatar_url,
+                        'avatar_url' => $campaign->sender->getAvatarUrl(),
                     ] : null,
                     'trigger_rules' => $campaign->trigger_rules ?? [],
                     'trigger_only_during_business_hours' => $campaign->trigger_only_during_business_hours ?? false,

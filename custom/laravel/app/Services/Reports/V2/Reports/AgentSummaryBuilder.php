@@ -30,7 +30,7 @@ class AgentSummaryBuilder extends BaseSummaryBuilder
                 'id' => $agent->id,
                 'name' => $agent->name,
                 'email' => $agent->email,
-                'thumbnail' => $agent->avatar_url,
+                'thumbnail' => $agent->getAvatarUrl(),
                 'availability_status' => $agent->availability_status ?? 'offline',
                 'conversations_count' => $metrics['conversations_count'],
                 'incoming_messages_count' => $metrics['incoming_messages_count'],

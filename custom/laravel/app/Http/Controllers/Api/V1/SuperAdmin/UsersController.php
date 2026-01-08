@@ -24,7 +24,7 @@ class UsersController extends Controller
             'email' => $user->email,
             'display_name' => $user->display_name,
             'phone_number' => $user->phone_number,
-            'avatar_url' => $user->getApiAvatarUrl(), // Use Rails-compatible method
+            'avatar_url' => $user->getApiAvatarUrl(), // Use Laravel-native method
             'availability' => $user->availability,
             'confirmed' => !is_null($user->email_verified_at),
             'confirmed_at' => $user->email_verified_at?->toISOString(), // Rails parity: Field::DateTime
@@ -180,7 +180,7 @@ class UsersController extends Controller
 
         try {
             if ($request->hasFile('avatar')) {
-                $avatarUrl = $user->uploadAvatar($request->file('avatar'));
+                $media = $user->uploadAvatar($request->file('avatar'));
             }
 
             $user->load(['roles', 'accountUsers.account']);
@@ -189,7 +189,7 @@ class UsersController extends Controller
                 'data' => $this->transformUser($user),
                 'message' => 'Avatar uploaded successfully.'
             ]);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
             ], 422);

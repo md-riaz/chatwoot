@@ -16,7 +16,7 @@ class ContactResource extends JsonResource
             'email' => $this->email,
             'phone_number' => $this->phone_number,
             'identifier' => $this->identifier,
-            'avatar_url' => $this->avatar_url,
+            'avatar_url' => $this->getAvatarUrl(),
             'custom_attributes' => $this->custom_attributes,
             'additional_attributes' => $this->additional_attributes,
             'last_activity_at' => $this->last_activity_at?->toISOString(),

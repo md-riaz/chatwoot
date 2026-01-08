@@ -10,33 +10,23 @@ return new class extends Migration
     {
         Schema::create('media', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('account_id')->constrained()->cascadeOnDelete();
-            $table->morphs('mediable'); // mediable_type and mediable_id
-            $table->integer('file_type')->default(0);
-            $table->string('file_path')->nullable();
-            $table->string('file_name')->nullable();
-            $table->string('original_name')->nullable();
+
+            $table->morphs('model');
+            $table->uuid()->nullable()->unique();
+            $table->string('collection_name');
+            $table->string('name');
+            $table->string('file_name');
             $table->string('mime_type')->nullable();
-            $table->string('extension')->nullable();
-            $table->unsignedBigInteger('file_size')->nullable();
-            $table->string('disk')->default('local');
-            $table->string('external_url')->nullable();
-            $table->string('thumb_path')->nullable();
-            $table->float('coordinates_lat')->nullable();
-            $table->float('coordinates_long')->nullable();
-            $table->string('fallback_title')->nullable();
-            $table->jsonb('meta')->nullable();
-            $table->unsignedInteger('width')->nullable();
-            $table->unsignedInteger('height')->nullable();
-            $table->timestamps();
+            $table->string('disk');
+            $table->string('conversions_disk')->nullable();
+            $table->unsignedBigInteger('size');
+            $table->json('manipulations');
+            $table->json('custom_properties');
+            $table->json('generated_conversions');
+            $table->json('responsive_images');
+            $table->unsignedInteger('order_column')->nullable()->index();
 
-            $table->index('file_type');
-            // Note: morphs() already creates index on mediable_type and mediable_id
+            $table->nullableTimestamps();
         });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('media');
     }
 };
