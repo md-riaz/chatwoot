@@ -11,7 +11,10 @@ use Spatie\LaravelData\Attributes\Validation\StringType;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
 
-class AccountData extends Data
+/**
+ * Account data for list views (without account_users)
+ */
+class AccountListData extends Data
 {
     public function __construct(
         public int|Optional $id,
@@ -41,8 +44,6 @@ class AccountData extends Data
         public ?array $selected_feature_flags = null,
         #[Nullable]
         public ?array $all_features = null,
-        #[Nullable]
-        public ?array $account_users = null,
         #[In(['active', 'suspended'])]
         public string $status = 'active',
         public int|Optional $users_count = 0,
@@ -52,19 +53,4 @@ class AccountData extends Data
         public string|Optional $created_at = '',
         public string|Optional $updated_at = '',
     ) {}
-
-    /**
-     * Override toArray to exclude null account_users from list responses
-     */
-    public function toArray(): array
-    {
-        $array = parent::toArray();
-        
-        // Remove account_users if it's null (list view)
-        if ($this->account_users === null) {
-            unset($array['account_users']);
-        }
-        
-        return $array;
-    }
 }

@@ -26,6 +26,9 @@ class UserResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             
+            // User type (SuperAdmin or User) - critical for authorization
+            'type' => $this->type ?? 'User',
+            
             // Counts (when loaded)
             'accounts_count' => $this->whenCounted('accounts'),
             

@@ -21,6 +21,8 @@ class UserResource extends JsonResource
             'email_verified_at' => $this->email_verified_at?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
+            // User type (SuperAdmin or User) - critical for frontend authorization
+            'type' => $this->type ?? 'User',
             // Add roles and accounts information
             'roles' => $this->roles->pluck('name'),
             'accounts' => $this->accountUsers->map(fn($accountUser) => [

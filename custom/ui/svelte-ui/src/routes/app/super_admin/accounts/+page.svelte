@@ -8,18 +8,19 @@
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	
-	let loading = true;
-	let accounts: any[] = [];
-	let searchQuery = '';
+	// Svelte 5 runes - reactive state
+	let loading = $state(true);
+	let accounts = $state<any[]>([]);
+	let searchQuery = $state('');
 	let statusFilter = $state({ value: '' });
-	let recentFilter = false;
-	let markedForDeletionFilter = false;
-	let pagination = {
+	let recentFilter = $state(false);
+	let markedForDeletionFilter = $state(false);
+	let pagination = $state({
 		page: 1,
 		perPage: 20,
 		total: 0,
 		lastPage: 1
-	};
+	});
 	
 	const columns = [
 		{ key: 'id', label: 'ID', sortable: true, width: '80px' },
@@ -98,8 +99,8 @@
 				params.search = searchQuery;
 			}
 			
-			if (statusFilter) {
-				params.status = statusFilter;
+			if (statusFilter.value) {
+				params.status = statusFilter.value;
 			}
 			
 			if (recentFilter) {
@@ -114,7 +115,7 @@
 			
 			accounts = response.data || [];
 			pagination.total = response.meta?.total || 0;
-			pagination.lastPage = response.meta?.last_page || 1;
+			
 		} catch (error: any) {
 			toast.error(error.message || 'Failed to load accounts');
 		} finally {
@@ -141,19 +142,6 @@
 		loadAccounts();
 	}
 	
-	let initialized = false;
-	$effect(() => {
-		// Watch for status filter changes (skip initial load)
-		if (initialized) {
-			statusFilter.value;
-			handleStatusFilterChange();
-		}
-	});
-	
-	onMount(() => {
-		initialized = true;
-	});
-	
 	function handleRecentFilterChange() {
 		pagination.page = 1;
 		loadAccounts();
@@ -164,7 +152,19 @@
 		loadAccounts();
 	}
 	
+	// Svelte 5 runes - effects for reactive behavior
+	let initialized = $state(false);
+	
+	// Effect to watch status filter changes
+	$effect(() => {
+		if (initialized && statusFilter.value !== undefined) {
+			handleStatusFilterChange();
+		}
+	});
+	
+	// Initialize on mount
 	onMount(() => {
+		initialized = true;
 		loadAccounts();
 	});
 </script>
@@ -202,7 +202,7 @@
 						placeholder="Search accounts by name, domain, or ID..."
 						bind:value={searchQuery}
 						class="pl-10 px-3 py-2 border rounded-md bg-background text-foreground w-full"
-						on:keydown={(e: KeyboardEvent) => e.key === 'Enter' && handleSearch()}
+						onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleSearch()}
 					/>
 				</div>
 			</div>
@@ -220,7 +220,7 @@
 				<input 
 					type="checkbox" 
 					bind:checked={recentFilter}
-					on:change={handleRecentFilterChange}
+					onchange={handleRecentFilterChange}
 					class="rounded"
 				/>
 				<span class="text-sm">Recent (30 days)</span>
@@ -229,7 +229,7 @@
 				<input 
 					type="checkbox" 
 					bind:checked={markedForDeletionFilter}
-					on:change={handleMarkedForDeletionFilterChange}
+					onchange={handleMarkedForDeletionFilterChange}
 					class="rounded"
 				/>
 				<span class="text-sm">Marked for deletion</span>
@@ -252,5 +252,6 @@
 			onRowClick={handleRowClick}
 			onPageChange={handlePageChange}
 		/>
+		
 	</section>
 </div>

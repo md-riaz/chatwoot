@@ -11,6 +11,10 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * 
+     * Note: This seeder creates account-level roles (agent, admin) only.
+     * Platform-level access (SuperAdmin) is handled via user.type field for Rails parity.
+     * SuperAdmin users bypass all permission checks through middleware.
      */
     public function run(): void
     {
@@ -140,8 +144,5 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage help center',
         ]);
 
-        // Create Super Admin role with all permissions
-        $superAdmin = Role::firstOrCreate(['name' => 'super_admin']);
-        $superAdmin->syncPermissions(Permission::all());
     }
 }

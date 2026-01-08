@@ -3,12 +3,13 @@
 namespace App\Actions\SuperAdmin\Traits;
 
 use App\Data\SuperAdmin\AccountData;
+use App\Data\SuperAdmin\AccountListData;
 use App\Models\Account;
 
 trait FormatsAccountData
 {
     /**
-     * Format an Account model to AccountData DTO
+     * Format an Account model to AccountData DTO (for detail view with account_users)
      */
     protected function formatAccount(Account $account): AccountData
     {
@@ -28,6 +29,36 @@ trait FormatsAccountData
             selected_feature_flags: $this->getSelectedFeatureFlags($account),
             all_features: $this->getAllFeatures($account),
             account_users: $this->formatAccountUsers($account),
+            status: $this->formatStatus($account->status),
+            users_count: $account->users_count ?? 0,
+            inboxes_count: $account->inboxes_count ?? 0,
+            conversations_count: $account->conversations_count ?? 0,
+            contacts_count: $account->contacts_count ?? 0,
+            created_at: $account->created_at?->toIso8601String() ?? '',
+            updated_at: $account->updated_at?->toIso8601String() ?? '',
+        );
+    }
+
+    /**
+     * Format an Account model to AccountListData DTO (for list view without account_users)
+     */
+    protected function formatAccountForList(Account $account): AccountListData
+    {
+        return new AccountListData(
+            id: $account->id,
+            name: $account->name,
+            locale: $this->formatLocale($account->locale),
+            domain: $account->domain,
+            support_email: $account->support_email,
+            auto_resolve_duration: $account->auto_resolve_duration,
+            settings: $account->settings,
+            limits: $this->formatLimits($account),
+            custom_attributes: $account->custom_attributes,
+            internal_attributes: $account->internal_attributes ?? [],
+            features: $this->getSelectedFeatureFlags($account),
+            manually_managed_features: $this->getManuallyManagedFeatures($account),
+            selected_feature_flags: $this->getSelectedFeatureFlags($account),
+            all_features: $this->getAllFeatures($account),
             status: $this->formatStatus($account->status),
             users_count: $account->users_count ?? 0,
             inboxes_count: $account->inboxes_count ?? 0,

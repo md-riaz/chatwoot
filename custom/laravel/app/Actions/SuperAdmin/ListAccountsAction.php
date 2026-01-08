@@ -34,7 +34,7 @@ class ListAccountsAction
 
         // Convert to raw arrays (like DashboardData.chartData)
         $accounts = collect($paginated->items())->map(
-            fn($account) => $this->formatAccount($account)->toArray()
+            fn($account) => $this->formatAccountForList($account)->toArray()
         )->toArray();
 
         $meta = new AccountsListMetaData(

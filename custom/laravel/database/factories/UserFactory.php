@@ -32,6 +32,7 @@ class UserFactory extends Factory
             'phone_number' => fake()->optional()->phoneNumber(),
             'avatar_url' => fake()->optional()->imageUrl(200, 200, 'people'),
             'availability' => fake()->randomElement([0, 1]),
+            'type' => 'User', // Default user type
             'custom_attributes' => [],
             'remember_token' => Str::random(10),
         ];
@@ -64,6 +65,16 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'availability' => 0,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a SuperAdmin.
+     */
+    public function superAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'SuperAdmin',
         ]);
     }
 }
