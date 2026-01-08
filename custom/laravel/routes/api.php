@@ -776,7 +776,6 @@ Route::middleware('auth:sanctum')->group(function () {
         // Users - Custom routes first to avoid conflicts with apiResource
         Route::delete('users/{user}/avatar', [SuperAdminUsersController::class, 'destroyAvatar']);
         Route::post('users/{user}/avatar', [SuperAdminUsersController::class, 'uploadAvatar']);
-        Route::post('users/{user}/confirm', [SuperAdminUsersController::class, 'confirmEmail']);
         Route::post('users/{user}/lock', [SuperAdminUsersController::class, 'lock']);
         Route::post('users/{user}/unlock', [SuperAdminUsersController::class, 'unlock']);
         

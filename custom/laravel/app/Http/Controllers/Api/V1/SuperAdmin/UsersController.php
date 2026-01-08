@@ -27,6 +27,7 @@ class UsersController extends Controller
             'avatar_url' => $user->getApiAvatarUrl(), // Use Rails-compatible method
             'availability' => $user->availability,
             'confirmed' => !is_null($user->email_verified_at),
+            'confirmed_at' => $user->email_verified_at?->toISOString(), // Rails parity: Field::DateTime
             'locked' => $user->custom_attributes['locked'] ?? false,
             'type' => $user->type ?? 'User', // Rails STI type field
             'role' => $accountRole, // Account-level role (agent/administrator)
@@ -153,7 +154,7 @@ class UsersController extends Controller
             unset($validated['password']);
         }
 
-        // Handle confirmation
+        // Handle confirmation (Rails parity: skip_reconfirmation!)
         if (isset($validated['confirmed_at'])) {
             $validated['email_verified_at'] = $validated['confirmed_at'];
             unset($validated['confirmed_at']);
@@ -210,20 +211,6 @@ class UsersController extends Controller
         $user->deleteAvatar();
 
         return response()->json(['message' => 'Avatar deleted successfully.']);
-    }
-
-    /**
-     * Confirm user email (equivalent to Rails skip_reconfirmation!).
-     */
-    public function confirmEmail(User $user): JsonResponse
-    {
-        $user->update(['email_verified_at' => now()]);
-        $user->load(['roles', 'accountUsers.account']);
-
-        return response()->json([
-            'data' => $this->transformUser($user),
-            'message' => 'User email confirmed successfully.'
-        ]);
     }
 
     /**

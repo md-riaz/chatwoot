@@ -62,6 +62,7 @@ export interface User {
   role?: string;
   roles?: string[];
   confirmed?: boolean;
+  confirmedAt?: string; // Rails parity: Field::DateTime
   locked?: boolean;
   customAttributes?: Record<string, any>;
   createdAt: string;
@@ -259,11 +260,6 @@ export const superAdminApi = {
     return api.delete(`api/v1/super_admin/users/${id}/avatar`).json();
   },
 
-  confirmUserEmail: async (id: number): Promise<User> => {
-    const response = await api.post(`api/v1/super_admin/users/${id}/confirm`).json<{ data: User }>();
-    return response.data;
-  },
-
   lockUser: async (id: number): Promise<User> => {
     const response = await api.post(`api/v1/super_admin/users/${id}/lock`).json<{ data: User }>();
     return response.data;
@@ -415,7 +411,6 @@ export const superAdminAPI = {
     delete: (id: string) => superAdminApi.deleteUser(parseInt(id)),
     uploadAvatar: (id: string, file: File) => superAdminApi.uploadUserAvatar(parseInt(id), file),
     deleteAvatar: (id: string) => superAdminApi.deleteUserAvatar(parseInt(id)),
-    confirmEmail: (id: string) => superAdminApi.confirmUserEmail(parseInt(id)),
     lock: (id: string) => superAdminApi.lockUser(parseInt(id)),
     unlock: (id: string) => superAdminApi.unlockUser(parseInt(id))
   },

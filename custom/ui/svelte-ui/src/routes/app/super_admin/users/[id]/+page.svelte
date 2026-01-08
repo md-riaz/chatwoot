@@ -7,7 +7,7 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Select from '$lib/components/ui/select/select-native.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
-	import { ChevronLeft, Lock, Mail, Save, Trash2, Unlock, Upload, X } from 'lucide-svelte';
+	import { ChevronLeft, Lock, Save, Trash2, Unlock, Upload, X } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
@@ -23,7 +23,8 @@
 		display_name: '',
 		email: '',
 		role: 'agent',
-		password: ''
+		password: '',
+		confirmed_at: ''
 	};
 
 	async function loadUser() {
@@ -37,7 +38,8 @@
 				display_name: user.displayName || '', // Use camelCase from API
 				email: user.email || '',
 				role: user.role || 'agent',
-				password: ''
+				password: '',
+				confirmed_at: user.confirmedAt ? new Date(user.confirmedAt).toISOString().slice(0, 16) : '' // Convert to datetime-local format
 			};
 			if (user.avatarUrl) {
 				avatarPreview = user.avatarUrl;
@@ -55,8 +57,25 @@
 		
 		saving = true;
 		try {
+			// Prepare update data with Rails parity format
+			const updateData = {
+				name: formData.name,
+				display_name: formData.display_name,
+				email: formData.email,
+				password: formData.password || undefined,
+				// Rails parity: Use confirmed_at field as datetime (Field::DateTime)
+				confirmed_at: formData.confirmed_at || null
+			};
+
+			// Remove undefined values
+			Object.keys(updateData).forEach(key => {
+				if (updateData[key] === undefined) {
+					delete updateData[key];
+				}
+			});
+
 			// Update user info
-			await superAdminApi.updateUser(parseInt(userId), formData);
+			await superAdminApi.updateUser(parseInt(userId), updateData);
 
 			// Upload avatar if selected
 			if (avatarFile) {
@@ -82,19 +101,6 @@
 			goto('/app/super_admin/users');
 		} catch (error: any) {
 			toast.error(error.message || 'Failed to delete user');
-			console.error(error);
-		}
-	}
-
-	async function handleConfirmEmail() {
-		if (!userId) return;
-		
-		try {
-			await superAdminApi.confirmUserEmail(parseInt(userId));
-			toast.success('Email confirmed successfully');
-			await loadUser();
-		} catch (error: any) {
-			toast.error(error.message || 'Failed to confirm email');
 			console.error(error);
 		}
 	}
@@ -173,12 +179,6 @@
 		</div>
 		<div class="flex items-center gap-3">
 			{#if !loading && user}
-				{#if !isUserConfirmed()}
-					<Button variant="outline" onclick={handleConfirmEmail}>
-						<Mail class="h-4 w-4 mr-2" />
-						Confirm Email
-					</Button>
-				{/if}
 				<Button
 					variant="outline"
 					onclick={handleToggleLock}
@@ -298,6 +298,39 @@
 				<div class="space-y-2">
 					<Label for="password">Password (leave blank to keep unchanged)</Label>
 					<Input id="password" type="password" bind:value={formData.password} />
+				</div>
+
+				<!-- Email Confirmation -->
+				<div class="space-y-2">
+					<Label for="confirmed_at">Email Confirmed At</Label>
+					<div class="flex gap-2">
+						<Input 
+							id="confirmed_at" 
+							type="datetime-local" 
+							bind:value={formData.confirmed_at}
+							placeholder="Leave empty if not confirmed"
+							class="flex-1"
+						/>
+						<Button 
+							type="button" 
+							variant="outline" 
+							size="sm"
+							onclick={() => formData.confirmed_at = new Date().toISOString().slice(0, 16)}
+						>
+							Now
+						</Button>
+						<Button 
+							type="button" 
+							variant="outline" 
+							size="sm"
+							onclick={() => formData.confirmed_at = ''}
+						>
+							Clear
+						</Button>
+					</div>
+					<p class="text-xs text-muted-foreground">
+						Set the date and time when the user's email was confirmed (Rails Field::DateTime parity)
+					</p>
 				</div>
 			</div>
 		{/if}

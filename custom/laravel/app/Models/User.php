@@ -36,6 +36,7 @@ class User extends Authenticatable
         'provider',
         'uid',
         'sso_auth_token',
+        'email_verified_at', // Rails parity: confirmed_at field
     ];
 
     /**

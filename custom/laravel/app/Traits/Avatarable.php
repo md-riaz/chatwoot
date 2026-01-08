@@ -65,6 +65,10 @@ trait Avatarable
     public function getAvatarUrlAttribute($value): ?string
     {
         if ($value) {
+            // Convert relative URLs to absolute URLs for cross-origin access
+            if (str_starts_with($value, '/storage/')) {
+                return url($value);
+            }
             return $value;
         }
         
@@ -107,6 +111,7 @@ trait Avatarable
      */
     public function getApiAvatarUrl(): string
     {
+        // Use the accessor which handles absolute URL conversion and Gravatar fallback
         return $this->avatar_url ?? '';
     }
 }
