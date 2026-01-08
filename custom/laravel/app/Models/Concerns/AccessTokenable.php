@@ -9,32 +9,46 @@ trait AccessTokenable
 {
     protected static function bootAccessTokenable()
     {
+        // Use 'created' event to match Rails after_create behavior
         static::created(function ($model) {
             $model->createAccessToken();
         });
     }
 
-    public function accessToken(): MorphOne
+    /**
+     * Get the access token for this model (Laravel relationship)
+     */
+    public function accessTokenModel(): MorphOne
     {
         return $this->morphOne(AccessToken::class, 'owner');
     }
 
+    /**
+     * Create a new access token
+     */
     public function createAccessToken(): AccessToken
     {
-        return $this->accessToken()->create();
+        return $this->accessTokenModel()->create();
     }
 
+    /**
+     * Reset/regenerate the access token
+     */
     public function resetAccessToken(): string
     {
-        if ($this->accessToken) {
-            return $this->accessToken->regenerate();
+        $accessToken = $this->accessTokenModel;
+        if ($accessToken) {
+            return $accessToken->regenerate();
         }
         
         return $this->createAccessToken()->token;
     }
 
+    /**
+     * Get access token string (Rails compatibility)
+     */
     public function getAccessTokenAttribute(): ?string
     {
-        return $this->accessToken?->token;
+        return $this->accessTokenModel?->token;
     }
 }

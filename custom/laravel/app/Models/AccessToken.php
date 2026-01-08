@@ -20,6 +20,7 @@ class AccessToken extends Model
         
         static::creating(function ($model) {
             if (empty($model->token)) {
+                // Generate a secure random token similar to Rails has_secure_token
                 $model->token = Str::random(64);
             }
         });
