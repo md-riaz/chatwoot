@@ -8,16 +8,17 @@
 	import { ArrowLeft, Plus } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	
-	let submitting = false;
+	let submitting = $state(false);
 	
-	let formData = {
+	let formData = $state({
 		name: '',
 		locale: 'en'
-	};
+	});
 	
-	let errors: Record<string, string> = {};
+	let errors = $state<Record<string, string>>({});
 	
-	async function handleSubmit() {
+	async function handleSubmit(e: Event) {
+		e.preventDefault();
 		errors = {};
 		
 		if (!formData.name) {
@@ -48,7 +49,7 @@
 
 <div class="w-full h-full">
 	<!-- Header -->
-	<header class="px-8 py-6 border-b bg-card flex items-center" role="banner">
+	<header class="px-8 py-6 border-b bg-card flex items-center">
 		<Button variant="ghost" size="sm" onclick={() => goto('/app/super_admin/accounts')}>
 			<ArrowLeft class="h-4 w-4" />
 		</Button>
@@ -70,7 +71,7 @@
 				   <CardDescription>Enter the details for the new account</CardDescription>
 			   </CardHeader>
 			   <CardContent>
-				<form on:submit|preventDefault={handleSubmit} class="space-y-4">
+				<form onsubmit={handleSubmit} class="space-y-4">
 					<div class="space-y-2">
 						<Label for="name">Account Name *</Label>
 						<Input

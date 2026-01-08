@@ -5,6 +5,19 @@
 
 import api from './client';
 
+// Generic Laravel pagination interface
+export interface LaravelPaginationResponse<T> {
+  data: T[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number | null;
+  to: number | null;
+  path: string;
+  links: any;
+}
+
 // SuperAdmin-specific types
 export interface Account {
   id: number;
@@ -30,24 +43,9 @@ export interface Account {
   updatedAt: string;
 }
 
-export interface AccountsListResponse {
-  data: Account[];
-  meta: {
-    total: number;
-    per_page: number;
-    current_page: number;
-    last_page: number;
-  };
-}
+export interface AccountsListResponse extends LaravelPaginationResponse<Account> {}
 
-export interface UsersListResponse {
-  data: User[];
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number | null;
-  to: number | null;
+export interface UsersListResponse extends LaravelPaginationResponse<User> {}
 }
 
 export interface User {
@@ -296,7 +294,7 @@ export const superAdminApi = {
   },
 
   // Agent Bots
-  getAgentBots: async (params?: PaginationParams): Promise<{ data: AgentBot[] }> => {
+  getAgentBots: async (params?: PaginationParams): Promise<LaravelPaginationResponse<AgentBot>> => {
     return api.get('api/v1/super_admin/agent_bots', { searchParams: params as Record<string, string> }).json();
   },
 
@@ -317,7 +315,7 @@ export const superAdminApi = {
   },
 
   // Platform Apps
-  getPlatformApps: async (params?: PaginationParams): Promise<{ data: PlatformApp[] }> => {
+  getPlatformApps: async (params?: PaginationParams): Promise<LaravelPaginationResponse<PlatformApp>> => {
     return api.get('api/v1/super_admin/platform_apps', { searchParams: params as Record<string, string> }).json();
   },
 
@@ -338,7 +336,7 @@ export const superAdminApi = {
   },
 
   // Access Tokens
-  getAccessTokens: async (params?: PaginationParams): Promise<{ data: AccessToken[] }> => {
+  getAccessTokens: async (params?: PaginationParams): Promise<LaravelPaginationResponse<AccessToken>> => {
     return api.get('api/v1/super_admin/access_tokens', { searchParams: params as Record<string, string> }).json();
   },
 
@@ -351,7 +349,7 @@ export const superAdminApi = {
   },
 
   // Installation Configs
-  getInstallationConfigs: async (params?: PaginationParams): Promise<{ data: InstallationConfig[] }> => {
+  getInstallationConfigs: async (params?: PaginationParams): Promise<LaravelPaginationResponse<InstallationConfig>> => {
     return api.get('api/v1/super_admin/installation_configs', { searchParams: params as Record<string, string> }).json();
   },
 
@@ -364,7 +362,7 @@ export const superAdminApi = {
   },
 
   // Account Users
-  getAccountUsers: async (params?: PaginationParams): Promise<{ data: AccountUser[] }> => {
+  getAccountUsers: async (params?: PaginationParams): Promise<LaravelPaginationResponse<AccountUser>> => {
     return api.get('api/v1/super_admin/account_users', { searchParams: params as Record<string, string> }).json();
   },
 
@@ -381,7 +379,7 @@ export const superAdminApi = {
   },
 
   // Audit Logs
-  getAuditLogs: async (params?: PaginationParams): Promise<{ data: AuditLog[] }> => {
+  getAuditLogs: async (params?: PaginationParams): Promise<LaravelPaginationResponse<AuditLog>> => {
     return api.get('api/v1/super_admin/audit_logs', { searchParams: params as Record<string, string> }).json();
   },
 
@@ -424,6 +422,34 @@ export const superAdminAPI = {
     update: (data: Record<string, unknown>) => superAdminApi.updateSettings(data),
     create: (data: Partial<Setting>) => superAdminApi.createSetting(data),
     delete: (name: string) => superAdminApi.deleteSetting(name)
+  },
+  agentBots: {
+    list: (params?: PaginationParams) => superAdminApi.getAgentBots(params),
+    get: (id: string) => superAdminApi.getAgentBot(parseInt(id)),
+    create: (data: Partial<AgentBot>) => superAdminApi.createAgentBot(data),
+    update: (id: string, data: Partial<AgentBot>) => superAdminApi.updateAgentBot(parseInt(id), data),
+    delete: (id: string) => superAdminApi.deleteAgentBot(parseInt(id))
+  },
+  platformApps: {
+    list: (params?: PaginationParams) => superAdminApi.getPlatformApps(params),
+    get: (id: string) => superAdminApi.getPlatformApp(parseInt(id)),
+    create: (data: Partial<PlatformApp>) => superAdminApi.createPlatformApp(data),
+    update: (id: string, data: Partial<PlatformApp>) => superAdminApi.updatePlatformApp(parseInt(id), data),
+    delete: (id: string) => superAdminApi.deletePlatformApp(parseInt(id))
+  },
+  accessTokens: {
+    list: (params?: PaginationParams) => superAdminApi.getAccessTokens(params),
+    create: (data: { name: string }) => superAdminApi.createAccessToken(data),
+    delete: (id: string) => superAdminApi.deleteAccessToken(parseInt(id))
+  },
+  accountUsers: {
+    list: (params?: PaginationParams) => superAdminApi.getAccountUsers(params),
+    create: (data: { userId: number; accountId: number; role: string }) => superAdminApi.createAccountUser(data),
+    update: (id: string, data: { role?: string }) => superAdminApi.updateAccountUser(parseInt(id), data),
+    delete: (id: string) => superAdminApi.deleteAccountUser(parseInt(id))
+  },
+  auditLogs: {
+    list: (params?: PaginationParams) => superAdminApi.getAuditLogs(params)
   }
 };
 
@@ -435,6 +461,9 @@ export const authApi = {
   }
 };
 
-// Export as 'api' for convenience
-export { superAdminApi as api };
+// Export as 'api' for convenience (use the simplified interface)
+export { superAdminAPI as api };
+
+// Also export the full API for advanced usage
+export { superAdminApi };
 

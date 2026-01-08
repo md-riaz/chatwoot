@@ -114,7 +114,7 @@
 			const response = await superAdminApi.getAccounts(params);
 			
 			accounts = response.data || [];
-			pagination.total = response.meta?.total || 0;
+			pagination.total = response.total || 0;
 			
 		} catch (error: any) {
 			toast.error(error.message || 'Failed to load accounts');

@@ -41,7 +41,7 @@ per_page: perPage,
 search: searchQuery
 });
 platformApps = response.data || [];
-totalPages = response.meta?.total_pages || 1;
+totalPages = response.last_page || 1;
 } catch (error: any) {
 toast.error(error.message || 'Failed to load platform apps');
 platformApps = [];

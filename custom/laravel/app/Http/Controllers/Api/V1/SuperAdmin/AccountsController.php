@@ -2,11 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1\SuperAdmin;
 
-use App\Actions\SuperAdmin\CreateAccountAction;
-use App\Actions\SuperAdmin\GetAccountAction;
-use App\Actions\SuperAdmin\ListAccountsAction;
-use App\Actions\SuperAdmin\UpdateAccountAction;
-use App\Data\SuperAdmin\AccountData;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\RendersStandardizedErrors;
 use App\Models\Account;
@@ -19,12 +14,34 @@ class AccountsController extends Controller
 {
     use RendersStandardizedErrors;
 
-    public function __construct(
-        private ListAccountsAction $listAccounts,
-        private GetAccountAction $getAccount,
-        private CreateAccountAction $createAccount,
-        private UpdateAccountAction $updateAccount
-    ) {}
+    /**
+     * Transform account data to match Rails format
+     */
+    private function transformAccount($account): array
+    {
+        return [
+            'id' => $account->id,
+            'name' => $account->name,
+            'locale' => $account->locale_code ?? 'en',
+            'domain' => $account->domain,
+            'support_email' => $account->support_email,
+            'auto_resolve_duration' => $account->auto_resolve_duration,
+            'status' => $account->status ?? 'active',
+            'users_count' => $account->users_count ?? 0,
+            'inboxes_count' => $account->inboxes_count ?? 0,
+            'conversations_count' => $account->conversations_count ?? 0,
+            'contacts_count' => $account->contacts_count ?? 0,
+            'selected_feature_flags' => $account->selected_feature_flags ?? [],
+            'all_features' => $account->all_features ?? [],
+            'features' => $account->features ?? [],
+            'settings' => $account->settings ?? [],
+            'limits' => $account->limits ?? [],
+            'custom_attributes' => $account->custom_attributes ?? [],
+            'internal_attributes' => $account->internal_attributes ?? [],
+            'created_at' => $account->created_at?->toISOString(),
+            'updated_at' => $account->updated_at?->toISOString(),
+        ];
+    }
 
     /**
      * List all accounts (paginated).
@@ -32,19 +49,45 @@ class AccountsController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $result = $this->listAccounts->handle(
-                perPage: (int) $request->input('per_page', 20),
-                page: (int) $request->input('page', 1),
-                search: $request->input('search'),
-                status: $request->input('status'),
-                recent: $request->boolean('recent', false),
-                markedForDeletion: $request->boolean('marked_for_deletion', false)
-            );
+            $query = Account::query();
 
-            return response()->json([
-                'data' => $result->data,
-                'meta' => $result->meta
-            ]);
+            // Search filter
+            if ($request->has('search')) {
+                $search = $request->input('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('domain', 'like', "%{$search}%")
+                        ->orWhere('support_email', 'like', "%{$search}%");
+                });
+            }
+
+            // Status filter
+            if ($request->has('status')) {
+                $query->where('status', $request->input('status'));
+            }
+
+            // Recent filter (last 30 days)
+            if ($request->boolean('recent', false)) {
+                $query->where('created_at', '>=', now()->subDays(30));
+            }
+
+            // Marked for deletion filter
+            if ($request->boolean('marked_for_deletion', false)) {
+                $query->whereNotNull('deleted_at');
+            }
+
+            // Add counts
+            $query->withCount(['users', 'inboxes', 'conversations', 'contacts']);
+
+            $accounts = $query->orderBy('created_at', 'desc')
+                ->paginate($request->input('per_page', 20));
+
+            // Transform accounts to match Rails format while keeping Laravel pagination
+            $accounts->getCollection()->transform(function ($account) {
+                return $this->transformAccount($account);
+            });
+
+            return response()->json($accounts);
         } catch (\Throwable $e) {
             return $this->handleException($e);
         }
@@ -56,9 +99,9 @@ class AccountsController extends Controller
     public function show(Account $account): JsonResponse
     {
         try {
-            $result = $this->getAccount->handle($account->id);
-
-            return response()->json(['data' => $result->toArray()]);
+            $account->loadCount(['users', 'inboxes', 'conversations', 'contacts']);
+            
+            return response()->json(['data' => $this->transformAccount($account)]);
         } catch (\Throwable $e) {
             return $this->handleException($e);
         }
@@ -99,10 +142,10 @@ class AccountsController extends Controller
                 });
             }
 
-            $data = AccountData::from($validated);
-            $result = $this->createAccount->handle($data);
+            $account = Account::create($validated);
+            $account->loadCount(['users', 'inboxes', 'conversations', 'contacts']);
 
-            return response()->json(['data' => $result->toArray()], 201);
+            return response()->json(['data' => $this->transformAccount($account)], 201);
         } catch (ValidationException $e) {
             return $this->renderValidationErrors($e);
         } catch (\Throwable $e) {
@@ -145,15 +188,10 @@ class AccountsController extends Controller
                 });
             }
 
-            $data = AccountData::from([
-                ...$validated,
-                'id' => $account->id,
-                'name' => $validated['name'] ?? $account->name, // Ensure name is always present
-            ]);
+            $account->update($validated);
+            $account->loadCount(['users', 'inboxes', 'conversations', 'contacts']);
 
-            $result = $this->updateAccount->handle($account->id, $data);
-
-            return response()->json(['data' => $result->toArray()]);
+            return response()->json(['data' => $this->transformAccount($account)]);
         } catch (ValidationException $e) {
             return $this->renderValidationErrors($e);
         } catch (\Throwable $e) {

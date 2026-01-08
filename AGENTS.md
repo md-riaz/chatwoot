@@ -345,7 +345,7 @@ npm run dev # http://localhost:5173
 - Use Laravel migrations to match Rails schema
 - Maintain data integrity during transition
 
-## Laravel-Rails API Parity Guidelines
+### 6. Laravel-Rails API Parity Guidelines
 
 ### ✅ COMPLETED: Superadmin Onboarding Feature Parity
 
@@ -424,32 +424,47 @@ php artisan queue:work
 
 **✅ Rails Parity:** Matches `Internal::SeedAccountJob` and `Seeders::AccountSeeder` functionality exactly
 
+### ✅ COMPLETED: Laravel Standard Pagination Migration
+
+All SuperAdmin API endpoints now use **Laravel's standard pagination format** for consistency and simplicity:
+
+**✅ Updated Controllers:**
+1. **AccountsController** - Migrated from custom Actions to Laravel standard pagination
+2. **UsersController** - Already using Laravel standard pagination ✅
+3. **AgentBotsController** - Already using Laravel standard pagination ✅
+4. **PlatformAppsController** - Already using Laravel standard pagination ✅
+5. **AccessTokensController** - Already using Laravel standard pagination ✅
+6. **AccountUsersController** - Already using Laravel standard pagination ✅
+7. **AuditController** - Already using Laravel standard pagination ✅
+
+**✅ Updated Frontend:**
+- All SuperAdmin Svelte pages now use `response.last_page` and `response.total`
+- Updated TypeScript interfaces with generic `LaravelPaginationResponse<T>`
+- Consistent pagination handling across all SuperAdmin features
+
+**✅ Benefits:**
+- **Simplified Code**: No more custom Actions and Data classes for pagination
+- **Better Performance**: Direct Laravel pagination without transformation overhead
+- **Consistent API**: All endpoints return the same pagination structure
+- **Easier Maintenance**: Standard Laravel patterns throughout
+
 ---
 
 **CRITICAL**: Maintaining functional parity between Rails backend and Laravel API is essential for seamless migration. Follow these patterns to ensure consistency:
 
-### 1. Pagination Format Consistency
+### 1. Laravel Standard Pagination Format (RECOMMENDED)
 
-**Laravel Standard (Maintain This)**:
+**Laravel Standard Pagination (Use This Pattern)**:
 ```php
-// Laravel Controller - Use built-in pagination
+// Laravel Controller - Use built-in pagination (RECOMMENDED)
 $users = User::query()
     ->with(['roles', 'accountUsers.account'])
     ->paginate($request->input('per_page', 25));
 
-// Transform collection while preserving Laravel pagination structure
-$users->getCollection()->transform(function ($user) {
-    return [
-        'id' => $user->id,
-        'name' => $user->name,
-        // ... other fields
-    ];
-});
-
 return response()->json($users); // Returns Laravel's standard pagination format
 ```
 
-**Laravel Pagination Response Format**:
+**Laravel Standard Pagination Response Format**:
 ```json
 {
   "data": [...],
@@ -464,7 +479,7 @@ return response()->json($users); // Returns Laravel's standard pagination format
 }
 ```
 
-**Frontend Handling**:
+**Frontend Handling (Standard Laravel Pagination)**:
 ```typescript
 // TypeScript interface for Laravel pagination
 interface UsersListResponse {
@@ -484,7 +499,80 @@ totalPages = response.last_page; // Laravel pagination
 totalCount = response.total;     // Total records
 ```
 
-### 2. Data Transformation for Rails Parity
+### 2. Custom Meta Format (Alternative Pattern)
+
+**Custom Meta Format (Used by some SuperAdmin endpoints)**:
+```php
+// Laravel Controller - Custom format with Actions
+$result = $this->listAccounts->handle(...);
+
+return response()->json([
+    'data' => $result->data,
+    'meta' => $result->meta  // Custom meta object
+]);
+```
+
+**Custom Meta Response Format**:
+```json
+{
+  "data": [...],
+  "meta": {
+    "total": 100,
+    "per_page": 25,
+    "current_page": 1,
+    "last_page": 5
+  }
+}
+```
+
+**Frontend Handling (Custom Meta Format)**:
+```typescript
+// Component usage for custom meta format
+const response = await api.getAccounts(params);
+accounts = response.data;
+totalPages = response.meta.last_page;
+totalCount = response.meta.total;
+```
+
+### 3. Pagination Format Consistency Rules
+
+**CRITICAL RULES for Pagination Consistency**:
+
+1. **Prefer Laravel Standard Pagination** - Use Laravel's built-in `paginate()` method for new endpoints:
+   ```php
+   // ✅ GOOD: Use Laravel standard pagination
+   $bots = AgentBot::query()->paginate($request->input('per_page', 25));
+   return response()->json($bots);
+   ```
+
+2. **Frontend should handle both formats** - Update frontend to use correct field names:
+   ```typescript
+   // ✅ GOOD: Use Laravel standard fields
+   totalPages = response.last_page || 1;
+   totalCount = response.total || 0;
+   
+   // ❌ BAD: Don't use non-existent fields
+   totalPages = response.meta?.total_pages || 1; // total_pages doesn't exist
+   ```
+
+3. **Consistent field naming across components**:
+   ```svelte
+   <!-- ✅ GOOD: Consistent with Laravel pagination -->
+   totalPages = response.last_page || 1;
+   
+   <!-- ❌ BAD: Inconsistent field names -->
+   totalPages = response.meta?.total_pages || 1;
+   ```
+
+4. **Update existing inconsistencies**:
+   ```typescript
+   // Fix any existing code that uses incorrect field names
+   // Change: response.meta?.total_pages
+   // To: response.last_page (for standard pagination)
+   // Or: response.meta?.last_page (for custom meta format)
+   ```
+
+### 4. Data Transformation for Rails Parity
 
 **User Data Structure (Rails Compatible)**:
 ```php
@@ -525,7 +613,7 @@ $users->getCollection()->transform(function ($user) {
 });
 ```
 
-### 3. Status Field Mapping
+### 5. Status Field Mapping
 
 **Rails → Laravel Field Mapping**:
 ```php
@@ -543,7 +631,7 @@ $users->getCollection()->transform(function ($user) {
 'availability' => $user->availability  // Rails: availability, Laravel: availability enum
 ```
 
-### 4. Relationship Data Structure
+### 6. Relationship Data Structure
 
 **Account-User Relationships**:
 ```php
@@ -559,7 +647,7 @@ $users->getCollection()->transform(function ($user) {
 })
 ```
 
-### 5. API Response Consistency Rules
+### 7. API Response Consistency Rules
 
 **CRITICAL RULES for API Parity**:
 
@@ -601,7 +689,7 @@ $users->getCollection()->transform(function ($user) {
    // Not: Promise<{ data: User[] }>
    ```
 
-### 6. Testing Parity
+### 8. Testing Parity
 
 **Verify API Parity**:
 ```php
@@ -641,7 +729,7 @@ test('handles Laravel pagination format', async () => {
 });
 ```
 
-### 7. Common Parity Pitfalls to Avoid
+### 9. Common Parity Pitfalls to Avoid
 
 1. **Don't override Laravel pagination** - Use `transform()` instead of custom response structures
 2. **Don't ignore Rails field names** - Always check Rails API responses for field naming
@@ -743,6 +831,9 @@ test('renders account information', () => {
 21. **Don't use different timestamp formats** - Always use `toISOString()` for Rails compatibility
 22. **Don't forget to update TypeScript interfaces** - Match Laravel pagination response structure in frontend types
 23. **Don't bypass Laravel conventions for Rails compatibility** - Transform data while preserving Laravel patterns
+24. **Don't use incorrect pagination field names** - Use `last_page` not `total_pages`, `total` not `count`
+25. **Don't mix pagination formats** - Be consistent within the same application area (prefer Laravel standard)
+26. **Don't ignore Laravel's built-in pagination** - Use `paginate()` method instead of custom pagination logic
 
 ## Additional Documentation References
 

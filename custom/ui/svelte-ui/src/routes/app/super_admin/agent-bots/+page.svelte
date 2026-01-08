@@ -37,7 +37,7 @@
 				search: searchQuery
 			});
 			agentBots = response.data || [];
-			totalPages = response.meta?.total_pages || 1;
+			totalPages = response.last_page || 1;
 		} catch (error: any) {
 			toast.error('Failed to load agent bots: ' + (error.message || 'Unknown error'));
 			agentBots = [];

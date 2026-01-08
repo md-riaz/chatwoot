@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { superAdminApi } from '$lib/api/superAdmin';
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '$lib/components/ui/select';
 	import { Building, Search, X } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 
@@ -180,13 +178,13 @@
 					<div class="relative">
 						<div class="relative">
 							<Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-							<Input
+							<input
 								id="account-search"
 								type="text"
 								placeholder="Search accounts by name or domain..."
 								bind:value={searchQuery}
 								oninput={handleSearchInput}
-								class="pl-10 {selectedAccount ? 'pr-10' : ''}"
+								class="pl-10 {selectedAccount ? 'pr-10' : ''} flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 								disabled={submitting}
 							/>
 							{#if selectedAccount}
@@ -257,15 +255,15 @@
 				<!-- Role Selection -->
 				<div class="space-y-2">
 					<Label for="role">Role *</Label>
-					<Select bind:value={selectedRole} disabled={submitting}>
-						<SelectTrigger>
-							<SelectValue placeholder="Select a role" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="agent">Agent</SelectItem>
-							<SelectItem value="administrator">Administrator</SelectItem>
-						</SelectContent>
-					</Select>
+					<select 
+						id="role"
+						bind:value={selectedRole}
+						disabled={submitting}
+						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						<option value="agent">Agent</option>
+						<option value="administrator">Administrator</option>
+					</select>
 					{#if errors.role}
 						<p class="text-sm text-red-600 dark:text-red-400">{errors.role}</p>
 					{/if}
@@ -289,4 +287,3 @@
 		</div>
 	{/if}
 </div>
-</script>

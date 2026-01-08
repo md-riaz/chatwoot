@@ -2,21 +2,23 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { superAdminApi } from '$lib/api/superAdmin';
+	import AccountAssignmentForm from '$lib/components/AccountAssignmentForm.svelte';
+	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Select from '$lib/components/ui/select/select-native.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
-	import { ChevronLeft, Lock, Save, Trash2, Unlock, Upload, X } from 'lucide-svelte';
+	import { Building, ChevronLeft, Lock, Save, Trash2, Unlock, Upload, X } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	let userId: string = $page.params.id || '';
-	let user: any = null;
-	let loading = true;
-	let saving = false;
+	let user = $state<any>(null);
+	let loading = $state(true);
+	let saving = $state(false);
 	let avatarFile: File | null = null;
-	let avatarPreview: string | null = null;
+	let avatarPreview = $state<string | null>(null);
 
 	// Account users data
 	let accountUsers = $state<any[]>([]);
@@ -24,14 +26,14 @@
 	let selectedAccountUser = $state<any>(null);
 	let actionLoading = $state(false);
 
-	let formData = {
+	let formData = $state({
 		name: '',
 		display_name: '',
 		email: '',
 		role: 'agent',
 		password: '',
 		confirmed_at: ''
-	};
+	});
 
 	async function loadUser() {
 		if (!userId) return;
@@ -78,8 +80,8 @@
 
 			// Remove undefined values
 			Object.keys(updateData).forEach(key => {
-				if (updateData[key] === undefined) {
-					delete updateData[key];
+				if ((updateData as any)[key] === undefined) {
+					delete (updateData as any)[key];
 				}
 			});
 
@@ -350,12 +352,12 @@
 				<div class="space-y-2">
 					<Label for="confirmed_at">Email Confirmed At</Label>
 					<div class="flex gap-2">
-						<Input 
+						<input 
 							id="confirmed_at" 
 							type="datetime-local" 
 							bind:value={formData.confirmed_at}
 							placeholder="Leave empty if not confirmed"
-							class="flex-1"
+							class="flex-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 						/>
 						<Button 
 							type="button" 

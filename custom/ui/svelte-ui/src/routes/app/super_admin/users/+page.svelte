@@ -8,14 +8,14 @@
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
-	let searchInput: HTMLInputElement | null = null;
+	let searchInput = $state<HTMLInputElement | null>(null);
 
-	let users: any[] = [];
-	let loading = true;
-	let searchQuery = '';
-	let currentPage = 1;
-	let totalPages = 1;
-	let totalCount = 0;
+	let users = $state<any[]>([]);
+	let loading = $state(true);
+	let searchQuery = $state('');
+	let currentPage = $state(1);
+	let totalPages = $state(1);
+	let totalCount = $state(0);
 
 	async function loadUsers() {
 		loading = true;
