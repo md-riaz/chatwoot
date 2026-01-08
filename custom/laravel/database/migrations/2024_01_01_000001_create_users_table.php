@@ -27,6 +27,8 @@ return new class extends Migration
             
             // Profile fields
             $table->string('display_name')->nullable();
+            $table->string('avatar_url')->nullable();
+            $table->string('phone_number')->nullable();
             $table->string('type')->nullable(); // User type (agent, admin, etc.)
             $table->integer('availability')->default(0); // 0: offline, 1: online, 2: busy
             $table->text('message_signature')->nullable();
