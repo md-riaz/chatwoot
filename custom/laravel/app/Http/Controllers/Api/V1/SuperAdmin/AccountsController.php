@@ -183,11 +183,10 @@ class AccountsController extends Controller
     public function seed(Account $account): JsonResponse
     {
         try {
-            // Dispatch seed job (to be implemented)
-            // SeedAccountJob::dispatch($account);
+            \App\Jobs\SeedAccountJob::dispatch($account);
 
             return response()->json([
-                'message' => 'Account seeding triggered.',
+                'message' => 'Account seeding triggered. This may take a few minutes to complete.',
             ]);
         } catch (\Throwable $e) {
             return $this->handleException($e);

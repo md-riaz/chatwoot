@@ -86,6 +86,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Account Seeding
+    |--------------------------------------------------------------------------
+    |
+    | This option controls whether account seeding with demo data is allowed.
+    | By default, it's disabled in production for security reasons.
+    |
+    */
+
+    'enable_account_seeding' => env('ENABLE_ACCOUNT_SEEDING', env('APP_ENV', 'production') !== 'production'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |

@@ -384,6 +384,46 @@ php artisan test tests/Feature/Onboarding/SuperAdminOnboardingTest.php
 
 **✅ Documentation:** Complete implementation guide in `custom/laravel/ONBOARDING_IMPLEMENTATION.md`
 
+### ✅ COMPLETED: Account Seeding Feature Parity
+
+The Laravel API now has **complete feature parity** with Rails for account demo data seeding:
+
+**✅ Implemented Components:**
+1. **SeedAccountJob** (`app/Jobs/SeedAccountJob.php`) - Asynchronous job for account seeding
+2. **AccountSeederService** (`app/Services/AccountSeederService.php`) - Complete seeding logic matching Rails
+3. **Seed Data YAML** (`storage/app/seed_data.yml`) - Demo data configuration file
+4. **API Endpoint** - `/api/v1/super_admin/accounts/{account}/seed` endpoint implementation
+5. **Configuration** - `ENABLE_ACCOUNT_SEEDING` environment variable control
+
+**✅ Demo Data Created:**
+- ✅ **Teams**: 4 teams (Sales, Management, Administration, Warehouse) with emoji icons
+- ✅ **Custom Roles**: 6 roles with specific permissions (Customer Support Lead, Sales Rep, etc.)
+- ✅ **Users**: 14 demo users with realistic names, emails, and role assignments
+- ✅ **Labels**: 6 colored labels for conversation categorization
+- ✅ **Inboxes**: 9 different channel types (Website, Facebook, Twitter, WhatsApp, SMS, Email, API, Telegram, Line)
+- ✅ **Contacts**: 9 demo contacts with conversation history
+- ✅ **Conversations**: Multiple conversations with realistic message exchanges
+- ✅ **Canned Responses**: 50 auto-generated quick response templates
+
+**✅ Security Features:**
+- ✅ **Production Safety**: Automatically disabled in production environment
+- ✅ **Environment Control**: `ENABLE_ACCOUNT_SEEDING=true` required for seeding
+- ✅ **Data Cleanup**: Removes existing data before seeding to prevent duplicates
+
+**✅ Usage:**
+```bash
+# Enable seeding (add to .env)
+ENABLE_ACCOUNT_SEEDING=true
+
+# API call to seed account
+POST /api/v1/super_admin/accounts/{account_id}/seed
+
+# Process seeding job
+php artisan queue:work
+```
+
+**✅ Rails Parity:** Matches `Internal::SeedAccountJob` and `Seeders::AccountSeeder` functionality exactly
+
 ---
 
 **CRITICAL**: Maintaining functional parity between Rails backend and Laravel API is essential for seamless migration. Follow these patterns to ensure consistency:
@@ -680,16 +720,29 @@ test('renders account information', () => {
 11. **Don't leave AI feature stubs** - Remove AI-related code completely rather than leaving empty implementations
 12. **Don't enable AI feature flags** - Ensure copilot/captain features remain disabled in all environments
 
+### Laravel Configuration Pitfalls
+
+13. **NEVER use `app()` helper in config files** - Config files are loaded before the application container is available
+    ```php
+    // ❌ BAD - Will cause "Target class [env] does not exist" error
+    'enable_feature' => env('ENABLE_FEATURE', !app()->environment('production'))
+    
+    // ✅ GOOD - Use env() directly for environment checks
+    'enable_feature' => env('ENABLE_FEATURE', env('APP_ENV', 'production') !== 'production')
+    ```
+14. **Don't use Laravel helpers in config loading** - Stick to basic PHP and `env()` function only
+15. **Always provide fallback values in config** - Use `env('KEY', 'default_value')` pattern consistently
+
 ### Laravel-Rails API Parity Pitfalls
 
-13. **NEVER override Laravel pagination format** - Use `transform()` on collections, maintain Laravel's standard pagination structure
-14. **Always check Rails backend first** - Examine Rails controllers/serializers before implementing Laravel endpoints
-15. **Don't use Laravel-specific field names in API responses** - Maintain Rails field naming for compatibility (e.g., `confirmed` not `email_verified`)
-16. **Don't ignore Rails relationship structures** - Include all Rails relationship data in Laravel API responses
-17. **Don't skip enum transformations** - Convert Laravel enums to Rails-compatible string values using `getName()` methods
-18. **Don't use different timestamp formats** - Always use `toISOString()` for Rails compatibility
-19. **Don't forget to update TypeScript interfaces** - Match Laravel pagination response structure in frontend types
-20. **Don't bypass Laravel conventions for Rails compatibility** - Transform data while preserving Laravel patterns
+16. **NEVER override Laravel pagination format** - Use `transform()` on collections, maintain Laravel's standard pagination structure
+17. **Always check Rails backend first** - Examine Rails controllers/serializers before implementing Laravel endpoints
+18. **Don't use Laravel-specific field names in API responses** - Maintain Rails field naming for compatibility (e.g., `confirmed` not `email_verified`)
+19. **Don't ignore Rails relationship structures** - Include all Rails relationship data in Laravel API responses
+20. **Don't skip enum transformations** - Convert Laravel enums to Rails-compatible string values using `getName()` methods
+21. **Don't use different timestamp formats** - Always use `toISOString()` for Rails compatibility
+22. **Don't forget to update TypeScript interfaces** - Match Laravel pagination response structure in frontend types
+23. **Don't bypass Laravel conventions for Rails compatibility** - Transform data while preserving Laravel patterns
 
 ## Additional Documentation References
 

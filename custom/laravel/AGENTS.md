@@ -32,6 +32,23 @@ This file describes development, build, and behavioral guidelines for the Larave
 - Remove dead code; avoid duplicate patterns (builders vs Actions). The codebase should consistently use Actions.
 - Avoid heavy defensive programming; implement the happy path then iterate.
 
+## Configuration Pitfalls
+
+**CRITICAL**: Avoid these common Laravel configuration mistakes:
+
+1. **NEVER use `app()` helper in config files**:
+   ```php
+   // ❌ BAD - Will cause "Target class [env] does not exist" error
+   'enable_feature' => env('ENABLE_FEATURE', !app()->environment('production'))
+   
+   // ✅ GOOD - Use env() directly for environment checks
+   'enable_feature' => env('ENABLE_FEATURE', env('APP_ENV', 'production') !== 'production')
+   ```
+
+2. **Don't use Laravel helpers in config loading** - Config files are loaded before the application container is available
+3. **Always provide fallback values** - Use `env('KEY', 'default_value')` pattern consistently
+4. **Test config changes** - Restart `php artisan serve` after config modifications
+
 ## Commit Messages
 
 - Use Conventional Commits: `type(scope): subject`.
