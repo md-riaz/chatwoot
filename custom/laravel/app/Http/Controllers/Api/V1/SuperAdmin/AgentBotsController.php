@@ -10,18 +10,44 @@ use Illuminate\Http\Request;
 class AgentBotsController extends Controller
 {
     /**
-     * List all global agent bots.
+     * List all agent bots (both global and account-specific).
      */
     public function index(Request $request): JsonResponse
     {
-        $query = AgentBot::whereNull('account_id');
+        $query = AgentBot::with('account:id,name');
 
         if ($request->has('search')) {
-            $query->where('name', 'like', '%'.$request->input('search').'%');
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%'.$search.'%')
+                  ->orWhere('description', 'like', '%'.$search.'%')
+                  ->orWhereHas('account', function ($accountQuery) use ($search) {
+                      $accountQuery->where('name', 'like', '%'.$search.'%');
+                  });
+            });
         }
 
         $bots = $query->orderBy('created_at', 'desc')
             ->paginate($request->input('per_page', 25));
+
+        // Transform the data to include account information
+        $bots->getCollection()->transform(function ($bot) {
+            return [
+                'id' => $bot->id,
+                'name' => $bot->name,
+                'description' => $bot->description,
+                'outgoing_url' => $bot->outgoing_url,
+                'bot_type' => $bot->bot_type,
+                'avatar_url' => $bot->avatar_url,
+                'account_id' => $bot->account_id ?? 0, // Return 0 for global bots
+                'account' => $bot->account ? [
+                    'id' => $bot->account->id,
+                    'name' => $bot->account->name,
+                ] : null,
+                'created_at' => $bot->created_at?->toISOString(),
+                'updated_at' => $bot->updated_at?->toISOString(),
+            ];
+        });
 
         return response()->json($bots);
     }
@@ -31,11 +57,29 @@ class AgentBotsController extends Controller
      */
     public function show(AgentBot $agentBot): JsonResponse
     {
-        return response()->json(['data' => $agentBot]);
+        $agentBot->load('account:id,name');
+        
+        return response()->json([
+            'data' => [
+                'id' => $agentBot->id,
+                'name' => $agentBot->name,
+                'description' => $agentBot->description,
+                'outgoing_url' => $agentBot->outgoing_url,
+                'bot_type' => $agentBot->bot_type,
+                'avatar_url' => $agentBot->avatar_url,
+                'account_id' => $agentBot->account_id ?? 0, // Return 0 for global bots
+                'account' => $agentBot->account ? [
+                    'id' => $agentBot->account->id,
+                    'name' => $agentBot->account->name,
+                ] : null,
+                'created_at' => $agentBot->created_at?->toISOString(),
+                'updated_at' => $agentBot->updated_at?->toISOString(),
+            ]
+        ]);
     }
 
     /**
-     * Create a global agent bot.
+     * Create an agent bot.
      */
     public function store(Request $request): JsonResponse
     {
@@ -43,16 +87,46 @@ class AgentBotsController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'outgoing_url' => 'nullable|url',
-            'bot_type' => 'required|string|in:webhook,csml,dialogflow',
+            'account_id' => 'nullable|integer',
+            'bot_type' => 'nullable|string|in:webhook,csml,dialogflow',
             'bot_config' => 'nullable|array',
         ]);
 
-        // Global bot has no account_id
-        $validated['account_id'] = null;
+        // Handle account_id: 0 means global bot (null), >0 means specific account
+        if (isset($validated['account_id'])) {
+            if ($validated['account_id'] === 0) {
+                $validated['account_id'] = null; // Global bot
+            } else {
+                // Validate that the account exists
+                $request->validate([
+                    'account_id' => 'exists:accounts,id',
+                ]);
+            }
+        }
+
+        // Default bot_type to webhook if not provided
+        $validated['bot_type'] = $validated['bot_type'] ?? 'webhook';
 
         $bot = AgentBot::create($validated);
+        $bot->load('account:id,name');
 
-        return response()->json(['data' => $bot], 201);
+        return response()->json([
+            'data' => [
+                'id' => $bot->id,
+                'name' => $bot->name,
+                'description' => $bot->description,
+                'outgoing_url' => $bot->outgoing_url,
+                'bot_type' => $bot->bot_type,
+                'avatar_url' => $bot->avatar_url,
+                'account_id' => $bot->account_id ?? 0, // Return 0 for global bots
+                'account' => $bot->account ? [
+                    'id' => $bot->account->id,
+                    'name' => $bot->account->name,
+                ] : null,
+                'created_at' => $bot->created_at?->toISOString(),
+                'updated_at' => $bot->updated_at?->toISOString(),
+            ]
+        ], 201);
     }
 
     /**
@@ -64,13 +138,43 @@ class AgentBotsController extends Controller
             'name' => 'string|max:255',
             'description' => 'nullable|string',
             'outgoing_url' => 'nullable|url',
+            'account_id' => 'nullable|integer',
             'bot_type' => 'string|in:webhook,csml,dialogflow',
             'bot_config' => 'nullable|array',
         ]);
 
-        $agentBot->update($validated);
+        // Handle account_id: 0 means global bot (null), >0 means specific account
+        if (isset($validated['account_id'])) {
+            if ($validated['account_id'] === 0) {
+                $validated['account_id'] = null; // Global bot
+            } else {
+                // Validate that the account exists
+                $request->validate([
+                    'account_id' => 'exists:accounts,id',
+                ]);
+            }
+        }
 
-        return response()->json(['data' => $agentBot]);
+        $agentBot->update($validated);
+        $agentBot->load('account:id,name');
+
+        return response()->json([
+            'data' => [
+                'id' => $agentBot->id,
+                'name' => $agentBot->name,
+                'description' => $agentBot->description,
+                'outgoing_url' => $agentBot->outgoing_url,
+                'bot_type' => $agentBot->bot_type,
+                'avatar_url' => $agentBot->avatar_url,
+                'account_id' => $agentBot->account_id ?? 0, // Return 0 for global bots
+                'account' => $agentBot->account ? [
+                    'id' => $agentBot->account->id,
+                    'name' => $agentBot->account->name,
+                ] : null,
+                'created_at' => $agentBot->created_at?->toISOString(),
+                'updated_at' => $agentBot->updated_at?->toISOString(),
+            ]
+        ]);
     }
 
     /**
@@ -81,6 +185,47 @@ class AgentBotsController extends Controller
         $agentBot->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Upload agent bot avatar.
+     */
+    public function uploadAvatar(Request $request, AgentBot $agentBot): JsonResponse
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:15360', // 15MB max
+        ]);
+
+        try {
+            if ($request->hasFile('avatar')) {
+                $avatarUrl = $agentBot->uploadAvatar($request->file('avatar'));
+            }
+
+            $agentBot->load('account:id,name');
+
+            return response()->json([
+                'data' => [
+                    'id' => $agentBot->id,
+                    'name' => $agentBot->name,
+                    'description' => $agentBot->description,
+                    'outgoing_url' => $agentBot->outgoing_url,
+                    'bot_type' => $agentBot->bot_type,
+                    'avatar_url' => $agentBot->avatar_url,
+                    'account_id' => $agentBot->account_id ?? 0, // Return 0 for global bots
+                    'account' => $agentBot->account ? [
+                        'id' => $agentBot->account->id,
+                        'name' => $agentBot->account->name,
+                    ] : null,
+                    'created_at' => $agentBot->created_at?->toISOString(),
+                    'updated_at' => $agentBot->updated_at?->toISOString(),
+                ],
+                'message' => 'Avatar uploaded successfully.'
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 422);
+        }
     }
 
     /**

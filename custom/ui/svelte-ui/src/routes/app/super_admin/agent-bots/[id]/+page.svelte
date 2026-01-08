@@ -1,55 +1,117 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import Input from '$lib/components/ui/input/input.svelte';
-	import Label from '$lib/components/ui/label/label.svelte';
-	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
-	import { ChevronLeft, Save, Trash2, Upload, X } from 'lucide-svelte';
 	import { api } from '$lib/api/superAdmin';
+	import { Button } from '$lib/components/ui/button';
+	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+	import * as Select from '$lib/components/ui/select';
+	import { Textarea } from '$lib/components/ui/textarea';
+	import { ArrowLeft, Save, Trash2, Upload, X } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	const botId = $page.params.id;
 
+	let loading = $state(true);
+	let loadingAccounts = $state(true);
+	let submitting = $state(false);
 	let bot: any = null;
-	let loading = true;
-	let saving = false;
-	let avatarFile: File | null = null;
-	let avatarPreview: string | null = null;
+	let avatarFile = $state<File | null>(null);
+	let avatarPreview = $state<string | null>(null);
+	let accounts = $state<any[]>([]);
 
-	let formData = {
+	let formData = $state({
 		name: '',
 		description: '',
-		outgoing_url: ''
-	};
+		outgoing_url: '',
+		account_id: 0 as number // 0 = global bot, >0 = specific account
+	});
+
+	// Convert account_id to string for Select component
+	let selectedAccountId = $state<string>('0');
+
+	let errors = $state<Record<string, string>>({});
+
+	// Update formData when selectedAccountId changes
+	$effect(() => {
+		formData.account_id = Number(selectedAccountId);
+	});
+
+	// Sync selectedAccountId with formData.account_id (for edit page)
+	$effect(() => {
+		if (formData.account_id === null || formData.account_id === 0) {
+			selectedAccountId = '0';
+		} else {
+			selectedAccountId = String(formData.account_id);
+		}
+	});
+
+	// Account selection trigger content
+	const accountTriggerContent = $derived.by(() => {
+		if (selectedAccountId === '0') {
+			return "Global Bot (All Accounts)";
+		}
+		const account = accounts.find(a => a.id === Number(selectedAccountId));
+		return account ? account.name : "Select account";
+	});
+
+	onMount(async () => {
+		if (!botId) {
+			toast.error('Invalid bot ID');
+			goto('/app/super_admin/agent-bots');
+			return;
+		}
+		await Promise.all([loadBot(), loadAccounts()]);
+	});
+
+	async function loadAccounts() {
+		loadingAccounts = true;
+		try {
+			const response = await api.accounts.list({ per_page: 100 });
+			accounts = response.data || [];
+		} catch (error: any) {
+			toast.error('Failed to load accounts');
+			console.error(error);
+		} finally {
+			loadingAccounts = false;
+		}
+	}
 
 	async function loadBot() {
+		if (!botId) return;
+		
 		loading = true;
 		try {
 			bot = await api.agentBots.get(botId);
 			formData = {
 				name: bot.name || '',
 				description: bot.description || '',
-				outgoing_url: bot.outgoing_url || ''
+				outgoing_url: bot.outgoing_url || '',
+				account_id: bot.account_id || 0 // Convert null to 0 for global bot
 			};
-			if (bot.avatar_url) {
-				avatarPreview = bot.avatar_url;
-			}
+			avatarPreview = bot.avatar_url || null;
 		} catch (error: any) {
 			toast.error('Failed to load agent bot: ' + (error.message || 'Unknown error'));
+			goto('/app/super_admin/agent-bots');
 		} finally {
 			loading = false;
 		}
 	}
 
-	async function handleSave() {
+	async function handleSubmit(e: Event) {
+		e.preventDefault();
+		if (!botId) return;
+		
+		errors = {};
+
 		if (!formData.name.trim()) {
-			toast.error('Bot name is required');
+			errors.name = 'Bot name is required';
 			return;
 		}
 
-		saving = true;
+		submitting = true;
 		try {
 			await api.agentBots.update(botId, formData);
 
@@ -58,15 +120,21 @@
 			}
 
 			toast.success('Agent bot updated successfully');
-			goto('/app/super_admin/agent-bots');
+			await loadBot(); // Reload to get updated data
 		} catch (error: any) {
-			toast.error('Failed to update agent bot: ' + (error.message || 'Unknown error'));
+			if (error.response?.errors) {
+				errors = error.response.errors;
+			} else {
+				toast.error(error.message || 'Failed to update agent bot');
+			}
 		} finally {
-			saving = false;
+			submitting = false;
 		}
 	}
 
 	async function handleDelete() {
+		if (!botId) return;
+		
 		if (!confirm('Are you sure you want to delete this agent bot? This action cannot be undone.')) {
 			return;
 		}
@@ -93,6 +161,8 @@
 	}
 
 	async function handleAvatarDelete() {
+		if (!botId) return;
+		
 		if (!confirm('Are you sure you want to delete the avatar?')) {
 			return;
 		}
@@ -107,92 +177,176 @@
 		}
 	}
 
-	onMount(() => {
-		loadBot();
-	});
+	function removeAvatar() {
+		avatarFile = null;
+		avatarPreview = bot?.avatar_url || null;
+	}
 </script>
 
-<div class="flex h-full flex-col">
+<svelte:head>
+	<title>Edit Agent Bot - Super Admin - Chatwoot</title>
+</svelte:head>
+
+<div class="w-full h-full">
 	<!-- Header -->
-	<div class="border-b border-slate-6 bg-white px-8 py-6 dark:bg-slate-1">
-		<div class="flex items-center justify-between">
-			<div class="flex items-center gap-4">
-				<Button variant="ghost" size="sm" on:click={() => goto('/app/super_admin/agent-bots')}>
-					<ChevronLeft class="h-4 w-4" />
-				</Button>
-				<div>
-					<p class="text-sm text-slate-11">Agent Bots</p>
-					<h1 class="text-2xl font-semibold text-slate-12">
-						{loading ? 'Loading...' : formData.name || 'Edit Agent Bot'}
-					</h1>
-				</div>
-			</div>
-			<div class="flex gap-2">
-				<Button variant="destructive" on:click={handleDelete} disabled={loading}>
-					<Trash2 class="mr-2 h-4 w-4" />
-					Delete
-				</Button>
-				<Button on:click={handleSave} disabled={loading || saving} class="bg-iris-9 text-white hover:bg-iris-10">
-					<Save class="mr-2 h-4 w-4" />
-					{saving ? 'Saving...' : 'Save Changes'}
-				</Button>
+	<header class="px-8 py-6 border-b bg-card flex items-center justify-between">
+		<div class="flex items-center">
+			<Button variant="ghost" size="sm" onclick={() => goto('/app/super_admin/agent-bots')}>
+				<ArrowLeft class="h-4 w-4" />
+			</Button>
+			<div class="ml-4">
+				<h1 class="text-2xl font-semibold text-foreground">
+					{loading ? 'Loading...' : formData.name || 'Edit Agent Bot'}
+				</h1>
+				<p class="text-sm mt-1 text-muted-foreground">
+					Agent Bots
+				</p>
 			</div>
 		</div>
-	</div>
+		<div class="flex items-center gap-2">
+			<Button variant="destructive" onclick={handleDelete} disabled={loading || submitting}>
+				<Trash2 class="h-4 w-4 mr-2" />
+				Delete
+			</Button>
+		</div>
+	</header>
 
-	<!-- Content -->
-	<div class="flex-1 overflow-auto bg-white p-8 dark:bg-slate-1">
+	<!-- Body -->
+	<section class="p-8">
 		{#if loading}
-			<div class="space-y-4">
-				<div class="h-10 w-full animate-pulse rounded bg-slate-3"></div>
-				<div class="h-10 w-full animate-pulse rounded bg-slate-3"></div>
-				<div class="h-32 w-full animate-pulse rounded bg-slate-3"></div>
-			</div>
-		{:else}
-			<div class="mx-auto max-w-2xl space-y-6">
-				<!-- Avatar -->
-				<div class="space-y-2">
-					<Label>Avatar</Label>
-					<div class="flex items-center gap-4">
-						{#if avatarPreview}
-							<div class="relative">
-								<img src={avatarPreview} alt="Bot avatar" class="h-24 w-24 rounded-full object-cover" />
-								<button
-									on:click={handleAvatarDelete}
-									class="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
-								>
-									<X class="h-4 w-4" />
-								</button>
-							</div>
-						{/if}
-						<label
-							class="flex cursor-pointer items-center gap-2 rounded-md border border-slate-6 px-4 py-2 text-sm font-medium text-slate-12 hover:bg-slate-2"
-						>
-							<Upload class="h-4 w-4" />
-							Upload Avatar
-							<input type="file" accept="image/*" on:change={handleAvatarSelect} class="hidden" />
-						</label>
+			<Card class="max-w-2xl">
+				<CardContent class="p-6">
+					<div class="space-y-4">
+						<div class="h-10 w-full animate-pulse rounded bg-muted"></div>
+						<div class="h-10 w-full animate-pulse rounded bg-muted"></div>
+						<div class="h-32 w-full animate-pulse rounded bg-muted"></div>
 					</div>
-				</div>
+				</CardContent>
+			</Card>
+		{:else}
+			<Card class="max-w-2xl">
+				<CardHeader>
+					<CardTitle>Bot Details</CardTitle>
+					<CardDescription>Update your agent bot configuration</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<form onsubmit={handleSubmit} class="space-y-6">
+						<!-- Avatar Upload -->
+						<div class="space-y-2">
+							<Label>Bot Avatar</Label>
+							<div class="flex items-center gap-4">
+								{#if avatarPreview}
+									<div class="relative">
+										<img src={avatarPreview} alt="Bot avatar" class="h-16 w-16 rounded-full object-cover" />
+										<button
+											type="button"
+											onclick={avatarFile ? removeAvatar : handleAvatarDelete}
+											class="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+										>
+											<X class="h-3 w-3" />
+										</button>
+									</div>
+								{:else}
+									<div class="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
+										<Upload class="h-6 w-6 text-muted-foreground" />
+									</div>
+								{/if}
+								<label class="cursor-pointer">
+									<Button type="button" variant="outline" size="sm">
+										<Upload class="h-4 w-4 mr-2" />
+										Upload Avatar
+									</Button>
+									<input type="file" accept="image/*" onchange={handleAvatarSelect} class="hidden" />
+								</label>
+							</div>
+						</div>
 
-				<!-- Name -->
-				<div class="space-y-2">
-					<Label for="name">Name *</Label>
-					<Input id="name" bind:value={formData.name} required />
-				</div>
+						<!-- Account Selection -->
+						<div class="space-y-2">
+							<Label for="account">Account</Label>
+							{#if loadingAccounts}
+								<div class="h-10 w-full animate-pulse rounded bg-muted"></div>
+							{:else}
+								<Select.Root type="single" name="account" bind:value={selectedAccountId}>
+									<Select.Trigger class="w-full">
+										{accountTriggerContent}
+									</Select.Trigger>
+									<Select.Content>
+										<Select.Item value="0" label="Global Bot (All Accounts)">
+											Global Bot (All Accounts)
+										</Select.Item>
+										{#each accounts as account (account.id)}
+											<Select.Item value={String(account.id)} label={account.name}>
+												{account.name}
+											</Select.Item>
+										{/each}
+									</Select.Content>
+								</Select.Root>
+							{/if}
+							<p class="text-xs text-muted-foreground">
+								Choose an account or select global bot for all accounts
+							</p>
+						</div>
 
-				<!-- Description -->
-				<div class="space-y-2">
-					<Label for="description">Description</Label>
-					<Textarea id="description" bind:value={formData.description} rows={4} />
-				</div>
+						<!-- Bot Name -->
+						<div class="space-y-2">
+							<Label for="name">Bot Name *</Label>
+							<Input
+								id="name"
+								type="text"
+								bind:value={formData.name}
+								placeholder="Support Bot"
+								disabled={submitting}
+								class={errors.name ? 'border-destructive' : ''}
+							/>
+							{#if errors.name}
+								<p class="text-sm text-destructive">{errors.name}</p>
+							{/if}
+						</div>
 
-				<!-- Outgoing URL -->
-				<div class="space-y-2">
-					<Label for="outgoing_url">Outgoing URL</Label>
-					<Input id="outgoing_url" type="url" bind:value={formData.outgoing_url} />
-				</div>
-			</div>
+						<!-- Description -->
+						<div class="space-y-2">
+							<Label for="description">Description</Label>
+							<Textarea
+								id="description"
+								bind:value={formData.description}
+								placeholder="Automated support assistant"
+								disabled={submitting}
+								rows={3}
+							/>
+							<p class="text-xs text-muted-foreground">
+								Brief description of what this bot does
+							</p>
+						</div>
+
+						<!-- Outgoing URL -->
+						<div class="space-y-2">
+							<Label for="outgoing_url">Outgoing URL</Label>
+							<Input
+								id="outgoing_url"
+								type="url"
+								bind:value={formData.outgoing_url}
+								placeholder="https://your-bot-endpoint.com/webhook"
+								disabled={submitting}
+							/>
+							<p class="text-xs text-muted-foreground">
+								Webhook URL where bot messages will be sent
+							</p>
+						</div>
+
+						<!-- Actions -->
+						<div class="flex items-center space-x-2 pt-4">
+							<Button type="submit" disabled={submitting}>
+								<Save class="h-4 w-4 mr-2" />
+								{submitting ? 'Saving...' : 'Save Changes'}
+							</Button>
+							<Button type="button" variant="outline" onclick={() => goto('/app/super_admin/agent-bots')}>
+								Cancel
+							</Button>
+						</div>
+					</form>
+				</CardContent>
+			</Card>
 		{/if}
-	</div>
+	</section>
 </div>

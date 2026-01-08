@@ -807,6 +807,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'update' => 'super_admin.agent_bots.update',
             'destroy' => 'super_admin.agent_bots.destroy'
         ]);
+        Route::post('agent_bots/{agentBot}/avatar', [SuperAdminAgentBotsController::class, 'uploadAvatar']);
         Route::delete('agent_bots/{agentBot}/avatar', [SuperAdminAgentBotsController::class, 'destroyAvatar']);
 
         // Platform Apps

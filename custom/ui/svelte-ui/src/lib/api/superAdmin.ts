@@ -46,7 +46,6 @@ export interface Account {
 export interface AccountsListResponse extends LaravelPaginationResponse<Account> {}
 
 export interface UsersListResponse extends LaravelPaginationResponse<User> {}
-}
 
 export interface User {
   id: number;
@@ -314,6 +313,16 @@ export const superAdminApi = {
     return api.delete(`api/v1/super_admin/agent_bots/${id}`).json();
   },
 
+  uploadAgentBotAvatar: async (id: number, file: File): Promise<AgentBot> => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    return api.post(`api/v1/super_admin/agent_bots/${id}/avatar`, { body: formData }).json();
+  },
+
+  deleteAgentBotAvatar: async (id: number): Promise<{ message: string }> => {
+    return api.delete(`api/v1/super_admin/agent_bots/${id}/avatar`).json();
+  },
+
   // Platform Apps
   getPlatformApps: async (params?: PaginationParams): Promise<LaravelPaginationResponse<PlatformApp>> => {
     return api.get('api/v1/super_admin/platform_apps', { searchParams: params as Record<string, string> }).json();
@@ -428,7 +437,9 @@ export const superAdminAPI = {
     get: (id: string) => superAdminApi.getAgentBot(parseInt(id)),
     create: (data: Partial<AgentBot>) => superAdminApi.createAgentBot(data),
     update: (id: string, data: Partial<AgentBot>) => superAdminApi.updateAgentBot(parseInt(id), data),
-    delete: (id: string) => superAdminApi.deleteAgentBot(parseInt(id))
+    delete: (id: string) => superAdminApi.deleteAgentBot(parseInt(id)),
+    uploadAvatar: (id: string, file: File) => superAdminApi.uploadAgentBotAvatar(parseInt(id), file),
+    deleteAvatar: (id: string) => superAdminApi.deleteAgentBotAvatar(parseInt(id))
   },
   platformApps: {
     list: (params?: PaginationParams) => superAdminApi.getPlatformApps(params),
@@ -463,7 +474,4 @@ export const authApi = {
 
 // Export as 'api' for convenience (use the simplified interface)
 export { superAdminAPI as api };
-
-// Also export the full API for advanced usage
-export { superAdminApi };
 
