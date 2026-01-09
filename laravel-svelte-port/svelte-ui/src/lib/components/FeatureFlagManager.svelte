@@ -13,8 +13,9 @@
 	// Premium features that require special handling
 	// NOTE: Using camelCase to match API client transformation (snake_case -> camelCase)
 	const premiumFeatures = [
-		'customRoles', 'slaPolicies', 'auditLogs',
-		'advancedReporting', 'openaiIntegration', 'shopifyIntegration'
+		'customRoles', 'slaPolicies', 'auditLogs', 'customBranding', 'disableBranding',
+		'agentCapacity', 'saml', 'advancedReporting', 'openaiIntegration', 'shopifyIntegration',
+		'crmIntegration', 'notionIntegration', 'inboxAssistant'
 	];
 	
 	// Group features by category for better organization
@@ -22,22 +23,27 @@
 	const featureCategories = {
 		'Communication Channels': [
 			'websiteWidget', 'emailIntegration', 'whatsappIntegration', 'facebookIntegration', 
-			'instagramIntegration', 'twitterIntegration'
+			'instagramIntegration', 'twitterIntegration', 'channelEmail', 'channelFacebook',
+			'channelTwitter', 'channelWebsite', 'channelInstagram', 'sms', 'messenger', 
+			'telegram', 'tiktok', 'line', 'liveChat'
 		],
 		'Product Features': [
-			'macros', 'labels', 'cannedResponses', 'teamManagement',
-			'automationRules', 'webhooks', 'campaigns', 'contactManagement',
-			'conversationAssignment', 'conversationSearch', 'fileAttachments',
-			'conversationNotes', 'agentAvailability', 'conversationStatus',
-			'realTimeNotifications'
+			'macros', 'labels', 'cannedResponses', 'teamManagement', 'agentBots',
+			'automationRules', 'webhooks', 'campaigns', 'contactManagement', 'helpCenter',
+			'conversationAssignment', 'conversationSearch', 'fileAttachments', 'voiceRecorder',
+			'conversationNotes', 'agentAvailability', 'conversationStatus', 'reports',
+			'realTimeNotifications', 'integrations', 'crm', 'autoResolveConversations',
+			'customReplyEmail', 'customReplyDomain', 'inboundEmails', 'ipLookup'
 		],
 		'Integrations': [
-			'linearIntegration', 'slackIntegration', 'shopifyIntegration', 
-			'apiAccess', 'mobileApp'
+			'linearIntegration', 'slackIntegration', 'shopifyIntegration', 'google', 'microsoft',
+			'apiAccess', 'mobileApp', 'linear', 'slack', 'shopify', 'crmIntegration',
+			'notionIntegration'
 		],
 		'Enterprise Features': [
-			'customRoles', 'slaPolicies', 'auditLogs',
-			'advancedReporting', 'openaiIntegration', 'csatSurveys'
+			'customRoles', 'slaPolicies', 'auditLogs', 'customBranding', 'disableBranding',
+			'agentCapacity', 'saml', 'advancedReporting', 'openaiIntegration', 'csatSurveys',
+			'assignmentV2', 'inboxAssistant'
 		]
 	};
 	

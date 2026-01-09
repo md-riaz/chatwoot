@@ -212,6 +212,7 @@ class Account extends Model
     public function feature_enabled(string $feature): bool
     {
         $flagMap = [
+            // Core communication channels (bits 1-8)
             'email' => 1,
             'sms' => 2,
             'messenger' => 4,
@@ -220,6 +221,8 @@ class Account extends Model
             'tiktok' => 32,
             'instagram' => 64,
             'line' => 128,
+            
+            // Product features (bits 9-16)
             'macros' => 256,
             'labels' => 512,
             'teams' => 1024,
@@ -228,6 +231,8 @@ class Account extends Model
             'webhooks' => 8192,
             'google' => 16384,
             'microsoft' => 32768,
+            
+            // Integrations (bits 17-24)
             'linear' => 65536,
             'slack' => 131072,
             'shopify' => 262144,
@@ -236,23 +241,33 @@ class Account extends Model
             'automationRules' => 2097152,
             'customAttributes' => 4194304,
             'liveChat' => 8388608,
-            // Enterprise features
+            
+            // Enterprise features (bits 25-32)
             'assignment_v2' => 16777216,
             'inbox_assistant' => 33554432,
             'advanced_reporting' => 67108864,
             'crm_integration' => 134217728,
             'notion_integration' => 268435456,
+            'custom_branding' => 536870912,
+            'disable_branding' => 1073741824,
+            'agent_capacity' => 2147483648,
+            
             // Feature name mappings for Rails parity and YAML config
             'email_integration' => 1, // email
+            'channel_email' => 1, // email
             'website_widget' => 8388608, // liveChat
+            'channel_website' => 8388608, // liveChat
             'api_access' => 8192, // webhooks
             'team_management' => 1024, // teams
             'automation_rules' => 2097152, // automationRules
             'csat_surveys' => 2048, // reports
             'whatsapp_integration' => 16, // whatsapp
             'facebook_integration' => 4, // messenger
+            'channel_facebook' => 4, // messenger
             'instagram_integration' => 64, // instagram
+            'channel_instagram' => 64, // instagram
             'twitter_integration' => 2, // sms (reuse for social)
+            'channel_twitter' => 2, // sms (reuse for social)
             'canned_responses' => 524288, // cannedResponses
             'contact_management' => 4194304, // customAttributes
             'conversation_assignment' => 16777216, // assignment_v2
@@ -267,24 +282,50 @@ class Account extends Model
             'linear_integration' => 65536, // linear
             'shopify_integration' => 262144, // shopify
             'openai_integration' => 33554432, // inbox_assistant
-            'audit_logs' => 67108864, // advanced_reporting
-            'custom_roles' => 134217728, // crm_integration (reuse)
-            'sla_policies' => 268435456, // notion_integration (reuse)
+            'agent_bots' => 1048576, // helpCenter (reuse)
+            'integrations' => 8192, // webhooks (reuse)
+            'crm' => 4194304, // customAttributes (reuse)
+            'voice_recorder' => 8388608, // liveChat (reuse)
+            'inbound_emails' => 1, // email (reuse)
+            'ip_lookup' => 2048, // reports (reuse)
+            'auto_resolve_conversations' => 2097152, // automationRules (reuse)
+            'custom_reply_email' => 1, // email (reuse)
+            'custom_reply_domain' => 1, // email (reuse)
         ];
         
         if (isset($flagMap[$feature])) {
             return ($this->feature_flags & $flagMap[$feature]) !== 0;
         }
         
-        // Default feature availability for unknown features
+        // Default feature availability for unknown features (Rails compatibility)
         $defaultFeatures = [
+            // Enterprise features (disabled by default)
+            'saml' => false,
+            'sla' => false,
+            'custom_roles' => false,
+            'channel_voice' => false,
+            'advanced_search' => false,
+            'companies' => false,
+            'audit_logs' => false,
+            'response_bot' => false,
+            'message_reply_to' => false,
+            'insert_article_in_reply' => false,
+            'inbox_view' => false,
+            'help_center_embedding_search' => false,
+            'captain_integration' => false,
+            'chatwoot_v4' => true,
+            'report_v4' => false,
+            'contact_chatwoot_support_team' => false,
+            // Legacy/deprecated features
+            'mobile_v2' => false,
+            'whatsapp_embedded_signup' => false,
+            'whatsapp_campaign' => false,
+            'crm_v2' => false,
             'assignment_v2' => true,
-            'inbox_assistant' => false, // Enterprise feature
-            'advanced_reporting' => false, // Enterprise feature
-            'linear_integration' => true,
-            'shopify_integration' => true,
-            'crm_integration' => false, // Enterprise feature
-            'notion_integration' => false, // Enterprise feature
+            'twilio_content_templates' => false,
+            'advanced_search_indexing' => false,
+            'reply_mailer_migration' => false,
+            'quoted_email_reply' => false,
         ];
         
         return $defaultFeatures[$feature] ?? false;
@@ -354,6 +395,7 @@ class Account extends Model
     public function enableFeature(string $feature): bool
     {
         $flagMap = [
+            // Core communication channels (bits 1-8)
             'email' => 1,
             'sms' => 2,
             'messenger' => 4,
@@ -362,6 +404,8 @@ class Account extends Model
             'tiktok' => 32,
             'instagram' => 64,
             'line' => 128,
+            
+            // Product features (bits 9-16)
             'macros' => 256,
             'labels' => 512,
             'teams' => 1024,
@@ -370,6 +414,8 @@ class Account extends Model
             'webhooks' => 8192,
             'google' => 16384,
             'microsoft' => 32768,
+            
+            // Integrations (bits 17-24)
             'linear' => 65536,
             'slack' => 131072,
             'shopify' => 262144,
@@ -378,17 +424,33 @@ class Account extends Model
             'automationRules' => 2097152,
             'customAttributes' => 4194304,
             'liveChat' => 8388608,
+            
+            // Enterprise features (bits 25-32)
+            'assignment_v2' => 16777216,
+            'inbox_assistant' => 33554432,
+            'advanced_reporting' => 67108864,
+            'crm_integration' => 134217728,
+            'notion_integration' => 268435456,
+            'custom_branding' => 536870912,
+            'disable_branding' => 1073741824,
+            'agent_capacity' => 2147483648,
+            
             // Feature name mappings for Rails parity and YAML config
             'email_integration' => 1, // email
+            'channel_email' => 1, // email
             'website_widget' => 8388608, // liveChat
+            'channel_website' => 8388608, // liveChat
             'api_access' => 8192, // webhooks
             'team_management' => 1024, // teams
             'automation_rules' => 2097152, // automationRules
             'csat_surveys' => 2048, // reports
             'whatsapp_integration' => 16, // whatsapp
             'facebook_integration' => 4, // messenger
+            'channel_facebook' => 4, // messenger
             'instagram_integration' => 64, // instagram
+            'channel_instagram' => 64, // instagram
             'twitter_integration' => 2, // sms (reuse for social)
+            'channel_twitter' => 2, // sms (reuse for social)
             'canned_responses' => 524288, // cannedResponses
             'contact_management' => 4194304, // customAttributes
             'conversation_assignment' => 16777216, // assignment_v2
@@ -403,9 +465,15 @@ class Account extends Model
             'linear_integration' => 65536, // linear
             'shopify_integration' => 262144, // shopify
             'openai_integration' => 33554432, // inbox_assistant
-            'audit_logs' => 67108864, // advanced_reporting
-            'custom_roles' => 134217728, // crm_integration (reuse)
-            'sla_policies' => 268435456, // notion_integration (reuse)
+            'agent_bots' => 1048576, // helpCenter (reuse)
+            'integrations' => 8192, // webhooks (reuse)
+            'crm' => 4194304, // customAttributes (reuse)
+            'voice_recorder' => 8388608, // liveChat (reuse)
+            'inbound_emails' => 1, // email (reuse)
+            'ip_lookup' => 2048, // reports (reuse)
+            'auto_resolve_conversations' => 2097152, // automationRules (reuse)
+            'custom_reply_email' => 1, // email (reuse)
+            'custom_reply_domain' => 1, // email (reuse)
         ];
         
         if (isset($flagMap[$feature])) {
@@ -423,6 +491,7 @@ class Account extends Model
     public function disableFeature(string $feature): bool
     {
         $flagMap = [
+            // Core communication channels (bits 1-8)
             'email' => 1,
             'sms' => 2,
             'messenger' => 4,
@@ -431,6 +500,8 @@ class Account extends Model
             'tiktok' => 32,
             'instagram' => 64,
             'line' => 128,
+            
+            // Product features (bits 9-16)
             'macros' => 256,
             'labels' => 512,
             'teams' => 1024,
@@ -439,6 +510,8 @@ class Account extends Model
             'webhooks' => 8192,
             'google' => 16384,
             'microsoft' => 32768,
+            
+            // Integrations (bits 17-24)
             'linear' => 65536,
             'slack' => 131072,
             'shopify' => 262144,
@@ -447,17 +520,33 @@ class Account extends Model
             'automationRules' => 2097152,
             'customAttributes' => 4194304,
             'liveChat' => 8388608,
+            
+            // Enterprise features (bits 25-32)
+            'assignment_v2' => 16777216,
+            'inbox_assistant' => 33554432,
+            'advanced_reporting' => 67108864,
+            'crm_integration' => 134217728,
+            'notion_integration' => 268435456,
+            'custom_branding' => 536870912,
+            'disable_branding' => 1073741824,
+            'agent_capacity' => 2147483648,
+            
             // Feature name mappings for Rails parity and YAML config
             'email_integration' => 1, // email
+            'channel_email' => 1, // email
             'website_widget' => 8388608, // liveChat
+            'channel_website' => 8388608, // liveChat
             'api_access' => 8192, // webhooks
             'team_management' => 1024, // teams
             'automation_rules' => 2097152, // automationRules
             'csat_surveys' => 2048, // reports
             'whatsapp_integration' => 16, // whatsapp
             'facebook_integration' => 4, // messenger
+            'channel_facebook' => 4, // messenger
             'instagram_integration' => 64, // instagram
+            'channel_instagram' => 64, // instagram
             'twitter_integration' => 2, // sms (reuse for social)
+            'channel_twitter' => 2, // sms (reuse for social)
             'canned_responses' => 524288, // cannedResponses
             'contact_management' => 4194304, // customAttributes
             'conversation_assignment' => 16777216, // assignment_v2
@@ -472,9 +561,15 @@ class Account extends Model
             'linear_integration' => 65536, // linear
             'shopify_integration' => 262144, // shopify
             'openai_integration' => 33554432, // inbox_assistant
-            'audit_logs' => 67108864, // advanced_reporting
-            'custom_roles' => 134217728, // crm_integration (reuse)
-            'sla_policies' => 268435456, // notion_integration (reuse)
+            'agent_bots' => 1048576, // helpCenter (reuse)
+            'integrations' => 8192, // webhooks (reuse)
+            'crm' => 4194304, // customAttributes (reuse)
+            'voice_recorder' => 8388608, // liveChat (reuse)
+            'inbound_emails' => 1, // email (reuse)
+            'ip_lookup' => 2048, // reports (reuse)
+            'auto_resolve_conversations' => 2097152, // automationRules (reuse)
+            'custom_reply_email' => 1, // email (reuse)
+            'custom_reply_domain' => 1, // email (reuse)
         ];
         
         if (isset($flagMap[$feature])) {
@@ -492,6 +587,7 @@ class Account extends Model
     public function getEnabledFeatures(): array
     {
         $flagMap = [
+            // Core communication channels (bits 1-8)
             'email' => 1,
             'sms' => 2,
             'messenger' => 4,
@@ -500,6 +596,8 @@ class Account extends Model
             'tiktok' => 32,
             'instagram' => 64,
             'line' => 128,
+            
+            // Product features (bits 9-16)
             'macros' => 256,
             'labels' => 512,
             'teams' => 1024,
@@ -508,6 +606,8 @@ class Account extends Model
             'webhooks' => 8192,
             'google' => 16384,
             'microsoft' => 32768,
+            
+            // Integrations (bits 17-24)
             'linear' => 65536,
             'slack' => 131072,
             'shopify' => 262144,
@@ -516,6 +616,16 @@ class Account extends Model
             'automationRules' => 2097152,
             'customAttributes' => 4194304,
             'liveChat' => 8388608,
+            
+            // Enterprise features (bits 25-32)
+            'assignment_v2' => 16777216,
+            'inbox_assistant' => 33554432,
+            'advanced_reporting' => 67108864,
+            'crm_integration' => 134217728,
+            'notion_integration' => 268435456,
+            'custom_branding' => 536870912,
+            'disable_branding' => 1073741824,
+            'agent_capacity' => 2147483648,
         ];
         
         $enabledFeatures = [];

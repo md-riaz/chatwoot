@@ -26,11 +26,13 @@
         <Bars radius={4} strokeWidth={1} />
         <Highlight area />
       </Svg>
-      <Tooltip header={(data) => data[xKey] || 'Unknown'} let:data>
-        <div class="tooltip">
-          <div class="font-semibold">{data[xKey] || 'N/A'}</div>
-          <div class="text-sm text-surface-content/50">{data[yKey] != null ? data[yKey] : 'N/A'}</div>
-        </div>
+      <Tooltip header={(data) => data[xKey] || 'Unknown'}>
+        {#snippet children(data)}
+          <div class="tooltip">
+            <div class="font-semibold">{data[xKey] || 'N/A'}</div>
+            <div class="text-sm text-surface-content/50">{data[yKey] != null ? data[yKey] : 'N/A'}</div>
+          </div>
+        {/snippet}
       </Tooltip>
     </Chart>
   {:else}
@@ -45,3 +47,5 @@
     @apply rounded-md border bg-popover p-2 text-popover-foreground shadow-md;
   }
 </style>
+
+
