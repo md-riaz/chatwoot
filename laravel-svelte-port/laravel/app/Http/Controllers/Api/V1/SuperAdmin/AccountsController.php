@@ -334,10 +334,13 @@ class AccountsController extends Controller
 
     /**
      * Update account feature flags based on frontend selection.
+     * 
+     * This method batches all feature flag operations and saves once at the end
+     * to avoid race conditions from multiple saves.
      */
     private function updateAccountFeatureFlags(Account $account, array $selectedFeatures): void
     {
-        // Map frontend feature names (snake_case from API transformation) to Laravel enum values
+        // Map frontend feature names (snake_case from API transformation) to internal feature names
         $featureNameMap = [
             // Communication channels
             'website_widget' => 'website_widget',
@@ -384,21 +387,122 @@ class AccountsController extends Controller
             'saml' => 'saml',
         ];
         
-        // Get current enabled features and disable all
-        $currentFeatures = $account->getEnabledFeatures();
-        foreach ($currentFeatures as $feature) {
-            $account->disableFeature($feature);
-        }
+        // Bit flag mappings (must match Account model)
+        $flagMap = [
+            // Core communication channels (bits 1-8)
+            'email' => 1,
+            'sms' => 2,
+            'messenger' => 4,
+            'telegram' => 8,
+            'whatsapp' => 16,
+            'tiktok' => 32,
+            'instagram' => 64,
+            'line' => 128,
+            
+            // Product features (bits 9-16)
+            'macros' => 256,
+            'labels' => 512,
+            'teams' => 1024,
+            'reports' => 2048,
+            'campaigns' => 4096,
+            'webhooks' => 8192,
+            'google' => 16384,
+            'microsoft' => 32768,
+            
+            // Integrations (bits 17-24)
+            'linear' => 65536,
+            'slack' => 131072,
+            'shopify' => 262144,
+            'cannedResponses' => 524288,
+            'helpCenter' => 1048576,
+            'automationRules' => 2097152,
+            'customAttributes' => 4194304,
+            'liveChat' => 8388608,
+            
+            // Enterprise features (bits 25-32)
+            'assignment_v2' => 16777216,
+            'inbox_assistant' => 33554432,
+            'advanced_reporting' => 67108864,
+            'crm_integration' => 134217728,
+            'notion_integration' => 268435456,
+            'custom_branding' => 536870912,
+            'disable_branding' => 1073741824,
+            'agent_capacity' => 2147483648,
+            
+            // Feature name mappings (must match Account model)
+            'email_integration' => 1,
+            'channel_email' => 1,
+            'website_widget' => 8388608,
+            'channel_website' => 8388608,
+            'api_access' => 8192,
+            'team_management' => 1024,
+            'automation_rules' => 2097152,
+            'csat_surveys' => 2048,
+            'whatsapp_integration' => 16,
+            'facebook_integration' => 4,
+            'channel_facebook' => 4,
+            'instagram_integration' => 64,
+            'channel_instagram' => 64,
+            'twitter_integration' => 2,
+            'channel_twitter' => 2,
+            'canned_responses' => 524288,
+            'contact_management' => 4194304,
+            'conversation_assignment' => 16777216,
+            'conversation_search' => 2048,
+            'file_attachments' => 8388608,
+            'conversation_notes' => 4194304,
+            'agent_availability' => 1024,
+            'conversation_status' => 2097152,
+            'real_time_notifications' => 8192,
+            'mobile_app' => 8388608,
+            'slack_integration' => 131072,
+            'linear_integration' => 65536,
+            'shopify_integration' => 262144,
+            'openai_integration' => 33554432,
+        ];
         
-        // Enable selected features
+        // Enterprise features that use custom_attributes instead of bit flags
+        $enterpriseFeatures = [
+            'saml', 'sla_policies', 'custom_roles', 'audit_logs',
+            'channel_voice', 'advanced_search', 'companies'
+        ];
+        
+        // Map selected features to internal names
+        $mappedFeatures = [];
         foreach ($selectedFeatures as $frontendFeature) {
             if (isset($featureNameMap[$frontendFeature])) {
-                $enumValue = $featureNameMap[$frontendFeature];
-                $account->enableFeature($enumValue);
+                $mappedFeatures[] = $featureNameMap[$frontendFeature];
             }
         }
         
-        // Save the account
+        // Separate bit flag features from enterprise features
+        $bitFlagFeatures = [];
+        $selectedEnterpriseFeatures = [];
+        
+        foreach ($mappedFeatures as $feature) {
+            if (in_array($feature, $enterpriseFeatures)) {
+                $selectedEnterpriseFeatures[] = $feature;
+            } else {
+                $bitFlagFeatures[] = $feature;
+            }
+        }
+        
+        // Reset all bit flags to 0
+        $account->feature_flags = 0;
+        
+        // Enable selected bit flag features
+        foreach ($bitFlagFeatures as $feature) {
+            if (isset($flagMap[$feature])) {
+                $account->feature_flags |= $flagMap[$feature];
+            }
+        }
+        
+        // Update enterprise features in custom_attributes
+        $customAttributes = $account->custom_attributes ?? [];
+        $customAttributes['enabled_enterprise_features'] = $selectedEnterpriseFeatures;
+        $account->custom_attributes = $customAttributes;
+        
+        // Save once with all changes
         $account->save();
     }
 }
