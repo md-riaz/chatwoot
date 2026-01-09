@@ -27,7 +27,7 @@ class ConfigLoaderService
     }
 
     /**
-     * Process configuration loading from YAML files.
+     * Process configuration loading (now uses Laravel-native approach).
      */
     public function process(): array
     {
@@ -40,15 +40,9 @@ class ConfigLoaderService
         ];
 
         try {
-            // Load general installation configs
-            $generalResults = $this->reconcileGeneralConfig();
-            $results['configs_loaded'] += $generalResults['loaded'];
-            $results['configs_updated'] += $generalResults['updated'];
-            $results['configs_skipped'] += $generalResults['skipped'];
-
-            // Load feature configs if enabled
+            // Load feature configs using Laravel-native approach
             if ($this->options['load_features']) {
-                $featureResults = $this->reconcileFeatureConfig();
+                $featureResults = $this->initializeFeatureConfig();
                 $results['features_loaded'] = $featureResults['loaded'];
             }
 
@@ -239,53 +233,19 @@ class ConfigLoaderService
     }
 
     /**
-     * Reconcile feature configuration.
+     * Initialize feature configuration using Laravel-native approach.
      */
-    private function reconcileFeatureConfig(): array
+    private function initializeFeatureConfig(): array
     {
-        $features = $this->getDefaultFeatures();
-        $results = ['loaded' => 0];
-
-        if (empty($features)) {
-            return $results;
-        }
-
-        $config = InstallationConfig::where('name', 'ACCOUNT_LEVEL_FEATURE_DEFAULTS')->first();
-
-        if ($config) {
-            if ($this->options['reconcile_only_new']) {
-                // Merge existing with new features
-                $existingFeatures = is_array($config->value) ? $config->value : [];
-                $mergedFeatures = $this->mergeFeatures($existingFeatures, $features);
-                
-                if ($mergedFeatures !== $existingFeatures) {
-                    $config->value = $mergedFeatures; // Uses the setter
-                    $config->save();
-                    $results['loaded'] = 1;
-                }
-            } else {
-                // Replace with new features
-                $config->value = $features; // Uses the setter
-                $config->save();
-                $results['loaded'] = 1;
-            }
-        } else {
-            // Create new feature config
-            $config = new InstallationConfig([
-                'name' => 'ACCOUNT_LEVEL_FEATURE_DEFAULTS',
-                'display_title' => 'Account Level Feature Defaults',
-                'description' => 'Default features enabled for new accounts',
-                'type' => 'array',
-                'locked' => true,
-            ]);
+        try {
+            $featureService = app(FeatureConfigService::class);
+            $result = $featureService->initializeAccountFeatureDefaults();
             
-            // Use the setter to properly format the value
-            $config->value = $features;
-            $config->save();
-            $results['loaded'] = 1;
+            return ['loaded' => $result['features_loaded']];
+        } catch (\Exception $e) {
+            $this->errors[] = 'Failed to initialize features: ' . $e->getMessage();
+            return ['loaded' => 0];
         }
-
-        return $results;
     }
 
     /**

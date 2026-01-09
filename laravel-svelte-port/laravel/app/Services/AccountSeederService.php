@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DataTransferObjects\SeedData;
 use App\Enums\AccountUserRole;
 use App\Models\Account;
 use App\Models\User;
@@ -26,46 +27,55 @@ use App\Models\Channels\Telegram;
 use App\Models\Channels\Line;
 use App\Models\Channels\Voice;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Symfony\Component\Yaml\Yaml;
 
 class AccountSeederService
 {
     private Account $account;
-    private array $accountData;
+    private SeedData $seedData;
 
-    public function __construct(Account $account)
+    public function __construct(Account $account, ?SeedData $seedData = null)
     {
-        if (!config('app.enable_account_seeding', !app()->environment('production'))) {
-            throw new \Exception('Account Seeding is not allowed.');
-        }
 
         $this->account = $account;
-        $this->accountData = $this->loadSeedData();
+        $this->seedData = $seedData ?? SeedData::getDefault();
     }
 
-    public function perform(): void
+    /**
+     * Perform account seeding using Laravel factories and DTOs.
+     */
+    public function perform(): array
     {
-        $this->setUpAccount();
-        $this->seedTeams();
-        $this->seedCustomRoles();
-        $this->setUpUsers();
-        $this->seedLabels();
-        $this->seedCannedResponses();
-        $this->seedInboxes();
-        $this->seedContacts();
+        $stats = [
+            'teams_created' => 0,
+            'custom_roles_created' => 0,
+            'users_created' => 0,
+            'labels_created' => 0,
+            'inboxes_created' => 0,
+            'contacts_created' => 0,
+            'conversations_created' => 0,
+            'messages_created' => 0,
+            'canned_responses_created' => 0,
+        ];
+
+        $this->cleanupExistingData();
+        
+        $stats['teams_created'] = $this->seedTeams();
+        $stats['custom_roles_created'] = $this->seedCustomRoles();
+        $stats['users_created'] = $this->seedUsers();
+        $stats['labels_created'] = $this->seedLabels();
+        $stats['inboxes_created'] = $this->seedInboxes();
+        $stats['contacts_created'] = $this->seedContacts();
+        $stats['canned_responses_created'] = $this->seedCannedResponses();
+
+        return $stats;
     }
 
-    private function loadSeedData(): array
+    /**
+     * Clean up existing data.
+     */
+    private function cleanupExistingData(): void
     {
-        $yamlContent = Storage::get('seed_data.yml');
-        return Yaml::parse($yamlContent);
-    }
-
-    private function setUpAccount(): void
-    {
-        // Clean up existing data
         $this->account->teams()->delete();
         $this->account->conversations()->delete();
         $this->account->labels()->delete();
@@ -75,70 +85,181 @@ class AccountSeederService
         $this->account->cannedResponses()->delete();
     }
 
-    private function seedTeams(): void
+    /**
+     * Seed teams using Laravel factories.
+     */
+    private function seedTeams(): int
     {
-        foreach ($this->accountData['teams'] as $teamName) {
-            Team::create([
+        $count = 0;
+        foreach ($this->seedData->teams as $teamName) {
+            Team::factory()->create([
                 'account_id' => $this->account->id,
                 'name' => $teamName,
             ]);
+            $count++;
         }
+        return $count;
     }
 
-    private function seedCustomRoles(): void
+    /**
+     * Seed custom roles using Laravel factories.
+     */
+    private function seedCustomRoles(): int
     {
-        if (!isset($this->accountData['custom_roles'])) {
-            return;
-        }
-
-        foreach ($this->accountData['custom_roles'] as $roleData) {
-            CustomRole::create([
+        $count = 0;
+        foreach ($this->seedData->customRoles as $roleData) {
+            CustomRole::factory()->create([
                 'account_id' => $this->account->id,
                 'name' => $roleData['name'],
                 'description' => $roleData['description'],
                 'permissions' => $roleData['permissions'],
             ]);
+            $count++;
         }
+        return $count;
     }
 
-    private function seedLabels(): void
+    /**
+     * Seed users using Laravel factories.
+     */
+    private function seedUsers(): int
     {
-        foreach ($this->accountData['labels'] as $labelData) {
-            Label::create([
+        $count = 0;
+        foreach ($this->seedData->users as $userData) {
+            $user = User::factory()->create([
+                'name' => $userData['name'],
+                'email' => $userData['email'],
+                'password' => Hash::make('Password1!.'),
+                'email_verified_at' => now(),
+            ]);
+
+            $this->createAccountUser($user, $userData);
+            
+            if (!empty($userData['teams'])) {
+                $this->addUserToTeams($user, $userData['teams']);
+            }
+            
+            $count++;
+        }
+        return $count;
+    }
+
+    /**
+     * Seed labels using Laravel factories.
+     */
+    private function seedLabels(): int
+    {
+        $count = 0;
+        foreach ($this->seedData->labels as $labelData) {
+            Label::factory()->create([
                 'account_id' => $this->account->id,
                 'title' => $labelData['title'],
                 'color' => $labelData['color'],
                 'show_on_sidebar' => $labelData['show_on_sidebar'],
             ]);
+            $count++;
         }
+        return $count;
     }
 
-    private function setUpUsers(): void
+    /**
+     * Seed inboxes using Laravel factories.
+     */
+    private function seedInboxes(): int
     {
-        foreach ($this->accountData['users'] as $userData) {
-            $user = $this->createUserRecord($userData);
-            $this->createAccountUser($user, $userData);
+        $companyData = $this->seedData->company;
+        $count = 0;
+
+        // Create all channel types using factories
+        $channels = [
+            'WebWidget' => fn() => WebWidget::factory()->create([
+                'account_id' => $this->account->id,
+                'website_url' => "https://{$companyData->domain}",
+            ]),
+            'FacebookPage' => fn() => FacebookPage::factory()->create([
+                'account_id' => $this->account->id,
+            ]),
+            'TwitterProfile' => fn() => TwitterProfile::factory()->create([
+                'account_id' => $this->account->id,
+            ]),
+            'Whatsapp' => fn() => Whatsapp::factory()->create([
+                'account_id' => $this->account->id,
+            ]),
+            'Sms' => fn() => Sms::factory()->create([
+                'account_id' => $this->account->id,
+            ]),
+            'Email' => fn() => Email::factory()->create([
+                'account_id' => $this->account->id,
+                'email' => "test@{$companyData->domain}",
+            ]),
+            'Api' => fn() => Api::factory()->create([
+                'account_id' => $this->account->id,
+            ]),
+            'Telegram' => fn() => Telegram::factory()->create([
+                'account_id' => $this->account->id,
+                'bot_name' => $companyData->name,
+            ]),
+            'Line' => fn() => Line::factory()->create([
+                'account_id' => $this->account->id,
+            ]),
+            'Voice' => fn() => Voice::factory()->demo()->create([
+                'account_id' => $this->account->id,
+            ]),
+        ];
+
+        foreach ($channels as $channelType => $channelFactory) {
+            $channel = $channelFactory();
             
-            if (!empty($userData['team'])) {
-                $this->addUserToTeams($user, $userData['team']);
-            }
+            Inbox::factory()->create([
+                'account_id' => $this->account->id,
+                'name' => "{$companyData->name} {$channelType}",
+                'channel_type' => $channel::class,
+                'channel_id' => $channel->id,
+            ]);
+            
+            $count++;
         }
+
+        return $count;
     }
 
-    private function createUserRecord(array $userData): User
+    /**
+     * Seed contacts and conversations using Laravel factories.
+     */
+    private function seedContacts(): int
     {
-        $user = User::firstOrCreate(
-            ['email' => $userData['email']],
-            [
-                'name' => $userData['name'],
-                'password' => Hash::make('Password1!.'),
-                'email_verified_at' => now(),
-            ]
-        );
+        $count = 0;
+        foreach ($this->seedData->contacts as $contactData) {
+            $contact = Contact::factory()->create([
+                'account_id' => $this->account->id,
+                'name' => $contactData['name'],
+                'email' => $contactData['email'],
+            ]);
 
-        return $user;
+            foreach ($contactData['conversations'] as $conversationData) {
+                $this->createConversation($contact, $conversationData);
+            }
+            
+            $count++;
+        }
+        return $count;
     }
 
+    /**
+     * Seed canned responses using Laravel factories.
+     */
+    private function seedCannedResponses(int $count = 50): int
+    {
+        $responses = CannedResponse::factory()
+            ->count($count)
+            ->create(['account_id' => $this->account->id]);
+            
+        return $responses->count();
+    }
+
+    /**
+     * Create account user relationship.
+     */
     private function createAccountUser(User $user, array $userData): void
     {
         $roleName = $userData['role'] ?? 'agent';
@@ -158,15 +279,16 @@ class AccountSeederService
             }
         }
 
-        AccountUser::firstOrCreate(
-            [
-                'account_id' => $this->account->id,
-                'user_id' => $user->id,
-            ],
-            $accountUserData
-        );
+        AccountUser::factory()->create([
+            'account_id' => $this->account->id,
+            'user_id' => $user->id,
+            ...$accountUserData,
+        ]);
     }
 
+    /**
+     * Add user to teams.
+     */
     private function addUserToTeams(User $user, array $teams): void
     {
         foreach ($teams as $teamName) {
@@ -180,54 +302,9 @@ class AccountSeederService
         }
     }
 
-    private function seedCannedResponses(int $count = 50): void
-    {
-        for ($i = 0; $i < $count; $i++) {
-            CannedResponse::create([
-                'account_id' => $this->account->id,
-                'content' => $this->generateRandomContent(),
-                'short_code' => Str::random(10),
-            ]);
-        }
-    }
-
-    private function generateRandomContent(): string
-    {
-        $responses = [
-            'Thank you for contacting us. We will get back to you shortly.',
-            'We appreciate your patience while we resolve this issue.',
-            'Your request has been received and is being processed.',
-            'Please provide more details so we can assist you better.',
-            'We are working on your request and will update you soon.',
-            'Thank you for choosing our service. How can we help you today?',
-            'We have received your message and will respond within 24 hours.',
-            'Your feedback is important to us. Thank you for sharing.',
-            'We are here to help. Please let us know if you need anything else.',
-            'Your issue has been escalated to our technical team.',
-        ];
-
-        return $responses[array_rand($responses)];
-    }
-
-    private function seedContacts(): void
-    {
-        foreach ($this->accountData['contacts'] as $contactData) {
-            $contact = Contact::firstOrCreate(
-                [
-                    'account_id' => $this->account->id,
-                    'email' => $contactData['email'],
-                ],
-                [
-                    'name' => $contactData['name'],
-                ]
-            );
-
-            foreach ($contactData['conversations'] as $conversationData) {
-                $this->createConversation($contact, $conversationData);
-            }
-        }
-    }
-
+    /**
+     * Create conversation with messages.
+     */
     private function createConversation(Contact $contact, array $conversationData): void
     {
         $inbox = $this->findInboxByChannel($conversationData['channel']);
@@ -236,7 +313,7 @@ class AccountSeederService
             return;
         }
 
-        $contactInbox = ContactInbox::firstOrCreate([
+        $contactInbox = ContactInbox::factory()->create([
             'contact_id' => $contact->id,
             'inbox_id' => $inbox->id,
             'source_id' => $conversationData['source_id'] ?? Str::random(10),
@@ -247,10 +324,11 @@ class AccountSeederService
             $assignee = User::where('email', $conversationData['assignee'])->first();
         }
 
-        $conversation = Conversation::create([
+        $conversation = Conversation::factory()->create([
             'account_id' => $this->account->id,
             'inbox_id' => $inbox->id,
             'contact_id' => $contact->id,
+            'contact_inbox_id' => $contactInbox->id,
             'assignee_id' => $assignee?->id,
             'priority' => $conversationData['priority'] ?? null,
             'status' => 'open',
@@ -263,9 +341,11 @@ class AccountSeederService
         }
     }
 
+    /**
+     * Find inbox by channel type.
+     */
     private function findInboxByChannel(string $channelType): ?Inbox
     {
-        // Map channel type names to full class names for Laravel polymorphic relationships
         $channelClassMap = [
             'WebWidget' => WebWidget::class,
             'FacebookPage' => FacebookPage::class,
@@ -289,12 +369,15 @@ class AccountSeederService
             ->first();
     }
 
+    /**
+     * Create messages using Laravel factories.
+     */
     private function createMessages(Conversation $conversation, array $messages): void
     {
         foreach ($messages as $messageData) {
             $sender = $this->findMessageSender($conversation, $messageData);
 
-            Message::create([
+            Message::factory()->create([
                 'account_id' => $this->account->id,
                 'inbox_id' => $conversation->inbox_id,
                 'conversation_id' => $conversation->id,
@@ -306,6 +389,9 @@ class AccountSeederService
         }
     }
 
+    /**
+     * Find message sender.
+     */
     private function findMessageSender(Conversation $conversation, array $messageData)
     {
         if ($messageData['message_type'] === 'incoming') {
@@ -319,6 +405,9 @@ class AccountSeederService
         return null;
     }
 
+    /**
+     * Attach labels to conversation.
+     */
     private function attachLabels(Conversation $conversation, array $labelNames): void
     {
         $labels = $this->account->labels()
@@ -328,177 +417,22 @@ class AccountSeederService
         $conversation->labels()->attach($labels->pluck('id'));
     }
 
-    private function seedInboxes(): void
+    /**
+     * Get seeding statistics.
+     */
+    public function getStats(): array
     {
-        $companyData = $this->accountData['company'];
-        
-        $this->seedWebsiteInbox($companyData);
-        $this->seedFacebookInbox($companyData);
-        $this->seedTwitterInbox($companyData);
-        $this->seedWhatsappInbox($companyData);
-        $this->seedSmsInbox($companyData);
-        $this->seedEmailInbox($companyData);
-        $this->seedApiInbox($companyData);
-        $this->seedTelegramInbox($companyData);
-        $this->seedLineInbox($companyData);
-        $this->seedVoiceInbox($companyData);
-    }
-
-    private function seedWebsiteInbox(array $companyData): void
-    {
-        $channel = WebWidget::create([
-            'account_id' => $this->account->id,
-            'website_url' => "https://{$companyData['domain']}",
-            'website_token' => 'wt_' . bin2hex(random_bytes(16)), // Generate unique token
-        ]);
-
-        Inbox::create([
-            'channel_id' => $channel->id,
-            'channel_type' => WebWidget::class,
-            'account_id' => $this->account->id,
-            'name' => "{$companyData['name']} Website",
-        ]);
-    }
-
-    private function seedFacebookInbox(array $companyData): void
-    {
-        $channel = FacebookPage::create([
-            'account_id' => $this->account->id,
-            'user_access_token' => Str::random(32),
-            'page_access_token' => Str::random(32),
-            'page_id' => Str::random(16),
-        ]);
-
-        Inbox::create([
-            'channel_id' => $channel->id,
-            'channel_type' => FacebookPage::class,
-            'account_id' => $this->account->id,
-            'name' => "{$companyData['name']} Facebook",
-        ]);
-    }
-
-    private function seedTwitterInbox(array $companyData): void
-    {
-        $channel = TwitterProfile::create([
-            'account_id' => $this->account->id,
-            'twitter_access_token' => Str::random(32),
-            'twitter_access_token_secret' => Str::random(32),
-            'profile_id' => '123',
-        ]);
-
-        Inbox::create([
-            'channel_id' => $channel->id,
-            'channel_type' => TwitterProfile::class,
-            'account_id' => $this->account->id,
-            'name' => "{$companyData['name']} Twitter",
-        ]);
-    }
-
-    private function seedWhatsappInbox(array $companyData): void
-    {
-        $channel = Whatsapp::create([
-            'account_id' => $this->account->id,
-            'phone_number' => '+1234567890',
-        ]);
-
-        Inbox::create([
-            'channel_id' => $channel->id,
-            'channel_type' => Whatsapp::class,
-            'account_id' => $this->account->id,
-            'name' => "{$companyData['name']} Whatsapp",
-        ]);
-    }
-
-    private function seedSmsInbox(array $companyData): void
-    {
-        $channel = Sms::create([
-            'account_id' => $this->account->id,
-            'phone_number' => '+1234567891',
-        ]);
-
-        Inbox::create([
-            'channel_id' => $channel->id,
-            'channel_type' => Sms::class,
-            'account_id' => $this->account->id,
-            'name' => "{$companyData['name']} Mobile",
-        ]);
-    }
-
-    private function seedEmailInbox(array $companyData): void
-    {
-        $channel = Email::create([
-            'account_id' => $this->account->id,
-            'email' => "test@{$companyData['domain']}",
-            'forward_to_email' => "test_fwd@{$companyData['domain']}",
-        ]);
-
-        Inbox::create([
-            'channel_id' => $channel->id,
-            'channel_type' => Email::class,
-            'account_id' => $this->account->id,
-            'name' => "{$companyData['name']} Email",
-        ]);
-    }
-
-    private function seedApiInbox(array $companyData): void
-    {
-        $channel = Api::create([
-            'account_id' => $this->account->id,
-        ]);
-
-        Inbox::create([
-            'channel_id' => $channel->id,
-            'channel_type' => Api::class,
-            'account_id' => $this->account->id,
-            'name' => "{$companyData['name']} API",
-        ]);
-    }
-
-    private function seedTelegramInbox(array $companyData): void
-    {
-        $channel = Telegram::create([
-            'account_id' => $this->account->id,
-            'bot_name' => $companyData['name'],
-            'bot_token' => Str::random(32),
-        ]);
-
-        Inbox::create([
-            'channel_id' => $channel->id,
-            'channel_type' => Telegram::class,
-            'account_id' => $this->account->id,
-            'name' => "{$companyData['name']} Telegram",
-        ]);
-    }
-
-    private function seedLineInbox(array $companyData): void
-    {
-        $channel = Line::create([
-            'account_id' => $this->account->id,
-            'line_channel_id' => Str::random(16),
-            'line_channel_secret' => Str::random(32),
-            'line_channel_token' => Str::random(32),
-        ]);
-
-        Inbox::create([
-            'channel_id' => $channel->id,
-            'channel_type' => Line::class,
-            'account_id' => $this->account->id,
-            'name' => "{$companyData['name']} Line",
-        ]);
-    }
-
-    private function seedVoiceInbox(array $companyData): void
-    {
-        $channel = Voice::factory()->demo()->create([
-            'account_id' => $this->account->id,
-            'phone_number' => '+1234567890',
-        ]);
-
-        Inbox::create([
-            'channel_id' => $channel->id,
-            'channel_type' => Voice::class,
-            'account_id' => $this->account->id,
-            'name' => "{$companyData['name']} Voice",
-        ]);
+        return [
+            'total_teams' => count($this->seedData->teams),
+            'total_custom_roles' => count($this->seedData->customRoles),
+            'total_users' => count($this->seedData->users),
+            'total_labels' => count($this->seedData->labels),
+            'total_contacts' => count($this->seedData->contacts),
+            'total_conversations' => collect($this->seedData->contacts)
+                ->sum(fn($contact) => count($contact['conversations'])),
+            'total_messages' => collect($this->seedData->contacts)
+                ->flatMap(fn($contact) => $contact['conversations'])
+                ->sum(fn($conv) => count($conv['messages'])),
+        ];
     }
 }

@@ -27,9 +27,12 @@ class SeedAccountJob implements ShouldQueue
             Log::info('Starting account seeding', ['account_id' => $this->account->id]);
             
             $seeder = new AccountSeederService($this->account);
-            $seeder->perform();
+            $stats = $seeder->perform();
             
-            Log::info('Account seeding completed', ['account_id' => $this->account->id]);
+            Log::info('Account seeding completed', [
+                'account_id' => $this->account->id,
+                'stats' => $stats,
+            ]);
         } catch (\Throwable $e) {
             Log::error('Account seeding failed', [
                 'account_id' => $this->account->id,
