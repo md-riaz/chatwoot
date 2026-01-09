@@ -18,7 +18,7 @@
 
   let { agent, capacity, current, status = 'online', class: className }: Props = $props();
   
-  const percentage = (current / capacity) * 100;
+  const percentage = $derived((current / capacity) * 100);
   const statusColors = {
     online: 'success',
     busy: 'warning',

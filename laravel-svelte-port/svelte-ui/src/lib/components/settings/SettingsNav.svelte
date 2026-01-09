@@ -28,7 +28,7 @@
   
   let { basePath = '/app/settings' }: Props = $props();
   
-  const navItems: SettingsNavItem[] = [
+  const navItems = $derived<SettingsNavItem[]>([
     {
       id: 'account',
       label: 'Account',
@@ -95,7 +95,7 @@
       icon: 'file-text',
       href: `${basePath}/audit-logs`,
     },
-  ];
+  ]);
   
   function getIcon(iconName: string) {
     const icons: Record<string, any> = {
@@ -125,7 +125,7 @@
       class="w-full justify-start gap-3"
       onclick={() => navigate(item.href)}
     >
-      <svelte:component this={IconComponent} class="h-4 w-4" />
+      <IconComponent class="h-4 w-4" />
       <span class="flex-1 text-left">{item.label}</span>
       {#if item.badge}
         <Badge variant="default" class="text-xs">

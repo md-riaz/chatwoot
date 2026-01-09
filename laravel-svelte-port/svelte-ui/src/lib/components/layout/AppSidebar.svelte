@@ -184,7 +184,7 @@
             class="w-full justify-start gap-3 {active ? 'font-medium' : ''}"
             onclick={() => handleNavigate(item)}
           >
-            <svelte:component this={IconComponent} class="h-4 w-4" />
+            <IconComponent class="h-4 w-4" />
             <span class="flex-1 text-left">{item.label}</span>
             {#if item.badge && item.badge > 0}
               <Badge variant="default" class="ml-auto">

@@ -26,13 +26,13 @@
     statusCounts = {},
   }: Props = $props();
   
-  const statusTabs = [
+  const statusTabs = $derived([
     { value: 'all', label: 'All', count: statusCounts.all || 0 },
     { value: 'mine', label: 'Mine', count: statusCounts.mine || 0 },
     { value: 'unassigned', label: 'Unassigned', count: statusCounts.unassigned || 0 },
     { value: 'open', label: 'Open', count: statusCounts.open || 0 },
     { value: 'resolved', label: 'Resolved', count: statusCounts.resolved || 0 },
-  ];
+  ]);
   
   const sortOptions = [
     { value: 'latest', label: 'Latest' },
@@ -42,7 +42,12 @@
   ];
   
   let selectedStatus = $state('all');
-  let selectedSort = $state(sort.sortBy);
+  let selectedSort = $state('latest');
+  
+  // Sync selectedSort with sort prop
+  $effect(() => {
+    selectedSort = sort.sortBy;
+  });
   
   function handleStatusChange(value: string) {
     selectedStatus = value;

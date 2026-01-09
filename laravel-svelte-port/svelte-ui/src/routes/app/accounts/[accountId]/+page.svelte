@@ -125,7 +125,8 @@
             {stat.title}
           </Card.Title>
           <div class="{stat.bgColor} p-2 rounded-lg">
-            <svelte:component this={stat.icon} class="h-4 w-4 {stat.color}" />
+            {@const StatIcon = stat.icon}
+            <StatIcon class="h-4 w-4 {stat.color}" />
           </div>
         </Card.Header>
         <Card.Content>

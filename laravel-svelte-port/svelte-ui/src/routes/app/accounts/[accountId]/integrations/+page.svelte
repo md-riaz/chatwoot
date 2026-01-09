@@ -168,14 +168,16 @@
 						<div
 							class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary"
 						>
-							<svelte:component this={integration.icon} class="h-6 w-6" />
+							{@const IntegrationIcon = integration.icon}
+							<IntegrationIcon class="h-6 w-6" />
 						</div>
 
 						<!-- Name and badge -->
 						<div class="mb-2 flex items-center gap-2">
 							<h3 class="font-semibold">{integration.name}</h3>
 							<Badge variant={getBadgeVariant(integration.status)} class="gap-1 text-xs">
-								<svelte:component this={getBadgeIcon(integration.status)} class="h-3 w-3" />
+								{@const BadgeIcon = getBadgeIcon(integration.status)}
+								<BadgeIcon class="h-3 w-3" />
 								{integration.status === 'connected' ? 'Connected' : 'Available'}
 							</Badge>
 						</div>

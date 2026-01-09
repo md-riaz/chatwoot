@@ -11,7 +11,12 @@
 
   let { portalName, searchQuery = '', onsearch, children }: Props = $props();
 
-  let localQuery = $state(searchQuery);
+  let localQuery = $state('');
+  
+  // Initialize localQuery when searchQuery prop changes
+  $effect(() => {
+    localQuery = searchQuery;
+  });
 
   function handleSearch(e: Event) {
     e.preventDefault();

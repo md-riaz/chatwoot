@@ -26,11 +26,20 @@
   }>();
   
   // Form state
-  let title = $state(campaign?.title || '');
-  let message = $state(campaign?.message || '');
-  let inboxId = $state<number | null>(campaign?.inboxId || null);
-  let scheduledAt = $state(campaign?.scheduledAt || '');
-  let selectedAudience = $state<number[]>(campaign?.audience?.map((a: any) => a.id) || []);
+  let title = $state('');
+  let message = $state('');
+  let inboxId = $state<number | null>(null);
+  let scheduledAt = $state('');
+  let selectedAudience = $state<number[]>([]);
+  
+  // Initialize form fields when campaign changes
+  $effect(() => {
+    title = campaign?.title || '';
+    message = campaign?.message || '';
+    inboxId = campaign?.inboxId || null;
+    scheduledAt = campaign?.scheduledAt || '';
+    selectedAudience = campaign?.audience?.map((a: any) => a.id) || [];
+  });
   
   // UI state
   let isSubmitting = $state(false);

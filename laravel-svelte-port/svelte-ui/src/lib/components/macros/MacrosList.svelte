@@ -109,7 +109,8 @@
               <div class="flex items-center gap-3 mb-2">
                 <h3 class="text-lg font-semibold">{macro.name}</h3>
                 <Badge variant={getVisibilityColor(macro.visibility)}>
-                  <svelte:component this={getVisibilityIcon(macro.visibility)} class="h-3 w-3 mr-1" />
+                  {@const VisibilityIcon = getVisibilityIcon(macro.visibility)}
+                  <VisibilityIcon class="h-3 w-3 mr-1" />
                   {getVisibilityLabel(macro.visibility)}
                 </Badge>
               </div>

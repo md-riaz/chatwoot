@@ -22,7 +22,12 @@
   }
 
   let { primaryContact, duplicateContacts = [], onMerge, onCancel, class: className }: Props = $props();
-  let selectedDuplicates = $state<string[]>(duplicateContacts.map(c => c.id));
+  let selectedDuplicates = $state<string[]>([]);
+
+  // Initialize selectedDuplicates when duplicateContacts changes
+  $effect(() => {
+    selectedDuplicates = duplicateContacts.map(c => c.id);
+  });
 
   function toggleDuplicate(id: string) {
     if (selectedDuplicates.includes(id)) {
