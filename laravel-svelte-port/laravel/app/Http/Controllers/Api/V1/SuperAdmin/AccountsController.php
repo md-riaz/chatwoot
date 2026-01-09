@@ -35,53 +35,60 @@ class AccountsController extends Controller
             $allFeatures[$feature['name']] = true; // All features are available
         }
         
-        // Map Laravel feature names to frontend expected names
-        // Note: getEnabledFeatures() returns snake_case enum values, 
-        // but we want to send snake_case to frontend (which will transform to camelCase)
+        // Map internal feature names (from getEnabledFeatures) to frontend expected names
+        // getEnabledFeatures() returns base names like 'email', 'messenger', 'macros', etc.
+        // We need to map these to the frontend names the Svelte UI expects
         $featureNameMap = [
-            // Communication channels (already snake_case from enum)
-            'email_integration' => 'email_integration',
-            'whatsapp_integration' => 'whatsapp_integration',
-            'facebook_integration' => 'facebook_integration',
-            'instagram_integration' => 'instagram_integration',
-            'twitter_integration' => 'twitter_integration',
-            'website_widget' => 'website_widget',
+            // Communication channels - map internal to frontend names
+            'email' => 'email_integration',
+            'whatsapp' => 'whatsapp_integration',
+            'messenger' => 'facebook_integration',
+            'instagram' => 'instagram_integration',
+            'sms' => 'twitter_integration', // sms bit reused for twitter
+            'liveChat' => 'website_widget',
             
-            // Product features (already snake_case from enum)
+            // Product features - these match 1:1
             'macros' => 'macros',
             'labels' => 'labels',
-            'team_management' => 'team_management',
+            'teams' => 'team_management',
             'campaigns' => 'campaigns',
             'webhooks' => 'webhooks',
-            'canned_responses' => 'canned_responses',
-            'automation_rules' => 'automation_rules',
-            'contact_management' => 'contact_management',
-            'conversation_assignment' => 'conversation_assignment',
-            'conversation_search' => 'conversation_search',
-            'file_attachments' => 'file_attachments',
-            'conversation_notes' => 'conversation_notes',
-            'agent_availability' => 'agent_availability',
-            'conversation_status' => 'conversation_status',
-            'real_time_notifications' => 'real_time_notifications',
+            'cannedResponses' => 'canned_responses',
+            'automationRules' => 'automation_rules',
+            'customAttributes' => 'contact_management',
+            'assignment_v2' => 'conversation_assignment',
+            'reports' => 'conversation_search', // reports bit reused
+            'helpCenter' => 'mobile_app', // helpCenter bit reused
             
-            // Integrations (already snake_case from enum)
-            'linear_integration' => 'linear_integration',
-            'slack_integration' => 'slack_integration',
-            'shopify_integration' => 'shopify_integration',
-            'api_access' => 'api_access',
-            'mobile_app' => 'mobile_app',
+            // Integrations
+            'linear' => 'linear_integration',
+            'slack' => 'slack_integration',
+            'shopify' => 'shopify_integration',
             
-            // Premium features (already snake_case from enum)
-            'custom_roles' => 'custom_roles',
-            'sla_policies' => 'sla_policies',
-            'audit_logs' => 'audit_logs',
-            'advanced_reporting' => 'advanced_reporting',
-            'openai_integration' => 'openai_integration',
-            'csat_surveys' => 'csat_surveys',
+            // Premium features
             'custom_branding' => 'custom_branding',
             'disable_branding' => 'disable_branding',
             'agent_capacity' => 'agent_capacity',
+            'advanced_reporting' => 'advanced_reporting',
+            'inbox_assistant' => 'openai_integration',
+            
+            // Enterprise features (from custom_attributes) - these match 1:1
+            'custom_roles' => 'custom_roles',
+            'sla_policies' => 'sla_policies',
+            'audit_logs' => 'audit_logs',
             'saml' => 'saml',
+        ];
+        
+        // Additional synthetic features that map to multiple internal features
+        // These need to be added if any of their component features are enabled
+        $syntheticFeatures = [
+            'api_access' => 'webhooks',
+            'csat_surveys' => 'reports',
+            'file_attachments' => 'liveChat',
+            'conversation_notes' => 'customAttributes',
+            'agent_availability' => 'teams',
+            'conversation_status' => 'automationRules',
+            'real_time_notifications' => 'webhooks',
         ];
         
         // Convert enabled features to frontend format
@@ -89,6 +96,16 @@ class AccountsController extends Controller
         foreach ($enabledFeatures as $feature) {
             if (isset($featureNameMap[$feature])) {
                 $selectedFeatureFlags[] = $featureNameMap[$feature];
+            } else {
+                // If no mapping exists, pass through as-is (for enterprise features)
+                $selectedFeatureFlags[] = $feature;
+            }
+        }
+        
+        // Add synthetic features based on their underlying feature bits
+        foreach ($syntheticFeatures as $syntheticName => $baseName) {
+            if (in_array($baseName, $enabledFeatures) && !in_array($syntheticName, $selectedFeatureFlags)) {
+                $selectedFeatureFlags[] = $syntheticName;
             }
         }
         
