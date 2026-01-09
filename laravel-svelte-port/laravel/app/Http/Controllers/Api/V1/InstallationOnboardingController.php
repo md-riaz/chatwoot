@@ -134,14 +134,16 @@ class InstallationOnboardingController extends Controller
                 // Remove onboarding flag from Redis (block future onboarding)
                 app('redis')->del($redisKey);
 
+                // Load relationships for complete user data
+                $user->load(['accountUsers.account', 'roles']);
+                
+                // Create API token for automatic login
+                $token = $user->createToken('onboarding-token')->plainTextToken;
+
                 return response()->json([
                     'message' => 'Super admin and account created successfully.',
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'type' => $user->type,
-                    ],
+                    'user' => new \App\Http\Resources\User\UserResource($user),
+                    'token' => $token,
                     'account' => [
                         'id' => $account->id,
                         'name' => $account->name,

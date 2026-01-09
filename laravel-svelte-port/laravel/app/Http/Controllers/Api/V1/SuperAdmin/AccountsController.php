@@ -36,26 +36,48 @@ class AccountsController extends Controller
         }
         
         // Map Laravel feature names to frontend expected names
+        // Note: getEnabledFeatures() returns snake_case enum values, 
+        // but we want to send snake_case to frontend (which will transform to camelCase)
         $featureNameMap = [
-            'email' => 'email',
-            'sms' => 'sms', 
-            'messenger' => 'messenger',
-            'whatsapp' => 'whatsapp',
-            'instagram' => 'instagram',
+            // Communication channels (already snake_case from enum)
+            'email_integration' => 'email_integration',
+            'whatsapp_integration' => 'whatsapp_integration',
+            'facebook_integration' => 'facebook_integration',
+            'instagram_integration' => 'instagram_integration',
+            'twitter_integration' => 'twitter_integration',
+            'website_widget' => 'website_widget',
+            
+            // Product features (already snake_case from enum)
             'macros' => 'macros',
             'labels' => 'labels',
-            'teams' => 'teams',
-            'reports' => 'reports',
+            'team_management' => 'team_management',
             'campaigns' => 'campaigns',
             'webhooks' => 'webhooks',
-            'slack' => 'slack',
-            'cannedResponses' => 'canned_responses',
-            'automationRules' => 'automation_rules',
-            'customAttributes' => 'custom_attributes',
-            'liveChat' => 'live_chat',
-            'helpCenter' => 'help_center',
-            'linear' => 'linear',
-            'shopify' => 'shopify',
+            'canned_responses' => 'canned_responses',
+            'automation_rules' => 'automation_rules',
+            'contact_management' => 'contact_management',
+            'conversation_assignment' => 'conversation_assignment',
+            'conversation_search' => 'conversation_search',
+            'file_attachments' => 'file_attachments',
+            'conversation_notes' => 'conversation_notes',
+            'agent_availability' => 'agent_availability',
+            'conversation_status' => 'conversation_status',
+            'real_time_notifications' => 'real_time_notifications',
+            
+            // Integrations (already snake_case from enum)
+            'linear_integration' => 'linear_integration',
+            'slack_integration' => 'slack_integration',
+            'shopify_integration' => 'shopify_integration',
+            'api_access' => 'api_access',
+            'mobile_app' => 'mobile_app',
+            
+            // Premium features (already snake_case from enum)
+            'custom_roles' => 'custom_roles',
+            'sla_policies' => 'sla_policies',
+            'audit_logs' => 'audit_logs',
+            'advanced_reporting' => 'advanced_reporting',
+            'openai_integration' => 'openai_integration',
+            'csat_surveys' => 'csat_surveys',
         ];
         
         // Convert enabled features to frontend format
@@ -311,41 +333,65 @@ class AccountsController extends Controller
      */
     private function updateAccountFeatureFlags(Account $account, array $selectedFeatures): void
     {
-        // Map frontend feature names back to Laravel feature names
+        // Map frontend feature names (camelCase) back to Laravel enum values (snake_case)
+        // Note: Frontend sends camelCase, but API client transforms to snake_case before reaching here
         $featureNameMap = [
-            'email' => 'email',
-            'sms' => 'sms', 
-            'messenger' => 'messenger',
-            'whatsapp' => 'whatsapp',
-            'instagram' => 'instagram',
+            // Communication channels
+            'website_widget' => 'website_widget',
+            'email_integration' => 'email_integration',
+            'whatsapp_integration' => 'whatsapp_integration',
+            'facebook_integration' => 'facebook_integration',
+            'instagram_integration' => 'instagram_integration',
+            'twitter_integration' => 'twitter_integration',
+            
+            // Product features
             'macros' => 'macros',
             'labels' => 'labels',
-            'teams' => 'teams',
-            'reports' => 'reports',
+            'team_management' => 'team_management',
             'campaigns' => 'campaigns',
             'webhooks' => 'webhooks',
-            'slack' => 'slack',
-            'canned_responses' => 'cannedResponses',
-            'automation_rules' => 'automationRules',
-            'custom_attributes' => 'customAttributes',
-            'live_chat' => 'liveChat',
-            'help_center' => 'helpCenter',
-            'linear' => 'linear',
-            'shopify' => 'shopify',
+            'canned_responses' => 'canned_responses',
+            'automation_rules' => 'automation_rules',
+            'contact_management' => 'contact_management',
+            'conversation_assignment' => 'conversation_assignment',
+            'conversation_search' => 'conversation_search',
+            'file_attachments' => 'file_attachments',
+            'conversation_notes' => 'conversation_notes',
+            'agent_availability' => 'agent_availability',
+            'conversation_status' => 'conversation_status',
+            'real_time_notifications' => 'real_time_notifications',
+            
+            // Integrations
+            'linear_integration' => 'linear_integration',
+            'slack_integration' => 'slack_integration',
+            'shopify_integration' => 'shopify_integration',
+            'api_access' => 'api_access',
+            'mobile_app' => 'mobile_app',
+            
+            // Premium features
+            'custom_roles' => 'custom_roles',
+            'sla_policies' => 'sla_policies',
+            'audit_logs' => 'audit_logs',
+            'advanced_reporting' => 'advanced_reporting',
+            'openai_integration' => 'openai_integration',
+            'csat_surveys' => 'csat_surveys',
         ];
         
-        // Reset feature flags to 0
-        $account->feature_flags = 0;
+        // Get current enabled features and disable all
+        $currentFeatures = $account->getEnabledFeatures();
+        foreach ($currentFeatures as $feature) {
+            $account->disableFeature($feature);
+        }
         
         // Enable selected features
         foreach ($selectedFeatures as $frontendFeature) {
             if (isset($featureNameMap[$frontendFeature])) {
-                $laravelFeature = $featureNameMap[$frontendFeature];
-                $account->enableFeature($laravelFeature);
+                $enumValue = $featureNameMap[$frontendFeature];
+                $account->enableFeature($enumValue);
             }
         }
         
-        // Save the account (enableFeature already saves, but just to be sure)
+        // Save the account
         $account->save();
     }
 }

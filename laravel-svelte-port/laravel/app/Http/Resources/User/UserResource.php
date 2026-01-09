@@ -29,21 +29,51 @@ class UserResource extends JsonResource
             'confirmed' => !is_null($this->email_verified_at),
             'locked' => $this->custom_attributes['locked'] ?? false,
             
+            // Additional Rails parity fields for frontend compatibility
+            'access_token' => $this->access_token ?? null,
+            'account_id' => $this->getActiveAccountId(),
+            'available_name' => $this->display_name ?: $this->name,
+            'message_signature' => $this->message_signature ?? '',
+            'provider' => $this->provider ?? 'email',
+            'pubsub_token' => $this->pubsub_token ?? null,
+            'ui_settings' => $this->ui_settings ?? new \stdClass(),
+            'uid' => $this->uid ?? null,
+            
             // Spatie roles (platform-level)
             'roles' => $this->whenLoaded('roles', function () {
                 return $this->roles->pluck('name');
             }, []),
             
-            // Account relationships with proper enum conversion
+            // Account relationships with complete Rails parity
             'accounts' => $this->whenLoaded('accountUsers', function () {
                 return $this->accountUsers->map(fn($accountUser) => [
                     'id' => $accountUser->account_id,
                     'name' => $accountUser->account->name ?? null,
+                    'status' => $accountUser->account->status ?? 'active',
                     'role' => $accountUser->role->getName(), // Convert enum to string
                     'availability' => $accountUser->availability->getName(), // Convert enum to string
+                    'availability_status' => $accountUser->availability->getName(), // Presence status
+                    'auto_offline' => $accountUser->auto_offline ?? false,
                     'active_at' => $accountUser->active_at ? $accountUser->active_at->toISOString() : null,
+                    'inviter_id' => $accountUser->inviter_id ?? null,
+                    'permissions' => $accountUser->permissions ?? [],
                 ]);
             }, []),
         ];
+    }
+    
+    /**
+     * Get the active account ID for the user
+     */
+    private function getActiveAccountId(): ?int
+    {
+        // If accountUsers are loaded, return the first account ID
+        if ($this->relationLoaded('accountUsers') && $this->accountUsers->isNotEmpty()) {
+            return $this->accountUsers->first()->account_id;
+        }
+        
+        // Fallback: query for the first account
+        $firstAccountUser = $this->accountUsers()->first();
+        return $firstAccountUser ? $firstAccountUser->account_id : null;
     }
 }

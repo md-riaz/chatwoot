@@ -64,50 +64,34 @@
     submitting = true;
     
     try {
-      await completeOnboarding(formData);
+      const response = await completeOnboarding(formData);
       
       toast.success('Super admin account created successfully!');
       
-      // Try to log in automatically
-      try {
-        console.log('Attempting automatic login after onboarding...');
-        const response = await login({ 
-          email: formData.email, 
-          password: formData.password 
-        });
-        
-        console.log('Login response:', response);
-        
-        // Store token and user data
-        if (response.token) {
-          localStorage.setItem('auth_token', response.token);
-          console.log('Token stored:', response.token.substring(0, 20) + '...');
-        }
-        
-        if (response.user) {
-          // Ensure user has account information
-          console.log('User data from login:', response.user);
-          
-          // If user doesn't have accounts array, we need to fetch it or create a default
-          if (!response.user.accounts || response.user.accounts.length === 0) {
-            console.warn('User has no accounts, this might cause redirect issues');
-          }
-          
-          localStorage.setItem('current_user', JSON.stringify(response.user));
-          console.log('User stored:', response.user.email);
-        }
-        
-        // Add a small delay to ensure localStorage is updated
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        console.log('Redirecting to /app...');
-        await goto('/app');
-      } catch (loginError) {
-        console.error('Automatic login failed:', loginError);
-        // Login failed, redirect to login page with success message
-        toast.success('Account created! Please log in with your credentials.');
-        await goto('/app/login');
+      // Store token and user data from onboarding response
+      if (response.token) {
+        localStorage.setItem('auth_token', response.token);
+        console.log('Token stored from onboarding:', response.token.substring(0, 20) + '...');
       }
+      
+      if (response.user) {
+        // The response.user now contains complete user data with accounts array
+        console.log('User data from onboarding:', response.user);
+        
+        // Verify user has account information
+        if (!response.user.accounts || response.user.accounts.length === 0) {
+          console.warn('User has no accounts after onboarding, this should not happen');
+        }
+        
+        localStorage.setItem('current_user', JSON.stringify(response.user));
+        console.log('User stored from onboarding:', response.user.email);
+      }
+      
+      // Add a small delay to ensure localStorage is updated
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log('Redirecting to /app after successful onboarding...');
+      await goto('/app');
     } catch (error: unknown) {
       // Type guard for error with response property
       if (error && typeof error === 'object' && 'response' in error) {

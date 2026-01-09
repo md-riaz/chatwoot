@@ -5,7 +5,7 @@
 
 import { api } from './client';
 import type { OnboardingData, ApiResponse } from './types';
-import type { LoginResponse } from './auth';
+import type { LoginResponse, CurrentUser } from './auth';
 
 /**
  * Onboarding completion parameters
@@ -22,14 +22,13 @@ export interface OnboardingParams {
  */
 export interface OnboardingResponse {
   message: string;
-  user: {
-    id: number;
-    name: string;
-    email: string;
-  };
+  user: CurrentUser;  // Use full CurrentUser interface instead of partial
+  token: string;      // Add token field
   account: {
     id: number;
     name: string;
+    enabled_features?: string[];
+    feature_flags?: Record<string, any>;
   };
 }
 

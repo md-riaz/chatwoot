@@ -11,31 +11,33 @@
 	let { selectedFeatures = [], allFeatures = {}, onFeaturesChange, disabled = false }: Props = $props();
 	
 	// Premium features that require special handling
+	// NOTE: Using camelCase to match API client transformation (snake_case -> camelCase)
 	const premiumFeatures = [
-		'captain', 'custom_branding', 'agent_capacity', 'audit_logs',
-		'disable_branding', 'advanced_reporting', 'crm_integration', 
-		'notion_integration', 'inbox_assistant'
+		'customRoles', 'slaPolicies', 'auditLogs',
+		'advancedReporting', 'openaiIntegration', 'shopifyIntegration'
 	];
 	
 	// Group features by category for better organization
+	// NOTE: Using camelCase to match API client transformation (snake_case -> camelCase)
 	const featureCategories = {
 		'Communication Channels': [
-			'live_chat', 'email', 'sms', 'messenger', 'instagram', 
-			'whatsapp', 'telegram', 'line', 'tiktok'
+			'websiteWidget', 'emailIntegration', 'whatsappIntegration', 'facebookIntegration', 
+			'instagramIntegration', 'twitterIntegration'
 		],
 		'Product Features': [
-			'help_center', 'macros', 'canned_responses', 'labels', 'teams',
-			'custom_attributes', 'automation_rules', 'webhooks', 'campaigns', 'reports'
-		],
-		'Authentication & OAuth': [
-			'google', 'microsoft', 'saml'
+			'macros', 'labels', 'cannedResponses', 'teamManagement',
+			'automationRules', 'webhooks', 'campaigns', 'contactManagement',
+			'conversationAssignment', 'conversationSearch', 'fileAttachments',
+			'conversationNotes', 'agentAvailability', 'conversationStatus',
+			'realTimeNotifications'
 		],
 		'Integrations': [
-			'linear', 'slack', 'shopify', 'notion_integration', 'crm_integration'
+			'linearIntegration', 'slackIntegration', 'shopifyIntegration', 
+			'apiAccess', 'mobileApp'
 		],
 		'Enterprise Features': [
-			'captain', 'custom_branding', 'agent_capacity', 'audit_logs',
-			'disable_branding', 'advanced_reporting', 'inbox_assistant'
+			'customRoles', 'slaPolicies', 'auditLogs',
+			'advancedReporting', 'openaiIntegration', 'csatSurveys'
 		]
 	};
 	
@@ -66,7 +68,12 @@
 	}
 	
 	function formatFeatureName(feature: string): string {
-		return feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+		// Convert camelCase to readable format
+		// e.g., 'cannedResponses' -> 'Canned Responses', 'helpCenter' -> 'Help Center'
+		return feature
+			.replace(/([A-Z])/g, ' $1') // Add space before capital letters
+			.replace(/^./, str => str.toUpperCase()) // Capitalize first letter
+			.trim();
 	}
 	
 	// Separate regular and premium features

@@ -22,6 +22,8 @@ class AccountUser extends Model
         'active_at',
         'availability',
         'settings',
+        'auto_offline',    // Rails parity
+        'permissions',     // Rails parity
     ];
 
     protected $casts = [
@@ -29,6 +31,8 @@ class AccountUser extends Model
         'availability' => UserAvailability::class,
         'active_at' => 'boolean',
         'settings' => 'array',
+        'permissions' => 'array',
+        'auto_offline' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -158,6 +162,11 @@ class AccountUser extends Model
      */
     public function getPermissions(): array
     {
+        // If permissions are explicitly set, return them
+        if (!empty($this->permissions)) {
+            return $this->permissions;
+        }
+        
         if ($this->custom_role_id && $this->customRole) {
             return $this->customRole->permissions ?? [];
         }
@@ -175,5 +184,13 @@ class AccountUser extends Model
         }
 
         return [];
+    }
+    
+    /**
+     * Get permissions attribute (Rails parity)
+     */
+    public function getPermissionsAttribute(): array
+    {
+        return $this->getPermissions();
     }
 }

@@ -37,6 +37,9 @@ class User extends Authenticatable implements HasMedia
         'uid',
         'sso_auth_token',
         'email_verified_at', // Rails parity: confirmed_at field
+        'message_signature', // Rails parity
+        'ui_settings',       // Rails parity
+        'pubsub_token',      // Rails parity
     ];
 
     /**
@@ -63,6 +66,7 @@ class User extends Authenticatable implements HasMedia
             'password' => 'hashed',
             'custom_attributes' => 'array',
             'availability' => 'integer',
+            'ui_settings' => 'array',
         ];
     }
 
@@ -151,5 +155,49 @@ class User extends Authenticatable implements HasMedia
     public static function fromEmail(string $email): ?User
     {
         return static::where('email', $email)->first();
+    }
+    
+    /**
+     * Get access token for API calls (Rails parity)
+     */
+    public function getAccessTokenAttribute(): ?string
+    {
+        // Return the latest token if available
+        $token = $this->tokens()->latest()->first();
+        return $token ? $token->token : null;
+    }
+    
+    /**
+     * Get message signature (Rails parity)
+     */
+    public function getMessageSignatureAttribute(): string
+    {
+        return $this->attributes['message_signature'] ?? '';
+    }
+    
+    /**
+     * Get UI settings (Rails parity)
+     */
+    public function getUiSettingsAttribute(): array
+    {
+        return isset($this->attributes['ui_settings']) 
+            ? json_decode($this->attributes['ui_settings'], true) ?? []
+            : [];
+    }
+    
+    /**
+     * Get pubsub token for WebSocket connections (Rails parity)
+     */
+    public function getPubsubTokenAttribute(): ?string
+    {
+        return $this->attributes['pubsub_token'] ?? null;
+    }
+    
+    /**
+     * Get the active account user relationship
+     */
+    public function getActiveAccountUserAttribute(): ?AccountUser
+    {
+        return $this->accountUsers()->first();
     }
 }
