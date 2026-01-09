@@ -17,29 +17,47 @@ class CallsController extends Controller
      */
     public function create(Request $request, Account $account, Contact $contact): JsonResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'inbox_id' => 'required|integer|exists:inboxes,id',
         ]);
 
-        // Ensure contact belongs to account
+        // Verify contact belongs to account
         abort_unless($contact->account_id === $account->id, 404);
 
-        // Get voice inbox
+        // Verify inbox belongs to account and is a Voice channel
         $inbox = $account->inboxes()
-            ->where('id', $request->input('inbox_id'))
-            ->where('channel_type', 'App\\Models\\Channels\\Voice')
+            ->where('id', $validated['inbox_id'])
+            ->where('channel_type', \App\Models\Channels\Voice::class)
             ->firstOrFail();
 
-        // Ensure user has access to this inbox
         $user = $request->user();
         
-        $result = InitiateOutboundCallAction::run($account, $inbox, $user, $contact);
+        if (!$user) {
+            return response()->json(['error' => 'Authentication required'], 401);
+        }
 
-        return response()->json([
-            'conversation_id' => $result['conversation']->display_id,
-            'inbox_id' => $inbox->id,
-            'call_sid' => $result['call_sid'],
-            'conference_sid' => $result['conference_sid'],
-        ]);
+        // Verify user has access to this account
+        $accountUser = $user->accountUsers()->where('account_id', $account->id)->first();
+        if (!$accountUser) {
+            return response()->json(['error' => 'Access denied'], 403);
+        }
+
+        try {
+            $result = InitiateOutboundCallAction::run($account, $inbox, $user, $contact);
+
+            return response()->json([
+                'data' => [
+                    'conversation_id' => $result['conversation']->id,
+                    'call_sid' => $result['call_sid'],
+                    'conference_sid' => $result['conference_sid'],
+                    'status' => 'initiated',
+                ]
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to initiate call',
+                'message' => $e->getMessage()
+            ], 422);
+        }
     }
 }

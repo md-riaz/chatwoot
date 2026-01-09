@@ -185,9 +185,9 @@ Route::prefix('webhooks')->group(function () {
     Route::post('tiktok', [TiktokController::class, 'webhook']);
     
     // Voice webhooks (Twilio)
-    Route::post('voice/call/{phone}', [VoiceController::class, 'callTwiml']);
-    Route::post('voice/status/{phone}', [VoiceController::class, 'status']);
-    Route::post('voice/conference_status/{phone}', [VoiceController::class, 'conferenceStatus']);
+    Route::post('voice/call/{phone}', [VoiceController::class, 'callTwiml'])->name('webhooks.twilio.voice.call');
+    Route::post('voice/status/{phone}', [VoiceController::class, 'status'])->name('webhooks.twilio.voice.status');
+    Route::post('voice/conference_status/{phone}', [VoiceController::class, 'conferenceStatus'])->name('webhooks.twilio.voice.conference_status');
 });
 
     // OAuth callbacks for third-party installs (Shopify)

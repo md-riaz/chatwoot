@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Actions\Voice\EndConferenceAction;
-use App\Actions\Voice\JoinConferenceAction;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Inbox;
@@ -14,63 +12,30 @@ use Illuminate\Http\Request;
 class ConferenceController extends Controller
 {
     /**
-     * Get WebRTC token for voice calls.
+     * Generate Twilio access token for WebRTC voice calls.
      */
     public function token(Request $request, Account $account): JsonResponse
     {
-        $inboxId = $request->input('inbox_id');
-        
-        if (!$inboxId) {
-            return response()->json(['error' => 'inbox_id required'], 422);
-        }
+        $validated = $request->validate([
+            'inbox_id' => 'required|integer|exists:inboxes,id',
+        ]);
 
         $inbox = $account->inboxes()
-            ->where('id', $inboxId)
-            ->where('channel_type', 'App\\Models\\Channels\\Voice')
+            ->where('id', $validated['inbox_id'])
+            ->where('channel_type', \App\Models\Channels\Voice::class)
             ->firstOrFail();
 
         $user = $request->user();
         
+        if (!$user) {
+            return response()->json(['error' => 'Authentication required'], 401);
+        }
+
         $tokenService = new TokenService($inbox, $user, $account);
         $tokenData = $tokenService->generate();
 
-        return response()->json($tokenData);
-    }
-
-    /**
-     * Join a conference call.
-     */
-    public function create(Request $request, Account $account): JsonResponse
-    {
-        $request->validate([
-            'conversation_id' => 'required|string',
-            'call_sid' => 'nullable|string',
+        return response()->json([
+            'data' => $tokenData
         ]);
-
-        $result = JoinConferenceAction::run(
-            $account,
-            $request->user(),
-            $request->input('conversation_id'),
-            $request->input('call_sid')
-        );
-
-        return response()->json($result);
-    }
-
-    /**
-     * End a conference call.
-     */
-    public function destroy(Request $request, Account $account): JsonResponse
-    {
-        $request->validate([
-            'conversation_id' => 'required|string',
-        ]);
-
-        $result = EndConferenceAction::run(
-            $account,
-            $request->input('conversation_id')
-        );
-
-        return response()->json($result);
     }
 }

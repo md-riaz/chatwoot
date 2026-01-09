@@ -489,17 +489,9 @@ class AccountSeederService
 
     private function seedVoiceInbox(array $companyData): void
     {
-        $channel = Voice::create([
+        $channel = Voice::factory()->demo()->create([
             'account_id' => $this->account->id,
             'phone_number' => '+1234567890',
-            'provider' => 'twilio',
-            'provider_config' => [
-                'account_sid' => 'demo_account_sid',
-                'auth_token' => 'demo_auth_token',
-                'api_key_sid' => 'demo_api_key_sid',
-                'api_key_secret' => 'demo_api_key_secret',
-                'twiml_app_sid' => 'demo_twiml_app_sid',
-            ],
         ]);
 
         Inbox::create([
