@@ -162,20 +162,22 @@
 		<!-- Integrations grid -->
 		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{#each integrations as integration (integration.id)}
+				{@const IntegrationIcon = integration.icon}
+				{@const BadgeIcon = getBadgeIcon(integration.status)}
 				<Card.Root class="transition-all hover:scale-105 hover:shadow-md">
 					<Card.Content class="p-6">
 						<!-- Icon -->
 						<div
 							class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary"
 						>
-							<svelte:component this={integration.icon} class="h-6 w-6" />
+							<IntegrationIcon class="h-6 w-6" />
 						</div>
 
 						<!-- Name and badge -->
 						<div class="mb-2 flex items-center gap-2">
 							<h3 class="font-semibold">{integration.name}</h3>
 							<Badge variant={getBadgeVariant(integration.status)} class="gap-1 text-xs">
-								<svelte:component this={getBadgeIcon(integration.status)} class="h-3 w-3" />
+								<BadgeIcon class="h-3 w-3" />
 								{integration.status === 'connected' ? 'Connected' : 'Available'}
 							</Badge>
 						</div>

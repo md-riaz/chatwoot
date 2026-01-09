@@ -29,6 +29,7 @@
   {#if type === 'emoji'}
     <div class="emoji-ratings">
       {#each emojiRatings as rating}
+        {@const RatingIcon = rating.icon}
         <button
           class="emoji-button"
           class:selected={value === rating.value}
@@ -37,7 +38,7 @@
           {disabled}
           aria-label={rating.label}
         >
-          <svelte:component this={rating.icon} size={40} />
+          <RatingIcon size={40} />
         </button>
       {/each}
     </div>

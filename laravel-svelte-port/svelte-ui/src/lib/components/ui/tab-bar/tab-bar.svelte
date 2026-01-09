@@ -19,7 +19,12 @@
     onTabChange?: (tab: TabItem, index: number) => void;
   } = $props();
 
-  let activeTab = $state(initialActiveTab);
+  let activeTab = $state(0);
+  
+  // Initialize activeTab when initialActiveTab or tabs change
+  $effect(() => {
+    activeTab = initialActiveTab;
+  });
 
   function handleTabClick(tab: TabItem, index: number) {
     activeTab = index;

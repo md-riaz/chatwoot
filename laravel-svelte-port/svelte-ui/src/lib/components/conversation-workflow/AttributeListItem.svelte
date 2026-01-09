@@ -61,7 +61,8 @@
       <div class="w-px h-3 bg-slate-300 dark:bg-slate-700" />
       <div class="flex gap-2 items-center text-sm text-slate-600 dark:text-slate-400">
         <div class="flex items-center gap-1.5">
-          <svelte:component this={attributeIcon()} class="size-4" />
+          {@const AttributeIcon = attributeIcon()}
+          <AttributeIcon class="size-4" />
           <span class="text-sm">{attribute.type}</span>
         </div>
         <div class="w-px h-3 bg-slate-300 dark:bg-slate-700" />

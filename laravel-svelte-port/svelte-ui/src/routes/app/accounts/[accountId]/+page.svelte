@@ -116,6 +116,7 @@
   <!-- Stats Grid -->
   <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
     {#each stats as stat}
+      {@const StatIcon = stat.icon}
       <Card.Root 
         class="hover:shadow-md transition-shadow cursor-pointer"
         onclick={() => goto(stat.href)}
@@ -125,7 +126,7 @@
             {stat.title}
           </Card.Title>
           <div class="{stat.bgColor} p-2 rounded-lg">
-            <svelte:component this={stat.icon} class="h-4 w-4 {stat.color}" />
+            <StatIcon class="h-4 w-4 {stat.color}" />
           </div>
         </Card.Header>
         <Card.Content>

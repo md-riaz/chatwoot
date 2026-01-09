@@ -21,12 +21,22 @@
 
   let { contact = {}, onSubmit, onCancel, class: className }: Props = $props();
   
-  let name = $state(contact.name || '');
-  let email = $state(contact.email || '');
-  let phone = $state(contact.phone || '');
-  let company = $state(contact.company || '');
-  let location = $state(contact.location || '');
-  let bio = $state(contact.bio || '');
+  let name = $state('');
+  let email = $state('');
+  let phone = $state('');
+  let company = $state('');
+  let location = $state('');
+  let bio = $state('');
+
+  // Initialize form fields when contact changes
+  $effect(() => {
+    name = contact.name || '';
+    email = contact.email || '';
+    phone = contact.phone || '';
+    company = contact.company || '';
+    location = contact.location || '';
+    bio = contact.bio || '';
+  });
 
   function handleSubmit(e: Event) {
     e.preventDefault();
