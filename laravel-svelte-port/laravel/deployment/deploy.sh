@@ -209,6 +209,15 @@ fi
 
 log "Deployment completed successfully!"
 
+# Note about frontend builds
+echo ""
+echo "=== Frontend Build Notice ==="
+echo "Frontend assets are NOT built automatically during deployment."
+echo "Run the frontend build separately:"
+echo "  ./deployment/build-frontend.sh"
+echo "This allows for independent frontend deployments and better CI/CD practices."
+echo ""
+
 # Display important information
 echo ""
 echo "=== Deployment Summary ==="
@@ -218,11 +227,12 @@ echo "WebSocket Port: $REVERB_PORT"
 echo "Log File: $LOG_FILE"
 echo ""
 echo "=== Next Steps ==="
-echo "1. Configure your domain DNS to point to this server"
-echo "2. Update CORS_ALLOWED_ORIGINS in .env with your frontend domain"
-echo "3. Configure SSL certificates for production"
-echo "4. Update frontend VITE_WS_URL with your domain and Reverb app key"
-echo "5. Test WebSocket connection from frontend"
+echo "1. Build and deploy frontend: ./deployment/build-frontend.sh"
+echo "2. Configure your domain DNS to point to this server"
+echo "3. Update CORS_ALLOWED_ORIGINS in .env with your frontend domain"
+echo "4. Configure SSL certificates for production"
+echo "5. Update frontend VITE_WS_URL with your domain and Reverb app key"
+echo "6. Test WebSocket connection from frontend"
 echo ""
 echo "=== Useful Commands ==="
 echo "View logs: tail -f $LOG_FILE"
