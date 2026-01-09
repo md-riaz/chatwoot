@@ -4,9 +4,9 @@ namespace App\Enums;
 
 enum UserAvailability: int
 {
-    case ONLINE = 1;
-    case OFFLINE = 0;
-    case BUSY = 2;
+    case ONLINE = 0;   // Rails: online: 0
+    case OFFLINE = 1;  // Rails: offline: 1  
+    case BUSY = 2;     // Rails: busy: 2
 
     /**
      * Get the availability name as a string

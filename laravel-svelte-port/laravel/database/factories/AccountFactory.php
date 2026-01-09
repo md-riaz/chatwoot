@@ -25,11 +25,7 @@ class AccountFactory extends Factory
             'domain' => fake()->optional()->domainName(),
             'support_email' => fake()->companyEmail(),
             'settings' => [],
-            'features' => [
-                'inbound_emails' => true,
-                'channel_email' => true,
-                'channel_web_widget' => true,
-            ],
+            'feature_flags' => 32128855, // Default feature flags (binary combination)
             'limits' => [
                 'agents' => 100,
                 'inboxes' => 50,

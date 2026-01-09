@@ -2,7 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Services\ConfigLoaderService;
+use App\Enums\Feature;
+use App\Models\InstallationConfig;
 use Illuminate\Console\Command;
 
 class LoadConfigurationCommand extends Command
@@ -11,78 +12,56 @@ class LoadConfigurationCommand extends Command
      * The name and signature of the console command.
      */
     protected $signature = 'config:load 
-                            {--reconcile-only-new : Only load new configurations, skip existing ones}
-                            {--no-env-migration : Skip environment variable migration}
-                            {--no-features : Skip feature flag loading}
-                            {--validate : Validate configuration file before loading}';
+                            {--features : Load feature flag defaults}';
 
     /**
      * The console command description.
      */
-    protected $description = 'Load configuration from YAML files into database';
+    protected $description = 'Load basic configuration defaults into database';
 
     /**
      * Execute the console command.
      */
     public function handle(): int
     {
-        $this->info('Loading configuration from YAML files...');
+        $this->info('Loading configuration defaults...');
 
-        $options = [
-            'reconcile_only_new' => $this->option('reconcile-only-new'),
-            'migrate_env_vars' => !$this->option('no-env-migration'),
-            'load_features' => !$this->option('no-features'),
-        ];
+        $featuresLoaded = 0;
 
-        $loader = new ConfigLoaderService($options);
-
-        // Validate first if requested
-        if ($this->option('validate')) {
-            $this->info('Validating configuration file...');
-            $errors = $loader->validate();
-            
-            if (!empty($errors)) {
-                $this->error('Configuration validation failed:');
-                foreach ($errors as $error) {
-                    $this->error('  - ' . $error);
-                }
-                return 1;
-            }
-            
-            $this->info('Configuration file is valid.');
+        // Load feature defaults if requested
+        if ($this->option('features')) {
+            $featuresLoaded = $this->loadFeatureDefaults();
         }
 
-        // Process configuration loading
-        $results = $loader->process();
-
-        // Display results
         $this->info('Configuration loading completed:');
-        $this->line("  Configs loaded: {$results['configs_loaded']}");
-        $this->line("  Configs updated: {$results['configs_updated']}");
-        $this->line("  Configs skipped: {$results['configs_skipped']}");
-        $this->line("  Features loaded: {$results['features_loaded']}");
-
-        if (!empty($results['errors'])) {
-            $this->warn('Errors encountered:');
-            foreach ($results['errors'] as $error) {
-                $this->error('  - ' . $error);
-            }
-        }
+        $this->line("  Features loaded: {$featuresLoaded}");
 
         // Display statistics
-        $stats = $loader->getStats();
+        $totalConfigs = InstallationConfig::count();
         $this->info('Configuration statistics:');
-        $this->line("  Total configurations: {$stats['total_configs']}");
-        $this->line("  Locked configurations: {$stats['locked_configs']}");
-        $this->line("  Editable configurations: {$stats['editable_configs']}");
-        
-        if (!empty($stats['configs_by_type'])) {
-            $this->line('  Configurations by type:');
-            foreach ($stats['configs_by_type'] as $type => $count) {
-                $this->line("    {$type}: {$count}");
-            }
-        }
+        $this->line("  Total configurations: {$totalConfigs}");
 
-        return empty($results['errors']) ? 0 : 1;
+        return 0;
+    }
+
+    /**
+     * Load feature defaults into database.
+     */
+    private function loadFeatureDefaults(): int
+    {
+        $enabledFeatures = Feature::getEnabledByDefault();
+        
+        InstallationConfig::updateOrCreate(
+            ['name' => 'ACCOUNT_LEVEL_FEATURE_DEFAULTS'],
+            [
+                'display_title' => 'Account Level Feature Defaults',
+                'description' => 'Default features enabled for new accounts',
+                'type' => 'array',
+                'locked' => true,
+                'serialized_value' => $enabledFeatures,
+            ]
+        );
+
+        return count($enabledFeatures);
     }
 }

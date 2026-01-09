@@ -22,9 +22,12 @@ class AccountsController extends Controller
         // Get enabled features from the account's feature flags
         $enabledFeatures = $account->getEnabledFeatures();
         
-        // Get all available features from the Feature enum
-        $featureService = app(\App\Services\FeatureConfigService::class);
-        $allAvailableFeatures = $featureService->getAllFeatures();
+        // Get all available features from the Feature enum directly
+        $allAvailableFeatures = collect(\App\Enums\Feature::cases())->map(function ($feature) {
+            $metadata = $feature->metadata();
+            $metadata['name'] = $feature->value;
+            return $metadata;
+        });
         
         // Create allFeatures object with all features and their availability
         $allFeatures = [];

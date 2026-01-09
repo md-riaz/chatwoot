@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Account;
-use App\Services\FeatureConfigService;
+use App\Enums\Feature;
 use Illuminate\Support\Facades\Log;
 
 class AccountObserver
@@ -38,9 +38,8 @@ class AccountObserver
     private function enableDefaultFeatures(Account $account): void
     {
         try {
-            // Use the new FeatureConfigService
-            $featureService = app(FeatureConfigService::class);
-            $enabledFeatures = $featureService->getEnabledByDefault();
+            // Use Feature enum directly instead of wrapper service
+            $enabledFeatures = Feature::getEnabledByDefault();
             
             // Extract feature names from metadata array
             $featureNames = collect($enabledFeatures)

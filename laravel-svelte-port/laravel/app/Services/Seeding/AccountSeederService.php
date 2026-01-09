@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Seeding;
 
 use App\DataTransferObjects\SeedData;
 use App\Enums\AccountUserRole;

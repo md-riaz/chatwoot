@@ -6,7 +6,7 @@ use App\Models\Account;
 use App\Models\AccountUser;
 use App\Models\InstallationConfig;
 use App\Models\User;
-use App\Services\ConfigLoaderService;
+use App\Enums\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Redis;
 use Tests\TestCase;
@@ -20,8 +20,17 @@ class SuperAdminOnboardingTest extends TestCase
         parent::setUp();
         
         // Load configuration for testing
-        $configLoader = new ConfigLoaderService();
-        $configLoader->process();
+        $enabledFeatures = Feature::getEnabledByDefault();
+        InstallationConfig::updateOrCreate(
+            ['name' => 'ACCOUNT_LEVEL_FEATURE_DEFAULTS'],
+            [
+                'display_title' => 'Account Level Feature Defaults',
+                'description' => 'Default features enabled for new accounts',
+                'type' => 'array',
+                'locked' => true,
+                'serialized_value' => $enabledFeatures,
+            ]
+        );
         
         // Set onboarding flag
         Redis::set('chatwoot_installation_onboarding', true);
@@ -68,7 +77,7 @@ class SuperAdminOnboardingTest extends TestCase
             ->where('account_id', $account->id)
             ->first();
         $this->assertNotNull($accountUser);
-        $this->assertEquals('administrator', $accountUser->role->value);
+        $this->assertEquals('administrator', $accountUser->role->getName());
 
         // Verify default features are enabled
         $this->assertGreaterThan(0, $account->feature_flags);
@@ -153,10 +162,9 @@ class SuperAdminOnboardingTest extends TestCase
         $this->assertNotEmpty($enabledFeatures);
     }
 
-    public function test_config_loader_loads_default_features()
+    public function test_feature_enum_loads_default_features()
     {
-        $configLoader = new ConfigLoaderService();
-        $enabledFeatures = $configLoader->getEnabledDefaultFeatures();
+        $enabledFeatures = Feature::getEnabledByDefault();
 
         $this->assertNotEmpty($enabledFeatures);
         
@@ -176,8 +184,8 @@ class SuperAdminOnboardingTest extends TestCase
         $this->assertNotNull($config);
         $this->assertEquals('array', $config->type);
         $this->assertTrue($config->locked);
-        $this->assertIsArray($config->value);
-        $this->assertNotEmpty($config->value);
+        $this->assertIsArray($config->serialized_value);
+        $this->assertNotEmpty($config->serialized_value);
     }
 
     public function test_onboarding_status_endpoint()

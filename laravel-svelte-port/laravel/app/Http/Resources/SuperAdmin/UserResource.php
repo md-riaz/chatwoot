@@ -29,15 +29,29 @@ class UserResource extends JsonResource
             // User type (SuperAdmin or User) - critical for authorization
             'type' => $this->type ?? 'User',
             
+            // Rails parity fields
+            'confirmed' => !is_null($this->email_verified_at),
+            'locked' => $this->custom_attributes['locked'] ?? false,
+            'role' => $this->type === 'SuperAdmin' ? 'super_admin' : 'user', // Platform-level role
+            
             // Counts (when loaded)
             'accounts_count' => $this->whenCounted('accounts'),
             
             // Relationships (when loaded)
             'roles' => $this->whenLoaded('roles', function () {
                 return $this->roles->pluck('name');
-            }),
-            'accounts' => AccountResource::collection($this->whenLoaded('accounts')),
-            'account_users' => AccountUserResource::collection($this->whenLoaded('accountUsers')),
+            }, []),
+            'accounts' => $this->whenLoaded('accountUsers', function () {
+                return $this->accountUsers->map(fn($accountUser) => [
+                    'id' => $accountUser->account_id,
+                    'name' => $accountUser->account->name ?? null,
+                    'role' => $accountUser->role->getName(), // Convert enum to string
+                    'availability' => $accountUser->availability->getName(), // Convert enum to string
+                    'active_at' => $accountUser->active_at,
+                ]);
+            }, []),
+        ];
+    }
         ];
     }
 }

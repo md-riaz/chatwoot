@@ -2,7 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Services\ConfigLoaderService;
+use App\Enums\Feature;
+use App\Models\InstallationConfig;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
 
@@ -37,27 +38,12 @@ class InitializeInstallationCommand extends Command
             return 1;
         }
 
-        // Load configuration from YAML files
-        $this->info('Loading configuration from YAML files...');
-        $configLoader = new ConfigLoaderService([
-            'reconcile_only_new' => false, // Allow updates during initialization
-            'load_features' => true,
-        ]);
+        // Load feature defaults
+        $this->info('Loading feature defaults...');
+        $featuresLoaded = $this->loadFeatureDefaults();
 
-        $results = $configLoader->process();
-
-        // Display results
         $this->info('Configuration loading completed:');
-        $this->line("  Configs loaded: {$results['configs_loaded']}");
-        $this->line("  Configs updated: {$results['configs_updated']}");
-        $this->line("  Features loaded: {$results['features_loaded']}");
-
-        if (!empty($results['errors'])) {
-            $this->warn('Errors encountered:');
-            foreach ($results['errors'] as $error) {
-                $this->error('  - ' . $error);
-            }
-        }
+        $this->line("  Features loaded: {$featuresLoaded}");
 
         // Enable onboarding if requested
         if ($this->option('enable-onboarding')) {
@@ -67,14 +53,12 @@ class InitializeInstallationCommand extends Command
         }
 
         // Display statistics
-        $stats = $configLoader->getStats();
+        $totalConfigs = InstallationConfig::count();
         $this->info('Installation statistics:');
-        $this->line("  Total configurations: {$stats['total_configs']}");
-        $this->line("  Locked configurations: {$stats['locked_configs']}");
-        $this->line("  Editable configurations: {$stats['editable_configs']}");
+        $this->line("  Total configurations: {$totalConfigs}");
 
         // Show enabled default features
-        $enabledFeatures = $configLoader->getEnabledDefaultFeatures();
+        $enabledFeatures = Feature::getEnabledByDefault();
         $this->info('Default features enabled for new accounts:');
         foreach ($enabledFeatures as $feature) {
             $this->line("  - {$feature['display_name']} ({$feature['name']})");
@@ -87,5 +71,26 @@ class InitializeInstallationCommand extends Command
         }
 
         return 0;
+    }
+
+    /**
+     * Load feature defaults into database.
+     */
+    private function loadFeatureDefaults(): int
+    {
+        $enabledFeatures = Feature::getEnabledByDefault();
+        
+        InstallationConfig::updateOrCreate(
+            ['name' => 'ACCOUNT_LEVEL_FEATURE_DEFAULTS'],
+            [
+                'display_title' => 'Account Level Feature Defaults',
+                'description' => 'Default features enabled for new accounts',
+                'type' => 'array',
+                'locked' => true,
+                'serialized_value' => $enabledFeatures,
+            ]
+        );
+
+        return count($enabledFeatures);
     }
 }

@@ -24,21 +24,32 @@ export interface UserAccount {
  */
 export interface CurrentUser {
   id: number;
-  accountId: number;
-  accounts: UserAccount[];
-  email: string;
   name: string;
+  email: string;
   displayName?: string;
-  avatar?: string;
+  phoneNumber?: string;
   avatarUrl?: string;
+  availability?: number;
+  customAttributes?: Record<string, any>;
+  emailVerifiedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  
+  // Rails parity fields
+  type?: 'User' | 'SuperAdmin';
+  confirmed?: boolean;
+  locked?: boolean;
+  roles?: string[];
+  
+  // Account relationships
+  accounts: UserAccount[];
+  
+  // Legacy fields for backward compatibility
+  accountId?: number;
+  avatar?: string;
   messageSignature?: string;
   uiSettings?: Record<string, any>;
   accessToken?: string;
-  confirmed?: boolean;
-  // Platform-level user type (Rails STI compatibility)
-  type?: 'User' | 'SuperAdmin';
-  // Deprecated: Use type field instead
-  roles?: string[];
 }
 
 /**
@@ -143,8 +154,8 @@ export async function register(params: RegisterParams): Promise<RegisterResponse
  * Check if user is authenticated by validating current session
  */
 export async function validityCheck(): Promise<CurrentUser> {
-  const response = await api.get('api/v1/auth/me').json<CurrentUser>();
-  return response;
+  const response = await api.get('api/v1/auth/me').json<{ data: CurrentUser }>();
+  return response.data;
 }
 
 /**

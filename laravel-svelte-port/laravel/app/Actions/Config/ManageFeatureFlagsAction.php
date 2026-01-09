@@ -68,6 +68,14 @@ class ManageFeatureFlagsAction
                 'chatwoot_internal' => false,
                 'help_url' => 'https://docs.chatwoot.com/integrations/slack',
             ],
+            'email_integration' => [
+                'display_name' => 'Email Integration',
+                'description' => 'Handle customer emails as conversations',
+                'enabled' => true,
+                'premium' => false,
+                'chatwoot_internal' => false,
+                'help_url' => 'https://docs.chatwoot.com/integrations/email',
+            ],
             'openai_integration' => [
                 'display_name' => 'OpenAI Integration',
                 'description' => 'AI-powered conversation assistance',

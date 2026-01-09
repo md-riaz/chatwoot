@@ -2,8 +2,7 @@
 
 namespace App\Providers;
 
-use App\Services\FeatureConfigService;
-use App\Services\AccountSeederService;
+use App\Services\Seeding\AccountSeederService;
 use Illuminate\Support\ServiceProvider;
 
 class FeatureServiceProvider extends ServiceProvider
@@ -13,9 +12,6 @@ class FeatureServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Register feature configuration service as singleton
-        $this->app->singleton(FeatureConfigService::class);
-
         // Register seeding service
         $this->app->bind(AccountSeederService::class, function ($app) {
             return new AccountSeederService(

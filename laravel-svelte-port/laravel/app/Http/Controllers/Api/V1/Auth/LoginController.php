@@ -22,7 +22,9 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::with(['accountUsers.account', 'roles'])
+            ->where('email', $request->email)
+            ->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
@@ -53,6 +55,7 @@ class LoginController extends Controller
      */
     public function me(Request $request): UserResource
     {
-        return new UserResource($request->user());
+        $user = $request->user()->load(['accountUsers.account', 'roles']);
+        return new UserResource($user);
     }
 }

@@ -21,7 +21,7 @@ class InstallationConfig extends Model
     ];
 
     protected $casts = [
-        'serialized_value' => 'array',
+        'serialized_value' => 'json',
         'locked' => 'boolean',
         'options' => 'array',
     ];
@@ -69,10 +69,20 @@ class InstallationConfig extends Model
      */
     public function getTypeCastedValue()
     {
-        $value = $this->value;
+        $value = $this->serialized_value;
         
         if ($value === null) {
             return null;
+        }
+
+        // If serialized_value is already an array and we want an array, return it
+        if ($this->type === 'array' && is_array($value)) {
+            return $value;
+        }
+
+        // If serialized_value has a 'value' key, use that
+        if (is_array($value) && isset($value['value'])) {
+            $value = $value['value'];
         }
 
         return match ($this->type) {
@@ -83,7 +93,7 @@ class InstallationConfig extends Model
             'select' => $value,
             'secret' => $value, // Keep as-is for secrets
             'code' => $value, // Keep as-is for code
-            default => (string) $value,
+            default => is_array($value) ? json_encode($value) : (string) $value,
         };
     }
 

@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Account;
-use App\Services\AccountSeederService;
+use App\Services\Seeding\AccountSeederService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

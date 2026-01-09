@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Services\ConfigLoaderService;
+use App\Enums\Feature;
+use App\Models\InstallationConfig;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Log;
 
 class InstallationConfigSeeder extends Seeder
 {
@@ -13,30 +13,26 @@ class InstallationConfigSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('Loading installation configuration from YAML files...');
+        $this->command->info('Loading installation configuration...');
 
-        $configLoader = new ConfigLoaderService([
-            'reconcile_only_new' => false, // Allow updates during seeding
-            'load_features' => true,
-        ]);
-
-        $results = $configLoader->process();
+        // Load feature defaults
+        $enabledFeatures = Feature::getEnabledByDefault();
+        
+        InstallationConfig::updateOrCreate(
+            ['name' => 'ACCOUNT_LEVEL_FEATURE_DEFAULTS'],
+            [
+                'display_title' => 'Account Level Feature Defaults',
+                'description' => 'Default features enabled for new accounts',
+                'type' => 'array',
+                'locked' => true,
+                'serialized_value' => $enabledFeatures,
+            ]
+        );
 
         $this->command->info('Configuration loading completed:');
-        $this->command->line("  Configs loaded: {$results['configs_loaded']}");
-        $this->command->line("  Configs updated: {$results['configs_updated']}");
-        $this->command->line("  Features loaded: {$results['features_loaded']}");
-
-        if (!empty($results['errors'])) {
-            $this->command->warn('Errors encountered:');
-            foreach ($results['errors'] as $error) {
-                $this->command->error('  - ' . $error);
-                Log::error('InstallationConfigSeeder error', ['error' => $error]);
-            }
-        }
+        $this->command->line("  Features loaded: " . count($enabledFeatures));
 
         // Display enabled default features
-        $enabledFeatures = $configLoader->getEnabledDefaultFeatures();
         $this->command->info('Default features enabled for new accounts:');
         foreach ($enabledFeatures as $feature) {
             $this->command->line("  - {$feature['display_name']} ({$feature['name']})");

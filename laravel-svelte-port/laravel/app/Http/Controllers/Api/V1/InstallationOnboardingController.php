@@ -87,8 +87,17 @@ class InstallationOnboardingController extends Controller
         try {
             return DB::transaction(function () use ($userData, $redisKey) {
                 // Ensure configuration is loaded before creating account
-                $configLoader = new \App\Services\ConfigLoaderService();
-                $configLoader->process();
+                $enabledFeatures = \App\Enums\Feature::getEnabledByDefault();
+                \App\Models\InstallationConfig::updateOrCreate(
+                    ['name' => 'ACCOUNT_LEVEL_FEATURE_DEFAULTS'],
+                    [
+                        'display_title' => 'Account Level Feature Defaults',
+                        'description' => 'Default features enabled for new accounts',
+                        'type' => 'array',
+                        'locked' => true,
+                        'serialized_value' => $enabledFeatures,
+                    ]
+                );
 
                 // Create account using existing action
                 $accountData = new AccountData(
@@ -119,6 +128,7 @@ class InstallationOnboardingController extends Controller
                     'account_id' => $account->id,
                     'user_id' => $user->id,
                     'role' => AccountUserRole::ADMINISTRATOR,
+                    'availability' => \App\Enums\UserAvailability::ONLINE, // Default to online
                 ]);
 
                 // Remove onboarding flag from Redis (block future onboarding)

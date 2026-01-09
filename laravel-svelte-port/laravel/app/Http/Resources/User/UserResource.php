@@ -21,17 +21,29 @@ class UserResource extends JsonResource
             'email_verified_at' => $this->email_verified_at?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
+            
             // User type (SuperAdmin or User) - critical for frontend authorization
             'type' => $this->type ?? 'User',
-            // Add roles and accounts information
-            'roles' => $this->roles->pluck('name'),
-            'accounts' => $this->accountUsers->map(fn($accountUser) => [
-                'id' => $accountUser->account_id,
-                'name' => $accountUser->account->name ?? null,
-                'role' => $accountUser->role,
-                'availability' => $accountUser->availability,
-                'active_at' => $accountUser->active_at?->toISOString(),
-            ]),
+            
+            // Rails parity fields
+            'confirmed' => !is_null($this->email_verified_at),
+            'locked' => $this->custom_attributes['locked'] ?? false,
+            
+            // Spatie roles (platform-level)
+            'roles' => $this->whenLoaded('roles', function () {
+                return $this->roles->pluck('name');
+            }, []),
+            
+            // Account relationships with proper enum conversion
+            'accounts' => $this->whenLoaded('accountUsers', function () {
+                return $this->accountUsers->map(fn($accountUser) => [
+                    'id' => $accountUser->account_id,
+                    'name' => $accountUser->account->name ?? null,
+                    'role' => $accountUser->role->getName(), // Convert enum to string
+                    'availability' => $accountUser->availability->getName(), // Convert enum to string
+                    'active_at' => $accountUser->active_at ? $accountUser->active_at->toISOString() : null,
+                ]);
+            }, []),
         ];
     }
 }
