@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\AccountUserRole;
 use App\Models\Account;
 use App\Models\User;
 use App\Models\Team;
@@ -13,7 +14,6 @@ use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\CannedResponse;
 use App\Models\AccountUser;
-use App\Models\TeamMember;
 use App\Models\ContactInbox;
 use App\Models\Channels\WebWidget;
 use App\Models\Channels\FacebookPage;
@@ -24,6 +24,7 @@ use App\Models\Channels\Email;
 use App\Models\Channels\Api;
 use App\Models\Channels\Telegram;
 use App\Models\Channels\Line;
+use App\Models\Channels\Voice;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -140,8 +141,11 @@ class AccountSeederService
 
     private function createAccountUser(User $user, array $userData): void
     {
+        $roleName = $userData['role'] ?? 'agent';
+        $role = AccountUserRole::fromName($roleName);
+        
         $accountUserData = [
-            'role' => $userData['role'] ?? 'agent',
+            'role' => $role,
         ];
 
         if (!empty($userData['custom_role'])) {
@@ -171,10 +175,7 @@ class AccountSeederService
                 ->first();
 
             if ($team) {
-                TeamMember::firstOrCreate([
-                    'team_id' => $team->id,
-                    'user_id' => $user->id,
-                ]);
+                $team->members()->syncWithoutDetaching([$user->id]);
             }
         }
     }
@@ -264,36 +265,27 @@ class AccountSeederService
 
     private function findInboxByChannel(string $channelType): ?Inbox
     {
+        // Map channel type names to full class names for Laravel polymorphic relationships
+        $channelClassMap = [
+            'WebWidget' => WebWidget::class,
+            'FacebookPage' => FacebookPage::class,
+            'TwitterProfile' => TwitterProfile::class,
+            'Whatsapp' => Whatsapp::class,
+            'Sms' => Sms::class,
+            'Email' => Email::class,
+            'Api' => Api::class,
+            'Telegram' => Telegram::class,
+            'Line' => Line::class,
+            'Voice' => Voice::class,
+        ];
+
+        $channelClass = $channelClassMap[$channelType] ?? null;
+        if (!$channelClass) {
+            return null;
+        }
+
         return $this->account->inboxes()
-            ->whereHasMorph('channel', [
-                WebWidget::class => function ($query) use ($channelType) {
-                    return $channelType === 'WebWidget';
-                },
-                FacebookPage::class => function ($query) use ($channelType) {
-                    return $channelType === 'FacebookPage';
-                },
-                TwitterProfile::class => function ($query) use ($channelType) {
-                    return $channelType === 'TwitterProfile';
-                },
-                Whatsapp::class => function ($query) use ($channelType) {
-                    return $channelType === 'Whatsapp';
-                },
-                Sms::class => function ($query) use ($channelType) {
-                    return $channelType === 'Sms';
-                },
-                Email::class => function ($query) use ($channelType) {
-                    return $channelType === 'Email';
-                },
-                Api::class => function ($query) use ($channelType) {
-                    return $channelType === 'Api';
-                },
-                Telegram::class => function ($query) use ($channelType) {
-                    return $channelType === 'Telegram';
-                },
-                Line::class => function ($query) use ($channelType) {
-                    return $channelType === 'Line';
-                },
-            ])
+            ->where('channel_type', $channelClass)
             ->first();
     }
 
@@ -349,6 +341,7 @@ class AccountSeederService
         $this->seedApiInbox($companyData);
         $this->seedTelegramInbox($companyData);
         $this->seedLineInbox($companyData);
+        $this->seedVoiceInbox($companyData);
     }
 
     private function seedWebsiteInbox(array $companyData): void
@@ -356,6 +349,7 @@ class AccountSeederService
         $channel = WebWidget::create([
             'account_id' => $this->account->id,
             'website_url' => "https://{$companyData['domain']}",
+            'website_token' => 'wt_' . bin2hex(random_bytes(16)), // Generate unique token
         ]);
 
         Inbox::create([
@@ -490,6 +484,29 @@ class AccountSeederService
             'channel_type' => Line::class,
             'account_id' => $this->account->id,
             'name' => "{$companyData['name']} Line",
+        ]);
+    }
+
+    private function seedVoiceInbox(array $companyData): void
+    {
+        $channel = Voice::create([
+            'account_id' => $this->account->id,
+            'phone_number' => '+1234567890',
+            'provider' => 'twilio',
+            'provider_config' => [
+                'account_sid' => 'demo_account_sid',
+                'auth_token' => 'demo_auth_token',
+                'api_key_sid' => 'demo_api_key_sid',
+                'api_key_secret' => 'demo_api_key_secret',
+                'twiml_app_sid' => 'demo_twiml_app_sid',
+            ],
+        ]);
+
+        Inbox::create([
+            'channel_id' => $channel->id,
+            'channel_type' => Voice::class,
+            'account_id' => $this->account->id,
+            'name' => "{$companyData['name']} Voice",
         ]);
     }
 }

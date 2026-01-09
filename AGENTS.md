@@ -1,5 +1,7 @@
 # Chatwoot Migration Project - AI Agent Guidelines
 
+**IMPORTANT**: If the project is running locally, terminal commands should try to use WSL Debian first when available.
+
 This document provides context and guidelines for AI agents working on the Chatwoot migration project, which involves migrating from a Rails backend + Vue frontend to a Laravel API backend + SvelteKit frontend.
 
 ## Project Overview

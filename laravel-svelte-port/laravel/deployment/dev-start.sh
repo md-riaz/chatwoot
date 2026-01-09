@@ -97,16 +97,35 @@ command -v composer >/dev/null 2>&1 || error "Composer is not installed"
 command -v node >/dev/null 2>&1 || error "Node.js is not installed"
 
 # Install pnpm if not available
-if ! command -v pnpm >/dev/null 2>&1; then
+# Check both system PATH and local pnpm installation
+PNPM_PATH="$HOME/.local/share/pnpm"
+if ! command -v pnpm >/dev/null 2>&1 && [ ! -f "$PNPM_PATH/pnpm" ]; then
     log "Installing pnpm..."
     curl -fsSL https://get.pnpm.io/install.sh | sh -
-    export PATH="$HOME/.local/share/pnpm:$PATH"
+    
+    # Add to current session PATH
+    export PATH="$PNPM_PATH:$PATH"
     
     # Fallback to npm if pnpm installation fails
-    if ! command -v pnpm >/dev/null 2>&1; then
+    if ! command -v pnpm >/dev/null 2>&1 && [ ! -f "$PNPM_PATH/pnpm" ]; then
         log "pnpm installation failed, using npm to install pnpm..."
         npm install -g pnpm 2>/dev/null || warning "Could not install pnpm globally"
     fi
+elif [ -f "$PNPM_PATH/pnpm" ] && ! command -v pnpm >/dev/null 2>&1; then
+    # pnpm exists but not in PATH, add it
+    log "Adding existing pnpm to PATH..."
+    export PATH="$PNPM_PATH:$PATH"
+fi
+
+# Verify pnpm is available
+if command -v pnpm >/dev/null 2>&1; then
+    log "✓ pnpm is available: $(pnpm --version)"
+elif [ -f "$PNPM_PATH/pnpm" ]; then
+    log "✓ pnpm is available: $($PNPM_PATH/pnpm --version)"
+    # Create alias for this session
+    alias pnpm="$PNPM_PATH/pnpm"
+else
+    warning "pnpm not available, will use npm instead"
 fi
 
 # Setup Laravel development environment
@@ -164,6 +183,39 @@ fi
 
 # Ensure database exists
 log "Setting up development database..."
+
+# Start PostgreSQL service in WSL if not running
+if grep -q Microsoft /proc/version; then
+    log "Starting PostgreSQL service (WSL environment)..."
+    sudo service postgresql start 2>/dev/null || sudo pg_ctlcluster 17 main start 2>/dev/null || true
+    
+    # Start Redis service in WSL if not running
+    log "Starting Redis service (WSL environment)..."
+    sudo service redis-server start 2>/dev/null || true
+    
+    # Wait for services to start
+    sleep 3
+fi
+
+# Verify PostgreSQL is running
+if ! pg_isready -h localhost -p 5432 >/dev/null 2>&1; then
+    warning "PostgreSQL is not responding. Attempting to start..."
+    if grep -q Microsoft /proc/version; then
+        sudo service postgresql start || sudo pg_ctlcluster 17 main start || true
+        sleep 5
+    fi
+    
+    # Check again
+    if ! pg_isready -h localhost -p 5432 >/dev/null 2>&1; then
+        error "PostgreSQL failed to start. Please start it manually: sudo service postgresql start"
+    fi
+fi
+
+log "✓ PostgreSQL is running"
+
+# Create PostgreSQL user if needed
+sudo -u postgres createuser --superuser $USER 2>/dev/null || log "PostgreSQL user already exists"
+
 if command -v createdb >/dev/null 2>&1; then
     createdb clearline_development 2>/dev/null || log "Database already exists or could not create"
 else
@@ -217,8 +269,12 @@ log "✓ SvelteKit .env file created with matching Reverb credentials"
 # Install Node.js dependencies
 if [ ! -d "node_modules" ] || [ "package.json" -nt "node_modules/.package-lock.json" ]; then
     log "Installing/updating Node.js dependencies..."
+    PNPM_PATH="$HOME/.local/share/pnpm"
+    
     if command -v pnpm >/dev/null 2>&1; then
         pnpm install
+    elif [ -f "$PNPM_PATH/pnpm" ]; then
+        "$PNPM_PATH/pnpm" install
     else
         npm install
     fi
@@ -226,6 +282,24 @@ fi
 
 # Start development servers
 log "Starting development servers..."
+
+# Verify Redis is running (needed for Horizon)
+if ! redis-cli ping >/dev/null 2>&1; then
+    warning "Redis is not responding. Attempting to start..."
+    if grep -q Microsoft /proc/version; then
+        sudo service redis-server start 2>/dev/null || true
+        sleep 3
+    fi
+    
+    # Check again
+    if ! redis-cli ping >/dev/null 2>&1; then
+        warning "Redis failed to start. Horizon queue manager may not work properly."
+    else
+        log "✓ Redis is running"
+    fi
+else
+    log "✓ Redis is running"
+fi
 
 # Start Laravel development server
 cd "$LARAVEL_DIR"
@@ -238,16 +312,24 @@ log "Starting Laravel Reverb WebSocket server on port 8080..."
 nohup php artisan reverb:start --host=0.0.0.0 --port=8080 > /tmp/laravel-reverb.log 2>&1 &
 echo $! > /tmp/laravel-reverb.pid
 
-# Start Laravel Horizon (queue manager)
-log "Starting Laravel Horizon queue manager..."
-nohup php artisan horizon > /tmp/laravel-horizon.log 2>&1 &
-echo $! > /tmp/laravel-horizon.pid
+# Start Laravel Horizon (queue manager) - only if Redis is available
+if redis-cli ping >/dev/null 2>&1; then
+    log "Starting Laravel Horizon queue manager..."
+    nohup php artisan horizon > /tmp/laravel-horizon.log 2>&1 &
+    echo $! > /tmp/laravel-horizon.pid
+else
+    warning "Skipping Horizon - Redis not available"
+fi
 
 # Start SvelteKit development server
 cd "$SVELTE_DIR"
 log "Starting SvelteKit development server on http://localhost:5173..."
+PNPM_PATH="$HOME/.local/share/pnpm"
+
 if command -v pnpm >/dev/null 2>&1; then
     nohup pnpm run dev --host 0.0.0.0 --port 5173 > /tmp/svelte-dev.log 2>&1 &
+elif [ -f "$PNPM_PATH/pnpm" ]; then
+    nohup "$PNPM_PATH/pnpm" run dev --host 0.0.0.0 --port 5173 > /tmp/svelte-dev.log 2>&1 &
 else
     nohup npm run dev -- --host 0.0.0.0 --port 5173 > /tmp/svelte-dev.log 2>&1 &
 fi

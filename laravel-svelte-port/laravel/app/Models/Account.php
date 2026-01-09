@@ -191,6 +191,14 @@ class Account extends Model
     }
 
     /**
+     * Get all custom roles for the account.
+     */
+    public function customRoles(): HasMany
+    {
+        return $this->hasMany(CustomRole::class);
+    }
+
+    /**
      * Get all reporting events for the account.
      */
     public function reportingEvents(): HasMany
@@ -234,6 +242,34 @@ class Account extends Model
             'advanced_reporting' => 67108864,
             'crm_integration' => 134217728,
             'notion_integration' => 268435456,
+            // Feature name mappings for Rails parity and YAML config
+            'email_integration' => 1, // email
+            'website_widget' => 8388608, // liveChat
+            'api_access' => 8192, // webhooks
+            'team_management' => 1024, // teams
+            'automation_rules' => 2097152, // automationRules
+            'csat_surveys' => 2048, // reports
+            'whatsapp_integration' => 16, // whatsapp
+            'facebook_integration' => 4, // messenger
+            'instagram_integration' => 64, // instagram
+            'twitter_integration' => 2, // sms (reuse for social)
+            'canned_responses' => 524288, // cannedResponses
+            'contact_management' => 4194304, // customAttributes
+            'conversation_assignment' => 16777216, // assignment_v2
+            'conversation_search' => 2048, // reports
+            'file_attachments' => 8388608, // liveChat
+            'conversation_notes' => 4194304, // customAttributes
+            'agent_availability' => 1024, // teams
+            'conversation_status' => 2097152, // automationRules
+            'real_time_notifications' => 8192, // webhooks
+            'mobile_app' => 8388608, // liveChat
+            'slack_integration' => 131072, // slack
+            'linear_integration' => 65536, // linear
+            'shopify_integration' => 262144, // shopify
+            'openai_integration' => 33554432, // inbox_assistant
+            'audit_logs' => 67108864, // advanced_reporting
+            'custom_roles' => 134217728, // crm_integration (reuse)
+            'sla_policies' => 268435456, // notion_integration (reuse)
         ];
         
         if (isset($flagMap[$feature])) {
@@ -342,6 +378,34 @@ class Account extends Model
             'automationRules' => 2097152,
             'customAttributes' => 4194304,
             'liveChat' => 8388608,
+            // Feature name mappings for Rails parity and YAML config
+            'email_integration' => 1, // email
+            'website_widget' => 8388608, // liveChat
+            'api_access' => 8192, // webhooks
+            'team_management' => 1024, // teams
+            'automation_rules' => 2097152, // automationRules
+            'csat_surveys' => 2048, // reports
+            'whatsapp_integration' => 16, // whatsapp
+            'facebook_integration' => 4, // messenger
+            'instagram_integration' => 64, // instagram
+            'twitter_integration' => 2, // sms (reuse for social)
+            'canned_responses' => 524288, // cannedResponses
+            'contact_management' => 4194304, // customAttributes
+            'conversation_assignment' => 16777216, // assignment_v2
+            'conversation_search' => 2048, // reports
+            'file_attachments' => 8388608, // liveChat
+            'conversation_notes' => 4194304, // customAttributes
+            'agent_availability' => 1024, // teams
+            'conversation_status' => 2097152, // automationRules
+            'real_time_notifications' => 8192, // webhooks
+            'mobile_app' => 8388608, // liveChat
+            'slack_integration' => 131072, // slack
+            'linear_integration' => 65536, // linear
+            'shopify_integration' => 262144, // shopify
+            'openai_integration' => 33554432, // inbox_assistant
+            'audit_logs' => 67108864, // advanced_reporting
+            'custom_roles' => 134217728, // crm_integration (reuse)
+            'sla_policies' => 268435456, // notion_integration (reuse)
         ];
         
         if (isset($flagMap[$feature])) {
@@ -383,6 +447,34 @@ class Account extends Model
             'automationRules' => 2097152,
             'customAttributes' => 4194304,
             'liveChat' => 8388608,
+            // Feature name mappings for Rails parity and YAML config
+            'email_integration' => 1, // email
+            'website_widget' => 8388608, // liveChat
+            'api_access' => 8192, // webhooks
+            'team_management' => 1024, // teams
+            'automation_rules' => 2097152, // automationRules
+            'csat_surveys' => 2048, // reports
+            'whatsapp_integration' => 16, // whatsapp
+            'facebook_integration' => 4, // messenger
+            'instagram_integration' => 64, // instagram
+            'twitter_integration' => 2, // sms (reuse for social)
+            'canned_responses' => 524288, // cannedResponses
+            'contact_management' => 4194304, // customAttributes
+            'conversation_assignment' => 16777216, // assignment_v2
+            'conversation_search' => 2048, // reports
+            'file_attachments' => 8388608, // liveChat
+            'conversation_notes' => 4194304, // customAttributes
+            'agent_availability' => 1024, // teams
+            'conversation_status' => 2097152, // automationRules
+            'real_time_notifications' => 8192, // webhooks
+            'mobile_app' => 8388608, // liveChat
+            'slack_integration' => 131072, // slack
+            'linear_integration' => 65536, // linear
+            'shopify_integration' => 262144, // shopify
+            'openai_integration' => 33554432, // inbox_assistant
+            'audit_logs' => 67108864, // advanced_reporting
+            'custom_roles' => 134217728, // crm_integration (reuse)
+            'sla_policies' => 268435456, // notion_integration (reuse)
         ];
         
         if (isset($flagMap[$feature])) {

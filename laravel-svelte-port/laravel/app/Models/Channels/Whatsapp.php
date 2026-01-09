@@ -2,6 +2,7 @@
 
 namespace App\Models\Channels;
 
+use App\Jobs\Channels\SyncWhatsAppTemplatesJob;
 use App\Models\Account;
 use App\Models\Inbox;
 use App\Models\Message;
@@ -33,16 +34,9 @@ class Whatsapp extends Model
         self::PROVIDER_360_DIALOG,
     ];
 
-    // Authorization error threshold for this channel type
-    public const AUTHORIZATION_ERROR_THRESHOLD = 3;
-
     protected $fillable = [
         'account_id',
         'phone_number',
-        'phone_number_id',
-        'business_account_id',
-        'access_token',
-        'verify_token',
         'provider',
         'provider_config',
         'message_templates',
@@ -53,8 +47,23 @@ class Whatsapp extends Model
         'provider_config' => 'array',
         'message_templates' => 'array',
         'message_templates_last_updated' => 'datetime',
-        'access_token' => 'encrypted',
     ];
+
+    /**
+     * Get the provider config attribute with default empty array
+     */
+    public function getProviderConfigAttribute($value)
+    {
+        return $value ? json_decode($value, true) : [];
+    }
+
+    /**
+     * Get the message templates attribute with default empty array
+     */
+    public function getMessageTemplatesAttribute($value)
+    {
+        return $value ? json_decode($value, true) : [];
+    }
 
     protected static function boot()
     {
@@ -119,6 +128,21 @@ class Whatsapp extends Model
     public function sendTemplate(string $phoneNumber, array $templateInfo, Message $message): ?string
     {
         return $this->providerService()->sendTemplate($phoneNumber, $templateInfo, $message);
+    }
+
+    /**
+     * Ensure webhook verify token is set (Rails parity)
+     * Only sets token for whatsapp_cloud provider in provider_config
+     */
+    public function ensureWebhookVerifyToken(): void
+    {
+        if ($this->provider === 'whatsapp_cloud') {
+            $config = $this->provider_config ?? [];
+            if (empty($config['webhook_verify_token'])) {
+                $config['webhook_verify_token'] = bin2hex(random_bytes(16));
+                $this->provider_config = $config;
+            }
+        }
     }
 
     /**
