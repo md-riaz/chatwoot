@@ -312,7 +312,11 @@ enum Feature: string
     {
         return collect(self::cases())
             ->filter(fn($feature) => $feature->metadata()['enabled'])
-            ->map(fn($feature) => $feature->metadata())
+            ->map(function ($feature) {
+                $metadata = $feature->metadata();
+                $metadata['name'] = $feature->value;
+                return $metadata;
+            })
             ->values()
             ->toArray();
     }

@@ -19,6 +19,50 @@ class AccountsController extends Controller
      */
     private function transformAccount($account): array
     {
+        // Get enabled features from the account's feature flags
+        $enabledFeatures = $account->getEnabledFeatures();
+        
+        // Get all available features from the Feature enum
+        $featureService = app(\App\Services\FeatureConfigService::class);
+        $allAvailableFeatures = $featureService->getAllFeatures();
+        
+        // Create allFeatures object with all features and their availability
+        $allFeatures = [];
+        foreach ($allAvailableFeatures as $feature) {
+            $allFeatures[$feature['name']] = true; // All features are available
+        }
+        
+        // Map Laravel feature names to frontend expected names
+        $featureNameMap = [
+            'email' => 'email',
+            'sms' => 'sms', 
+            'messenger' => 'messenger',
+            'whatsapp' => 'whatsapp',
+            'instagram' => 'instagram',
+            'macros' => 'macros',
+            'labels' => 'labels',
+            'teams' => 'teams',
+            'reports' => 'reports',
+            'campaigns' => 'campaigns',
+            'webhooks' => 'webhooks',
+            'slack' => 'slack',
+            'cannedResponses' => 'canned_responses',
+            'automationRules' => 'automation_rules',
+            'customAttributes' => 'custom_attributes',
+            'liveChat' => 'live_chat',
+            'helpCenter' => 'help_center',
+            'linear' => 'linear',
+            'shopify' => 'shopify',
+        ];
+        
+        // Convert enabled features to frontend format
+        $selectedFeatureFlags = [];
+        foreach ($enabledFeatures as $feature) {
+            if (isset($featureNameMap[$feature])) {
+                $selectedFeatureFlags[] = $featureNameMap[$feature];
+            }
+        }
+        
         return [
             'id' => $account->id,
             'name' => $account->name,
@@ -31,9 +75,9 @@ class AccountsController extends Controller
             'inboxes_count' => $account->inboxes_count ?? 0,
             'conversations_count' => $account->conversations_count ?? 0,
             'contacts_count' => $account->contacts_count ?? 0,
-            'selected_feature_flags' => $account->selected_feature_flags ?? [],
-            'all_features' => $account->all_features ?? [],
-            'features' => $account->features ?? [],
+            'selected_feature_flags' => $selectedFeatureFlags,
+            'all_features' => $allFeatures,
+            'features' => $enabledFeatures, // Keep original Laravel format too
             'settings' => $account->settings ?? [],
             'limits' => $account->limits ?? [],
             'custom_attributes' => $account->custom_attributes ?? [],
@@ -134,6 +178,11 @@ class AccountsController extends Controller
             if ($request->has('enabled_features')) {
                 $validated['selected_feature_flags'] = array_keys($request->input('enabled_features', []));
             }
+            
+            // Handle feature flag updates from frontend
+            if ($request->has('selected_feature_flags')) {
+                $this->updateAccountFeatureFlags($account ?? new Account(), $request->input('selected_feature_flags', []));
+            }
 
             // Handle limits processing like Rails: permitted_params[:limits].to_h.compact
             if (isset($validated['limits']) && is_array($validated['limits'])) {
@@ -179,6 +228,11 @@ class AccountsController extends Controller
             // Handle Rails-style feature flag processing
             if ($request->has('enabled_features')) {
                 $validated['selected_feature_flags'] = array_keys($request->input('enabled_features', []));
+            }
+            
+            // Handle feature flag updates from frontend
+            if ($request->has('selected_feature_flags')) {
+                $this->updateAccountFeatureFlags($account, $request->input('selected_feature_flags', []));
             }
 
             // Handle limits processing like Rails: permitted_params[:limits].to_h.compact
@@ -247,5 +301,48 @@ class AccountsController extends Controller
         } catch (\Throwable $e) {
             return $this->handleException($e);
         }
+    }
+
+    /**
+     * Update account feature flags based on frontend selection.
+     */
+    private function updateAccountFeatureFlags(Account $account, array $selectedFeatures): void
+    {
+        // Map frontend feature names back to Laravel feature names
+        $featureNameMap = [
+            'email' => 'email',
+            'sms' => 'sms', 
+            'messenger' => 'messenger',
+            'whatsapp' => 'whatsapp',
+            'instagram' => 'instagram',
+            'macros' => 'macros',
+            'labels' => 'labels',
+            'teams' => 'teams',
+            'reports' => 'reports',
+            'campaigns' => 'campaigns',
+            'webhooks' => 'webhooks',
+            'slack' => 'slack',
+            'canned_responses' => 'cannedResponses',
+            'automation_rules' => 'automationRules',
+            'custom_attributes' => 'customAttributes',
+            'live_chat' => 'liveChat',
+            'help_center' => 'helpCenter',
+            'linear' => 'linear',
+            'shopify' => 'shopify',
+        ];
+        
+        // Reset feature flags to 0
+        $account->feature_flags = 0;
+        
+        // Enable selected features
+        foreach ($selectedFeatures as $frontendFeature) {
+            if (isset($featureNameMap[$frontendFeature])) {
+                $laravelFeature = $featureNameMap[$frontendFeature];
+                $account->enableFeature($laravelFeature);
+            }
+        }
+        
+        // Save the account (enableFeature already saves, but just to be sure)
+        $account->save();
     }
 }

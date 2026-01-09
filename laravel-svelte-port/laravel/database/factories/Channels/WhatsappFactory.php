@@ -15,9 +15,7 @@ class WhatsappFactory extends Factory
         return [
             'account_id' => Account::factory(),
             'phone_number' => $this->faker->phoneNumber(),
-            'phone_number_id' => $this->faker->uuid(),
-            'business_account_id' => $this->faker->uuid(),
-            'provider' => Whatsapp::PROVIDER_CLOUD,
+            'provider' => 'whatsapp_cloud',
             'provider_config' => [
                 'api_key' => $this->faker->uuid(),
                 'phone_number_id' => $this->faker->uuid(),
@@ -32,14 +30,14 @@ class WhatsappFactory extends Factory
     public function withCloudProvider(): static
     {
         return $this->state(fn (array $attributes) => [
-            'provider' => Whatsapp::PROVIDER_CLOUD,
+            'provider' => 'whatsapp_cloud',
         ]);
     }
 
     public function with360DialogProvider(): static
     {
         return $this->state(fn (array $attributes) => [
-            'provider' => Whatsapp::PROVIDER_DEFAULT,
+            'provider' => 'default',
         ]);
     }
 }

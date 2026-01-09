@@ -417,9 +417,8 @@ The Laravel API now has **complete feature parity** with Rails for account demo 
 **✅ Implemented Components:**
 1. **SeedAccountJob** (`app/Jobs/SeedAccountJob.php`) - Asynchronous job for account seeding
 2. **AccountSeederService** (`app/Services/AccountSeederService.php`) - Complete seeding logic matching Rails
-3. **Seed Data YAML** (`storage/app/seed_data.yml`) - Demo data configuration file
+3. **Seed Data DTO** (`app/DataTransferObjects/SeedData.php`) - Demo data configuration
 4. **API Endpoint** - `/api/v1/super_admin/accounts/{account}/seed` endpoint implementation
-5. **Configuration** - `ENABLE_ACCOUNT_SEEDING` environment variable control
 
 **✅ Demo Data Created:**
 - ✅ **Teams**: 4 teams (Sales, Management, Administration, Warehouse) with emoji icons
@@ -432,20 +431,25 @@ The Laravel API now has **complete feature parity** with Rails for account demo 
 - ✅ **Canned Responses**: 50 auto-generated quick response templates
 
 **✅ Security Features:**
-- ✅ **Production Safety**: Automatically disabled in production environment
-- ✅ **Environment Control**: `ENABLE_ACCOUNT_SEEDING=true` required for seeding
 - ✅ **Data Cleanup**: Removes existing data before seeding to prevent duplicates
+- ✅ **Action-Based**: Works when called via API, no configuration restrictions
 
 **✅ Usage:**
 ```bash
-# Enable seeding (add to .env)
-ENABLE_ACCOUNT_SEEDING=true
+# Setup (development)
+php artisan migrate --seed
+
+# Setup (production)
+php artisan installation:initialize --enable-onboarding
 
 # API call to seed account
 POST /api/v1/super_admin/accounts/{account_id}/seed
 
 # Process seeding job
 php artisan queue:work
+
+# Test
+php artisan test tests/Feature/Onboarding/SuperAdminOnboardingTest.php
 ```
 
 **✅ Rails Parity:** Matches `Internal::SeedAccountJob` and `Seeders::AccountSeeder` functionality exactly

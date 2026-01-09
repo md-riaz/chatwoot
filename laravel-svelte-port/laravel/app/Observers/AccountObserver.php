@@ -3,8 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Account;
-use App\Models\InstallationConfig;
-use App\Services\ConfigLoaderService;
+use App\Services\FeatureConfigService;
 use Illuminate\Support\Facades\Log;
 
 class AccountObserver
@@ -39,30 +38,24 @@ class AccountObserver
     private function enableDefaultFeatures(Account $account): void
     {
         try {
-            // Get default features from InstallationConfig
-            $config = InstallationConfig::where('name', 'ACCOUNT_LEVEL_FEATURE_DEFAULTS')->first();
+            // Use the new FeatureConfigService
+            $featureService = app(FeatureConfigService::class);
+            $enabledFeatures = $featureService->getEnabledByDefault();
             
-            if (!$config || !is_array($config->value)) {
-                // Fallback to loading from ConfigLoaderService
-                $this->loadDefaultFeaturesFromConfig($account);
-                return;
-            }
-
-            // Enable features marked as enabled in config
-            $featuresToEnable = collect($config->value)
-                ->filter(function ($feature) {
-                    return isset($feature['enabled']) && $feature['enabled'] === true;
-                })
+            // Extract feature names from metadata array
+            $featureNames = collect($enabledFeatures)
                 ->pluck('name')
                 ->toArray();
-
-            if (!empty($featuresToEnable)) {
-                $this->enableFeatures($account, $featuresToEnable);
+            
+            if (!empty($featureNames)) {
+                $this->enableFeatures($account, $featureNames);
                 
                 Log::info('Default features enabled for account', [
                     'account_id' => $account->id ?? 'new',
-                    'features_enabled' => $featuresToEnable,
+                    'features_enabled' => $featureNames,
                 ]);
+            } else {
+                $this->enableBasicFeatures($account);
             }
 
         } catch (\Exception $e) {
@@ -72,37 +65,6 @@ class AccountObserver
             ]);
             
             // Fallback to basic features
-            $this->enableBasicFeatures($account);
-        }
-    }
-
-    /**
-     * Load default features from config files using ConfigLoaderService.
-     */
-    private function loadDefaultFeaturesFromConfig(Account $account): void
-    {
-        try {
-            $configLoader = new ConfigLoaderService();
-            $enabledFeatures = $configLoader->getEnabledDefaultFeatures();
-            
-            $featureNames = collect($enabledFeatures)->pluck('name')->toArray();
-            
-            if (!empty($featureNames)) {
-                $this->enableFeatures($account, $featureNames);
-                
-                Log::info('Features loaded from config files', [
-                    'account_id' => $account->id ?? 'new',
-                    'features_enabled' => $featureNames,
-                ]);
-            } else {
-                $this->enableBasicFeatures($account);
-            }
-
-        } catch (\Exception $e) {
-            Log::error('Failed to load features from config', [
-                'error' => $e->getMessage(),
-            ]);
-            
             $this->enableBasicFeatures($account);
         }
     }

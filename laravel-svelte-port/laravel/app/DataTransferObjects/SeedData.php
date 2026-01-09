@@ -280,7 +280,7 @@ class SeedData extends Data
                 'name' => 'Sales Representative',
                 'description' => 'Handle sales inquiries and manage customer relationships',
                 'permissions' => [
-                    'conversation_manage',
+                    'conversation_participating_manage',
                     'contact_manage',
                 ],
             ],
@@ -306,7 +306,7 @@ class SeedData extends Data
                 'name' => 'Receptionist',
                 'description' => 'Handle initial customer contact and routing',
                 'permissions' => [
-                    'conversation_manage',
+                    'conversation_unassigned_manage',
                     'contact_manage',
                 ],
             ],

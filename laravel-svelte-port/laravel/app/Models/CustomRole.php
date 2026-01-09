@@ -22,6 +22,8 @@ class CustomRole extends Model
         'contact_manage',
         'report_manage',
         'knowledge_base_manage',
+        'team_manage',
+        'audit_manage',
     ];
 
     protected $fillable = [
@@ -91,6 +93,8 @@ class CustomRole extends Model
             'contact_manage' => 'Can manage contacts',
             'report_manage' => 'Can manage reports',
             'knowledge_base_manage' => 'Can manage knowledge base portals',
+            'team_manage' => 'Can manage teams and team assignments',
+            'audit_manage' => 'Can view and manage audit logs',
         ];
     }
 

@@ -30,7 +30,6 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'display_name' => fake()->optional()->userName(),
             'phone_number' => fake()->optional()->phoneNumber(),
-            'avatar_url' => fake()->optional()->imageUrl(200, 200, 'people'),
             'availability' => fake()->randomElement([0, 1]),
             'type' => 'User', // Default user type
             'custom_attributes' => [],

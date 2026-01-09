@@ -37,9 +37,12 @@ class MessageFactory extends Factory
             'content_type' => Message::CONTENT_TEXT,
             'status' => Message::STATUS_SENT,
             'private' => false,
-            'external_source_id' => null,
             'external_source_ids' => null,
             'source_id' => null,
+            'additional_attributes' => null,
+            'processed_message_content' => null,
+            'sentiment' => null,
+            'translations' => null,
         ];
     }
 

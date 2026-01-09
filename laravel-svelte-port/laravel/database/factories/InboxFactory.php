@@ -31,7 +31,6 @@ class InboxFactory extends Factory
             'enable_email_collect' => true,
             'csat_survey_enabled' => fake()->boolean(20),
             'allow_messages_after_resolved' => true,
-            'working_hours' => [],
             'timezone' => fake()->timezone(),
             'working_hours_enabled' => false,
             'out_of_office_message' => null,

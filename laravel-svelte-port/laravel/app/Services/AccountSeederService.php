@@ -76,13 +76,40 @@ class AccountSeederService
      */
     private function cleanupExistingData(): void
     {
-        $this->account->teams()->delete();
-        $this->account->conversations()->delete();
-        $this->account->labels()->delete();
-        $this->account->inboxes()->delete();
-        $this->account->contacts()->delete();
-        $this->account->customRoles()->delete();
-        $this->account->cannedResponses()->delete();
+        // Use raw database queries to avoid model issues
+        \Illuminate\Support\Facades\DB::table('team_members')
+            ->whereIn('team_id', function($query) {
+                $query->select('id')->from('teams')->where('account_id', $this->account->id);
+            })->delete();
+        
+        // Delete account_users relationships first
+        \Illuminate\Support\Facades\DB::table('account_users')->where('account_id', $this->account->id)->delete();
+        
+        // Delete test users (users with @paperlayer.test emails)
+        \Illuminate\Support\Facades\DB::table('users')->where('email', 'like', '%@paperlayer.test')->delete();
+        
+        // Delete all channel tables for this account
+        \Illuminate\Support\Facades\DB::table('channel_web_widgets')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('channel_facebook_pages')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('channel_twitter_profiles')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('channel_whatsapp')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('channel_sms')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('channel_email')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('channel_api')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('channel_telegram')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('channel_line')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('channel_voice')->where('account_id', $this->account->id)->delete();
+        
+        \Illuminate\Support\Facades\DB::table('teams')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('conversations')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('labels')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('labelings')->whereIn('label_id', function($query) {
+            $query->select('id')->from('labels')->where('account_id', $this->account->id);
+        })->delete();
+        \Illuminate\Support\Facades\DB::table('inboxes')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('contacts')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('custom_roles')->where('account_id', $this->account->id)->delete();
+        \Illuminate\Support\Facades\DB::table('canned_responses')->where('account_id', $this->account->id)->delete();
     }
 
     /**
@@ -190,7 +217,7 @@ class AccountSeederService
             ]),
             'Email' => fn() => Email::factory()->create([
                 'account_id' => $this->account->id,
-                'email' => "test@{$companyData->domain}",
+                'email' => "support-{$this->account->id}@{$companyData->domain}",
             ]),
             'Api' => fn() => Api::factory()->create([
                 'account_id' => $this->account->id,
@@ -330,8 +357,8 @@ class AccountSeederService
             'contact_id' => $contact->id,
             'contact_inbox_id' => $contactInbox->id,
             'assignee_id' => $assignee?->id,
-            'priority' => $conversationData['priority'] ?? null,
-            'status' => 'open',
+            'priority' => $this->mapPriorityToConstant($conversationData['priority'] ?? null),
+            'status' => Conversation::STATUS_OPEN,
         ]);
 
         $this->createMessages($conversation, $conversationData['messages']);
@@ -384,7 +411,7 @@ class AccountSeederService
                 'sender_type' => $sender ? get_class($sender) : null,
                 'sender_id' => $sender?->id,
                 'content' => $messageData['content'],
-                'message_type' => $messageData['message_type'],
+                'message_type' => $this->mapMessageTypeToConstant($messageData['message_type']),
             ]);
         }
     }
@@ -434,5 +461,37 @@ class AccountSeederService
                 ->flatMap(fn($contact) => $contact['conversations'])
                 ->sum(fn($conv) => count($conv['messages'])),
         ];
+    }
+
+    /**
+     * Map priority string to constant.
+     */
+    private function mapPriorityToConstant(?string $priority): int
+    {
+        if ($priority === null) {
+            return Conversation::PRIORITY_NONE;
+        }
+
+        return match (strtolower($priority)) {
+            'low' => Conversation::PRIORITY_LOW,
+            'medium' => Conversation::PRIORITY_MEDIUM,
+            'high' => Conversation::PRIORITY_HIGH,
+            'urgent' => Conversation::PRIORITY_URGENT,
+            default => Conversation::PRIORITY_NONE,
+        };
+    }
+
+    /**
+     * Map message type string to constant.
+     */
+    private function mapMessageTypeToConstant(string $messageType): int
+    {
+        return match (strtolower($messageType)) {
+            'incoming' => Message::TYPE_INCOMING,
+            'outgoing' => Message::TYPE_OUTGOING,
+            'activity' => Message::TYPE_ACTIVITY,
+            'template' => Message::TYPE_TEMPLATE,
+            default => Message::TYPE_INCOMING,
+        };
     }
 }

@@ -18,11 +18,19 @@ export const load: LayoutLoad = async ({ url }) => {
   // Check if user is authenticated (client-side check)
   if (typeof localStorage !== 'undefined') {
     const token = localStorage.getItem('auth_token');
+    const user = localStorage.getItem('current_user');
+    
+    console.log('Auth check - Token exists:', !!token);
+    console.log('Auth check - User exists:', !!user);
+    console.log('Auth check - Current path:', url.pathname);
     
     if (!token) {
+      console.log('No token found, redirecting to login');
       // Redirect to login page with return URL
       throw redirect(302, `/app/login?redirect=${encodeURIComponent(url.pathname)}`);
     }
+    
+    console.log('Token found, allowing access');
   }
   
   return {};
