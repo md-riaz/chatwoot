@@ -12,6 +12,10 @@ enum Feature: string
     case OPENAI_INTEGRATION = 'openai_integration';
     case AUDIT_LOGS = 'audit_logs';
     case ADVANCED_REPORTING = 'advanced_reporting';
+    case CUSTOM_BRANDING = 'custom_branding';
+    case DISABLE_BRANDING = 'disable_branding';
+    case AGENT_CAPACITY = 'agent_capacity';
+    case SAML = 'saml';
 
     // Standard Features
     case SLACK_INTEGRATION = 'slack_integration';
@@ -77,6 +81,38 @@ enum Feature: string
                 'premium' => true,
                 'chatwoot_internal' => false,
                 'help_url' => 'https://docs.chatwoot.com/integrations/linear',
+            ],
+            self::CUSTOM_BRANDING => [
+                'display_name' => 'Custom Branding',
+                'description' => 'Apply your own branding to this installation',
+                'enabled' => false,
+                'premium' => true,
+                'chatwoot_internal' => false,
+                'help_url' => 'https://docs.chatwoot.com/features/custom-branding',
+            ],
+            self::DISABLE_BRANDING => [
+                'display_name' => 'Disable Branding',
+                'description' => 'Disable branding on live-chat widget and external emails',
+                'enabled' => false,
+                'premium' => true,
+                'chatwoot_internal' => false,
+                'help_url' => 'https://docs.chatwoot.com/features/disable-branding',
+            ],
+            self::AGENT_CAPACITY => [
+                'display_name' => 'Agent Capacity',
+                'description' => 'Set limits to auto-assigning conversations to your agents',
+                'enabled' => false,
+                'premium' => true,
+                'chatwoot_internal' => false,
+                'help_url' => 'https://docs.chatwoot.com/features/agent-capacity',
+            ],
+            self::SAML => [
+                'display_name' => 'SAML SSO',
+                'description' => 'Configuration for controlling SAML Single Sign-On availability',
+                'enabled' => false,
+                'premium' => true,
+                'chatwoot_internal' => false,
+                'help_url' => 'https://docs.chatwoot.com/features/saml-sso',
             ],
             self::SLACK_INTEGRATION => [
                 'display_name' => 'Slack Integration',

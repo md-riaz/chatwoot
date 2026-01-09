@@ -328,6 +328,18 @@ class Account extends Model
             'quoted_email_reply' => false,
         ];
         
+        // Check if enterprise feature is enabled in custom_attributes
+        $enterpriseFeatures = [
+            'saml', 'sla_policies', 'custom_roles', 'audit_logs',
+            'channel_voice', 'advanced_search', 'companies'
+        ];
+        
+        if (in_array($feature, $enterpriseFeatures)) {
+            $customAttributes = $this->custom_attributes ?? [];
+            $enabledFeatures = $customAttributes['enabled_enterprise_features'] ?? [];
+            return in_array($feature, $enabledFeatures);
+        }
+        
         return $defaultFeatures[$feature] ?? false;
     }
 
@@ -482,6 +494,25 @@ class Account extends Model
             return true;
         }
         
+        // Handle enterprise features that don't use bit flags
+        $enterpriseFeatures = [
+            'saml', 'sla_policies', 'custom_roles', 'audit_logs',
+            'channel_voice', 'advanced_search', 'companies'
+        ];
+        
+        if (in_array($feature, $enterpriseFeatures)) {
+            // Store enterprise features in custom_attributes
+            $customAttributes = $this->custom_attributes ?? [];
+            $customAttributes['enabled_enterprise_features'] = $customAttributes['enabled_enterprise_features'] ?? [];
+            
+            if (!in_array($feature, $customAttributes['enabled_enterprise_features'])) {
+                $customAttributes['enabled_enterprise_features'][] = $feature;
+                $this->custom_attributes = $customAttributes;
+                $this->save();
+            }
+            return true;
+        }
+        
         return false;
     }
 
@@ -578,6 +609,27 @@ class Account extends Model
             return true;
         }
         
+        // Handle enterprise features that don't use bit flags
+        $enterpriseFeatures = [
+            'saml', 'sla_policies', 'custom_roles', 'audit_logs',
+            'channel_voice', 'advanced_search', 'companies'
+        ];
+        
+        if (in_array($feature, $enterpriseFeatures)) {
+            // Remove enterprise features from custom_attributes
+            $customAttributes = $this->custom_attributes ?? [];
+            $enabledFeatures = $customAttributes['enabled_enterprise_features'] ?? [];
+            
+            $enabledFeatures = array_filter($enabledFeatures, function($f) use ($feature) {
+                return $f !== $feature;
+            });
+            
+            $customAttributes['enabled_enterprise_features'] = array_values($enabledFeatures);
+            $this->custom_attributes = $customAttributes;
+            $this->save();
+            return true;
+        }
+        
         return false;
     }
 
@@ -634,6 +686,11 @@ class Account extends Model
                 $enabledFeatures[] = $feature;
             }
         }
+        
+        // Add enterprise features from custom_attributes
+        $customAttributes = $this->custom_attributes ?? [];
+        $enterpriseFeatures = $customAttributes['enabled_enterprise_features'] ?? [];
+        $enabledFeatures = array_merge($enabledFeatures, $enterpriseFeatures);
         
         return $enabledFeatures;
     }

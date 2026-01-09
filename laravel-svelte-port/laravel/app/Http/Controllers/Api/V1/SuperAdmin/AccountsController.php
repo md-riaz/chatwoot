@@ -78,6 +78,10 @@ class AccountsController extends Controller
             'advanced_reporting' => 'advanced_reporting',
             'openai_integration' => 'openai_integration',
             'csat_surveys' => 'csat_surveys',
+            'custom_branding' => 'custom_branding',
+            'disable_branding' => 'disable_branding',
+            'agent_capacity' => 'agent_capacity',
+            'saml' => 'saml',
         ];
         
         // Convert enabled features to frontend format
@@ -333,8 +337,7 @@ class AccountsController extends Controller
      */
     private function updateAccountFeatureFlags(Account $account, array $selectedFeatures): void
     {
-        // Map frontend feature names (camelCase) back to Laravel enum values (snake_case)
-        // Note: Frontend sends camelCase, but API client transforms to snake_case before reaching here
+        // Map frontend feature names (snake_case from API transformation) to Laravel enum values
         $featureNameMap = [
             // Communication channels
             'website_widget' => 'website_widget',
@@ -375,6 +378,10 @@ class AccountsController extends Controller
             'advanced_reporting' => 'advanced_reporting',
             'openai_integration' => 'openai_integration',
             'csat_surveys' => 'csat_surveys',
+            'custom_branding' => 'custom_branding',
+            'disable_branding' => 'disable_branding',
+            'agent_capacity' => 'agent_capacity',
+            'saml' => 'saml',
         ];
         
         // Get current enabled features and disable all
