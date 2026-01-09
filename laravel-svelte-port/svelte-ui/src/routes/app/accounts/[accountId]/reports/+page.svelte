@@ -15,8 +15,14 @@
   const isLoading = $derived(reportsStore.isLoading);
   const filters = $derived(reportsStore.filters);
   
-  let since = $state(filters.since || '');
-  let until = $state(filters.until || '');
+  let since = $state('');
+  let until = $state('');
+  
+  // Sync local state with store filters
+  $effect(() => {
+    since = filters.since || '';
+    until = filters.until || '';
+  });
   
   onMount(() => {
     reportsStore.fetchAllReports();
