@@ -74,7 +74,7 @@
 				   domain: formData.domain,
 				   supportEmail: formData.supportEmail,
 				   autoResolveDuration: formData.autoResolveDuration ? Number(formData.autoResolveDuration) : undefined,
-				   selectedFeatureFlags: formData.selectedFeatureFlags,
+				   selectedFeatureFlags: formData.selectedFeatureFlags, // Send whatever format the component provides
 				   settings: formData.settings,
 				   limits: formData.limits,
 				   customAttributes: formData.customAttributes
@@ -92,8 +92,14 @@
 		}
 	}
 	
-	   function handleFeaturesChange(features: string[]) {
-		   formData.selectedFeatureFlags = features;
+	   function handleFeaturesChange(features: string[] | Record<string, boolean>) {
+		   if (typeof features === 'object' && !Array.isArray(features)) {
+			   // Component is sending object format, store it directly
+			   formData.selectedFeatureFlags = features;
+		   } else {
+			   // Component is sending array format, store it directly
+			   formData.selectedFeatureFlags = features;
+		   }
 	   }
 	   
 	   onMount(() => {

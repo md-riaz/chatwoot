@@ -20,23 +20,24 @@ class AccountsController extends Controller
      */
     private function transformAccount($account): array
     {
-        // Get enabled features - now returns features.yml names directly!
+        // Get enabled features - returns feature names directly
         $enabledFeatures = $account->getEnabledFeatures();
         
-        // Get all available features from the Feature enum directly
-        $allAvailableFeatures = collect(\App\Enums\Feature::cases())->map(function ($feature) {
-            $metadata = $feature->metadata();
-            $metadata['name'] = $feature->value;
-            return $metadata;
-        });
+        // Get all available features from Laravel config
+        $allAvailableFeatures = config('features.features', []);
         
-        // Create allFeatures object with all features and their availability
+        // Create allFeatures object with feature metadata for frontend
         $allFeatures = [];
         foreach ($allAvailableFeatures as $feature) {
-            $allFeatures[$feature['name']] = true; // All features are available
+            $allFeatures[$feature['name']] = [
+                'available' => true,
+                'display_name' => $feature['display_name'] ?? ucwords(str_replace('_', ' ', $feature['name'])),
+                'enabled' => $feature['enabled'] ?? false,
+                'premium' => $feature['premium'] ?? false,
+                'help_url' => $feature['help_url'] ?? null,
+            ];
         }
         
-        // No mapping needed! Features are already in features.yml format
         $selectedFeatureFlags = $enabledFeatures;
         
         return [
@@ -146,13 +147,22 @@ class AccountsController extends Controller
                 'features' => 'nullable|array',
                 'manually_managed_features' => 'nullable|array',
                 'selected_feature_flags' => 'nullable|array',
-                'enabled_features' => 'nullable|array',
+                'enabled_features' => 'nullable|array', // Rails-compatible format
                 'status' => 'nullable|string|in:active,suspended',
             ]);
 
-            // Handle Rails-style feature flag processing
+            // Handle Rails-style feature flag processing (enabled_features format)
             if ($request->has('enabled_features')) {
-                $validated['selected_feature_flags'] = array_keys($request->input('enabled_features', []));
+                // Extract feature names from enabled_features keys (remove 'feature_' prefix)
+                $enabledFeatureKeys = array_keys($request->input('enabled_features', []));
+                $featureNames = array_map(function($key) {
+                    return str_replace('feature_', '', $key);
+                }, $enabledFeatureKeys);
+                $validated['selected_feature_flags'] = $featureNames;
+            }
+            // Handle legacy format (selectedFeatureFlags array)
+            elseif ($request->has('selected_feature_flags')) {
+                // Already in correct format
             }
             
             // Handle feature flag updates from frontend
@@ -201,14 +211,12 @@ class AccountsController extends Controller
                 'status' => 'nullable|string|in:active,suspended',
             ]);
 
-            // Handle Rails-style feature flag processing
-            if ($request->has('enabled_features')) {
-                $validated['selected_feature_flags'] = array_keys($request->input('enabled_features', []));
-            }
-            
-            // Handle feature flag updates from frontend
+            // Handle feature flag updates - expect object format for proper API transformation
             if ($request->has('selected_feature_flags')) {
-                $this->updateAccountFeatureFlags($account, $request->input('selected_feature_flags', []));
+                $selectedFeatureFlags = $request->input('selected_feature_flags');
+                
+                // Extract keys from the object (API transformer converts camelCase keys to snake_case)
+                $validated['selected_feature_flags'] = is_array($selectedFeatureFlags) ? array_keys($selectedFeatureFlags) : [];
             }
 
             // Handle limits processing like Rails: permitted_params[:limits].to_h.compact
@@ -218,7 +226,18 @@ class AccountsController extends Controller
                 });
             }
 
-            $account->update($validated);
+            // Remove feature flag related fields from validated data to prevent conflicts
+            $featureFlagFields = ['selected_feature_flags', 'enabled_features', 'features'];
+            $accountData = collect($validated)->except($featureFlagFields)->toArray();
+            
+            // Update account data first (without feature flags)
+            $account->update($accountData);
+            
+            // Handle feature flag updates from frontend AFTER other updates
+            if ($request->has('selected_feature_flags')) {
+                $this->updateAccountFeatureFlags($account, $request->input('selected_feature_flags', []));
+            }
+
             $account->loadCount(['users', 'inboxes', 'conversations', 'contacts']);
 
             return response()->json(['data' => $this->transformAccount($account)]);
@@ -284,8 +303,6 @@ class AccountsController extends Controller
      * 
      * This method batches all feature flag operations and saves once at the end
      * to avoid race conditions from multiple saves.
-     * 
-     * With simplified naming from features.yml, this is much simpler!
      */
     private function updateAccountFeatureFlags(Account $account, array $selectedFeatures): void
     {
@@ -311,9 +328,8 @@ class AccountsController extends Controller
         $account->feature_flags = 0;
         
         // Enable selected bit flag features using Account's feature map
+        $flagMap = $account->getFeatureFlagMap();
         foreach ($bitFlagFeatures as $feature) {
-            // Use the Account model's feature_enabled check to get the bit value
-            $flagMap = $account->getFeatureFlagMap();
             if (isset($flagMap[$feature])) {
                 $account->feature_flags |= $flagMap[$feature];
             }

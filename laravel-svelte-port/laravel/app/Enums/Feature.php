@@ -2,352 +2,113 @@
 
 namespace App\Enums;
 
+/**
+ * Feature Enum
+ * 
+ * This enum loads features from the Rails config/features.yml file
+ * to maintain complete parity between Rails and Laravel systems.
+ */
 enum Feature: string
 {
-    // Premium Features
-    case SHOPIFY_INTEGRATION = 'shopify_integration';
-    case CUSTOM_ROLES = 'custom_roles';
-    case SLA_POLICIES = 'sla_policies';
-    case LINEAR_INTEGRATION = 'linear_integration';
-    case OPENAI_INTEGRATION = 'openai_integration';
-    case AUDIT_LOGS = 'audit_logs';
-    case ADVANCED_REPORTING = 'advanced_reporting';
-    case CUSTOM_BRANDING = 'custom_branding';
-    case DISABLE_BRANDING = 'disable_branding';
-    case AGENT_CAPACITY = 'agent_capacity';
-    case SAML = 'saml';
-
-    // Standard Features
+    // Communication Channels
+    case INBOUND_EMAILS = 'inbound_emails';
+    case CHANNEL_EMAIL = 'channel_email';
+    case CHANNEL_FACEBOOK = 'channel_facebook';
+    case CHANNEL_TWITTER = 'channel_twitter';
+    case CHANNEL_WEBSITE = 'channel_website';
+    case CHANNEL_INSTAGRAM = 'channel_instagram';
+    case CHANNEL_VOICE = 'channel_voice';
     case CHANNEL_TIKTOK = 'channel_tiktok';
-    case ADVANCED_SEARCH_INDEXING = 'advanced_search_indexing';
-    case TEAM_MANAGEMENT = 'team_management';
-    case AUTOMATION_RULES = 'automation_rules';
-    case CSAT_SURVEYS = 'csat_surveys';
-    case CAMPAIGNS = 'campaigns';
-    case WHATSAPP_INTEGRATION = 'whatsapp_integration';
-    case FACEBOOK_INTEGRATION = 'facebook_integration';
-    case INSTAGRAM_INTEGRATION = 'instagram_integration';
-    case TWITTER_INTEGRATION = 'twitter_integration';
-    case EMAIL_INTEGRATION = 'email_integration';
-    case WEBSITE_WIDGET = 'website_widget';
-    case MOBILE_APP = 'mobile_app';
-    case API_ACCESS = 'api_access';
-    case WEBHOOKS = 'webhooks';
+    
+    // Product Features
+    case HELP_CENTER = 'help_center';
+    case AGENT_BOTS = 'agent_bots';
     case MACROS = 'macros';
-    case CANNED_RESPONSES = 'canned_responses';
+    case AGENT_MANAGEMENT = 'agent_management';
+    case TEAM_MANAGEMENT = 'team_management';
+    case INBOX_MANAGEMENT = 'inbox_management';
     case LABELS = 'labels';
-    case CONTACT_MANAGEMENT = 'contact_management';
-    case CONVERSATION_ASSIGNMENT = 'conversation_assignment';
-    case CONVERSATION_SEARCH = 'conversation_search';
-    case FILE_ATTACHMENTS = 'file_attachments';
-    case CONVERSATION_NOTES = 'conversation_notes';
-    case AGENT_AVAILABILITY = 'agent_availability';
-    case CONVERSATION_STATUS = 'conversation_status';
-    case REAL_TIME_NOTIFICATIONS = 'real_time_notifications';
+    case CUSTOM_ATTRIBUTES = 'custom_attributes';
+    case AUTOMATIONS = 'automations';
+    case CANNED_RESPONSES = 'canned_responses';
+    case INTEGRATIONS = 'integrations';
+    case VOICE_RECORDER = 'voice_recorder';
+    case CAMPAIGNS = 'campaigns';
+    case REPORTS = 'reports';
+    case CRM = 'crm';
+    case AUTO_RESOLVE_CONVERSATIONS = 'auto_resolve_conversations';
+    case CUSTOM_REPLY_EMAIL = 'custom_reply_email';
+    case CUSTOM_REPLY_DOMAIN = 'custom_reply_domain';
+    case IP_LOOKUP = 'ip_lookup';
+    case QUOTED_EMAIL_REPLY = 'quoted_email_reply';
+    
+    // Integrations
+    case LINEAR_INTEGRATION = 'linear_integration';
+    case SHOPIFY_INTEGRATION = 'shopify_integration';
+    case CRM_INTEGRATION = 'crm_integration';
+    case NOTION_INTEGRATION = 'notion_integration';
+    
+    // Enterprise Features (Premium)
+    case DISABLE_BRANDING = 'disable_branding';
+    case AUDIT_LOGS = 'audit_logs';
+    case SLA = 'sla';
+    case CUSTOM_ROLES = 'custom_roles';
+    case SAML = 'saml';
+    case ADVANCED_SEARCH = 'advanced_search';
+    case COMPANIES = 'companies';
+    
+    // Internal/System Features
+    case EMAIL_CONTINUITY_ON_API_CHANNEL = 'email_continuity_on_api_channel';
+    case MOBILE_V2 = 'mobile_v2';
+    case CHATWOOT_V4 = 'chatwoot_v4';
+    case REPORT_V4 = 'report_v4';
+    case CONTACT_CHATWOOT_SUPPORT_TEAM = 'contact_chatwoot_support_team';
+    case SEARCH_WITH_GIN = 'search_with_gin';
+    case ADVANCED_SEARCH_INDEXING = 'advanced_search_indexing';
+    case WHATSAPP_EMBEDDED_SIGNUP = 'whatsapp_embedded_signup';
+    case WHATSAPP_CAMPAIGN = 'whatsapp_campaign';
+    case CRM_V2 = 'crm_v2';
+    case ASSIGNMENT_V2 = 'assignment_v2';
+    case TWILIO_CONTENT_TEMPLATES = 'twilio_content_templates';
+    case REPLY_MAILER_MIGRATION = 'reply_mailer_migration';
+    case INBOX_VIEW = 'inbox_view';
+    case HELP_CENTER_EMBEDDING_SEARCH = 'help_center_embedding_search';
+    case CAPTAIN_INTEGRATION = 'captain_integration';
+    case CAPTAIN_INTEGRATION_V2 = 'captain_integration_v2';
+    case RESPONSE_BOT = 'response_bot';
+    case MESSAGE_REPLY_TO = 'message_reply_to';
+    case INSERT_ARTICLE_IN_REPLY = 'insert_article_in_reply';
 
     /**
-     * Get feature metadata.
+     * Get feature metadata from Laravel config.
      */
     public function metadata(): array
     {
-        return match ($this) {
-            self::SHOPIFY_INTEGRATION => [
-                'display_name' => 'Shopify Integration',
-                'description' => 'Enable Shopify e-commerce integration',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/shopify',
-            ],
-            self::CUSTOM_ROLES => [
-                'display_name' => 'Custom Roles',
-                'description' => 'Create and manage custom user roles',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/user-management/custom-roles',
-            ],
-            self::SLA_POLICIES => [
-                'display_name' => 'SLA Policies',
-                'description' => 'Service Level Agreement tracking and enforcement',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/sla-policies',
-            ],
-            self::LINEAR_INTEGRATION => [
-                'display_name' => 'Linear Integration',
-                'description' => 'Integrate with Linear for issue tracking',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/linear',
-            ],
-            self::CUSTOM_BRANDING => [
-                'display_name' => 'Custom Branding',
-                'description' => 'Apply your own branding to this installation',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/custom-branding',
-            ],
-            self::DISABLE_BRANDING => [
-                'display_name' => 'Disable Branding',
-                'description' => 'Disable branding on live-chat widget and external emails',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/disable-branding',
-            ],
-            self::AGENT_CAPACITY => [
-                'display_name' => 'Agent Capacity',
-                'description' => 'Set limits to auto-assigning conversations to your agents',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/agent-capacity',
-            ],
-            self::SAML => [
-                'display_name' => 'SAML SSO',
-                'description' => 'Configuration for controlling SAML Single Sign-On availability',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/saml-sso',
-            ],
-            self::CHANNEL_TIKTOK => [
-                'display_name' => 'TikTok Channel',
-                'description' => 'Connect with TikTok for customer messaging',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/tiktok',
-            ],
-            self::ADVANCED_SEARCH_INDEXING => [
-                'display_name' => 'Advanced Search Indexing',
-                'description' => 'Enhanced search capabilities with advanced indexing',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => true,
-                'help_url' => 'https://docs.chatwoot.com/features/search',
-            ],
-            self::OPENAI_INTEGRATION => [
-                'display_name' => 'OpenAI Integration',
-                'description' => 'AI-powered conversation assistance',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/openai',
-            ],
-            self::AUDIT_LOGS => [
-                'display_name' => 'Audit Logs',
-                'description' => 'Comprehensive activity logging and monitoring',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/audit-logs',
-            ],
-            self::ADVANCED_REPORTING => [
-                'display_name' => 'Advanced Reporting',
-                'description' => 'Detailed analytics and custom reports',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/reporting',
-            ],
-            self::TEAM_MANAGEMENT => [
-                'display_name' => 'Team Management',
-                'description' => 'Organize agents into teams',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/user-management/teams',
-            ],
-            self::AUTOMATION_RULES => [
-                'display_name' => 'Automation Rules',
-                'description' => 'Automate conversation workflows',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/automation',
-            ],
-            self::CSAT_SURVEYS => [
-                'display_name' => 'CSAT Surveys',
-                'description' => 'Customer satisfaction surveys',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/csat',
-            ],
-            self::CAMPAIGNS => [
-                'display_name' => 'Campaigns',
-                'description' => 'Proactive messaging campaigns',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/campaigns',
-            ],
-            self::WHATSAPP_INTEGRATION => [
-                'display_name' => 'WhatsApp Integration',
-                'description' => 'Connect with WhatsApp Business API',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/whatsapp',
-            ],
-            self::FACEBOOK_INTEGRATION => [
-                'display_name' => 'Facebook Integration',
-                'description' => 'Connect with Facebook Messenger',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/facebook',
-            ],
-            self::INSTAGRAM_INTEGRATION => [
-                'display_name' => 'Instagram Integration',
-                'description' => 'Connect with Instagram Direct Messages',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/instagram',
-            ],
-            self::TWITTER_INTEGRATION => [
-                'display_name' => 'Twitter Integration',
-                'description' => 'Connect with Twitter Direct Messages',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/twitter',
-            ],
-            self::EMAIL_INTEGRATION => [
-                'display_name' => 'Email Integration',
-                'description' => 'Handle customer emails as conversations',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/email',
-            ],
-            self::WEBSITE_WIDGET => [
-                'display_name' => 'Website Widget',
-                'description' => 'Embeddable chat widget for websites',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/channels/website',
-            ],
-            self::MOBILE_APP => [
-                'display_name' => 'Mobile App',
-                'description' => 'Native mobile applications for iOS and Android',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/mobile-app',
-            ],
-            self::API_ACCESS => [
-                'display_name' => 'API Access',
-                'description' => 'RESTful API for integrations and automation',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/api',
-            ],
-            self::WEBHOOKS => [
-                'display_name' => 'Webhooks',
-                'description' => 'Real-time event notifications via HTTP callbacks',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/webhooks',
-            ],
-            self::MACROS => [
-                'display_name' => 'Macros',
-                'description' => 'Predefined actions for quick conversation handling',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/macros',
-            ],
-            self::CANNED_RESPONSES => [
-                'display_name' => 'Canned Responses',
-                'description' => 'Pre-written responses for common queries',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/canned-responses',
-            ],
-            self::LABELS => [
-                'display_name' => 'Labels',
-                'description' => 'Organize conversations with custom labels',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/labels',
-            ],
-            self::CONTACT_MANAGEMENT => [
-                'display_name' => 'Contact Management',
-                'description' => 'Comprehensive customer contact database',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/contacts',
-            ],
-            self::CONVERSATION_ASSIGNMENT => [
-                'display_name' => 'Conversation Assignment',
-                'description' => 'Assign conversations to specific agents or teams',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/assignment',
-            ],
-            self::CONVERSATION_SEARCH => [
-                'display_name' => 'Conversation Search',
-                'description' => 'Search through conversations and messages',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/search',
-            ],
-            self::FILE_ATTACHMENTS => [
-                'display_name' => 'File Attachments',
-                'description' => 'Send and receive file attachments in conversations',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/attachments',
-            ],
-            self::CONVERSATION_NOTES => [
-                'display_name' => 'Conversation Notes',
-                'description' => 'Internal notes for agent collaboration',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/notes',
-            ],
-            self::AGENT_AVAILABILITY => [
-                'display_name' => 'Agent Availability',
-                'description' => 'Manage agent online/offline status',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/availability',
-            ],
-            self::CONVERSATION_STATUS => [
-                'display_name' => 'Conversation Status',
-                'description' => 'Track conversation states (open, resolved, pending)',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/status',
-            ],
-            self::REAL_TIME_NOTIFICATIONS => [
-                'display_name' => 'Real-time Notifications',
-                'description' => 'Instant notifications for new messages and events',
-                'enabled' => true,
-                'premium' => false,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/features/notifications',
-            ],
-        };
+        $features = config('features.features', []);
+        
+        // Find this feature in Laravel config
+        $feature = collect($features)->firstWhere('name', $this->value);
+        
+        if ($feature) {
+            return [
+                'display_name' => $feature['display_name'] ?? ucwords(str_replace('_', ' ', $this->value)),
+                'enabled' => $feature['enabled'] ?? false,
+                'premium' => $feature['premium'] ?? false,
+                'chatwoot_internal' => $feature['chatwoot_internal'] ?? false,
+                'deprecated' => $feature['deprecated'] ?? false,
+                'help_url' => $feature['help_url'] ?? null,
+            ];
+        }
+        
+        // Fallback metadata if not found in config
+        return [
+            'display_name' => ucwords(str_replace('_', ' ', $this->value)),
+            'enabled' => false,
+            'premium' => in_array($this->value, config('features.premium_features', [])),
+            'chatwoot_internal' => in_array($this->value, config('features.internal_features', [])),
+            'deprecated' => in_array($this->value, config('features.deprecated_features', [])),
+            'help_url' => null,
+        ];
     }
 
     /**
@@ -373,7 +134,11 @@ enum Feature: string
     {
         return collect(self::cases())
             ->filter(fn($feature) => $feature->metadata()['premium'])
-            ->map(fn($feature) => $feature->metadata())
+            ->map(function ($feature) {
+                $metadata = $feature->metadata();
+                $metadata['name'] = $feature->value;
+                return $metadata;
+            })
             ->values()
             ->toArray();
     }

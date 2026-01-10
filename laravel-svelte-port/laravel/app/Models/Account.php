@@ -333,7 +333,7 @@ class Account extends Model
     public function getFeatureFlagMap(): array
     {
         return [
-            // Communication channels - bits 1-8
+            // Communication Channels - bits 1-8
             'inbound_emails' => 1,
             'channel_email' => 2,
             'channel_facebook' => 4,
@@ -343,58 +343,61 @@ class Account extends Model
             'channel_voice' => 64,
             'channel_tiktok' => 128,
             
-            // Product features - bits 9-16
-            'macros' => 256,
-            'labels' => 512,
-            'team_management' => 1024,
-            'reports' => 2048,
-            'campaigns' => 4096,
-            'integrations' => 8192,
-            'agent_management' => 16384,
-            'inbox_management' => 32768,
+            // Product Features - bits 9-16
+            'help_center' => 256,
+            'agent_bots' => 512,
+            'macros' => 1024,
+            'agent_management' => 2048,
+            'team_management' => 4096,
+            'inbox_management' => 8192,
+            'labels' => 16384,
+            'custom_attributes' => 32768,
             
-            // More product features - bits 17-24
-            'linear_integration' => 65536,
-            'shopify_integration' => 262144,
-            'canned_responses' => 524288,
-            'help_center' => 1048576,
-            'automations' => 2097152,
-            'custom_attributes' => 4194304,
-            'agent_bots' => 8388608,
+            // More Product Features - bits 17-24
+            'automations' => 65536,
+            'canned_responses' => 131072,
+            'integrations' => 262144,
+            'voice_recorder' => 524288,
+            'campaigns' => 1048576,
+            'reports' => 2097152,
+            'crm' => 4194304,
+            'auto_resolve_conversations' => 8388608,
             
-            // Enterprise features - bits 25-32
-            'assignment_v2' => 16777216,
-            'captain_integration' => 33554432,
-            'crm_integration' => 67108864,
-            'notion_integration' => 134217728,
-            'voice_recorder' => 268435456,
-            'disable_branding' => 536870912,
-            'ip_lookup' => 1073741824,
-            'crm' => 2147483648,
+            // Additional Features - bits 25-32
+            'custom_reply_email' => 16777216,
+            'custom_reply_domain' => 33554432,
+            'ip_lookup' => 67108864,
+            'quoted_email_reply' => 134217728,
+            'linear_integration' => 268435456,
+            'shopify_integration' => 536870912,
+            'crm_integration' => 1073741824,
+            'notion_integration' => 2147483648,
             
-            // Additional features that share bits
-            'auto_resolve_conversations' => 2097152, // shares with automations
-            'custom_reply_email' => 2,  // shares with channel_email
-            'custom_reply_domain' => 2, // shares with channel_email
+            // Enterprise Features - bits 33-40 (use custom_attributes instead)
+            // These are handled separately in custom_attributes['enabled_enterprise_features']
+            // 'disable_branding', 'audit_logs', 'sla', 'custom_roles', 'saml', 'advanced_search', 'companies'
+            
+            // Internal/System Features - sharing bits with related features
             'email_continuity_on_api_channel' => 2, // shares with channel_email
-            'mobile_v2' => 16, // shares with channel_website
-            'chatwoot_v4' => 4096, // shares with campaigns
-            'report_v4' => 2048, // shares with reports
-            'contact_chatwoot_support_team' => 8192, // shares with integrations
-            'search_with_gin' => 2048, // shares with reports
-            'advanced_search_indexing' => 2048, // shares with reports (search-related)
+            'mobile_v2' => 16, // shares with channel_website  
+            'chatwoot_v4' => 1048576, // shares with campaigns
+            'report_v4' => 2097152, // shares with reports
+            'contact_chatwoot_support_team' => 262144, // shares with integrations
+            'search_with_gin' => 2097152, // shares with reports
+            'advanced_search_indexing' => 2097152, // shares with reports
             'whatsapp_embedded_signup' => 4, // shares with channel_facebook
-            'whatsapp_campaign' => 4096, // shares with campaigns
-            'crm_v2' => 2147483648, // shares with crm
+            'whatsapp_campaign' => 1048576, // shares with campaigns
+            'crm_v2' => 4194304, // shares with crm
+            'assignment_v2' => 4096, // shares with team_management
             'twilio_content_templates' => 4, // shares with channel_facebook
-            'quoted_email_reply' => 2, // shares with channel_email
-            'message_reply_to' => 2, // shares with channel_email
-            'inbox_view' => 32768, // shares with inbox_management
-            'insert_article_in_reply' => 1048576, // shares with help_center
-            'help_center_embedding_search' => 1048576, // shares with help_center
             'reply_mailer_migration' => 2, // shares with channel_email
-            'captain_integration_v2' => 33554432, // shares with captain_integration
-            'response_bot' => 8388608, // shares with agent_bots
+            'inbox_view' => 8192, // shares with inbox_management
+            'help_center_embedding_search' => 256, // shares with help_center
+            'captain_integration' => 512, // shares with agent_bots
+            'captain_integration_v2' => 512, // shares with agent_bots
+            'response_bot' => 512, // shares with agent_bots
+            'message_reply_to' => 2, // shares with channel_email
+            'insert_article_in_reply' => 256, // shares with help_center
         ];
     }
 
