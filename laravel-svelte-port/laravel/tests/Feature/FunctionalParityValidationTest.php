@@ -93,9 +93,6 @@ class FunctionalParityValidationTest extends TestCase
      */
     public function test_third_party_integration_functional_parity(): void
     {
-        // Test Slack Integration
-        $this->validate_slack_integration_functionality();
-        
         // Test Linear Integration
         $this->validate_linear_integration_functionality();
         
@@ -425,23 +422,6 @@ class FunctionalParityValidationTest extends TestCase
     // ========================================
     // Third-Party Integration Validation
     // ========================================
-
-    private function validate_slack_integration_functionality(): void
-    {
-        // Test Slack integration configuration
-        $integrationData = [
-            'name' => 'Slack Integration',
-            'hook_type' => 'slack',
-            'settings' => [
-                'webhook_url' => 'https://hooks.slack.com/test',
-                'channel' => '#general'
-            ]
-        ];
-        
-        $response = $this->postJson("/api/v1/accounts/{$this->account->id}/integrations/slack", $integrationData);
-        $response->assertStatus(201)
-                ->assertJsonFragment(['name' => 'Slack Integration']);
-    }
 
     private function validate_linear_integration_functionality(): void
     {

@@ -60,13 +60,21 @@ class ManageFeatureFlagsAction
                 'chatwoot_internal' => false,
                 'help_url' => 'https://docs.chatwoot.com/integrations/linear',
             ],
-            'slack_integration' => [
-                'display_name' => 'Slack Integration',
-                'description' => 'Connect with Slack for team notifications',
+            'channel_tiktok' => [
+                'display_name' => 'TikTok Channel',
+                'description' => 'Connect with TikTok for customer messaging',
                 'enabled' => true,
                 'premium' => false,
                 'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/slack',
+                'help_url' => 'https://docs.chatwoot.com/integrations/tiktok',
+            ],
+            'advanced_search_indexing' => [
+                'display_name' => 'Advanced Search Indexing',
+                'description' => 'Enhanced search capabilities with advanced indexing',
+                'enabled' => false,
+                'premium' => true,
+                'chatwoot_internal' => true,
+                'help_url' => 'https://docs.chatwoot.com/features/search',
             ],
             'email_integration' => [
                 'display_name' => 'Email Integration',

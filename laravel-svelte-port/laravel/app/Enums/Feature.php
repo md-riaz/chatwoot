@@ -18,7 +18,8 @@ enum Feature: string
     case SAML = 'saml';
 
     // Standard Features
-    case SLACK_INTEGRATION = 'slack_integration';
+    case CHANNEL_TIKTOK = 'channel_tiktok';
+    case ADVANCED_SEARCH_INDEXING = 'advanced_search_indexing';
     case TEAM_MANAGEMENT = 'team_management';
     case AUTOMATION_RULES = 'automation_rules';
     case CSAT_SURVEYS = 'csat_surveys';
@@ -114,13 +115,21 @@ enum Feature: string
                 'chatwoot_internal' => false,
                 'help_url' => 'https://docs.chatwoot.com/features/saml-sso',
             ],
-            self::SLACK_INTEGRATION => [
-                'display_name' => 'Slack Integration',
-                'description' => 'Connect with Slack for team notifications',
+            self::CHANNEL_TIKTOK => [
+                'display_name' => 'TikTok Channel',
+                'description' => 'Connect with TikTok for customer messaging',
                 'enabled' => true,
                 'premium' => false,
                 'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/slack',
+                'help_url' => 'https://docs.chatwoot.com/integrations/tiktok',
+            ],
+            self::ADVANCED_SEARCH_INDEXING => [
+                'display_name' => 'Advanced Search Indexing',
+                'description' => 'Enhanced search capabilities with advanced indexing',
+                'enabled' => false,
+                'premium' => true,
+                'chatwoot_internal' => true,
+                'help_url' => 'https://docs.chatwoot.com/features/search',
             ],
             self::OPENAI_INTEGRATION => [
                 'display_name' => 'OpenAI Integration',

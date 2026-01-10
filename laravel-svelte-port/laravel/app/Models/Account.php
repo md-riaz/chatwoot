@@ -341,6 +341,7 @@ class Account extends Model
             'channel_website' => 16,
             'channel_instagram' => 32,
             'channel_voice' => 64,
+            'channel_tiktok' => 128,
             
             // Product features - bits 9-16
             'macros' => 256,
@@ -354,7 +355,6 @@ class Account extends Model
             
             // More product features - bits 17-24
             'linear_integration' => 65536,
-            'slack_integration' => 131072,
             'shopify_integration' => 262144,
             'canned_responses' => 524288,
             'help_center' => 1048576,
@@ -382,6 +382,7 @@ class Account extends Model
             'report_v4' => 2048, // shares with reports
             'contact_chatwoot_support_team' => 8192, // shares with integrations
             'search_with_gin' => 2048, // shares with reports
+            'advanced_search_indexing' => 2048, // shares with reports (search-related)
             'whatsapp_embedded_signup' => 4, // shares with channel_facebook
             'whatsapp_campaign' => 4096, // shares with campaigns
             'crm_v2' => 2147483648, // shares with crm
