@@ -25,7 +25,7 @@ try {
         echo "Account ID: {$account->id}\n";
         echo "Name: {$account->name}\n";
         echo "Users Count: {$account->users_count}\n";
-        echo "Status: {$account->status} (" . ($account->status === 0 ? 'active' : 'suspended') . ")\n";
+        echo "Status: {$account->status->getName()} ({$account->status->value})\n";
         echo "Created: {$account->created_at}\n";
         echo "---\n";
     }

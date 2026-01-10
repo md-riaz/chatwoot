@@ -90,10 +90,14 @@
 	}
 	
 	function isFeatureSelected(feature: string): boolean {
-		// selectedFeatures contains snake_case, feature is camelCase from allFeatures keys
-		// Convert camelCase to snake_case for comparison
-		const snakeCase = feature.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-		return selectedFeatures.includes(snakeCase);
+		if (Array.isArray(selectedFeatures)) {
+			// selectedFeatures is an array of snake_case strings, feature is camelCase from allFeatures keys
+			const snakeCase = feature.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+			return selectedFeatures.includes(snakeCase);
+		} else {
+			// selectedFeatures is an object with camelCase keys
+			return selectedFeatures && selectedFeatures[feature] === true;
+		}
 	}
 	
 	function isFeatureAvailable(feature: string): boolean {
@@ -176,24 +180,6 @@
 </script>
 
 <div class="space-y-6">
-	<!-- Debug Info (remove in production) -->
-	{#if import.meta.env.DEV}
-		<div class="p-4 bg-muted rounded-lg text-xs">
-			<details>
-				<summary class="cursor-pointer font-medium">Debug: Feature Data</summary>
-				<div class="mt-2 space-y-2">
-					<div><strong>Selected Features ({selectedFeatures.length}):</strong> {selectedFeatures.join(', ')}</div>
-					<div><strong>All Features ({Object.keys(allFeatures).length}):</strong> {Object.keys(allFeatures).join(', ')}</div>
-					<div><strong>Premium Features ({premiumFeatures.length}):</strong> {premiumFeatures.join(', ')}</div>
-					<div><strong>Organized Categories:</strong> {Object.keys(organizedFeatures).join(', ')}</div>
-					<div><strong>Regular Categories ({regularFeatureCategories.length}):</strong> {regularFeatureCategories.map(([cat, feats]) => `${cat}(${feats.length})`).join(', ')}</div>
-					<div><strong>Premium Categories ({premiumFeatureCategories.length}):</strong> {premiumFeatureCategories.map(([cat, feats]) => `${cat}(${feats.length})`).join(', ')}</div>
-					<div><strong>Sample Feature Data:</strong> {JSON.stringify(Object.entries(allFeatures)[0] || {}, null, 2)}</div>
-				</div>
-			</details>
-		</div>
-	{/if}
-
 	<!-- Regular Features -->
 	{#if regularFeatureCategories.length > 0}
 		<div class="space-y-4">

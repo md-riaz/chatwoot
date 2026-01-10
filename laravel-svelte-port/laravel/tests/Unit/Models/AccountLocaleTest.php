@@ -3,6 +3,7 @@
 namespace Tests\Unit\Models;
 
 use App\Enums\Locale;
+use App\Enums\AccountStatus;
 use App\Models\Account;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,7 +18,7 @@ class AccountLocaleTest extends TestCase
         $account = new Account();
         $account->name = 'Test Account';
         $account->locale = 'en';
-        $account->status = 1;
+        $account->status = AccountStatus::ACTIVE;  // 0 = Active, 1 = Suspended
 
         // Check the raw attribute value is integer
         $this->assertEquals(0, $account->getAttributes()['locale']);
@@ -42,7 +43,7 @@ class AccountLocaleTest extends TestCase
             $account = new Account();
             $account->name = 'Test Account';
             $account->locale = $test['code'];
-            $account->status = 1;
+            $account->status = AccountStatus::ACTIVE;  // 0 = Active, 1 = Suspended
 
             $this->assertEquals(
                 $test['expected'], 
@@ -58,7 +59,7 @@ class AccountLocaleTest extends TestCase
         $account = Account::create([
             'name' => 'Test Company',
             'locale' => 'en',
-            'status' => 1,
+            'status' => AccountStatus::ACTIVE,  // 0 = Active, 1 = Suspended
         ]);
 
         $this->assertDatabaseHas('accounts', [

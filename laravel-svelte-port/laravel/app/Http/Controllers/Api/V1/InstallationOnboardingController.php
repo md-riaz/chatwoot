@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\AccountStatus;
 use App\Http\Controllers\Controller;
 use App\Actions\Account\CreateAccountAction;
 use App\Actions\Account\SignUpEmailValidationAction;
@@ -109,7 +110,7 @@ class InstallationOnboardingController extends Controller
                     settings: Optional::create(),
                     features: Optional::create(),
                     limits: Optional::create(),
-                    status: 0  // 0 = Active, 1 = Suspended
+                    status: AccountStatus::ACTIVE  // 0 = Active, 1 = Suspended
                 );
                 
                 $account = $this->createAccount->handle($accountData);

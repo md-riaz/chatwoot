@@ -25,19 +25,21 @@
 </script>
 
 <DropdownMenu.Root open={isOpen} onOpenChange={handleOpenChange}>
-  <DropdownMenu.Trigger asChild let:builder>
-    <Button builders={[builder]} variant="ghost" size="icon" class="relative">
-      <Bell class="h-5 w-5" />
-      {#if hasUnread}
-        <Badge 
-          class="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-          variant="destructive"
-        >
-          {unreadCount > 99 ? '99+' : unreadCount}
-        </Badge>
-      {/if}
-      <span class="sr-only">Notifications</span>
-    </Button>
+  <DropdownMenu.Trigger>
+    {#snippet child({ props })}
+      <Button {...props} variant="ghost" size="icon" class="relative">
+        <Bell class="h-5 w-5" />
+        {#if hasUnread}
+          <Badge 
+            class="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+            variant="destructive"
+          >
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </Badge>
+        {/if}
+        <span class="sr-only">Notifications</span>
+      </Button>
+    {/snippet}
   </DropdownMenu.Trigger>
   
   <DropdownMenu.Content align="end" class="w-80">

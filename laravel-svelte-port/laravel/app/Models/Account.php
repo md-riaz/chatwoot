@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AccountStatus;
 use App\Enums\Locale;
 use App\Models\Concerns\CacheKeys;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,7 +38,7 @@ class Account extends Model
         'internal_attributes' => 'array',
         'feature_flags' => 'integer',
         'limits' => 'array',
-        'status' => 'integer',
+        'status' => AccountStatus::class,
         'conversation_required_attributes' => 'array',
         'locale' => Locale::class,
     ];
@@ -287,7 +288,7 @@ class Account extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('status', 0);
+        return $query->where('status', AccountStatus::ACTIVE);
     }
 
     /**
@@ -295,7 +296,7 @@ class Account extends Model
      */
     public function getActiveAttribute(): bool
     {
-        return $this->status === 0;
+        return $this->status === AccountStatus::ACTIVE;
     }
 
     /**
@@ -303,7 +304,7 @@ class Account extends Model
      */
     public function getSuspendedAttribute(): bool
     {
-        return $this->status === 1;
+        return $this->status === AccountStatus::SUSPENDED;
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Actions\SuperAdmin\Traits;
 
 use App\Data\SuperAdmin\AccountData;
 use App\Data\SuperAdmin\AccountListData;
+use App\Enums\AccountStatus;
 use App\Models\Account;
 
 trait FormatsAccountData
@@ -92,9 +93,17 @@ trait FormatsAccountData
     /**
      * Format account status
      */
-    private function formatStatus(int $status): string
+    protected function formatStatus(AccountStatus $status): string
     {
-        return $status === 0 ? 'active' : 'suspended';
+        return $status->getName();
+    }
+
+    /**
+     * Parse status string to enum for database storage
+     */
+    protected function parseStatus(string $status): AccountStatus
+    {
+        return AccountStatus::fromString($status);
     }
 
     /**

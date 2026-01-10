@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AccountStatus;
 use App\Models\Account;
 use App\Models\User;
 
@@ -26,7 +27,7 @@ test('can create account', function () {
         ->postJson('/api/v1/accounts', [
             'name' => 'Test Account',
             'locale' => 'en',
-            'status' => 1,
+            'status' => 'active',  // Use string value like Rails
         ]);
 
     $response->assertCreated()

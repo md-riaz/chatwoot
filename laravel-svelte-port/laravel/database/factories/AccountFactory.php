@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\AccountStatus;
 use App\Models\Account;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -30,7 +31,7 @@ class AccountFactory extends Factory
                 'agents' => 100,
                 'inboxes' => 50,
             ],
-            'status' => 0, // 0 = Active, 1 = Suspended
+            'status' => AccountStatus::ACTIVE, // 0 = Active, 1 = Suspended
         ];
     }
 
@@ -40,7 +41,7 @@ class AccountFactory extends Factory
     public function suspended(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 1, // 1 = Suspended
+            'status' => AccountStatus::SUSPENDED, // 1 = Suspended
         ]);
     }
 }

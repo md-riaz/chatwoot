@@ -119,11 +119,13 @@
     
     <!-- Create Campaign Dropdown -->
     <DropdownMenu>
-      <DropdownMenuTrigger asChild let:builder>
-        <Button builders={[builder]}>
-          Create Campaign
-          <ChevronDown class="ml-2 h-4 w-4" />
-        </Button>
+      <DropdownMenuTrigger>
+        {#snippet child({ props })}
+          <Button {...props}>
+            Create Campaign
+            <ChevronDown class="ml-2 h-4 w-4" />
+          </Button>
+        {/snippet}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onclick={handleCreateLiveChatCampaign}>
@@ -165,11 +167,13 @@
         Create your first campaign to start engaging with your audience
       </p>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild let:builder>
-          <Button builders={[builder]}>
-            Create Your First Campaign
-            <ChevronDown class="ml-2 h-4 w-4" />
-          </Button>
+        <DropdownMenuTrigger>
+          {#snippet child({ props })}
+            <Button {...props}>
+              Create Your First Campaign
+              <ChevronDown class="ml-2 h-4 w-4" />
+            </Button>
+          {/snippet}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center">
           <DropdownMenuItem onclick={handleCreateLiveChatCampaign}>

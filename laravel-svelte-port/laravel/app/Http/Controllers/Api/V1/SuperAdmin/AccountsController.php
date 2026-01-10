@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1\SuperAdmin;
 
+use App\Actions\SuperAdmin\Traits\FormatsAccountData;
+use App\Enums\AccountStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\RendersStandardizedErrors;
 use App\Models\Account;
@@ -12,7 +14,7 @@ use Illuminate\Validation\ValidationException;
 
 class AccountsController extends Controller
 {
-    use RendersStandardizedErrors;
+    use RendersStandardizedErrors, FormatsAccountData;
 
     /**
      * Transform account data to match Rails format.
@@ -47,7 +49,7 @@ class AccountsController extends Controller
             'domain' => $account->domain,
             'support_email' => $account->support_email,
             'auto_resolve_duration' => $account->auto_resolve_duration,
-            'status' => $account->status ?? 'active',
+            'status' => $account->status->getName(),
             'users_count' => $account->users_count ?? 0,
             'inboxes_count' => $account->inboxes_count ?? 0,
             'conversations_count' => $account->conversations_count ?? 0,
@@ -82,9 +84,10 @@ class AccountsController extends Controller
                 });
             }
 
-            // Status filter
+            // Status filter - convert string to enum for database comparison
             if ($request->has('status')) {
-                $query->where('status', $request->input('status'));
+                $statusEnum = AccountStatus::fromString($request->input('status'));
+                $query->where('status', $statusEnum);
             }
 
             // Recent filter (last 30 days)
@@ -151,6 +154,11 @@ class AccountsController extends Controller
                 'status' => 'nullable|string|in:active,suspended',
             ]);
 
+            // Convert status string to enum for database storage
+            if (isset($validated['status'])) {
+                $validated['status'] = AccountStatus::fromString($validated['status']);
+            }
+
             // Handle Rails-style feature flag processing (enabled_features format)
             if ($request->has('enabled_features')) {
                 // Extract feature names from enabled_features keys (remove 'feature_' prefix)
@@ -211,12 +219,28 @@ class AccountsController extends Controller
                 'status' => 'nullable|string|in:active,suspended',
             ]);
 
+            // Convert status string to enum for database storage
+            if (isset($validated['status'])) {
+                $validated['status'] = AccountStatus::fromString($validated['status']);
+            }
+
             // Handle feature flag updates - expect object format for proper API transformation
             if ($request->has('selected_feature_flags')) {
                 $selectedFeatureFlags = $request->input('selected_feature_flags');
                 
+                \Log::info('Feature flag update request', [
+                    'account_id' => $account->id,
+                    'raw_input' => $selectedFeatureFlags,
+                    'is_array' => is_array($selectedFeatureFlags),
+                    'array_keys' => is_array($selectedFeatureFlags) ? array_keys($selectedFeatureFlags) : 'not_array'
+                ]);
+                
                 // Extract keys from the object (API transformer converts camelCase keys to snake_case)
                 $validated['selected_feature_flags'] = is_array($selectedFeatureFlags) ? array_keys($selectedFeatureFlags) : [];
+                
+                \Log::info('Processed feature flags', [
+                    'processed_features' => $validated['selected_feature_flags']
+                ]);
             }
 
             // Handle limits processing like Rails: permitted_params[:limits].to_h.compact
@@ -235,7 +259,7 @@ class AccountsController extends Controller
             
             // Handle feature flag updates from frontend AFTER other updates
             if ($request->has('selected_feature_flags')) {
-                $this->updateAccountFeatureFlags($account, $request->input('selected_feature_flags', []));
+                $this->updateAccountFeatureFlags($account, $validated['selected_feature_flags']);
             }
 
             $account->loadCount(['users', 'inboxes', 'conversations', 'contacts']);

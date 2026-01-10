@@ -18,7 +18,7 @@ class AccountResource extends JsonResource
             'settings' => $this->settings,
             'features' => $this->features,
             'limits' => $this->limits,
-            'status' => $this->status,
+            'status' => $this->status->getName(),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
 

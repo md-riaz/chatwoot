@@ -7,6 +7,7 @@
  * validation, authorization, and edge cases.
  */
 
+use App\Enums\AccountStatus;
 use App\Models\Account;
 use App\Models\User;
 
@@ -65,7 +66,7 @@ describe('Account Creation', function () {
             ->postJson('/api/v1/accounts', [
                 'name' => 'New Test Account',
                 'locale' => 'en',
-                'status' => 1,
+                'status' => 'active',  // Use string value like Rails
             ]);
 
         $response->assertCreated()
@@ -92,7 +93,7 @@ describe('Account Creation', function () {
                 'locale' => 'es',
                 'domain' => 'example.com',
                 'support_email' => 'support@example.com',
-                'status' => 1,
+                'status' => 'active',  // Use string value like Rails
             ]);
 
         $response->assertCreated()
@@ -110,7 +111,7 @@ describe('Account Creation', function () {
                 'name' => 'Test Account',
                 'locale' => 'en',
                 'support_email' => 'not-an-email',
-                'status' => 1,
+                'status' => 'active',  // Use string value like Rails
             ]);
 
         $response->assertUnprocessable()
@@ -237,7 +238,7 @@ describe('Account Validation', function () {
         $response = $this->actingAs($user, 'sanctum')
             ->postJson('/api/v1/accounts', [
                 'locale' => 'en',
-                'status' => 1,
+                'status' => 'active',  // Use string value like Rails
             ]);
 
         $response->assertUnprocessable()
@@ -251,7 +252,7 @@ describe('Account Validation', function () {
             ->postJson('/api/v1/accounts', [
                 'name' => str_repeat('a', 300),
                 'locale' => 'en',
-                'status' => 1,
+                'status' => 'active',  // Use string value like Rails
             ]);
 
         $response->assertUnprocessable()
@@ -267,7 +268,7 @@ describe('Account Edge Cases', function () {
             ->postJson('/api/v1/accounts', [
                 'name' => '',
                 'locale' => 'en',
-                'status' => 1,
+                'status' => 'active',  // Use string value like Rails
             ]);
 
         $response->assertUnprocessable()
@@ -283,7 +284,7 @@ describe('Account Edge Cases', function () {
                 'locale' => 'en',
                 'domain' => null,
                 'support_email' => null,
-                'status' => 1,
+                'status' => 'active',  // Use string value like Rails
             ]);
 
         $response->assertCreated()
@@ -298,7 +299,7 @@ describe('Account Edge Cases', function () {
             ->postJson('/api/v1/accounts', [
                 'name' => '日本語アカウント 🏢',
                 'locale' => 'ja',
-                'status' => 1,
+                'status' => 'active',  // Use string value like Rails
             ]);
 
         $response->assertCreated()

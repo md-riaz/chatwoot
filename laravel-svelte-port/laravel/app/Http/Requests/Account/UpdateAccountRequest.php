@@ -21,7 +21,7 @@ class UpdateAccountRequest extends FormRequest
             'settings' => ['nullable', 'array'],
             'features' => ['nullable', 'array'],
             'limits' => ['nullable', 'array'],
-            'status' => ['sometimes', 'integer', 'in:0,1'],
+            'status' => ['sometimes', 'string', 'in:active,suspended'],
         ];
     }
 }

@@ -36,7 +36,7 @@ class AccountRequest extends FormRequest
             'settings' => 'nullable|array',
             'features' => 'nullable|array',
             'limits' => 'nullable|array',
-            'status' => 'nullable|integer|in:0,1',
+            'status' => 'nullable|string|in:active,suspended',
             'enabled_features' => 'nullable|array',
         ];
     }
@@ -50,7 +50,7 @@ class AccountRequest extends FormRequest
             'name.required' => 'Account name is required.',
             'domain.unique' => 'This domain is already taken by another account.',
             'support_email.email' => 'Please provide a valid email address.',
-            'status.in' => 'Status must be either active (1) or suspended (0).',
+            'status.in' => 'Status must be either active or suspended.',
         ];
     }
 }

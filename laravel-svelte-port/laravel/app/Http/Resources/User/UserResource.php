@@ -49,7 +49,7 @@ class UserResource extends JsonResource
                 return $this->accountUsers->map(fn($accountUser) => [
                     'id' => $accountUser->account_id,
                     'name' => $accountUser->account->name ?? null,
-                    'status' => $accountUser->account->status ?? 'active',
+                    'status' => $accountUser->account->status->getName(),
                     'role' => $accountUser->role->getName(), // Convert enum to string
                     'availability' => $accountUser->availability->getName(), // Convert enum to string
                     'availability_status' => $accountUser->availability->getName(), // Presence status

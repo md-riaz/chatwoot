@@ -2,6 +2,7 @@
 
 namespace App\Data\Account;
 
+use App\Enums\AccountStatus;
 use Spatie\LaravelData\Attributes\Validation\Email;
 use Spatie\LaravelData\Attributes\Validation\In;
 use Spatie\LaravelData\Attributes\Validation\Max;
@@ -26,8 +27,8 @@ class AccountData extends Data
         public array|Optional $settings,
         public array|Optional $features,
         public array|Optional $limits,
-        #[Required, In([0, 1])]
-        public int $status = 1,
+        #[Required, In(['active', 'suspended'])]
+        public AccountStatus $status = AccountStatus::ACTIVE,  // 0 = Active, 1 = Suspended
     ) {}
 
     public static function rules(): array
@@ -37,7 +38,7 @@ class AccountData extends Data
             'locale' => ['required', 'string', 'max:10'],
             'domain' => ['nullable', 'string', 'unique:accounts,domain'],
             'support_email' => ['nullable', 'email'],
-            'status' => ['required', 'integer', 'in:0,1'],
+            'status' => ['required', 'string', 'in:active,suspended'],
         ];
     }
 }

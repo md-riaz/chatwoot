@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Platform;
 
+use App\Enums\AccountStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use Illuminate\Http\JsonResponse;
@@ -40,7 +41,7 @@ class AccountsController extends Controller
             'support_email' => $account->support_email,
             'features' => $account->features ?? [],
             'limits' => $account->limits ?? [],
-            'status' => $account->status,
+            'status' => $account->status->getName(),
             'created_at' => $account->created_at,
         ]);
     }
@@ -66,7 +67,7 @@ class AccountsController extends Controller
             'support_email' => $validated['support_email'] ?? null,
             'features' => $validated['features'] ?? [],
             'limits' => $validated['limits'] ?? [],
-            'status' => 1,
+            'status' => AccountStatus::ACTIVE,  // 0 = Active, 1 = Suspended
         ]);
 
         return response()->json([
@@ -88,8 +89,13 @@ class AccountsController extends Controller
             'support_email' => 'nullable|email',
             'features' => 'nullable|array',
             'limits' => 'nullable|array',
-            'status' => 'integer|in:0,1',
+            'status' => 'string|in:active,suspended',
         ]);
+
+        // Convert status string to enum for database storage
+        if (isset($validated['status'])) {
+            $validated['status'] = AccountStatus::fromString($validated['status']);
+        }
 
         $account->update(array_filter($validated, fn($value) => $value !== null));
 

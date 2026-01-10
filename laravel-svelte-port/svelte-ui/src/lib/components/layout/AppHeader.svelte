@@ -107,15 +107,17 @@
       <!-- Account Switcher -->
       {#if currentAccount}
         <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild let:builder>
-            <Button builders={[builder]} variant="ghost" class="gap-2">
-              <Avatar.Root class="h-6 w-6">
-                <Avatar.Image src={currentAccount.name} alt={currentAccount.name} />
-                <Avatar.Fallback>{currentAccount.name.charAt(0).toUpperCase()}</Avatar.Fallback>
-              </Avatar.Root>
-              <span class="hidden md:inline">{currentAccount.name}</span>
-              <ChevronDown class="h-4 w-4 opacity-50" />
-            </Button>
+          <DropdownMenu.Trigger>
+            {#snippet child({ props })}
+              <Button {...props} variant="ghost" class="gap-2">
+                <Avatar.Root class="h-6 w-6">
+                  <Avatar.Image src={currentAccount.name} alt={currentAccount.name} />
+                  <Avatar.Fallback>{currentAccount.name.charAt(0).toUpperCase()}</Avatar.Fallback>
+                </Avatar.Root>
+                <span class="hidden md:inline">{currentAccount.name}</span>
+                <ChevronDown class="h-4 w-4 opacity-50" />
+              </Button>
+            {/snippet}
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end" class="w-56">
             <DropdownMenu.Label>Switch Account</DropdownMenu.Label>
@@ -184,17 +186,19 @@
       
       <!-- User Menu -->
       <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild let:builder>
-          <Button builders={[builder]} variant="ghost" class="gap-2">
-            <Avatar.Root class="h-8 w-8">
-              <Avatar.Image src={currentUser.avatar_url || ''} alt={currentUser.name} />
-              <Avatar.Fallback>
-                {currentUser.name?.charAt(0).toUpperCase() || 'U'}
-              </Avatar.Fallback>
-            </Avatar.Root>
-            <span class="hidden md:inline">{currentUser.name}</span>
-            <ChevronDown class="h-4 w-4 opacity-50 hidden md:inline" />
-          </Button>
+        <DropdownMenu.Trigger>
+          {#snippet child({ props })}
+            <Button {...props} variant="ghost" class="gap-2">
+              <Avatar.Root class="h-8 w-8">
+                <Avatar.Image src={currentUser.avatar_url || ''} alt={currentUser.name} />
+                <Avatar.Fallback>
+                  {currentUser.name?.charAt(0).toUpperCase() || 'U'}
+                </Avatar.Fallback>
+              </Avatar.Root>
+              <span class="hidden md:inline">{currentUser.name}</span>
+              <ChevronDown class="h-4 w-4 opacity-50 hidden md:inline" />
+            </Button>
+          {/snippet}
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end" class="w-56">
           <DropdownMenu.Label>

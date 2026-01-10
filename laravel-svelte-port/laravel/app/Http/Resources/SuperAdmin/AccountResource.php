@@ -18,7 +18,7 @@ class AccountResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'domain' => $this->domain,
-            'status' => $this->status,
+            'status' => $this->status->getName(),
             'locale' => $this->locale?->getCode() ?? 'en',
             'support_email' => $this->support_email,
             'settings' => $this->settings,
