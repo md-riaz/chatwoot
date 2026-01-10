@@ -4,6 +4,7 @@
  */
 
 import api from './client';
+import { keysToSnake } from './transformers';
 
 // Generic Laravel pagination interface
 export interface LaravelPaginationResponse<T> {
@@ -210,7 +211,14 @@ export const superAdminApi = {
   },
 
   updateAccount: async (id: number, data: Partial<Account>): Promise<Account> => {
-    const response = await api.put(`api/v1/super_admin/accounts/${id}`, { json: data }).json<{ data: Account }>();
+    // Manually transform and serialize to ensure transformation works
+    const transformedData = keysToSnake(data);
+    const response = await api.put(`api/v1/super_admin/accounts/${id}`, {
+      body: JSON.stringify(transformedData),
+      headers: {
+        'content-type': 'application/json'
+      }
+    }).json<{ data: Account }>();
     return response.data;
   },
 
