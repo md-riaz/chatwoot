@@ -284,13 +284,9 @@
 										{accountTriggerContent}
 									</Select.Trigger>
 									<Select.Content>
-										<Select.Item value="0" label="Global Bot (All Accounts)">
-											Global Bot (All Accounts)
-										</Select.Item>
+										<Select.Item value="0">Global Bot (All Accounts)</Select.Item>
 										{#each accounts as account (account.id)}
-											<Select.Item value={String(account.id)} label={account.name}>
-												{account.name}
-											</Select.Item>
+											<Select.Item value={String(account.id)}>{account.name}</Select.Item>
 										{/each}
 									</Select.Content>
 								</Select.Root>

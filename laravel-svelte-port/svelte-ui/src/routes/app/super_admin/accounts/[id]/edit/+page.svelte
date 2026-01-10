@@ -17,7 +17,7 @@
 
 	let formData = $state({
 		name: '',
-		status: { value: 'active' },
+		status: 'active',
 		locale: 'en',
 		domain: '',
 		supportEmail: '',
@@ -31,13 +31,20 @@
 
 	let errors = $state<Record<string, string>>({});
 	
+	// Status display for Select component
+	const statusDisplay = $derived(
+		formData.status === 'active' ? 'Active' : 
+		formData.status === 'suspended' ? 'Suspended' : 
+		'Select status'
+	);
+	
 	async function loadAccount() {
 		loading = true;
 		try {
 			   const account = await superAdminApi.getAccount(accountId);
 			   formData = {
 				   name: account.name || '',
-				   status: { value: account.status || 'active' },
+				   status: account.status || 'active',
 				   locale: account.locale || 'en',
 				   domain: account.domain || '',
 				   supportEmail: account.supportEmail || '',
@@ -69,7 +76,7 @@
 		try {
 			   await superAdminApi.updateAccount(accountId, {
 				   name: formData.name,
-				   status: formData.status.value as 'active' | 'suspended' | undefined,
+				   status: formData.status as 'active' | 'suspended' | undefined,
 				   locale: formData.locale,
 				   domain: formData.domain,
 				   supportEmail: formData.supportEmail,
@@ -167,9 +174,9 @@
 								
 								<div>
 									<Label for="status">Status</Label>
-									<Select.Root bind:selected={formData.status} disabled={submitting}>
-										<Select.Trigger id="status">
-											<Select.Value placeholder="Select status" />
+									<Select.Root type="single" bind:value={formData.status} disabled={submitting}>
+										<Select.Trigger class="w-full">
+											{statusDisplay}
 										</Select.Trigger>
 										<Select.Content>
 											<Select.Item value="active">Active</Select.Item>

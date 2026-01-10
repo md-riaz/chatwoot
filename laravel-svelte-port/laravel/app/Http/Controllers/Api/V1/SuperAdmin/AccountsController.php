@@ -56,7 +56,6 @@ class AccountsController extends Controller
             'contacts_count' => $account->contacts_count ?? 0,
             'selected_feature_flags' => $selectedFeatureFlags,
             'all_features' => $allFeatures,
-            'features' => $enabledFeatures, // Same as selected_feature_flags now
             'settings' => $account->settings ?? [],
             'limits' => $account->limits ?? [],
             'custom_attributes' => $account->custom_attributes ?? [],
@@ -224,23 +223,12 @@ class AccountsController extends Controller
                 $validated['status'] = AccountStatus::fromString($validated['status']);
             }
 
-            // Handle feature flag updates - expect object format for proper API transformation
+            // Handle feature flag updates - expect snake_case parameter names from client
             if ($request->has('selected_feature_flags')) {
                 $selectedFeatureFlags = $request->input('selected_feature_flags');
                 
-                \Log::info('Feature flag update request', [
-                    'account_id' => $account->id,
-                    'raw_input' => $selectedFeatureFlags,
-                    'is_array' => is_array($selectedFeatureFlags),
-                    'array_keys' => is_array($selectedFeatureFlags) ? array_keys($selectedFeatureFlags) : 'not_array'
-                ]);
-                
-                // Extract keys from the object (API transformer converts camelCase keys to snake_case)
+                // Extract feature names from the request (should be snake_case from client)
                 $validated['selected_feature_flags'] = is_array($selectedFeatureFlags) ? array_keys($selectedFeatureFlags) : [];
-                
-                \Log::info('Processed feature flags', [
-                    'processed_features' => $validated['selected_feature_flags']
-                ]);
             }
 
             // Handle limits processing like Rails: permitted_params[:limits].to_h.compact
@@ -258,7 +246,7 @@ class AccountsController extends Controller
             $account->update($accountData);
             
             // Handle feature flag updates from frontend AFTER other updates
-            if ($request->has('selected_feature_flags')) {
+            if (isset($validated['selected_feature_flags'])) {
                 $this->updateAccountFeatureFlags($account, $validated['selected_feature_flags']);
             }
 

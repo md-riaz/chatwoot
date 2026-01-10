@@ -44,7 +44,6 @@ class AccountFeatureFlagsTest extends TestCase
                     'name',
                     'selected_feature_flags',
                     'all_features',
-                    'features',
                 ]
             ]);
 

@@ -22,6 +22,13 @@
 		lastPage: 1
 	});
 	
+	// Status filter display for Select component
+	const statusFilterDisplay = $derived(
+		statusFilter.value === 'active' ? 'Active' : 
+		statusFilter.value === 'suspended' ? 'Suspended' : 
+		'All Statuses'
+	);
+	
 	const columns = [
 		{ key: 'id', label: 'ID', sortable: true, width: '80px' },
 		{ key: 'name', label: 'Name', sortable: true },
@@ -206,9 +213,9 @@
 					/>
 				</div>
 			</div>
-			<Select.Root bind:selected={statusFilter}>
+			<Select.Root type="single" bind:value={statusFilter.value}>
 				<Select.Trigger class="w-[180px]">
-					<Select.Value placeholder="All Statuses" />
+					{statusFilterDisplay}
 				</Select.Trigger>
 				<Select.Content>
 					<Select.Item value="">All Statuses</Select.Item>
