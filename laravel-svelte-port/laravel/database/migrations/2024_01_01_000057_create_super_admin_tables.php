@@ -15,7 +15,6 @@ return new class extends Migration
         Schema::create('platform_apps', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('access_token', 64)->unique();
             $table->timestamps();
         });
 

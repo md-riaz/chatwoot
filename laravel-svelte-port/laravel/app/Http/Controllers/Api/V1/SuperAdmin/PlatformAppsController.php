@@ -95,7 +95,7 @@ class PlatformAppsController extends Controller
      */
     public function regenerateToken(PlatformApp $platformApp): JsonResponse
     {
-        $token = $platformApp->regenerateAccessToken();
+        $token = $platformApp->resetAccessToken();
 
         return response()->json([
             'data' => [

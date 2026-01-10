@@ -2,12 +2,86 @@
 
 use App\Models\AccessToken;
 use App\Models\AgentBot;
+use App\Models\PlatformApp;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 describe('AccessTokenable Trait', function () {
+    
+    describe('Property 4: AccessTokenable Auto-Creates Token', function () {
+        
+        /**
+         * Property-based test: For any model using the AccessTokenable trait (User, AgentBot, PlatformApp),
+         * creating a new instance SHALL automatically create an associated AccessToken.
+         * 
+         * **Validates: Requirements 2.1, 2.4, 2.5, 2.6**
+         * **Feature: laravel-access-token-parity, Property 4: AccessTokenable Auto-Creates Token**
+         */
+        test('property test - PlatformApp auto-creates access token on creation', function () {
+            // Test with multiple iterations to simulate property-based testing
+            for ($i = 0; $i < 100; $i++) {
+                // Create a PlatformApp (which uses AccessTokenable trait)
+                $platformApp = PlatformApp::factory()->create();
+                
+                // Verify the platform app has an access token (auto-created by trait)
+                expect($platformApp->accessTokenModel)->not->toBeNull();
+                expect($platformApp->accessTokenModel)->toBeInstanceOf(AccessToken::class);
+                
+                // Verify the access token has the correct owner relationship
+                expect($platformApp->accessTokenModel->owner_type)->toBe(PlatformApp::class);
+                expect($platformApp->accessTokenModel->owner_id)->toBe($platformApp->id);
+                
+                // Verify the access token is a valid 64-character string
+                expect($platformApp->access_token)->not->toBeNull();
+                expect($platformApp->access_token)->toBeString();
+                expect(strlen($platformApp->access_token))->toBe(64);
+                
+                // Verify the access_token attribute returns the same token as the relationship
+                expect($platformApp->access_token)->toBe($platformApp->accessTokenModel->token);
+                
+                // Clean up for next iteration
+                $platformApp->delete();
+            }
+        });
+        
+        test('property test - all AccessTokenable models auto-create tokens', function () {
+            // Test with multiple iterations to simulate property-based testing
+            for ($i = 0; $i < 10; $i++) {
+                // Create different types of models that use AccessTokenable
+                $models = [
+                    ['model' => User::factory()->create(), 'type' => User::class],
+                    ['model' => AgentBot::factory()->create(), 'type' => AgentBot::class],
+                    ['model' => PlatformApp::factory()->create(), 'type' => PlatformApp::class],
+                ];
+                
+                foreach ($models as $modelData) {
+                    $model = $modelData['model'];
+                    $expectedType = $modelData['type'];
+                    
+                    // Verify the model has an access token (auto-created by trait)
+                    expect($model->accessTokenModel)->not->toBeNull();
+                    expect($model->accessTokenModel)->toBeInstanceOf(AccessToken::class);
+                    
+                    // Verify the access token has the correct owner relationship
+                    expect($model->accessTokenModel->owner_type)->toBe($expectedType);
+                    expect($model->accessTokenModel->owner_id)->toBe($model->id);
+                    
+                    // Verify the access token is a valid 64-character string
+                    expect($model->access_token)->not->toBeNull();
+                    expect($model->access_token)->toBeString();
+                    expect(strlen($model->access_token))->toBe(64);
+                    
+                    // Verify the access_token attribute returns the same token as the relationship
+                    expect($model->access_token)->toBe($model->accessTokenModel->token);
+                    
+                    // Clean up for next iteration
+                    $model->delete();
+                }
+            }
+        });
+    });
     
     describe('Property 5: Dependent Destroy Cascades', function () {
         
@@ -61,6 +135,7 @@ describe('AccessTokenable Trait', function () {
                 $models = [
                     AgentBot::factory()->create(),
                     User::factory()->create(),
+                    PlatformApp::factory()->create(),
                 ];
                 
                 foreach ($models as $model) {

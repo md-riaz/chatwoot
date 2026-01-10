@@ -30,24 +30,26 @@ This implementation plan covers achieving functional parity with the Rails acces
   - [x] 3.2 Remove custom `getAccessTokenAttribute()` method
     - Remove the Sanctum-based accessor (trait provides it)
     - _Requirements: 2.4_
-  - [ ]* 3.3 Write property test for User auto-token creation
+  - [x] 3.3 Write property test for User auto-token creation
+
     - **Property 4: AccessTokenable Auto-Creates Token**
     - **Validates: Requirements 2.1, 2.4**
 
-- [ ] 4. Update PlatformApp Model to Use AccessTokenable
-  - [ ] 4.1 Add `use AccessTokenable` trait to PlatformApp model
+- [x] 4. Update PlatformApp Model to Use AccessTokenable
+  - [x] 4.1 Add `use AccessTokenable` trait to PlatformApp model
     - Import and use the trait
     - _Requirements: 2.6_
-  - [ ] 4.2 Remove inline token generation code
+  - [x] 4.2 Remove inline token generation code
     - Remove `booted()` method with token generation
     - Remove `regenerateAccessToken()` method
     - Remove `access_token` from `$hidden` array
     - _Requirements: 2.6_
-  - [ ]* 4.3 Write property test for PlatformApp auto-token creation
+  - [x] 4.3 Write property test for PlatformApp auto-token creation
+
     - **Property 4: AccessTokenable Auto-Creates Token**
     - **Validates: Requirements 2.1, 2.6**
 
-- [ ] 5. Create Migration for PlatformApp (if needed)
+- [x] 5. Create Migration for PlatformApp (if needed)
   - Check if `platform_apps` table has `access_token` column
   - If exists, create migration to remove the column
   - _Requirements: 2.6_
@@ -55,15 +57,15 @@ This implementation plan covers achieving functional parity with the Rails acces
 - [ ] 6. Checkpoint - Verify Model Changes
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Create AccessTokenAuthentication Middleware
-  - [ ] 7.1 Create middleware class at `app/Http/Middleware/AccessTokenAuthentication.php`
+- [x] 7. Create AccessTokenAuthentication Middleware
+  - [x] 7.1 Create middleware class at `app/Http/Middleware/AccessTokenAuthentication.php`
     - Check for `api_access_token` or `HTTP_API_ACCESS_TOKEN` header
     - Look up AccessToken by token value
     - Set `access_token` and `access_token_resource` in request attributes
     - Set `Auth::user()` for User or AgentBot owners
     - Return 401 with "Invalid Access Token" for invalid tokens
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
-  - [ ] 7.2 Register middleware in `bootstrap/app.php`
+  - [x] 7.2 Register middleware in `bootstrap/app.php`
     - Add middleware alias for use in routes
     - _Requirements: 3.1_
   - [ ]* 7.3 Write property tests for AccessTokenAuthentication
@@ -73,8 +75,8 @@ This implementation plan covers achieving functional parity with the Rails acces
     - **Property 9: Invalid Token Returns 401**
     - **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5**
 
-- [ ] 8. Create ValidateBotAccess Middleware
-  - [ ] 8.1 Create middleware class at `app/Http/Middleware/ValidateBotAccess.php`
+- [-] 8. Create ValidateBotAccess Middleware
+  - [-] 8.1 Create middleware class at `app/Http/Middleware/ValidateBotAccess.php`
     - Define BOT_ACCESSIBLE_ENDPOINTS constant matching Rails
     - Skip validation for non-AgentBot users
     - Return 401 with "Access to this endpoint is not authorized for bots" for restricted endpoints

@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
+        
+        // Register middleware aliases for use in routes
+        $middleware->alias([
+            'access.token' => \App\Http\Middleware\AccessTokenAuthentication::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
