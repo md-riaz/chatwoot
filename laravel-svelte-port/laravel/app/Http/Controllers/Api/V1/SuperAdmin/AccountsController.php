@@ -15,11 +15,12 @@ class AccountsController extends Controller
     use RendersStandardizedErrors;
 
     /**
-     * Transform account data to match Rails format
+     * Transform account data to match Rails format.
+     * With simplified naming from features.yml, no mapping needed!
      */
     private function transformAccount($account): array
     {
-        // Get enabled features from the account's feature flags
+        // Get enabled features - now returns features.yml names directly!
         $enabledFeatures = $account->getEnabledFeatures();
         
         // Get all available features from the Feature enum directly
@@ -35,79 +36,8 @@ class AccountsController extends Controller
             $allFeatures[$feature['name']] = true; // All features are available
         }
         
-        // Map internal feature names (from getEnabledFeatures) to frontend expected names
-        // getEnabledFeatures() returns base names like 'email', 'messenger', 'macros', etc.
-        // We need to map these to the frontend names the Svelte UI expects
-        $featureNameMap = [
-            // Communication channels - map internal to frontend names
-            'email' => 'email_integration',
-            'whatsapp' => 'whatsapp_integration',
-            'messenger' => 'facebook_integration',
-            'instagram' => 'instagram_integration',
-            'sms' => 'twitter_integration', // sms bit reused for twitter
-            'liveChat' => 'website_widget',
-            
-            // Product features - these match 1:1
-            'macros' => 'macros',
-            'labels' => 'labels',
-            'teams' => 'team_management',
-            'campaigns' => 'campaigns',
-            'webhooks' => 'webhooks',
-            'cannedResponses' => 'canned_responses',
-            'automationRules' => 'automation_rules',
-            'customAttributes' => 'contact_management',
-            'assignment_v2' => 'conversation_assignment',
-            'reports' => 'conversation_search', // reports bit reused
-            'helpCenter' => 'mobile_app', // helpCenter bit reused
-            
-            // Integrations
-            'linear' => 'linear_integration',
-            'slack' => 'slack_integration',
-            'shopify' => 'shopify_integration',
-            
-            // Premium features
-            'custom_branding' => 'custom_branding',
-            'disable_branding' => 'disable_branding',
-            'agent_capacity' => 'agent_capacity',
-            'advanced_reporting' => 'advanced_reporting',
-            'inbox_assistant' => 'openai_integration',
-            
-            // Enterprise features (from custom_attributes) - these match 1:1
-            'custom_roles' => 'custom_roles',
-            'sla_policies' => 'sla_policies',
-            'audit_logs' => 'audit_logs',
-            'saml' => 'saml',
-        ];
-        
-        // Additional synthetic features that map to multiple internal features
-        // These need to be added if any of their component features are enabled
-        $syntheticFeatures = [
-            'api_access' => 'webhooks',
-            'csat_surveys' => 'reports',
-            'file_attachments' => 'liveChat',
-            'conversation_notes' => 'customAttributes',
-            'agent_availability' => 'teams',
-            'conversation_status' => 'automationRules',
-            'real_time_notifications' => 'webhooks',
-        ];
-        
-        // Convert enabled features to frontend format
-        $selectedFeatureFlags = [];
-        foreach ($enabledFeatures as $feature) {
-            if (isset($featureNameMap[$feature])) {
-                $selectedFeatureFlags[] = $featureNameMap[$feature];
-            } else {
-                // If no mapping exists, pass through as-is (for enterprise features)
-                $selectedFeatureFlags[] = $feature;
-            }
-        }
-        
-        // Add synthetic features based on their underlying feature bits
-        foreach ($syntheticFeatures as $syntheticName => $baseName) {
-            if (in_array($baseName, $enabledFeatures) && !in_array($syntheticName, $selectedFeatureFlags)) {
-                $selectedFeatureFlags[] = $syntheticName;
-            }
-        }
+        // No mapping needed! Features are already in features.yml format
+        $selectedFeatureFlags = $enabledFeatures;
         
         return [
             'id' => $account->id,
@@ -123,7 +53,7 @@ class AccountsController extends Controller
             'contacts_count' => $account->contacts_count ?? 0,
             'selected_feature_flags' => $selectedFeatureFlags,
             'all_features' => $allFeatures,
-            'features' => $enabledFeatures, // Keep original Laravel format too
+            'features' => $enabledFeatures, // Same as selected_feature_flags now
             'settings' => $account->settings ?? [],
             'limits' => $account->limits ?? [],
             'custom_attributes' => $account->custom_attributes ?? [],
@@ -354,149 +284,22 @@ class AccountsController extends Controller
      * 
      * This method batches all feature flag operations and saves once at the end
      * to avoid race conditions from multiple saves.
+     * 
+     * With simplified naming from features.yml, this is much simpler!
      */
     private function updateAccountFeatureFlags(Account $account, array $selectedFeatures): void
     {
-        // Map frontend feature names (snake_case from API transformation) to internal feature names
-        $featureNameMap = [
-            // Communication channels
-            'website_widget' => 'website_widget',
-            'email_integration' => 'email_integration',
-            'whatsapp_integration' => 'whatsapp_integration',
-            'facebook_integration' => 'facebook_integration',
-            'instagram_integration' => 'instagram_integration',
-            'twitter_integration' => 'twitter_integration',
-            
-            // Product features
-            'macros' => 'macros',
-            'labels' => 'labels',
-            'team_management' => 'team_management',
-            'campaigns' => 'campaigns',
-            'webhooks' => 'webhooks',
-            'canned_responses' => 'canned_responses',
-            'automation_rules' => 'automation_rules',
-            'contact_management' => 'contact_management',
-            'conversation_assignment' => 'conversation_assignment',
-            'conversation_search' => 'conversation_search',
-            'file_attachments' => 'file_attachments',
-            'conversation_notes' => 'conversation_notes',
-            'agent_availability' => 'agent_availability',
-            'conversation_status' => 'conversation_status',
-            'real_time_notifications' => 'real_time_notifications',
-            
-            // Integrations
-            'linear_integration' => 'linear_integration',
-            'slack_integration' => 'slack_integration',
-            'shopify_integration' => 'shopify_integration',
-            'api_access' => 'api_access',
-            'mobile_app' => 'mobile_app',
-            
-            // Premium features
-            'custom_roles' => 'custom_roles',
-            'sla_policies' => 'sla_policies',
-            'audit_logs' => 'audit_logs',
-            'advanced_reporting' => 'advanced_reporting',
-            'openai_integration' => 'openai_integration',
-            'csat_surveys' => 'csat_surveys',
-            'custom_branding' => 'custom_branding',
-            'disable_branding' => 'disable_branding',
-            'agent_capacity' => 'agent_capacity',
-            'saml' => 'saml',
-        ];
-        
-        // Bit flag mappings (must match Account model)
-        $flagMap = [
-            // Core communication channels (bits 1-8)
-            'email' => 1,
-            'sms' => 2,
-            'messenger' => 4,
-            'telegram' => 8,
-            'whatsapp' => 16,
-            'tiktok' => 32,
-            'instagram' => 64,
-            'line' => 128,
-            
-            // Product features (bits 9-16)
-            'macros' => 256,
-            'labels' => 512,
-            'teams' => 1024,
-            'reports' => 2048,
-            'campaigns' => 4096,
-            'webhooks' => 8192,
-            'google' => 16384,
-            'microsoft' => 32768,
-            
-            // Integrations (bits 17-24)
-            'linear' => 65536,
-            'slack' => 131072,
-            'shopify' => 262144,
-            'cannedResponses' => 524288,
-            'helpCenter' => 1048576,
-            'automationRules' => 2097152,
-            'customAttributes' => 4194304,
-            'liveChat' => 8388608,
-            
-            // Enterprise features (bits 25-32)
-            'assignment_v2' => 16777216,
-            'inbox_assistant' => 33554432,
-            'advanced_reporting' => 67108864,
-            'crm_integration' => 134217728,
-            'notion_integration' => 268435456,
-            'custom_branding' => 536870912,
-            'disable_branding' => 1073741824,
-            'agent_capacity' => 2147483648,
-            
-            // Feature name mappings (must match Account model)
-            'email_integration' => 1,
-            'channel_email' => 1,
-            'website_widget' => 8388608,
-            'channel_website' => 8388608,
-            'api_access' => 8192,
-            'team_management' => 1024,
-            'automation_rules' => 2097152,
-            'csat_surveys' => 2048,
-            'whatsapp_integration' => 16,
-            'facebook_integration' => 4,
-            'channel_facebook' => 4,
-            'instagram_integration' => 64,
-            'channel_instagram' => 64,
-            'twitter_integration' => 2,
-            'channel_twitter' => 2,
-            'canned_responses' => 524288,
-            'contact_management' => 4194304,
-            'conversation_assignment' => 16777216,
-            'conversation_search' => 2048,
-            'file_attachments' => 8388608,
-            'conversation_notes' => 4194304,
-            'agent_availability' => 1024,
-            'conversation_status' => 2097152,
-            'real_time_notifications' => 8192,
-            'mobile_app' => 8388608,
-            'slack_integration' => 131072,
-            'linear_integration' => 65536,
-            'shopify_integration' => 262144,
-            'openai_integration' => 33554432,
-        ];
-        
         // Enterprise features that use custom_attributes instead of bit flags
         $enterpriseFeatures = [
-            'saml', 'sla_policies', 'custom_roles', 'audit_logs',
-            'channel_voice', 'advanced_search', 'companies'
+            'saml', 'sla', 'custom_roles', 'audit_logs',
+            'advanced_search', 'companies'
         ];
-        
-        // Map selected features to internal names
-        $mappedFeatures = [];
-        foreach ($selectedFeatures as $frontendFeature) {
-            if (isset($featureNameMap[$frontendFeature])) {
-                $mappedFeatures[] = $featureNameMap[$frontendFeature];
-            }
-        }
         
         // Separate bit flag features from enterprise features
         $bitFlagFeatures = [];
         $selectedEnterpriseFeatures = [];
         
-        foreach ($mappedFeatures as $feature) {
+        foreach ($selectedFeatures as $feature) {
             if (in_array($feature, $enterpriseFeatures)) {
                 $selectedEnterpriseFeatures[] = $feature;
             } else {
@@ -507,8 +310,10 @@ class AccountsController extends Controller
         // Reset all bit flags to 0
         $account->feature_flags = 0;
         
-        // Enable selected bit flag features
+        // Enable selected bit flag features using Account's feature map
         foreach ($bitFlagFeatures as $feature) {
+            // Use the Account model's feature_enabled check to get the bit value
+            $flagMap = $account->getFeatureFlagMap();
             if (isset($flagMap[$feature])) {
                 $account->feature_flags |= $flagMap[$feature];
             }
