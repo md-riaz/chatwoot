@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AccessTokenable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,7 +17,7 @@ use Spatie\MediaLibrary\HasMedia;
 class User extends Authenticatable implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes, HasAccountRoles, HasAvatar;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes, HasAccountRoles, HasAvatar, AccessTokenable;
 
     /**
      * The attributes that are mass assignable.
@@ -155,16 +156,6 @@ class User extends Authenticatable implements HasMedia
     public static function fromEmail(string $email): ?User
     {
         return static::where('email', $email)->first();
-    }
-    
-    /**
-     * Get access token for API calls (Rails parity)
-     */
-    public function getAccessTokenAttribute(): ?string
-    {
-        // Return the latest token if available
-        $token = $this->tokens()->latest()->first();
-        return $token ? $token->token : null;
     }
     
     /**

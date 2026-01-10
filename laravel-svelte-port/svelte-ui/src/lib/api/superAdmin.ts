@@ -97,6 +97,13 @@ export interface AgentBot {
   outgoingUrl?: string;
   botType?: string;
   botConfig?: Record<string, unknown>;
+  avatarUrl?: string;
+  accessToken?: string;
+  accountId?: number;
+  account?: {
+    id: number;
+    name: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

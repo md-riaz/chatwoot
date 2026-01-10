@@ -10,6 +10,29 @@ use Illuminate\Http\Request;
 class AgentBotsController extends Controller
 {
     /**
+     * Transform AgentBot model to API response format.
+     */
+    private function transformAgentBot(AgentBot $bot): array
+    {
+        return [
+            'id' => $bot->id,
+            'name' => $bot->name,
+            'description' => $bot->description,
+            'outgoing_url' => $bot->outgoing_url,
+            'bot_type' => $bot->bot_type,
+            'avatar_url' => $bot->getAvatarUrl(),
+            'access_token' => $bot->access_token,
+            'account_id' => $bot->account_id ?? 0,
+            'account' => $bot->account ? [
+                'id' => $bot->account->id,
+                'name' => $bot->account->name,
+            ] : null,
+            'created_at' => $bot->created_at?->toISOString(),
+            'updated_at' => $bot->updated_at?->toISOString(),
+        ];
+    }
+
+    /**
      * List all agent bots (both global and account-specific).
      */
     public function index(Request $request): JsonResponse
@@ -30,23 +53,8 @@ class AgentBotsController extends Controller
         $bots = $query->orderBy('created_at', 'desc')
             ->paginate($request->input('per_page', 25));
 
-        // Transform the data to include account information
         $bots->getCollection()->transform(function ($bot) {
-            return [
-                'id' => $bot->id,
-                'name' => $bot->name,
-                'description' => $bot->description,
-                'outgoing_url' => $bot->outgoing_url,
-                'bot_type' => $bot->bot_type,
-                'avatar_url' => $bot->getAvatarUrl(),
-                'account_id' => $bot->account_id ?? 0, // Return 0 for global bots
-                'account' => $bot->account ? [
-                    'id' => $bot->account->id,
-                    'name' => $bot->account->name,
-                ] : null,
-                'created_at' => $bot->created_at?->toISOString(),
-                'updated_at' => $bot->updated_at?->toISOString(),
-            ];
+            return $this->transformAgentBot($bot);
         });
 
         return response()->json($bots);
@@ -60,21 +68,7 @@ class AgentBotsController extends Controller
         $agentBot->load('account:id,name');
         
         return response()->json([
-            'data' => [
-                'id' => $agentBot->id,
-                'name' => $agentBot->name,
-                'description' => $agentBot->description,
-                'outgoing_url' => $agentBot->outgoing_url,
-                'bot_type' => $agentBot->bot_type,
-                'avatar_url' => $agentBot->getAvatarUrl(),
-                'account_id' => $agentBot->account_id ?? 0, // Return 0 for global bots
-                'account' => $agentBot->account ? [
-                    'id' => $agentBot->account->id,
-                    'name' => $agentBot->account->name,
-                ] : null,
-                'created_at' => $agentBot->created_at?->toISOString(),
-                'updated_at' => $agentBot->updated_at?->toISOString(),
-            ]
+            'data' => $this->transformAgentBot($agentBot)
         ]);
     }
 
@@ -111,21 +105,7 @@ class AgentBotsController extends Controller
         $bot->load('account:id,name');
 
         return response()->json([
-            'data' => [
-                'id' => $bot->id,
-                'name' => $bot->name,
-                'description' => $bot->description,
-                'outgoing_url' => $bot->outgoing_url,
-                'bot_type' => $bot->bot_type,
-                'avatar_url' => $bot->getAvatarUrl(),
-                'account_id' => $bot->account_id ?? 0, // Return 0 for global bots
-                'account' => $bot->account ? [
-                    'id' => $bot->account->id,
-                    'name' => $bot->account->name,
-                ] : null,
-                'created_at' => $bot->created_at?->toISOString(),
-                'updated_at' => $bot->updated_at?->toISOString(),
-            ]
+            'data' => $this->transformAgentBot($bot)
         ], 201);
     }
 
@@ -159,21 +139,7 @@ class AgentBotsController extends Controller
         $agentBot->load('account:id,name');
 
         return response()->json([
-            'data' => [
-                'id' => $agentBot->id,
-                'name' => $agentBot->name,
-                'description' => $agentBot->description,
-                'outgoing_url' => $agentBot->outgoing_url,
-                'bot_type' => $agentBot->bot_type,
-                'avatar_url' => $agentBot->getAvatarUrl(),
-                'account_id' => $agentBot->account_id ?? 0, // Return 0 for global bots
-                'account' => $agentBot->account ? [
-                    'id' => $agentBot->account->id,
-                    'name' => $agentBot->account->name,
-                ] : null,
-                'created_at' => $agentBot->created_at?->toISOString(),
-                'updated_at' => $agentBot->updated_at?->toISOString(),
-            ]
+            'data' => $this->transformAgentBot($agentBot)
         ]);
     }
 
@@ -204,21 +170,7 @@ class AgentBotsController extends Controller
             $agentBot->load('account:id,name');
 
             return response()->json([
-                'data' => [
-                    'id' => $agentBot->id,
-                    'name' => $agentBot->name,
-                    'description' => $agentBot->description,
-                    'outgoing_url' => $agentBot->outgoing_url,
-                    'bot_type' => $agentBot->bot_type,
-                    'avatar_url' => $agentBot->getAvatarUrl(),
-                    'account_id' => $agentBot->account_id ?? 0, // Return 0 for global bots
-                    'account' => $agentBot->account ? [
-                        'id' => $agentBot->account->id,
-                        'name' => $agentBot->account->name,
-                    ] : null,
-                    'created_at' => $agentBot->created_at?->toISOString(),
-                    'updated_at' => $agentBot->updated_at?->toISOString(),
-                ],
+                'data' => $this->transformAgentBot($agentBot),
                 'message' => 'Avatar uploaded successfully.'
             ]);
         } catch (\Exception $e) {

@@ -93,11 +93,33 @@ trait HasAvatar
         $media = $this->getFirstMedia('avatar');
         
         if ($media) {
-            return $media->getUrl($conversion);
+            $url = $media->getUrl($conversion);
+            
+            // Ensure absolute URL for API responses
+            if (!str_starts_with($url, 'http')) {
+                $url = config('app.url') . $url;
+            }
+            
+            return $url;
         }
 
-        // Fallback to Gravatar
-        return $this->getGravatarUrl();
+        // Fallback to Gravatar if email exists
+        $gravatarUrl = $this->getGravatarUrl();
+        if ($gravatarUrl) {
+            return $gravatarUrl;
+        }
+
+        // Final fallback to default avatar
+        return $this->getDefaultAvatarUrl();
+    }
+
+    /**
+     * Get default avatar URL when no avatar or Gravatar is available
+     */
+    public function getDefaultAvatarUrl(): string
+    {
+        // Return empty string - let frontend handle fallback display
+        return '';
     }
 
     /**
@@ -126,7 +148,8 @@ trait HasAvatar
      */
     public function deleteAvatar(): bool
     {
-        return $this->clearMediaCollection('avatar');
+        $this->clearMediaCollection('avatar');
+        return true;
     }
 
     /**

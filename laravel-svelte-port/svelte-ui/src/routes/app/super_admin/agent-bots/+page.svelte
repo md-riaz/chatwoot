@@ -18,6 +18,18 @@
 	const columns = [
 		{ key: 'id', label: 'ID', sortable: true, width: '80px' },
 		{ 
+			key: 'avatar', 
+			label: 'Avatar', 
+			sortable: false,
+			width: '80px',
+			render: (value: any, row: any) => {
+				if (row.avatarUrl) {
+					return `<img src="${row.avatarUrl}" alt="${row.name}" class="h-10 w-10 rounded-full object-cover border border-border" />`;
+				}
+				return `<div class="h-10 w-10 rounded-full bg-muted border border-border flex items-center justify-center text-xs font-medium text-muted-foreground">${row.name.charAt(0).toUpperCase()}</div>`;
+			}
+		},
+		{ 
 			key: 'account', 
 			label: 'Account', 
 			sortable: false,
@@ -31,7 +43,7 @@
 		},
 		{ key: 'name', label: 'Name', sortable: true },
 		{ 
-			key: 'outgoing_url', 
+			key: 'outgoingUrl', 
 			label: 'Outgoing URL',
 			sortable: false,
 			render: (value: string) => {
@@ -76,7 +88,7 @@
 	}
 
 	function handleRowClick(bot: any) {
-		goto(`/app/super_admin/agent-bots/${bot.id}`);
+		goto(`/app/super_admin/agent-bots/${bot.id}`); // Go to details page
 	}
 
 	function handlePageChange(page: number) {
@@ -86,7 +98,7 @@
 
 	// Make functions globally available for the action buttons
 	(globalThis as any).editBot = (id: number) => {
-		goto(`/app/super_admin/agent-bots/${id}`);
+		goto(`/app/super_admin/agent-bots/${id}/edit`); // Go to edit page
 	};
 
 	(globalThis as any).deleteBot = async (id: number) => {

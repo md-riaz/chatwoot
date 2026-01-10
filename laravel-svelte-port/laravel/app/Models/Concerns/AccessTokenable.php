@@ -7,11 +7,16 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 trait AccessTokenable
 {
-    protected static function bootAccessTokenable()
+    protected static function bootAccessTokenable(): void
     {
         // Use 'created' event to match Rails after_create behavior
         static::created(function ($model) {
             $model->createAccessToken();
+        });
+
+        // Add cascade delete for Rails parity (dependent: :destroy_async)
+        static::deleting(function ($model) {
+            $model->accessTokenModel()->delete();
         });
     }
 
@@ -38,7 +43,7 @@ trait AccessTokenable
     {
         $accessToken = $this->accessTokenModel;
         if ($accessToken) {
-            return $accessToken->regenerate();
+            return $accessToken->regenerateToken();
         }
         
         return $this->createAccessToken()->token;

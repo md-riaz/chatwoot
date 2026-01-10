@@ -27,7 +27,6 @@ class AgentBotFactory extends Factory
             'outgoing_url' => fake()->url(),
             'bot_type' => AgentBot::TYPE_WEBHOOK,
             'bot_config' => null,
-            'avatar_url' => fake()->optional()->imageUrl(100, 100, 'robots'),
         ];
     }
 
@@ -58,7 +57,7 @@ class AgentBotFactory extends Factory
     public function withAvatar(): static
     {
         return $this->state(fn (array $attributes) => [
-            'avatar_url' => fake()->imageUrl(100, 100, 'robots'),
+            // Avatar will be handled by HasAvatar trait, not as a database column
         ]);
     }
 }
