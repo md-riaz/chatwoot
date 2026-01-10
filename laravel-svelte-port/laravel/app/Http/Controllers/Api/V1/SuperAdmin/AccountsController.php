@@ -15,11 +15,12 @@ class AccountsController extends Controller
     use RendersStandardizedErrors;
 
     /**
-     * Transform account data to match Rails format
+     * Transform account data to match Rails format.
+     * With simplified naming from features.yml, no mapping needed!
      */
     private function transformAccount($account): array
     {
-        // Get enabled features from the account's feature flags
+        // Get enabled features - now returns features.yml names directly!
         $enabledFeatures = $account->getEnabledFeatures();
         
         // Get all available features from the Feature enum directly
@@ -35,62 +36,8 @@ class AccountsController extends Controller
             $allFeatures[$feature['name']] = true; // All features are available
         }
         
-        // Map Laravel feature names to frontend expected names
-        // Note: getEnabledFeatures() returns snake_case enum values, 
-        // but we want to send snake_case to frontend (which will transform to camelCase)
-        $featureNameMap = [
-            // Communication channels (already snake_case from enum)
-            'email_integration' => 'email_integration',
-            'whatsapp_integration' => 'whatsapp_integration',
-            'facebook_integration' => 'facebook_integration',
-            'instagram_integration' => 'instagram_integration',
-            'twitter_integration' => 'twitter_integration',
-            'website_widget' => 'website_widget',
-            
-            // Product features (already snake_case from enum)
-            'macros' => 'macros',
-            'labels' => 'labels',
-            'team_management' => 'team_management',
-            'campaigns' => 'campaigns',
-            'webhooks' => 'webhooks',
-            'canned_responses' => 'canned_responses',
-            'automation_rules' => 'automation_rules',
-            'contact_management' => 'contact_management',
-            'conversation_assignment' => 'conversation_assignment',
-            'conversation_search' => 'conversation_search',
-            'file_attachments' => 'file_attachments',
-            'conversation_notes' => 'conversation_notes',
-            'agent_availability' => 'agent_availability',
-            'conversation_status' => 'conversation_status',
-            'real_time_notifications' => 'real_time_notifications',
-            
-            // Integrations (already snake_case from enum)
-            'linear_integration' => 'linear_integration',
-            'slack_integration' => 'slack_integration',
-            'shopify_integration' => 'shopify_integration',
-            'api_access' => 'api_access',
-            'mobile_app' => 'mobile_app',
-            
-            // Premium features (already snake_case from enum)
-            'custom_roles' => 'custom_roles',
-            'sla_policies' => 'sla_policies',
-            'audit_logs' => 'audit_logs',
-            'advanced_reporting' => 'advanced_reporting',
-            'openai_integration' => 'openai_integration',
-            'csat_surveys' => 'csat_surveys',
-            'custom_branding' => 'custom_branding',
-            'disable_branding' => 'disable_branding',
-            'agent_capacity' => 'agent_capacity',
-            'saml' => 'saml',
-        ];
-        
-        // Convert enabled features to frontend format
-        $selectedFeatureFlags = [];
-        foreach ($enabledFeatures as $feature) {
-            if (isset($featureNameMap[$feature])) {
-                $selectedFeatureFlags[] = $featureNameMap[$feature];
-            }
-        }
+        // No mapping needed! Features are already in features.yml format
+        $selectedFeatureFlags = $enabledFeatures;
         
         return [
             'id' => $account->id,
@@ -106,7 +53,7 @@ class AccountsController extends Controller
             'contacts_count' => $account->contacts_count ?? 0,
             'selected_feature_flags' => $selectedFeatureFlags,
             'all_features' => $allFeatures,
-            'features' => $enabledFeatures, // Keep original Laravel format too
+            'features' => $enabledFeatures, // Same as selected_feature_flags now
             'settings' => $account->settings ?? [],
             'limits' => $account->limits ?? [],
             'custom_attributes' => $account->custom_attributes ?? [],
@@ -334,71 +281,50 @@ class AccountsController extends Controller
 
     /**
      * Update account feature flags based on frontend selection.
+     * 
+     * This method batches all feature flag operations and saves once at the end
+     * to avoid race conditions from multiple saves.
+     * 
+     * With simplified naming from features.yml, this is much simpler!
      */
     private function updateAccountFeatureFlags(Account $account, array $selectedFeatures): void
     {
-        // Map frontend feature names (snake_case from API transformation) to Laravel enum values
-        $featureNameMap = [
-            // Communication channels
-            'website_widget' => 'website_widget',
-            'email_integration' => 'email_integration',
-            'whatsapp_integration' => 'whatsapp_integration',
-            'facebook_integration' => 'facebook_integration',
-            'instagram_integration' => 'instagram_integration',
-            'twitter_integration' => 'twitter_integration',
-            
-            // Product features
-            'macros' => 'macros',
-            'labels' => 'labels',
-            'team_management' => 'team_management',
-            'campaigns' => 'campaigns',
-            'webhooks' => 'webhooks',
-            'canned_responses' => 'canned_responses',
-            'automation_rules' => 'automation_rules',
-            'contact_management' => 'contact_management',
-            'conversation_assignment' => 'conversation_assignment',
-            'conversation_search' => 'conversation_search',
-            'file_attachments' => 'file_attachments',
-            'conversation_notes' => 'conversation_notes',
-            'agent_availability' => 'agent_availability',
-            'conversation_status' => 'conversation_status',
-            'real_time_notifications' => 'real_time_notifications',
-            
-            // Integrations
-            'linear_integration' => 'linear_integration',
-            'slack_integration' => 'slack_integration',
-            'shopify_integration' => 'shopify_integration',
-            'api_access' => 'api_access',
-            'mobile_app' => 'mobile_app',
-            
-            // Premium features
-            'custom_roles' => 'custom_roles',
-            'sla_policies' => 'sla_policies',
-            'audit_logs' => 'audit_logs',
-            'advanced_reporting' => 'advanced_reporting',
-            'openai_integration' => 'openai_integration',
-            'csat_surveys' => 'csat_surveys',
-            'custom_branding' => 'custom_branding',
-            'disable_branding' => 'disable_branding',
-            'agent_capacity' => 'agent_capacity',
-            'saml' => 'saml',
+        // Enterprise features that use custom_attributes instead of bit flags
+        $enterpriseFeatures = [
+            'saml', 'sla', 'custom_roles', 'audit_logs',
+            'advanced_search', 'companies'
         ];
         
-        // Get current enabled features and disable all
-        $currentFeatures = $account->getEnabledFeatures();
-        foreach ($currentFeatures as $feature) {
-            $account->disableFeature($feature);
-        }
+        // Separate bit flag features from enterprise features
+        $bitFlagFeatures = [];
+        $selectedEnterpriseFeatures = [];
         
-        // Enable selected features
-        foreach ($selectedFeatures as $frontendFeature) {
-            if (isset($featureNameMap[$frontendFeature])) {
-                $enumValue = $featureNameMap[$frontendFeature];
-                $account->enableFeature($enumValue);
+        foreach ($selectedFeatures as $feature) {
+            if (in_array($feature, $enterpriseFeatures)) {
+                $selectedEnterpriseFeatures[] = $feature;
+            } else {
+                $bitFlagFeatures[] = $feature;
             }
         }
         
-        // Save the account
+        // Reset all bit flags to 0
+        $account->feature_flags = 0;
+        
+        // Enable selected bit flag features using Account's feature map
+        foreach ($bitFlagFeatures as $feature) {
+            // Use the Account model's feature_enabled check to get the bit value
+            $flagMap = $account->getFeatureFlagMap();
+            if (isset($flagMap[$feature])) {
+                $account->feature_flags |= $flagMap[$feature];
+            }
+        }
+        
+        // Update enterprise features in custom_attributes
+        $customAttributes = $account->custom_attributes ?? [];
+        $customAttributes['enabled_enterprise_features'] = $selectedEnterpriseFeatures;
+        $account->custom_attributes = $customAttributes;
+        
+        // Save once with all changes
         $account->save();
     }
 }
