@@ -25,7 +25,10 @@
 		selectedFeatureFlags: [] as string[],
 		allFeatures: {} as Record<string, boolean>,
 		settings: {} as Record<string, any>,
-		limits: {} as Record<string, any>,
+		limits: {
+			agents: '',
+			inboxes: ''
+		} as Record<string, any>,
 		customAttributes: {} as Record<string, any>
 	});
 
@@ -52,7 +55,11 @@
 				   selectedFeatureFlags: account.selectedFeatureFlags || [],
 				   allFeatures: account.allFeatures || {},
 				   settings: account.settings || {},
-				   limits: account.limits || {},
+				   limits: {
+					   agents: String(account.limits?.agents ?? ''),
+					   inboxes: String(account.limits?.inboxes ?? ''),
+					   ...account.limits
+				   },
 				   customAttributes: account.customAttributes || {}
 			   };
 		} catch (error: any) {
@@ -83,7 +90,16 @@
 				   autoResolveDuration: formData.autoResolveDuration ? Number(formData.autoResolveDuration) : undefined,
 				   selectedFeatureFlags: formData.selectedFeatureFlags, // Send whatever format the component provides
 				   settings: formData.settings,
-				   limits: formData.limits,
+				   limits: {
+					   agents: formData.limits.agents ? Number(formData.limits.agents) : null,
+					   inboxes: formData.limits.inboxes ? Number(formData.limits.inboxes) : null,
+					   // Include any other limits that might exist
+					   ...Object.fromEntries(
+						   Object.entries(formData.limits)
+							   .filter(([key]) => !['agents', 'inboxes'].includes(key))
+							   .map(([key, value]) => [key, value ? Number(value) : null])
+					   )
+				   },
 				   customAttributes: formData.customAttributes
 			   });
 			toast.success('Account updated successfully');
@@ -247,6 +263,47 @@
 							onFeaturesChange={handleFeaturesChange}
 							disabled={submitting}
 						/>
+					</div>
+				</section>
+
+				<!-- Account Limits Section -->
+				<section class="bg-card rounded-lg shadow-sm">
+					<div class="px-6 py-4 border-b border-border">
+						<h2 class="text-lg font-medium text-foreground">Account Limits</h2>
+						<p class="text-sm text-muted-foreground mt-1">Set usage limits for this account</p>
+					</div>
+					<div class="p-6">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div>
+								<Label for="agentLimit">Agent Limit</Label>
+								<Input
+									id="agentLimit"
+									type="number"
+									bind:value={formData.limits.agents}
+									placeholder="Unlimited"
+									disabled={submitting}
+									min="0"
+								/>
+								<p class="text-sm text-muted-foreground mt-1">
+									Maximum number of agents allowed. Leave empty for unlimited.
+								</p>
+							</div>
+							
+							<div>
+								<Label for="inboxLimit">Inbox Limit</Label>
+								<Input
+									id="inboxLimit"
+									type="number"
+									bind:value={formData.limits.inboxes}
+									placeholder="Unlimited"
+									disabled={submitting}
+									min="0"
+								/>
+								<p class="text-sm text-muted-foreground mt-1">
+									Maximum number of inboxes allowed. Leave empty for unlimited.
+								</p>
+							</div>
+						</div>
 					</div>
 				</section>
 

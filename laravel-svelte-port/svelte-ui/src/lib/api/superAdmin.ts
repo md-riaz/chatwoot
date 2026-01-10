@@ -36,7 +36,11 @@ export interface Account {
   allFeatures?: Record<string, boolean>;
   features?: Record<string, boolean>;
   settings?: Record<string, any>;
-  limits?: Record<string, any>;
+  limits?: {
+    agents?: number | null;
+    inboxes?: number | null;
+    [key: string]: any;
+  };
   customAttributes?: Record<string, any>;
   internalAttributes?: Record<string, any>;
   accountUsers?: AccountUser[];

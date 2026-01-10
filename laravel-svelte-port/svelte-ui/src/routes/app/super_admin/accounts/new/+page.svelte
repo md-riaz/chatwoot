@@ -12,7 +12,11 @@
 	
 	let formData = $state({
 		name: '',
-		locale: 'en'
+		locale: 'en',
+		limits: {
+			agents: '',
+			inboxes: ''
+		}
 	});
 	
 	let errors = $state<Record<string, string>>({});
@@ -28,7 +32,13 @@
 		
 		submitting = true;
 		try {
-			const account = await superAdminApi.createAccount(formData);
+			const account = await superAdminApi.createAccount({
+				...formData,
+				limits: {
+					agents: formData.limits.agents ? Number(formData.limits.agents) : null,
+					inboxes: formData.limits.inboxes ? Number(formData.limits.inboxes) : null
+				}
+			});
 			toast.success('Account created successfully');
 			goto(`/app/super_admin/accounts/${account.id}`);
 		} catch (error: any) {
@@ -99,6 +109,46 @@
 						<p class="text-xs text-muted-foreground">
 							Default language for this account
 						</p>
+					</div>
+					
+					<!-- Account Limits -->
+					<div class="space-y-4 pt-4 border-t">
+						<div>
+							<h3 class="text-sm font-medium text-foreground">Account Limits</h3>
+							<p class="text-xs text-muted-foreground">Set usage limits for this account (optional)</p>
+						</div>
+						
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div class="space-y-2">
+								<Label for="agentLimit">Agent Limit</Label>
+								<Input
+									id="agentLimit"
+									type="number"
+									bind:value={formData.limits.agents}
+									placeholder="Unlimited"
+									disabled={submitting}
+									min="0"
+								/>
+								<p class="text-xs text-muted-foreground">
+									Maximum number of agents allowed
+								</p>
+							</div>
+							
+							<div class="space-y-2">
+								<Label for="inboxLimit">Inbox Limit</Label>
+								<Input
+									id="inboxLimit"
+									type="number"
+									bind:value={formData.limits.inboxes}
+									placeholder="Unlimited"
+									disabled={submitting}
+									min="0"
+								/>
+								<p class="text-xs text-muted-foreground">
+									Maximum number of inboxes allowed
+								</p>
+							</div>
+						</div>
 					</div>
 					
 					<div class="flex items-center space-x-2 pt-4">

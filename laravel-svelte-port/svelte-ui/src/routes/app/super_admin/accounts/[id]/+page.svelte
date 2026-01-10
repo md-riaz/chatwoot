@@ -307,23 +307,36 @@
 			</section>
 
 			<!-- Account Limits Section -->
-			{#if formData.limits && Object.keys(formData.limits).length > 0}
-				<section class="bg-card rounded-lg shadow-sm mb-6">
-					<div class="px-6 py-4 border-b border-border">
-						<h2 class="text-lg font-medium text-foreground">Limits</h2>
-					</div>
-					<div class="p-6">
-						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-							{#each Object.entries(formData.limits) as [key, value]}
-								<div class="text-center p-3 border border-border rounded-lg">
-									<div class="text-lg font-semibold text-foreground">{value}</div>
+			<section class="bg-card rounded-lg shadow-sm mb-6">
+				<div class="px-6 py-4 border-b border-border">
+					<h2 class="text-lg font-medium text-foreground">Account Limits</h2>
+					<p class="text-sm text-muted-foreground mt-1">Usage limits configured for this account</p>
+				</div>
+				<div class="p-6">
+					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+						<div class="text-center p-4 border border-border rounded-lg">
+							<div class="text-2xl font-semibold text-foreground">
+								{formData.limits?.agents || 'Unlimited'}
+							</div>
+							<div class="text-sm text-muted-foreground">Agent Limit</div>
+						</div>
+						<div class="text-center p-4 border border-border rounded-lg">
+							<div class="text-2xl font-semibold text-foreground">
+								{formData.limits?.inboxes || 'Unlimited'}
+							</div>
+							<div class="text-sm text-muted-foreground">Inbox Limit</div>
+						</div>
+						{#if formData.limits && Object.keys(formData.limits).some(key => !['agents', 'inboxes'].includes(key))}
+							{#each Object.entries(formData.limits).filter(([key]) => !['agents', 'inboxes'].includes(key)) as [key, value]}
+								<div class="text-center p-4 border border-border rounded-lg">
+									<div class="text-2xl font-semibold text-foreground">{value || 'Unlimited'}</div>
 									<div class="text-sm text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</div>
 								</div>
 							{/each}
-						</div>
+						{/if}
 					</div>
-				</section>
-			{/if}
+				</div>
+			</section>
 
 			<!-- Statistics Section -->
 			<section class="bg-card rounded-lg shadow-sm mb-6">
