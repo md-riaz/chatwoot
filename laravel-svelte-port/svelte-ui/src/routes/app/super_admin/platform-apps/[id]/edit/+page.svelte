@@ -15,12 +15,12 @@ const platformAppId = $page.params.id;
 
 let loading = $state(true);
 let saving = $state(false);
-let platformApp: PlatformApp | null = null;
-let errors: Record<string, string> = {};
+let platformApp: PlatformApp | null = $state(null);
+let errors = $state<Record<string, string>>({});
 
-let formData = {
+let formData = $state({
   name: ''
-};
+});
 
 onMount(async () => {
   if (!platformAppId) {
@@ -82,10 +82,12 @@ async function handleSubmit() {
 			</Button>
 			<div class="ml-4">
 				<h1 class="text-2xl font-semibold text-foreground">
-					{loading ? 'Loading...' : `Edit PlatformApp #${platformApp?.id || platformAppId}`}
+					{loading ? 'Loading...' : 'Edit Platform App'}
 				</h1>
 				<p class="text-sm mt-1 text-muted-foreground">
-					Platform Apps
+					<a href="/app/super_admin/platform-apps" class="hover:text-iris-9">Platform Apps</a>
+					/ <a href="/app/super_admin/platform-apps/{platformAppId}" class="hover:text-iris-9">{platformApp?.name || 'Loading...'}</a>
+					/ Edit
 				</p>
 			</div>
 		</div>

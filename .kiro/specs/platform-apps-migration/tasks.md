@@ -27,7 +27,7 @@ This implementation plan focuses on completing the Platform Apps functionality i
   - **Property 5: Form State Preservation During Errors**
   - **Validates: Requirements 8.3**
 
-- [ ] 3. Enhance Platform App Detail Page
+- [x] 3. Enhance Platform App Detail Page
   - Convert to read-only view with proper token display
   - Add eye icon toggle for token visibility
   - Add copy-to-clipboard functionality for visible tokens
@@ -53,7 +53,7 @@ This implementation plan focuses on completing the Platform Apps functionality i
 - [ ] 5. Create Reusable Token Display Component
   - Create TokenDisplay.svelte component for consistent token handling
   - Implement masking, visibility toggle, and copy functionality
-  - Use component in both list and detail pages
+  - Use component in both list and detail pages and update any other token related inline component
   - Add proper accessibility attributes
   - _Requirements: 7.1, 7.2, 7.3, 7.5_
 

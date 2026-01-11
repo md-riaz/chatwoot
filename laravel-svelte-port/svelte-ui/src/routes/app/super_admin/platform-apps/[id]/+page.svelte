@@ -4,6 +4,7 @@ import { page } from '$app/stores';
 import { api } from '$lib/api/superAdmin';
 import { Button } from '$lib/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+import * as Dialog from '$lib/components/ui/dialog';
 import { ArrowLeft, Edit, Trash2, Copy, Eye, EyeOff } from 'lucide-svelte';
 import { onMount } from 'svelte';
 import { toast } from 'svelte-sonner';
@@ -14,6 +15,8 @@ const platformAppId = $page.params.id;
 let loading = $state(true);
 let platformApp: PlatformApp | null = null;
 let showAccessToken = $state(false);
+let showDeleteDialog = $state(false);
+let deleting = $state(false);
 
 onMount(async () => {
 	if (!platformAppId) {
@@ -38,20 +41,28 @@ async function loadPlatformApp() {
 	}
 }
 
-async function handleDelete() {
-	if (!platformAppId) return;
-	
-	if (!confirm('Are you sure you want to delete this platform app? This action cannot be undone.')) {
-		return;
-	}
+function openDeleteDialog() {
+	showDeleteDialog = true;
+}
 
+async function confirmDelete() {
+	if (!platformAppId || deleting) return;
+	
+	deleting = true;
 	try {
 		await api.platformApps.delete(platformAppId);
 		toast.success('Platform app deleted successfully');
+		showDeleteDialog = false;
 		goto('/app/super_admin/platform-apps');
 	} catch (error: any) {
 		toast.error('Failed to delete platform app: ' + (error.message || 'Unknown error'));
+	} finally {
+		deleting = false;
 	}
+}
+
+function cancelDelete() {
+	showDeleteDialog = false;
 }
 
 function copyAccessToken() {
@@ -75,10 +86,11 @@ function copyAccessToken() {
 			</Button>
 			<div class="ml-4">
 				<h1 class="text-2xl font-semibold text-foreground">
-					{loading ? 'Loading...' : `Show PlatformApp #${platformApp?.id || platformAppId}`}
+					{loading ? 'Loading...' : platformApp?.name || 'Platform App Details'}
 				</h1>
 				<p class="text-sm mt-1 text-muted-foreground">
-					Platform Apps
+					<a href="/app/super_admin/platform-apps" class="hover:text-iris-9">Platform Apps</a>
+					/ {platformApp?.name || 'Loading...'}
 				</p>
 			</div>
 		</div>
@@ -87,7 +99,7 @@ function copyAccessToken() {
 				<Edit class="h-4 w-4 mr-2" />
 				Edit
 			</Button>
-			<Button variant="destructive" onclick={handleDelete} disabled={loading}>
+			<Button variant="destructive" onclick={openDeleteDialog} disabled={loading}>
 				<Trash2 class="h-4 w-4 mr-2" />
 				Delete
 			</Button>
@@ -208,3 +220,23 @@ function copyAccessToken() {
 		{/if}
 	</section>
 </div>
+
+<!-- Delete Confirmation Dialog -->
+<Dialog.Root bind:open={showDeleteDialog}>
+	<Dialog.Content class="sm:max-w-[400px]">
+		<Dialog.Header>
+			<Dialog.Title>Delete Platform App</Dialog.Title>
+			<Dialog.Description>
+				Are you sure you want to delete "{platformApp?.name}"? This action cannot be undone and will permanently remove this platform app and revoke its access token.
+			</Dialog.Description>
+		</Dialog.Header>
+		<Dialog.Footer class="pt-4">
+			<Button variant="outline" onclick={cancelDelete} disabled={deleting}>
+				Cancel
+			</Button>
+			<Button variant="destructive" onclick={confirmDelete} disabled={deleting}>
+				{deleting ? 'Deleting...' : 'Delete Platform App'}
+			</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
