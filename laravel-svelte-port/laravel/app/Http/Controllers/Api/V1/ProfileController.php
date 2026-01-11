@@ -166,19 +166,62 @@ class ProfileController extends Controller
 
     /**
      * Reset access token.
+     * 
+     * Uses Sanctum's token system via HasAutoApiToken trait.
      */
     public function resetAccessToken(): JsonResponse
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        // Revoke all existing tokens
-        $user->tokens()->delete();
+        // Use Sanctum-based resetAccessToken from HasAutoApiToken trait
+        $newToken = $user->resetAccessToken();
+        
+        // Reload user to get fresh data
+        $user->refresh();
+        $user->load('accountUsers.account');
 
-        // Create a new token
-        $token = $user->createToken('api-token')->plainTextToken;
+        // Return user data with new token
+        return response()->json($this->formatUserResponse($user, $newToken));
+    }
 
-        return response()->json([
-            'access_token' => $token,
-        ]);
+    /**
+     * Format user response to match Rails API format.
+     */
+    private function formatUserResponse(User $user, string $accessToken): array
+    {
+        $activeAccountUser = $user->accountUsers->first();
+
+        return [
+            'access_token' => $accessToken,
+            'account_id' => $activeAccountUser?->account_id,
+            'available_name' => $user->display_name ?? $user->name,
+            'avatar_url' => $user->avatar_url,
+            'confirmed' => !is_null($user->email_verified_at),
+            'display_name' => $user->display_name,
+            'message_signature' => $user->message_signature ?? '',
+            'email' => $user->email,
+            'id' => $user->id,
+            'inviter_id' => $activeAccountUser?->inviter_id,
+            'name' => $user->name,
+            'provider' => $user->provider,
+            'pubsub_token' => $user->pubsub_token,
+            'custom_attributes' => $user->custom_attributes ?? [],
+            'role' => $activeAccountUser?->role?->value ?? null,
+            'ui_settings' => $user->ui_settings ?? [],
+            'uid' => $user->uid,
+            'type' => $user->type,
+            'accounts' => $user->accountUsers->map(function ($accountUser) {
+                return [
+                    'id' => $accountUser->account_id,
+                    'name' => $accountUser->account?->name ?? '',
+                    'status' => $accountUser->account?->status ?? null,
+                    'active_at' => $accountUser->active_at,
+                    'role' => $accountUser->role?->value ?? null,
+                    'availability' => $accountUser->availability?->value ?? null,
+                    'auto_offline' => $accountUser->auto_offline ?? true,
+                ];
+            })->toArray(),
+        ];
     }
 }

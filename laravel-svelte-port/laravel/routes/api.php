@@ -253,34 +253,42 @@ Route::prefix('widget')->group(function () {
 });
 
 // Platform API routes (for platform-level integrations)
-Route::prefix('platform')->group(function () {
-    Route::get('users/{user}', [PlatformUsersController::class, 'show']);
+// Uses PlatformAppAuthentication middleware for access token validation
+// Uses ValidatePlatformPermissible middleware for resource permission validation
+Route::prefix('platform')->middleware(['platform.app.auth'])->group(function () {
+    // User routes - ValidatePlatformPermissible applied to routes accessing specific users
+    Route::get('users/{user}', [PlatformUsersController::class, 'show'])->middleware('validate.platform.permissible');
     Route::post('users', [PlatformUsersController::class, 'store']);
-    Route::patch('users/{user}', [PlatformUsersController::class, 'update']);
-    Route::delete('users/{user}', [PlatformUsersController::class, 'destroy']);
-    Route::get('users/{user}/login', [PlatformUsersController::class, 'login']);
-    Route::post('users/{user}/token', [PlatformUsersController::class, 'token']);
+    Route::patch('users/{user}', [PlatformUsersController::class, 'update'])->middleware('validate.platform.permissible');
+    Route::delete('users/{user}', [PlatformUsersController::class, 'destroy'])->middleware('validate.platform.permissible');
+    Route::get('users/{user}/login', [PlatformUsersController::class, 'login'])->middleware('validate.platform.permissible');
+    Route::post('users/{user}/token', [PlatformUsersController::class, 'token'])->middleware('validate.platform.permissible');
     
+    // Account routes - ValidatePlatformPermissible applied to routes accessing specific accounts
     Route::get('accounts', [PlatformAccountsController::class, 'index']);
-    Route::get('accounts/{account}', [PlatformAccountsController::class, 'show']);
+    Route::get('accounts/{account}', [PlatformAccountsController::class, 'show'])->middleware('validate.platform.permissible');
     Route::post('accounts', [PlatformAccountsController::class, 'store']);
-    Route::patch('accounts/{account}', [PlatformAccountsController::class, 'update']);
-    Route::delete('accounts/{account}', [PlatformAccountsController::class, 'destroy']);
+    Route::patch('accounts/{account}', [PlatformAccountsController::class, 'update'])->middleware('validate.platform.permissible');
+    Route::delete('accounts/{account}', [PlatformAccountsController::class, 'destroy'])->middleware('validate.platform.permissible');
     
-    Route::get('accounts/{account}/account_users', [PlatformAccountUsersController::class, 'index']);
-    Route::post('accounts/{account}/account_users', [PlatformAccountUsersController::class, 'store']);
-    Route::delete('accounts/{account}/account_users', [PlatformAccountUsersController::class, 'destroy']);
+    // Account Users routes - ValidatePlatformPermissible applied to routes accessing specific accounts
+    Route::get('accounts/{account}/account_users', [PlatformAccountUsersController::class, 'index'])->middleware('validate.platform.permissible');
+    Route::post('accounts/{account}/account_users', [PlatformAccountUsersController::class, 'store'])->middleware('validate.platform.permissible');
+    Route::delete('accounts/{account}/account_users', [PlatformAccountUsersController::class, 'destroy'])->middleware('validate.platform.permissible');
     
+    // Agent Bots routes - ValidatePlatformPermissible applied to routes accessing specific bots
     Route::get('agent_bots', [PlatformAgentBotsController::class, 'index']);
-    Route::get('agent_bots/{agentBot}', [PlatformAgentBotsController::class, 'show']);
+    Route::get('agent_bots/{agentBot}', [PlatformAgentBotsController::class, 'show'])->middleware('validate.platform.permissible');
     Route::post('agent_bots', [PlatformAgentBotsController::class, 'store']);
-    Route::patch('agent_bots/{agentBot}', [PlatformAgentBotsController::class, 'update']);
-    Route::delete('agent_bots/{agentBot}', [PlatformAgentBotsController::class, 'destroy']);
-    Route::delete('agent_bots/{agentBot}/avatar', [PlatformAgentBotsController::class, 'avatar']);
+    Route::patch('agent_bots/{agentBot}', [PlatformAgentBotsController::class, 'update'])->middleware('validate.platform.permissible');
+    Route::delete('agent_bots/{agentBot}', [PlatformAgentBotsController::class, 'destroy'])->middleware('validate.platform.permissible');
+    Route::delete('agent_bots/{agentBot}/avatar', [PlatformAgentBotsController::class, 'avatar'])->middleware('validate.platform.permissible');
 });
 
 // Protected routes
-Route::middleware('auth:sanctum')->group(function () {
+// Uses Sanctum's auth:sanctum middleware for Bearer token authentication
+// Uses ValidateBotAccess middleware to restrict bot access to specific endpoints
+Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
     // Broadcasting authentication for WebSocket channels
     Broadcast::routes();
     
@@ -451,7 +459,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Agent Bots
         Route::apiResource('agent_bots', AgentBotsController::class);
-    Route::post('agent_bots/{agentBot}/reset_access_token', [AgentBotsController::class, 'resetAccessToken']);
+        Route::post('agent_bots/{agentBot}/reset_access_token', [AgentBotsController::class, 'resetAccessToken'])
+            ->middleware('account.admin');
 
         // Macros
         Route::apiResource('macros', MacrosController::class);
@@ -829,12 +838,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('installation_configs/{installationConfig}', [InstallationConfigsController::class, 'update']);
         Route::delete('installation_configs/{installationConfig}', [InstallationConfigsController::class, 'destroy']);
 
-        // Access Tokens
+        // Access Tokens (polymorphic - auto-created, no manual creation)
         Route::get('access_tokens', [SuperAdminAccessTokensController::class, 'index']);
-        Route::post('access_tokens', [SuperAdminAccessTokensController::class, 'store']);
         Route::get('access_tokens/{accessToken}', [SuperAdminAccessTokensController::class, 'show']);
         Route::delete('access_tokens/{accessToken}', [SuperAdminAccessTokensController::class, 'destroy']);
-        Route::delete('users/{user}/access_tokens', [SuperAdminAccessTokensController::class, 'revokeAllForUser']);
 
         // Cache Management
         Route::get('cache', [\App\Http\Controllers\Api\V1\SuperAdmin\CacheController::class, 'index']);

@@ -15,40 +15,33 @@ use Symfony\Component\HttpFoundation\Response;
  * defined in BOT_ACCESSIBLE_ENDPOINTS. User-authenticated requests bypass
  * this validation entirely.
  * 
- * Matches Rails behavior in app/controllers/concerns/access_token_auth_helper.rb
+ * Should be used AFTER auth:sanctum middleware.
  */
 class ValidateBotAccess
 {
     /**
-     * Bot accessible endpoints mapping (matches Rails BOT_ACCESSIBLE_ENDPOINTS)
+     * Bot accessible endpoints mapping.
      * 
      * Format: 'controller_path' => ['allowed_actions']
-     * 
-     * Rails reference:
-     * BOT_ACCESSIBLE_ENDPOINTS = {
-     *   'api/v1/accounts/conversations' => %w[toggle_status toggle_priority create update custom_attributes],
-     *   'api/v1/accounts/conversations/messages' => ['create'],
-     *   'api/v1/accounts/conversations/assignments' => ['create']
-     * }.freeze
      */
     public const BOT_ACCESSIBLE_ENDPOINTS = [
         'api/v1/accounts/conversations' => [
-            'toggleStatus',      // Rails: toggle_status
-            'togglePriority',    // Rails: toggle_priority
-            'store',             // Rails: create
-            'update',            // Rails: update
-            'customAttributes',  // Rails: custom_attributes
+            'toggleStatus',
+            'togglePriority',
+            'store',
+            'update',
+            'customAttributes',
         ],
         'api/v1/accounts/conversations/messages' => [
-            'store',             // Rails: create
+            'store',
         ],
         'api/v1/accounts/conversations/assignments' => [
-            'store',             // Rails: create (handled by assign action in ConversationsController)
+            'store',
         ],
     ];
 
     /**
-     * Mapping of Laravel controller classes to Rails-style controller paths.
+     * Mapping of Laravel controller classes to controller paths.
      */
     protected const CONTROLLER_PATH_MAPPING = [
         'App\Http\Controllers\Api\V1\ConversationsController' => 'api/v1/accounts/conversations',
@@ -64,8 +57,7 @@ class ValidateBotAccess
     {
         $user = Auth::user();
         
-        // Skip validation for non-bot users (matches Rails: return if Current.user.is_a?(User))
-        // If no user is authenticated or user is not an AgentBot, allow the request
+        // Skip validation for non-bot users
         if (!$user instanceof AgentBot) {
             return $next($request);
         }
@@ -93,14 +85,13 @@ class ValidateBotAccess
         $action = $route->getActionMethod();
         $controllerPath = $this->getControllerPath($route);
         
-        // Get allowed actions for this controller path
         $allowedActions = self::BOT_ACCESSIBLE_ENDPOINTS[$controllerPath] ?? [];
         
         return in_array($action, $allowedActions, true);
     }
 
     /**
-     * Get the Rails-style controller path from a Laravel route.
+     * Get the controller path from a Laravel route.
      * 
      * @param \Illuminate\Routing\Route $route
      */
@@ -108,13 +99,6 @@ class ValidateBotAccess
     {
         $controller = $route->getControllerClass();
         
-        // First check explicit mapping
-        if (isset(self::CONTROLLER_PATH_MAPPING[$controller])) {
-            return self::CONTROLLER_PATH_MAPPING[$controller];
-        }
-        
-        // Fallback: try to derive path from controller class name
-        // App\Http\Controllers\Api\V1\ConversationsController -> api/v1/accounts/conversations
-        return '';
+        return self::CONTROLLER_PATH_MAPPING[$controller] ?? '';
     }
 }

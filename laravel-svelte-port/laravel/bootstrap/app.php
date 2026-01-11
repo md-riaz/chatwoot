@@ -20,7 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
         
         // Register middleware aliases for use in routes
         $middleware->alias([
-            'access.token' => \App\Http\Middleware\AccessTokenAuthentication::class,
+            'validate.bot.access' => \App\Http\Middleware\ValidateBotAccess::class,
+            'platform.app.auth' => \App\Http\Middleware\PlatformAppAuthentication::class,
+            'validate.platform.permissible' => \App\Http\Middleware\ValidatePlatformPermissible::class,
+            'account.admin' => \App\Http\Middleware\EnsureAccountAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

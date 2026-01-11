@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\AccessTokenable;
+use App\Traits\HasAutoApiToken;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Sanctum\HasApiTokens;
 
 class PlatformApp extends Model
 {
-    use HasFactory;
-    use AccessTokenable;
+    use HasFactory, HasApiTokens, HasAutoApiToken;
 
     protected $fillable = [
         'name',

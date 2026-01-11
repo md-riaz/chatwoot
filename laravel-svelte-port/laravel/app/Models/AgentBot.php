@@ -2,19 +2,21 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\AccessTokenable;
+use App\Traits\HasAutoApiToken;
 use App\Traits\HasAvatar;
 use Spatie\MediaLibrary\HasMedia;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Laravel\Sanctum\HasApiTokens;
 
-class AgentBot extends Model implements HasMedia
+class AgentBot extends Model implements HasMedia, Authenticatable
 {
-    use HasFactory, AccessTokenable, HasAvatar;
+    use HasFactory, HasApiTokens, HasAutoApiToken, HasAvatar;
 
     // Bot type constants
     public const TYPE_WEBHOOK = 0;
@@ -32,6 +34,62 @@ class AgentBot extends Model implements HasMedia
         'bot_type' => 'integer',
         'bot_config' => 'array',
     ];
+
+    /**
+     * Get the name of the unique identifier for the user.
+     */
+    public function getAuthIdentifierName(): string
+    {
+        return 'id';
+    }
+
+    /**
+     * Get the unique identifier for the user.
+     */
+    public function getAuthIdentifier(): mixed
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the password for the user.
+     */
+    public function getAuthPassword(): string
+    {
+        return '';
+    }
+
+    /**
+     * Get the token value for the "remember me" session.
+     */
+    public function getRememberToken(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * Set the token value for the "remember me" session.
+     */
+    public function setRememberToken($value): void
+    {
+        // AgentBots don't use remember tokens
+    }
+
+    /**
+     * Get the column name for the "remember me" token.
+     */
+    public function getRememberTokenName(): string
+    {
+        return '';
+    }
+
+    /**
+     * Get the password hash for the user.
+     */
+    public function getAuthPasswordName(): string
+    {
+        return '';
+    }
 
     public function account(): BelongsTo
     {

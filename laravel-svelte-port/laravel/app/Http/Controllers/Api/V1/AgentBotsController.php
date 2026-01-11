@@ -101,16 +101,34 @@ class AgentBotsController extends Controller
 
     /**
      * Reset the access token for an agent bot.
+     * Only administrators can reset bot tokens (enforced via route middleware).
+     * Only account-specific bots can have their tokens reset.
      */
     public function resetAccessToken(Account $account, AgentBot $agentBot): JsonResponse
     {
+        // Only account-specific bots can have their tokens reset (not global bots)
         abort_unless($agentBot->account_id === $account->id, 404);
         
+        // Admin check is handled by 'account.admin' middleware on the route
+        
+        // Use Sanctum-based resetAccessToken from HasAutoApiToken trait
         $newToken = $agentBot->resetAccessToken();
         
+        // Reload to get fresh data
+        $agentBot->refresh();
+        
+        // Return full bot data with access_token
         return response()->json([
-            'message' => 'Access token reset successfully',
-            'access_token' => $newToken
+            'id' => $agentBot->id,
+            'name' => $agentBot->name,
+            'description' => $agentBot->description,
+            'thumbnail' => $agentBot->getAvatarUrl(),
+            'outgoing_url' => $agentBot->isSystemBot() ? null : $agentBot->outgoing_url,
+            'bot_type' => $agentBot->bot_type,
+            'bot_config' => $agentBot->bot_config,
+            'account_id' => $agentBot->account_id,
+            'access_token' => $newToken,
+            'system_bot' => $agentBot->isSystemBot(),
         ]);
     }
 }
