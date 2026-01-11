@@ -5,7 +5,6 @@ namespace App\Providers;
 use App\Auth\MultiModelSanctumGuard;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Sanctum\Sanctum;
 
 /**
  * Multi-Model Authentication Service Provider
@@ -29,13 +28,12 @@ class MultiModelAuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Extend the Auth facade to use our custom multi-model guard
-        Auth::extend('sanctum', function ($app, $name, array $config) {
+        Auth::extend('multi-model-sanctum', function ($app, $name, array $config) {
             return new MultiModelSanctumGuard(
                 $app[\Illuminate\Contracts\Auth\Factory::class],
                 config('sanctum.expiration'),
                 $config['provider'] ?? null,
-                $app->request,
-                config('sanctum.hash', true)
+                $app['request']
             );
         });
     }

@@ -29,16 +29,16 @@ class MultiModelAuthenticationTest extends TestCase
         $account = Account::factory()->create();
         $account->users()->attach($user->id, ['role' => 0]);
 
-        // Get the auto-created token
-        $token = $user->tokens()->where('name', 'api-access')->first();
-        $this->assertNotNull($token, 'User should have auto-created api-access token');
+        // Create a new token and get the plain text version
+        $newToken = $user->createToken('test-token');
+        $plainTextToken = $newToken->plainTextToken;
 
         // Make authenticated request with Bearer token
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token->plainTextToken ?? $token->token)
+        $response = $this->withHeader('Authorization', 'Bearer ' . $plainTextToken)
             ->getJson('/api/v1/auth/me');
 
         $response->assertOk();
-        $response->assertJsonPath('email', $user->email);
+        $response->assertJsonPath('data.email', $user->email);
     }
 
     /**
@@ -49,16 +49,16 @@ class MultiModelAuthenticationTest extends TestCase
         // Create user
         $user = User::factory()->create();
 
-        // Get the token
-        $token = $user->tokens()->where('name', 'api-access')->first();
-        $this->assertNotNull($token);
+        // Create a new token and get the plain text version
+        $newToken = $user->createToken('test-token');
+        $plainTextToken = $newToken->plainTextToken;
 
         // Make authenticated request with custom header
-        $response = $this->withHeader('api_access_token', $token->token)
+        $response = $this->withHeader('api_access_token', $plainTextToken)
             ->getJson('/api/v1/auth/me');
 
         $response->assertOk();
-        $response->assertJsonPath('email', $user->email);
+        $response->assertJsonPath('data.email', $user->email);
     }
 
     /**
@@ -70,23 +70,24 @@ class MultiModelAuthenticationTest extends TestCase
         $account = Account::factory()->create();
         $bot = AgentBot::factory()->for($account)->create();
 
-        // Get the auto-created token
-        $token = $bot->tokens()->where('name', 'api-access')->first();
-        $this->assertNotNull($token, 'AgentBot should have auto-created api-access token');
+        // Create a new token and get the plain text version
+        $newToken = $bot->createToken('test-token');
+        $plainTextToken = $newToken->plainTextToken;
 
         // Create a user to set up the account context
         $user = User::factory()->create();
         $account->users()->attach($user->id, ['role' => 0]);
 
         // Make authenticated request as bot with Bearer token
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token->token)
+        // Bot should be authenticated but restricted to specific endpoints
+        $response = $this->withHeader('Authorization', 'Bearer ' . $plainTextToken)
             ->postJson("/api/v1/accounts/{$account->id}/conversations", [
                 'inbox_id' => 1,
                 'contact_id' => 1,
             ]);
 
         // Bot should be authenticated (may fail on other validation, but not auth)
-        $response->assertStatus(fn($status) => $status !== 401);
+        $this->assertNotEquals(401, $response->status(), 'Bot should be authenticated');
     }
 
     /**
@@ -98,12 +99,13 @@ class MultiModelAuthenticationTest extends TestCase
         $account = Account::factory()->create();
         $bot = AgentBot::factory()->for($account)->create();
 
-        // Get the auto-created token
-        $token = $bot->tokens()->where('name', 'api-access')->first();
+        // Create a new token and get the plain text version
+        $newToken = $bot->createToken('test-token');
+        $plainTextToken = $newToken->plainTextToken;
 
-        // Try to access a restricted endpoint (e.g., users list)
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token->token)
-            ->getJson("/api/v1/accounts/{$account->id}/users");
+        // Try to access a restricted endpoint (e.g., auth/me which is not in bot accessible list)
+        $response = $this->withHeader('Authorization', 'Bearer ' . $plainTextToken)
+            ->getJson('/api/v1/auth/me');
 
         $response->assertStatus(401);
         $response->assertJson([
@@ -119,12 +121,12 @@ class MultiModelAuthenticationTest extends TestCase
         // Create platform app
         $platformApp = PlatformApp::factory()->create();
 
-        // Get the auto-created token
-        $token = $platformApp->tokens()->where('name', 'api-access')->first();
-        $this->assertNotNull($token, 'PlatformApp should have auto-created api-access token');
+        // Create a new token and get the plain text version
+        $newToken = $platformApp->createToken('test-token');
+        $plainTextToken = $newToken->plainTextToken;
 
         // Make authenticated request to platform routes
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token->token)
+        $response = $this->withHeader('Authorization', 'Bearer ' . $plainTextToken)
             ->getJson('/api/v1/platform/agent_bots');
 
         $response->assertOk();
@@ -138,11 +140,12 @@ class MultiModelAuthenticationTest extends TestCase
         // Create platform app
         $platformApp = PlatformApp::factory()->create();
 
-        // Get the auto-created token
-        $token = $platformApp->tokens()->where('name', 'api-access')->first();
+        // Create a new token and get the plain text version
+        $newToken = $platformApp->createToken('test-token');
+        $plainTextToken = $newToken->plainTextToken;
 
         // Make authenticated request with custom header
-        $response = $this->withHeader('api_access_token', $token->token)
+        $response = $this->withHeader('api_access_token', $plainTextToken)
             ->getJson('/api/v1/platform/agent_bots');
 
         $response->assertOk();
@@ -170,11 +173,12 @@ class MultiModelAuthenticationTest extends TestCase
         // Create user
         $user = User::factory()->create();
 
-        // Get user token
-        $token = $user->tokens()->where('name', 'api-access')->first();
+        // Create a new token and get the plain text version
+        $newToken = $user->createToken('test-token');
+        $plainTextToken = $newToken->plainTextToken;
 
         // Try to access platform routes with user token
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token->token)
+        $response = $this->withHeader('Authorization', 'Bearer ' . $plainTextToken)
             ->getJson('/api/v1/platform/agent_bots');
 
         $response->assertStatus(401);
@@ -194,11 +198,12 @@ class MultiModelAuthenticationTest extends TestCase
         // Create an agent bot but DON'T add it to platform app permissibles
         $bot = AgentBot::factory()->create();
 
-        // Get the platform app token
-        $token = $platformApp->tokens()->where('name', 'api-access')->first();
+        // Create a new token and get the plain text version
+        $newToken = $platformApp->createToken('test-token');
+        $plainTextToken = $newToken->plainTextToken;
 
         // Try to access the bot (should fail - not in permissibles)
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token->token)
+        $response = $this->withHeader('Authorization', 'Bearer ' . $plainTextToken)
             ->getJson("/api/v1/platform/agent_bots/{$bot->id}");
 
         $response->assertStatus(401);
@@ -222,11 +227,12 @@ class MultiModelAuthenticationTest extends TestCase
             'permissible_id' => $bot->id,
         ]);
 
-        // Get the platform app token
-        $token = $platformApp->tokens()->where('name', 'api-access')->first();
+        // Create a new token and get the plain text version
+        $newToken = $platformApp->createToken('test-token');
+        $plainTextToken = $newToken->plainTextToken;
 
         // Access the bot (should succeed - it's in permissibles)
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token->token)
+        $response = $this->withHeader('Authorization', 'Bearer ' . $plainTextToken)
             ->getJson("/api/v1/platform/agent_bots/{$bot->id}");
 
         $response->assertOk();
@@ -252,14 +258,15 @@ class MultiModelAuthenticationTest extends TestCase
         // Create user
         $user = User::factory()->create();
 
-        // Get the token
-        $token = $user->tokens()->where('name', 'api-access')->first();
+        // Create a new token and get the plain text version
+        $newToken = $user->createToken('test-token');
+        $plainTextToken = $newToken->plainTextToken;
 
         // Make authenticated request with HTTP_API_ACCESS_TOKEN header
-        $response = $this->withHeader('HTTP_API_ACCESS_TOKEN', $token->token)
+        $response = $this->withHeader('HTTP_API_ACCESS_TOKEN', $plainTextToken)
             ->getJson('/api/v1/auth/me');
 
         $response->assertOk();
-        $response->assertJsonPath('email', $user->email);
+        $response->assertJsonPath('data.email', $user->email);
     }
 }

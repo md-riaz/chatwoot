@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        
+        'sanctum' => [
+            'driver' => 'multi-model-sanctum',
+            'provider' => 'users',
+        ],
     ],
 
     /*
