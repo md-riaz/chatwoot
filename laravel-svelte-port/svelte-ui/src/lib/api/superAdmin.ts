@@ -111,7 +111,7 @@ export interface AgentBot {
 export interface PlatformApp {
   id: number;
   name: string;
-  description?: string;
+  accessToken: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -352,15 +352,18 @@ export const superAdminApi = {
   },
 
   getPlatformApp: async (id: number): Promise<PlatformApp> => {
-    return api.get(`api/v1/super_admin/platform_apps/${id}`).json();
+    const response = await api.get(`api/v1/super_admin/platform_apps/${id}`).json<{ data: PlatformApp }>();
+    return response.data;
   },
 
   createPlatformApp: async (data: Partial<PlatformApp>): Promise<PlatformApp> => {
-    return api.post('api/v1/super_admin/platform_apps', { json: data }).json();
+    const response = await api.post('api/v1/super_admin/platform_apps', { json: data }).json<{ data: PlatformApp }>();
+    return response.data;
   },
 
   updatePlatformApp: async (id: number, data: Partial<PlatformApp>): Promise<PlatformApp> => {
-    return api.put(`api/v1/super_admin/platform_apps/${id}`, { json: data }).json();
+    const response = await api.put(`api/v1/super_admin/platform_apps/${id}`, { json: data }).json<{ data: PlatformApp }>();
+    return response.data;
   },
 
   deletePlatformApp: async (id: number): Promise<{ success: boolean }> => {

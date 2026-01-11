@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignId('account_id')->nullable()->constrained()->nullOnDelete();
             $table->integer('bot_type')->default(0); // 0: webhook, 1: csml
             $table->json('bot_config')->nullable();
+            $table->string('access_token')->nullable(); // Plain text API token for display
             $table->timestamps();
 
             $table->index('account_id');

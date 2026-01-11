@@ -15,6 +15,16 @@ class PlatformApp extends Model implements Authenticatable
 
     protected $fillable = [
         'name',
+        'access_token',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'access_token',
     ];
 
     /**

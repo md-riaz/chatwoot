@@ -15,6 +15,7 @@ return new class extends Migration
         Schema::create('platform_apps', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('access_token')->nullable(); // Plain text API token for display
             $table->timestamps();
         });
 

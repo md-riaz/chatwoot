@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Illuminate\Support\Facades\Schema;
 use Laravel\Sanctum\NewAccessToken;
 
 /**
@@ -12,8 +13,11 @@ use Laravel\Sanctum\NewAccessToken;
  * - Automatic token deletion on model deletion (cascade delete)
  * - Helper methods for accessing and resetting tokens
  * - Laravel Sanctum integration (standard Laravel approach)
+ * - Plain text token storage for API response compatibility (Rails parity)
  * 
- * Models using this trait MUST also use Laravel\Sanctum\HasApiTokens trait.
+ * Models using this trait MUST:
+ * - Use Laravel\Sanctum\HasApiTokens trait
+ * - Have an 'access_token' column in their database table (for token storage)
  */
 trait HasAutoApiToken
 {
@@ -23,7 +27,7 @@ trait HasAutoApiToken
     protected static function bootHasAutoApiToken(): void
     {
         static::created(function ($model) {
-            $model->createToken('api-access');
+            $model->generateAndStoreAccessToken();
         });
         
         // Cascade delete tokens when model is deleted
@@ -33,20 +37,32 @@ trait HasAutoApiToken
     }
 
     /**
-     * Get the API access token string.
-     * 
-     * Returns the plain text token for the 'api-access' token.
-     * Note: Sanctum hashes tokens, so we store the plain text in a way
-     * that allows retrieval. For new tokens, use createApiToken().
+     * Check if this model has an access_token column.
      */
-    public function getApiAccessTokenAttribute(): ?string
+    protected function hasAccessTokenColumn(): bool
     {
-        $token = $this->tokens()->where('name', 'api-access')->first();
+        return in_array('access_token', $this->getFillable()) || 
+               Schema::hasColumn($this->getTable(), 'access_token');
+    }
+
+    /**
+     * Generate a new Sanctum token and store the plain text in the model.
+     * 
+     * This ensures the plain text token is available for API responses
+     * (matching Rails behavior where tokens are stored in plain text).
+     */
+    public function generateAndStoreAccessToken(): string
+    {
+        // Create Sanctum token
+        $newToken = $this->createToken('api-access');
+        $plainTextToken = $newToken->plainTextToken;
         
-        // Sanctum tokens are hashed, so we can't retrieve the plain text
-        // after creation. Return the hashed token for identification purposes.
-        // For actual authentication, use the token returned from createToken().
-        return $token?->token;
+        // Store plain text token in the model's access_token column if it exists
+        if ($this->hasAccessTokenColumn()) {
+            $this->forceFill(['access_token' => $plainTextToken])->saveQuietly();
+        }
+        
+        return $plainTextToken;
     }
 
     /**
@@ -60,10 +76,8 @@ trait HasAutoApiToken
         // Delete existing api-access token
         $this->tokens()->where('name', 'api-access')->delete();
         
-        // Create new token and return plain text
-        $newToken = $this->createToken('api-access');
-        
-        return $newToken->plainTextToken;
+        // Generate new token and store it
+        return $this->generateAndStoreAccessToken();
     }
 
     /**
@@ -80,16 +94,24 @@ trait HasAutoApiToken
      * Ensure an API token exists, creating one if necessary.
      * 
      * Returns the plain text token if a new one was created,
-     * or null if an existing token was found (can't retrieve plain text).
+     * or the existing stored token if one exists.
      */
-    public function ensureApiToken(): ?NewAccessToken
+    public function ensureApiToken(): string
     {
+        // If we have a stored access_token, return it
+        if ($this->hasAccessTokenColumn() && !empty($this->access_token)) {
+            return $this->access_token;
+        }
+        
+        // Check if Sanctum token exists but access_token column is empty
         $existingToken = $this->tokens()->where('name', 'api-access')->first();
         
         if ($existingToken) {
-            return null;
+            // Token exists but plain text not stored - need to regenerate
+            $this->tokens()->where('name', 'api-access')->delete();
         }
         
-        return $this->createToken('api-access');
+        // Generate new token
+        return $this->generateAndStoreAccessToken();
     }
 }

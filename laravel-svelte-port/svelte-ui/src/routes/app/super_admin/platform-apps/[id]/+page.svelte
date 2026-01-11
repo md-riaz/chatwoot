@@ -1,250 +1,210 @@
 <script lang="ts">
-import { onMount } from 'svelte';
 import { goto } from '$app/navigation';
 import { page } from '$app/stores';
-import { toast } from 'svelte-sonner';
 import { api } from '$lib/api/superAdmin';
-import Button from '$lib/components/ui/button/button.svelte';
-import Input from '$lib/components/ui/input/input.svelte';
-import Label from '$lib/components/ui/label/label.svelte';
-import { Skeleton } from '$lib/components/ui/skeleton';
-import * as Dialog from '$lib/components/ui/dialog';
-import { RefreshCw, Trash2, Copy } from 'lucide-svelte';
+import { Button } from '$lib/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+import { ArrowLeft, Edit, Trash2, Copy, Eye, EyeOff } from 'lucide-svelte';
+import { onMount } from 'svelte';
+import { toast } from 'svelte-sonner';
+import type { PlatformApp } from '$lib/api/superAdmin';
 
-const id = $page.params.id;
+const platformAppId = $page.params.id;
 
-let loading = true;
-let saving = false;
-let platformApp: any = null;
-let showRegenerateDialog = false;
-let showDeleteDialog = false;
-let showTokenDialog = false;
-let newToken = '';
-
-let formData = {
-name: '',
-webhook_url: ''
-};
+let loading = $state(true);
+let platformApp: PlatformApp | null = null;
+let showAccessToken = $state(false);
 
 onMount(async () => {
-await loadPlatformApp();
+	if (!platformAppId) {
+		toast.error('Invalid platform app ID');
+		goto('/app/super_admin/platform-apps');
+		return;
+	}
+	await loadPlatformApp();
 });
 
 async function loadPlatformApp() {
-try {
-loading = true;
-platformApp = await api.platformApps.get(id);
-formData = {
-name: platformApp.name || '',
-webhook_url: platformApp.webhook_url || ''
-};
-} catch (error: any) {
-toast.error(error.message || 'Failed to load platform app');
-} finally {
-loading = false;
-}
-}
-
-async function handleSave() {
-try {
-saving = true;
-await api.platformApps.update(id, formData);
-toast.success('Platform app updated successfully');
-await loadPlatformApp();
-} catch (error: any) {
-toast.error(error.message || 'Failed to update platform app');
-} finally {
-saving = false;
-}
+	if (!platformAppId) return;
+	
+	loading = true;
+	try {
+		platformApp = await api.platformApps.get(platformAppId);
+	} catch (error: any) {
+		toast.error('Failed to load platform app: ' + (error.message || 'Unknown error'));
+		goto('/app/super_admin/platform-apps');
+	} finally {
+		loading = false;
+	}
 }
 
 async function handleDelete() {
-try {
-await api.platformApps.delete(id);
-toast.success('Platform app deleted successfully');
-goto('/app/super_admin/platform-apps');
-} catch (error: any) {
-toast.error(error.message || 'Failed to delete platform app');
-}
-showDeleteDialog = false;
+	if (!platformAppId) return;
+	
+	if (!confirm('Are you sure you want to delete this platform app? This action cannot be undone.')) {
+		return;
+	}
+
+	try {
+		await api.platformApps.delete(platformAppId);
+		toast.success('Platform app deleted successfully');
+		goto('/app/super_admin/platform-apps');
+	} catch (error: any) {
+		toast.error('Failed to delete platform app: ' + (error.message || 'Unknown error'));
+	}
 }
 
-async function handleRegenerateToken() {
-try {
-const response = await api.platformApps.regenerateToken(id);
-newToken = response.token;
-showRegenerateDialog = false;
-showTokenDialog = true;
-await loadPlatformApp();
-} catch (error: any) {
-toast.error(error.message || 'Failed to regenerate token');
-}
-}
-
-async function copyToken() {
-try {
-await navigator.clipboard.writeText(newToken);
-toast.success('Token copied to clipboard');
-} catch (error) {
-toast.error('Failed to copy token');
-}
-}
-
-function maskToken(token: string) {
-if (!token || token.length < 8) return '••••••••';
-return '••••••••' + token.slice(-8);
+function copyAccessToken() {
+	if (platformApp?.accessToken) {
+		navigator.clipboard.writeText(platformApp.accessToken);
+		toast.success('Access token copied to clipboard');
+	}
 }
 </script>
 
-<div class="flex-1 bg-white dark:bg-slate-1">
-<!-- Header -->
-<div class="border-b border-slate-6 px-8 py-6">
-<div class="flex items-center justify-between">
-<div>
-<h1 class="text-2xl font-semibold text-slate-12">Platform App Details</h1>
-<p class="mt-1 text-sm text-slate-11">
-<a href="/app/super_admin/platform-apps" class="hover:text-iris-9">Platform Apps</a>
-/ {platformApp?.name || 'Loading...'}
-</p>
-</div>
-</div>
-</div>
+<svelte:head>
+	<title>Platform App Details - Super Admin - Chatwoot</title>
+</svelte:head>
 
-<!-- Content -->
-<div class="p-8">
-{#if loading}
-<div class="space-y-6">
-<Skeleton className="h-20 w-full" />
-<Skeleton className="h-20 w-full" />
-<Skeleton className="h-20 w-full" />
-</div>
-{:else if platformApp}
-<div class="mx-auto max-w-3xl space-y-8">
-<!-- Basic Information -->
-<div class="space-y-6">
-<div class="space-y-2">
-<Label for="name">Name *</Label>
-<Input
-id="name"
-bind:value={formData.name}
-placeholder="Enter platform app name"
-required
-/>
-</div>
+<div class="w-full h-full">
+	<!-- Header -->
+	<header class="px-8 py-6 border-b bg-card flex items-center justify-between">
+		<div class="flex items-center">
+			<Button variant="ghost" size="sm" onclick={() => goto('/app/super_admin/platform-apps')}>
+				<ArrowLeft class="h-4 w-4" />
+			</Button>
+			<div class="ml-4">
+				<h1 class="text-2xl font-semibold text-foreground">
+					{loading ? 'Loading...' : `Show PlatformApp #${platformApp?.id || platformAppId}`}
+				</h1>
+				<p class="text-sm mt-1 text-muted-foreground">
+					Platform Apps
+				</p>
+			</div>
+		</div>
+		<div class="flex items-center gap-2">
+			<Button variant="outline" onclick={() => goto(`/app/super_admin/platform-apps/${platformAppId}/edit`)} disabled={loading}>
+				<Edit class="h-4 w-4 mr-2" />
+				Edit
+			</Button>
+			<Button variant="destructive" onclick={handleDelete} disabled={loading}>
+				<Trash2 class="h-4 w-4 mr-2" />
+				Delete
+			</Button>
+		</div>
+	</header>
 
-<div class="space-y-2">
-<Label for="webhook_url">Webhook URL *</Label>
-<Input
-id="webhook_url"
-type="url"
-bind:value={formData.webhook_url}
-placeholder="https://example.com/webhook"
-required
-/>
-</div>
+	<!-- Body -->
+	<section class="p-8">
+		{#if loading}
+			<Card class="max-w-4xl">
+				<CardContent class="p-6">
+					<div class="space-y-4">
+						<div class="h-10 w-full animate-pulse rounded bg-muted"></div>
+						<div class="h-10 w-full animate-pulse rounded bg-muted"></div>
+						<div class="h-32 w-full animate-pulse rounded bg-muted"></div>
+					</div>
+				</CardContent>
+			</Card>
+		{/if}
 
-<!-- Token Display -->
-<div class="space-y-2">
-<Label>API Token</Label>
-<div class="flex gap-2">
-<Input
-value={platformApp.token ? maskToken(platformApp.token) : 'No token available'}
-readonly
-class="flex-1"
-/>
-<Button
-variant="outline"
-on:click={() => (showRegenerateDialog = true)}
-class="gap-2"
->
-<RefreshCw class="h-4 w-4" />
-Regenerate
-</Button>
-</div>
-<p class="text-sm text-slate-11">
-Token is masked for security. Regenerate to get a new token.
-</p>
-</div>
-</div>
+		{#if !loading && platformApp}
+			<div class="max-w-4xl space-y-6">
+				<!-- Basic Information -->
+				<Card>
+					<CardHeader>
+						<CardTitle>Platform App Information</CardTitle>
+						<CardDescription>Basic details about this platform app</CardDescription>
+					</CardHeader>
+					<CardContent class="space-y-6">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<!-- Left Column -->
+							<div class="space-y-4">
+								<div>
+									<label class="text-sm font-medium text-muted-foreground">ID</label>
+									<p class="text-lg font-mono">{platformApp.id}</p>
+								</div>
 
-<!-- Actions -->
-<div class="flex items-center gap-3 border-t border-slate-6 pt-6">
-<Button on:click={handleSave} disabled={saving} class="bg-iris-9 hover:bg-iris-10">
-{saving ? 'Saving...' : 'Save Changes'}
-</Button>
-<Button variant="outline" href="/app/super_admin/platform-apps">Cancel</Button>
-<Button
-variant="destructive"
-on:click={() => (showDeleteDialog = true)}
-class="ml-auto gap-2"
->
-<Trash2 class="h-4 w-4" />
-Delete
-</Button>
-</div>
-</div>
-{/if}
-</div>
-</div>
+								<div>
+									<label class="text-sm font-medium text-muted-foreground">NAME</label>
+									<p class="text-lg">{platformApp.name}</p>
+								</div>
+							</div>
 
-<!-- Delete Confirmation Dialog -->
-<Dialog.Root bind:open={showDeleteDialog}>
-<Dialog.Content>
-<Dialog.Header>
-<Dialog.Title>Delete Platform App</Dialog.Title>
-<Dialog.Description>
-Are you sure you want to delete this platform app? This action cannot be undone.
-</Dialog.Description>
-</Dialog.Header>
-<Dialog.Footer>
-<Button variant="outline" on:click={() => (showDeleteDialog = false)}>Cancel</Button>
-<Button variant="destructive" on:click={handleDelete}>Delete</Button>
-</Dialog.Footer>
-</Dialog.Content>
-</Dialog.Root>
+							<!-- Right Column -->
+							<div class="space-y-4">
+								<div>
+									<label class="text-sm font-medium text-muted-foreground">CREATED AT</label>
+									<p class="text-lg">{new Date(platformApp.createdAt).toLocaleString()}</p>
+								</div>
 
-<!-- Regenerate Token Confirmation Dialog -->
-<Dialog.Root bind:open={showRegenerateDialog}>
-<Dialog.Content>
-<Dialog.Header>
-<Dialog.Title>Regenerate API Token</Dialog.Title>
-<Dialog.Description>
-This will invalidate the current token. Any applications using the old token will stop
-working. Are you sure?
-</Dialog.Description>
-</Dialog.Header>
-<Dialog.Footer>
-<Button variant="outline" on:click={() => (showRegenerateDialog = false)}>Cancel</Button>
-<Button on:click={handleRegenerateToken} class="bg-iris-9 hover:bg-iris-10">
-Regenerate Token
-</Button>
-</Dialog.Footer>
-</Dialog.Content>
-</Dialog.Root>
+								<div>
+									<label class="text-sm font-medium text-muted-foreground">UPDATED AT</label>
+									<p class="text-lg">{new Date(platformApp.updatedAt).toLocaleString()}</p>
+								</div>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
 
-<!-- New Token Display Dialog -->
-<Dialog.Root bind:open={showTokenDialog}>
-<Dialog.Content>
-<Dialog.Header>
-<Dialog.Title>New API Token Generated</Dialog.Title>
-<Dialog.Description>
-<span class="text-amber-11 font-medium">Important:</span> This is the only time you'll see
-this token. Copy it now and store it securely.
-</Dialog.Description>
-</Dialog.Header>
-<div class="space-y-4">
-<div class="rounded-md bg-slate-2 p-4">
-<code class="break-all text-sm text-slate-12">{newToken}</code>
+				<!-- Access Token -->
+				{#if platformApp.accessToken}
+					<Card>
+						<CardHeader>
+							<CardTitle>Access Token</CardTitle>
+							<CardDescription>API authentication token for this platform app</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<div class="space-y-4">
+								<div>
+									<label class="text-sm font-medium text-muted-foreground">TOKEN</label>
+									<div class="flex items-center gap-2 mt-2">
+										<div class="flex-1 relative">
+											<input
+												type={showAccessToken ? 'text' : 'password'}
+												value={platformApp.accessToken}
+												readonly
+												class="w-full px-3 py-2 border border-border rounded-md bg-muted font-mono text-sm pr-16"
+											/>
+											<div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+												<button
+													type="button"
+													onclick={() => showAccessToken = !showAccessToken}
+													class="p-1 hover:bg-background rounded"
+												>
+													{#if showAccessToken}
+														<EyeOff class="h-4 w-4" />
+													{:else}
+														<Eye class="h-4 w-4" />
+													{/if}
+												</button>
+												<button
+													type="button"
+													onclick={copyAccessToken}
+													class="p-1 hover:bg-background rounded"
+												>
+													<Copy class="h-4 w-4" />
+												</button>
+											</div>
+										</div>
+									</div>
+									<p class="text-xs text-muted-foreground mt-2">
+										Use this token to authenticate API requests for this platform app. Keep this token secure and do not share it publicly.
+									</p>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+				{/if}
+			</div>
+		{/if}
+
+		{#if !loading && !platformApp}
+			<Card class="max-w-4xl">
+				<CardContent class="p-6">
+					<p>No platform app data available</p>
+				</CardContent>
+			</Card>
+		{/if}
+	</section>
 </div>
-<Button on:click={copyToken} class="w-full gap-2">
-<Copy class="h-4 w-4" />
-Copy Token
-</Button>
-</div>
-<Dialog.Footer>
-<Button on:click={() => (showTokenDialog = false)} variant="outline" class="w-full">
-Close
-</Button>
-</Dialog.Footer>
-</Dialog.Content>
-</Dialog.Root>

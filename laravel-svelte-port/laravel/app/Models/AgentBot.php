@@ -28,6 +28,16 @@ class AgentBot extends Model implements HasMedia, Authenticatable
         'outgoing_url',
         'bot_type',
         'bot_config',
+        'access_token',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'access_token',
     ];
 
     protected $casts = [

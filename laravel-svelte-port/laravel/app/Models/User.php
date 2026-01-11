@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Traits\HasAutoApiToken;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,7 +16,7 @@ use Spatie\MediaLibrary\HasMedia;
 class User extends Authenticatable implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes, HasAccountRoles, HasAvatar, HasAutoApiToken;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes, HasAccountRoles, HasAvatar;
 
     /**
      * The attributes that are mass assignable.
