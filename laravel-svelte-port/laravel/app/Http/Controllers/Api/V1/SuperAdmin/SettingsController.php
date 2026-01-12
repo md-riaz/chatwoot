@@ -12,6 +12,47 @@ use Illuminate\Support\Facades\Validator;
 class SettingsController extends Controller
 {
     /**
+     * Display settings for a specific category.
+     */
+    public function category(string $category): JsonResponse
+    {
+        $cacheKey = "super_admin_settings_category_{$category}";
+        
+        $settings = Cache::remember($cacheKey, 300, function () use ($category) {
+            $configGroups = InstallationConfig::getConfigGroups();
+            
+            // Check if category exists
+            if (!isset($configGroups[$category])) {
+                return [];
+            }
+            
+            $configNames = $configGroups[$category];
+            
+            // Get settings for this category
+            $categorySettings = InstallationConfig::whereIn('name', $configNames)->get();
+            
+            return $categorySettings->map(function ($setting) {
+                return [
+                    'id' => $setting->id,
+                    'name' => $setting->name,
+                    'value' => $setting->getTypeCastedValue(),
+                    'locked' => $setting->locked,
+                    'display_title' => $setting->display_title,
+                    'description' => $setting->description,
+                    'type' => $setting->type,
+                    'options' => $setting->options,
+                ];
+            })->toArray();
+        });
+
+        return response()->json([
+            'data' => $settings,
+            'category' => $category,
+            'count' => count($settings)
+        ]);
+    }
+
+    /**
      * Display all installation settings.
      */
     public function index(): JsonResponse
@@ -31,10 +72,57 @@ class SettingsController extends Controller
         $settings = Cache::remember('super_admin_settings_grouped', 300, function () {
             $allSettings = InstallationConfig::all();
             
-            return $allSettings->groupBy(function ($setting) {
-                // Group settings by prefix (e.g., 'app_', 'mail_', 'storage_')
-                $parts = explode('_', $setting->name, 2);
-                return $parts[0] ?? 'general';
+            // Use the predefined config groups from the model
+            $configGroups = InstallationConfig::getConfigGroups();
+            $grouped = [];
+            
+            // Initialize all groups
+            foreach ($configGroups as $groupName => $configNames) {
+                $grouped[$groupName] = [];
+            }
+            
+            // Add a general group for settings that don't fit other categories
+            $grouped['general'] = [];
+            
+            foreach ($allSettings as $setting) {
+                $assigned = false;
+                
+                // Check which group this setting belongs to
+                foreach ($configGroups as $groupName => $configNames) {
+                    if (in_array($setting->name, $configNames)) {
+                        $grouped[$groupName][] = [
+                            'id' => $setting->id,
+                            'name' => $setting->name,
+                            'value' => $setting->getTypeCastedValue(),
+                            'locked' => $setting->locked,
+                            'display_title' => $setting->display_title,
+                            'description' => $setting->description,
+                            'type' => $setting->type,
+                            'options' => $setting->options,
+                        ];
+                        $assigned = true;
+                        break;
+                    }
+                }
+                
+                // If not assigned to any specific group, put in general
+                if (!$assigned) {
+                    $grouped['general'][] = [
+                        'id' => $setting->id,
+                        'name' => $setting->name,
+                        'value' => $setting->getTypeCastedValue(),
+                        'locked' => $setting->locked,
+                        'display_title' => $setting->display_title,
+                        'description' => $setting->description,
+                        'type' => $setting->type,
+                        'options' => $setting->options,
+                    ];
+                }
+            }
+            
+            // Remove empty groups
+            return array_filter($grouped, function($group) {
+                return !empty($group);
             });
         });
 
@@ -92,9 +180,8 @@ class SettingsController extends Controller
             }
         }
 
-        // Clear settings cache
-        Cache::forget('super_admin_settings');
-        Cache::forget('super_admin_settings_grouped');
+        // Clear settings cache (including all category caches)
+        $this->clearAllSettingsCache();
 
         $response = [
             'message' => 'Settings update completed',
@@ -143,9 +230,8 @@ class SettingsController extends Controller
             'locked' => $request->input('locked', false),
         ]);
 
-        // Clear settings cache
-        Cache::forget('super_admin_settings');
-        Cache::forget('super_admin_settings_grouped');
+        // Clear settings cache (including all category caches)
+        $this->clearAllSettingsCache();
 
         return response()->json(['data' => $setting], 201);
     }
@@ -169,9 +255,8 @@ class SettingsController extends Controller
 
         $setting->delete();
 
-        // Clear settings cache
-        Cache::forget('super_admin_settings');
-        Cache::forget('super_admin_settings_grouped');
+        // Clear settings cache (including all category caches)
+        $this->clearAllSettingsCache();
 
         return response()->json(['message' => 'Setting deleted successfully']);
     }
@@ -240,9 +325,8 @@ class SettingsController extends Controller
             }
         }
 
-        // Clear settings cache
-        Cache::forget('super_admin_settings');
-        Cache::forget('super_admin_settings_grouped');
+        // Clear settings cache (including all category caches)
+        $this->clearAllSettingsCache();
 
         return response()->json([
             'message' => "Reset {$resetCount} settings to default values",
@@ -256,9 +340,7 @@ class SettingsController extends Controller
     public function refresh(): JsonResponse
     {
         // Clear all settings-related caches
-        Cache::forget('super_admin_settings');
-        Cache::forget('super_admin_settings_grouped');
-        Cache::forget('super_admin_setting_categories');
+        $this->clearAllSettingsCache();
         
         // Clear any other configuration caches
         Cache::forget('config');
@@ -316,5 +398,21 @@ class SettingsController extends Controller
         ];
 
         return $defaults[$key] ?? null;
+    }
+
+    /**
+     * Clear all settings-related caches including category-specific caches.
+     */
+    private function clearAllSettingsCache(): void
+    {
+        Cache::forget('super_admin_settings');
+        Cache::forget('super_admin_settings_grouped');
+        Cache::forget('super_admin_setting_categories');
+        
+        // Clear all category caches
+        $configGroups = InstallationConfig::getConfigGroups();
+        foreach (array_keys($configGroups) as $categoryName) {
+            Cache::forget("super_admin_settings_category_{$categoryName}");
+        }
     }
 }

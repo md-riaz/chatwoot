@@ -760,6 +760,7 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
         // Settings
         Route::get('settings', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'index']);
         Route::get('settings/show', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'show']);
+        Route::get('settings/category/{category}', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'category']);
         Route::patch('settings', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'update']);
         Route::post('settings', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'store']);
         Route::delete('settings/{name}', [\App\Http\Controllers\Api\V1\SuperAdmin\SettingsController::class, 'destroy']);

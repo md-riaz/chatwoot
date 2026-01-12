@@ -176,7 +176,7 @@ class InstallationConfig extends Model
     }
 
     /**
-     * Get config groups mapping.
+     * Get config groups mapping (matching Rails Vue system exactly).
      */
     public static function getConfigGroups(): array
     {
@@ -188,32 +188,16 @@ class InstallationConfig extends Model
                 'WEBHOOK_TIMEOUT',
                 'MAXIMUM_FILE_UPLOAD_SIZE',
             ],
-            'facebook' => [
+            'email' => [
+                'MAILER_INBOUND_EMAIL_DOMAIN',
+                'MAILER_SUPPORT_EMAIL',
+            ],
+            'messenger' => [
                 'FB_APP_ID',
                 'FB_VERIFY_TOKEN',
                 'FB_APP_SECRET',
-                'IG_VERIFY_TOKEN',
                 'FACEBOOK_API_VERSION',
                 'ENABLE_MESSENGER_CHANNEL_HUMAN_AGENT',
-            ],
-            'shopify' => [
-                'SHOPIFY_CLIENT_ID',
-                'SHOPIFY_CLIENT_SECRET',
-            ],
-            'microsoft' => [
-                'AZURE_APP_ID',
-                'AZURE_APP_SECRET',
-            ],
-            'email' => [
-                'MAILER_INBOUND_EMAIL_DOMAIN',
-            ],
-            'linear' => [
-                'LINEAR_CLIENT_ID',
-                'LINEAR_CLIENT_SECRET',
-            ],
-            'slack' => [
-                'SLACK_CLIENT_ID',
-                'SLACK_CLIENT_SECRET',
             ],
             'instagram' => [
                 'INSTAGRAM_APP_ID',
@@ -222,17 +206,42 @@ class InstallationConfig extends Model
                 'INSTAGRAM_API_VERSION',
                 'ENABLE_INSTAGRAM_CHANNEL_HUMAN_AGENT',
             ],
-            'whatsapp_embedded' => [
-                'WHATSAPP_APP_ID',
-                'WHATSAPP_APP_SECRET',
-                'WHATSAPP_CONFIGURATION_ID',
-                'WHATSAPP_API_VERSION',
+            'tiktok' => [
+                'TIKTOK_APP_ID',
+                'TIKTOK_APP_SECRET',
             ],
             'google' => [
                 'GOOGLE_OAUTH_CLIENT_ID',
                 'GOOGLE_OAUTH_CLIENT_SECRET',
                 'GOOGLE_OAUTH_REDIRECT_URI',
                 'ENABLE_GOOGLE_OAUTH_LOGIN',
+            ],
+            'microsoft' => [
+                'AZURE_APP_ID',
+                'AZURE_APP_SECRET',
+            ],
+            'linear' => [
+                'LINEAR_CLIENT_ID',
+                'LINEAR_CLIENT_SECRET',
+            ],
+            'notion' => [
+                'NOTION_CLIENT_ID',
+                'NOTION_CLIENT_SECRET',
+                'NOTION_VERSION',
+            ],
+            'slack' => [
+                'SLACK_CLIENT_ID',
+                'SLACK_CLIENT_SECRET',
+            ],
+            'whatsapp_embedded' => [
+                'WHATSAPP_APP_ID',
+                'WHATSAPP_APP_SECRET',
+                'WHATSAPP_CONFIGURATION_ID',
+                'WHATSAPP_API_VERSION',
+            ],
+            'shopify' => [
+                'SHOPIFY_CLIENT_ID',
+                'SHOPIFY_CLIENT_SECRET',
             ],
         ];
     }

@@ -127,9 +127,21 @@ export interface InstallationConfig {
   id: number;
   name: string;
   locked: boolean;
-  value: string | null;
+  value: any;
+  displayTitle?: string;
+  description?: string;
+  type?: 'text' | 'boolean' | 'integer' | 'float' | 'array' | 'select' | 'secret' | 'code';
+  options?: string[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ConfigCategory {
+  key: string;
+  name: string;
+  icon: string;
+  enabled: boolean;
+  configs: InstallationConfig[];
 }
 
 export interface AccountUser {
@@ -299,6 +311,10 @@ export const superAdminApi = {
     return api.get('api/v1/super_admin/settings/show').json();
   },
 
+  getSettingsByCategory: async (category: string): Promise<{ data: Setting[]; category: string; count: number }> => {
+    return api.get(`api/v1/super_admin/settings/category/${category}`).json();
+  },
+
   updateSettings: async (data: Record<string, unknown>): Promise<{ success: boolean }> => {
     return api.patch('api/v1/super_admin/settings', { json: data }).json();
   },
@@ -396,6 +412,18 @@ export const superAdminApi = {
     return api.patch(`api/v1/super_admin/installation_configs/${id}`, { json: data }).json();
   },
 
+  getInstallationConfigGroups: async (): Promise<{ data: string[] }> => {
+    return api.get('api/v1/super_admin/installation_configs/groups').json();
+  },
+
+  getInstallationConfigsByGroup: async (group: string): Promise<{ data: Record<string, any>; group: string; allowed_configs: string[] }> => {
+    return api.get(`api/v1/super_admin/installation_configs/groups/${group}`).json();
+  },
+
+  updateInstallationConfigs: async (configs: Array<{ name: string; value: any }>): Promise<{ message: string; updated: string[] }> => {
+    return api.post('api/v1/super_admin/installation_configs', { json: { configs } }).json();
+  },
+
   // Account Users
   getAccountUsers: async (params?: PaginationParams): Promise<LaravelPaginationResponse<AccountUser>> => {
     return api.get('api/v1/super_admin/account_users', { searchParams: params as Record<string, string> }).json();
@@ -454,6 +482,7 @@ export const superAdminAPI = {
   settings: {
     get: () => superAdminApi.getSettings(),
     getGrouped: () => superAdminApi.getSettingsGrouped(),
+    getByCategory: (category: string) => superAdminApi.getSettingsByCategory(category),
     update: (data: Record<string, unknown>) => superAdminApi.updateSettings(data),
     create: (data: Partial<Setting>) => superAdminApi.createSetting(data),
     delete: (name: string) => superAdminApi.deleteSetting(name)
@@ -487,6 +516,14 @@ export const superAdminAPI = {
   },
   auditLogs: {
     list: (params?: PaginationParams) => superAdminApi.getAuditLogs(params)
+  },
+  installationConfigs: {
+    list: (params?: PaginationParams) => superAdminApi.getInstallationConfigs(params),
+    get: (id: string) => superAdminApi.getInstallationConfig(parseInt(id)),
+    update: (id: string, data: Partial<InstallationConfig>) => superAdminApi.updateInstallationConfig(parseInt(id), data),
+    getGroups: () => superAdminApi.getInstallationConfigGroups(),
+    getByGroup: (group: string) => superAdminApi.getInstallationConfigsByGroup(group),
+    updateConfigs: (configs: Array<{ name: string; value: any }>) => superAdminApi.updateInstallationConfigs(configs)
   }
 };
 

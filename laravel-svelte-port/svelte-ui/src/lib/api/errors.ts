@@ -4,7 +4,9 @@
 
 export interface ApiErrorData {
   message?: string;
+  error?: string | Record<string, string[]>;
   errors?: Record<string, string[]>;
+  details?: Record<string, string[]>;
   [key: string]: any;
 }
 
@@ -68,12 +70,27 @@ export class ApiError extends Error {
    * Get formatted error message
    */
   getFormattedMessage(): string {
-    if (this.data.errors) {
-      const errorMessages = Object.entries(this.data.errors)
-        .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+    // Support both 'errors' and 'details' fields (Laravel uses 'details')
+    const validationErrors = this.data.errors || this.data.details;
+    
+    if (validationErrors) {
+      const errorMessages = Object.entries(validationErrors)
+        .map(([field, messages]) => {
+          // Handle both array and single string messages
+          const messageArray = Array.isArray(messages) ? messages : [messages];
+          // Clean up field names (remove 'settings.' prefix if present)
+          const cleanField = field.replace(/^settings\./, '');
+          return `${cleanField}: ${messageArray.join(', ')}`;
+        })
         .join('; ');
       return errorMessages || this.message;
     }
+    
+    // Fallback to error field if it's a string
+    if (typeof this.data.error === 'string') {
+      return this.data.error;
+    }
+    
     return this.data.message || this.message;
   }
 }

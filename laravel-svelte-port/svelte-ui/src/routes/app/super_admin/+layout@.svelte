@@ -7,14 +7,11 @@
 	  AppWindow,
 	  Bot,
 	  Building2,
-	  Database,
-	  HardDrive,
-	  KeyRound,
+	  ChevronDown,
+	  ChevronRight,
 	  LayoutDashboard,
 	  LogOut,
-	  ScrollText,
 	  Settings,
-	  UserCog,
 	  Users
 	} from 'lucide-svelte';
 	
@@ -24,20 +21,36 @@
 		label: string;
 		href: string;
 		icon: any;
+		children?: NavItem[];
 	}
+	
+	let expandedItems = $state(new Set<string>(['Settings'])); // Settings expanded by default
 	
 	const navItems: NavItem[] = [
 		{ label: 'Dashboard', href: '/app/super_admin/dashboard', icon: LayoutDashboard },
 		{ label: 'Accounts', href: '/app/super_admin/accounts', icon: Building2 },
 		{ label: 'Users', href: '/app/super_admin/users', icon: Users },
-		{ label: 'Settings', href: '/app/super_admin/settings', icon: Settings },
+		{ 
+			label: 'Settings', 
+			href: '/app/super_admin/settings', 
+			icon: Settings,
+			children: [
+				{ label: 'General', href: '/app/super_admin/settings?config=general', icon: Settings },
+				{ label: 'Email', href: '/app/super_admin/settings?config=email', icon: Settings },
+				{ label: 'Messenger', href: '/app/super_admin/settings?config=messenger', icon: Settings },
+				{ label: 'Instagram', href: '/app/super_admin/settings?config=instagram', icon: Settings },
+				{ label: 'TikTok', href: '/app/super_admin/settings?config=tiktok', icon: Settings },
+				{ label: 'Google', href: '/app/super_admin/settings?config=google', icon: Settings },
+				{ label: 'Microsoft', href: '/app/super_admin/settings?config=microsoft', icon: Settings },
+				{ label: 'Linear', href: '/app/super_admin/settings?config=linear', icon: Settings },
+				{ label: 'Notion', href: '/app/super_admin/settings?config=notion', icon: Settings },
+				{ label: 'Slack', href: '/app/super_admin/settings?config=slack', icon: Settings },
+				{ label: 'WhatsApp Embedded', href: '/app/super_admin/settings?config=whatsapp_embedded', icon: Settings },
+				{ label: 'Shopify', href: '/app/super_admin/settings?config=shopify', icon: Settings }
+			]
+		},
 		{ label: 'Agent Bots', href: '/app/super_admin/agent-bots', icon: Bot },
-		{ label: 'Platform Apps', href: '/app/super_admin/platform-apps', icon: AppWindow },
-		{ label: 'Access Tokens', href: '/app/super_admin/access-tokens', icon: KeyRound },
-		{ label: 'Installation Configs', href: '/app/super_admin/installation-configs', icon: Database },
-		{ label: 'Account Users', href: '/app/super_admin/account-users', icon: UserCog },
-		{ label: 'Audit Logs', href: '/app/super_admin/audit-logs', icon: ScrollText },
-		{ label: 'Cache', href: '/app/super_admin/cache', icon: HardDrive }
+		{ label: 'Platform Apps', href: '/app/super_admin/platform-apps', icon: AppWindow }
 	];
 	
 	function handleLogout() {
@@ -46,7 +59,21 @@
 	}
 	
 	function isActive(href: string): boolean {
+		if (href.includes('?')) {
+			// For settings with query params, check both path and query
+			const [path, query] = href.split('?');
+			return page.url.pathname === path && page.url.search.includes(query);
+		}
 		return page.url.pathname === href || page.url.pathname.startsWith(href + '/');
+	}
+	
+	function toggleExpanded(label: string) {
+		if (expandedItems.has(label)) {
+			expandedItems.delete(label);
+		} else {
+			expandedItems.add(label);
+		}
+		expandedItems = new Set(expandedItems);
 	}
 </script>
 
@@ -70,15 +97,53 @@
 		<nav class="flex-1 overflow-y-auto p-3">
 			<div class="space-y-1">
 				{#each navItems as item}
-					<a
-						href={item.href}
-						class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm transition-colors font-medium {isActive(item.href)
-							? 'bg-accent text-accent-foreground'
-							: 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'}"
-					>
-						<item.icon class="h-5 w-5 flex-shrink-0" />
-						<span>{item.label}</span>
-					</a>
+					{#if item.children}
+						<!-- Expandable item -->
+						<div>
+							<button
+								type="button"
+								onclick={() => toggleExpanded(item.label)}
+								class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors font-medium text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+							>
+								<div class="flex items-center space-x-3">
+									<item.icon class="h-5 w-5 flex-shrink-0" />
+									<span>{item.label}</span>
+								</div>
+								{#if expandedItems.has(item.label)}
+									<ChevronDown class="h-4 w-4" />
+								{:else}
+									<ChevronRight class="h-4 w-4" />
+								{/if}
+							</button>
+							
+							{#if expandedItems.has(item.label)}
+								<div class="ml-6 mt-1 space-y-1">
+									{#each item.children as child}
+										<a
+											href={child.href}
+											class="flex items-center space-x-3 px-3 py-2 rounded-md text-sm transition-colors {isActive(child.href)
+												? 'bg-accent text-accent-foreground'
+												: 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'}"
+										>
+											<span class="text-xs">•</span>
+											<span>{child.label}</span>
+										</a>
+									{/each}
+								</div>
+							{/if}
+						</div>
+					{:else}
+						<!-- Regular item -->
+						<a
+							href={item.href}
+							class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm transition-colors font-medium {isActive(item.href)
+								? 'bg-accent text-accent-foreground'
+								: 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'}"
+						>
+							<item.icon class="h-5 w-5 flex-shrink-0" />
+							<span>{item.label}</span>
+						</a>
+					{/if}
 				{/each}
 			</div>
 		</nav>
