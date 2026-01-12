@@ -28,7 +28,7 @@
 		children?: NavItem[];
 	}
 	
-	let expandedItems = $state(new Set<string>(['Settings'])); // Settings expanded by default
+	let expandedItems = $state(new Set<string>(['/app/super_admin/settings'])); // Settings expanded by default
 	
 	const navItems: NavItem[] = [
 		{ label: 'Dashboard', href: '/app/super_admin/dashboard', icon: LayoutDashboard },
@@ -78,11 +78,11 @@
 		return page.url.pathname === href || page.url.pathname.startsWith(href + '/');
 	}
 	
-	function toggleExpanded(label: string) {
-		if (expandedItems.has(label)) {
-			expandedItems.delete(label);
+	function toggleExpanded(href: string) {
+		if (expandedItems.has(href)) {
+			expandedItems.delete(href);
 		} else {
-			expandedItems.add(label);
+			expandedItems.add(href);
 		}
 		expandedItems = new Set(expandedItems);
 	}
@@ -110,17 +110,17 @@
 						{#each navItems as item}
 							{#if item.children}
 								<!-- Collapsible menu item with children -->
-								<Collapsible.Root open={expandedItems.has(item.label)} class="group/collapsible">
+								<Collapsible.Root open={expandedItems.has(item.href)} class="group/collapsible">
 									<Sidebar.MenuItem>
 										<Collapsible.Trigger>
 											{#snippet child({ props })}
 												<Sidebar.MenuButton
 													{...props}
-													onclick={() => toggleExpanded(item.label)}
+													onclick={() => toggleExpanded(item.href)}
 												>
 													<item.icon />
 													<span>{item.label}</span>
-													{#if expandedItems.has(item.label)}
+													{#if expandedItems.has(item.href)}
 														<ChevronDown class="ml-auto h-4 w-4 transition-transform" />
 													{:else}
 														<ChevronRight class="ml-auto h-4 w-4 transition-transform" />
