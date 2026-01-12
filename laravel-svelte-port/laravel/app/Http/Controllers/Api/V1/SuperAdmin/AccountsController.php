@@ -42,6 +42,37 @@ class AccountsController extends Controller
         
         $selectedFeatureFlags = $enabledFeatures;
         
+        // Format account users if loaded
+        $accountUsers = [];
+        if ($account->relationLoaded('accountUsers')) {
+            $accountUsers = $account->accountUsers->map(function ($accountUser) {
+                return [
+                    'id' => $accountUser->id,
+                    'user_id' => $accountUser->user_id,
+                    'account_id' => $accountUser->account_id,
+                    'role' => $accountUser->role->value,
+                    'role_name' => $accountUser->role->getName(),
+                    'availability' => $accountUser->availability->value,
+                    'availability_name' => $accountUser->availability->getName(),
+                    'active_at' => $accountUser->active_at,
+                    'created_at' => $accountUser->created_at?->toISOString(),
+                    'updated_at' => $accountUser->updated_at?->toISOString(),
+                    'user' => $accountUser->user ? [
+                        'id' => $accountUser->user->id,
+                        'name' => $accountUser->user->name,
+                        'email' => $accountUser->user->email,
+                        'display_name' => $accountUser->user->display_name,
+                    ] : null,
+                    'inviter' => $accountUser->inviter ? [
+                        'id' => $accountUser->inviter->id,
+                        'name' => $accountUser->inviter->name,
+                        'email' => $accountUser->inviter->email,
+                        'display_name' => $accountUser->inviter->display_name,
+                    ] : null,
+                ];
+            })->toArray();
+        }
+        
         return [
             'id' => $account->id,
             'name' => $account->name,
@@ -56,6 +87,7 @@ class AccountsController extends Controller
             'contacts_count' => $account->contacts_count ?? 0,
             'selected_feature_flags' => $selectedFeatureFlags,
             'all_features' => $allFeatures,
+            'account_users' => $accountUsers,
             'settings' => $account->settings ?? [],
             'limits' => $account->limits ?? [],
             'custom_attributes' => $account->custom_attributes ?? [],
@@ -122,7 +154,9 @@ class AccountsController extends Controller
     public function show(Account $account): JsonResponse
     {
         try {
+            // Load counts AND account users with their related data
             $account->loadCount(['users', 'inboxes', 'conversations', 'contacts']);
+            $account->load(['accountUsers.user', 'accountUsers.inviter']);
             
             return response()->json(['data' => $this->transformAccount($account)]);
         } catch (\Throwable $e) {
