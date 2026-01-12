@@ -11,57 +11,19 @@
 	import { Loader2, RefreshCw } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 
+	// Using Record<string, any> to match the flat structure returned by Rails-compatible API
 	interface InstanceMetrics {
-		clearlineVersion?: string;
-		laravelVersion?: string;
-		phpVersion?: string;
-		edition?: string;
-		gitSha?: string;
-		database?: {
-			alive: boolean;
-			driver?: string;
-			version?: string;
-			error?: string;
-		};
-		redis?: {
-			alive: boolean;
-			version?: string;
-			connectedClients?: number;
-			maxclients?: number;
-			usedMemoryHuman?: string;
-			usedMemoryPeakHuman?: string;
-			totalSystemMemoryHuman?: string;
-			maxmemory?: number;
-			maxmemoryPolicy?: string;
-			error?: string;
-		};
-		queue?: {
-			driver?: string;
-			connection?: string;
-			error?: string;
-		};
-		migrations?: {
-			status?: string;
-			ranCount?: number;
-			pendingCount?: number;
-			error?: string;
-		};
-		system?: {
-			os?: string;
-			memoryLimit?: string;
-			maxExecutionTime?: string;
-			uploadMaxFilesize?: string;
-		};
+		[key: string]: any;
 	}
-
+	
 	let metrics = $state<InstanceMetrics | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
-
+	
 	async function fetchInstanceStatus() {
 		loading = true;
 		error = null;
-		
+			
 		try {
 			const data = await superAdminApi.getInstanceStatus();
 			metrics = data.data as InstanceMetrics;
@@ -90,91 +52,91 @@
 
 		const rows: Array<{ metric: string; value: string }> = [];
 
-		// ClearLine version
-		if (metrics.clearlineVersion) {
-			rows.push({ metric: 'ClearLine version', value: metrics.clearlineVersion });
+		// Chatwoot version (Rails format)
+		if (metrics['Chatwoot version']) {
+			rows.push({ metric: 'Chatwoot version', value: metrics['Chatwoot version'] });
 		}
 
 		// Git SHA
-		if (metrics.gitSha) {
-			rows.push({ metric: 'Git SHA', value: metrics.gitSha });
+		if (metrics['Git SHA']) {
+			rows.push({ metric: 'Git SHA', value: metrics['Git SHA'] });
 		}
 
 		// Postgres alive
-		if (metrics.database) {
+		if (metrics['Postgres alive']) {
 			rows.push({ 
 				metric: 'Postgres alive', 
-				value: metrics.database.alive ? 'true' : 'false' 
+				value: metrics['Postgres alive'] 
 			});
 		}
 
-		// Redis alive
-		if (metrics.redis) {
+		// Redis metrics
+		if (metrics['Redis alive']) {
 			rows.push({ 
 				metric: 'Redis alive', 
-				value: metrics.redis.alive ? 'true' : 'false' 
+				value: metrics['Redis alive'] 
 			});
 
-			// Redis details if alive
-			if (metrics.redis.alive) {
-				if (metrics.redis.version) {
-					rows.push({ metric: 'Redis version', value: metrics.redis.version });
+			// Only show additional Redis details if Redis is alive
+			if (metrics['Redis alive'] === 'true') {
+				if (metrics['Redis version']) {
+					rows.push({ metric: 'Redis version', value: metrics['Redis version'] });
 				}
-				if (metrics.redis.connectedClients !== undefined) {
+				if (metrics['Redis number of connected clients'] !== undefined) {
 					rows.push({ 
 						metric: 'Redis number of connected clients', 
-						value: String(metrics.redis.connectedClients) 
+						value: String(metrics['Redis number of connected clients']) 
 					});
 				}
-				if (metrics.redis.maxclients !== undefined) {
+				if (metrics["Redis 'maxclients' setting"] !== undefined) {
 					rows.push({ 
 						metric: "Redis 'maxclients' setting", 
-						value: String(metrics.redis.maxclients) 
+						value: String(metrics["Redis 'maxclients' setting"]) 
 					});
 				}
-				if (metrics.redis.usedMemoryHuman) {
+				if (metrics['Redis memory used']) {
 					rows.push({ 
 						metric: 'Redis memory used', 
-						value: metrics.redis.usedMemoryHuman 
+						value: metrics['Redis memory used'] 
 					});
 				}
-				if (metrics.redis.usedMemoryPeakHuman) {
+				if (metrics['Redis memory peak']) {
 					rows.push({ 
 						metric: 'Redis memory peak', 
-						value: metrics.redis.usedMemoryPeakHuman 
+						value: metrics['Redis memory peak'] 
 					});
 				}
-				if (metrics.redis.totalSystemMemoryHuman) {
+				if (metrics['Redis total memory available']) {
 					rows.push({ 
 						metric: 'Redis total memory available', 
-						value: metrics.redis.totalSystemMemoryHuman 
+						value: metrics['Redis total memory available'] 
 					});
 				}
-				if (metrics.redis.maxmemory !== undefined) {
+				if (metrics["Redis 'maxmemory' setting"] !== undefined) {
 					rows.push({ 
 						metric: "Redis 'maxmemory' setting", 
-						value: String(metrics.redis.maxmemory) 
+						value: String(metrics["Redis 'maxmemory' setting"]) 
 					});
 				}
-				if (metrics.redis.maxmemoryPolicy) {
+				if (metrics["Redis 'maxmemory_policy' setting"]) {
 					rows.push({ 
 						metric: "Redis 'maxmemory_policy' setting", 
-						value: metrics.redis.maxmemoryPolicy 
+						value: metrics["Redis 'maxmemory_policy' setting"] 
 					});
 				}
 			}
 		}
 
-		// ClearLine edition
-		if (metrics.edition) {
-			rows.push({ metric: 'ClearLine edition', value: metrics.edition });
+		// Chatwoot edition
+		if (metrics['Chatwoot edition']) {
+			rows.push({ metric: 'Chatwoot edition', value: metrics['Chatwoot edition'] });
 		}
 
 		// Database Migrations
-		if (metrics.migrations?.status) {
+		if (metrics['Database Migrations']) {
 			rows.push({ 
 				metric: 'Database Migrations', 
-				value: metrics.migrations.status 
+				value: metrics['Database Migrations'] 
 			});
 		}
 

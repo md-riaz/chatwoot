@@ -11,43 +11,75 @@ class InstanceStatusController extends Controller
 {
     /**
      * Show instance status and metrics.
+     * Matches Rails SuperAdmin::InstanceStatusesController format exactly.
      */
     public function show(): JsonResponse
     {
         $metrics = [];
-
-        // Application version
-        $metrics['clearline_version'] = config('app.version', '1.0.0');
-        $metrics['laravel_version'] = app()->version();
-        $metrics['php_version'] = PHP_VERSION;
-
-        // Edition
-        $metrics['edition'] = $this->getEdition();
-
-        // Git SHA (if available)
-        $metrics['git_sha'] = $this->getGitSha();
-
-        // Database status
-        $metrics['database'] = $this->getDatabaseStatus();
-
-        // Redis status
-        $metrics['redis'] = $this->getRedisStatus();
-
-        // Queue status
-        $metrics['queue'] = $this->getQueueStatus();
-
-        // Migration status
-        $metrics['migrations'] = $this->getMigrationStatus();
-
-        // System info
-        $metrics['system'] = [
-            'os' => PHP_OS,
-            'memory_limit' => ini_get('memory_limit'),
-            'max_execution_time' => ini_get('max_execution_time'),
-            'upload_max_filesize' => ini_get('upload_max_filesize'),
-        ];
-
+    
+        // Chatwoot version (matching Rails naming)
+        $metrics['Chatwoot version'] = config('app.version', '4.9.1');
+    
+        // Git SHA (matching Rails naming)
+        $metrics['Git SHA'] = $this->getGitSha();
+    
+        // PostgreSQL status (matching Rails naming)
+        $postgresAlive = $this->getPostgresStatus();
+        $metrics['Postgres alive'] = $postgresAlive ? 'true' : 'false';
+    
+        // Redis metrics (matching Rails naming)
+        $this->addRedisMetrics($metrics);
+    
+        // Chatwoot edition (matching Rails naming)
+        $metrics['Chatwoot edition'] = $this->getEdition();
+    
+        // Instance meta - Database Migrations (matching Rails naming)
+        $migrationStatus = $this->getMigrationStatus();
+        $metrics['Database Migrations'] = $migrationStatus['status'];
+    
         return response()->json(['data' => $metrics]);
+    }
+
+    /**
+     * Get PostgreSQL status.
+     */
+    private function getPostgresStatus(): bool
+    {
+        try {
+            DB::connection()->getPdo();
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Add Redis metrics to the metrics array.
+     */
+    private function addRedisMetrics(array &$metrics): void
+    {
+        try {
+            $redis = Redis::connection();
+            $ping = $redis->ping();
+
+            if ($ping == 'PONG') {
+                $info = $redis->info();
+
+                $metrics['Redis alive'] = 'true';
+                $metrics['Redis version'] = $info['redis_version'] ?? 'unknown';
+                $metrics['Redis number of connected clients'] = $info['connected_clients'] ?? 0;
+                $metrics["Redis 'maxclients' setting"] = $info['maxclients'] ?? 0;
+                $metrics['Redis memory used'] = $info['used_memory_human'] ?? 'unknown';
+                $metrics['Redis memory peak'] = $info['used_memory_peak_human'] ?? 'unknown';
+                $metrics['Redis total memory available'] = $info['total_system_memory_human'] ?? 'unknown';
+                $metrics["Redis 'maxmemory' setting"] = $info['maxmemory'] ?? 0;
+                $metrics["Redis 'maxmemory_policy' setting"] = $info['maxmemory_policy'] ?? 'unknown';
+            } else {
+                $metrics['Redis alive'] = 'false';
+            }
+        } catch (\Exception $e) {
+            $metrics['Redis alive'] = 'false';
+        }
     }
 
     /**
@@ -61,101 +93,36 @@ class InstanceStatusController extends Controller
 
     /**
      * Get Git SHA if available.
+     * Matches Rails git_sha.rb initializer logic.
      */
     private function getGitSha(): ?string
     {
-        $gitDir = base_path('.git');
-        if (is_dir($gitDir)) {
-            $headFile = $gitDir.'/HEAD';
-            if (file_exists($headFile)) {
-                $head = trim(file_get_contents($headFile));
-                if (str_starts_with($head, 'ref: ')) {
-                    $ref = substr($head, 5);
-                    $refFile = $gitDir.'/'.$ref;
-                    if (file_exists($refFile)) {
-                        return substr(trim(file_get_contents($refFile)), 0, 8);
-                    }
-                } else {
-                    return substr($head, 0, 8);
-                }
+        // Try git command first
+        if (is_dir(base_path('.git'))) {
+            $gitCommand = 'git rev-parse HEAD';
+            $sha = trim(shell_exec($gitCommand) ?: '');
+            
+            if (!empty($sha) && strlen($sha) >= 8) {
+                return substr($sha, 0, 8);
             }
         }
-
-        return null;
-    }
-
-    /**
-     * Get database status.
-     */
-    private function getDatabaseStatus(): array
-    {
-        try {
-            $pdo = DB::connection()->getPdo();
-
-            return [
-                'alive' => true,
-                'driver' => config('database.default'),
-                'version' => $pdo->getAttribute(\PDO::ATTR_SERVER_VERSION),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'alive' => false,
-                'error' => $e->getMessage(),
-            ];
-        }
-    }
-
-    /**
-     * Get Redis status and metrics.
-     */
-    private function getRedisStatus(): array
-    {
-        try {
-            $redis = Redis::connection();
-            $ping = $redis->ping();
-
-            if ($ping) {
-                $info = $redis->info();
-
-                return [
-                    'alive' => true,
-                    'version' => $info['redis_version'] ?? 'unknown',
-                    'connected_clients' => $info['connected_clients'] ?? 0,
-                    'maxclients' => $info['maxclients'] ?? 0,
-                    'used_memory_human' => $info['used_memory_human'] ?? 'unknown',
-                    'used_memory_peak_human' => $info['used_memory_peak_human'] ?? 'unknown',
-                    'total_system_memory_human' => $info['total_system_memory_human'] ?? 'unknown',
-                    'maxmemory' => $info['maxmemory'] ?? 0,
-                    'maxmemory_policy' => $info['maxmemory_policy'] ?? 'unknown',
-                ];
+        
+        // Check for .git_sha file
+        $gitShaFile = base_path('.git_sha');
+        if (file_exists($gitShaFile)) {
+            $sha = trim(file_get_contents($gitShaFile));
+            if (!empty($sha)) {
+                return substr($sha, 0, 8);
             }
-
-            return ['alive' => false];
-        } catch (\Exception $e) {
-            return [
-                'alive' => false,
-                'error' => $e->getMessage(),
-            ];
         }
-    }
-
-    /**
-     * Get queue status.
-     */
-    private function getQueueStatus(): array
-    {
-        try {
-            $driver = config('queue.default');
-
-            return [
-                'driver' => $driver,
-                'connection' => config("queue.connections.{$driver}.connection") ?? 'default',
-            ];
-        } catch (\Exception $e) {
-            return [
-                'error' => $e->getMessage(),
-            ];
+        
+        // Check for Heroku environment
+        $herokuSha = env('HEROKU_SLUG_COMMIT');
+        if ($herokuSha) {
+            return substr($herokuSha, 0, 8);
         }
+        
+        return 'unknown';
     }
 
     /**
