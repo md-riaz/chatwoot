@@ -150,7 +150,7 @@
   <!-- Header -->
   <div class="flex h-16 items-center justify-between border-b px-4">
     <div class="flex items-center gap-2">
-      <span class="text-xl font-semibold">Chatwoot</span>
+      <span class="text-xl font-semibold">ClearLine</span>
     </div>
     
     <!-- Mobile close button -->
@@ -204,7 +204,7 @@
   <!-- Footer -->
   <div class="border-t p-4">
     <div class="text-xs text-muted-foreground text-center">
-      © 2026 Chatwoot
+      © 2026 ClearLine
     </div>
   </div>
 </aside>

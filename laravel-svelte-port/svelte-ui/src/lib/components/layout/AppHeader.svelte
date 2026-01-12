@@ -97,7 +97,7 @@
     
     <!-- Logo / Brand (visible on mobile) -->
     <div class="flex items-center lg:hidden">
-      <span class="text-xl font-semibold">Chatwoot</span>
+      <span class="text-xl font-semibold">ClearLine</span>
     </div>
     
     <!-- Spacer -->

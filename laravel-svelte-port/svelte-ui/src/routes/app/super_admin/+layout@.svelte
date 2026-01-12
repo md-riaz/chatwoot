@@ -5,10 +5,12 @@
 	import { authStore } from '$lib/stores/auth.svelte';
 	import {
 	  AppWindow,
+	  Activity,
 	  Bot,
 	  Building2,
 	  ChevronDown,
 	  ChevronRight,
+	  Gauge,
 	  LayoutDashboard,
 	  LogOut,
 	  Settings,
@@ -30,6 +32,8 @@
 		{ label: 'Dashboard', href: '/app/super_admin/dashboard', icon: LayoutDashboard },
 		{ label: 'Accounts', href: '/app/super_admin/accounts', icon: Building2 },
 		{ label: 'Users', href: '/app/super_admin/users', icon: Users },
+		{ label: 'Agent Bots', href: '/app/super_admin/agent-bots', icon: Bot },
+		{ label: 'Platform Apps', href: '/app/super_admin/platform-apps', icon: AppWindow },
 		{ 
 			label: 'Settings', 
 			href: '/app/super_admin/settings', 
@@ -48,9 +52,14 @@
 				{ label: 'WhatsApp Embedded', href: '/app/super_admin/settings?config=whatsapp_embedded', icon: Settings },
 				{ label: 'Shopify', href: '/app/super_admin/settings?config=shopify', icon: Settings }
 			]
-		},
-		{ label: 'Agent Bots', href: '/app/super_admin/agent-bots', icon: Bot },
-		{ label: 'Platform Apps', href: '/app/super_admin/platform-apps', icon: AppWindow }
+		}
+	];
+
+	// Bottom navigation items (shown at bottom of sidebar)
+	const bottomNavItems: NavItem[] = [
+		{ label: 'Queue Horizon', href: '/horizon', icon: Gauge },
+		{ label: 'Instance Health', href: '/app/super_admin/instance-health', icon: Activity },
+		{ label: 'Agent Dashboard', href: '/', icon: LayoutDashboard }
 	];
 	
 	function handleLogout() {
@@ -87,7 +96,7 @@
 					<span class="text-lg font-bold text-primary-foreground">C</span>
 				</div>
 				<div>
-					<h1 class="text-lg font-semibold text-foreground">Chatwoot</h1>
+					<h1 class="text-lg font-semibold text-foreground">ClearLine</h1>
 					<p class="text-xs text-muted-foreground">Super Admin</p>
 				</div>
 			</div>
@@ -147,6 +156,23 @@
 				{/each}
 			</div>
 		</nav>
+		
+		<!-- Bottom Navigation Items -->
+		<div class="p-3 border-t border-border">
+			<div class="space-y-1">
+				{#each bottomNavItems as item}
+					<a
+						href={item.href}
+						class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm transition-colors font-medium {isActive(item.href)
+							? 'bg-accent text-accent-foreground'
+							: 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'}"
+					>
+						<item.icon class="h-5 w-5 flex-shrink-0" />
+						<span>{item.label}</span>
+					</a>
+				{/each}
+			</div>
+		</div>
 		
 		<!-- User Info & Logout -->
 		<div class="p-4 border-t border-border">

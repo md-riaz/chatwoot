@@ -243,7 +243,7 @@
 							{categoryDisplayName} Configuration
 						</CardTitle>
 						<CardDescription>
-							Configure {categoryDisplayName.toLowerCase()} settings for your Chatwoot instance.
+							Configure {categoryDisplayName.toLowerCase()} settings for your ClearLine instance.
 						</CardDescription>
 					</CardHeader>
 					<CardContent class="space-y-8">

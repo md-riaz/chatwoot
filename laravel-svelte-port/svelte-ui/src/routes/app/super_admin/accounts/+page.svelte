@@ -177,7 +177,7 @@
 </script>
 
 <svelte:head>
-	<title>Accounts - Super Admin - Chatwoot</title>
+	<title>Accounts - Super Admin - ClearLine</title>
 </svelte:head>
 
 <div class="w-full h-full">
@@ -188,7 +188,7 @@
 				Accounts
 			</h1>
 			<p class="text-sm mt-1 text-muted-foreground">
-				Manage all accounts in your Chatwoot instance
+				Manage all accounts in your ClearLine instance
 			</p>
 		</div>
 		<Button onclick={() => goto('/app/super_admin/accounts/new')}>

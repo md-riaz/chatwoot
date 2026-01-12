@@ -21,7 +21,7 @@
 </script>
 
 <svelte:head>
-  <title>{status} - Error | Chatwoot</title>
+  <title>{status} - Error | ClearLine</title>
 </svelte:head>
 
 <div class="flex min-h-screen items-center justify-center bg-background px-4">

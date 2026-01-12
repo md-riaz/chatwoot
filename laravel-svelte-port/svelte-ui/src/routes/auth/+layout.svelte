@@ -18,7 +18,7 @@
   <div class="w-full max-w-md">
     <!-- Logo -->
     <div class="mb-8 text-center">
-      <h1 class="text-3xl font-bold">Chatwoot</h1>
+      <h1 class="text-3xl font-bold">ClearLine</h1>
       <p class="mt-2 text-sm text-muted-foreground">
         Customer engagement platform
       </p>
@@ -31,7 +31,7 @@
     
     <!-- Footer -->
     <div class="mt-8 text-center text-xs text-muted-foreground">
-      © 2026 Chatwoot. All rights reserved.
+      © 2026 ClearLine. All rights reserved.
     </div>
   </div>
 </div>

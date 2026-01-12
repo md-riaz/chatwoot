@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-  <title>Chatwoot</title>
+  <title>ClearLine</title>
 </svelte:head>
 
 <div class="flex min-h-screen items-center justify-center bg-background">

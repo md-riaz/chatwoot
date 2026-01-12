@@ -121,7 +121,7 @@
 </script>
 
 <svelte:head>
-  <title>Super Admin Onboarding - Chatwoot</title>
+  <title>Super Admin Onboarding - ClearLine</title>
 </svelte:head>
 
 <div class="flex min-h-screen items-center justify-center bg-background p-4">
@@ -133,7 +133,7 @@
   {:else if needsOnboarding}
     <Card class="w-full max-w-md">
       <CardHeader>
-        <CardTitle class="text-2xl font-bold">Welcome to Chatwoot</CardTitle>
+        <CardTitle class="text-2xl font-bold">Welcome to ClearLine</CardTitle>
         <CardDescription>
           Create your super admin account to get started
         </CardDescription>

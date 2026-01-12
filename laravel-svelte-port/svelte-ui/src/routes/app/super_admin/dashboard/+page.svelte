@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>Admin Dashboard - Super Admin - Chatwoot</title>
+	<title>Admin Dashboard - Super Admin - ClearLine</title>
 </svelte:head>
 
 <div class="w-full h-full">
