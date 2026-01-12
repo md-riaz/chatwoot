@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
+	import { ResponsiveSidebar } from '$lib/components/ui/sidebar';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import {
 	  AppWindow,
@@ -87,10 +88,10 @@
 </script>
 
 <div class="flex h-screen overflow-hidden bg-background">
-	<!-- Sidebar matching Vue/Chatwoot design -->
-	<aside class="w-64 border-r flex flex-col bg-card">
+	<!-- Responsive Sidebar using shadcn-svelte components -->
+	<ResponsiveSidebar mobileBreakpoint="lg">
 		<!-- Logo -->
-		<div class="p-6 border-b border-border">
+		<div class="p-6 border-b border-border shrink-0">
 			<div class="flex items-center space-x-2">
 				<div class="h-8 w-8 rounded bg-primary flex items-center justify-center">
 					<span class="text-lg font-bold text-primary-foreground">C</span>
@@ -158,7 +159,7 @@
 		</nav>
 		
 		<!-- Bottom Navigation Items -->
-		<div class="p-3 border-t border-border">
+		<div class="p-3 border-t border-border shrink-0">
 			<div class="space-y-1">
 				{#each bottomNavItems as item}
 					<a
@@ -175,7 +176,7 @@
 		</div>
 		
 		<!-- User Info & Logout -->
-		<div class="p-4 border-t border-border">
+		<div class="p-4 border-t border-border shrink-0">
 			{#if authStore.currentUser.id}
 				<div class="mb-3 px-2">
 					<p class="text-sm font-medium truncate text-foreground">
@@ -196,11 +197,13 @@
 				Logout
 			</Button>
 		</div>
-	</aside>
+	</ResponsiveSidebar>
 	
 	<!-- Main Content -->
 	<main class="flex-1 overflow-y-auto bg-background">
-		{@render children()}
+		<div class="lg:ml-0 ml-0">
+			{@render children()}
+		</div>
 	</main>
 </div>
 
