@@ -52,9 +52,9 @@
 
 		const rows: Array<{ metric: string; value: string }> = [];
 
-		// Chatwoot version (Rails format)
-		if (metrics['Chatwoot version']) {
-			rows.push({ metric: 'Chatwoot version', value: metrics['Chatwoot version'] });
+		// ClearLine version (Rails format)
+		if (metrics['ClearLine version']) {
+			rows.push({ metric: 'ClearLine version', value: metrics['ClearLine version'] });
 		}
 
 		// Git SHA
@@ -127,9 +127,9 @@
 			}
 		}
 
-		// Chatwoot edition
-		if (metrics['Chatwoot edition']) {
-			rows.push({ metric: 'Chatwoot edition', value: metrics['Chatwoot edition'] });
+		// ClearLine edition
+		if (metrics['ClearLine edition']) {
+			rows.push({ metric: 'ClearLine edition', value: metrics['ClearLine edition'] });
 		}
 
 		// Database Migrations

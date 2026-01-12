@@ -17,8 +17,8 @@ class InstanceStatusController extends Controller
     {
         $metrics = [];
     
-        // Chatwoot version (matching Rails naming)
-        $metrics['Chatwoot version'] = config('app.version', '4.9.1');
+        // ClearLine version (matching Rails naming)
+        $metrics['ClearLine version'] = config('app.version', '4.9.1');
     
         // Git SHA (matching Rails naming)
         $metrics['Git SHA'] = $this->getGitSha();
@@ -30,8 +30,8 @@ class InstanceStatusController extends Controller
         // Redis metrics (matching Rails naming)
         $this->addRedisMetrics($metrics);
     
-        // Chatwoot edition (matching Rails naming)
-        $metrics['Chatwoot edition'] = $this->getEdition();
+        // ClearLine edition (matching Rails naming)
+        $metrics['ClearLine edition'] = $this->getEdition();
     
         // Instance meta - Database Migrations (matching Rails naming)
         $migrationStatus = $this->getMigrationStatus();
