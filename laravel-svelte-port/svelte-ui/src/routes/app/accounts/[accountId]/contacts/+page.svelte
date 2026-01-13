@@ -28,7 +28,7 @@
     return contacts.filter(c => 
       c.name?.toLowerCase().includes(query) ||
       c.email?.toLowerCase().includes(query) ||
-      c.phone_number?.includes(query)
+      c.phoneNumber?.includes(query)
     );
   });
   
@@ -64,7 +64,7 @@
       />
     </div>
   </div>
-  
+
   <!-- Contacts Grid -->
   <div class="flex-1 overflow-y-auto p-6">
     {#if isLoading}
@@ -114,7 +114,7 @@
             <Card.Content class="p-6">
               <div class="flex items-start gap-4">
                 <Avatar.Root class="h-12 w-12">
-                  <Avatar.Image src={contact.thumbnail || contact.avatar_url || ''} alt={contact.name} />
+                  <Avatar.Image src={contact.thumbnail || contact.avatarUrl || ''} alt={contact.name} />
                   <Avatar.Fallback>
                     {contact.name?.charAt(0).toUpperCase() || '?'}
                   </Avatar.Fallback>
@@ -125,9 +125,9 @@
                     <h3 class="font-semibold truncate">
                       {contact.name || 'Unknown Contact'}
                     </h3>
-                    {#if contact.availability_status}
+                    {#if contact.availabilityStatus}
                       <Badge variant="secondary" class="text-xs">
-                        {contact.availability_status}
+                        {contact.availabilityStatus}
                       </Badge>
                     {/if}
                   </div>
@@ -139,17 +139,17 @@
                     </div>
                   {/if}
                   
-                  {#if contact.phone_number}
+                  {#if contact.phoneNumber}
                     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                       <Phone class="h-3 w-3 flex-shrink-0" />
-                      <span class="truncate">{contact.phone_number}</span>
+                      <span class="truncate">{contact.phoneNumber}</span>
                     </div>
                   {/if}
                   
-                  {#if contact.company_name}
+                  {#if contact.companyName}
                     <div class="flex items-center gap-2 text-sm text-muted-foreground">
                       <Building class="h-3 w-3 flex-shrink-0" />
-                      <span class="truncate">{contact.company_name}</span>
+                      <span class="truncate">{contact.companyName}</span>
                     </div>
                   {/if}
                 </div>

@@ -13,7 +13,7 @@ import type { PlatformApp } from '$lib/api/superAdmin';
 const platformAppId = $page.params.id;
 
 let loading = $state(true);
-let platformApp: PlatformApp | null = null;
+let platformApp: PlatformApp | null = $state(null);  /* Make platformApp reactive with $state() */
 let showAccessToken = $state(false);
 let showDeleteDialog = $state(false);
 let deleting = $state(false);

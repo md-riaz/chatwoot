@@ -402,15 +402,6 @@ shadcn-svelte dropdown menu is built on bits-ui which uses `onselect` instead of
 </DropdownMenuItem>
 ```
 
-**Table.Cell colspan**:
-```svelte
-<!-- ❌ -->
-<Table.Cell colspan="2">
-
-<!-- ✅ Add to component props or use native -->
-<td colspan="2" class="...">
-```
-
 ---
 
 ## Testing Your Fixes

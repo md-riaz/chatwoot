@@ -92,6 +92,7 @@
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2; /* Add standard property */
     -webkit-box-orient: vertical;
     line-height: 1.4;
   }
@@ -105,6 +106,7 @@
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2; /* Add standard property */
     -webkit-box-orient: vertical;
   }
 

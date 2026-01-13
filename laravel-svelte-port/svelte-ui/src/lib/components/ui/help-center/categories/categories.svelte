@@ -50,7 +50,8 @@
     formData = { name: '', description: '', color: '#3B82F6' };
   }
 
-  function handleSubmit() {
+  function handleSubmit(e: SubmitEvent) {
+    e.preventDefault();
     if (isCreating) {
       onCreate(formData);
     } else if (editingId) {
@@ -76,7 +77,7 @@
 
   {#if isCreating || editingId}
     <Card class="p-6">
-      <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+      <form onsubmit={(e: SubmitEvent) => handleSubmit(e)} class="space-y-4">
         <div class="space-y-2">
           <Label for="name">Name*</Label>
           <Input

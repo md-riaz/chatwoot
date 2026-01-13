@@ -12,7 +12,7 @@
 	const botId = $page.params.id;
 
 	let loading = $state(true);
-	let bot: any = null;
+	let bot: any = $state(null);  /* Make bot reactive with $state() */
 	let showAccessToken = $state(false);
 
 	onMount(async () => {

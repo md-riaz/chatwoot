@@ -48,7 +48,8 @@ async function loadPlatformApp() {
   }
 }
 
-async function handleSubmit() {
+async function handleSubmit(e: SubmitEvent) {
+  e.preventDefault();
   if (!platformAppId) return;
   
   try {
@@ -114,7 +115,7 @@ async function handleSubmit() {
 						<CardDescription>Update the platform app information</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<form on:submit|preventDefault={handleSubmit}>
+						<form onsubmit={(e: SubmitEvent) => handleSubmit(e)}>
 							<div class="space-y-6">
 								<div class="space-y-2">
 									<Label for="name">Name *</Label>
