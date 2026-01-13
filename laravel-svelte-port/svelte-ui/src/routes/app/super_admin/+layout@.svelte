@@ -2,6 +2,8 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
+	import * as Sidebar from '$lib/components/ui/sidebar';
+	import * as Collapsible from '$lib/components/ui/collapsible';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import {
 	  AppWindow,
@@ -26,7 +28,7 @@
 		children?: NavItem[];
 	}
 	
-	let expandedItems = $state(new Set<string>(['Settings'])); // Settings expanded by default
+	let expandedItems = $state(new Set<string>(['/app/super_admin/settings'])); // Settings expanded by default
 	
 	const navItems: NavItem[] = [
 		{ label: 'Dashboard', href: '/app/super_admin/dashboard', icon: LayoutDashboard },
@@ -76,22 +78,21 @@
 		return page.url.pathname === href || page.url.pathname.startsWith(href + '/');
 	}
 	
-	function toggleExpanded(label: string) {
-		if (expandedItems.has(label)) {
-			expandedItems.delete(label);
+	function toggleExpanded(href: string) {
+		if (expandedItems.has(href)) {
+			expandedItems.delete(href);
 		} else {
-			expandedItems.add(label);
+			expandedItems.add(href);
 		}
 		expandedItems = new Set(expandedItems);
 	}
 </script>
 
-<div class="flex h-screen overflow-hidden bg-background">
-	<!-- Sidebar matching Vue/Chatwoot design -->
-	<aside class="w-64 border-r flex flex-col bg-card">
-		<!-- Logo -->
-		<div class="p-6 border-b border-border">
-			<div class="flex items-center space-x-2">
+<Sidebar.Provider>
+	<Sidebar.Root collapsible="offcanvas">
+		<Sidebar.Header>
+			<!-- Logo -->
+			<div class="flex items-center space-x-2 px-2">
 				<div class="h-8 w-8 rounded bg-primary flex items-center justify-center">
 					<span class="text-lg font-bold text-primary-foreground">C</span>
 				</div>
@@ -100,84 +101,95 @@
 					<p class="text-xs text-muted-foreground">Super Admin</p>
 				</div>
 			</div>
-		</div>
+		</Sidebar.Header>
 		
-		<!-- Navigation -->
-		<nav class="flex-1 overflow-y-auto p-3">
-			<div class="space-y-1">
-				{#each navItems as item}
-					{#if item.children}
-						<!-- Expandable item -->
-						<div>
-							<button
-								type="button"
-								onclick={() => toggleExpanded(item.label)}
-								class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors font-medium text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-							>
-								<div class="flex items-center space-x-3">
-									<item.icon class="h-5 w-5 flex-shrink-0" />
-									<span>{item.label}</span>
-								</div>
-								{#if expandedItems.has(item.label)}
-									<ChevronDown class="h-4 w-4" />
-								{:else}
-									<ChevronRight class="h-4 w-4" />
-								{/if}
-							</button>
-							
-							{#if expandedItems.has(item.label)}
-								<div class="ml-6 mt-1 space-y-1">
-									{#each item.children as child}
-										<a
-											href={child.href}
-											class="flex items-center space-x-3 px-3 py-2 rounded-md text-sm transition-colors {isActive(child.href)
-												? 'bg-accent text-accent-foreground'
-												: 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'}"
-										>
-											<span class="text-xs">•</span>
-											<span>{child.label}</span>
-										</a>
-									{/each}
-								</div>
+		<Sidebar.Content>
+			<Sidebar.Group>
+				<Sidebar.GroupContent>
+					<Sidebar.Menu>
+						{#each navItems as item}
+							{#if item.children}
+								<!-- Collapsible menu item with children -->
+								<Collapsible.Root open={expandedItems.has(item.href)} class="group/collapsible">
+									<Sidebar.MenuItem>
+										<Collapsible.Trigger>
+											{#snippet child({ props })}
+												<Sidebar.MenuButton
+													{...props}
+													onclick={() => toggleExpanded(item.href)}
+												>
+													<item.icon />
+													<span>{item.label}</span>
+													{#if expandedItems.has(item.href)}
+														<ChevronDown class="ml-auto h-4 w-4 transition-transform" />
+													{:else}
+														<ChevronRight class="ml-auto h-4 w-4 transition-transform" />
+													{/if}
+												</Sidebar.MenuButton>
+											{/snippet}
+										</Collapsible.Trigger>
+										<Collapsible.Content>
+											<Sidebar.MenuSub>
+												{#each item.children as child}
+													<Sidebar.MenuSubItem>
+														<Sidebar.MenuSubButton
+															href={child.href}
+															isActive={isActive(child.href)}
+														>
+															<span class="text-xs">•</span>
+															<span>{child.label}</span>
+														</Sidebar.MenuSubButton>
+													</Sidebar.MenuSubItem>
+												{/each}
+											</Sidebar.MenuSub>
+										</Collapsible.Content>
+									</Sidebar.MenuItem>
+								</Collapsible.Root>
+							{:else}
+								<!-- Regular menu item -->
+								<Sidebar.MenuItem>
+									<Sidebar.MenuButton isActive={isActive(item.href)}>
+										{#snippet child({ props })}
+											<a href={item.href} {...props}>
+												<item.icon />
+												<span>{item.label}</span>
+											</a>
+										{/snippet}
+									</Sidebar.MenuButton>
+								</Sidebar.MenuItem>
 							{/if}
-						</div>
-					{:else}
-						<!-- Regular item -->
-						<a
-							href={item.href}
-							class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm transition-colors font-medium {isActive(item.href)
-								? 'bg-accent text-accent-foreground'
-								: 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'}"
-						>
-							<item.icon class="h-5 w-5 flex-shrink-0" />
-							<span>{item.label}</span>
-						</a>
-					{/if}
-				{/each}
-			</div>
-		</nav>
+						{/each}
+					</Sidebar.Menu>
+				</Sidebar.GroupContent>
+			</Sidebar.Group>
+			
+			<Sidebar.Separator />
+			
+			<!-- Bottom navigation items -->
+			<Sidebar.Group>
+				<Sidebar.GroupContent>
+					<Sidebar.Menu>
+						{#each bottomNavItems as item}
+							<Sidebar.MenuItem>
+								<Sidebar.MenuButton isActive={isActive(item.href)}>
+									{#snippet child({ props })}
+										<a href={item.href} {...props}>
+											<item.icon />
+											<span>{item.label}</span>
+										</a>
+									{/snippet}
+								</Sidebar.MenuButton>
+							</Sidebar.MenuItem>
+						{/each}
+					</Sidebar.Menu>
+				</Sidebar.GroupContent>
+			</Sidebar.Group>
+		</Sidebar.Content>
 		
-		<!-- Bottom Navigation Items -->
-		<div class="p-3 border-t border-border">
-			<div class="space-y-1">
-				{#each bottomNavItems as item}
-					<a
-						href={item.href}
-						class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm transition-colors font-medium {isActive(item.href)
-							? 'bg-accent text-accent-foreground'
-							: 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'}"
-					>
-						<item.icon class="h-5 w-5 flex-shrink-0" />
-						<span>{item.label}</span>
-					</a>
-				{/each}
-			</div>
-		</div>
-		
-		<!-- User Info & Logout -->
-		<div class="p-4 border-t border-border">
+		<Sidebar.Footer>
+			<!-- User info & logout -->
 			{#if authStore.currentUser.id}
-				<div class="mb-3 px-2">
+				<div class="mb-2 px-2">
 					<p class="text-sm font-medium truncate text-foreground">
 						{authStore.currentUser.name}
 					</p>
@@ -195,18 +207,18 @@
 				<LogOut class="h-4 w-4 mr-2" />
 				Logout
 			</Button>
-		</div>
-	</aside>
+		</Sidebar.Footer>
+		
+		<Sidebar.Rail />
+	</Sidebar.Root>
 	
-	<!-- Main Content -->
-	<main class="flex-1 overflow-y-auto bg-background">
-		{@render children()}
-	</main>
-</div>
-
-<style>
-	/* Custom hover effects */
-	:global(.hover\:bg-accent\/50:hover) {
-		background-color: hsl(var(--accent) / 0.5);
-	}
-</style>
+	<!-- Main content with trigger button -->
+	<Sidebar.Inset>
+		<header class="flex h-12 items-center px-4 border-b sticky top-0 bg-background z-10">
+			<Sidebar.Trigger />
+		</header>
+		<main class="p-4">
+			{@render children()}
+		</main>
+	</Sidebar.Inset>
+</Sidebar.Provider>
