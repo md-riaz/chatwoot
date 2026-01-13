@@ -74,25 +74,46 @@ After running `pnpm run check`, found **507 errors and 105 warnings** across **1
 
 **Card onclick issue**:
 ```svelte
-<!-- Current (incorrect) -->
+<!-- Current (type error) -->
 <Card.Root onclick={() => goto(stat.href)}>
 
-<!-- Correct approach -->
-<button type="button" onclick={() => goto(stat.href)} class="unstyled">
-  <Card.Root>
-    ...
-  </Card.Root>
-</button>
+<!-- ✅ Fix: Extend Card component Props to accept onclick -->
+<!-- In src/lib/components/ui/card/card.svelte -->
+<script lang="ts">
+  import { cn } from '$lib/utils';
+  import type { Snippet, HTMLAttributes } from 'svelte/elements';
+
+  type Props = HTMLAttributes<HTMLDivElement> & {
+    class?: string;
+    children?: Snippet;
+  };
+
+  let { class: className, children, ...restProps }: Props = $props();
+</script>
+
+<div
+  class={cn('rounded-lg border bg-card text-card-foreground shadow-sm', className)}
+  {...restProps}
+>
+  {#if children}
+    {@render children?.()}
+  {/if}
+</div>
 ```
 
 **Input type issue**:
 ```svelte
-<!-- Current (incorrect) -->
+<!-- Current (type error) -->
 <Input type="date" bind:value={startDate} />
 
-<!-- Correct approach -->
-<Input type="text" bind:value={startDate} />
-<!-- OR extend the Input component to accept date type -->
+<!-- ✅ Fix: Extend Input component type union -->
+<!-- In src/lib/components/ui/input/index.ts -->
+type Props = {
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' | 'date' | 'time' | 'datetime-local' | 'color';
+  class?: string;
+  value?: string;
+  // ... other props
+};
 ```
 
 ---
@@ -352,10 +373,13 @@ onMount(async () => {
 ## Conclusion
 
 The errors are systematic and follow predictable patterns. Most can be fixed with:
-1. Consistent use of runes (`$props()`, `$state()`, `$derived()`)
-2. Proper TypeScript type annotations
-3. Component API updates to accept correct props
-4. Accessibility improvements
+1. **Extend shadcn-svelte components** instead of falling back to native HTML
+2. Consistent use of runes (`$props()`, `$state()`, `$derived()`)
+3. Proper TypeScript type annotations for event handlers
+4. Component Props extensions to accept HTML attributes
+5. Accessibility improvements
+
+**shadcn-svelte Focus**: This project uses shadcn-svelte (built on bits-ui). Always extend existing components rather than using native HTML elements.
 
 **Story files removed**: 83 files deleted, reducing errors by 276 (31%)
 

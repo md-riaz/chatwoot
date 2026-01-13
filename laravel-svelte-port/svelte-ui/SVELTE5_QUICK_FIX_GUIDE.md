@@ -4,6 +4,25 @@ Quick reference for the most common Svelte 5 migration fixes based on llms.txt d
 
 **Note**: Story/Histoire files have been removed (83 files, 276 errors eliminated). This guide focuses on production component fixes.
 
+## 🎨 About shadcn-svelte Components
+
+This project uses **[shadcn-svelte](https://www.shadcn-svelte.com/)** components built on **[bits-ui](https://www.bits-ui.com/)** primitives. When fixing type errors:
+
+✅ **DO**: Extend shadcn-svelte components to accept additional props  
+✅ **DO**: Use shadcn-svelte components consistently (Input, Select, Card, etc.)  
+✅ **DO**: Add proper TypeScript types to component Props  
+❌ **DON'T**: Fall back to native HTML elements (`<input>`, `<select>`)  
+❌ **DON'T**: Wrap shadcn components unnecessarily  
+
+**Key Resources**:
+- shadcn-svelte docs: https://www.shadcn-svelte.com/docs/components
+- bits-ui docs: https://www.bits-ui.com/docs/components
+- Component locations: `src/lib/components/ui/`
+
+---
+
+---
+
 ## 1. Replace `export let` with `$props()` (LEGACY PATTERN - Mostly in story files)
 
 **Note**: This pattern was primarily in story files which have been removed. Production components mostly already use proper prop patterns.
@@ -86,33 +105,52 @@ Quick reference for the most common Svelte 5 migration fixes based on llms.txt d
 
 ---
 
-## 4. Fix Component Props That Don't Accept onclick
+## 4. Extend shadcn-svelte Components for Event Handlers
 
-### ❌ onclick on Card
+### ❌ onclick on Card (Type Error)
 ```svelte
 <Card.Root onclick={() => navigate()}>
   <Card.Header>...</Card.Header>
 </Card.Root>
 ```
 
-### ✅ Wrap in button or add to inner element
-```svelte
-<!-- Option 1: Wrap in button -->
-<button type="button" onclick={() => navigate()}>
-  <Card.Root>
-    <Card.Header>...</Card.Header>
-  </Card.Root>
-</button>
+### ✅ Extend Card component to accept HTML attributes
+Update the Card component to accept all standard HTML div attributes:
 
-<!-- Option 2: Add to Card.Header -->
-<Card.Root>
-  <Card.Header onclick={() => navigate()}>...</Card.Header>
+```svelte
+<!-- src/lib/components/ui/card/card.svelte -->
+<script lang="ts">
+  import { cn } from '$lib/utils';
+  import type { Snippet, HTMLAttributes } from 'svelte/elements';
+
+  type Props = HTMLAttributes<HTMLDivElement> & {
+    class?: string;
+    children?: Snippet;
+  };
+
+  let { class: className, children, ...restProps }: Props = $props();
+</script>
+
+<div
+  class={cn('rounded-lg border bg-card text-card-foreground shadow-sm', className)}
+  {...restProps}
+>
+  {#if children}
+    {@render children?.()}
+  {/if}
+</div>
+```
+
+Then use normally:
+```svelte
+<Card.Root onclick={() => navigate()}>
+  <Card.Header>...</Card.Header>
 </Card.Root>
 ```
 
 ---
 
-## 5. Fix Input Type Restrictions
+## 5. Extend Input Component for Additional Types
 
 ### ❌ Type not in union
 ```svelte
@@ -120,18 +158,37 @@ Quick reference for the most common Svelte 5 migration fixes based on llms.txt d
 <Input type="color" bind:value={color} />
 ```
 
-### ✅ Option 1: Use native element
-```svelte
-<input type="date" bind:value={date} class="..." />
-<input type="color" bind:value={color} class="..." />
+### ✅ Extend Input component type definition
+Update the Input component's Props type to include additional input types:
+
+```typescript
+// src/lib/components/ui/input/index.ts
+type Props = {
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' 
+    | 'date' | 'time' | 'datetime-local' | 'month' | 'week' | 'color' 
+    | 'file' | 'range' | 'hidden';
+  class?: string;
+  value?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  required?: boolean;
+  name?: string;
+  id?: string;
+  min?: string | number;  // Add for date/number inputs
+  max?: string | number;  // Add for date/number inputs
+  step?: string | number; // Add for number/range inputs
+  accept?: string;        // Add for file inputs
+  'aria-label'?: string;
+  'aria-describedby'?: string;
+};
 ```
 
-### ✅ Option 2: Extend Input component
-```typescript
-// In Input component
-interface InputProps extends HTMLAttributes<HTMLInputElement> {
-  type?: 'text' | 'email' | 'password' | 'number' | 'search' | 'tel' | 'url' | 'date' | 'color';
-}
+Then use the shadcn-svelte Input component normally:
+```svelte
+<Input type="date" bind:value={date} class="w-40" />
+<Input type="color" bind:value={color} />
+<Input type="number" min="0" max="100" bind:value={count} />
 ```
 
 ---
@@ -173,7 +230,60 @@ const name = $derived(user?.profile?.name ?? 'Guest');
 
 ---
 
-## 8. Replace Deprecated Event Directives
+## 8. Extend DropdownMenuItem for onclick Support
+
+### ❌ onclick not supported
+```svelte
+<DropdownMenuItem onclick={handleAction}>
+  Action Item
+</DropdownMenuItem>
+```
+
+### ✅ Extend DropdownMenuItem component
+shadcn-svelte dropdown menu is built on bits-ui which uses `onselect` instead of `onclick`. Update the component to support the familiar `onclick` pattern:
+
+```svelte
+<!-- src/lib/components/ui/dropdown-menu/dropdown-menu-item.svelte -->
+<script lang="ts">
+  import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
+  import { cn } from '$lib/utils';
+  import type { Snippet } from 'svelte';
+
+  type Props = {
+    class?: string;
+    inset?: boolean;
+    children?: Snippet;
+    onclick?: () => void;  // Add onclick support
+    disabled?: boolean;
+  };
+
+  let { 
+    class: className, 
+    inset = false, 
+    children, 
+    onclick,
+    ...restProps 
+  }: Props = $props();
+</script>
+
+<DropdownMenuPrimitive.Item
+  class={cn(
+    'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+    inset && 'pl-8',
+    className
+  )}
+  onselect={onclick}  {/* Map onclick to bits-ui's onselect */}
+  {...restProps}
+>
+  {#if children}
+    {@render children()}
+  {/if}
+</DropdownMenuPrimitive.Item>
+```
+
+---
+
+## 9. Replace Deprecated Event Directives
 
 ### ❌ Old directive syntax
 ```svelte
@@ -187,7 +297,7 @@ const name = $derived(user?.profile?.name ?? 'Guest');
 
 ---
 
-## 9. Fix Accessibility Issues
+## 10. Fix Accessibility Issues
 
 ### ❌ div with onclick
 ```svelte
@@ -217,7 +327,7 @@ const name = $derived(user?.profile?.name ?? 'Guest');
 
 ---
 
-## 10. Fix CSS Line-Clamp
+## 11. Fix CSS Line-Clamp
 
 ### ❌ Webkit only
 ```css
@@ -240,7 +350,7 @@ const name = $derived(user?.profile?.name ?? 'Guest');
 
 ---
 
-## 11. Fix Non-Reactive State
+## 12. Fix Non-Reactive State
 
 ### ❌ Not wrapped in $state
 ```svelte
@@ -266,7 +376,7 @@ const name = $derived(user?.profile?.name ?? 'Guest');
 
 ---
 
-## 12. Fix Component Prop Restrictions
+## 13. Fix Component Prop Restrictions
 
 ### Common issues and solutions
 

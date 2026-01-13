@@ -50,6 +50,56 @@
 1. **src/routes/app/accounts/[accountId]/campaigns/+page.svelte**
    - Lines 131, 134, 137, 179, 182, 185: DropdownMenuItem doesn't accept onclick
 
+**Root Cause**: shadcn-svelte DropdownMenuItem is based on bits-ui which uses `onselect` callback, not `onclick`.
+
+**✅ Fix: Update dropdown-menu-item.svelte to support onclick**:
+
+```svelte
+<!-- src/lib/components/ui/dropdown-menu/dropdown-menu-item.svelte -->
+<script lang="ts">
+  import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
+  import { cn } from '$lib/utils';
+  import type { Snippet } from 'svelte';
+
+  type Props = {
+    class?: string;
+    inset?: boolean;
+    children?: Snippet;
+    onclick?: () => void;  // Add onclick support
+    disabled?: boolean;
+  };
+
+  let { 
+    class: className, 
+    inset = false, 
+    children, 
+    onclick,
+    ...restProps 
+  }: Props = $props();
+</script>
+
+<DropdownMenuPrimitive.Item
+  class={cn(
+    'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+    inset && 'pl-8',
+    className
+  )}
+  onselect={onclick}  {/* Map onclick to onselect */}
+  {...restProps}
+>
+  {#if children}
+    {@render children()}
+  {/if}
+</DropdownMenuPrimitive.Item>
+```
+
+Then use normally:
+```svelte
+<DropdownMenuItem onclick={handleAction}>
+  Action Item
+</DropdownMenuItem>
+```
+
 ### Switch/Checkbox id Issues
 1. **src/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte**
    - Lines 553, 601, 768, 892: Switch doesn't accept id
