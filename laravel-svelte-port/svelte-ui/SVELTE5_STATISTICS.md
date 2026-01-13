@@ -1,61 +1,60 @@
 # Svelte 5 Error Distribution & Statistics
 
-Visual breakdown of the 888 total issues found in the svelte-ui codebase.
+Visual breakdown of the 612 total issues found in the svelte-ui codebase (after removing story files).
+
+**Story Files Removed**: 83 files deleted, eliminating 276 errors (31% reduction)
 
 ## 📊 Error Distribution by Category
 
 ```
-Total Issues: 888
-├─ Errors: 774 (87%)
-└─ Warnings: 114 (13%)
+Total Issues: 612
+├─ Errors: 507 (83%)
+└─ Warnings: 105 (17%)
 ```
 
 ### By Severity
 
 ```
-🔴 CRITICAL (130 issues - 15%)
-├─ Legacy export let pattern: 50+
-├─ Sidebar missing exports: 30+
+🔴 CRITICAL (30 issues - 5%)
 ├─ Type mismatches: 20+
 ├─ Snake_case properties: 10+
-└─ Other critical: 20+
 
-🟠 HIGH (180 issues - 20%)
+🟠 HIGH (180 issues - 29%)
 ├─ Component prop types: 100+
 ├─ Event handler types: 40+
 ├─ Non-bindable properties: 15+
 └─ Other high: 25+
 
-🟡 MEDIUM (120 issues - 14%)
+🟡 MEDIUM (120 issues - 20%)
 ├─ Accessibility warnings: 60+
 ├─ Route type issues: 20+
 ├─ Binding issues: 15+
 └─ Other medium: 25+
 
-🟢 LOW (458 issues - 51%)
+🟢 LOW (282 issues - 46%)
 ├─ CSS compatibility: 5+
 ├─ Deprecated patterns: 2+
 ├─ Unused selectors: 10+
 ├─ Other warnings: 40+
-└─ Various minor issues: 400+
+└─ Various minor issues: 225+
 ```
 
 ## 📈 Issues by File Type
 
 ```
 Story Files (.story.svelte)
-├─ Files: ~15
-├─ Issues: ~120
-└─ Main: Histoire missing, export let
+├─ Files: 0 (removed)
+├─ Issues: 0 (resolved)
+└─ Status: ✅ All story files deleted
 
 Route Files (+page.svelte)
 ├─ Files: ~50
-├─ Issues: ~350
+├─ Issues: ~300
 └─ Main: Props, types, accessibility
 
 Component Files (components/)
-├─ Files: ~150
-├─ Issues: ~280
+├─ Files: ~100
+├─ Issues: ~200
 └─ Main: Props, types, bindings
 
 Layout Files (+layout.svelte)
@@ -65,15 +64,14 @@ Layout Files (+layout.svelte)
 
 Other Files
 ├─ Files: ~20
-├─ Issues: ~118
+├─ Issues: ~112
 └─ Main: Various
 ```
 
 ## 🎯 Error Density by Directory
 
 ```
-High Density (>10 errors/file)
-├─ src/lib/components/ui/sidebar/
+High Density (>5 errors/file)
 ├─ src/routes/app/accounts/[accountId]/settings/
 └─ src/routes/app/super_admin/
 
@@ -94,34 +92,34 @@ Low Density (<5 errors/file)
 |------|-------|-------|---------|
 | 1 | `onclick` not in Props | ~80 | Card.Root, DropdownMenuItem |
 | 2 | Parameter 'e' implicitly any | ~40 | Event handlers missing types |
-| 3 | Property does not exist | ~35 | Sidebar.Nav, Sidebar.Section |
-| 4 | Cannot use export let | ~50 | Must use $props() |
-| 5 | Type not assignable | ~30 | Input type restrictions |
-| 6 | Cannot use bind: | ~15 | Non-bindable properties |
-| 7 | Property possibly undefined | ~20 | $page.params.id |
-| 8 | a11y_click_events | ~30 | Missing keyboard handlers |
-| 9 | a11y_no_static_element | ~30 | Missing ARIA roles |
-| 10 | Property snake_case | ~10 | phone_number vs phoneNumber |
+| 3 | Type not assignable | ~30 | Input type restrictions |
+| 4 | Cannot use bind: | ~15 | Non-bindable properties |
+| 5 | Property possibly undefined | ~20 | $page.params.id |
+| 6 | a11y_click_events | ~30 | Missing keyboard handlers |
+| 7 | a11y_no_static_element | ~30 | Missing ARIA roles |
+| 8 | Property snake_case | ~10 | phone_number vs phoneNumber |
+| 9 | CSS compatibility | ~5 | -webkit-line-clamp |
+| 10 | Deprecated patterns | ~2 | on:submit directive |
 
 ## 📉 Estimated Error Reduction by Phase
 
 ```
-Initial State: 888 issues
+Initial State: 612 issues (after story removal)
 │
 ├─ Phase 1: Critical Fixes
-│  ├─ Duration: 1-2 days
-│  ├─ Fixes: ~288 issues
-│  └─ Remaining: ~600 issues (68%)
+│  ├─ Duration: 1 day
+│  ├─ Fixes: ~62 issues
+│  └─ Remaining: ~550 issues (90%)
 │
 ├─ Phase 2: Component Props
 │  ├─ Duration: 2-3 days
 │  ├─ Fixes: ~200 issues
-│  └─ Remaining: ~400 issues (45%)
+│  └─ Remaining: ~350 issues (57%)
 │
 ├─ Phase 3: Type Safety
 │  ├─ Duration: 1-2 days
-│  ├─ Fixes: ~300 issues
-│  └─ Remaining: ~100 issues (11%)
+│  ├─ Fixes: ~250 issues
+│  └─ Remaining: ~100 issues (16%)
 │
 └─ Phase 4: Polish
    ├─ Duration: 1-2 days
@@ -132,100 +130,91 @@ Initial State: 888 issues
 ## 🎨 Error Categories Visual
 
 ```
-Component Issues (40%)     ████████████████████████████████████████
-├─ Props not accepted (25%)     █████████████████████████████
-├─ Missing exports (8%)         ████████
-└─ Type restrictions (7%)       ███████
+Component Issues (45%)     █████████████████████████████████████████████
+├─ Props not accepted (30%)     ██████████████████████████████
+└─ Type restrictions (15%)      ███████████████
 
-Type Safety (25%)          █████████████████████████████
+Type Safety (25%)          █████████████████████████
 ├─ Missing annotations (15%)    ███████████████
-├─ Type mismatches (7%)         ███████
-└─ Undefined checks (3%)        ███
+└─ Type mismatches (10%)        ██████████
 
-Legacy Patterns (15%)      ███████████████
-├─ export let (10%)             ██████████
-└─ Event directives (5%)        █████
+Accessibility (17%)        █████████████████
+├─ Click handlers (10%)         ██████████
+└─ ARIA (7%)                    ███████
 
-Accessibility (13%)        █████████████
-├─ Click handlers (7%)          ███████
-└─ ARIA (6%)                    ██████
-
-Other (7%)                 ███████
+Other (13%)                █████████████
 ├─ CSS (1%)                     █
 ├─ Naming (2%)                  ██
-└─ Misc (4%)                    ████
+└─ Misc (10%)                   ██████████
 ```
 
-## 📋 Files Requiring Most Fixes
+## 📋 Files Requiring Most Fixes (After Story Removal)
 
 | File | Errors | Warnings | Total |
 |------|--------|----------|-------|
-| Sidebar.story.svelte | 45 | 2 | 47 |
 | campaigns/+page.svelte | 38 | 16 | 54 |
-| companies/+page.svelte | 25 | 8 | 33 |
-| contacts/+page.svelte | 22 | 0 | 22 |
 | inboxes/new/+page.svelte | 35 | 3 | 38 |
-| [id]/edit/+page.svelte (accounts) | 18 | 2 | 20 |
+| companies/+page.svelte | 25 | 8 | 33 |
 | settings/+page.svelte (super_admin) | 28 | 4 | 32 |
-| WhatsAppTemplateParser.svelte | 16 | 0 | 16 |
-| Table.story.svelte | 12 | 5 | 17 |
 | agent-bots/[id]/+page.svelte | 20 | 10 | 30 |
+| contacts/+page.svelte | 22 | 0 | 22 |
+| [id]/edit/+page.svelte (accounts) | 18 | 2 | 20 |
+| WhatsAppTemplateParser.svelte | 16 | 0 | 16 |
+
+**Note**: Story files previously in top 10 have been removed.
 
 ## 💡 Fix Efficiency Analysis
 
 ### If Fixed by Category (Recommended)
 ```
 Time per category: ~1-2 days
-Total time: 7-9 days
+Total time: 6-8 days
 Efficiency: ⭐⭐⭐⭐⭐
 ```
 
 ### If Fixed by File
 ```
 Time per file: ~10-30 min/file
-Total files: 243
-Total time: 40-120 hours (5-15 days)
+Total files: 178 (after story removal)
+Total time: 30-90 hours (4-11 days)
 Efficiency: ⭐⭐
 ```
 
 ### If Fixed Randomly
 ```
 Time per issue: ~2-5 min
-Total issues: 888
-Total time: 30-75 hours (4-9 days)
+Total issues: 612
+Total time: 20-50 hours (3-6 days)
 Efficiency: ⭐
 ```
 
 ## 🚀 Quick Wins (High Impact, Low Effort)
 
-1. **Fix export let** (50 files, 1 day)
-   - Pattern: Simple find & replace
-   - Impact: Fixes ~50 errors
-   - Difficulty: ⭐
-
-2. **Add event types** (40 files, 0.5 day)
+1. **Add event types** (40 files, 0.5 day)
    - Pattern: Add type annotations
    - Impact: Fixes ~40 errors
    - Difficulty: ⭐
 
-3. **Fix snake_case** (10 files, 0.5 day)
+2. **Fix snake_case** (10 files, 0.5 day)
    - Pattern: API transformation
    - Impact: Fixes ~10 errors
    - Difficulty: ⭐
 
-4. **Add Sidebar exports** (1 file, 0.25 day)
-   - Pattern: Update index.ts
-   - Impact: Fixes ~30 errors
+3. **Fix type mismatches** (20 files, 0.5 day)
+   - Pattern: Add null checks
+   - Impact: Fixes ~20 errors
    - Difficulty: ⭐
 
-Total Quick Wins: ~130 errors in 2.25 days! 🎉
+Total Quick Wins: ~70 errors in 1.5 days! 🎉
+
+**Note**: Story files (276 errors) already removed ✅
 
 ## 📊 Success Metrics
 
 ### Target Milestones
 
-- **Week 1**: 888 → 600 issues (67% remaining)
-- **Week 2**: 600 → 200 issues (23% remaining)
+- **Week 1**: 612 → 550 issues (90% remaining)
+- **Week 2**: 550 → 200 issues (33% remaining)
 - **Week 3**: 200 → 0 issues (0% remaining) ✅
 
 ### Quality Gates
@@ -266,6 +255,7 @@ Total Quick Wins: ~130 errors in 2.25 days! 🎉
 ---
 
 **Generated**: 2026-01-13  
-**Source**: `pnpm run check` output  
-**Total Issues**: 888 (774 errors + 114 warnings)  
+**Updated**: After story file removal  
+**Total Issues**: 612 (507 errors + 105 warnings)  
+**Story Files Removed**: 83 files (276 errors eliminated)  
 **Status**: Ready for implementation

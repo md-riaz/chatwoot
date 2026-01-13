@@ -1,40 +1,26 @@
 # Svelte 5 Error Analysis for Chatwoot Migration
 
 ## Executive Summary
-After running `pnpm run check`, found **774 errors and 114 warnings** across **243 files** in the svelte-ui directory. The errors are primarily related to Svelte 5 migration issues where legacy Svelte 4 patterns are being used instead of the new runes-based system.
+After running `pnpm run check`, found **507 errors and 105 warnings** across **178 files** in the svelte-ui directory. The errors are primarily related to Svelte 5 migration issues where legacy Svelte 4 patterns are being used instead of the new runes-based system.
+
+**Note**: Story/Histoire files have been removed (83 files) as they are not needed for production components, reducing the error count by 276 issues (31%).
 
 ## Error Categories & Root Causes
 
-### 1. **Legacy `export let` Pattern (CRITICAL - Most Common)**
-**Count**: ~50+ occurrences
-**Error**: `Cannot use 'export let' in runes mode — use '$props()' instead`
+### 1. **Component Prop Type Issues (CRITICAL - Most Common)**
+**Count**: ~100+ occurrences
+**Error**: `Object literal may only specify known properties, and 'X' does not exist in type 'Props'`
 
-**Root Cause**: Svelte 5 deprecates the `export let` pattern for props in favor of the `$props()` rune.
+**Root Cause**: Props being passed to components that don't accept them according to their TypeScript definitions.
 
-**Affected Files**:
-- `src/lib/components/ui/sidebar/Sidebar.story.svelte`
-- `src/lib/components/ui/switch/Switch.story.svelte`
-- `src/lib/components/ui/textarea/Textarea.story.svelte`
-
-**Svelte 4 Pattern**:
-```svelte
-<script lang="ts">
-  import type { Hst } from '@histoire/plugin-svelte';
-  export let Hst: Hst;
-</script>
-```
-
-**Svelte 5 Correct Pattern (from llms.txt)**:
-```svelte
-<script lang="ts">
-  import type { Hst } from '@histoire/plugin-svelte';
-  let { Hst } = $props<{ Hst: Hst }>();
-</script>
-```
-
----
-
-### 2. **Missing Type Annotations for Event Handlers**
+**Common Issues**:
+- `onclick` not recognized on Card, DropdownMenuItem components
+- `id` prop not accepted by Switch, Checkbox components
+- `align` prop not accepted by DropdownMenuContent
+- `colspan` not accepted by Table.Cell
+- `oninput` not accepted by Input components
+- `min` attribute not accepted by Input
+- `type="date"` and `type="color"` not in type union
 **Count**: ~40+ occurrences
 **Error**: `Parameter 'e' implicitly has an 'any' type`
 
@@ -63,7 +49,7 @@ After running `pnpm run check`, found **774 errors and 114 warnings** across **2
 
 ---
 
-### 3. **Incorrect Component Prop Types**
+### 2. **Missing Type Annotations for Event Handlers**
 **Count**: ~100+ occurrences
 **Error**: `Object literal may only specify known properties, and 'X' does not exist in type 'Props'`
 
@@ -111,40 +97,24 @@ After running `pnpm run check`, found **774 errors and 114 warnings** across **2
 
 ---
 
-### 4. **Missing Component Exports from Sidebar**
-**Count**: ~30+ occurrences
+### 3. **Missing Component Exports from Sidebar**
+**Count**: ~30+ occurrences (if Sidebar stories were present)
 **Error**: `Property 'Nav' does not exist on type 'typeof import(...)'`
 
-**Root Cause**: Sidebar components (Nav, Section, NavItem) are not exported from the Sidebar index.
-
-**Affected Files**:
-- `src/lib/components/ui/sidebar/Sidebar.story.svelte`
+**Root Cause**: Sidebar components (Nav, Section, NavItem) may not be exported from the Sidebar index.
 
 **Missing Exports**:
 - `Sidebar.Nav`
 - `Sidebar.Section`
 - `Sidebar.NavItem`
 
-**Fix**: Check `src/lib/components/ui/sidebar/index.ts` and ensure these components are exported.
+**Fix**: Check `src/lib/components/ui/sidebar/index.ts` and ensure these components are exported if needed.
+
+**Note**: This was primarily affecting story files which have been removed.
 
 ---
 
-### 5. **Historie/Storybook Integration Issues**
-**Count**: ~20+ occurrences
-**Error**: `Cannot find module '@histoire/plugin-svelte'`
-
-**Root Cause**: `@histoire/plugin-svelte` is not installed as a dependency.
-
-**Affected Files**:
-- All `.story.svelte` files
-
-**Fix Options**:
-1. Install the missing package: `pnpm add -D @histoire/plugin-svelte`
-2. Remove/refactor story files if Histoire is not being used
-
----
-
-### 6. **Non-Bindable Properties**
+### 4. **Non-Bindable Properties**
 **Count**: ~15+ occurrences
 **Error**: `Cannot use 'bind:' with this property. It is declared as non-bindable`
 
@@ -174,7 +144,7 @@ After running `pnpm run check`, found **774 errors and 114 warnings** across **2
 
 ---
 
-### 7. **Snake_case vs camelCase Property Names**
+### 5. **Snake_case vs camelCase Property Names**
 **Count**: ~10+ occurrences
 **Error**: `Property 'phone_number' does not exist. Did you mean 'phoneNumber'?`
 
@@ -193,7 +163,7 @@ After running `pnpm run check`, found **774 errors and 114 warnings** across **2
 
 ---
 
-### 8. **Accessibility Warnings**
+### 6. **Accessibility Warnings**
 **Count**: ~60+ warnings
 **Warning Types**:
 - `a11y_click_events_have_key_events`
@@ -228,7 +198,7 @@ After running `pnpm run check`, found **774 errors and 114 warnings** across **2
 
 ---
 
-### 9. **CSS Compatibility Warnings**
+### 7. **CSS Compatibility Warnings**
 **Count**: ~5+ warnings
 **Warning**: `Also define the standard property 'line-clamp' for compatibility`
 
@@ -255,7 +225,7 @@ After running `pnpm run check`, found **774 errors and 114 warnings** across **2
 
 ---
 
-### 10. **Type Mismatch Issues**
+### 8. **Type Mismatch Issues**
 **Count**: ~20+ occurrences
 **Error Types**:
 - Type 'string | undefined' not assignable to 'string'
@@ -278,7 +248,7 @@ const conversationId = $derived(parseInt($page.params.id ?? '0'));
 
 ---
 
-### 11. **Effect/Mount Async Issues**
+### 9. **Effect/Mount Async Issues**
 **Count**: ~3 occurrences
 **Error**: Return type of async function not matching expected
 
@@ -297,7 +267,7 @@ onMount(async () => {
 
 ---
 
-### 12. **Deprecated Event Directive**
+### 10. **Deprecated Event Directive**
 **Count**: ~2 occurrences
 **Warning**: `Using 'on:submit' to listen to the submit event is deprecated`
 
@@ -316,10 +286,9 @@ onMount(async () => {
 ## Priority Fixes
 
 ### High Priority (Breaking Functionality)
-1. **Export let → $props()** - Prevents components from receiving props
-2. **Missing Sidebar exports** - Breaks Sidebar component usage
-3. **Type mismatches** - Causes runtime errors
-4. **Snake_case properties** - Breaks data binding
+1. **Type mismatches** - Causes runtime errors
+2. **Snake_case properties** - Breaks data binding
+3. **Component prop types** - Blocks component usage
 
 ### Medium Priority (Type Safety)
 1. **Event handler type annotations** - TypeScript errors
@@ -335,9 +304,9 @@ onMount(async () => {
 
 ## Recommended Fix Strategy
 
-### Phase 1: Critical Fixes (1-2 days)
-1. Convert all `export let` to `$props()`
-2. Fix Sidebar component exports
+### Phase 1: Critical Fixes (1 day)
+1. Resolve snake_case vs camelCase issues
+2. Fix type mismatches in route params
 3. Resolve snake_case vs camelCase issues
 4. Fix type mismatches in route params
 
@@ -388,4 +357,6 @@ The errors are systematic and follow predictable patterns. Most can be fixed wit
 3. Component API updates to accept correct props
 4. Accessibility improvements
 
-Estimated total effort: **7-9 days** for complete resolution.
+**Story files removed**: 83 files deleted, reducing errors by 276 (31%)
+
+Estimated total effort: **6-8 days** for complete resolution.

@@ -26,24 +26,24 @@ This directory contains comprehensive documentation for migrating the Chatwoot s
 ### Raw Data
 - **[SVELTE5_CHECK_OUTPUT.txt](SVELTE5_CHECK_OUTPUT.txt)** - Raw check output
   - Complete output from `pnpm run check`
-  - 774 errors and 114 warnings
+  - 507 errors and 105 warnings
   - Reference for verification
 
 ## 🎯 Error Summary
 
 | Category | Count | Priority | Estimated Time |
 |----------|-------|----------|----------------|
-| Legacy `export let` pattern | 50+ | Critical | 1 day |
 | Component prop type issues | 100+ | High | 2-3 days |
 | Missing type annotations | 40+ | High | 1 day |
-| Missing Sidebar exports | 30+ | Critical | 0.5 day |
 | Accessibility warnings | 60+ | Medium | 1-2 days |
 | Snake_case naming issues | 10+ | Critical | 0.5 day |
 | Type mismatches | 20+ | High | 1 day |
 | CSS compatibility | 5+ | Low | 0.5 day |
-| Other issues | 450+ | Various | 1-2 days |
+| Other issues | 350+ | Various | 1-2 days |
 
-**Total**: 774 errors + 114 warnings = **888 issues**
+**Total**: 507 errors + 105 warnings = **612 issues**
+
+**Note**: Story/Histoire files have been removed as they are not needed for production components.
 
 ## 🚀 Quick Fix Examples
 
@@ -121,24 +121,22 @@ pnpm run check:watch
 
 Track progress by running `pnpm run check` after each fix batch:
 
-- [ ] **Phase 1: Critical Fixes** (774 errors → ~600 errors)
-  - [ ] Convert `export let` to `$props()`
-  - [ ] Fix Sidebar exports
+- [ ] **Phase 1: Critical Fixes** (612 issues → ~550 issues)
   - [ ] Fix snake_case properties
   - [ ] Fix type mismatches
 
-- [ ] **Phase 2: Component Props** (~600 errors → ~400 errors)
+- [ ] **Phase 2: Component Props** (~550 issues → ~350 issues)
   - [ ] Update Input component types
   - [ ] Fix Card/Button onclick patterns
   - [ ] Fix Select.Root bindings
   - [ ] Add missing prop types
 
-- [ ] **Phase 3: Type Safety** (~400 errors → ~100 errors)
+- [ ] **Phase 3: Type Safety** (~350 issues → ~100 issues)
   - [ ] Add event handler types
   - [ ] Fix async returns
   - [ ] Add undefined checks
 
-- [ ] **Phase 4: Polish** (~100 errors → 0 errors)
+- [ ] **Phase 4: Polish** (~100 issues → 0 issues)
   - [ ] Fix accessibility
   - [ ] Add CSS compatibility
   - [ ] Update deprecated patterns
@@ -200,4 +198,5 @@ Example commit messages:
 
 **Last Updated**: 2026-01-13  
 **Status**: Analysis Complete, Implementation Pending  
-**Total Issues**: 888 (774 errors + 114 warnings)
+**Total Issues**: 612 (507 errors + 105 warnings)  
+**Note**: Story files removed - not needed for production

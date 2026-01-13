@@ -5,12 +5,14 @@
 ## 📋 What Happened?
 
 Ran `pnpm run check` on the svelte-ui codebase and found:
-- **774 errors**
-- **114 warnings** 
-- **243 files** affected
-- **888 total issues** to fix
+- **507 errors**
+- **105 warnings** 
+- **178 files** affected
+- **612 total issues** to fix
 
 All errors analyzed, categorized, and documented with fixes.
+
+**Note**: Story/Histoire files have been removed as they are not needed for production components.
 
 ## 📚 Documentation Files (Read in Order)
 
@@ -54,13 +56,12 @@ Fix these first for maximum impact with minimum effort:
 
 | Fix | Files | Errors | Time | Difficulty |
 |-----|-------|--------|------|------------|
-| 1. `export let` → `$props()` | 50 | 50+ | 1 day | ⭐ |
-| 2. Event handler types | 40 | 40+ | 0.5 day | ⭐ |
-| 3. Snake_case properties | 10 | 10+ | 0.5 day | ⭐ |
-| 4. Sidebar exports | 1 | 30+ | 0.25 day | ⭐ |
-| **Total** | **101** | **130+** | **2.25 days** | **Easy** |
+| 1. Event handler types | 40 | 40+ | 0.5 day | ⭐ |
+| 2. Snake_case properties | 10 | 10+ | 0.5 day | ⭐ |
+| 3. Type mismatches | 20 | 20+ | 0.5 day | ⭐ |
+| **Total** | **70** | **70+** | **1.5 days** | **Easy** |
 
-**Result**: 130 errors fixed (15% of total) in just 2.25 days!
+**Result**: 70 errors fixed (11% of total) in just 1.5 days!
 
 ## 📖 Essential Svelte 5 Patterns
 
@@ -103,15 +104,14 @@ Fix these first for maximum impact with minimum effort:
 ## 🗺️ Implementation Roadmap
 
 ```
-888 issues (current)
+612 issues (current)
   ↓
 Phase 1: Critical (1-2 days)
-  ├─ export let → $props() (50 files)
-  ├─ Sidebar exports (1 file)
   ├─ Snake_case props (10 files)
-  └─ Type mismatches (20 files)
+  ├─ Type mismatches (20 files)
+  └─ Sidebar exports (if needed)
   ↓
-600 issues (32% reduction) ✅
+550 issues (10% reduction) ✅
   ↓
 Phase 2: Component Props (2-3 days)
   ├─ Input types (date, color)
@@ -119,14 +119,14 @@ Phase 2: Component Props (2-3 days)
   ├─ Select.Root bindings
   └─ Missing prop types
   ↓
-400 issues (55% reduction) ✅
+350 issues (43% reduction) ✅
   ↓
 Phase 3: Type Safety (1-2 days)
   ├─ Event handler types (40 files)
   ├─ Async return types
   └─ Undefined checks
   ↓
-100 issues (89% reduction) ✅
+100 issues (84% reduction) ✅
   ↓
 Phase 4: Polish (1-2 days)
   ├─ Accessibility (60+ files)
@@ -136,7 +136,7 @@ Phase 4: Polish (1-2 days)
 0 issues (100% complete!) 🎉
 ```
 
-**Total Time**: 7-9 days
+**Total Time**: 6-8 days
 
 ## ✅ How to Verify Your Fixes
 
@@ -153,9 +153,9 @@ pnpm run check:watch
 ```
 
 Track error count reduction:
-- **Start**: 888 issues
-- **Phase 1**: ~600 issues (target)
-- **Phase 2**: ~400 issues (target)
+- **Start**: 612 issues
+- **Phase 1**: ~550 issues (target)
+- **Phase 2**: ~350 issues (target)
 - **Phase 3**: ~100 issues (target)
 - **Phase 4**: 0 issues (goal!)
 
@@ -209,6 +209,7 @@ Migration is complete when:
 
 **Last Updated**: 2026-01-13  
 **Status**: Analysis Complete - Ready for Implementation  
-**Total Issues**: 888 (774 errors + 114 warnings)  
-**Estimated Effort**: 7-9 days  
-**Quick Wins Available**: 130 errors in 2.25 days
+**Total Issues**: 612 (507 errors + 105 warnings)  
+**Estimated Effort**: 6-8 days  
+**Quick Wins Available**: 70 errors in 1.5 days  
+**Note**: Story files removed (not needed for production)

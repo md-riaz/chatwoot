@@ -2,7 +2,11 @@
 
 Quick reference for the most common Svelte 5 migration fixes based on llms.txt documentation.
 
-## 1. Replace `export let` with `$props()`
+**Note**: Story/Histoire files have been removed (83 files, 276 errors eliminated). This guide focuses on production component fixes.
+
+## 1. Replace `export let` with `$props()` (LEGACY PATTERN - Mostly in story files)
+
+**Note**: This pattern was primarily in story files which have been removed. Production components mostly already use proper prop patterns.
 
 ### ❌ Old (Svelte 4)
 ```svelte
@@ -314,12 +318,14 @@ Look for reduction in error count. Aim to fix errors by category for efficiency.
 
 ## Priority Order for Fixes
 
-1. **Critical**: `export let` → `$props()` (breaks component functionality)
-2. **Critical**: Type mismatches (runtime errors)
+1. **Critical**: Type mismatches (runtime errors)
+2. **Critical**: Snake_case properties (data binding)
 3. **High**: Event handler type annotations (type safety)
 4. **High**: Component prop types (type safety)
 5. **Medium**: Accessibility (UX)
 6. **Low**: CSS compatibility (browser support)
+
+**Note**: export let → $props() was primarily in story files (now removed)
 
 ---
 
