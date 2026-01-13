@@ -5,8 +5,16 @@
   import { Button } from '../../../button/index.js';
   import { Card } from '../../../card/index.js';
   import { Input } from '../../../input/index.js';
-
-  export let contact: Contact | null = null;
+  import { ContactForm } from '../contact-form/index.js';
+  import {
+    Dialog as DialogRoot,
+    Content as DialogContent,
+    Header as DialogHeader,
+    Title as DialogTitle,
+    Description as DialogDescription,
+    Footer as DialogFooter,
+    Close as DialogClose,
+  } from '../../../dialog/index.js';
 
   interface Activity {
     id: string;
@@ -38,22 +46,13 @@
     notes?: Note[];
   }
 
+  let { contact = null } = $props<{ contact?: Contact | null }>();
+
   const dispatch = createEventDispatcher();
 
   let newNote = '';
   let localNotes: Note[] = contact?.notes ? [...contact.notes] : [];
   let showEditor = false;
-
-  import { ContactForm } from '../contact-form/index.js';
-  import {
-    Dialog as DialogRoot,
-    Content as DialogContent,
-    Header as DialogHeader,
-    Title as DialogTitle,
-    Description as DialogDescription,
-    Footer as DialogFooter,
-    Close as DialogClose,
-  } from '../../../dialog/index.js';
 
   $: localNotes = contact?.notes ? [...contact.notes] : localNotes;
 
@@ -66,7 +65,7 @@
     showEditor = true;
   }
 
-$: if (showEditor) {
+  $: if (showEditor) {
   dispatch('edit', contact);
 }
 
@@ -84,9 +83,6 @@ $: if (showEditor) {
   }
 </script>
 
-
-</script>
-
 <DialogRoot bind:open={showEditor}>
   <DialogContent>
     <DialogHeader>
@@ -96,7 +92,7 @@ $: if (showEditor) {
     </DialogHeader>
 
     <div class="p-2">
-      <ContactForm contact={contact} on:save={(e) => { dispatch('save', e.detail); showEditor = false; }} on:cancel={() => (showEditor = false)} />
+      <ContactForm contact={contact} on:save={(e: CustomEvent<{ detail: any }>) => { dispatch('save', e.detail); showEditor = false; }} on:cancel={() => (showEditor = false)} />
     </div>
 
     <DialogFooter>
@@ -131,8 +127,8 @@ $: if (showEditor) {
           {/if}
         </div>
         <div class="flex gap-2 mt-4">
-          <Button variant="outline" size="sm" on:click={goBack}>Back</Button>
-          <Button size="sm" on:click={edit}>Edit</Button>
+          <Button variant="outline" size="sm" on:click={(e: MouseEvent) => goBack()}>Back</Button>
+          <Button size="sm" on:click={(e: MouseEvent) => edit()}>Edit</Button>
         </div>
       </div>
     </Card>
@@ -184,7 +180,7 @@ $: if (showEditor) {
         <div class="space-y-3">
           <div class="flex gap-2">
             <Input bind:value={newNote} placeholder="Write a note..." />
-            <Button on:click={addNote}>Add</Button>
+            <Button on:click={(e: MouseEvent) => addNote()}>Add</Button>
           </div>
 
           {#if localNotes.length === 0}

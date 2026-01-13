@@ -9,19 +9,6 @@
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../table/index.js';
   import { Search, Plus, Mail, Phone, Tag, Download, Filter } from 'lucide-svelte';
 
-  export let contacts: Contact[] = [];
-  export let searchQuery: string = '';
-  export let selectedTag: string = 'all';
-  export let sortBy: 'name' | 'email' | 'created' | 'lastActivity' = 'name';
-  export let sortOrder: 'asc' | 'desc' = 'asc';
-  export let currentPage: number = 1;
-  export let itemsPerPage: number = 15;
-  export let onContactSelect: (id: string) => void = () => {};
-  export let onContactCreate: () => void = () => {};
-  export let onBulkAction: (action: string, ids: string[]) => void = () => {};
-  export let onExport: () => void = () => {};
-  export let onFilterOpen: () => void = () => {};
-
   interface Contact {
     id: string;
     name: string;
@@ -35,6 +22,34 @@
     conversationCount: number;
     status: 'active' | 'inactive';
   }
+
+  let { 
+    contacts = [],
+    searchQuery = '',
+    selectedTag = 'all',
+    sortBy = 'name' as 'name' | 'email' | 'created' | 'lastActivity',
+    sortOrder = 'asc' as 'asc' | 'desc',
+    currentPage = 1,
+    itemsPerPage = 15,
+    onContactSelect = (id: string) => {},
+    onContactCreate = () => {},
+    onBulkAction = (action: string, ids: string[]) => {},
+    onExport = () => {},
+    onFilterOpen = () => {}
+  } = $props<{
+    contacts?: Contact[];
+    searchQuery?: string;
+    selectedTag?: string;
+    sortBy?: 'name' | 'email' | 'created' | 'lastActivity';
+    sortOrder?: 'asc' | 'desc';
+    currentPage?: number;
+    itemsPerPage?: number;
+    onContactSelect?: (id: string) => void;
+    onContactCreate?: () => void;
+    onBulkAction?: (action: string, ids: string[]) => void;
+    onExport?: () => void;
+    onFilterOpen?: () => void;
+  }>();
 
   let selectedContacts: Set<string> = new Set();
 
@@ -130,7 +145,7 @@
           class="pl-9"
         />
       </div>
-      <Button variant="outline" size="sm" on:click={onFilterOpen}>
+      <Button variant="outline" size="sm" on:click={(e: MouseEvent) => onFilterOpen()}>
         <Filter class="mr-2 h-4 w-4" />
         Filters
       </Button>
@@ -151,18 +166,18 @@
         <span class="text-sm text-muted-foreground">
           {selectedContacts.size} selected
         </span>
-        <Button variant="outline" size="sm" on:click={() => handleBulkAction('delete')}>
+        <Button variant="outline" size="sm" on:click={(e: MouseEvent) => handleBulkAction('delete')}>
           Delete
         </Button>
-        <Button variant="outline" size="sm" on:click={() => handleBulkAction('tag')}>
+        <Button variant="outline" size="sm" on:click={(e: MouseEvent) => handleBulkAction('tag')}>
           Add Tag
         </Button>
       {/if}
-      <Button variant="outline" size="sm" on:click={onExport}>
+      <Button variant="outline" size="sm" on:click={(e: MouseEvent) => onExport()}>
         <Download class="mr-2 h-4 w-4" />
         Export
       </Button>
-      <Button on:click={onContactCreate}>
+      <Button on:click={(e: MouseEvent) => onContactCreate()}>
         <Plus class="mr-2 h-4 w-4" />
         New Contact
       </Button>
@@ -175,7 +190,7 @@
       <TableHeader>
         <TableRow>
           <TableHead class="w-12">
-            <Checkbox checked={allSelected} on:click={toggleAll} />
+            <Checkbox checked={allSelected} on:click={(e: MouseEvent) => toggleAll()} />
           </TableHead>
           <TableHead>Contact</TableHead>
           <TableHead>Email & Phone</TableHead>
@@ -198,11 +213,11 @@
           </TableRow>
         {:else}
           {#each paginatedContacts as contact}
-            <TableRow class="cursor-pointer hover:bg-muted/50" on:click={() => onContactSelect(contact.id)}>
-              <TableCell on:click|stopPropagation>
+            <TableRow class="cursor-pointer hover:bg-muted/50" on:click={(e: MouseEvent) => onContactSelect(contact.id)}>
+              <TableCell on:click|stopPropagation={(e: MouseEvent) => toggleContact(contact.id)}>
                 <Checkbox
                   checked={selectedContacts.has(contact.id)}
-                  on:click={() => toggleContact(contact.id)}
+                  on:click={(e: MouseEvent) => toggleContact(contact.id)}
                 />
               </TableCell>
               <TableCell>
@@ -284,7 +299,7 @@
           variant="outline"
           size="sm"
           disabled={currentPage === 1}
-          on:click={() => (currentPage -= 1)}
+          on:click={(e: MouseEvent) => (currentPage -= 1)}
         >
           Previous
         </Button>
@@ -295,7 +310,7 @@
           variant="outline"
           size="sm"
           disabled={currentPage === totalPages}
-          on:click={() => (currentPage += 1)}
+          on:click={(e: MouseEvent) => (currentPage += 1)}
         >
           Next
         </Button>

@@ -5,8 +5,6 @@
   import { Input } from '../../../input/index.js';
   import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../select/index.js';
 
-  export let contact: Contact | null = null;
-
   interface Contact {
     id?: string;
     name: string;
@@ -17,6 +15,8 @@
     tags?: string[];
     status?: 'active' | 'inactive';
   }
+
+  let { contact = null } = $props<{ contact?: Contact | null }>();
 
   const dispatch = createEventDispatcher();
 
@@ -78,7 +78,7 @@
     </Avatar>
     <div class="flex flex-col flex-1">
       <label class="text-sm text-muted-foreground">Upload Avatar</label>
-      <input type="file" accept="image/*" on:change={onFileChange} />
+      <input type="file" accept="image/*" on:change={(e: Event) => onFileChange(e)} />
     </div>
   </div>
 
@@ -113,7 +113,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
       <label class="text-sm">Tags (comma separated)</label>
-      <Input value={form.tags?.join(', ')} on:input={(e) => (form.tags = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean))} />
+      <Input value={form.tags?.join(', ')} on:input={(e: Event & { target: HTMLInputElement }) => (form.tags = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean))} />
     </div>
 
     <div>
@@ -131,7 +131,7 @@
   </div>
 
   <div class="flex items-center justify-end gap-2">
-    <Button variant="ghost" on:click={cancel}>Cancel</Button>
-    <Button on:click={save}>Save</Button>
+    <Button variant="ghost" on:click={(e: MouseEvent) => cancel()}>Cancel</Button>
+    <Button on:click={(e: MouseEvent) => save()}>Save</Button>
   </div>
 </div>

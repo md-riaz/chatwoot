@@ -89,7 +89,7 @@
       variant="ghost"
       size="icon"
       class="lg:hidden"
-      onclick={onMobileMenuToggle}
+      onclick={(e: MouseEvent) => onMobileMenuToggle?.()}
       aria-label="Toggle menu"
     >
       <Menu class="h-5 w-5" />
@@ -125,7 +125,7 @@
             {#each (currentUser.accounts || []) as account}
               <DropdownMenu.Item
                 class="gap-2"
-                onclick={() => handleAccountSwitch(account.id)}
+                onclick={(e: MouseEvent) => handleAccountSwitch(account.id)}
               >
                 <Avatar.Root class="h-6 w-6">
                   <Avatar.Image src="" alt={account.name} />
@@ -149,7 +149,7 @@
         variant="ghost"
         size="icon"
         class="relative"
-        onclick={handleNotificationsClick}
+        onclick={(e: MouseEvent) => handleNotificationsClick()}
         aria-label="Notifications"
       >
         <Bell class="h-5 w-5" />
@@ -167,7 +167,7 @@
       <Button
         variant="ghost"
         size="icon"
-        onclick={() => navigate('/help')}
+        onclick={(e: MouseEvent) => navigate('/help')}
         aria-label="Help"
       >
         <HelpCircle class="h-5 w-5" />
@@ -177,7 +177,7 @@
       <Button
         variant="ghost"
         size="icon"
-        onclick={() => navigate(accountId ? `/app/accounts/${accountId}/settings` : '/settings')}
+        onclick={(e: MouseEvent) => navigate(accountId ? `/app/accounts/${accountId}/settings` : '/settings')}
         aria-label="Settings"
         class="hidden md:inline-flex"
       >
@@ -212,7 +212,7 @@
             {#if item.divider}
               <DropdownMenu.Separator />
             {:else}
-              <DropdownMenu.Item onclick={item.onClick}>
+              <DropdownMenu.Item onclick={(e: MouseEvent) => item.onClick()}>
                 {item.label}
               </DropdownMenu.Item>
             {/if}

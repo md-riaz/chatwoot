@@ -42,10 +42,10 @@
       <Dialog.Description>{description}</Dialog.Description>
     </Dialog.Header>
     <Dialog.Footer>
-      <Button variant="outline" onclick={handleCancel}>
+      <Button variant="outline" onclick={(e: MouseEvent) => handleCancel()}>
         {cancelText}
       </Button>
-      <Button {variant} onclick={handleConfirm}>
+      <Button {variant} onclick={(e: MouseEvent) => handleConfirm()}>
         {confirmText}
       </Button>
     </Dialog.Footer>
