@@ -2,10 +2,12 @@
   import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
 
+  import type { HTMLTableCellAttributes } from 'svelte/elements';
+
   type Props = {
     class?: string;
     children?: Snippet;
-  };
+  } & HTMLTableCellAttributes;
 
   let { class: className, children, ...restProps }: Props = $props();
 </script>

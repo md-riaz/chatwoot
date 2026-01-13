@@ -195,7 +195,7 @@
     </div>
     
     <div class="flex items-center gap-2">
-      <Label for="private-toggle" class="text-sm cursor-pointer">Private</Label>
+      <label for="private-toggle" class="text-sm cursor-pointer">Private</label>
       <Switch id="private-toggle" bind:checked={isPrivate} />
     </div>
   </div>

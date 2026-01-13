@@ -550,8 +550,8 @@
                 </div>
                 
                 <div class="flex items-center space-x-2">
+                  <label for="useApiKey" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Use API Key instead of Auth Token</label>
                   <Switch bind:checked={useApiKey} id="useApiKey" />
-                  <Label for="useApiKey">Use API Key instead of Auth Token</Label>
                 </div>
                 
                 {#if useApiKey}
@@ -765,8 +765,8 @@
                 </div>
                 
                 <div class="flex items-center space-x-2">
+                  <label for="useApiKey" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Use API Key instead of Auth Token</label>
                   <Switch bind:checked={useApiKey} id="useApiKey" />
-                  <Label for="useApiKey">Use API Key instead of Auth Token</Label>
                 </div>
                 
                 {#if useApiKey}
@@ -889,8 +889,8 @@
               </div>
               
               <div class="flex items-center space-x-2">
+                <label for="useApiKeyVoice" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Use API Key instead of Auth Token</label>
                 <Switch bind:checked={useApiKey} id="useApiKeyVoice" />
-                <Label for="useApiKeyVoice">Use API Key instead of Auth Token</Label>
               </div>
               
               {#if useApiKey}
