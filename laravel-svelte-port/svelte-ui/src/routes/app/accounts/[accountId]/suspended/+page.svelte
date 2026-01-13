@@ -1,7 +1,7 @@
 <script lang="ts">
   /**
-   * Unauthorized Access Page
-   * Shown when user doesn't have permission to access a resource
+   * Account Suspended Page
+   * Shown when an account has been suspended
    */
   
   import { Button } from '$lib/components/ui/button';
@@ -13,14 +13,14 @@
 <div class="flex min-h-screen items-center justify-center bg-background p-4">
   <Card class="w-full max-w-md">
     <CardHeader class="text-center">
-      <CardTitle class="text-xl">Access Denied</CardTitle>
+      <CardTitle class="text-xl">Account Suspended</CardTitle>
       <CardDescription>
-        You don't have permission to access this resource.
+        This account has been temporarily suspended.
       </CardDescription>
     </CardHeader>
     <CardContent class="text-center">
       <p class="text-sm text-muted-foreground">
-        Contact your administrator if you believe this is an error.
+        Contact your administrator or support to reactivate this account.
       </p>
     </CardContent>
     <CardFooter class="flex flex-col gap-2">

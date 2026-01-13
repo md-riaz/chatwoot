@@ -2,36 +2,40 @@
   /**
    * App Root - Redirect to Account Dashboard
    * Redirects to the user's default account or super admin dashboard
+   * Matches Vue's validateAuthenticateRoutePermission behavior
    */
   
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth.svelte';
   import { onMount } from 'svelte';
   
-  onMount(() => {
+  onMount(async () => {
     console.log('App root - checking user:', authStore.currentUser);
     console.log('User type:', authStore.currentUser.type);
     console.log('User accounts:', authStore.userAccounts);
     
+    // Initialize auth if not already done
+    if (!authStore.currentUser.id) {
+      try {
+        await authStore.setUser();
+      } catch (error) {
+        console.error('Failed to initialize auth:', error);
+      }
+    }
+    
     // Check if user is logged in
     if (authStore.isLoggedIn) {
-      // If user is SuperAdmin, redirect to super admin dashboard
-      if (authStore.currentUser.type === 'SuperAdmin') {
-        console.log('SuperAdmin detected, redirecting to super admin dashboard');
-        goto('/app/super_admin', { replaceState: true });
-        return;
-      }
-      
-      // For regular users, check if they have accounts
+      // Both regular users and SuperAdmins should go to their account dashboard
+      // SuperAdmins are also part of an account, so they should go to regular dashboard
       if (authStore.userAccounts.length > 0) {
         // Redirect to the first account's dashboard
         const firstAccount = authStore.userAccounts[0];
-        console.log('Regular user with accounts, redirecting to account:', firstAccount.id);
-        goto(`/app/accounts/${firstAccount.id}`, { replaceState: true });
+        console.log('User with accounts, redirecting to account:', firstAccount.id);
+        goto(`/app/accounts/${firstAccount.id}/dashboard`, { replaceState: true });
       } else {
         // User is logged in but has no accounts
         console.warn('User is logged in but has no accounts');
-        goto('/app/login', { replaceState: true });
+        goto('/app/no-accounts', { replaceState: true });
       }
     } else {
       // User is not logged in
