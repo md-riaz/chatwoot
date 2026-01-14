@@ -11,7 +11,7 @@
 
   onMount(async () => {
     // Initialize i18n for portal
-    await initI18n('en');
+    await initI18n();
   });
 </script>
 
