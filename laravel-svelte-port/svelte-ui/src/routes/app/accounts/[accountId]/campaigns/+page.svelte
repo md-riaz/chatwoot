@@ -175,7 +175,7 @@
             </Button>
           {/snippet}
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="center">
+        <DropdownMenuContent>
           <DropdownMenuItem onclick={handleCreateLiveChatCampaign}>
             Live Chat Campaign
           </DropdownMenuItem>
