@@ -4,6 +4,7 @@
  */
 
 import { format, formatDistanceToNow, isToday, isYesterday, parseISO } from 'date-fns';
+import type { Locale } from 'date-fns';
 import { enUS, es, fr, de, pt, ar, ja, ko, zhCN, ru } from 'date-fns/locale';
 
 /**

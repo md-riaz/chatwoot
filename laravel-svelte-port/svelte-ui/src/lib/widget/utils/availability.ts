@@ -75,7 +75,7 @@ export function getAvailabilityMessage(
     return `We'll reply in ${replyTime}`;
   }
 
-  return 'We'll get back to you soon';
+  return "We'll get back to you soon";
 }
 
 /**

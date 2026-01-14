@@ -27,14 +27,19 @@ export function getSurveyApi(): KyInstance {
       beforeRequest: [
         (request) => {
           // Transform request body to snake_case
-          if (request.body && request.method !== 'GET') {
+          if (request.body && request.method !== 'GET' && request.method !== 'HEAD') {
             const contentType = request.headers.get('content-type');
 
-            if (contentType?.includes('application/json')) {
+            if (!contentType || contentType.includes('application/json')) {
               try {
-                const data = JSON.parse(request.body as string);
+                const bodyContent = typeof request.body === 'string' 
+                  ? request.body 
+                  : request.body.toString();
+                const data = JSON.parse(bodyContent);
                 const transformed = transformKeysTo(data, 'snake');
-                request.body = JSON.stringify(transformed);
+                return new Request(request, {
+                  body: JSON.stringify(transformed)
+                });
               } catch (e) {
                 console.warn('Failed to parse request body for transformation:', e);
               }
@@ -69,7 +74,7 @@ export function getSurveyApi(): KyInstance {
           const { response } = error;
           if (response) {
             try {
-              const data = await response.json();
+              const data = await response.json() as { message?: string };
               error.message = data.message || `API Error: ${response.status}`;
             } catch (e) {
               error.message = `API Error: ${response.status}`;

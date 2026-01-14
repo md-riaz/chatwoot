@@ -241,6 +241,7 @@ export class WebSocketClient {
   private sendCommand(command: string, channel: string): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       const message: WebSocketMessage = {
+        type: command,
         command,
         identifier: channel,
       };
