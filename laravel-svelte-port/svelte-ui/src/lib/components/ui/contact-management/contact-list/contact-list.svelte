@@ -214,7 +214,7 @@
         {:else}
           {#each paginatedContacts as contact}
             <TableRow class="cursor-pointer hover:bg-muted/50" onclick={(e: MouseEvent) => onContactSelect(contact.id)}>
-              <TableCell on:click|stopPropagation={(e: MouseEvent) => toggleContact(contact.id)}>
+              <TableCell onclick={(e: MouseEvent) => { e.stopPropagation(); toggleContact(contact.id); }}>
                 <Checkbox
                   checked={selectedContacts.has(contact.id)}
                   onclick={(e: MouseEvent) => toggleContact(contact.id)}

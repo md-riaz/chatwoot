@@ -113,7 +113,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
       <label class="text-sm">Tags (comma separated)</label>
-      <Input value={form.tags?.join(', ')} on:input={(e: Event & { target: HTMLInputElement }) => (form.tags = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean))} />
+      <Input value={form.tags?.join(', ')} oninput={(e: Event) => (form.tags = (e.target as HTMLInputElement).value.split(',').map((s: string) => s.trim()).filter(Boolean))} />
     </div>
 
     <div>
