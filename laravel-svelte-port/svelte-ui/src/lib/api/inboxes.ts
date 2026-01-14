@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api, toSearchParams } from './client';
 
 /**
  * Inbox interfaces
@@ -126,7 +126,7 @@ export interface SMTPSettings {
  */
 export async function getInboxes(accountId: number, params?: InboxListParams): Promise<Inbox[]> {
   const response = await api.get(`api/v1/accounts/${accountId}/inboxes`, {
-    searchParams: params,
+    searchParams: toSearchParams(params),
   }).json<Inbox[]>();
   return response;
 }

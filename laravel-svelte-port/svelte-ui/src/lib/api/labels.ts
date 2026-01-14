@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api, toSearchParams } from './client';
 
 /**
  * Label interfaces
@@ -37,7 +37,7 @@ export interface UpdateLabelParams {
  */
 export async function getLabels(params?: LabelListParams): Promise<Label[]> {
   const response = await api.get('labels', {
-    searchParams: params,
+    searchParams: toSearchParams(params),
   }).json<Label[]>();
   return response;
 }

@@ -223,4 +223,30 @@ export function buildQueryString(params: Record<string, any>): string {
   return queryString ? `?${queryString}` : '';
 }
 
+/**
+ * Helper to convert params object to Record<string, string> for ky searchParams
+ * Arrays are converted to comma-separated strings
+ * Returns undefined if params is undefined or empty
+ */
+export function toSearchParams(params?: Record<string, any>): Record<string, string> | undefined {
+  if (!params || Object.keys(params).length === 0) {
+    return undefined;
+  }
+  
+  const result: Record<string, string> = {};
+  
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      if (Array.isArray(value)) {
+        // Convert arrays to comma-separated strings
+        result[key] = value.join(',');
+      } else {
+        result[key] = String(value);
+      }
+    }
+  });
+  
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
 export default api;

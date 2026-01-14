@@ -3,7 +3,7 @@
  * Handles all SuperAdmin-related API calls for platform management
  */
 
-import api from './client';
+import api, { toSearchParams } from './client';
 import { keysToSnake } from './transformers';
 
 // Generic Laravel pagination interface
@@ -220,7 +220,7 @@ export const superAdminApi = {
 
   // Accounts
   getAccounts: async (params?: PaginationParams): Promise<AccountsListResponse> => {
-    return api.get('api/v1/super_admin/accounts', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/accounts', { searchParams: toSearchParams(params) }).json();
   },
 
   getAccount: async (id: number): Promise<Account> => {
@@ -259,7 +259,7 @@ export const superAdminApi = {
 
   // Users
   getUsers: async (params?: PaginationParams): Promise<UsersListResponse> => {
-    return api.get('api/v1/super_admin/users', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/users', { searchParams: toSearchParams(params) }).json();
   },
 
   getUser: async (id: number): Promise<User> => {
@@ -329,7 +329,7 @@ export const superAdminApi = {
 
   // Agent Bots
   getAgentBots: async (params?: PaginationParams): Promise<LaravelPaginationResponse<AgentBot>> => {
-    return api.get('api/v1/super_admin/agent_bots', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/agent_bots', { searchParams: toSearchParams(params) }).json();
   },
 
   getAgentBot: async (id: number): Promise<AgentBot> => {
@@ -364,7 +364,7 @@ export const superAdminApi = {
 
   // Platform Apps
   getPlatformApps: async (params?: PaginationParams): Promise<LaravelPaginationResponse<PlatformApp>> => {
-    return api.get('api/v1/super_admin/platform_apps', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/platform_apps', { searchParams: toSearchParams(params) }).json();
   },
 
   getPlatformApp: async (id: number): Promise<PlatformApp> => {
@@ -388,7 +388,7 @@ export const superAdminApi = {
 
   // Access Tokens
   getAccessTokens: async (params?: PaginationParams): Promise<LaravelPaginationResponse<AccessToken>> => {
-    return api.get('api/v1/super_admin/access_tokens', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/access_tokens', { searchParams: toSearchParams(params) }).json();
   },
 
   createAccessToken: async (data: { name: string }): Promise<AccessToken> => {
@@ -401,7 +401,7 @@ export const superAdminApi = {
 
   // Installation Configs
   getInstallationConfigs: async (params?: PaginationParams): Promise<LaravelPaginationResponse<InstallationConfig>> => {
-    return api.get('api/v1/super_admin/installation_configs', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/installation_configs', { searchParams: toSearchParams(params) }).json();
   },
 
   getInstallationConfig: async (id: number): Promise<InstallationConfig> => {
@@ -426,7 +426,7 @@ export const superAdminApi = {
 
   // Account Users
   getAccountUsers: async (params?: PaginationParams): Promise<LaravelPaginationResponse<AccountUser>> => {
-    return api.get('api/v1/super_admin/account_users', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/account_users', { searchParams: toSearchParams(params) }).json();
   },
 
   createAccountUser: async (data: { userId: number; accountId: number; role: string }): Promise<AccountUser> => {
@@ -443,7 +443,7 @@ export const superAdminApi = {
 
   // Audit Logs
   getAuditLogs: async (params?: PaginationParams): Promise<LaravelPaginationResponse<AuditLog>> => {
-    return api.get('api/v1/super_admin/audit_logs', { searchParams: params as Record<string, string> }).json();
+    return api.get('api/v1/super_admin/audit_logs', { searchParams: toSearchParams(params) }).json();
   },
 
   // Cache

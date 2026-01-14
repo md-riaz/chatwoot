@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api, toSearchParams } from './client';
 
 /**
  * Team interfaces
@@ -46,7 +46,7 @@ export interface UpdateTeamParams {
  */
 export async function getTeams(params?: TeamListParams): Promise<Team[]> {
   const response = await api.get('teams', {
-    searchParams: params,
+    searchParams: toSearchParams(params),
   }).json<Team[]>();
   return response;
 }

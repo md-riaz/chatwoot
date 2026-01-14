@@ -3,7 +3,7 @@
  * Handles analytics and reporting data fetching
  */
 
-import api from './client';
+import api, { toSearchParams } from './client';
 
 export interface ConversationMetrics {
   totalConversations: number;
@@ -54,7 +54,7 @@ export async function getAccountReports(
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
   return api.get(`api/v2/accounts/${accountId}/reports`, {
-    searchParams: filters
+    searchParams: toSearchParams(filters)
   }).json();
 }
 
@@ -66,7 +66,7 @@ export async function getAgentReports(
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
   return api.get(`api/v2/accounts/${accountId}/reports/agents`, {
-    searchParams: filters
+    searchParams: toSearchParams(filters)
   }).json();
 }
 
@@ -78,7 +78,7 @@ export async function getTeamReports(
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
   return api.get(`api/v2/accounts/${accountId}/reports/teams`, {
-    searchParams: filters
+    searchParams: toSearchParams(filters)
   }).json();
 }
 
@@ -90,7 +90,7 @@ export async function getLabelReports(
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
   return api.get(`api/v2/accounts/${accountId}/reports/labels`, {
-    searchParams: filters
+    searchParams: toSearchParams(filters)
   }).json();
 }
 
@@ -102,7 +102,7 @@ export async function getInboxReports(
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
   return api.get(`api/v2/accounts/${accountId}/reports/inboxes`, {
-    searchParams: filters
+    searchParams: toSearchParams(filters)
   }).json();
 }
 
@@ -114,6 +114,6 @@ export async function getConversationSummary(
   filters: ReportFilters = {}
 ): Promise<any> {
   return api.get(`api/v2/accounts/${accountId}/reports/summary`, {
-    searchParams: filters
+    searchParams: toSearchParams(filters)
   }).json();
 }

@@ -3,7 +3,7 @@
  * Handles audit log fetching and filtering
  */
 
-import api from './client';
+import api, { toSearchParams } from './client';
 
 export interface AuditLog {
   id: number;
@@ -44,10 +44,10 @@ export async function getAuditLogs(
   filters: AuditLogFilters = {}
 ): Promise<AuditLogsResponse> {
   return api.get(`api/v1/accounts/${accountId}/audit_logs`, {
-    searchParams: {
+    searchParams: toSearchParams({
       ...filters,
       page: filters.page || 1
-    }
+    })
   }).json();
 }
 
@@ -69,6 +69,6 @@ export async function exportAuditLogs(
   filters: AuditLogFilters = {}
 ): Promise<Blob> {
   return api.get(`api/v1/accounts/${accountId}/audit_logs/export`, {
-    searchParams: filters
+    searchParams: toSearchParams(filters)
   }).blob();
 }
