@@ -51,6 +51,7 @@
             index > 0 && 'border-t'
           )}
           onclick={() => onclick(entry)}
+          onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && onclick(entry)}
           role="button"
           tabindex="0"
         >
@@ -84,6 +85,7 @@
       <div
         class="p-4 border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors"
         onclick={() => onclick(entry)}
+        onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && onclick(entry)}
         role="button"
         tabindex="0"
       >

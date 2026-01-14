@@ -55,6 +55,7 @@
   <div
     class="fixed inset-0 z-50 bg-black/50"
     onclick={handleClose}
+    onkeydown={(e: KeyboardEvent) => e.key === 'Escape' && handleClose()}
     role="button"
     tabindex="-1"
   ></div>
