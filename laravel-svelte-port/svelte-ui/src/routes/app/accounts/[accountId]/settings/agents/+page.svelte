@@ -142,7 +142,7 @@
                 <Button
                   variant="outline"
                   size="sm"
-                  onclick={(e) => handleEditAgent(e, agent)}
+                  onclick={(e: MouseEvent) => handleEditAgent(e, agent)}
                 >
                   Edit
                 </Button>

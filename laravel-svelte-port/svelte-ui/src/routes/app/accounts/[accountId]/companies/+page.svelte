@@ -177,7 +177,7 @@
                 href={isValidUrl(company.website) ? company.website : `https://${company.website}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                onclick={(e) => e.stopPropagation()}
+                onclick={(e: MouseEvent) => e.stopPropagation()}
               >
                 {company.website}
               </a>
@@ -213,7 +213,7 @@
             </div>
           </div>
 
-          <div class="flex gap-2" onclick={(e) => e.stopPropagation()}>
+          <div class="flex gap-2" onclick={(e: MouseEvent) => e.stopPropagation()}>
             <Button
               variant="outline"
               size="sm"
@@ -224,14 +224,14 @@
             <Button
               variant="outline"
               size="sm"
-              onclick={(e) => handleEditCompany(e, company)}
+              onclick={(e: MouseEvent) => handleEditCompany(e, company)}
             >
               Edit
             </Button>
             <Button
               variant="destructive"
               size="sm"
-              onclick={(e) => handleDeleteCompany(e, company.id, company.name)}
+              onclick={(e: MouseEvent) => handleDeleteCompany(e, company.id, company.name)}
             >
               Delete
             </Button>

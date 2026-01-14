@@ -219,7 +219,7 @@
                   <div>Inbox: {campaign.inbox?.name || 'N/A'}</div>
                   <div>Created: {formatDate(campaign.createdAt)}</div>
                 </div>
-                <div class="flex gap-2" onclick={(e) => e.stopPropagation()}>
+                <div class="flex gap-2" onclick={(e: MouseEvent) => e.stopPropagation()}>
                   <Button
                     variant="outline"
                     size="sm"
@@ -277,7 +277,7 @@
                   <div>Inbox: {campaign.inbox?.name || 'N/A'}</div>
                   <div>Created: {formatDate(campaign.createdAt)}</div>
                 </div>
-                <div class="flex gap-2" onclick={(e) => e.stopPropagation()}>
+                <div class="flex gap-2" onclick={(e: MouseEvent) => e.stopPropagation()}>
                   <Button
                     variant="outline"
                     size="sm"
@@ -335,7 +335,7 @@
                   <div>Inbox: {campaign.inbox?.name || 'N/A'}</div>
                   <div>Created: {formatDate(campaign.createdAt)}</div>
                 </div>
-                <div class="flex gap-2" onclick={(e) => e.stopPropagation()}>
+                <div class="flex gap-2" onclick={(e: MouseEvent) => e.stopPropagation()}>
                   <Button
                     variant="outline"
                     size="sm"

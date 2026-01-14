@@ -167,14 +167,14 @@
                 <Button
                   variant="outline"
                   size="sm"
-                  onclick={(e) => handleEditAttribute(e, attribute)}
+                  onclick={(e: MouseEvent) => handleEditAttribute(e, attribute)}
                 >
                   Edit
                 </Button>
                 <Button
                   variant="destructive"
                   size="sm"
-                  onclick={(e) =>
+                  onclick={(e: MouseEvent) =>
                     handleDeleteAttribute(e, attribute.id, attribute.attributeDisplayName)}
                 >
                   Delete

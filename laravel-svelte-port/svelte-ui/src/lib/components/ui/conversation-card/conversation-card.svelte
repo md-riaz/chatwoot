@@ -31,7 +31,7 @@
   role="button"
   tabindex="0"
   {onclick}
-  onkeydown={(e) => e.key === 'Enter' && onclick?.()}
+  onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && onclick?.()}
   {...restProps}
 >
   {#if children}
