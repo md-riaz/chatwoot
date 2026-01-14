@@ -127,8 +127,8 @@
           {/if}
         </div>
         <div class="flex gap-2 mt-4">
-          <Button variant="outline" size="sm" on:click={(e: MouseEvent) => goBack()}>Back</Button>
-          <Button size="sm" on:click={(e: MouseEvent) => edit()}>Edit</Button>
+          <Button variant="outline" size="sm" onclick={(e: MouseEvent) => goBack()}>Back</Button>
+          <Button size="sm" onclick={(e: MouseEvent) => edit()}>Edit</Button>
         </div>
       </div>
     </Card>
@@ -180,7 +180,7 @@
         <div class="space-y-3">
           <div class="flex gap-2">
             <Input bind:value={newNote} placeholder="Write a note..." />
-            <Button on:click={(e: MouseEvent) => addNote()}>Add</Button>
+            <Button onclick={(e: MouseEvent) => addNote()}>Add</Button>
           </div>
 
           {#if localNotes.length === 0}

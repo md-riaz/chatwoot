@@ -152,11 +152,9 @@
     <div class="space-y-2">
       <Label for="inbox">Inbox *</Label>
       <Select.Root
-        selected={webInboxes.find((i) => i.id === inboxId)
-          ? { value: inboxId!, label: webInboxes.find((i) => i.id === inboxId)!.name }
-          : undefined}
-        onSelectedChange={(v) => {
-          if (v) inboxId = v.value as number;
+        value={inboxId?.toString()}
+        onValueChange={(v) => {
+          if (v) inboxId = parseInt(v) as number;
         }}
       >
         <Select.Trigger class={errors.inboxId ? 'border-red-500' : ''}>
@@ -164,7 +162,7 @@
         </Select.Trigger>
         <Select.Content>
           {#each webInboxes as inbox}
-            <Select.Item value={inbox.id} label={inbox.name}>
+            <Select.Item value={inbox.id.toString()} label={inbox.name}>
               {inbox.name}
             </Select.Item>
           {/each}

@@ -137,9 +137,9 @@
     <div class="space-y-2">
       <Label for="role">Role *</Label>
       <Select.Root
-        selected={roleOptions.find((r) => r.value === role)}
-        onSelectedChange={(v) => {
-          if (v) role = v.value as 'administrator' | 'agent';
+        value={role}
+        onValueChange={(v) => {
+          if (v) role = v as 'administrator' | 'agent';
         }}
       >
         <Select.Trigger class={errors.role ? 'border-red-500' : ''}>

@@ -112,7 +112,7 @@
         <Input 
           placeholder="Type your message..." 
           bind:value={messageText}
-          on:keypress={(e) => e.key === 'Enter' && handleSendMessage()}
+          onkeypress={(e: KeyboardEvent) => e.key === 'Enter' && handleSendMessage()}
         />
         <Button onclick={handleSendMessage}>Send</Button>
       </div>

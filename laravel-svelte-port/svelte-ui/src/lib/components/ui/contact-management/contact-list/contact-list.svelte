@@ -145,7 +145,7 @@
           class="pl-9"
         />
       </div>
-      <Button variant="outline" size="sm" on:click={(e: MouseEvent) => onFilterOpen()}>
+      <Button variant="outline" size="sm" onclick={(e: MouseEvent) => onFilterOpen()}>
         <Filter class="mr-2 h-4 w-4" />
         Filters
       </Button>
@@ -166,18 +166,18 @@
         <span class="text-sm text-muted-foreground">
           {selectedContacts.size} selected
         </span>
-        <Button variant="outline" size="sm" on:click={(e: MouseEvent) => handleBulkAction('delete')}>
+        <Button variant="outline" size="sm" onclick={(e: MouseEvent) => handleBulkAction('delete')}>
           Delete
         </Button>
-        <Button variant="outline" size="sm" on:click={(e: MouseEvent) => handleBulkAction('tag')}>
+        <Button variant="outline" size="sm" onclick={(e: MouseEvent) => handleBulkAction('tag')}>
           Add Tag
         </Button>
       {/if}
-      <Button variant="outline" size="sm" on:click={(e: MouseEvent) => onExport()}>
+      <Button variant="outline" size="sm" onclick={(e: MouseEvent) => onExport()}>
         <Download class="mr-2 h-4 w-4" />
         Export
       </Button>
-      <Button on:click={(e: MouseEvent) => onContactCreate()}>
+      <Button onclick={(e: MouseEvent) => onContactCreate()}>
         <Plus class="mr-2 h-4 w-4" />
         New Contact
       </Button>
@@ -190,7 +190,7 @@
       <TableHeader>
         <TableRow>
           <TableHead class="w-12">
-            <Checkbox checked={allSelected} on:click={(e: MouseEvent) => toggleAll()} />
+            <Checkbox checked={allSelected} onclick={(e: MouseEvent) => toggleAll()} />
           </TableHead>
           <TableHead>Contact</TableHead>
           <TableHead>Email & Phone</TableHead>
@@ -213,11 +213,11 @@
           </TableRow>
         {:else}
           {#each paginatedContacts as contact}
-            <TableRow class="cursor-pointer hover:bg-muted/50" on:click={(e: MouseEvent) => onContactSelect(contact.id)}>
+            <TableRow class="cursor-pointer hover:bg-muted/50" onclick={(e: MouseEvent) => onContactSelect(contact.id)}>
               <TableCell on:click|stopPropagation={(e: MouseEvent) => toggleContact(contact.id)}>
                 <Checkbox
                   checked={selectedContacts.has(contact.id)}
-                  on:click={(e: MouseEvent) => toggleContact(contact.id)}
+                  onclick={(e: MouseEvent) => toggleContact(contact.id)}
                 />
               </TableCell>
               <TableCell>
@@ -299,7 +299,7 @@
           variant="outline"
           size="sm"
           disabled={currentPage === 1}
-          on:click={(e: MouseEvent) => (currentPage -= 1)}
+          onclick={(e: MouseEvent) => (currentPage -= 1)}
         >
           Previous
         </Button>
@@ -310,7 +310,7 @@
           variant="outline"
           size="sm"
           disabled={currentPage === totalPages}
-          on:click={(e: MouseEvent) => (currentPage += 1)}
+          onclick={(e: MouseEvent) => (currentPage += 1)}
         >
           Next
         </Button>

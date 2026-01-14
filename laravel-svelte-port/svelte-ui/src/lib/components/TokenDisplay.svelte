@@ -45,7 +45,7 @@
   <Button
     variant="ghost"
     size={size === 'sm' ? 'sm' : 'icon'}
-    on:click={toggleVisibility}
+    onclick={toggleVisibility}
     title={showToken ? 'Hide token' : 'Show token'}
   >
     {#if showToken}
@@ -59,7 +59,7 @@
     <Button
       variant="ghost"
       size={size === 'sm' ? 'sm' : 'icon'}
-      on:click={copyToken}
+      onclick={copyToken}
       title="Copy token"
     >
       <Copy class="h-3 w-3" />

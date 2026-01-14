@@ -131,7 +131,7 @@
   </div>
 
   <div class="flex items-center justify-end gap-2">
-    <Button variant="ghost" on:click={(e: MouseEvent) => cancel()}>Cancel</Button>
-    <Button on:click={(e: MouseEvent) => save()}>Save</Button>
+    <Button variant="ghost" onclick={(e: MouseEvent) => cancel()}>Cancel</Button>
+    <Button onclick={(e: MouseEvent) => save()}>Save</Button>
   </div>
 </div>

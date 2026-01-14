@@ -70,7 +70,7 @@
 <div class="w-full max-w-4xl mx-auto space-y-6 p-6">
   <div class="flex items-center justify-between">
     <h2 class="text-2xl font-bold">Categories</h2>
-    <Button on:click={startCreate} disabled={isCreating || editingId !== null}>
+    <Button onclick={startCreate} disabled={isCreating || editingId !== null}>
       New Category
     </Button>
   </div>
@@ -106,7 +106,7 @@
                 type="button"
                 class="w-8 h-8 rounded-full border-2 transition-all {formData.color === color ? 'scale-110 border-primary' : 'border-transparent'}"
                 style="background-color: {color}"
-                on:click={() => formData.color = color}
+                onclick={() => formData.color = color}
               />
             {/each}
           </div>
@@ -116,7 +116,7 @@
           <Button type="submit">
             {isCreating ? 'Create' : 'Save'}
           </Button>
-          <Button type="button" variant="outline" on:click={cancelEdit}>
+          <Button type="button" variant="outline" onclick={cancelEdit}>
             Cancel
           </Button>
         </div>
@@ -144,10 +144,10 @@
             </Badge>
           </div>
           <div class="flex gap-2">
-            <Button variant="ghost" size="sm" on:click={() => startEdit(category)}>
+            <Button variant="ghost" size="sm" onclick={() => startEdit(category)}>
               Edit
             </Button>
-            <Button variant="ghost" size="sm" on:click={() => handleDelete(category.id)}>
+            <Button variant="ghost" size="sm" onclick={() => handleDelete(category.id)}>
               Delete
             </Button>
           </div>
