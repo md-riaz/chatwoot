@@ -1,6 +1,7 @@
 import Root from './switch.svelte';
+import type { HTMLAttributes } from 'svelte/elements';
 
-type Props = {
+type Props = HTMLAttributes<HTMLButtonElement> & {
   class?: string;
   checked?: boolean;
   disabled?: boolean;
