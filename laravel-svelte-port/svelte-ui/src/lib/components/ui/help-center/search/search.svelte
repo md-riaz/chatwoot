@@ -51,7 +51,7 @@
         bind:value={query}
         placeholder="Search articles..."
         class="flex-1"
-        on:keydown={(e) => e.key === 'Enter' && handleSearch()}
+        onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleSearch()}
       />
       <Button on:click={handleSearch} disabled={searching}>
         {searching ? 'Searching...' : 'Search'}

@@ -42,7 +42,7 @@
     <Input
       bind:value={searchQuery}
       placeholder="Search articles..."
-      on:keydown={(e) => e.key === 'Enter' && handleSearch()}
+      onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleSearch()}
     />
     <Button class="w-full" variant="outline" size="sm" on:click={handleSearch}>
       Search

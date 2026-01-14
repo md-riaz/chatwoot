@@ -159,7 +159,7 @@
         <Input
           bind:value={newTag}
           placeholder="Add tag"
-          on:keydown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+          onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && (e.preventDefault(), addTag())}
         />
         <Button type="button" variant="outline" on:click={addTag}>
           Add
