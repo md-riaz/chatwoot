@@ -1,9 +1,9 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { Avatar } from '../../../avatar/index.js';
-  import { Button } from '../../../button/index.js';
-  import { Input } from '../../../input/index.js';
-  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../select/index.js';
+  import { Avatar } from '$lib/components/ui/avatar';
+  import { Button } from '$lib/components/ui/button';
+  import { Input } from '$lib/components/ui/input';
+  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '$lib/components/ui/select';
 
   interface Contact {
     id?: string;

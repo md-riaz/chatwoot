@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { Button } from '../../../button/index.js';
-  import { Input } from '../../../input/index.js';
-  import { Badge } from '../../../badge/index.js';
-  import { Card } from '../../../card/index.js';
-  import { Avatar } from '../../../avatar/index.js';
-  import { Checkbox } from '../../../checkbox/index.js';
-  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../select/index.js';
-  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../table/index.js';
+  import { Button } from '$lib/components/ui/button';
+  import { Input } from '$lib/components/ui/input';
+  import { Badge } from '$lib/components/ui/badge';
+  import { Card } from '$lib/components/ui/card';
+  import { Avatar } from '$lib/components/ui/avatar';
+  import { Checkbox } from '$lib/components/ui/checkbox';
+  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '$lib/components/ui/select';
+  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
   import { Search, Plus, Mail, Phone, Tag, Download, Filter } from 'lucide-svelte';
 
   interface Contact {
@@ -54,7 +54,7 @@
   let selectedContacts: Set<string> = new Set();
 
   $: filteredContacts = contacts
-    .filter((contact) => {
+    .filter((contact: Contact) => {
       const matchesSearch =
         searchQuery === '' ||
         contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
