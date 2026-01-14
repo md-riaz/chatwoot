@@ -128,13 +128,13 @@
         {/snippet}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onselect={handleCreateLiveChatCampaign}>
+        <DropdownMenuItem onclick={handleCreateLiveChatCampaign}>
           Live Chat Campaign
         </DropdownMenuItem>
-        <DropdownMenuItem onselect={handleCreateSMSCampaign}>
+        <DropdownMenuItem onclick={handleCreateSMSCampaign}>
           SMS Campaign
         </DropdownMenuItem>
-        <DropdownMenuItem onselect={handleCreateWhatsAppCampaign}>
+        <DropdownMenuItem onclick={handleCreateWhatsAppCampaign}>
           WhatsApp Campaign
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -176,13 +176,13 @@
           {/snippet}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center">
-          <DropdownMenuItem onselect={handleCreateLiveChatCampaign}>
+          <DropdownMenuItem onclick={handleCreateLiveChatCampaign}>
             Live Chat Campaign
           </DropdownMenuItem>
-          <DropdownMenuItem onselect={handleCreateSMSCampaign}>
+          <DropdownMenuItem onclick={handleCreateSMSCampaign}>
             SMS Campaign
           </DropdownMenuItem>
-          <DropdownMenuItem onselect={handleCreateWhatsAppCampaign}>
+          <DropdownMenuItem onclick={handleCreateWhatsAppCampaign}>
             WhatsApp Campaign
           </DropdownMenuItem>
         </DropdownMenuContent>
