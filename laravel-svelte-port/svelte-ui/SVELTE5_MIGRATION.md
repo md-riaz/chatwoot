@@ -24,9 +24,9 @@ This directory contains comprehensive documentation for migrating the Chatwoot s
   - Exact fixes for each file
 
 ### Raw Data
-- **[SVELTE5_CHECK_OUTPUT.txt](SVELTE5_CHECK_OUTPUT.txt)** - Raw check output
+- **[svelte-check-results.txt](svelte-check-results.txt)** - Raw check output
   - Complete output from `pnpm run check`
-  - 507 errors and 105 warnings
+  - 517 errors and 101 warnings
   - Reference for verification
 
 ## 🎯 Error Summary
@@ -41,7 +41,7 @@ This directory contains comprehensive documentation for migrating the Chatwoot s
 | CSS compatibility | 5+ | Low | 0.5 day |
 | Other issues | 350+ | Various | 1-2 days |
 
-**Total**: 507 errors + 105 warnings = **612 issues**
+**Total**: 517 errors + 101 warnings = **618 issues**
 
 **Note**: Story/Histoire files have been removed as they are not needed for production components.
 
@@ -121,7 +121,7 @@ pnpm run check:watch
 
 Track progress by running `pnpm run check` after each fix batch:
 
-- [ ] **Phase 1: Critical Fixes** (612 issues → ~550 issues)
+- [ ] **Phase 1: Critical Fixes** (618 issues → ~550 issues)
   - [ ] Fix snake_case properties
   - [ ] Fix type mismatches
 
@@ -196,7 +196,8 @@ Example commit messages:
 
 ---
 
-**Last Updated**: 2026-01-13  
+**Last Updated**: 2026-01-14  
 **Status**: Analysis Complete, Implementation Pending  
-**Total Issues**: 612 (507 errors + 105 warnings)  
+**Total Issues**: 618 (517 errors + 101 warnings)  
+**Files Affected**: 179 files  
 **Note**: Story files removed - not needed for production

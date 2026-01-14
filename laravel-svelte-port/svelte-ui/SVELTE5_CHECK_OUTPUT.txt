@@ -279,6 +279,36 @@ https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
   </CheckboxPrimitive.[35mIndicator[36m>
 </CheckboxPrimitive.Root>[39m
 
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/card/card.svelte[39m:3:17
+[31mError[39m: Module '"svelte/elements"' has no exported member 'Snippet'. (ts)
+[36m  import { cn } from '$lib/utils';
+  import type { [35mSnippet[36m, HTMLAttributes } from 'svelte/elements';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/table/table-header.svelte[39m:4:17
+[31mError[39m: '"svelte/elements"' has no exported member named 'HTMLTableSectionAttributes'. Did you mean 'HTMLTableAttributes'? (ts)
+[36m  import type { Snippet } from 'svelte';
+  import type { [35mHTMLTableSectionAttributes[36m } from 'svelte/elements';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/table/table-body.svelte[39m:4:17
+[31mError[39m: '"svelte/elements"' has no exported member named 'HTMLTableSectionAttributes'. Did you mean 'HTMLTableAttributes'? (ts)
+[36m  import type { Snippet } from 'svelte';
+  import type { [35mHTMLTableSectionAttributes[36m } from 'svelte/elements';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/table/table-row.svelte[39m:4:17
+[31mError[39m: '"svelte/elements"' has no exported member named 'HTMLTableRowAttributes'. Did you mean 'HTMLTableAttributes'? (ts)
+[36m  import type { Snippet } from 'svelte';
+  import type { [35mHTMLTableRowAttributes[36m } from 'svelte/elements';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/table/table-head.svelte[39m:4:17
+[31mError[39m: '"svelte/elements"' has no exported member named 'HTMLTableCellAttributes'. Did you mean 'HTMLTableAttributes'? (ts)
+[36m  import type { Snippet } from 'svelte';
+  import type { [35mHTMLTableCellAttributes[36m } from 'svelte/elements';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/table/table-cell.svelte[39m:5:17
+[31mError[39m: '"svelte/elements"' has no exported member named 'HTMLTableCellAttributes'. Did you mean 'HTMLTableAttributes'? (ts)
+[36m
+  import type { [35mHTMLTableCellAttributes[36m } from 'svelte/elements';[39m
+
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/skeleton/skeleton.svelte[39m:11:1
 [33mWarn[39m: Self-closing HTML tags for non-void elements are ambiguous — use `<div ...></div>` rather than `<div ... />`
 https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
@@ -1460,12 +1490,33 @@ import type { CalendarProps } from './calendar.svelte';[39m
 [36mimport Root from './calendar.svelte';
 import type { [35mCalendarProps[36m } from './calendar.svelte';[39m
 
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-form/contact-form.svelte[39m:23:23
+[33mWarn[39m: This reference only captures the initial value of `contact`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m
+  let form: Contact = [35mcontact[36m
+    ? { ...contact }[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-form/contact-form.svelte[39m:24:12
+[33mWarn[39m: This reference only captures the initial value of `contact`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m  let form: Contact = contact
+    ? { ...[35mcontact[36m }
+    : { name: '', email: '', phone: '', company: '', tags: [], status: 'active' };[39m
+
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-form/contact-form.svelte[39m:80:7
 [33mWarn[39m: A form label must be associated with a control
 https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 [36m    <div class="flex flex-col flex-1">
       [35m<label class="text-sm text-muted-foreground">Upload Avatar</label>[36m
-      <input type="file" accept="image/*" on:change={onFileChange} />[39m
+      <input type="file" accept="image/*" on:change={(e: Event) => onFileChange(e)} />[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-form/contact-form.svelte[39m:81:43
+[33mWarn[39m: Using `on:change` to listen to the change event is deprecated. Use the event attribute `onchange` instead
+https://svelte.dev/e/event_directive_deprecated (svelte)
+[36m      <label class="text-sm text-muted-foreground">Upload Avatar</label>
+      <input type="file" accept="image/*" [35mon:change={(e: Event) => onFileChange(e)}[36m />
+    </div>[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-form/contact-form.svelte[39m:87:7
 [33mWarn[39m: A form label must be associated with a control
@@ -1500,7 +1551,7 @@ https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 [36m    <div>
       [35m<label class="text-sm">Tags (comma separated)</label>[36m
-      <Input value={form.tags?.join(', ')} on:input={(e) => (form.tags = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean))} />[39m
+      <Input value={form.tags?.join(', ')} on:input={(e: Event & { target: HTMLInputElement }) => (form.tags = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean))} />[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-form/contact-form.svelte[39m:120:7
 [33mWarn[39m: A form label must be associated with a control
@@ -1508,6 +1559,19 @@ https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 [36m    <div>
       [35m<label class="text-sm">Status</label>[36m
       <Select bind:value={form.status}>[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-form/contact-form.svelte[39m:28:7
+[33mWarn[39m: `avatarPreview` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
+https://svelte.dev/e/non_reactive_update (svelte)
+[36m  let avatarFile: File | null = null;
+  let [35mavatarPreview: string | null[36m = form.avatar || null;
+  let errors: Record<string, string> = {};[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-form/contact-form.svelte[39m:29:7
+[33mWarn[39m: `errors` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
+https://svelte.dev/e/non_reactive_update (svelte)
+[36m  let avatarPreview: string | null = form.avatar || null;
+  let [35merrors: Record<string, string>[36m = {};[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-form/contact-form.svelte[39m:3:26
 [31mError[39m: Cannot find module '../../../avatar/index.js' or its corresponding type declarations. (ts)
@@ -1532,34 +1596,86 @@ https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 [36m  import { Input } from '../../../input/index.js';
   import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from [35m'../../../select/index.js'[36m;[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-form/contact-form.svelte[39m:116:55
-[31mError[39m: Parameter 'e' implicitly has an 'any' type. (ts)
-[36m      <label class="text-sm">Tags (comma separated)</label>
-      <Input value={form.tags?.join(', ')} on:input={([35me[36m) => (form.tags = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean))} />
-    </div>[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-details/contact-details.svelte[39m:88:1
-[31mError[39m: `</script>` attempted to close an element that was not open
-https://svelte.dev/e/element_invalid_closing_tag (svelte)
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-details/contact-details.svelte[39m:57:3
+[31mError[39m: `$:` is not allowed in runes mode, use `$derived` or `$effect` instead
+https://svelte.dev/e/legacy_reactive_statement_invalid (svelte)
 [36m
-[35m[36m</script>[39m
+  [35m$: localNotes = contact?.notes ? [...contact.notes] : localNotes;[36m[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-details/contact-details.svelte[39m:88:1
-[31mError[39m: `</script>` attempted to close an element that was not open
-https://svelte.dev/e/element_invalid_closing_tag (ts)
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-details/contact-details.svelte[39m:3:26
+[31mError[39m: Cannot find module '../../../avatar/index.js' or its corresponding type declarations. (ts)
+[36m  import { createEventDispatcher } from 'svelte';
+  import { Avatar } from [35m'../../../avatar/index.js'[36m;
+  import { Badge } from '../../../badge/index.js';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-details/contact-details.svelte[39m:4:25
+[31mError[39m: Cannot find module '../../../badge/index.js' or its corresponding type declarations. (ts)
+[36m  import { Avatar } from '../../../avatar/index.js';
+  import { Badge } from [35m'../../../badge/index.js'[36m;
+  import { Button } from '../../../button/index.js';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-details/contact-details.svelte[39m:5:26
+[31mError[39m: Cannot find module '../../../button/index.js' or its corresponding type declarations. (ts)
+[36m  import { Badge } from '../../../badge/index.js';
+  import { Button } from [35m'../../../button/index.js'[36m;
+  import { Card } from '../../../card/index.js';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-details/contact-details.svelte[39m:6:24
+[31mError[39m: Cannot find module '../../../card/index.js' or its corresponding type declarations. (ts)
+[36m  import { Button } from '../../../button/index.js';
+  import { Card } from [35m'../../../card/index.js'[36m;
+  import { Input } from '../../../input/index.js';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-details/contact-details.svelte[39m:7:25
+[31mError[39m: Cannot find module '../../../input/index.js' or its corresponding type declarations. (ts)
+[36m  import { Card } from '../../../card/index.js';
+  import { Input } from [35m'../../../input/index.js'[36m;
+  import { ContactForm } from '../contact-form/index.js';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-details/contact-details.svelte[39m:17:10
+[31mError[39m: Cannot find module '../../../dialog/index.js' or its corresponding type declarations. (ts)
+[36m    Close as DialogClose,
+  } from [35m'../../../dialog/index.js'[36m;[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-details/contact-details.svelte[39m:116:44
+[31mError[39m: Parameter 'n' implicitly has an 'any' type. (ts)
+[36m            <div class="flex h-full w-full items-center justify-center bg-primary text-primary-foreground">
+              {contact.name.split(' ').map([35mn[36m => n[0]).join('').toUpperCase().slice(0,2)}
+            </div>[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-list/contact-list.svelte[39m:56:3
+[31mError[39m: `$:` is not allowed in runes mode, use `$derived` or `$effect` instead
+https://svelte.dev/e/legacy_reactive_statement_invalid (svelte)
 [36m
-[35m[36m</script>[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-details/index.ts[39m:1:10
-[31mError[39m: Module '"./contact-details.svelte"' has no exported member 'default'. 
-[36mexport { [35mdefault[36m as ContactDetails } from './contact-details.svelte';[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-list/contact-list.svelte[39m:202:26
-[31mError[39m: Event modifiers other than 'once' can only be used on DOM elements
-https://svelte.dev/e/event_handler_invalid_component_modifier (svelte)
-[36m            <TableRow class="cursor-pointer hover:bg-muted/50" on:click={() => onContactSelect(contact.id)}>
-              <TableCell [35mon:click|stopPropagation[36m>
-                <Checkbox[39m
+  [35m$: filteredContacts = contacts
+    .filter((contact) => {
+      const matchesSearch =
+        searchQuery === '' ||
+        contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        contact.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        contact.company?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesTag =
+        selectedTag === 'all' || contact.tags.includes(selectedTag);
+      return matchesSearch && matchesTag;
+    })
+    .sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'email':
+          comparison = a.email.localeCompare(b.email);
+          break;
+        case 'created':
+          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          break;
+        case 'lastActivity':
+          comparison = new Date(a.lastActivity).getTime() - new Date(b.lastActivity).getTime();
+          break;
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });[36m[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-list/contact-list.svelte[39m:2:26
 [31mError[39m: Cannot find module '../../../button/index.js' or its corresponding type declarations. (ts)
@@ -1608,6 +1724,41 @@ https://svelte.dev/e/event_handler_invalid_component_modifier (svelte)
 [36m  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../select/index.js';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from [35m'../../../table/index.js'[36m;
   import { Search, Plus, Mail, Phone, Tag, Download, Filter } from 'lucide-svelte';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-list/contact-list.svelte[39m:57:14
+[31mError[39m: Parameter 'contact' implicitly has an 'any' type. (ts)
+[36m  $: filteredContacts = contacts
+    .filter(([35mcontact[36m) => {
+      const matchesSearch =[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-list/contact-list.svelte[39m:67:12
+[31mError[39m: Parameter 'a' implicitly has an 'any' type. (ts)
+[36m    })
+    .sort(([35ma[36m, b) => {
+      let comparison = 0;[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-list/contact-list.svelte[39m:67:15
+[31mError[39m: Parameter 'b' implicitly has an 'any' type. (ts)
+[36m    })
+    .sort((a, [35mb[36m) => {
+      let comparison = 0;[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-list/contact-list.svelte[39m:92:76
+[31mError[39m: Parameter 'c' implicitly has an 'any' type. (ts)
+[36m  $: totalPages = Math.ceil(filteredContacts.length / itemsPerPage);
+  $: allSelected = paginatedContacts.length > 0 && paginatedContacts.every([35mc[36m => selectedContacts.has(c.id));[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-list/contact-list.svelte[39m:96:33
+[31mError[39m: Parameter 'c' implicitly has an 'any' type. (ts)
+[36m    if (allSelected) {
+      paginatedContacts.forEach([35mc[36m => selectedContacts.delete(c.id));
+    } else {[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/contact-management/contact-list/contact-list.svelte[39m:98:33
+[31mError[39m: Parameter 'c' implicitly has an 'any' type. (ts)
+[36m    } else {
+      paginatedContacts.forEach([35mc[36m => selectedContacts.add(c.id));
+    }[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/date-picker/date-picker.svelte[39m:1:19
 [33mWarn[39m: `context="module"` is deprecated, use the `module` attribute instead
@@ -1915,45 +2066,12 @@ import { api } from [35m'../../../api/client'[36m;[39m
 [36m    const article = { id: '1', title: 'Old', content: 'Old content' };
     const { getByText, component } = render([35mArticleEditor[36m, { article });[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/help-center/categories/categories.svelte[39m:104:15
-[33mWarn[39m: Buttons and links should either contain text or have an `aria-label`, `aria-labelledby` or `title` attribute
-https://svelte.dev/e/a11y_consider_explicit_label (svelte)
-[36m            {#each colors as color}
-              [35m<button
-                type="button"
-                class="w-8 h-8 rounded-full border-2 transition-all {formData.color === color ? 'scale-110 border-primary' : 'border-transparent'}"
-                style="background-color: {color}"
-                on:click={() => formData.color = color}
-              />[36m
-            {/each}[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/help-center/categories/categories.svelte[39m:104:15
-[33mWarn[39m: Self-closing HTML tags for non-void elements are ambiguous — use `<button ...></button>` rather than `<button ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-[36m            {#each colors as color}
-              [35m<button
-                type="button"
-                class="w-8 h-8 rounded-full border-2 transition-all {formData.color === color ? 'scale-110 border-primary' : 'border-transparent'}"
-                style="background-color: {color}"
-                on:click={() => formData.color = color}
-              />[36m
-            {/each}[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/help-center/categories/categories.svelte[39m:131:13
-[33mWarn[39m: Self-closing HTML tags for non-void elements are ambiguous — use `<div ...></div>` rather than `<div ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-[36m          <div class="flex items-center gap-4 flex-1">
-            [35m<div
-              class="w-4 h-4 rounded-full"
-              style="background-color: {category.color}"
-            />[36m
-            <div class="flex-1">[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/help-center/categories/categories.svelte[39m:21:14
-[33mWarn[39m: Component has unused export property 'onReorder'. If it is for external reference only, please consider using `export const onReorder`
-https://svelte.dev/e/export_let_unused (svelte)
-[36m  export let onDelete: (id: string) => void = () => {};
-  export let [35monReorder: (categories: typeof categories) => void[36m = () => {};[39m
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/help-center/categories/categories.svelte[39m:109:17
+[31mError[39m: Mixing old (on:click) and new syntaxes for event handling is not allowed. Use only the onclick syntax
+https://svelte.dev/e/mixed_event_handler_syntaxes (svelte)
+[36m                style="background-color: {color}"
+                [35mon:click={() => formData.color = color}[36m
+              />[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/ui/help-center/categories/categories.svelte[39m:21:26
 [31mError[39m: 'categories' is referenced directly or indirectly in its own type annotation. (ts)
@@ -2990,7 +3108,7 @@ To mark a property as bindable: 'let { open = $bindable() } = $props()' (ts)
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/layout/AppHeader.svelte[39m:128:17
 [31mError[39m: Object literal may only specify known properties, and '"onclick"' does not exist in type 'Props'. (ts)
 [36m                class="gap-2"
-                [35monclick[36m={() => handleAccountSwitch(account.id)}
+                [35monclick[36m={(e: MouseEvent) => handleAccountSwitch(account.id)}
               >[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/layout/AppHeader.svelte[39m:193:48
@@ -3008,7 +3126,13 @@ To mark a property as bindable: 'let { open = $bindable() } = $props()' (ts)
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/layout/AppHeader.svelte[39m:215:34
 [31mError[39m: Object literal may only specify known properties, and '"onclick"' does not exist in type 'Props'. (ts)
 [36m            {:else}
-              <DropdownMenu.Item [35monclick[36m={item.onClick}>
+              <DropdownMenu.Item [35monclick[36m={(e: MouseEvent) => item.onClick()}>
+                {item.label}[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/layout/AppHeader.svelte[39m:215:62
+[31mError[39m: Cannot invoke an object which is possibly 'undefined'. (ts)
+[36m            {:else}
+              <DropdownMenu.Item onclick={(e: MouseEvent) => [35mitem.onClick[36m()}>
                 {item.label}[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/layout/AppSidebar.svelte[39m:137:3
@@ -3032,7 +3156,7 @@ https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/messages/MessageComposer.svelte[39m:199:15
 [31mError[39m: Object literal may only specify known properties, and '"id"' does not exist in type 'Props'. (ts)
-[36m      <Label for="private-toggle" class="text-sm cursor-pointer">Private</Label>
+[36m      <label for="private-toggle" class="text-sm cursor-pointer">Private</label>
       <Switch [35mid[36m="private-toggle" bind:checked={isPrivate} />
     </div>[39m
 
@@ -3212,18 +3336,6 @@ https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
 [36m            class="h-6 w-6"
             onclick={([35me[36m) => {
               e.stopPropagation();[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/portal/ArticleCard.svelte[39m:94:5
-[33mWarn[39m: Also define the standard property 'line-clamp' for compatibility (css)
-[36m    display: -webkit-box;
-    [35m-webkit-line-clamp[36m: 2;
-    -webkit-box-orient: vertical;[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/portal/ArticleCard.svelte[39m:107:5
-[33mWarn[39m: Also define the standard property 'line-clamp' for compatibility (css)
-[36m    display: -webkit-box;
-    [35m-webkit-line-clamp[36m: 2;
-    -webkit-box-orient: vertical;[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/lib/components/portal/CategoryCard.svelte[39m:89:5
 [33mWarn[39m: Also define the standard property 'line-clamp' for compatibility (css)
@@ -3430,12 +3542,6 @@ https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
                 </div>
               </div>[36m
             {/each}[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/+page.svelte[39m:122:9
-[31mError[39m: Object literal may only specify known properties, and '"onclick"' does not exist in type 'Props'. (ts)
-[36m        class="hover:shadow-md transition-shadow cursor-pointer"
-        [35monclick[36m={() => goto(stat.href)}
-      >[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/campaigns/+page.svelte[39m:199:15
 [33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
@@ -4225,52 +4331,16 @@ https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
               onclick={([35me[36m) => handleDeleteCompany(e, company.id, company.name)}
             >[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/contacts/+page.svelte[39m:31:9
-[31mError[39m: Property 'phone_number' does not exist on type 'Contact'. Did you mean 'phoneNumber'? (ts)
-[36m      c.email?.toLowerCase().includes(query) ||
-      c.[35mphone_number[36m?.includes(query)
-    );[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/contacts/+page.svelte[39m:117:67
-[31mError[39m: Property 'avatar_url' does not exist on type 'Contact'. Did you mean 'avatarUrl'? (ts)
-[36m                <Avatar.Root class="h-12 w-12">
-                  <Avatar.Image src={contact.thumbnail || contact.[35mavatar_url[36m || ''} alt={contact.name} />
-                  <Avatar.Fallback>[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/contacts/+page.svelte[39m:128:34
-[31mError[39m: Property 'availability_status' does not exist on type 'Contact'. Did you mean 'availabilityStatus'? (ts)
-[36m                    </h3>
-                    {#if contact.[35mavailability_status[36m}
-                      <Badge variant="secondary" class="text-xs">[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/contacts/+page.svelte[39m:130:34
-[31mError[39m: Property 'availability_status' does not exist on type 'Contact'. Did you mean 'availabilityStatus'? (ts)
-[36m                      <Badge variant="secondary" class="text-xs">
-                        {contact.[35mavailability_status[36m}
-                      </Badge>[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/contacts/+page.svelte[39m:142:32
-[31mError[39m: Property 'phone_number' does not exist on type 'Contact'. Did you mean 'phoneNumber'? (ts)
-[36m                  
-                  {#if contact.[35mphone_number[36m}
-                    <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/contacts/+page.svelte[39m:145:55
-[31mError[39m: Property 'phone_number' does not exist on type 'Contact'. Did you mean 'phoneNumber'? (ts)
-[36m                      <Phone class="h-3 w-3 flex-shrink-0" />
-                      <span class="truncate">{contact.[35mphone_number[36m}</span>
-                    </div>[39m
-
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/contacts/+page.svelte[39m:149:32
-[31mError[39m: Property 'company_name' does not exist on type 'Contact'. (ts)
+[31mError[39m: Property 'companyName' does not exist on type 'Contact'. (ts)
 [36m                  
-                  {#if contact.[35mcompany_name[36m}
+                  {#if contact.[35mcompanyName[36m}
                     <div class="flex items-center gap-2 text-sm text-muted-foreground">[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/contacts/+page.svelte[39m:152:55
-[31mError[39m: Property 'company_name' does not exist on type 'Contact'. (ts)
+[31mError[39m: Property 'companyName' does not exist on type 'Contact'. (ts)
 [36m                      <Building class="h-3 w-3 flex-shrink-0" />
-                      <span class="truncate">{contact.[35mcompany_name[36m}</span>
+                      <span class="truncate">{contact.[35mcompanyName[36m}</span>
                     </div>[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/conversations/+page.svelte[39m:30:24
@@ -4279,18 +4349,51 @@ https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
     conversationsStore.[35mselectConversation[36m(null);
     goto(`/app/accounts/${accountId}/conversations`);[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/conversations/[id]/+page.svelte[39m:17:44
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/conversations/[id]/+page.svelte[39m:16:33
+[31mError[39m: Cannot find module '$lib/components/chat/MessageBubble.svelte' or its corresponding type declarations. (ts)
+[36m  import { goto } from '$app/navigation';
+  import { MessageBubble } from [35m'$lib/components/chat/MessageBubble.svelte'[36m;
+  import { onMount } from 'svelte';[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/conversations/[id]/+page.svelte[39m:20:43
 [31mError[39m: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'. (ts)
-[36m  const accountId = $derived($page.params.accountId);
-  const conversationId = $derived(parseInt([35m$page.params.id[36m));
-  const conversation = $derived([39m
+[36m  // Using Svelte 5 runes
+  let accountId = $state<number>(parseInt([35m$page.params.accountId[36m));
+  let conversationId = $state<number>(parseInt($page.params.id));[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/labels/+page.svelte[39m:79:6
-[31mError[39m: Object literal may only specify known properties, and '"style"' does not exist in type 'Props'. (ts)
-[36m					class="transition-all hover:scale-105 hover:shadow-md"
-					[35mstyle[36m="border-color: {label.color}; background: {label.color}10;"
-				>[39m
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/conversations/[id]/+page.svelte[39m:21:48
+[31mError[39m: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'. (ts)
+[36m  let accountId = $state<number>(parseInt($page.params.accountId));
+  let conversationId = $state<number>(parseInt([35m$page.params.id[36m));
+  let conversation = $derived([39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/conversations/[id]/+page.svelte[39m:115:14
+[31mError[39m: Argument of type '"keypress"' is not assignable to parameter of type 'never'. (ts)
+[36m          bind:value={messageText}
+          on:[35mkeypress[36m={(e) => e.key === 'Enter' && handleSendMessage()}
+        />[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/conversations/[id]/+page.svelte[39m:115:33
+[31mError[39m: Property 'key' does not exist on type 'never'. (ts)
+[36m          bind:value={messageText}
+          on:keypress={(e) => e.[35mkey[36m === 'Enter' && handleSendMessage()}
+        />[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/inbox/+page.svelte[39m:196:20
+[31mError[39m: 'elseif' should be 'else if'
+https://svelte.dev/e/block_invalid_elseif (svelte)
+[36m                    <Badge variant="destructive">High Priority</Badge>
+                  {[35m[36m:elseif conversation.priority === 'medium'}
+                    <Badge variant="default">Medium Priority</Badge>[39m
+
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/inbox/+page.svelte[39m:196:20
+[31mError[39m: 'elseif' should be 'else if'
+https://svelte.dev/e/block_invalid_elseif (ts)
+[36m                    <Badge variant="destructive">High Priority</Badge>
+                  {[35m[36m:elseif conversation.priority === 'medium'}
+                    <Badge variant="default">Medium Priority</Badge>[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/reports/+page.svelte[39m:57:11
 [31mError[39m: Type '"date"' is not assignable to type '"number" | "search" | "text" | "email" | "url" | "password" | "tel" | undefined'. (ts)
@@ -4303,12 +4406,6 @@ https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
 [36m        <Input
           [35mtype[36m="date"
           bind:value={until}[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/+page.svelte[39m:68:80
-[31mError[39m: Object literal may only specify known properties, and '"onclick"' does not exist in type 'Props'. (ts)
-[36m    {#each settingsSections as section}
-      <Card.Root class="hover:border-primary transition-colors cursor-pointer" [35monclick[36m={() => goto(section.href)}>
-        <Card.Header>[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/account/+page.svelte[39m:90:27
 [31mError[39m: Object literal may only specify known properties, and 'selected' does not exist in type 'SelectRootPropsWithoutHTML'. (ts)
@@ -4348,12 +4445,6 @@ To mark a property as bindable: 'let { selected = $bindable() } = $props()' (ts)
           <Select.Trigger [35mid[36m="timezone">
             <Select.Value placeholder="Select timezone" />[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/agents/+page.svelte[39m:112:11
-[31mError[39m: Object literal may only specify known properties, and '"onclick"' does not exist in type 'Props'. (ts)
-[36m          class="hover:shadow-md transition-shadow cursor-pointer"
-          [35monclick[36m={() => handleViewAgent(agent.id)}
-        >[39m
-
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/agents/+page.svelte[39m:145:29
 [31mError[39m: Parameter 'e' implicitly has an 'any' type. (ts)
 [36m                  size="sm"
@@ -4384,41 +4475,17 @@ To mark a property as bindable: 'let { selected = $bindable() } = $props()' (ts)
           [35mtype[36m="date"
           bind:value={endDate}[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/+page.svelte[39m:102:11
-[31mError[39m: Object literal may only specify known properties, and '"onclick"' does not exist in type 'Props'. (ts)
-[36m          class="hover:shadow-md transition-shadow cursor-pointer"
-          [35monclick[36m={() => handleViewInbox(inbox.id)}
-        >[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:391:11
-[31mError[39m: Object literal may only specify known properties, and '"onclick"' does not exist in type 'Props'. (ts)
-[36m          class="hover:shadow-md transition-shadow cursor-pointer hover:border-blue-500"
-          [35monclick[36m={() => handleChannelSelect(channel.type)}
-        >[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:416:15
-[31mError[39m: Object literal may only specify known properties, and '"onclick"' does not exist in type 'Props'. (ts)
-[36m              class="hover:shadow-md transition-shadow cursor-pointer hover:border-blue-500"
-              [35monclick[36m={() => handleProviderSelect(provider.value)}
-            >[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:428:15
-[31mError[39m: Object literal may only specify known properties, and '"onclick"' does not exist in type 'Props'. (ts)
-[36m              class="hover:shadow-md transition-shadow cursor-pointer hover:border-blue-500"
-              [35monclick[36m={() => handleProviderSelect(provider.value)}
-            >[39m
-
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:503:21
 [31mError[39m: Type '"color"' is not assignable to type '"number" | "search" | "text" | "email" | "url" | "password" | "tel" | undefined'. (ts)
 [36m                    id="widgetColor"
                     [35mtype[36m="color"
                     bind:value={widgetColor}[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:553:52
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:554:52
 [31mError[39m: Object literal may only specify known properties, and '"id"' does not exist in type 'Props'. (ts)
-[36m                <div class="flex items-center space-x-2">
+[36m                  <label for="useApiKey" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Use API Key instead of Auth Token</label>
                   <Switch bind:checked={useApiKey} [35mid[36m="useApiKey" />
-                  <Label for="useApiKey">Use API Key instead of Auth Token</Label>[39m
+                </div>[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:601:62
 [31mError[39m: Object literal may only specify known properties, and '"id"' does not exist in type 'Props'. (ts)
@@ -4426,17 +4493,17 @@ To mark a property as bindable: 'let { selected = $bindable() } = $props()' (ts)
                   <Switch bind:checked={useMessagingService} [35mid[36m="useMessagingService" />
                   <Label for="useMessagingService">Use Messaging Service SID</Label>[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:768:52
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:769:52
 [31mError[39m: Object literal may only specify known properties, and '"id"' does not exist in type 'Props'. (ts)
-[36m                <div class="flex items-center space-x-2">
+[36m                  <label for="useApiKey" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Use API Key instead of Auth Token</label>
                   <Switch bind:checked={useApiKey} [35mid[36m="useApiKey" />
-                  <Label for="useApiKey">Use API Key instead of Auth Token</Label>[39m
+                </div>[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:892:50
+/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:893:50
 [31mError[39m: Object literal may only specify known properties, and '"id"' does not exist in type 'Props'. (ts)
-[36m              <div class="flex items-center space-x-2">
+[36m                <label for="useApiKeyVoice" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Use API Key instead of Auth Token</label>
                 <Switch bind:checked={useApiKey} [35mid[36m="useApiKeyVoice" />
-                <Label for="useApiKeyVoice">Use API Key instead of Auth Token</Label>[39m
+              </div>[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte[39m:1002:35
 [31mError[39m: Type 'string' is not assignable to type 'string[]'. (ts)
@@ -4616,13 +4683,6 @@ https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 								[35m<label class="text-sm font-medium text-muted-foreground">UPDATED AT</label>[36m
 								<p class="text-lg">{new Date(bot.updatedAt).toLocaleString()}</p>[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/super_admin/agent-bots/[id]/+page.svelte[39m:15:6
-[33mWarn[39m: `bot` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
-https://svelte.dev/e/non_reactive_update (svelte)
-[36m	let loading = $state(true);
-	let [35mbot: any[36m = null;
-	let showAccessToken = $state(false);[39m
-
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/super_admin/agent-bots/[id]/edit/+page.svelte[39m:306:9
 [31mError[39m: Object literal may only specify known properties, and '"oninput"' does not exist in type 'Props & { ref?: HTMLInputElement | null | undefined; }'. (ts)
 [36m								value={formData.name}
@@ -4707,26 +4767,12 @@ https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 									[35m<label class="text-sm font-medium text-muted-foreground">TOKEN</label>[36m
 									<div class="flex items-center gap-2 mt-2">[39m
 
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/super_admin/platform-apps/[id]/+page.svelte[39m:16:5
-[33mWarn[39m: `platformApp` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
-https://svelte.dev/e/non_reactive_update (svelte)
-[36mlet loading = $state(true);
-let [35mplatformApp: PlatformApp | null[36m = null;
-let showAccessToken = $state(false);[39m
-
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/super_admin/platform-apps/[id]/+page.svelte[39m:225:14
 [31mError[39m: Cannot use 'bind:' with this property. It is declared as non-bindable inside the component.
 To mark a property as bindable: 'let { open = $bindable() } = $props()' (ts)
 [36m<!-- Delete Confirmation Dialog -->
 <Dialog.Root [35mbind:open={showDeleteDialog}[36m>
 	<Dialog.Content class="sm:max-w-[400px]">[39m
-
-/home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/super_admin/platform-apps/[id]/edit/+page.svelte[39m:117:13
-[33mWarn[39m: Using `on:submit` to listen to the submit event is deprecated. Use the event attribute `onsubmit` instead
-https://svelte.dev/e/event_directive_deprecated (svelte)
-[36m					<CardContent>
-						<form [35mon:submit|preventDefault={handleSubmit}[36m>
-							<div class="space-y-6">[39m
 
 /home/runner/work/chatwoot/chatwoot/laravel-svelte-port/svelte-ui/[32msrc/routes/app/super_admin/settings/+page.svelte[39m:281:50
 [31mError[39m: Object literal may only specify known properties, and '"title"' does not exist in type 'Properties<IconProps, { default: {}; }>'. (ts)
@@ -4823,5 +4869,5 @@ https://svelte.dev/e/event_directive_deprecated (svelte)
     await initI18n([35m'en'[36m);[39m
 
 ====================================
-[31msvelte-check found 507 errors and 105 warnings in 178 files
+[31msvelte-check found 517 errors and 101 warnings in 179 files
 [39m ELIFECYCLE  Command failed with exit code 1.
