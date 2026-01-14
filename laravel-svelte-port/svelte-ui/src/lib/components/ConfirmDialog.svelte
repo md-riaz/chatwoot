@@ -35,7 +35,7 @@
   }
 </script>
 
-<Dialog.Root bind:open>
+<Dialog.Root {open} onOpenChange={(value) => (open = value)}>
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>{title}</Dialog.Title>
