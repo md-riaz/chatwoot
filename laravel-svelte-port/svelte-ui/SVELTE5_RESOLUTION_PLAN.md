@@ -1,21 +1,61 @@
 # Svelte 5 Migration - Phased Resolution Plan
 
 **Created**: 2026-01-14  
+**Updated**: 2026-01-14 (Revised to respect shadcn-svelte components)  
 **Current State**: 517 errors, 101 warnings, 179 files  
 **Goal**: 0 errors, 0 warnings, full Svelte 5 compliance
 
-This plan ensures all components follow official **shadcn-svelte** UI component library/framework and use correct **Svelte 5 syntax** from llms.txt.
+This plan ensures correct **usage** of official **shadcn-svelte** UI components and proper **Svelte 5 syntax** from llms.txt.
 
 ---
 
 ## 📋 Core Principles
 
-### 1. shadcn-svelte Component Standards
-- ✅ **USE**: shadcn-svelte components (Input, Select, Card, Button, etc.)
-- ✅ **EXTEND**: Add missing props to shadcn components via TypeScript interfaces
-- ✅ **MAINTAIN**: bits-ui primitives as the foundation
-- ❌ **AVOID**: Native HTML elements as replacements
-- ❌ **AVOID**: Custom wrappers around shadcn components
+### 1. shadcn-svelte Component Standards (RESPECT THE FRAMEWORK)
+- ✅ **USE**: shadcn-svelte components AS-IS - they are professionally built
+- ✅ **NEVER MODIFY**: Do not extend or change shadcn-svelte component files directly
+- ✅ **CREATE WRAPPERS**: Build custom wrapper components for project-specific needs
+- ✅ **USE NATIVE HTML**: When shadcn doesn't provide a component (e.g., date inputs, file inputs)
+- ✅ **CHECK DOCS**: Always verify correct usage patterns from shadcn-svelte.com
+- ✅ **USE DEDICATED COMPONENTS**: Use specialized components when available (e.g., file upload has its own component)
+- ❌ **NEVER EXTEND**: Don't modify shadcn component files themselves
+- ❌ **DON'T MISUSE**: Use components for their intended purpose
+
+**Wrapper Pattern Example**:
+```svelte
+<!-- ✅ CORRECT: Create wrapper in our own components folder -->
+<!-- src/lib/components/custom/DateInput.svelte -->
+<script lang="ts">
+  let { value = $bindable(''), class: className = '', ...rest } = $props();
+</script>
+
+<input
+  type="date"
+  bind:value
+  class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 {className}"
+  {...rest}
+/>
+```
+
+```svelte
+<!-- ✅ CORRECT: Wrapper around Card for clickable cards -->
+<!-- src/lib/components/custom/ClickableCard.svelte -->
+<script lang="ts">
+  import { Card } from '$lib/components/ui/card';
+  
+  let { onclick, children, class: className = '' } = $props();
+</script>
+
+<button
+  type="button"
+  {onclick}
+  class="block text-left transition-shadow hover:shadow-md {className}"
+>
+  <Card.Root>
+    {@render children?.()}
+  </Card.Root>
+</button>
+```
 
 ### 2. Svelte 5 Syntax (from llms.txt)
 - ✅ **USE**: `$props()` rune for component props
@@ -37,158 +77,328 @@ This plan ensures all components follow official **shadcn-svelte** UI component 
 
 ## 🎯 Phase 1: Foundation & Critical Fixes (Days 1-2)
 
-**Goal**: Fix critical blocking errors that affect multiple files  
+**Goal**: Fix critical issues by using components correctly, not by modifying them  
 **Target**: 618 → 550 issues (68 fixes, 11% reduction)
 
-### 1.1 Fix shadcn-svelte UI Component Extensions (Priority: CRITICAL)
+### 1.1 Create Custom Wrapper Components (Priority: CRITICAL)
 
-**Issue**: Core UI components missing props causing ~100+ errors
+**Goal**: Build reusable wrapper components for common patterns  
+**Errors Fixed**: ~50
 
-#### Input Component (`src/lib/components/ui/input/`)
-**Errors Fixed**: ~20
-```typescript
-// Current: Limited type support
-type Props = {
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search';
-}
+#### DateInput Wrapper Component
+Create a custom DateInput component that uses native HTML with shadcn styling:
 
-// Fix: Extend to support all HTML5 input types
-type Props = HTMLInputAttributes & {
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search'
-    | 'date' | 'time' | 'datetime-local' | 'month' | 'week' | 'color'
-    | 'file' | 'range' | 'hidden';
-  min?: string | number;
-  max?: string | number;
-  step?: string | number;
-  accept?: string;
-}
+```svelte
+<!-- src/lib/components/custom/DateInput.svelte -->
+<script lang="ts">
+  import { cn } from '$lib/utils';
+  
+  type Props = {
+    value?: string;
+    class?: string;
+    placeholder?: string;
+    disabled?: boolean;
+    required?: boolean;
+    min?: string;
+    max?: string;
+    name?: string;
+    id?: string;
+    oninput?: (e: Event & { currentTarget: HTMLInputElement }) => void;
+    onchange?: (e: Event & { currentTarget: HTMLInputElement }) => void;
+  };
+  
+  let {
+    value = $bindable(''),
+    class: className,
+    ...restProps
+  }: Props = $props();
+</script>
+
+<input
+  type="date"
+  bind:value
+  class={cn(
+    'border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+    className
+  )}
+  {...restProps}
+/>
+```
+
+**Usage**:
+```svelte
+<DateInput bind:value={since} class="w-40" />
 ```
 
 **Files to Update**:
-- `src/lib/components/ui/input/input.svelte`
-- `src/lib/components/ui/input/index.ts`
-
-**Testing**:
-```bash
-# Verify fixes in these files
-pnpm run check | grep "type.*date.*color"
-```
+- Create: `src/lib/components/custom/DateInput.svelte`
+- Update: `src/routes/app/accounts/[accountId]/reports/+page.svelte` (2 uses)
+- Update: `src/routes/app/accounts/[accountId]/settings/audit-logs/+page.svelte` (2 uses)
 
 ---
 
-#### Card Component (`src/lib/components/ui/card/`)
-**Errors Fixed**: ~30
-```typescript
-// Current: No HTML attributes support
-type Props = {
-  class?: string;
-  children?: Snippet;
-}
+#### ColorInput Wrapper Component
+```svelte
+<!-- src/lib/components/custom/ColorInput.svelte -->
+<script lang="ts">
+  import { cn } from '$lib/utils';
+  
+  let {
+    value = $bindable('#000000'),
+    class: className,
+    ...restProps
+  } = $props<{
+    value?: string;
+    class?: string;
+    disabled?: boolean;
+    name?: string;
+  }>();
+</script>
 
-// Fix: Accept all div HTML attributes
-import type { HTMLAttributes } from 'svelte/elements';
-
-type Props = HTMLAttributes<HTMLDivElement> & {
-  class?: string;
-  children?: Snippet;
-}
+<input
+  type="color"
+  bind:value
+  class={cn(
+    'border-input bg-background h-10 w-full rounded-md border px-1 py-1 disabled:cursor-not-allowed disabled:opacity-50',
+    className
+  )}
+  {...restProps}
+/>
 ```
 
 **Files to Update**:
-- `src/lib/components/ui/card/card.svelte`
-
-**Testing**:
-```bash
-# Verify onclick works on cards
-pnpm run check | grep "Card.Root.*onclick"
-```
+- Create: `src/lib/components/custom/ColorInput.svelte`
+- Update: `src/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte`
 
 ---
 
-#### DropdownMenuItem Component (`src/lib/components/ui/dropdown-menu/`)
-**Errors Fixed**: ~15
-```typescript
-// Issue: bits-ui uses 'onselect', users expect 'onclick'
-type Props = {
-  class?: string;
-  inset?: boolean;
-  children?: Snippet;
-  onclick?: () => void;  // Add onclick support
-  disabled?: boolean;
-}
+#### ClickableCard Wrapper Component
+Create a wrapper that makes Card clickable without modifying shadcn Card:
 
-// Implementation: Map onclick to bits-ui's onselect
-<DropdownMenuPrimitive.Item
-  onselect={onclick}  // Map onclick to onselect
+```svelte
+<!-- src/lib/components/custom/ClickableCard.svelte -->
+<script lang="ts">
+  import { Card } from '$lib/components/ui/card';
+  import type { Snippet } from 'svelte';
+  
+  let {
+    onclick,
+    children,
+    class: className = '',
+    ...restProps
+  } = $props<{
+    onclick: () => void;
+    children?: Snippet;
+    class?: string;
+    [key: string]: any;
+  }>();
+</script>
+
+<button
+  type="button"
+  {onclick}
+  class="block w-full text-left transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg {className}"
   {...restProps}
 >
+  <Card.Root>
+    {#if children}
+      {@render children()}
+    {/if}
+  </Card.Root>
+</button>
+```
+
+**Usage**:
+```svelte
+<ClickableCard onclick={() => navigate('/somewhere')}>
+  <Card.Header>
+    <Card.Title>Title</Card.Title>
+  </Card.Header>
+  <Card.Content>Content</Card.Content>
+</ClickableCard>
 ```
 
 **Files to Update**:
-- `src/lib/components/ui/dropdown-menu/dropdown-menu-item.svelte`
+- Create: `src/lib/components/custom/ClickableCard.svelte`
+- Update: `src/routes/app/accounts/[accountId]/+page.svelte`
+- Update: `src/routes/app/accounts/[accountId]/settings/+page.svelte`
+- Update: `src/routes/app/accounts/[accountId]/settings/agents/+page.svelte`
+- Update: `src/routes/app/accounts/[accountId]/settings/inboxes/+page.svelte`
+- Update: `src/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte`
 
 ---
 
-#### Switch Component (`src/lib/components/ui/switch/`)
-**Errors Fixed**: ~10
+#### NumberInput Wrapper Component
+For number inputs with min/max:
+
+```svelte
+<!-- src/lib/components/custom/NumberInput.svelte -->
+<script lang="ts">
+  import { cn } from '$lib/utils';
+  
+  let {
+    value = $bindable(0),
+    class: className,
+    min,
+    max,
+    step = 1,
+    ...restProps
+  } = $props<{
+    value?: number;
+    class?: string;
+    min?: number;
+    max?: number;
+    step?: number;
+    placeholder?: string;
+    disabled?: boolean;
+  }>();
+</script>
+
+<input
+  type="number"
+  bind:value
+  {min}
+  {max}
+  {step}
+  class={cn(
+    'border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+    className
+  )}
+  {...restProps}
+/>
+```
+
+**Files to Update**:
+- Create: `src/lib/components/custom/NumberInput.svelte`
+- Update: `src/routes/app/super_admin/accounts/[id]/edit/+page.svelte` (2 uses)
+- Update: `src/routes/app/super_admin/accounts/new/+page.svelte` (2 uses)
+
+---
+
+#### Custom Index File
 ```typescript
-// Current: No id prop support
-type Props = {
-  checked?: boolean;
-}
-
-// Fix: Accept id and other label attributes
-type Props = {
-  id?: string;
-  checked?: boolean;
-  disabled?: boolean;
-  name?: string;
-  'aria-label'?: string;
-  'aria-describedby'?: string;
-}
+// src/lib/components/custom/index.ts
+export { default as DateInput } from './DateInput.svelte';
+export { default as ColorInput } from './ColorInput.svelte';
+export { default as ClickableCard } from './ClickableCard.svelte';
+export { default as NumberInput } from './NumberInput.svelte';
 ```
-
-**Files to Update**:
-- `src/lib/components/ui/switch/switch.svelte`
 
 ---
 
-#### Select Component (`src/lib/components/ui/select/`)
-**Errors Fixed**: ~10
-```typescript
-// Issue: binding to 'selected' instead of 'value'
-// Fix: Ensure value prop is bindable
+### 1.2 Fix DropdownMenuItem Usage (Priority: CRITICAL)
 
-type Props = {
-  value?: string | string[];  // Make bindable
-  multiple?: boolean;
-  // ... other props
-}
+
+**Issue**: bits-ui (the foundation) uses `onselect`, not `onclick`  
+**Errors Fixed**: ~15
+
+```svelte
+<!-- ❌ WRONG: Using onclick on DropdownMenuItem -->
+<DropdownMenuItem onclick={handleAction}>
+  Action
+</DropdownMenuItem>
+
+<!-- ✅ CORRECT: Use onselect as documented in bits-ui -->
+<DropdownMenuItem onselect={handleAction}>
+  Action
+</DropdownMenuItem>
 ```
 
 **Files to Update**:
-- `src/lib/components/ui/select/select.svelte`
-- `src/lib/components/ui/select/select-trigger.svelte`
+- `src/routes/app/accounts/[accountId]/campaigns/+page.svelte` (6 instances)
+- `src/lib/components/layout/AppHeader.svelte` (2 instances)
 
 ---
 
-### 1.2 Fix API Data Transformation (Priority: CRITICAL)
+### 1.3 Fix Switch/Checkbox Label Association (Priority: CRITICAL)
+
+**Issue**: Proper HTML label association without adding props to components  
+**Errors Fixed**: ~20
+
+```svelte
+<!-- ❌ WRONG: Trying to add id to Switch -->
+<Switch id="my-switch" bind:checked={value} />
+<Label for="my-switch">Label</Label>
+
+<!-- ✅ CORRECT: Wrap with Label -->
+<Label class="flex items-center space-x-2 cursor-pointer">
+  <Switch bind:checked={value} />
+  <span>Enable feature</span>
+</Label>
+
+<!-- ✅ ALTERNATIVE: Use aria-labelledby -->
+<div class="flex items-center space-x-2">
+  <Switch bind:checked={value} aria-labelledby="switch-label" />
+  <Label id="switch-label">Enable feature</Label>
+</div>
+```
+
+**Files to Update**:
+- `src/lib/components/messages/MessageComposer.svelte`
+- `src/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte` (4 instances)
+- `src/routes/app/accounts/[accountId]/settings/notifications/+page.svelte` (7 instances)
+- `src/routes/ui/[name]/+page.svelte` (1 instance for Checkbox)
+
+---
+
+### 1.4 Fix Select Component Binding (Priority: CRITICAL)
+
+**Issue**: Using wrong property names with Select  
+**Errors Fixed**: ~15
+
+```svelte
+<!-- ❌ WRONG: binding to 'selected' -->
+<Select.Root bind:selected={value}>
+  <Select.Trigger>...</Select.Trigger>
+</Select.Root>
+
+<!-- ✅ CORRECT: Use 'value' prop as per bits-ui docs -->
+<Select.Root bind:value={value}>
+  <Select.Trigger>...</Select.Trigger>
+</Select.Root>
+```
+
+**Files to Update**:
+- `src/routes/app/accounts/[accountId]/settings/account/+page.svelte` (2 instances)
+- `src/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte` (1 instance)
+- `src/lib/components/conversations/ConversationFilters.svelte` (1 instance)
+
+---
+
+### 1.5 Fix Dialog Component Bindings (Priority: CRITICAL)
+
+**Issue**: Dialog `open` prop needs `$bindable()` in custom wrapper components  
+**Errors Fixed**: ~5
+
+```svelte
+<!-- In custom dialog component wrapper -->
+<script lang="ts">
+  import { Dialog } from '$lib/components/ui/dialog';
+  
+  // ❌ WRONG: Non-bindable prop
+  let { open = false } = $props<{ open?: boolean }>();
+  
+  // ✅ CORRECT: Make it bindable
+  let { open = $bindable(false) } = $props<{ open?: boolean }>();
+</script>
+
+<Dialog.Root bind:open>
+  <!-- content -->
+</Dialog.Root>
+```
+
+**Files to Update**:
+- `src/lib/components/companies/CompanyDialog.svelte` (if it's a wrapper)
+- `src/routes/app/super_admin/platform-apps/[id]/+page.svelte` (check if using wrapper)
+
+---
+
+### 1.6 Fix API Data Transformation (Priority: CRITICAL)
 
 **Issue**: Snake_case properties from API not transformed to camelCase  
 **Errors Fixed**: ~10
 
 **Root Cause**: API transformation layer should auto-convert but some properties slip through
-
-**Files to Check**:
-```typescript
-// src/lib/api/transformers.ts
-export function transformKeys(obj: any): any {
-  // Ensure all snake_case → camelCase
-  // phone_number → phoneNumber
-  // avatar_url → avatarUrl
-  // company_name → companyName
-}
-```
 
 **Files to Fix**:
 - `src/lib/components/contacts/ContactPanel.svelte` (phone_number, availability_status, etc.)
@@ -207,7 +417,7 @@ export function transformKeys(obj: any): any {
 
 ---
 
-### 1.3 Fix Type Mismatches (Priority: CRITICAL)
+### 1.7 Fix Type Mismatches (Priority: CRITICAL)
 
 **Issue**: Missing undefined checks for route params  
 **Errors Fixed**: ~10
@@ -238,10 +448,10 @@ let accountId = $state<number>(parseInt($page.params.accountId ?? '0'));
 **Pattern**:
 ```typescript
 // ❌ Wrong: Implicit any
-<Input oninput={(e) => handleChange(e.currentTarget.value)} />
+<input oninput={(e) => handleChange(e.currentTarget.value)} />
 
 // ✅ Correct: Explicit type
-<Input oninput={(e: Event & { currentTarget: HTMLInputElement }) => handleChange(e.currentTarget.value)} />
+<input oninput={(e: Event & { currentTarget: HTMLInputElement }) => handleChange(e.currentTarget.value)} />
 ```
 
 **Common Event Types**:
@@ -272,46 +482,87 @@ let accountId = $state<number>(parseInt($page.params.accountId ?? '0'));
 7. `src/lib/components/search/GlobalSearch.svelte` (1 error)
 8. `src/lib/components/notifications/NotificationItem.svelte` (1 error)
 
-### 2.2 Fix Component Event Props (Priority: HIGH)
+---
 
-**Errors Fixed**: ~60
+### 2.2 Fix Textarea Event Handlers (Priority: HIGH)
 
-**Issue**: shadcn components need event handler props defined
+**Errors Fixed**: ~10
 
-**Files to Update**:
-1. **Textarea component** - Add `onkeydown` support
-2. **Input component** - Add `oninput` support (if not in Phase 1)
-3. **Combobox component** - Add `onfocus` support
+**Issue**: Using Textarea component but it doesn't support certain event props
+
+```svelte
+<!-- ❌ WRONG: Textarea component doesn't have onkeydown -->
+<Textarea
+  bind:value={message}
+  onkeydown={handleKeyDown}
+/>
+
+<!-- ✅ CORRECT: Use native textarea with shadcn classes -->
+<textarea
+  bind:value={message}
+  onkeydown={(e: KeyboardEvent) => handleKeyDown(e)}
+  class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+/>
+```
+
+**Files to Fix**:
+1. `src/lib/components/messages/MessageComposer.svelte`
 
 ---
 
-### 2.3 Fix Non-Bindable Properties (Priority: HIGH)
+### 2.3 Fix Input Event Handlers (Priority: HIGH)
+
+**Errors Fixed**: ~30
+
+**Issue**: Native inputs need proper event handler types
+
+```svelte
+<!-- For native inputs (date, color, etc.) -->
+<input
+  type="date"
+  bind:value={date}
+  oninput={(e: Event & { currentTarget: HTMLInputElement }) => handleInput(e)}
+  class="..."
+/>
+
+<!-- For shadcn Input component -->
+<Input
+  type="text"
+  bind:value={text}
+  oninput={(e: Event & { currentTarget: HTMLInputElement }) => handleInput(e)}
+/>
+```
+
+**Files to Fix**:
+- Various files using native inputs after Phase 1 conversions
+
+---
+
+### 2.4 Fix Non-Bindable Properties (Priority: HIGH)
 
 **Errors Fixed**: ~15
 
-**Issue**: Components missing `$bindable()` rune
+**Issue**: Custom components missing `$bindable()` rune
 
 **Pattern**:
 ```svelte
 <!-- Component definition -->
 <script lang="ts">
   // ❌ Wrong
-  let { open } = $props<{ open?: boolean }>();
+  let { value } = $props<{ value?: number }>();
   
-  // ✅ Correct
-  let { open = $bindable(false) } = $props<{ open?: boolean }>();
+  // ✅ Correct: Make it bindable if parent needs to bind
+  let { value = $bindable(0) } = $props<{ value?: number }>();
 </script>
 ```
 
 **Files to Fix**:
-1. `src/lib/components/ui/dialog/dialog.svelte` - `open` prop
-2. `src/lib/components/companies/CompanyDialog.svelte` - `open` prop
-3. `src/lib/components/survey/SurveyForm.svelte` - `value` prop
-4. `src/routes/app/super_admin/platform-apps/[id]/+page.svelte` - Dialog `open`
+1. `src/lib/components/survey/SurveyForm.svelte` - `value` prop
+2. Any custom components that wrap shadcn components
 
 ---
 
-### 2.4 Fix Deprecated Event Directives (Priority: HIGH)
+### 2.5 Fix Deprecated Event Directives (Priority: HIGH)
 
 **Errors Fixed**: ~5
 
@@ -329,9 +580,9 @@ let accountId = $state<number>(parseInt($page.params.accountId ?? '0'));
 
 ---
 
-## 🎯 Phase 3: Accessibility & Component Bindings (Days 5-6)
+## 🎯 Phase 3: Accessibility & Proper HTML Structure (Days 5-6)
 
-**Goal**: Fix accessibility warnings and binding issues  
+**Goal**: Fix accessibility warnings using proper HTML, not by modifying components  
 **Target**: 350 → 100 issues (250 fixes, 71% reduction)
 
 ### 3.1 Fix Accessibility Warnings (Priority: MEDIUM)
@@ -339,19 +590,28 @@ let accountId = $state<number>(parseInt($page.params.accountId ?? '0'));
 **Errors Fixed**: ~60
 
 #### Issue 1: Click Events Without Keyboard Handlers
+Use proper interactive elements:
+
 ```svelte
-<!-- ❌ Wrong -->
+<!-- ❌ WRONG: Non-interactive element with click -->
 <div onclick={() => handleClick()}>Click me</div>
 
-<!-- ✅ Fix 1: Use button -->
-<button type="button" onclick={() => handleClick()}>Click me</button>
+<!-- ✅ FIX 1: Use button (preferred) -->
+<button type="button" onclick={() => handleClick()}>
+  Click me
+</button>
 
-<!-- ✅ Fix 2: Add keyboard support -->
+<!-- ✅ FIX 2: Add full accessibility support -->
 <div
   role="button"
   tabindex="0"
   onclick={() => handleClick()}
-  onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleClick()}
+  onkeydown={(e: KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  }}
 >
   Click me
 </div>
@@ -364,87 +624,121 @@ let accountId = $state<number>(parseInt($page.params.accountId ?? '0'));
 4. `src/routes/app/accounts/[accountId]/campaigns/+page.svelte` (multiple)
 5. `src/routes/app/accounts/[accountId]/companies/+page.svelte` (multiple)
 
+---
+
 #### Issue 2: Labels Without Associated Controls
+Use semantic HTML properly:
+
 ```svelte
-<!-- ❌ Wrong -->
+<!-- ❌ WRONG: Label without control -->
 <label>Name</label>
 <p>{value}</p>
 
-<!-- ✅ Correct: Use semantic HTML -->
+<!-- ✅ CORRECT: Use descriptive span -->
 <div>
-  <span class="text-sm font-medium">Name</span>
-  <p>{value}</p>
+  <span class="text-sm font-medium text-muted-foreground">Name</span>
+  <p class="text-lg">{value}</p>
 </div>
 ```
 
+**Files to Fix**:
+- `src/routes/app/super_admin/agent-bots/[id]/+page.svelte` (multiple labels)
+- `src/routes/app/super_admin/platform-apps/[id]/+page.svelte` (multiple labels)
+
 ---
 
-### 3.2 Fix Select Component Bindings (Priority: MEDIUM)
+### 3.2 Fix Checkbox/Switch Label Association (Priority: MEDIUM)
 
-**Errors Fixed**: ~20
+**Errors Fixed**: ~15
 
-**Issue**: Incorrect binding property names
+**Use Proper HTML Label Patterns**:
 
 ```svelte
-<!-- ❌ Wrong -->
-<Select.Root bind:selected={value}>
+<!-- ✅ Method 1: Wrap in Label component -->
+<Label class="flex items-center space-x-2 cursor-pointer">
+  <Checkbox bind:checked={agreed} />
+  <span>I agree to the terms</span>
+</Label>
 
-<!-- ✅ Correct -->
-<Select.Root bind:value={value}>
+<!-- ✅ Method 2: Use aria-labelledby -->
+<div class="flex items-center space-x-2">
+  <Checkbox bind:checked={agreed} aria-labelledby="checkbox-label" />
+  <Label id="checkbox-label">I agree to the terms</Label>
+</div>
+
+<!-- ✅ For Switch: Same patterns -->
+<Label class="flex items-center space-x-2">
+  <Switch bind:checked={enabled} />
+  <span>Enable feature</span>
+</Label>
 ```
 
 **Files to Fix**:
-1. `src/routes/app/accounts/[accountId]/settings/account/+page.svelte` (2 instances)
-2. `src/routes/app/accounts/[accountId]/settings/inboxes/new/+page.svelte` (1 instance)
-3. `src/lib/components/conversations/ConversationFilters.svelte` (1 instance)
+- All files trying to add `id` prop to Checkbox/Switch
 
 ---
 
-### 3.3 Fix Missing Component Props (Priority: MEDIUM)
+### 3.3 Fix DropdownMenuContent Usage (Priority: MEDIUM)
 
-**Errors Fixed**: ~40
+**Errors Fixed**: ~10
 
-**Issue**: Components don't export certain props
+**Issue**: Using props that don't exist
 
-#### Dropdown Menu
-```typescript
-// Add 'align' prop to DropdownMenuContent
-type Props = {
-  align?: 'start' | 'center' | 'end';
-  // ... other props
-}
+```svelte
+<!-- ❌ WRONG: Trying to use 'align' prop that doesn't exist -->
+<DropdownMenuContent align="end">
+
+<!-- ✅ CORRECT: Check bits-ui docs for actual props -->
+<DropdownMenuContent side="bottom" align="end">
+  <!-- or use sideOffset, alignOffset as per bits-ui docs -->
+</DropdownMenuContent>
 ```
 
-**Files to Update**:
-- `src/lib/components/ui/dropdown-menu/dropdown-menu-content.svelte`
-
-#### Table Components
-```typescript
-// Fix HTML attribute imports
-import type { HTMLTableAttributes } from 'svelte/elements';
-
-// NOT HTMLTableSectionAttributes (doesn't exist)
-```
-
-**Files to Update**:
-- `src/lib/components/ui/table/table-header.svelte`
-- `src/lib/components/ui/table/table-body.svelte`
-- `src/lib/components/ui/table/table-row.svelte`
-- `src/lib/components/ui/table/table-cell.svelte`
-- `src/lib/components/ui/table/table-head.svelte`
+**Files to Fix**:
+- `src/lib/components/layout/AppHeader.svelte` (2 instances)
+- `src/routes/app/accounts/[accountId]/campaigns/+page.svelte` (2 instances)
+- `src/lib/components/notifications/NotificationBell.svelte`
 
 ---
 
-### 3.4 Fix Custom Component Props (Priority: MEDIUM)
+### 3.4 Fix Table Component Usage (Priority: MEDIUM)
+
+**Errors Fixed**: ~15
+
+**Issue**: Table components work fine, errors are likely from misuse
+
+```svelte
+<!-- ✅ Use Table components as designed -->
+<Table.Root>
+  <Table.Header>
+    <Table.Row>
+      <Table.Head>Name</Table.Head>
+    </Table.Row>
+  </Table.Header>
+  <Table.Body>
+    <Table.Row>
+      <Table.Cell>Value</Table.Cell>
+    </Table.Row>
+  </Table.Body>
+</Table.Root>
+```
+
+**Check**: Verify we're not trying to add unsupported props to table components
+
+---
+
+### 3.5 Fix Custom Component Props (Priority: MEDIUM)
 
 **Errors Fixed**: ~30
 
-**Issue**: Custom components missing exported props
+**Issue**: Custom components may need exported types
 
-**Components to Fix**:
-1. **EmptyState** - Export Root, Icon, Title, Description, Actions
-2. **CustomAttributes** - Export Root component
-3. **ConversationCard** - Export Preview component with children support
+**For Custom Components** (not shadcn):
+- EmptyState - Ensure proper exports
+- CustomAttributes - Ensure proper exports  
+- ConversationCard - Check if Preview is properly exported
+
+**Note**: Only modify our own custom components, never shadcn components
 
 ---
 
