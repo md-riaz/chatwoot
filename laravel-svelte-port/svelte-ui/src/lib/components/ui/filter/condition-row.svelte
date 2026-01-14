@@ -83,7 +83,7 @@
 
 <div class={cn('flex items-center gap-2 p-2', className)} {...restProps}>
   {#if showQueryOperator}
-    <Select.Root bind:selected={queryOperatorValue}>
+    <Select.Root bind:value={queryOperatorValue}>
       <Select.Trigger class="h-8 w-[80px]">
         <Select.Value />
       </Select.Trigger>
@@ -94,7 +94,7 @@
     </Select.Root>
   {/if}
 
-  <Select.Root bind:selected={attributeKeyValue}>
+  <Select.Root bind:value={attributeKeyValue}>
     <Select.Trigger class="h-8 min-w-[140px]">
       <Select.Value placeholder="Select attribute..." />
     </Select.Trigger>
@@ -106,7 +106,7 @@
   </Select.Root>
 
   {#if condition.attributeKey}
-    <Select.Root bind:selected={filterOperatorValue}>
+    <Select.Root bind:value={filterOperatorValue}>
       <Select.Trigger class="h-8 min-w-[120px]">
         <Select.Value placeholder="Select operator..." />
       </Select.Trigger>
@@ -119,7 +119,7 @@
   {/if}
 
   {#if condition.filterOperator && options.length > 0}
-    <Select.Root bind:selected={filterValueValue}>
+    <Select.Root bind:value={filterValueValue}>
       <Select.Trigger class="h-8 min-w-[140px]">
         <Select.Value placeholder="Select value..." />
       </Select.Trigger>

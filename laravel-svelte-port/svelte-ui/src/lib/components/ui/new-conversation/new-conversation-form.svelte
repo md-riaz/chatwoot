@@ -28,7 +28,7 @@
 <form class={cn('space-y-4', className)} onsubmit={handleSubmit}>
   <div class="space-y-2">
     <Label for="inbox">Inbox</Label>
-    <Select.Root bind:selected={selectedInbox}>
+    <Select.Root bind:value={selectedInbox}>
       <Select.Trigger id="inbox">
         <Select.Value placeholder="Select an inbox" />
       </Select.Trigger>
