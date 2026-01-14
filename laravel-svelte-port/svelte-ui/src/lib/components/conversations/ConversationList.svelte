@@ -58,7 +58,7 @@
   
   // Handle conversation selection
   function handleConversationClick(conversationId: number) {
-    conversationsStore.selectConversation(conversationId);
+    conversationsStore.setSelectedConversation(conversationId);
     onConversationSelect?.(conversationId);
   }
   

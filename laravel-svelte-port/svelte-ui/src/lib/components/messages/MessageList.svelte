@@ -6,6 +6,7 @@
   
   import { onMount, tick } from 'svelte';
   import { messagesStore } from '$lib/stores/messages.svelte';
+  import * as messagesApi from '$lib/api/messages';
   import MessageBubble from './MessageBubble.svelte';
   import * as Skeleton from '$lib/components/ui/skeleton';
   import { Button } from '$lib/components/ui/button';
@@ -85,14 +86,23 @@
   
   // Load messages on mount
   onMount(async () => {
-    await messagesStore.fetchMessages(conversationId);
-    scrollToBottom(false);
+    try {
+      const loadedMessages = await messagesApi.getMessages(conversationId);
+      messagesStore.setMessages(loadedMessages);
+      scrollToBottom(false);
+    } catch (err) {
+      console.error('Failed to load messages:', err);
+    }
   });
   
   // Update when conversation changes
   $effect(() => {
     if (conversationId) {
-      messagesStore.fetchMessages(conversationId);
+      messagesApi.getMessages(conversationId).then(loadedMessages => {
+        messagesStore.setMessages(loadedMessages);
+      }).catch(err => {
+        console.error('Failed to load messages:', err);
+      });
     }
   });
 </script>

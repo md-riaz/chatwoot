@@ -27,7 +27,7 @@
   }
   
   function handleBack() {
-    conversationsStore.selectConversation(null);
+    conversationsStore.setSelectedConversation(null);
     goto(`/app/accounts/${accountId}/conversations`);
   }
   
