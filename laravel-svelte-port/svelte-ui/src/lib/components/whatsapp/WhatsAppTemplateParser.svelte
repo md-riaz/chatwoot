@@ -156,7 +156,7 @@
         type="url"
         placeholder={`Enter ${formatType()?.toLowerCase()} URL`}
         value={processedParams.header?.media_url || ''}
-        oninput={(e) => updateMediaUrl(e.currentTarget.value)}
+        oninput={(e: Event & { currentTarget: HTMLInputElement }) => updateMediaUrl(e.currentTarget.value)}
         required
       />
       
@@ -168,7 +168,7 @@
             type="text"
             placeholder="Enter document name (optional)"
             value={processedParams.header?.media_name || ''}
-            oninput={(e) => updateMediaName(e.currentTarget.value)}
+            oninput={(e: Event & { currentTarget: HTMLInputElement }) => updateMediaName(e.currentTarget.value)}
           />
         </div>
       {/if}
@@ -195,7 +195,7 @@
             type="text"
             placeholder={`Enter value for {{${key}}}`}
             value={processedParams.body[key]}
-            oninput={(e) => updateBodyVariable(key, e.currentTarget.value)}
+            oninput={(e: Event & { currentTarget: HTMLInputElement }) => updateBodyVariable(key, e.currentTarget.value)}
             required
           />
         </div>
@@ -217,7 +217,7 @@
             type="text"
             placeholder={button.type === 'url' ? 'Enter URL parameter' : 'Enter code'}
             value={button.parameter}
-            oninput={(e) => updateButtonParameter(index, e.currentTarget.value)}
+            oninput={(e: Event & { currentTarget: HTMLInputElement }) => updateButtonParameter(index, e.currentTarget.value)}
             required
           />
         </div>

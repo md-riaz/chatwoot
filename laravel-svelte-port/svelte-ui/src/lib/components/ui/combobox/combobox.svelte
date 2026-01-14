@@ -63,7 +63,7 @@
     {disabled}
     onfocus={handleInputFocus}
     onblur={handleInputBlur}
-    oninput={(e) => {
+    oninput={(e: Event & { currentTarget: HTMLInputElement }) => {
       searchQuery = e.currentTarget.value;
       isOpen = true;
     }}

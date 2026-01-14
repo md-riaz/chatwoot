@@ -90,7 +90,7 @@
             placeholder="Search conversations, contacts, messages..."
             class="pl-10 pr-10"
             value={query}
-            oninput={(e) => searchStore.setQuery(e.currentTarget.value)}
+            oninput={(e: Event & { currentTarget: HTMLInputElement }) => searchStore.setQuery(e.currentTarget.value)}
           />
           {#if isSearching}
             <Loader2 class="absolute right-3 top-3 h-4 w-4 animate-spin text-muted-foreground" />

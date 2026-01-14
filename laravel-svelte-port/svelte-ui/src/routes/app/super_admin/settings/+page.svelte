@@ -315,7 +315,7 @@
 											disabled={setting.locked}
 											placeholder="Enter configuration..."
 											class="font-mono text-sm min-h-[120px] resize-y max-w-none"
-											oninput={(e) => updateSettingValue(setting.name, e.target.value)}
+											oninput={(e: Event & { target: HTMLTextAreaElement }) => updateSettingValue(setting.name, e.target.value)}
 										/>
 									{:else if setting.type === 'select'}
 										{@const options = getSelectOptions(setting.name)}
@@ -342,7 +342,7 @@
 											disabled={setting.locked}
 											placeholder={setting.type === 'secret' ? '••••••••' : `Enter ${setting.display_title?.toLowerCase() || formatFieldName(setting.name).toLowerCase()}`}
 											class="w-full"
-											oninput={(e) => updateSettingValue(setting.name, e.target.value)}
+											oninput={(e: Event & { target: HTMLInputElement }) => updateSettingValue(setting.name, e.target.value)}
 										/>
 									{/if}
 

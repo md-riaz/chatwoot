@@ -125,7 +125,7 @@
               onclick={() => handleRowClick(row, index)}
             >
               {#if selectable}
-                <td class="px-4 py-3" onclick={(e) => e.stopPropagation()}>
+                <td class="px-4 py-3" onclick={(e: MouseEvent) => e.stopPropagation()}>
                   <Checkbox 
                     checked={selectedRows.includes(index)}
                     onCheckedChange={() => toggleRow(index)}
