@@ -28,6 +28,7 @@
     pagination?: Pagination;
     onPageChange?: (page: number) => void;
     onRowClick?: (row: any, index: number) => void;
+    emptyMessage?: string;
     class?: string;
   }
 
@@ -41,6 +42,7 @@
     pagination,
     onPageChange,
     onRowClick,
+    emptyMessage = 'No data available',
     class: className 
   }: Props = $props();
 
@@ -112,7 +114,7 @@
         {:else if data.length === 0}
           <tr>
             <td colspan={columns.length + (selectable ? 1 : 0)} class="px-4 py-8 text-center text-sm text-slate-500">
-              No data available
+              {emptyMessage}
             </td>
           </tr>
         {:else}

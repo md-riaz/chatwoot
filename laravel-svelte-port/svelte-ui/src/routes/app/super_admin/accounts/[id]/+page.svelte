@@ -22,7 +22,15 @@
 		supportEmail: '',
 		autoResolveDuration: '',
 		selectedFeatureFlags: [] as string[],
-		allFeatures: {} as Record<string, boolean>,
+		allFeatures: {} as Record<string, {
+			available: boolean;
+			display_name?: string;
+			displayName?: string;
+			enabled: boolean;
+			premium: boolean;
+			help_url?: string;
+			helpUrl?: string;
+		}>,
 		settings: {} as Record<string, any>,
 		limits: {} as Record<string, any>,
 		customAttributes: {} as Record<string, any>,
@@ -203,8 +211,14 @@
 		   }
 	   }
 	
-	   function handleFeaturesChange(features: string[]) {
-		   formData.selectedFeatureFlags = features;
+	   function handleFeaturesChange(features: string[] | Record<string, boolean>) {
+		   // Convert Record to string[] if needed
+		   if (Array.isArray(features)) {
+			   formData.selectedFeatureFlags = features;
+		   } else {
+			   // Convert Record<string, boolean> to string[] (keys where value is true)
+			   formData.selectedFeatureFlags = Object.keys(features).filter(key => features[key]);
+		   }
 	   }
 
 	   // Handle user assignment
