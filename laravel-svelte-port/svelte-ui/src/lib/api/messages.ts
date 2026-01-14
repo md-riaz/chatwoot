@@ -144,8 +144,7 @@ export async function createMessage(params: CreateMessageParams): Promise<Messag
   
   const response = await api.post(
     `conversations/${conversationId}/messages`,
-    isFormData ? payload : undefined,
-    isFormData ? undefined : { json: payload }
+    isFormData ? { body: payload } : { json: payload }
   );
   
   return response.json<Message>();
