@@ -103,12 +103,12 @@
               </div>
             {/if}
             
-            {#if contact.company_name}
+            {#if contact.company}
               <div class="flex items-start gap-3">
                 <Building class="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
                 <div class="flex-1 min-w-0">
                   <p class="text-xs text-muted-foreground">Company</p>
-                  <p class="text-sm break-all">{contact.company_name}</p>
+                  <p class="text-sm break-all">{contact.company}</p>
                 </div>
               </div>
             {/if}
@@ -149,13 +149,13 @@
         {/if}
         
         <!-- Social Profiles -->
-        {#if contact.social_profiles && Object.keys(contact.social_profiles).length > 0}
+        {#if contact.socialProfiles && Object.keys(contact.socialProfiles).length > 0}
           <Card.Root>
             <Card.Header>
               <Card.Title class="text-sm">Social Profiles</Card.Title>
             </Card.Header>
             <Card.Content class="space-y-2">
-              {#each Object.entries(contact.social_profiles) as [platform, url]}
+              {#each Object.entries(contact.socialProfiles) as [platform, url]}
                 {#if url}
                   <a
                     href={url}

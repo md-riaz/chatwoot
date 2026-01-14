@@ -28,7 +28,7 @@
   const contactStatus = $derived(contact?.availability_status);
   const inboxName = $derived(inbox?.name || '');
   const inboxIcon = $derived(
-    inbox ? getInboxIconByType(inbox.channel_type, inbox.medium) : 'inbox'
+    inbox ? getInboxIconByType(inbox.channelType, inbox.channelMedium) : 'inbox'
   );
   
   const lastActivityTime = $derived(() => {
@@ -51,7 +51,7 @@
     }
   });
   
-  const unreadCount = $derived(conversation.unread_count || 0);
+  const unreadCount = $derived(conversation.unreadCount || 0);
   const hasUnread = $derived(unreadCount > 0);
   
   const priorityConfig = $derived(() => {

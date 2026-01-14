@@ -151,7 +151,7 @@
           {#each dateMessages as message (message.id)}
             <MessageBubble
               {message}
-              isOutgoing={message.message_type === 0}
+              isOutgoing={message.messageType === 0}
               showAvatar={true}
             />
           {/each}
