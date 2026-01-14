@@ -60,11 +60,14 @@
       </h4>
       <div class="w-px h-3 bg-slate-300 dark:bg-slate-700" />
       <div class="flex gap-2 items-center text-sm text-slate-600 dark:text-slate-400">
-        <div class="flex items-center gap-1.5">
+        {#snippet attributeIconSection()}
           {@const AttributeIcon = attributeIcon()}
-          <AttributeIcon class="size-4" />
-          <span class="text-sm">{attribute.type}</span>
-        </div>
+          <div class="flex items-center gap-1.5">
+            <AttributeIcon class="size-4" />
+            <span class="text-sm">{attribute.type}</span>
+          </div>
+        {/snippet}
+        {@render attributeIconSection()}
         <div class="w-px h-3 bg-slate-300 dark:bg-slate-700" />
         <div class="flex items-center gap-1.5">
           <KeyRound class="size-4" />
