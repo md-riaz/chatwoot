@@ -3,7 +3,7 @@
   import { auditLogsStore } from '$lib/stores/auditLogs.svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
-  import { Input } from '$lib/components/ui/input';
+  import { DateInput } from '$lib/components/custom';
   import { FileText, Download, RefreshCw, Loader2, Clock, AlertCircle } from '@lucide/svelte';
   import { toast } from 'svelte-sonner';
   
@@ -73,18 +73,14 @@
       </div>
       
       <div class="flex items-center gap-2">
-        <Input
-          type="date"
+        <DateInput
           bind:value={startDate}
           placeholder="Start date"
-          class="w-40"
         />
         <span class="text-sm text-gray-500">to</span>
-        <Input
-          type="date"
+        <DateInput
           bind:value={endDate}
           placeholder="End date"
-          class="w-40"
         />
         <Button onclick={handleRefresh} disabled={isLoading}>
           <RefreshCw class="h-4 w-4 mr-2 {isLoading ? 'animate-spin' : ''}" />
