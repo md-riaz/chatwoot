@@ -500,7 +500,7 @@
                 <div class="flex gap-2">
                   <Input
                     id="widgetColor"
-                    type="color"
+                    type={"color" as any}
                     bind:value={widgetColor}
                     class="w-20 h-10"
                   />

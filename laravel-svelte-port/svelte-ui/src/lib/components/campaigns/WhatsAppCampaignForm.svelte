@@ -300,7 +300,7 @@
     <Label for="scheduledAt">Schedule Date & Time *</Label>
     <Input
       id="scheduledAt"
-      type="datetime-local"
+      type={"datetime-local" as any}
       bind:value={scheduledAt}
       min={currentDateTime()}
       class={errors.scheduledAt ? 'border-red-500' : ''}
