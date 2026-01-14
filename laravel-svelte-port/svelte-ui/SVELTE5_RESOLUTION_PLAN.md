@@ -21,6 +21,12 @@ This plan ensures correct **usage** of official **shadcn-svelte** UI components 
 - ❌ **NEVER EXTEND**: Don't modify shadcn component files themselves
 - ❌ **DON'T MISUSE**: Use components for their intended purpose
 
+**Important Note**: Most shadcn-svelte components use `{...restProps}` to pass through all HTML attributes to the underlying native element. This means:
+- **Input** component supports all native `<input>` attributes (including `oninput`, `onfocus`, `onblur`, etc.)
+- **Textarea** component supports all native `<textarea>` attributes (including `onkeydown`, `onfocus`, `onblur`, etc.)
+- **Button** component supports all native `<button>` attributes
+- Always check the component's source to see if it uses `{...restProps}` before assuming it doesn't support an attribute
+
 **Wrapper Pattern Example**:
 ```svelte
 <!-- ✅ CORRECT: Create wrapper in our own components folder -->
@@ -80,64 +86,55 @@ This plan ensures correct **usage** of official **shadcn-svelte** UI components 
 **Goal**: Fix critical issues by using components correctly, not by modifying them  
 **Target**: 618 → 550 issues (68 fixes, 11% reduction)
 
-### 1.1 Create Custom Wrapper Components (Priority: CRITICAL)
+### 1.1 Use Proper shadcn-svelte Components (Priority: CRITICAL)
 
-**Goal**: Build reusable wrapper components for common patterns  
+**Goal**: Use the correct shadcn-svelte components that already exist  
 **Errors Fixed**: ~50
 
-#### DateInput Wrapper Component
-Create a custom DateInput component that uses native HTML with shadcn styling:
+#### DatePicker Component - Use shadcn-svelte DatePicker
+shadcn-svelte provides a DatePicker component that combines Calendar + Popover:
 
 ```svelte
-<!-- src/lib/components/custom/DateInput.svelte -->
+<!-- ❌ WRONG: Using native date input -->
+<Input type="date" bind:value={date} />
+
+<!-- ❌ ALSO WRONG: Creating custom wrapper with native input -->
+<input type="date" bind:value={date} class="..." />
+
+<!-- ✅ CORRECT: Use shadcn-svelte DatePicker -->
 <script lang="ts">
-  import { cn } from '$lib/utils';
+  import { DatePicker } from '$lib/components/ui/date-picker';
+  import { parseDate } from '@internationalized/date';
   
-  type Props = {
-    value?: string;
-    class?: string;
-    placeholder?: string;
-    disabled?: boolean;
-    required?: boolean;
-    min?: string;
-    max?: string;
-    name?: string;
-    id?: string;
-    oninput?: (e: Event & { currentTarget: HTMLInputElement }) => void;
-    onchange?: (e: Event & { currentTarget: HTMLInputElement }) => void;
-  };
-  
-  let {
-    value = $bindable(''),
-    class: className,
-    ...restProps
-  }: Props = $props();
+  let dateValue = $state(parseDate('2024-01-01')); // DateValue type from @internationalized/date
 </script>
 
-<input
-  type="date"
-  bind:value
-  class={cn(
-    'border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-    className
-  )}
-  {...restProps}
+<DatePicker
+  bind:value={dateValue}
+  placeholder="Pick a date"
+  class="w-40"
 />
 ```
 
-**Usage**:
-```svelte
-<DateInput bind:value={since} class="w-40" />
-```
+**Important**: The DatePicker uses `DateValue` from `@internationalized/date` library, not plain strings. You'll need to convert:
+- String → DateValue: `parseDate('2024-01-15')`
+- DateValue → String: `dateValue.toString()`
 
 **Files to Update**:
-- Create: `src/lib/components/custom/DateInput.svelte`
-- Update: `src/routes/app/accounts/[accountId]/reports/+page.svelte` (2 uses)
-- Update: `src/routes/app/accounts/[accountId]/settings/audit-logs/+page.svelte` (2 uses)
+- `src/routes/app/accounts/[accountId]/reports/+page.svelte` (2 date inputs)
+- `src/routes/app/accounts/[accountId]/settings/audit-logs/+page.svelte` (2 date inputs)
+
+**Testing**:
+```bash
+# Verify DatePicker is used
+pnpm run check | grep -i "datepicker\|type=\"date\""
+```
 
 ---
 
-#### ColorInput Wrapper Component
+#### ColorInput - No shadcn Component, Use Native
+For color inputs, there's no dedicated shadcn-svelte component, so create a wrapper:
+
 ```svelte
 <!-- src/lib/components/custom/ColorInput.svelte -->
 <script lang="ts">
@@ -172,8 +169,54 @@ Create a custom DateInput component that uses native HTML with shadcn styling:
 
 ---
 
-#### ClickableCard Wrapper Component
-Create a wrapper that makes Card clickable without modifying shadcn Card:
+#### Number Inputs - Use shadcn Input Component
+For number inputs with min/max, shadcn Input works via `{...restProps}`:
+
+```svelte
+<!-- ✅ CORRECT: shadcn Input supports all native attributes via ...restProps -->
+<Input
+  type="number"
+  bind:value={count}
+  min={0}
+  max={100}
+  step={1}
+/>
+```
+
+**Files to Update**:
+- `src/routes/app/super_admin/accounts/[id]/edit/+page.svelte` (2 number inputs)
+- `src/routes/app/super_admin/accounts/new/+page.svelte` (2 number inputs)
+
+---
+
+### 1.3 Fix DropdownMenuItem Usage (Priority: CRITICAL)
+
+
+**Issue**: bits-ui (the foundation) uses `onselect`, not `onclick`  
+**Errors Fixed**: ~15
+
+```svelte
+<!-- ❌ WRONG: Using onclick on DropdownMenuItem -->
+<DropdownMenuItem onclick={handleAction}>
+  Action
+</DropdownMenuItem>
+
+<!-- ✅ CORRECT: Use onselect as documented in bits-ui -->
+<DropdownMenuItem onselect={handleAction}>
+  Action
+</DropdownMenuItem>
+```
+
+**Files to Update**:
+- `src/routes/app/accounts/[accountId]/campaigns/+page.svelte` (6 instances)
+- `src/lib/components/layout/AppHeader.svelte` (2 instances)
+
+---
+
+### 1.2 Create ClickableCard Wrapper (Priority: CRITICAL)
+
+**Goal**: Create wrapper for clickable cards without modifying shadcn Card  
+**Errors Fixed**: ~30
 
 ```svelte
 <!-- src/lib/components/custom/ClickableCard.svelte -->
@@ -228,89 +271,19 @@ Create a wrapper that makes Card clickable without modifying shadcn Card:
 
 ---
 
-#### NumberInput Wrapper Component
-For number inputs with min/max:
+### 1.4 Custom Components Index
 
-```svelte
-<!-- src/lib/components/custom/NumberInput.svelte -->
-<script lang="ts">
-  import { cn } from '$lib/utils';
-  
-  let {
-    value = $bindable(0),
-    class: className,
-    min,
-    max,
-    step = 1,
-    ...restProps
-  } = $props<{
-    value?: number;
-    class?: string;
-    min?: number;
-    max?: number;
-    step?: number;
-    placeholder?: string;
-    disabled?: boolean;
-  }>();
-</script>
+Create an index file for easy imports:
 
-<input
-  type="number"
-  bind:value
-  {min}
-  {max}
-  {step}
-  class={cn(
-    'border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-    className
-  )}
-  {...restProps}
-/>
-```
-
-**Files to Update**:
-- Create: `src/lib/components/custom/NumberInput.svelte`
-- Update: `src/routes/app/super_admin/accounts/[id]/edit/+page.svelte` (2 uses)
-- Update: `src/routes/app/super_admin/accounts/new/+page.svelte` (2 uses)
-
----
-
-#### Custom Index File
 ```typescript
 // src/lib/components/custom/index.ts
-export { default as DateInput } from './DateInput.svelte';
 export { default as ColorInput } from './ColorInput.svelte';
 export { default as ClickableCard } from './ClickableCard.svelte';
-export { default as NumberInput } from './NumberInput.svelte';
 ```
 
 ---
 
-### 1.2 Fix DropdownMenuItem Usage (Priority: CRITICAL)
-
-
-**Issue**: bits-ui (the foundation) uses `onselect`, not `onclick`  
-**Errors Fixed**: ~15
-
-```svelte
-<!-- ❌ WRONG: Using onclick on DropdownMenuItem -->
-<DropdownMenuItem onclick={handleAction}>
-  Action
-</DropdownMenuItem>
-
-<!-- ✅ CORRECT: Use onselect as documented in bits-ui -->
-<DropdownMenuItem onselect={handleAction}>
-  Action
-</DropdownMenuItem>
-```
-
-**Files to Update**:
-- `src/routes/app/accounts/[accountId]/campaigns/+page.svelte` (6 instances)
-- `src/lib/components/layout/AppHeader.svelte` (2 instances)
-
----
-
-### 1.3 Fix Switch/Checkbox Label Association (Priority: CRITICAL)
+### 1.5 Fix Switch/Checkbox Label Association (Priority: CRITICAL)
 
 **Issue**: Proper HTML label association without adding props to components  
 **Errors Fixed**: ~20
@@ -341,7 +314,7 @@ export { default as NumberInput } from './NumberInput.svelte';
 
 ---
 
-### 1.4 Fix Select Component Binding (Priority: CRITICAL)
+### 1.6 Fix Select Component Binding (Priority: CRITICAL)
 
 **Issue**: Using wrong property names with Select  
 **Errors Fixed**: ~15
@@ -365,7 +338,7 @@ export { default as NumberInput } from './NumberInput.svelte';
 
 ---
 
-### 1.5 Fix Dialog Component Bindings (Priority: CRITICAL)
+### 1.7 Fix Dialog Component Bindings (Priority: CRITICAL)
 
 **Issue**: Dialog `open` prop needs `$bindable()` in custom wrapper components  
 **Errors Fixed**: ~5
@@ -393,7 +366,7 @@ export { default as NumberInput } from './NumberInput.svelte';
 
 ---
 
-### 1.6 Fix API Data Transformation (Priority: CRITICAL)
+### 1.8 Fix API Data Transformation (Priority: CRITICAL)
 
 **Issue**: Snake_case properties from API not transformed to camelCase  
 **Errors Fixed**: ~10
@@ -417,7 +390,7 @@ export { default as NumberInput } from './NumberInput.svelte';
 
 ---
 
-### 1.7 Fix Type Mismatches (Priority: CRITICAL)
+### 1.9 Fix Type Mismatches (Priority: CRITICAL)
 
 **Issue**: Missing undefined checks for route params  
 **Errors Fixed**: ~10
@@ -484,29 +457,30 @@ let accountId = $state<number>(parseInt($page.params.accountId ?? '0'));
 
 ---
 
-### 2.2 Fix Textarea Event Handlers (Priority: HIGH)
+### 2.2 Fix Event Handler Types on Textarea (Priority: HIGH)
 
-**Errors Fixed**: ~10
+**Errors Fixed**: ~5
 
-**Issue**: Using Textarea component but it doesn't support certain event props
+**Issue**: Event handlers need proper TypeScript types
 
 ```svelte
-<!-- ❌ WRONG: Textarea component doesn't have onkeydown -->
+<!-- ❌ WRONG: Missing type annotation -->
 <Textarea
   bind:value={message}
-  onkeydown={handleKeyDown}
+  onkeydown={(e) => handleKeyDown(e)}
 />
 
-<!-- ✅ CORRECT: Use native textarea with shadcn classes -->
-<textarea
+<!-- ✅ CORRECT: Add explicit type - Textarea supports all HTML attributes via ...restProps -->
+<Textarea
   bind:value={message}
   onkeydown={(e: KeyboardEvent) => handleKeyDown(e)}
-  class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 />
 ```
 
+**Note**: The shadcn-svelte Textarea component passes `{...restProps}` to the native `<textarea>` element, so it supports all standard HTML textarea attributes including `onkeydown`, `onfocus`, `onblur`, etc.
+
 **Files to Fix**:
-1. `src/lib/components/messages/MessageComposer.svelte`
+1. `src/lib/components/messages/MessageComposer.svelte` - Add type to onkeydown handler
 
 ---
 
@@ -514,10 +488,10 @@ let accountId = $state<number>(parseInt($page.params.accountId ?? '0'));
 
 **Errors Fixed**: ~30
 
-**Issue**: Native inputs need proper event handler types
+**Issue**: Event handlers need proper TypeScript types
 
 ```svelte
-<!-- For native inputs (date, color, etc.) -->
+<!-- For native inputs (date, color, etc.) from Phase 1 wrappers -->
 <input
   type="date"
   bind:value={date}
@@ -525,7 +499,7 @@ let accountId = $state<number>(parseInt($page.params.accountId ?? '0'));
   class="..."
 />
 
-<!-- For shadcn Input component -->
+<!-- For shadcn Input component - supports event handlers via ...restProps -->
 <Input
   type="text"
   bind:value={text}
@@ -533,8 +507,11 @@ let accountId = $state<number>(parseInt($page.params.accountId ?? '0'));
 />
 ```
 
+**Note**: The shadcn-svelte Input component passes `{...restProps}` to the native `<input>` element, so it supports all standard HTML input attributes including event handlers like `oninput`, `onfocus`, `onblur`, etc.
+
 **Files to Fix**:
-- Various files using native inputs after Phase 1 conversions
+- Files using Input/Textarea with event handlers that lack type annotations
+- Custom wrapper components from Phase 1
 
 ---
 
