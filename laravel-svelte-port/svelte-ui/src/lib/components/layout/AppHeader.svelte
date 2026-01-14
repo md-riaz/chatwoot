@@ -212,7 +212,7 @@
             {#if item.divider}
               <DropdownMenu.Separator />
             {:else}
-              <DropdownMenu.Item onclick={(e: MouseEvent) => item.onClick()}>
+              <DropdownMenu.Item onselect={() => item.onClick()}>
                 {item.label}
               </DropdownMenu.Item>
             {/if}
