@@ -53,11 +53,11 @@ class ConversationsStore {
     return [...this.allConversations].sort((a, b) => {
       switch (this.sortFilter) {
         case 'latest':
-          return b.lastActivityAt - a.lastActivityAt;
+          return new Date(b.lastActivityAt).getTime() - new Date(a.lastActivityAt).getTime();
         case 'oldest':
-          return a.lastActivityAt - b.lastActivityAt;
+          return new Date(a.lastActivityAt).getTime() - new Date(b.lastActivityAt).getTime();
         case 'unread':
-          return b.unreadCount - a.unreadCount;
+          return (b.unreadCount || 0) - (a.unreadCount || 0);
         case 'priority':
           const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3, null: 4 };
           return (priorityOrder[a.priority] || 4) - (priorityOrder[b.priority] || 4);

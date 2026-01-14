@@ -33,7 +33,7 @@
     messages.forEach(message => {
       if (!message.createdAt) return;
       
-      const date = new Date(message.createdAt * 1000);
+      const date = new Date(message.createdAt);
       const dateKey = date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
