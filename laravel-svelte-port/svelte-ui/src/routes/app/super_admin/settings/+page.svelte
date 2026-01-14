@@ -278,9 +278,9 @@
 												</span>
 											{/if}
 											{#if setting.locked}
-												<Lock class="h-4 w-4 text-amber-600" title="This setting is locked" />
+												<Lock class="h-4 w-4 text-amber-600" />
 											{:else}
-												<LockOpen class="h-4 w-4 text-muted-foreground" title="This setting is editable" />
+												<LockOpen class="h-4 w-4 text-muted-foreground" />
 											{/if}
 										</div>
 										
@@ -315,7 +315,7 @@
 											disabled={setting.locked}
 											placeholder="Enter configuration..."
 											class="font-mono text-sm min-h-[120px] resize-y max-w-none"
-											oninput={(e) => updateSettingValue(setting.name, e.target.value)}
+											oninput={(e: Event & { currentTarget: HTMLTextAreaElement }) => updateSettingValue(setting.name, e.currentTarget.value)}
 										/>
 									{:else if setting.type === 'select'}
 										{@const options = getSelectOptions(setting.name)}
@@ -342,7 +342,7 @@
 											disabled={setting.locked}
 											placeholder={setting.type === 'secret' ? '••••••••' : `Enter ${setting.display_title?.toLowerCase() || formatFieldName(setting.name).toLowerCase()}`}
 											class="w-full"
-											oninput={(e) => updateSettingValue(setting.name, e.target.value)}
+											oninput={(e: Event & { currentTarget: HTMLInputElement }) => updateSettingValue(setting.name, e.currentTarget.value)}
 										/>
 									{/if}
 

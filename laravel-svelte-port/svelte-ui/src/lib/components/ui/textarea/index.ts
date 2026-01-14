@@ -1,6 +1,7 @@
 import Root from './textarea.svelte';
+import type { HTMLTextareaAttributes } from 'svelte/elements';
 
-type Props = {
+type Props = HTMLTextareaAttributes & {
   class?: string;
   value?: string;
   placeholder?: string;

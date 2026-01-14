@@ -190,7 +190,7 @@
           {#snippet child({ props })}
             <Button {...props} variant="ghost" class="gap-2">
               <Avatar.Root class="h-8 w-8">
-                <Avatar.Image src={currentUser.avatar_url || ''} alt={currentUser.name} />
+                <Avatar.Image src={currentUser.avatarUrl || ''} alt={currentUser.name} />
                 <Avatar.Fallback>
                   {currentUser.name?.charAt(0).toUpperCase() || 'U'}
                 </Avatar.Fallback>
@@ -212,7 +212,7 @@
             {#if item.divider}
               <DropdownMenu.Separator />
             {:else}
-              <DropdownMenu.Item onclick={(e: MouseEvent) => item.onClick()}>
+              <DropdownMenu.Item onselect={() => item.onClick()}>
                 {item.label}
               </DropdownMenu.Item>
             {/if}

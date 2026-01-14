@@ -23,7 +23,15 @@
 		supportEmail: '',
 		autoResolveDuration: '',
 		selectedFeatureFlags: [] as string[],
-		allFeatures: {} as Record<string, boolean>,
+		allFeatures: {} as Record<string, {
+			available: boolean;
+			display_name?: string;
+			displayName?: string;
+			enabled: boolean;
+			premium: boolean;
+			help_url?: string;
+			helpUrl?: string;
+		}>,
 		settings: {} as Record<string, any>,
 		limits: {
 			agents: '',
@@ -116,12 +124,12 @@
 	}
 	
 	   function handleFeaturesChange(features: string[] | Record<string, boolean>) {
-		   if (typeof features === 'object' && !Array.isArray(features)) {
-			   // Component is sending object format, store it directly
+		   // Convert to string[] format for storage
+		   if (Array.isArray(features)) {
 			   formData.selectedFeatureFlags = features;
 		   } else {
-			   // Component is sending array format, store it directly
-			   formData.selectedFeatureFlags = features;
+			   // Convert Record<string, boolean> to string[] (keys where value is true)
+			   formData.selectedFeatureFlags = Object.keys(features).filter(key => features[key]);
 		   }
 	   }
 	   

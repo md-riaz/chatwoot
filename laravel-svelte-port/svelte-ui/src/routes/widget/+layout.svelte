@@ -19,7 +19,7 @@
   );
   const websiteToken = urlParams.get('website_token') || '';
 
-  onMount(async () => {
+  onMount(() => {
     // Set website token for API calls
     if (websiteToken) {
       setWebsiteToken(websiteToken);
@@ -51,11 +51,17 @@
       widgetConfigStore.setConfig(mockConfig);
     }
 
-    // Initialize i18n
-    await initI18n('en');
+    // Initialize async operations
+    (async () => {
+      // Initialize i18n
+      await initI18n();
 
-    // Initialize audio notifications
-    await initAudioNotifications();
+      // Initialize audio notifications
+      await initAudioNotifications();
+
+      // Notify parent that widget is ready
+      notifyWidgetReady();
+    })();
 
     // Listen to parent window events
     const cleanup = listenToParentEvents((event) => {
@@ -63,9 +69,6 @@
         widgetConfigStore.toggle();
       }
     });
-
-    // Notify parent that widget is ready
-    notifyWidgetReady();
 
     return cleanup;
   });

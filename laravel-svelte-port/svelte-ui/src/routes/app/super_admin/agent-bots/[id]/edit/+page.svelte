@@ -303,7 +303,7 @@
 								id="name"
 								type="text"
 								value={formData.name}
-								oninput={(e) => formData.name = e.currentTarget.value}
+								oninput={(e: Event & { currentTarget: HTMLInputElement }) => formData.name = e.currentTarget.value}
 								placeholder="Support Bot"
 								disabled={submitting}
 								class={errors.name ? 'border-destructive' : ''}
@@ -319,7 +319,7 @@
 							<Textarea
 								id="description"
 								value={formData.description}
-								oninput={(e) => formData.description = e.currentTarget.value}
+								oninput={(e: Event & { currentTarget: HTMLTextAreaElement }) => formData.description = e.currentTarget.value}
 								placeholder="Automated support assistant"
 								disabled={submitting}
 								rows={3}
@@ -336,7 +336,7 @@
 								id="outgoingUrl"
 								type="url"
 								value={formData.outgoingUrl}
-								oninput={(e) => formData.outgoingUrl = e.currentTarget.value}
+								oninput={(e: Event & { currentTarget: HTMLInputElement }) => formData.outgoingUrl = e.currentTarget.value}
 								placeholder="https://your-bot-endpoint.com/webhook"
 								disabled={submitting}
 							/>

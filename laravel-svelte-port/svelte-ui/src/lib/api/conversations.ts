@@ -3,7 +3,7 @@
  * Replaces app/javascript/dashboard/api/inbox/conversation.js
  */
 
-import { api } from './client';
+import { api, toSearchParams } from './client';
 import type { PaginatedResponse } from './types';
 
 /**
@@ -131,7 +131,7 @@ export async function getConversations(params: ConversationListParams): Promise<
   const { accountId, ...queryParams } = params;
   
   const response = await api.get(`api/v1/accounts/${accountId}/conversations`, {
-    searchParams: queryParams as any
+    searchParams: toSearchParams(queryParams)
   }).json<{ data: { payload: Conversation[]; meta: any } }>();
   
   return {

@@ -28,9 +28,9 @@
   
   const displayName = $derived(contact?.name || 'Unknown Contact');
   const email = $derived(contact?.email || '');
-  const phoneNumber = $derived(contact?.phone_number || '');
-  const availabilityStatus = $derived(contact?.availability_status);
-  const customAttributes = $derived(contact?.custom_attributes || {});
+  const phoneNumber = $derived(contact?.phoneNumber || '');
+  const availabilityStatus = $derived(contact?.availabilityStatus);
+  const customAttributes = $derived(contact?.customAttributes || {});
 </script>
 
 <div class="flex flex-col h-full bg-background border-l">

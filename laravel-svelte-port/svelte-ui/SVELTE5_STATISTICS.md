@@ -1,15 +1,15 @@
 # Svelte 5 Error Distribution & Statistics
 
-Visual breakdown of the 612 total issues found in the svelte-ui codebase (after removing story files).
+Visual breakdown of the 618 total issues found in the svelte-ui codebase (after removing story files).
 
 **Story Files Removed**: 83 files deleted, eliminating 276 errors (31% reduction)
 
 ## 📊 Error Distribution by Category
 
 ```
-Total Issues: 612
-├─ Errors: 507 (83%)
-└─ Warnings: 105 (17%)
+Total Issues: 618
+├─ Errors: 517 (84%)
+└─ Warnings: 101 (16%)
 ```
 
 ### By Severity
@@ -63,8 +63,8 @@ Layout Files (+layout.svelte)
 └─ Main: Async, types
 
 Other Files
-├─ Files: ~20
-├─ Issues: ~112
+├─ Files: ~21
+├─ Issues: ~98
 └─ Main: Various
 ```
 
@@ -104,12 +104,12 @@ Low Density (<5 errors/file)
 ## 📉 Estimated Error Reduction by Phase
 
 ```
-Initial State: 612 issues (after story removal)
+Initial State: 618 issues (after story removal)
 │
 ├─ Phase 1: Critical Fixes
 │  ├─ Duration: 1 day
-│  ├─ Fixes: ~62 issues
-│  └─ Remaining: ~550 issues (90%)
+│  ├─ Fixes: ~68 issues
+│  └─ Remaining: ~550 issues (89%)
 │
 ├─ Phase 2: Component Props
 │  ├─ Duration: 2-3 days
@@ -183,8 +183,8 @@ Efficiency: ⭐⭐
 ### If Fixed Randomly
 ```
 Time per issue: ~2-5 min
-Total issues: 612
-Total time: 20-50 hours (3-6 days)
+Total issues: 618
+Total time: 21-52 hours (3-7 days)
 Efficiency: ⭐
 ```
 
@@ -213,8 +213,8 @@ Total Quick Wins: ~70 errors in 1.5 days! 🎉
 
 ### Target Milestones
 
-- **Week 1**: 612 → 550 issues (90% remaining)
-- **Week 2**: 550 → 200 issues (33% remaining)
+- **Week 1**: 618 → 550 issues (89% remaining)
+- **Week 2**: 550 → 200 issues (32% remaining)
 - **Week 3**: 200 → 0 issues (0% remaining) ✅
 
 ### Quality Gates
@@ -254,8 +254,9 @@ Total Quick Wins: ~70 errors in 1.5 days! 🎉
 
 ---
 
-**Generated**: 2026-01-13  
-**Updated**: After story file removal  
-**Total Issues**: 612 (507 errors + 105 warnings)  
+**Generated**: 2026-01-14  
+**Updated**: After running fresh svelte-check  
+**Total Issues**: 618 (517 errors + 101 warnings)  
+**Files Affected**: 179 files  
 **Story Files Removed**: 83 files (276 errors eliminated)  
 **Status**: Ready for implementation

@@ -128,13 +128,13 @@
         {/snippet}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onclick={handleCreateLiveChatCampaign}>
+        <DropdownMenuItem onselect={handleCreateLiveChatCampaign}>
           Live Chat Campaign
         </DropdownMenuItem>
-        <DropdownMenuItem onclick={handleCreateSMSCampaign}>
+        <DropdownMenuItem onselect={handleCreateSMSCampaign}>
           SMS Campaign
         </DropdownMenuItem>
-        <DropdownMenuItem onclick={handleCreateWhatsAppCampaign}>
+        <DropdownMenuItem onselect={handleCreateWhatsAppCampaign}>
           WhatsApp Campaign
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -176,13 +176,13 @@
           {/snippet}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center">
-          <DropdownMenuItem onclick={handleCreateLiveChatCampaign}>
+          <DropdownMenuItem onselect={handleCreateLiveChatCampaign}>
             Live Chat Campaign
           </DropdownMenuItem>
-          <DropdownMenuItem onclick={handleCreateSMSCampaign}>
+          <DropdownMenuItem onselect={handleCreateSMSCampaign}>
             SMS Campaign
           </DropdownMenuItem>
-          <DropdownMenuItem onclick={handleCreateWhatsAppCampaign}>
+          <DropdownMenuItem onselect={handleCreateWhatsAppCampaign}>
             WhatsApp Campaign
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -219,7 +219,7 @@
                   <div>Inbox: {campaign.inbox?.name || 'N/A'}</div>
                   <div>Created: {formatDate(campaign.createdAt)}</div>
                 </div>
-                <div class="flex gap-2" onclick={(e) => e.stopPropagation()}>
+                <div class="flex gap-2" onclick={(e: MouseEvent) => e.stopPropagation()}>
                   <Button
                     variant="outline"
                     size="sm"
@@ -277,7 +277,7 @@
                   <div>Inbox: {campaign.inbox?.name || 'N/A'}</div>
                   <div>Created: {formatDate(campaign.createdAt)}</div>
                 </div>
-                <div class="flex gap-2" onclick={(e) => e.stopPropagation()}>
+                <div class="flex gap-2" onclick={(e: MouseEvent) => e.stopPropagation()}>
                   <Button
                     variant="outline"
                     size="sm"
@@ -335,7 +335,7 @@
                   <div>Inbox: {campaign.inbox?.name || 'N/A'}</div>
                   <div>Created: {formatDate(campaign.createdAt)}</div>
                 </div>
-                <div class="flex gap-2" onclick={(e) => e.stopPropagation()}>
+                <div class="flex gap-2" onclick={(e: MouseEvent) => e.stopPropagation()}>
                   <Button
                     variant="outline"
                     size="sm"

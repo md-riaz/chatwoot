@@ -30,9 +30,9 @@
     const groups: Record<string, typeof messages> = {};
     
     messages.forEach(message => {
-      if (!message.created_at) return;
+      if (!message.createdAt) return;
       
-      const date = new Date(message.created_at * 1000);
+      const date = new Date(message.createdAt * 1000);
       const dateKey = date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',

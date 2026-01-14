@@ -32,7 +32,7 @@
   }
 </script>
 
-<Dialog.Root bind:open>
+<Dialog.Root {open} onOpenChange={(value) => (open = value)}>
   <Dialog.Content class="max-w-2xl max-h-[90vh] overflow-y-auto">
     <Dialog.Header>
       <Dialog.Title>

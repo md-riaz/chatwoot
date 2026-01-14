@@ -6,6 +6,7 @@
   
   import { Settings, Users, Bell, Lock, Palette, Globe } from '@lucide/svelte';
   import * as Card from '$lib/components/ui/card';
+  import { ClickableCard } from '$lib/components/custom';
   import { Button } from '$lib/components/ui/button';
   import { goto } from '$app/navigation';
   
@@ -65,7 +66,7 @@
   
   <div class="grid gap-4 md:grid-cols-2">
     {#each settingsSections as section}
-      <Card.Root class="hover:border-primary transition-colors cursor-pointer" onclick={() => goto(section.href)}>
+      <ClickableCard class="hover:border-primary transition-colors" onclick={() => goto(section.href)}>
         <Card.Header>
           <div class="flex items-start gap-4">
             <div class="p-2 bg-primary/10 rounded-lg">
@@ -79,7 +80,7 @@
             </div>
           </div>
         </Card.Header>
-      </Card.Root>
+      </ClickableCard>
     {/each}
   </div>
 </div>

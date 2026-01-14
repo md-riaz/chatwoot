@@ -4,7 +4,7 @@
   import MetricsCards from '$lib/components/reports/MetricsCards.svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
-  import { Input } from '$lib/components/ui/input';
+  import { DateInput } from '$lib/components/custom';
   import { BarChart3, Users, Building2, RefreshCw } from '@lucide/svelte';
   
   const conversationMetrics = $derived(reportsStore.conversationMetrics);
@@ -24,18 +24,19 @@
     until = filters.until || '';
   });
   
+  // Update store when dates change
+  $effect(() => {
+    if (since && until) {
+      reportsStore.setDateRange(since, until);
+    }
+  });
+  
   onMount(() => {
     reportsStore.fetchAllReports();
   });
   
   async function handleRefresh() {
     await reportsStore.fetchAllReports({ since, until });
-  }
-  
-  function handleDateChange() {
-    if (since && until) {
-      reportsStore.setDateRange(since, until);
-    }
   }
 </script>
 
@@ -53,18 +54,14 @@
       </div>
       
       <div class="flex items-center gap-2">
-        <Input
-          type="date"
+        <DateInput
           bind:value={since}
-          onchange={handleDateChange}
-          class="w-40"
+          placeholder="Start date"
         />
         <span class="text-sm text-gray-500">to</span>
-        <Input
-          type="date"
+        <DateInput
           bind:value={until}
-          onchange={handleDateChange}
-          class="w-40"
+          placeholder="End date"
         />
         <Button onclick={handleRefresh} disabled={isLoading}>
           <RefreshCw class="h-4 w-4 mr-2 {isLoading ? 'animate-spin' : ''}" />

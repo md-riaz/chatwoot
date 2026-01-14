@@ -87,7 +87,7 @@
 
       <div class="space-y-2">
         <Label for="language">Language</Label>
-        <Select.Root bind:selected={language}>
+        <Select.Root bind:value={language}>
           <Select.Trigger id="language">
             <Select.Value placeholder="Select language" />
           </Select.Trigger>
@@ -102,7 +102,7 @@
 
       <div class="space-y-2">
         <Label for="timezone">Timezone</Label>
-        <Select.Root bind:selected={timezone}>
+        <Select.Root bind:value={timezone}>
           <Select.Trigger id="timezone">
             <Select.Value placeholder="Select timezone" />
           </Select.Trigger>

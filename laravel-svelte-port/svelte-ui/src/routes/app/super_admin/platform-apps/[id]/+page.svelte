@@ -222,7 +222,7 @@ function copyAccessToken() {
 </div>
 
 <!-- Delete Confirmation Dialog -->
-<Dialog.Root bind:open={showDeleteDialog}>
+<Dialog.Root open={showDeleteDialog} onOpenChange={(open) => showDeleteDialog = open}>
 	<Dialog.Content class="sm:max-w-[400px]">
 		<Dialog.Header>
 			<Dialog.Title>Delete Platform App</Dialog.Title>

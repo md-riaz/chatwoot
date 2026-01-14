@@ -80,7 +80,7 @@
             variant="ghost"
             size="icon"
             class="h-6 w-6"
-            onclick={(e) => {
+            onclick={(e: MouseEvent) => {
               e.stopPropagation();
               handleDelete();
             }}

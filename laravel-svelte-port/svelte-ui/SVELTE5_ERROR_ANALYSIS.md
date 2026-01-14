@@ -1,7 +1,7 @@
 # Svelte 5 Error Analysis for Chatwoot Migration
 
 ## Executive Summary
-After running `pnpm run check`, found **507 errors and 105 warnings** across **178 files** in the svelte-ui directory. The errors are primarily related to Svelte 5 migration issues where legacy Svelte 4 patterns are being used instead of the new runes-based system.
+After running `pnpm run check`, found **517 errors and 101 warnings** across **179 files** in the svelte-ui directory. The errors are primarily related to Svelte 5 migration issues where legacy Svelte 4 patterns are being used instead of the new runes-based system.
 
 **Note**: Story/Histoire files have been removed (83 files) as they are not needed for production components, reducing the error count by 276 issues (31%).
 

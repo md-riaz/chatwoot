@@ -10,6 +10,7 @@
   import { conversationsStore } from '$lib/stores/conversations.svelte';
   import { contactsStore } from '$lib/stores/contacts.svelte';
   import * as Card from '$lib/components/ui/card';
+  import { ClickableCard } from '$lib/components/custom';
   import { Badge } from '$lib/components/ui/badge';
   import { Button } from '$lib/components/ui/button';
   import { MessageSquare, Users, Clock, CheckCircle, AlertCircle, TrendingUp } from '@lucide/svelte';
@@ -117,8 +118,8 @@
   <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
     {#each stats as stat}
       {@const StatIcon = stat.icon}
-      <Card.Root 
-        class="hover:shadow-md transition-shadow cursor-pointer"
+      <ClickableCard 
+        class="hover:shadow-md transition-shadow"
         onclick={() => goto(stat.href)}
       >
         <Card.Header class="flex flex-row items-center justify-between pb-2">
@@ -133,7 +134,7 @@
           <div class="text-2xl font-bold">{stat.value}</div>
           <p class="text-xs text-muted-foreground mt-1">{stat.description}</p>
         </Card.Content>
-      </Card.Root>
+      </ClickableCard>
     {/each}
   </div>
   

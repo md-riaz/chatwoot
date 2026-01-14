@@ -8,7 +8,7 @@
   import { Switch } from '$lib/components/ui/switch';
   import { Label } from '$lib/components/ui/label';
   import { RadioGroup } from '$lib/components/ui/radio-group';
-  import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '$lib/components/ui/select';
+  import * as Select from '$lib/components/ui/select';
   import { Plus } from '@lucide/svelte';
   
   // Some components might not be exported from the main barrel or need specific imports if they are complex
@@ -30,7 +30,7 @@
       <Button href="/" variant="ghost" size="sm" class="-ml-2 mb-2">
         &larr; Back to Components
       </Button>
-      <h1 class="text-3xl font-bold capitalize">{componentName.replace(/-/g, ' ')}</h1>
+      <h1 class="text-3xl font-bold capitalize">{componentName?.replace(/-/g, ' ') || 'Component'}</h1>
       <p class="text-muted-foreground">
         Preview of the <code class="bg-muted px-1.5 py-0.5 rounded font-mono text-sm">{componentName}</code> component.
       </p>
@@ -91,7 +91,7 @@
       </div>
     {:else if componentName === 'checkbox'}
       <div class="flex items-center space-x-2">
-        <Checkbox id="terms" />
+        <Checkbox />
         <Label
           for="terms"
           class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -101,12 +101,12 @@
       </div>
     {:else if componentName === 'switch'}
       <div class="flex items-center space-x-2">
-        <Switch id="airplane-mode" />
+        <Switch />
         <Label for="airplane-mode">Airplane Mode</Label>
       </div>
     {:else if componentName === 'label'}
       <div class="flex items-center space-x-2">
-        <Label htmlFor="email">Your email address</Label>
+        <Label for="email">Your email address</Label>
       </div>
     {:else if componentName === 'radio-group'}
       <RadioGroup 
@@ -118,16 +118,16 @@
         ]}
       />
     {:else if componentName === 'select'}
-      <Select>
-        <SelectTrigger class="w-[180px]">
-          <SelectValue placeholder="Theme" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="light">Light</SelectItem>
-          <SelectItem value="dark">Dark</SelectItem>
-          <SelectItem value="system">System</SelectItem>
-        </SelectContent>
-      </Select>
+      <Select.Root type="single">
+        <Select.Trigger class="w-[180px]">
+          <Select.Value placeholder="Theme" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="light" label="Light">Light</Select.Item>
+          <Select.Item value="dark" label="Dark">Dark</Select.Item>
+          <Select.Item value="system" label="System">System</Select.Item>
+        </Select.Content>
+      </Select.Root>
     {:else}
       <div class="text-center text-muted-foreground p-10">
         <h3 class="text-lg font-medium">Preview not available yet</h3>
@@ -144,7 +144,7 @@
   <div class="mt-8 pt-8 border-t">
     <h2 class="text-xl font-semibold mb-4">Installation</h2>
     <div class="bg-muted p-4 rounded-lg overflow-x-auto">
-       <pre class="font-mono text-sm"><code>import &lbrace; {componentName.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('')} &rbrace; from '$lib/components/ui/{componentName}';</code></pre>
+       <pre class="font-mono text-sm"><code>import &lbrace; {componentName?.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('') || 'Component'} &rbrace; from '$lib/components/ui/{componentName || 'component'}';</code></pre>
     </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api, toSearchParams } from './client';
 import type { PaginatedResponse } from './types';
 
 // Contact interfaces
@@ -84,7 +84,7 @@ export async function getContacts(
 ): Promise<PaginatedResponse<Contact>> {
   return api
     .get(`api/v1/accounts/${accountId}/contacts`, {
-      searchParams: params,
+      searchParams: toSearchParams(params),
     })
     .json();
 }
@@ -100,7 +100,7 @@ export async function searchContacts(
 ): Promise<PaginatedResponse<Contact>> {
   return api
     .get(`api/v1/accounts/${accountId}/contacts/search`, {
-      searchParams: { q: query, page, per_page: perPage },
+      searchParams: toSearchParams({ q: query, page, per_page: perPage }),
     })
     .json();
 }

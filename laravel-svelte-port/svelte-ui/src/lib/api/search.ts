@@ -3,7 +3,7 @@
  * Handles global search across conversations, contacts, and messages
  */
 
-import api from './client';
+import api, { toSearchParams } from './client';
 
 export interface SearchResult {
   id: number;
@@ -46,11 +46,11 @@ export async function search(
   page: number = 1
 ): Promise<SearchResponse> {
   return api.get('api/v1/search', {
-    searchParams: {
+    searchParams: toSearchParams({
       q: query,
       ...filters,
       page
-    }
+    })
   }).json();
 }
 

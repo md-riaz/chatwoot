@@ -19,7 +19,7 @@ const sidebar = useSidebar();
 
 <Button
 type="button"
-onclick={(e) => {
+onclick={(e: MouseEvent) => {
 onclick?.(e);
 sidebar.toggle();
 }}

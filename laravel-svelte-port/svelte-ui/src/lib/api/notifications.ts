@@ -3,7 +3,7 @@
  * Handles notification fetching, marking as read, and deletion
  */
 
-import api from './client';
+import api, { toSearchParams } from './client';
 
 export interface Notification {
   id: number;
@@ -47,7 +47,7 @@ export async function getNotifications(
   page: number = 1
 ): Promise<NotificationsListResponse> {
   return api.get('api/v1/notifications', {
-    searchParams: { page }
+    searchParams: toSearchParams({ page })
   }).json();
 }
 
