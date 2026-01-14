@@ -86,13 +86,13 @@
       {article.id ? 'Edit Article' : 'New Article'}
     </h2>
     <div class="flex gap-2">
-      <Button variant="outline" on:click={onCancel}>
+      <Button variant="outline" onclick={onCancel}>
         Cancel
       </Button>
-      <Button variant="outline" on:click={handleSave} disabled={saving}>
+      <Button variant="outline" onclick={handleSave} disabled={saving}>
         Save Draft
       </Button>
-      <Button on:click={handlePublish} disabled={saving || !article.title || !article.content}>
+      <Button onclick={handlePublish} disabled={saving || !article.title || !article.content}>
         Publish
       </Button>
     </div>
@@ -161,14 +161,14 @@
           placeholder="Add tag"
           onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && (e.preventDefault(), addTag())}
         />
-        <Button type="button" variant="outline" on:click={addTag}>
+        <Button type="button" variant="outline" onclick={addTag}>
           Add
         </Button>
       </div>
       {#if article.tags.length > 0}
         <div class="flex flex-wrap gap-2 mt-2">
           {#each article.tags as tag}
-            <Badge variant="secondary" class="cursor-pointer" on:click={() => removeTag(tag)}>
+            <Badge variant="secondary" class="cursor-pointer" onclick={() => removeTag(tag)}>
               {tag} ×
             </Badge>
           {/each}

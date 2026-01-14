@@ -53,7 +53,7 @@
         class="flex-1"
         onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleSearch()}
       />
-      <Button on:click={handleSearch} disabled={searching}>
+      <Button onclick={handleSearch} disabled={searching}>
         {searching ? 'Searching...' : 'Search'}
       </Button>
     </div>
@@ -94,7 +94,7 @@
       <h3 class="text-sm font-semibold text-muted-foreground">Recent Searches</h3>
       <div class="flex flex-wrap gap-2">
         {#each recentSearches as search}
-          <Badge variant="secondary" class="cursor-pointer" on:click={() => handleRecentSearch(search)}>
+          <Badge variant="secondary" class="cursor-pointer" onclick={() => handleRecentSearch(search)}>
             {search}
           </Badge>
         {/each}
@@ -110,7 +110,7 @@
     {/if}
 
     {#each results as result}
-      <Card class="p-4 hover:bg-accent cursor-pointer transition-colors" on:click={() => onResultClick(result.id)}>
+      <Card class="p-4 hover:bg-accent cursor-pointer transition-colors" onclick={() => onResultClick(result.id)}>
         <div class="space-y-2">
           <div class="flex items-start justify-between gap-4">
             <h3 class="font-semibold">{@html highlightText(result.title, query)}</h3>

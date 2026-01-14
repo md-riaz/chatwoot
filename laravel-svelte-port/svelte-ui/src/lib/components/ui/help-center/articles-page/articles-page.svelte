@@ -125,7 +125,7 @@
         </SelectContent>
       </Select>
     </div>
-    <Button on:click={onArticleCreate}>
+    <Button onclick={onArticleCreate}>
       <Plus class="mr-2 h-4 w-4" />
       New Article
     </Button>
@@ -143,14 +143,14 @@
             : 'Get started by creating your first article'}
         </p>
         {#if !searchQuery && selectedCategory === 'all'}
-          <Button on:click={onArticleCreate}>Create Article</Button>
+          <Button onclick={onArticleCreate}>Create Article</Button>
         {/if}
       </Card>
     {:else}
       {#each paginatedArticles as article}
         <Card class="p-4 hover:shadow-md transition-shadow">
           <div class="flex items-start justify-between gap-4">
-            <div class="flex-1 space-y-2 cursor-pointer" on:click={() => onArticleSelect(article.id)} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && onArticleSelect(article.id)}>
+            <div class="flex-1 space-y-2 cursor-pointer" onclick={() => onArticleSelect(article.id)} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && onArticleSelect(article.id)}>
               <div class="flex items-center gap-2">
                 <h3 class="text-lg font-semibold hover:text-primary transition-colors">
                   {article.title}
@@ -174,7 +174,7 @@
               <Button
                 variant="ghost"
                 size="sm"
-                on:click={() => onArticlePreview(article.id)}
+                onclick={() => onArticlePreview(article.id)}
                 title="Preview"
               >
                 <Eye class="h-4 w-4" />
@@ -182,7 +182,7 @@
               <Button
                 variant="ghost"
                 size="sm"
-                on:click={() => onArticleEdit(article.id)}
+                onclick={() => onArticleEdit(article.id)}
                 title="Edit"
               >
                 <Edit2 class="h-4 w-4" />
@@ -190,7 +190,7 @@
               <Button
                 variant="ghost"
                 size="sm"
-                on:click={() => onArticleDelete(article.id)}
+                onclick={() => onArticleDelete(article.id)}
                 title="Delete"
                 class="text-destructive hover:text-destructive"
               >
@@ -217,7 +217,7 @@
           variant="outline"
           size="sm"
           disabled={currentPage === 1}
-          on:click={() => (currentPage = 1)}
+          onclick={() => (currentPage = 1)}
         >
           First
         </Button>
@@ -225,7 +225,7 @@
           variant="outline"
           size="sm"
           disabled={currentPage === 1}
-          on:click={() => (currentPage -= 1)}
+          onclick={() => (currentPage -= 1)}
         >
           Previous
         </Button>
@@ -236,7 +236,7 @@
           variant="outline"
           size="sm"
           disabled={currentPage === totalPages}
-          on:click={() => (currentPage += 1)}
+          onclick={() => (currentPage += 1)}
         >
           Next
         </Button>
@@ -244,7 +244,7 @@
           variant="outline"
           size="sm"
           disabled={currentPage === totalPages}
-          on:click={() => (currentPage = totalPages)}
+          onclick={() => (currentPage = totalPages)}
         >
           Last
         </Button>

@@ -51,11 +51,11 @@
           </div>
           <div class="flex items-center gap-4">
             {#if !locale.isDefault}
-              <Button variant="outline" size="sm" on:click={() => handleSetDefault(locale.code)}>
+              <Button variant="outline" size="sm" onclick={() => handleSetDefault(locale.code)}>
                 Set as Default
               </Button>
             {/if}
-            <Switch checked={locale.enabled} on:checkedChange={() => handleToggle(locale.code)} />
+            <Switch checked={locale.enabled} onclick={() => handleToggle(locale.code)} />
           </div>
         </div>
       </Card>

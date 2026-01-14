@@ -78,7 +78,7 @@
     </Avatar>
     <div class="flex flex-col flex-1">
       <label class="text-sm text-muted-foreground">Upload Avatar</label>
-      <input type="file" accept="image/*" on:change={(e: Event) => onFileChange(e)} />
+      <input type="file" accept="image/*" onchange={(e: Event) => onFileChange(e)} />
     </div>
   </div>
 

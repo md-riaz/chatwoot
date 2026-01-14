@@ -26,7 +26,7 @@
     {src}
     {alt}
     class={cn('aspect-square h-full w-full object-cover', className)}
-    on:error={handleError}
+    onerror={handleError}
     {...restProps}
   />
 {/if}
