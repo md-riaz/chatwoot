@@ -1,6 +1,7 @@
 <script lang="ts">
   import { cn } from '$lib/utils';
-  import type { Snippet, HTMLAttributes } from 'svelte/elements';
+  import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
 
   type Props = HTMLAttributes<HTMLDivElement> & {
     class?: string;
