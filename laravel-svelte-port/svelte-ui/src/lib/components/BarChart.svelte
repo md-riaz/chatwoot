@@ -26,8 +26,8 @@
         <Bars radius={4} strokeWidth={1} />
         <Highlight area />
       </Svg>
-      <Tooltip header={(data) => data[xKey] || 'Unknown'}>
-        {#snippet children(data)}
+      <Tooltip header={(data: any) => data[xKey] || 'Unknown'}>
+        {#snippet children(data: any)}
           <div class="tooltip">
             <div class="font-semibold">{data[xKey] || 'N/A'}</div>
             <div class="text-sm text-surface-content/50">{data[yKey] != null ? data[yKey] : 'N/A'}</div>

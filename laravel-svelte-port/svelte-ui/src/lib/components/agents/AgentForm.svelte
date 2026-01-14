@@ -138,7 +138,7 @@
       <Label for="role">Role *</Label>
       <Select.Root
         value={role}
-        onValueChange={(v) => {
+        onValueChange={(v: string | undefined) => {
           if (v) role = v as 'administrator' | 'agent';
         }}
       >

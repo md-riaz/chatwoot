@@ -175,7 +175,7 @@
       <Label for="displayType">Attribute Type *</Label>
       <Select.Root
         value={displayType}
-        onValueChange={(v) => {
+        onValueChange={(v: string | undefined) => {
           if (v) displayType = v as typeof displayType;
         }}
         disabled={mode === 'edit'}
@@ -202,7 +202,7 @@
       <Label for="model">Applies To *</Label>
       <Select.Root
         value={model}
-        onValueChange={(v) => {
+        onValueChange={(v: string | undefined) => {
           if (v) model = v as typeof model;
         }}
         disabled={mode === 'edit'}

@@ -64,7 +64,7 @@
         selectedTag === 'all' || contact.tags.includes(selectedTag);
       return matchesSearch && matchesTag;
     })
-    .sort((a, b) => {
+    .sort((a: Contact, b: Contact) => {
       let comparison = 0;
       switch (sortBy) {
         case 'name':
@@ -89,13 +89,13 @@
   );
 
   $: totalPages = Math.ceil(filteredContacts.length / itemsPerPage);
-  $: allSelected = paginatedContacts.length > 0 && paginatedContacts.every(c => selectedContacts.has(c.id));
+  $: allSelected = paginatedContacts.length > 0 && paginatedContacts.every((c: Contact) => selectedContacts.has(c.id));
 
   function toggleAll() {
     if (allSelected) {
-      paginatedContacts.forEach(c => selectedContacts.delete(c.id));
+      paginatedContacts.forEach((c: Contact) => selectedContacts.delete(c.id));
     } else {
-      paginatedContacts.forEach(c => selectedContacts.add(c.id));
+      paginatedContacts.forEach((c: Contact) => selectedContacts.add(c.id));
     }
     selectedContacts = selectedContacts;
   }

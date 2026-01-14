@@ -98,9 +98,9 @@
   // Update when conversation changes
   $effect(() => {
     if (conversationId) {
-      messagesApi.getMessages(conversationId).then(loadedMessages => {
+      messagesApi.getMessages(conversationId).then((loadedMessages: any) => {
         messagesStore.setMessages(loadedMessages);
-      }).catch(err => {
+      }).catch((err: Error) => {
         console.error('Failed to load messages:', err);
       });
     }

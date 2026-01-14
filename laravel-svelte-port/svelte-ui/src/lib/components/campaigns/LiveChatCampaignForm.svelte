@@ -153,7 +153,7 @@
       <Label for="inbox">Inbox *</Label>
       <Select.Root
         value={inboxId?.toString()}
-        onValueChange={(v) => {
+        onValueChange={(v: string | undefined) => {
           if (v) inboxId = parseInt(v) as number;
         }}
       >
