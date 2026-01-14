@@ -45,7 +45,7 @@
 <div class={cn('grid gap-2', className)} {...restProps}>
   <Popover bind:open>
     <Popover.Trigger>
-      {#snippet child({ props })}
+      {#snippet child({ props }: { props: any })}
         <Button
           {...props}
           variant="outline"
