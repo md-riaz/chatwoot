@@ -219,13 +219,13 @@ export async function updateProfile(params: ProfileUpdateParams): Promise<Curren
     
     formData.append('profile[avatar]', avatar);
     
-    const response = await uploadFile<CurrentUser>(
+    const response = await uploadFile(
       'api/v1/profile',
       formData,
       {
         method: 'PATCH'
       }
-    );
+    ) as CurrentUser;
     return response;
   }
   

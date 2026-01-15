@@ -99,7 +99,7 @@
 
       <div class="space-y-2">
         <Label for="fontFamily">Font Family</Label>
-        <Select.Root bind:selected={fontFamilyValue}>
+        <Select.Root bind:value={fontFamilyValue}>
           <Select.Trigger id="fontFamily">
             <Select.Value placeholder="Select font" />
           </Select.Trigger>

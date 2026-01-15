@@ -146,10 +146,10 @@
                     </div>
                   {/if}
                   
-                  {#if contact.companyName}
+                  {#if contact.company}
                     <div class="flex items-center gap-2 text-sm text-muted-foreground">
                       <Building class="h-3 w-3 flex-shrink-0" />
-                      <span class="truncate">{contact.companyName}</span>
+                      <span class="truncate">{contact.company}</span>
                     </div>
                   {/if}
                 </div>

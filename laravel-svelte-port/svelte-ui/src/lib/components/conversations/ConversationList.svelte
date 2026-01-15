@@ -58,7 +58,7 @@
   
   // Handle conversation selection
   function handleConversationClick(conversationId: number) {
-    conversationsStore.selectConversation(conversationId);
+    conversationsStore.setSelectedConversation(conversationId);
     onConversationSelect?.(conversationId);
   }
   
@@ -157,7 +157,7 @@
           <ConversationItem
             {conversation}
             contact={getContact(conversation.meta?.sender?.id)}
-            inbox={getInbox(conversation.inbox_id)}
+            inbox={getInbox(conversation.inboxId)}
             selected={conversation.id === selectedId}
             onclick={() => handleConversationClick(conversation.id)}
           />

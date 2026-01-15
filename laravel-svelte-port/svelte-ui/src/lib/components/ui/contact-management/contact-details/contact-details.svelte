@@ -1,10 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { Avatar } from '../../../avatar/index.js';
-  import { Badge } from '../../../badge/index.js';
-  import { Button } from '../../../button/index.js';
-  import { Card } from '../../../card/index.js';
-  import { Input } from '../../../input/index.js';
+  import { Avatar } from '$lib/components/ui/avatar';
+  import { Badge } from '$lib/components/ui/badge';
+  import { Button } from '$lib/components/ui/button';
+  import { Card } from '$lib/components/ui/card';
+  import { Input } from '$lib/components/ui/input';
   import { ContactForm } from '../contact-form/index.js';
   import {
     Dialog as DialogRoot,
@@ -113,7 +113,7 @@
             <img src={contact.avatar} alt={contact.name} />
           {:else}
             <div class="flex h-full w-full items-center justify-center bg-primary text-primary-foreground">
-              {contact.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
+              {contact.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0,2)}
             </div>
           {/if}
         </Avatar>
@@ -127,8 +127,8 @@
           {/if}
         </div>
         <div class="flex gap-2 mt-4">
-          <Button variant="outline" size="sm" on:click={(e: MouseEvent) => goBack()}>Back</Button>
-          <Button size="sm" on:click={(e: MouseEvent) => edit()}>Edit</Button>
+          <Button variant="outline" size="sm" onclick={(e: MouseEvent) => goBack()}>Back</Button>
+          <Button size="sm" onclick={(e: MouseEvent) => edit()}>Edit</Button>
         </div>
       </div>
     </Card>
@@ -180,7 +180,7 @@
         <div class="space-y-3">
           <div class="flex gap-2">
             <Input bind:value={newNote} placeholder="Write a note..." />
-            <Button on:click={(e: MouseEvent) => addNote()}>Add</Button>
+            <Button onclick={(e: MouseEvent) => addNote()}>Add</Button>
           </div>
 
           {#if localNotes.length === 0}

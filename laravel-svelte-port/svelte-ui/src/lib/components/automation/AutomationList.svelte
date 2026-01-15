@@ -129,7 +129,7 @@
             <div class="flex items-center gap-2">
               <Switch
                 checked={automation.active}
-                onCheckedChange={() => handleToggleActive(automation)}
+                onclick={() => handleToggleActive(automation)}
                 disabled={isSaving}
                 aria-label={automation.active ? 'Deactivate automation' : 'Activate automation'}
               />

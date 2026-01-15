@@ -174,9 +174,9 @@
     <div class="space-y-2">
       <Label for="displayType">Attribute Type *</Label>
       <Select.Root
-        selected={typeOptions.find((t) => t.value === displayType)}
-        onSelectedChange={(v) => {
-          if (v) displayType = v.value as typeof displayType;
+        value={displayType}
+        onValueChange={(v: string | undefined) => {
+          if (v) displayType = v as typeof displayType;
         }}
         disabled={mode === 'edit'}
       >
@@ -201,9 +201,9 @@
     <div class="space-y-2">
       <Label for="model">Applies To *</Label>
       <Select.Root
-        selected={modelOptions.find((m) => m.value === model)}
-        onSelectedChange={(v) => {
-          if (v) model = v.value as typeof model;
+        value={model}
+        onValueChange={(v: string | undefined) => {
+          if (v) model = v as typeof model;
         }}
         disabled={mode === 'edit'}
       >

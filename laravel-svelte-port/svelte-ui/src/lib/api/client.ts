@@ -57,14 +57,20 @@ const createApiClient = (): KyInstance => {
             
             // Only transform JSON bodies
             if (!contentType || contentType.includes('application/json')) {
-              const bodyText = request.body as string;
               try {
-                const data = JSON.parse(bodyText);
-                const transformed = keysToSnake(data);
-                request.headers.set('content-type', 'application/json');
-                return new Request(request, {
-                  body: JSON.stringify(transformed)
-                });
+                // Handle both string and ReadableStream bodies
+                const bodyContent = typeof request.body === 'string' 
+                  ? request.body 
+                  : (request.body ? await new Response(request.body).text() : '');
+                
+                if (bodyContent) {
+                  const data = JSON.parse(bodyContent);
+                  const transformed = keysToSnake(data);
+                  request.headers.set('content-type', 'application/json');
+                  return new Request(request, {
+                    body: JSON.stringify(transformed)
+                  });
+                }
               } catch (e) {
                 // Body is not JSON, leave as is
               }
@@ -123,6 +129,9 @@ const createApiClient = (): KyInstance => {
 
           // Parse and throw ApiError
           await handleHttpError(response, endpoint);
+          
+          // Return the error to satisfy the hook type
+          return error;
         }
       ]
     }

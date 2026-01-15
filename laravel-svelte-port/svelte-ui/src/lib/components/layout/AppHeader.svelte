@@ -119,7 +119,7 @@
               </Button>
             {/snippet}
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content align="end" class="w-56">
+          <DropdownMenu.Content class="w-56">
             <DropdownMenu.Label>Switch Account</DropdownMenu.Label>
             <DropdownMenu.Separator />
             {#each (currentUser.accounts || []) as account}
@@ -200,7 +200,7 @@
             </Button>
           {/snippet}
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="end" class="w-56">
+        <DropdownMenu.Content class="w-56">
           <DropdownMenu.Label>
             <div class="flex flex-col space-y-1">
               <p class="text-sm font-medium">{currentUser.name}</p>
@@ -212,7 +212,7 @@
             {#if item.divider}
               <DropdownMenu.Separator />
             {:else}
-              <DropdownMenu.Item onselect={() => item.onClick()}>
+              <DropdownMenu.Item onclick={() => item.onClick?.()}>
                 {item.label}
               </DropdownMenu.Item>
             {/if}

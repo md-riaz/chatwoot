@@ -42,9 +42,9 @@
     <Input
       bind:value={searchQuery}
       placeholder="Search articles..."
-      on:keydown={(e) => e.key === 'Enter' && handleSearch()}
+      onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleSearch()}
     />
-    <Button class="w-full" variant="outline" size="sm" on:click={handleSearch}>
+    <Button class="w-full" variant="outline" size="sm" onclick={handleSearch}>
       Search
     </Button>
   </div>
@@ -56,7 +56,7 @@
         <div>
           <button
             class="w-full flex items-center justify-between py-2 px-3 rounded-md hover:bg-accent text-left"
-            on:click={() => {
+            onclick={() => {
               toggleCategory(category.id);
               onCategoryClick(category.id);
             }}
@@ -70,7 +70,7 @@
               {#each category.subcategories as sub}
                 <button
                   class="w-full flex items-center justify-between py-1 px-2 rounded-md hover:bg-accent text-sm text-left"
-                  on:click={() => onCategoryClick(sub.id)}
+                  onclick={() => onCategoryClick(sub.id)}
                 >
                   <span>{sub.name}</span>
                   <Badge variant="outline" class="text-xs">{sub.articleCount}</Badge>
@@ -90,7 +90,7 @@
         {#each popularArticles as article}
           <button
             class="w-full text-left py-2 px-3 rounded-md hover:bg-accent text-sm"
-            on:click={() => onArticleClick(article.id)}
+            onclick={() => onArticleClick(article.id)}
           >
             <div class="line-clamp-2">{article.title}</div>
             <div class="text-xs text-muted-foreground mt-1">{article.views} views</div>

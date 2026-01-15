@@ -7,7 +7,7 @@
   import MessageInput from '$lib/components/widget/input/MessageInput.svelte';
   import { notifyWidgetOpened, notifyWidgetClosed } from '$lib/widget/utils/iframe';
 
-  const isOpen = $derived(widgetConfigStore.open);
+  const isOpen = $derived(widgetConfigStore.isWidgetOpen);
   const unreadCount = $derived(widgetConfigStore.unread);
   const widgetColor = $derived(widgetConfigStore.widgetColor);
   const hasConversation = $derived(widgetConversationStore.hasConversation);
@@ -16,7 +16,7 @@
   function handleToggle() {
     widgetConfigStore.toggle();
     
-    if (widgetConfigStore.open) {
+    if (widgetConfigStore.isWidgetOpen) {
       notifyWidgetOpened();
     } else {
       notifyWidgetClosed();

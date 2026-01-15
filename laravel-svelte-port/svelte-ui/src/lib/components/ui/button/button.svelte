@@ -19,7 +19,7 @@
 
 <ButtonPrimitive.Root
   bind:this={ref}
-  class={cn(buttonVariants({ variant, size, className: className ?? '' }))}
+  class={cn(buttonVariants({ variant, size, className: className as any }))}
   {...restProps}
 >
   {@render children?.()}

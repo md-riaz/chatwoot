@@ -17,7 +17,7 @@ class WidgetConfigStore {
     return this.config;
   }
 
-  get open() {
+  get isWidgetOpen() {
     return this.isOpen;
   }
 
@@ -66,7 +66,7 @@ class WidgetConfigStore {
     }
   }
 
-  open() {
+  openWidget() {
     this.isOpen = true;
     this.unreadCount = 0;
   }

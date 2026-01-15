@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import type { DateValue } from '@internationalized/date';
   
   export type DatePickerProps = {
@@ -13,7 +13,7 @@
 </script>
 
 <script lang="ts">
-  import { Popover } from '../popover/index.js';
+  import { Popover, PopoverTrigger, PopoverContent } from '../popover/index.js';
   import { Button } from '../button/index.js';
   import { Calendar } from '../calendar/index.js';
   import { cn } from '$lib/utils';
@@ -44,8 +44,8 @@
 
 <div class={cn('grid gap-2', className)} {...restProps}>
   <Popover bind:open>
-    <Popover.Trigger>
-      {#snippet child({ props })}
+    <PopoverTrigger>
+      {#snippet child({ props }: { props: any })}
         <Button
           {...props}
           variant="outline"
@@ -75,8 +75,8 @@
           {displayValue}
         </Button>
       {/snippet}
-    </Popover.Trigger>
-    <Popover.Content class="w-auto p-0" align="start">
+    </PopoverTrigger>
+    <PopoverContent class="w-auto p-0" align="start">
       <Calendar
         bind:value
         {minValue}
@@ -87,6 +87,6 @@
           open = false;
         }}
       />
-    </Popover.Content>
+    </PopoverContent>
   </Popover>
 </div>

@@ -179,7 +179,7 @@
   <div class="space-y-2">
     <Label for="inbox">SMS Inbox *</Label>
     <Select.Root
-      onValueChange={(value) => { inboxId = value ? parseInt(value) : null; }}
+      onValueChange={(value: string | undefined) => { inboxId = value ? parseInt(value) : null; }}
       value={inboxId?.toString()}
     >
       <Select.Trigger id="inbox" class={errors.inboxId ? 'border-red-500' : ''}>
@@ -225,7 +225,7 @@
     <Label for="scheduledAt">Schedule Date & Time *</Label>
     <Input
       id="scheduledAt"
-      type="datetime-local"
+      type={"datetime-local" as any}
       bind:value={scheduledAt}
       min={currentDateTime()}
       class={errors.scheduledAt ? 'border-red-500' : ''}

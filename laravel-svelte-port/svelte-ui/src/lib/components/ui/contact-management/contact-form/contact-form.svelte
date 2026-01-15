@@ -1,9 +1,9 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { Avatar } from '../../../avatar/index.js';
-  import { Button } from '../../../button/index.js';
-  import { Input } from '../../../input/index.js';
-  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../select/index.js';
+  import { Avatar } from '$lib/components/ui/avatar';
+  import { Button } from '$lib/components/ui/button';
+  import { Input } from '$lib/components/ui/input';
+  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '$lib/components/ui/select';
 
   interface Contact {
     id?: string;
@@ -78,7 +78,7 @@
     </Avatar>
     <div class="flex flex-col flex-1">
       <label class="text-sm text-muted-foreground">Upload Avatar</label>
-      <input type="file" accept="image/*" on:change={(e: Event) => onFileChange(e)} />
+      <input type="file" accept="image/*" onchange={(e: Event) => onFileChange(e)} />
     </div>
   </div>
 
@@ -113,7 +113,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
       <label class="text-sm">Tags (comma separated)</label>
-      <Input value={form.tags?.join(', ')} on:input={(e: Event & { target: HTMLInputElement }) => (form.tags = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean))} />
+      <Input value={form.tags?.join(', ')} oninput={(e: Event) => (form.tags = (e.target as HTMLInputElement).value.split(',').map((s: string) => s.trim()).filter(Boolean))} />
     </div>
 
     <div>
@@ -131,7 +131,7 @@
   </div>
 
   <div class="flex items-center justify-end gap-2">
-    <Button variant="ghost" on:click={(e: MouseEvent) => cancel()}>Cancel</Button>
-    <Button on:click={(e: MouseEvent) => save()}>Save</Button>
+    <Button variant="ghost" onclick={(e: MouseEvent) => cancel()}>Cancel</Button>
+    <Button onclick={(e: MouseEvent) => save()}>Save</Button>
   </div>
 </div>

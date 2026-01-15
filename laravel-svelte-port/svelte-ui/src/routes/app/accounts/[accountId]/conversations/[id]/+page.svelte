@@ -17,8 +17,8 @@
   import { onMount } from 'svelte';
   
   // Using Svelte 5 runes
-  let accountId = $state<number>(parseInt($page.params.accountId));
-  let conversationId = $state<number>(parseInt($page.params.id));
+  let accountId = $state<number>(parseInt($page.params.accountId || '0'));
+  let conversationId = $state<number>(parseInt($page.params.id || '0'));
   let conversation = $derived(
     conversationsStore.allConversations.find(c => c.id === conversationId)
   );
@@ -112,7 +112,7 @@
         <Input 
           placeholder="Type your message..." 
           bind:value={messageText}
-          on:keypress={(e) => e.key === 'Enter' && handleSendMessage()}
+          onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleSendMessage()}
         />
         <Button onclick={handleSendMessage}>Send</Button>
       </div>

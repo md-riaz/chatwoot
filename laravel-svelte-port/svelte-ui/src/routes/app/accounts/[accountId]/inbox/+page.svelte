@@ -193,7 +193,7 @@
                   <Badge variant="secondary">{conversation.channel}</Badge>
                   {#if conversation.priority === 'high'}
                     <Badge variant="destructive">High Priority</Badge>
-                  {:elseif conversation.priority === 'medium'}
+                  {:else if conversation.priority === 'medium'}
                     <Badge variant="default">Medium Priority</Badge>
                   {:else}
                     <Badge variant="outline">Low Priority</Badge>
@@ -239,7 +239,7 @@
                   <Badge variant="secondary">{conversation.channel}</Badge>
                   {#if conversation.priority === 'high'}
                     <Badge variant="destructive">High Priority</Badge>
-                  {:elseif conversation.priority === 'medium'}
+                  {:else if conversation.priority === 'medium'}
                     <Badge variant="default">Medium Priority</Badge>
                   {:else}
                     <Badge variant="outline">Low Priority</Badge>
@@ -285,7 +285,7 @@
                   <Badge variant="secondary">{conversation.channel}</Badge>
                   {#if conversation.priority === 'high'}
                     <Badge variant="destructive">High Priority</Badge>
-                  {:elseif conversation.priority === 'medium'}
+                  {:else if conversation.priority === 'medium'}
                     <Badge variant="default">Medium Priority</Badge>
                   {:else}
                     <Badge variant="outline">Low Priority</Badge>

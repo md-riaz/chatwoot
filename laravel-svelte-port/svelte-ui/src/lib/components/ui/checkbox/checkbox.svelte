@@ -13,17 +13,17 @@
 </script>
 
 <CheckboxPrimitive.Root
-  bind:checked
+  bind:checked={checked as any}
   class={cn(
     'peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
     className
   )}
   {...restProps}
 >
-  <CheckboxPrimitive.Indicator
-    class={cn('flex items-center justify-center text-current')}
-  >
-    {#if checked === 'indeterminate'}
+  <!-- CheckboxPrimitive.Indicator removed - not exported in current bits-ui version -->
+  <!-- Show indicator when checked using conditional rendering -->
+  {#if checked === 'indeterminate'}
+    <div class="flex items-center justify-center text-current">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
@@ -38,7 +38,9 @@
       >
         <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
-    {:else}
+    </div>
+  {:else if checked}
+    <div class="flex items-center justify-center text-current">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
@@ -53,6 +55,6 @@
       >
         <polyline points="20 6 9 17 4 12" />
       </svg>
-    {/if}
-  </CheckboxPrimitive.Indicator>
+    </div>
+  {/if}
 </CheckboxPrimitive.Root>

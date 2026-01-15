@@ -42,7 +42,7 @@
     {/snippet}
   </DropdownMenu.Trigger>
   
-  <DropdownMenu.Content align="end" class="w-80">
+  <DropdownMenu.Content class="w-80">
     <div class="flex items-center justify-between px-4 py-3 border-b">
       <h3 class="font-semibold">Notifications</h3>
       {#if hasUnread}

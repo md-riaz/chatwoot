@@ -3,7 +3,8 @@
  * Type-safe parameter extraction and validation
  */
 
-import type { Params } from '@sveltejs/kit';
+// SvelteKit params type
+export type Params = Record<string, string>;
 
 /**
  * Get route parameter as string

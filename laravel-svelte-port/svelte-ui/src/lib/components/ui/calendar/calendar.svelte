@@ -122,7 +122,7 @@
                 <div>{day.slice(0, 2)}</div>
               </RangeCalendarPrimitive.HeadCell>
             {/each}
-          </RangeCalendarPrimitive.GridRow}
+          </RangeCalendarPrimitive.GridRow>
         </RangeCalendarPrimitive.GridHead>
         <RangeCalendarPrimitive.GridBody>
           {#each month.weeks as weekDates}

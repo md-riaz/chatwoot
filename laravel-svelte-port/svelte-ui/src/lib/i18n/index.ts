@@ -125,9 +125,10 @@ export async function switchLocale(newLocale: SupportedLocale): Promise<void> {
 export function getCurrentLocale(): string {
   let currentLocale = DEFAULT_LOCALE;
   
-  locale.subscribe(value => {
-    if (value) currentLocale = value;
-  })();
+  const unsubscribe = locale.subscribe(value => {
+    if (value) currentLocale = value as typeof DEFAULT_LOCALE;
+  });
+  unsubscribe();
   
   return currentLocale;
 }

@@ -60,10 +60,10 @@
     
     <!-- Actions -->
     <div class="flex gap-4 justify-center flex-wrap">
-      <Button on:click={goBack} variant="outline" size="lg">
+      <Button onclick={goBack} variant="outline" size="lg">
         Go Back
       </Button>
-      <Button on:click={goHome} size="lg">
+      <Button onclick={goHome} size="lg">
         Go to Home
       </Button>
     </div>

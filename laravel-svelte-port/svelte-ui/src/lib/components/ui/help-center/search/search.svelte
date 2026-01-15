@@ -51,16 +51,16 @@
         bind:value={query}
         placeholder="Search articles..."
         class="flex-1"
-        on:keydown={(e) => e.key === 'Enter' && handleSearch()}
+        onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleSearch()}
       />
-      <Button on:click={handleSearch} disabled={searching}>
+      <Button onclick={handleSearch} disabled={searching}>
         {searching ? 'Searching...' : 'Search'}
       </Button>
     </div>
 
     <div class="flex gap-2">
       {#if categories.length > 0}
-        <Select.Root bind:selected={selectedCategory}>
+        <Select.Root bind:value={selectedCategory}>
           <Select.Trigger class="w-[180px]">
             <Select.Value placeholder="All Categories" />
           </Select.Trigger>
@@ -74,7 +74,7 @@
       {/if}
 
       {#if locales.length > 0}
-        <Select.Root bind:selected={selectedLocale}>
+        <Select.Root bind:value={selectedLocale}>
           <Select.Trigger class="w-[180px]">
             <Select.Value placeholder="All Languages" />
           </Select.Trigger>
@@ -94,7 +94,7 @@
       <h3 class="text-sm font-semibold text-muted-foreground">Recent Searches</h3>
       <div class="flex flex-wrap gap-2">
         {#each recentSearches as search}
-          <Badge variant="secondary" class="cursor-pointer" on:click={() => handleRecentSearch(search)}>
+          <Badge variant="secondary" class="cursor-pointer" onclick={() => handleRecentSearch(search)}>
             {search}
           </Badge>
         {/each}
@@ -110,7 +110,7 @@
     {/if}
 
     {#each results as result}
-      <Card class="p-4 hover:bg-accent cursor-pointer transition-colors" on:click={() => onResultClick(result.id)}>
+      <Card class="p-4 hover:bg-accent cursor-pointer transition-colors" onclick={() => onResultClick(result.id)}>
         <div class="space-y-2">
           <div class="flex items-start justify-between gap-4">
             <h3 class="font-semibold">{@html highlightText(result.title, query)}</h3>
