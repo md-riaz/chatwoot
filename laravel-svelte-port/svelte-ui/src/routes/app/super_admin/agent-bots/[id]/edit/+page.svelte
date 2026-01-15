@@ -278,8 +278,8 @@
 							<Label for="account">Account</Label>
 							{#if loadingAccounts}
 								<div class="h-10 w-full animate-pulse rounded bg-muted"></div>
-							{:else}
-								<Select.Root type="single" name="account" value={selectedAccountId} onValueChange={(v) => selectedAccountId = v || '0'}>
+						{:else}
+								<Select.Root type="single" name="account" bind:value={selectedAccountId}>
 									<Select.Trigger class="w-full">
 										{accountTriggerContent}
 									</Select.Trigger>

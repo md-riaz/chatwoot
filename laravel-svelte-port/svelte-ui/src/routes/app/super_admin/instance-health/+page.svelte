@@ -28,8 +28,9 @@
 			const data = await superAdminApi.getInstanceStatus();
 			metrics = data.data as InstanceMetrics;
 		} catch (err: any) {
-			error = err.message || 'Failed to load instance status';
-			toast.error(error);
+			const message: string = err?.message || 'Failed to load instance status';
+			error = message;
+			toast.error(message);
 			console.error('Instance status error:', err);
 		} finally {
 			loading = false;

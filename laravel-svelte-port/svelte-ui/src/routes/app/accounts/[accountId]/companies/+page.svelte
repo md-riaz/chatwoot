@@ -32,8 +32,7 @@
     companiesStore.fetchCompanies({ page: 1, sort: 'name' });
   }
 
-  function handleEditCompany(event: Event, company: Company) {
-    event.stopPropagation();
+  function handleEditCompany(company: Company) {
     editingCompany = company;
     showEditDialog = true;
   }
@@ -50,12 +49,7 @@
     goto(`/app/accounts/${accountId}/companies/${companyId}`);
   }
 
-  async function handleDeleteCompany(
-    event: Event,
-    companyId: number,
-    companyName: string
-  ) {
-    event.stopPropagation();
+  async function handleDeleteCompany(companyId: number, companyName: string) {
     if (
       confirm(`Are you sure you want to delete "${companyName}"? This action cannot be undone.`)
     ) {
@@ -114,7 +108,7 @@
         type="search"
         placeholder="Search companies by name, website, or industry..."
         value={searchQuery}
-        oninput={handleSearchInput}
+        on:input={handleSearchInput}
         class="max-w-md"
       />
     </div>
@@ -165,7 +159,15 @@
       {#each companies as company}
         <div
           class="company-card border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-          onclick={() => handleViewCompany(company.id)}
+          role="button"
+          tabindex="0"
+          on:click={() => handleViewCompany(company.id)}
+          on:keydown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              handleViewCompany(company.id);
+            }
+          }}
         >
           <div class="flex justify-between items-start mb-2">
             <h3 class="font-semibold text-lg">{company.name}</h3>
@@ -177,7 +179,7 @@
                 href={isValidUrl(company.website) ? company.website : `https://${company.website}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                onclick={(e: MouseEvent) => e.stopPropagation()}
+                on:click|stopPropagation={() => {}}
               >
                 {company.website}
               </a>
@@ -213,25 +215,34 @@
             </div>
           </div>
 
-          <div class="flex gap-2" onclick={(e: MouseEvent) => e.stopPropagation()}>
+          <div class="flex gap-2">
             <Button
               variant="outline"
               size="sm"
-              onclick={() => handleViewCompany(company.id)}
+              onclick={(event: MouseEvent) => {
+                event.stopPropagation();
+                handleViewCompany(company.id);
+              }}
             >
               View
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onclick={(e: MouseEvent) => handleEditCompany(e, company)}
+              onclick={(event: MouseEvent) => {
+                event.stopPropagation();
+                handleEditCompany(company);
+              }}
             >
               Edit
             </Button>
             <Button
               variant="destructive"
               size="sm"
-              onclick={(e: MouseEvent) => handleDeleteCompany(e, company.id, company.name)}
+              onclick={(event: MouseEvent) => {
+                event.stopPropagation();
+                handleDeleteCompany(company.id, company.name);
+              }}
             >
               Delete
             </Button>
@@ -261,6 +272,7 @@
 <style>
   .line-clamp-2 {
     display: -webkit-box;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;

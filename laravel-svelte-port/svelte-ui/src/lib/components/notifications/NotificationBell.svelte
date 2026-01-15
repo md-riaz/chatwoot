@@ -59,7 +59,7 @@
     </div>
     
     <div class="max-h-96 overflow-y-auto">
-      <slot />
+      {@render children?.()}
     </div>
   </DropdownMenu.Content>
 </DropdownMenu.Root>

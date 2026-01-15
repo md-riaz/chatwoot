@@ -147,7 +147,7 @@
         rows="3"
         class="form-textarea"
         disabled={isSubmitting}
-      />
+      ></textarea>
     </div>
 
     {#if errors.submit}
@@ -216,8 +216,7 @@
     border-color: var(--widget-color, #1f93ff);
   }
 
-  .form-input.error,
-  .form-textarea.error {
+  .form-input.error {
     border-color: #ef4444;
   }
 

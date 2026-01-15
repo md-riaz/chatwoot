@@ -11,7 +11,7 @@
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
   import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar';
-  import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+  import * as Tabs from '$lib/components/ui/tabs';
   import { Input } from '$lib/components/ui/input';
   import { Skeleton } from '$lib/components/ui/skeleton';
   import { Search } from 'lucide-svelte';
@@ -120,12 +120,12 @@
       <Skeleton class="h-10 w-10" />
     </div>
     
-    <Tabs defaultValue="all" class="space-y-4">
-      <TabsList>
+    <Tabs.Root value="all" class="space-y-4">
+      <Tabs.List>
         <Skeleton class="h-9 w-20" />
         <Skeleton class="h-9 w-20" />
         <Skeleton class="h-9 w-20" />
-      </TabsList>
+      </Tabs.List>
       
       <div class="space-y-4">
         {#each Array(5) as _}
@@ -141,10 +141,10 @@
           </Card>
         {/each}
       </div>
-    </Tabs>
+    </Tabs.Root>
   </div>
 {:else}
-  <div class="container mx-auto py-6 space-y-6">
+      <div class="container mx-auto py-6 space-y-6">
     <div class="flex justify-between items-center">
       <div>
         <h1 class="text-2xl font-bold tracking-tight">Inbox: {inboxId}</h1>
@@ -164,14 +164,14 @@
       </div>
     </div>
 
-    <Tabs value={activeTab} on:valueChange={(value) => activeTab = value} class="space-y-4">
-      <TabsList class="grid w-full max-w-md grid-cols-3">
-        <TabsTrigger value="all">All</TabsTrigger>
-        <TabsTrigger value="unread">Unread</TabsTrigger>
-        <TabsTrigger value="assigned">Assigned</TabsTrigger>
-      </TabsList>
+    <Tabs.Root value={activeTab} onValueChange={(value) => activeTab = value} class="space-y-4">
+      <Tabs.List class="grid w-full max-w-md grid-cols-3">
+        <Tabs.Trigger value="all">All</Tabs.Trigger>
+        <Tabs.Trigger value="unread">Unread</Tabs.Trigger>
+        <Tabs.Trigger value="assigned">Assigned</Tabs.Trigger>
+      </Tabs.List>
       
-      <TabsContent value="all" class="space-y-4">
+      <Tabs.Content value="all" class="space-y-4">
         {#each mockConversations as conversation}
           <Card class="cursor-pointer hover:bg-accent transition-colors" onclick={() => handleConversationClick(conversation.id)}>
             <CardContent class="flex items-center gap-4 p-4">
@@ -215,9 +215,9 @@
             </CardContent>
           </Card>
         {/each}
-      </TabsContent>
+      </Tabs.Content>
       
-      <TabsContent value="unread" class="space-y-4">
+      <Tabs.Content value="unread" class="space-y-4">
         {#each mockConversations.filter(c => c.unread) as conversation}
           <Card class="cursor-pointer hover:bg-accent transition-colors" onclick={() => handleConversationClick(conversation.id)}>
             <CardContent class="flex items-center gap-4 p-4">
@@ -261,9 +261,9 @@
             </CardContent>
           </Card>
         {/each}
-      </TabsContent>
+      </Tabs.Content>
       
-      <TabsContent value="assigned" class="space-y-4">
+      <Tabs.Content value="assigned" class="space-y-4">
         {#each mockConversations as conversation}
           <Card class="cursor-pointer hover:bg-accent transition-colors" onclick={() => handleConversationClick(conversation.id)}>
             <CardContent class="flex items-center gap-4 p-4">
@@ -307,7 +307,7 @@
             </CardContent>
           </Card>
         {/each}
-      </TabsContent>
-    </Tabs>
+      </Tabs.Content>
+    </Tabs.Root>
   </div>
 {/if}

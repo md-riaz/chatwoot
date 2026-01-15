@@ -133,7 +133,7 @@
     border-bottom: 1px solid #e5e7eb;
   }
 
-  .search-icon {
+  :global(.search-icon) {
     position: absolute;
     left: 28px;
     top: 50%;

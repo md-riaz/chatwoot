@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   export type FileUploadProps = {
     accept?: string;
     multiple?: boolean;
@@ -137,6 +137,8 @@
         : 'border-border bg-background',
       disabled && 'opacity-50 cursor-not-allowed'
     )}
+    role="group"
+    aria-label="File upload dropzone"
     ondragover={handleDragOver}
     ondragleave={handleDragLeave}
     ondrop={handleDrop}
@@ -239,7 +241,7 @@
                 <div
                   class="h-1 rounded-full bg-primary transition-all"
                   style="width: {uploadedFile.progress}%"
-                />
+                ></div>
               </div>
             {/if}
           </div>
@@ -247,6 +249,7 @@
           <button
             type="button"
             class="text-muted-foreground hover:text-foreground"
+            aria-label="Remove file"
             onclick={() => removeFile(index)}
           >
             <svg

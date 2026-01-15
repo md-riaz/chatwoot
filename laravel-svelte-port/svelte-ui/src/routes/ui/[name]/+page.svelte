@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Badge } from '$lib/components/ui/badge';
@@ -7,7 +8,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { Switch } from '$lib/components/ui/switch';
   import { Label } from '$lib/components/ui/label';
-  import { RadioGroup } from '$lib/components/ui/radio-group';
+  import * as RadioGroup from '$lib/components/ui/radio-group';
   import * as Select from '$lib/components/ui/select';
   import { Plus } from '@lucide/svelte';
   
@@ -27,7 +28,7 @@
 <div class="container mx-auto py-10 md:py-16 space-y-10">
   <div class="flex items-center justify-between">
     <div class="space-y-2">
-      <Button href="/" variant="ghost" size="sm" class="-ml-2 mb-2">
+      <Button variant="ghost" size="sm" class="-ml-2 mb-2" onclick={() => goto('/')}>
         &larr; Back to Components
       </Button>
       <h1 class="text-3xl font-bold capitalize">{componentName?.replace(/-/g, ' ') || 'Component'}</h1>
@@ -109,14 +110,20 @@
         <Label for="email">Your email address</Label>
       </div>
     {:else if componentName === 'radio-group'}
-      <RadioGroup 
-        value="comfortable"
-        options={[
-          { value: 'default', label: 'Default' },
-          { value: 'comfortable', label: 'Comfortable' },
-          { value: 'compact', label: 'Compact' }
-        ]}
-      />
+      <RadioGroup.Root value="comfortable">
+        <div class="flex items-center space-x-2">
+          <RadioGroup.Item value="default" id="r1" />
+          <Label for="r1">Default</Label>
+        </div>
+        <div class="flex items-center space-x-2">
+          <RadioGroup.Item value="comfortable" id="r2" />
+          <Label for="r2">Comfortable</Label>
+        </div>
+        <div class="flex items-center space-x-2">
+          <RadioGroup.Item value="compact" id="r3" />
+          <Label for="r3">Compact</Label>
+        </div>
+      </RadioGroup.Root>
     {:else if componentName === 'select'}
       <Select.Root type="single">
         <Select.Trigger class="w-[180px]">

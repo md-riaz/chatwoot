@@ -2,5 +2,9 @@
     "cSpell.words": [
         "chatwoot",
         "dompurify"
-    ]
+    ],
+    "chat.tools.terminal.autoApprove": {
+        "pnpm": true,
+        "wsl": true
+    }
 }

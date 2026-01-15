@@ -134,13 +134,12 @@
 
 <!-- Mobile backdrop -->
 {#if isOpen}
-  <div
-    class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+  <button
+    type="button"
+    class="fixed inset-0 z-40 bg-black/50 lg:hidden cursor-default"
     onclick={onClose}
-    role="button"
-    tabindex="-1"
     aria-label="Close sidebar"
-  ></div>
+  ></button>
 {/if}
 
 <!-- Sidebar -->

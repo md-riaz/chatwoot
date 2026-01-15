@@ -80,7 +80,7 @@
           {#if attachment.fileType === 'image'}
             <img 
               src={attachment.dataUrl} 
-              alt="Image"
+              alt="Attachment"
               class="max-w-xs rounded-lg"
             />
           {:else}

@@ -93,7 +93,7 @@
             <th class="px-4 py-3 text-left w-12">
               <Checkbox 
                 checked={selectedRows.length === data.length && data.length > 0}
-                onclick={toggleAll}
+                on:click={toggleAll}
               />
             </th>
           {/if}
@@ -130,7 +130,7 @@
                 <td class="px-4 py-3" onclick={(e: MouseEvent) => e.stopPropagation()}>
                   <Checkbox 
                     checked={selectedRows.includes(index)}
-                    onclick={() => toggleRow(index)}
+                    on:click={() => toggleRow(index)}
                   />
                 </td>
               {/if}

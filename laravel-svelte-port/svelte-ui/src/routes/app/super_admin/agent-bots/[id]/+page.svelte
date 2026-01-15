@@ -121,12 +121,12 @@
 							<!-- Left Column -->
 							<div class="space-y-4">
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">ID</label>
+									<p class="text-sm font-medium text-muted-foreground">ID</p>
 									<p class="text-lg font-mono">{bot.id}</p>
 								</div>
 
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">ACCOUNT</label>
+									<p class="text-sm font-medium text-muted-foreground">ACCOUNT</p>
 									{#if bot.account}
 										<p class="text-lg">
 											<a 
@@ -142,12 +142,12 @@
 								</div>
 
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">NAME</label>
+									<p class="text-sm font-medium text-muted-foreground">NAME</p>
 									<p class="text-lg">{bot.name}</p>
 								</div>
 
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">DESCRIPTION</label>
+									<p class="text-sm font-medium text-muted-foreground">DESCRIPTION</p>
 									<p class="text-lg">{bot.description || '-'}</p>
 								</div>
 							</div>
@@ -155,7 +155,7 @@
 							<!-- Right Column -->
 							<div class="space-y-4">
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">AVATAR URL</label>
+									<p class="text-sm font-medium text-muted-foreground">AVATAR URL</p>
 									{#if bot.avatarUrl}
 										<div class="flex items-center gap-3">
 											<img 
@@ -188,7 +188,7 @@
 								</div>
 
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">OUTGOING URL</label>
+									<p class="text-sm font-medium text-muted-foreground">OUTGOING URL</p>
 									{#if bot.outgoingUrl}
 										<p class="text-lg font-mono break-all">{bot.outgoingUrl}</p>
 									{:else}
@@ -210,10 +210,11 @@
 						<CardContent>
 							<div class="space-y-4">
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">TOKEN</label>
+									<label class="text-sm font-medium text-muted-foreground" for="bot-token">TOKEN</label>
 									<div class="flex items-center gap-2 mt-2">
 										<div class="flex-1 relative">
 											<input
+												id="bot-token"
 												type={showAccessToken ? 'text' : 'password'}
 												value={bot.accessToken}
 												readonly
@@ -259,11 +260,11 @@
 					<CardContent>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div>
-								<label class="text-sm font-medium text-muted-foreground">CREATED AT</label>
+								<p class="text-sm font-medium text-muted-foreground">CREATED AT</p>
 								<p class="text-lg">{new Date(bot.createdAt).toLocaleString()}</p>
 							</div>
 							<div>
-								<label class="text-sm font-medium text-muted-foreground">UPDATED AT</label>
+								<p class="text-sm font-medium text-muted-foreground">UPDATED AT</p>
 								<p class="text-lg">{new Date(bot.updatedAt).toLocaleString()}</p>
 							</div>
 						</div>

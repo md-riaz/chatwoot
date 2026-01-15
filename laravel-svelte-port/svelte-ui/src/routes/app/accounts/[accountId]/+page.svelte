@@ -192,8 +192,9 @@
         {:else}
           <div class="space-y-2">
             {#each conversations.slice(0, 3) as conversation}
-              <div 
-                class="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors text-sm"
+              <button
+                type="button"
+                class="flex w-full items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors text-sm text-left"
                 onclick={() => goto(`/app/accounts/${accountId}/conversations/${conversation.id}`)}
               >
                 <div class="flex-1 min-w-0 truncate">
@@ -204,7 +205,7 @@
                     {conversation.status}
                   </Badge>
                 </div>
-              </div>
+              </button>
             {/each}
             
             {#if conversations.length > 3}

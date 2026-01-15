@@ -13,8 +13,8 @@
   import { onMount } from 'svelte';
 
   let accountName = $state('');
-  let language = $state({ value: 'en' });
-  let timezone = $state({ value: 'UTC' });
+  let language = $state('en');
+  let timezone = $state('UTC');
   let isSaving = $state(false);
   let successMessage = $state<string | null>(null);
 
@@ -25,8 +25,8 @@
     }
     // Try to load language and timezone from UI settings
     if (authStore.uiSettings) {
-      language = { value: authStore.uiSettings.language || 'en' };
-      timezone = { value: authStore.uiSettings.timezone || 'UTC' };
+      language = authStore.uiSettings.language || 'en';
+      timezone = authStore.uiSettings.timezone || 'UTC';
     }
   });
 
@@ -38,8 +38,8 @@
       // For now, just update UI settings
       await authStore.updateUISettings({
         ...authStore.uiSettings,
-        language: language.value,
-        timezone: timezone.value,
+        language,
+        timezone,
       });
       
       successMessage = 'Settings saved successfully!';
@@ -87,7 +87,7 @@
 
       <div class="space-y-2">
         <Label for="language">Language</Label>
-        <Select.Root bind:value={language}>
+        <Select.Root type="single" bind:value={language}>
           <Select.Trigger id="language">
             <Select.Value placeholder="Select language" />
           </Select.Trigger>
@@ -102,7 +102,7 @@
 
       <div class="space-y-2">
         <Label for="timezone">Timezone</Label>
-        <Select.Root bind:value={timezone}>
+        <Select.Root type="single" bind:value={timezone}>
           <Select.Trigger id="timezone">
             <Select.Value placeholder="Select timezone" />
           </Select.Trigger>

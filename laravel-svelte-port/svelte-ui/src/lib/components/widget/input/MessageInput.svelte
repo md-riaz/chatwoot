@@ -93,7 +93,7 @@
       disabled={disabled || isSending}
       onkeydown={handleKeyDown}
       class="message-textarea"
-    />
+    ></textarea>
 
     <EmojiButton onselect={handleEmojiSelect} disabled={disabled || isSending} />
     <SendButton onclick={handleSend} disabled={!canSend || disabled} loading={isSending} />

@@ -12,7 +12,7 @@
 	let loading = $state(true);
 	let accounts = $state<any[]>([]);
 	let searchQuery = $state('');
-	let statusFilter = $state({ value: '' });
+	let statusFilter = $state('');
 	let recentFilter = $state(false);
 	let markedForDeletionFilter = $state(false);
 	let pagination = $state({
@@ -24,8 +24,8 @@
 	
 	// Status filter display for Select component
 	const statusFilterDisplay = $derived(
-		statusFilter.value === 'active' ? 'Active' : 
-		statusFilter.value === 'suspended' ? 'Suspended' : 
+		statusFilter === 'active' ? 'Active' : 
+		statusFilter === 'suspended' ? 'Suspended' : 
 		'All Statuses'
 	);
 	
@@ -106,8 +106,8 @@
 				params.search = searchQuery;
 			}
 			
-			if (statusFilter.value) {
-				params.status = statusFilter.value;
+			if (statusFilter) {
+				params.status = statusFilter;
 			}
 			
 			if (recentFilter) {
@@ -164,7 +164,7 @@
 	
 	// Effect to watch status filter changes
 	$effect(() => {
-		if (initialized && statusFilter.value !== undefined) {
+		if (initialized && statusFilter !== undefined) {
 			handleStatusFilterChange();
 		}
 	});
@@ -213,7 +213,7 @@
 					/>
 				</div>
 			</div>
-			<Select.Root type="single" bind:value={statusFilter.value}>
+			<Select.Root type="single" bind:value={statusFilter}>
 				<Select.Trigger class="w-[180px]">
 					{statusFilterDisplay}
 				</Select.Trigger>

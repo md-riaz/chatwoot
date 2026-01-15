@@ -18,7 +18,6 @@
   export let onCreate: (category: { name: string; description: string; color: string }) => void = () => {};
   export let onUpdate: (id: string, category: { name: string; description: string; color: string }) => void = () => {};
   export let onDelete: (id: string) => void = () => {};
-  export let onReorder: (categories: typeof categories) => void = () => {};
 
   let isCreating = false;
   let editingId: string | null = null;
@@ -106,8 +105,9 @@
                 type="button"
                 class="w-8 h-8 rounded-full border-2 transition-all {formData.color === color ? 'scale-110 border-primary' : 'border-transparent'}"
                 style="background-color: {color}"
+                aria-label="Select color {color}"
                 onclick={() => formData.color = color}
-              />
+              ></button>
             {/each}
           </div>
         </div>
@@ -132,7 +132,7 @@
             <div
               class="w-4 h-4 rounded-full"
               style="background-color: {category.color}"
-            />
+            ></div>
             <div class="flex-1">
               <h3 class="font-semibold">{category.name}</h3>
               {#if category.description}

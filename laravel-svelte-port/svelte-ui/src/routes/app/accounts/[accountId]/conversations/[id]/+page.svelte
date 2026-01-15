@@ -13,7 +13,7 @@
   import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar';
   import { Input } from '$lib/components/ui/input';
   import { goto } from '$app/navigation';
-  import { MessageBubble } from '$lib/components/chat/MessageBubble.svelte';
+  import { MessageBubble } from '$lib/components/ui/message-bubble';
   import { onMount } from 'svelte';
   
   // Using Svelte 5 runes
@@ -95,11 +95,10 @@
       {#if conversation?.messages}
         {#each conversation.messages as message}
           {#if message.messageType !== 2} <!-- Skip activity messages -->
-            <MessageBubble 
-              message={message.content}
-              sender={message.sender?.type === 'User' ? 'agent' : 'customer'}
-              timestamp={new Date(message.createdAt * 1000).toISOString()}
-              isOwn={message.sender?.type === 'User'}
+            <MessageBubble
+              message={message}
+              isOutgoing={message.sender?.type === 'User'}
+              showAvatar={true}
             />
           {/if}
         {/each}
@@ -109,8 +108,8 @@
     <!-- Message Composer -->
     <div class="border-t p-4 bg-background">
       <div class="flex gap-2">
-        <Input 
-          placeholder="Type your message..." 
+        <Input
+          placeholder="Type your message..."
           bind:value={messageText}
           onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleSendMessage()}
         />

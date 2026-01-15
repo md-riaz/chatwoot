@@ -34,7 +34,7 @@
   let enabled = $state(true);
   let triggerOnlyDuringBusinessHours = $state(false);
   let endPoint = $state('');
-  let timeOnPage = $state(10);
+  let timeOnPage = $state('10');
 
   let errors = $state<Record<string, string>>({});
   let isSubmitting = $state(false);
@@ -57,7 +57,7 @@
       senderId = campaign.senderId || 0;
       enabled = campaign.enabled;
       endPoint = campaign.triggerRules?.url || '';
-      timeOnPage = campaign.triggerRules?.timeOnPage || 10;
+      timeOnPage = String(campaign.triggerRules?.timeOnPage || 10);
     }
   });
 
@@ -97,7 +97,9 @@
       }
     }
 
-    if (!timeOnPage || timeOnPage < 0) {
+    const timeOnPageNumber = parseInt(timeOnPage, 10);
+
+    if (!timeOnPage || Number.isNaN(timeOnPageNumber) || timeOnPageNumber < 0) {
       errors.timeOnPage = 'Time on page must be a positive number';
       isValid = false;
     }
@@ -121,7 +123,7 @@
       enabled,
       triggerRules: {
         url: endPoint,
-        timeOnPage,
+        timeOnPage: parseInt(timeOnPage, 10),
       },
     };
 
@@ -152,8 +154,9 @@
     <div class="space-y-2">
       <Label for="inbox">Inbox *</Label>
       <Select.Root
-        value={inboxId?.toString()}
-        onValueChange={(v: string | undefined) => {
+        value={inboxId ? [inboxId.toString()] : []}
+        onValueChange={(value: any) => {
+          const v = Array.isArray(value) ? value[0] : undefined;
           if (v) inboxId = parseInt(v) as number;
         }}
       >

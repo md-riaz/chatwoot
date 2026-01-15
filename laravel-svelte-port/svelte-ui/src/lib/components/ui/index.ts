@@ -1,107 +1,104 @@
-// Primitives
-export * from './button';
-export * from './input';
-export * from './textarea';
-export * from './checkbox';
-export * from './switch';
-export * from './label';
-export * from './separator';
+// Primitives (explicit to avoid duplicate re-exports)
+export { Button } from './button';
+export { Input } from './input';
+export { Textarea } from './textarea';
+export { Checkbox } from './checkbox';
+export { Switch } from './switch';
+export { Label } from './label';
+export { Separator } from './separator';
 
 // Data Display
-export * from './badge';
-export * from './avatar';
-export * from './card';
-export * from './spinner';
-export * from './table';
-export * from './skeleton';
+export { Badge } from './badge';
+export { Avatar } from './avatar';
+export { Card, CardContent, CardHeader, CardFooter, CardTitle, CardDescription } from './card';
+export { Spinner } from './spinner';
+export { Table } from './table';
+export { Skeleton } from './skeleton';
 
 // Feedback
-export * from './alert';
-export * from './progress';
-export * from './toast';
-export * from './feature-spotlight';
-export * from './changelog-card';
+export { Alert } from './alert';
+export { Progress } from './progress';
+export { Toast } from './toast';
+export { FeatureSpotlight } from './feature-spotlight';
+export { ChangelogCard } from './changelog-card';
 
 // Overlays
-export * from './dialog';
-export * from './popover';
-export * from './tooltip';
-export * from './dropdown-menu';
-export * from './sheet';
-export * from './command';
+export { Dialog, DialogTrigger, DialogContent } from './dialog';
+export { Popover } from './popover';
+export { Tooltip } from './tooltip';
+export { DropdownMenu, DropdownMenuItem, DropdownMenuGroup } from './dropdown-menu';
+export { Sheet } from './sheet';
+export { Command } from './command';
 
 // Navigation
-export * from './tabs';
-export * from './accordion';
-export * from './sidebar';
-export * from './breadcrumb';
-export * from './pagination';
-export * from './tab-bar';
+export { Tabs } from './tabs';
+export { Accordion } from './accordion';
+export { Sidebar } from './sidebar';
+export { Breadcrumb } from './breadcrumb';
+export { PaginationFooter as Pagination } from './pagination';
+export { TabBar } from './tab-bar';
 
 // Forms
-export * from './select';
-export * from './combobox';
-export * from './tag-input';
-export * from './inline-input';
-export * from './phone-input';
-export * from './confirm-button';
-export * from './label-input';
-export * from './custom-attributes';
-export * from './radio-group';
+export { Select } from './select';
+export { Combobox } from './combobox';
+export { TagInput } from './tag-input';
+export { InlineInput } from './inline-input';
+export { PhoneInput } from './phone-input';
+export { ConfirmButton } from './confirm-button';
+export { LabelInput } from './label-input';
+export { CustomAttributes } from './custom-attributes';
+export { RadioGroup } from './radio-group';
 
 // Layout
-export * from './scroll-area';
+export { ScrollArea } from './scroll-area';
 
 // Visual
-export * from './flag';
-export * from './file-icon';
+export { Flag } from './flag';
+export { FileIcon } from './file-icon';
 
 // Filter
-export * from './filter';
+export { Filter, ActiveFilterPreview, ConditionRow } from './filter';
 
 // Chatwoot-specific
-export * from './message-bubble';
-export * from './conversation-card';
-export * from './contact-card';
-export * from './reply-box';
+export { MessageBubble } from './message-bubble';
+export { ConversationCard } from './conversation-card';
+export { ContactCard } from './contact-card';
+export { ReplyBox } from './reply-box';
 
 // Help Center
-export * from './article-card';
-export * from './category-card';
-export * from './locale-card';
+export { ArticleCard } from './article-card';
+export { CategoryCard } from './category-card';
+export { LocaleCard } from './locale-card';
 
-// Captain/AI
-export * from './assistant-card';
-export * from './document-card';
-export * from './copilot';
-export * from './captain';
-export * from './copilot-loader';
+// Assistant (non-AI features only)
+export { AssistantCard } from './assistant-card';
+export { DocumentCard } from './document-card';
 
 // Message Templates
-export * from './message-template';
+export { MessageTemplateText, MessageTemplateCard, MessageTemplateMedia } from './message-template';
 
 // Contacts
-export * from './contact-form';
-export * from './contact-header';
-export * from './contact-note';
+export { ContactForm } from './contact-form';
+export { ContactHeader } from './contact-header';
+export { ContactNote } from './contact-note';
 
 // Empty States
-export * from './empty-state';
+export { EmptyState } from './empty-state';
 
-// Assignment Policy
-export * from './assignment-policy';
+// Assignment Policy (removed/disabled in this migration)
+// export { AssignmentPolicy } from './assignment-policy';
 
 // Help Center Extended
-export * from './portal-switcher';
+export { PortalSwitcher } from './portal-switcher';
 
 // Conversation
-export * from './new-conversation';
+export { NewConversationForm } from './new-conversation';
 
 // Widget
-export * from './availability';
+export { AvailabilityText } from './availability';
 
 // Layout Extended
-export * from './sidebar-actions';
+export { SidebarActionsHeader } from './sidebar-actions';
 
 // Selection
-export * from './select-menu';
+export { SelectMenu } from './select-menu';

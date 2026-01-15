@@ -7,9 +7,17 @@
     class?: string;
     inset?: boolean;
     children?: Snippet;
+    onclick?: () => void;
+    disabled?: boolean;
   };
 
-  let { class: className, inset = false, children, ...restProps }: Props = $props();
+  let {
+    class: className,
+    inset = false,
+    children,
+    onclick,
+    ...restProps
+  }: Props = $props();
 </script>
 
 <DropdownMenuPrimitive.Item
@@ -18,6 +26,7 @@
     inset && 'pl-8',
     className
   )}
+  onselect={onclick}
   {...restProps}
 >
   {#if children}

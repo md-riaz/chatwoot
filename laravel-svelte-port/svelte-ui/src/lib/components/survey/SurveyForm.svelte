@@ -35,7 +35,7 @@
 <form class="survey-form" onsubmit={handleSubmit}>
   <div class="form-section">
     <h2 class="section-title">How would you rate your experience?</h2>
-    <RatingInput type="emoji" bind:value={rating} onchange={(v) => (rating = v)} disabled={submitting} />
+    <RatingInput type="emoji" value={rating} onchange={(v) => (rating = v)} disabled={submitting} />
   </div>
 
   <div class="form-section">
@@ -49,7 +49,7 @@
       rows="4"
       class="feedback-textarea"
       disabled={submitting}
-    />
+    ></textarea>
   </div>
 
   {#if error}

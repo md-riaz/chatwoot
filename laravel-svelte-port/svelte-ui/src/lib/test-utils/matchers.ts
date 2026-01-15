@@ -1,5 +1,11 @@
 import { expect } from 'vitest';
-import type { MatcherResult } from 'vitest';
+
+type MatcherResult = {
+  pass: boolean;
+  message: () => string;
+  actual?: unknown;
+  expected?: unknown;
+};
 
 /**
  * Custom matcher to check if a value is a valid date string

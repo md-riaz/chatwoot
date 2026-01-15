@@ -137,8 +137,9 @@
     <div class="space-y-2">
       <Label for="role">Role *</Label>
       <Select.Root
-        value={role}
-        onValueChange={(v: string | undefined) => {
+        value={role ? [role] : []}
+        onValueChange={(value: any) => {
+          const v = Array.isArray(value) ? value[0] : undefined;
           if (v) role = v as 'administrator' | 'agent';
         }}
       >

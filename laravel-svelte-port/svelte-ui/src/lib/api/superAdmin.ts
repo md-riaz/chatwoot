@@ -33,7 +33,15 @@ export interface Account {
   conversationsCount?: number;
   contactsCount?: number;
   selectedFeatureFlags?: string[];
-  allFeatures?: Record<string, boolean>;
+  allFeatures?: Record<string, {
+    available: boolean;
+    display_name?: string;
+    displayName?: string;
+    enabled: boolean;
+    premium: boolean;
+    help_url?: string;
+    helpUrl?: string;
+  }>;
   features?: Record<string, boolean>;
   settings?: Record<string, any>;
   limits?: {

@@ -16,7 +16,7 @@
   onclick={onclick}
   aria-label="Open chat"
 >
-  <MessageCircle class="icon" size={28} strokeWidth={2} />
+  <MessageCircle size={28} strokeWidth={2} />
   
   {#if unreadCount > 0}
     <span class="unread-badge">
@@ -54,7 +54,7 @@
     transform: scale(0.95);
   }
 
-  .icon {
+  .widget-bubble :global(svg) {
     color: white;
   }
 
@@ -81,7 +81,7 @@
       height: 56px;
     }
 
-    .icon {
+    .widget-bubble :global(svg) {
       width: 24px;
       height: 24px;
     }

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   export type AudioRecorderProps = {
     class?: string;
     onRecordingComplete?: (blob: Blob) => void;
@@ -21,15 +21,15 @@
     ...restProps
   }: AudioRecorderProps = $props();
   
-  let state = $state<RecordingState>('idle');
+  let state = $state('idle') as RecordingState;
   let mediaRecorder: MediaRecorder | null = null;
   let audioChunks: Blob[] = [];
-  let recordingDuration = $state(0);
+  let recordingDuration = $state(0) as number;
   let recordingInterval: ReturnType<typeof setInterval> | null = null;
-  let audioUrl = $state<string | null>(null);
-  let audioElement: HTMLAudioElement | null = null;
-  let isPlaying = $state(false);
-  let error = $state<string | null>(null);
+  let audioUrl = $state(null as string | null);
+  let audioElement = $state(null as HTMLAudioElement | null);
+  let isPlaying = $state(false) as boolean;
+  let error = $state(null as string | null);
   
   async function startRecording() {
     try {

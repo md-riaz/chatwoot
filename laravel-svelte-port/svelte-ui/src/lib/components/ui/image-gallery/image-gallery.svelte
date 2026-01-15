@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   export type ImageGalleryProps = {
     images: string[];
     columns?: number;
@@ -10,7 +10,7 @@
 
 <script lang="ts">
   import { cn } from '$lib/utils';
-  import { Dialog } from '../dialog/index.js';
+  import * as Dialog from '../dialog/index.js';
   
   let {
     images,
@@ -88,7 +88,7 @@
           alt="Gallery image {index + 1}"
           class="size-full object-cover transition-transform group-hover:scale-105"
         />
-        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors"></div>
       </button>
     {/each}
   </div>
@@ -110,6 +110,7 @@
             <button
               type="button"
               class="absolute left-4 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              aria-label="Previous image"
               onclick={previousImage}
             >
               <svg
@@ -132,6 +133,7 @@
             <button
               type="button"
               class="absolute right-4 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              aria-label="Next image"
               onclick={nextImage}
             >
               <svg

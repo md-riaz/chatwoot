@@ -203,7 +203,7 @@ class WidgetWebSocketClient {
     widgetConversationStore.addMessage(data);
 
     // Increment unread count if widget is closed and message is from agent
-    if (!widgetConfigStore.open && data.messageType === 0) {
+    if (!widgetConfigStore.isWidgetOpen && data.messageType === 0) {
       widgetConfigStore.incrementUnread();
     }
   }

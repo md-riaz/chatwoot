@@ -174,8 +174,9 @@
     <div class="space-y-2">
       <Label for="displayType">Attribute Type *</Label>
       <Select.Root
-        value={displayType}
-        onValueChange={(v: string | undefined) => {
+        value={displayType ? [displayType] : []}
+        onValueChange={(value: any) => {
+          const v = Array.isArray(value) ? value[0] : undefined;
           if (v) displayType = v as typeof displayType;
         }}
         disabled={mode === 'edit'}
@@ -201,8 +202,9 @@
     <div class="space-y-2">
       <Label for="model">Applies To *</Label>
       <Select.Root
-        value={model}
-        onValueChange={(v: string | undefined) => {
+        value={model ? [model] : []}
+        onValueChange={(value: any) => {
+          const v = Array.isArray(value) ? value[0] : undefined;
           if (v) model = v as typeof model;
         }}
         disabled={mode === 'edit'}

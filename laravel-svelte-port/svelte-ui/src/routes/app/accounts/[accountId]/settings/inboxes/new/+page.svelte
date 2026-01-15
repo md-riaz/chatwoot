@@ -999,7 +999,7 @@
             {#if workingHoursEnabled}
               <div>
                 <Label for="timezone">Timezone</Label>
-                <Select.Root bind:value={timezone}>
+                <Select.Root type="single" bind:value={timezone}>
                   <Select.Trigger class="w-full">
                     <Select.Value placeholder="Select timezone" />
                   </Select.Trigger>

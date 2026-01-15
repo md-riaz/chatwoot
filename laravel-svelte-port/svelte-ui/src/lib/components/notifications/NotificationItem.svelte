@@ -39,8 +39,9 @@
   }
 </script>
 
-<div 
-  class="notification-item px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer"
+<button
+  type="button"
+  class="notification-item px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer w-full text-left"
   class:unread={isUnread}
   onclick={handleMarkRead}
 >
@@ -91,7 +92,7 @@
       </div>
     </div>
   </div>
-</div>
+</button>
 
 <style>
   .notification-item.unread {

@@ -196,8 +196,9 @@
           <h2 class="text-lg font-semibold mb-4">Live Chat Campaigns</h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each liveChatCampaigns as campaign}
-              <div
-                class="campaign-card border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+              <button
+                type="button"
+                class="campaign-card border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer text-left"
                 onclick={() => handleViewCampaign(campaign.id)}
               >
                 <div class="flex justify-between items-start mb-2">
@@ -219,30 +220,39 @@
                   <div>Inbox: {campaign.inbox?.name || 'N/A'}</div>
                   <div>Created: {formatDate(campaign.createdAt)}</div>
                 </div>
-                <div class="flex gap-2" onclick={(e: MouseEvent) => e.stopPropagation()}>
+                <div class="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onclick={() => handleEditCampaign(campaign)}
+                    onclick={(e: MouseEvent) => {
+                      e.stopPropagation();
+                      handleEditCampaign(campaign);
+                    }}
                   >
                     Edit
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    onclick={() => handleToggleStatus(campaign.id)}
+                    onclick={(e: MouseEvent) => {
+                      e.stopPropagation();
+                      handleToggleStatus(campaign.id);
+                    }}
                   >
                     {campaign.enabled ? 'Disable' : 'Enable'}
                   </Button>
                   <Button
                     variant="destructive"
                     size="sm"
-                    onclick={() => handleDeleteCampaign(campaign.id)}
+                    onclick={(e: MouseEvent) => {
+                      e.stopPropagation();
+                      handleDeleteCampaign(campaign.id);
+                    }}
                   >
                     Delete
                   </Button>
                 </div>
-              </div>
+              </button>
             {/each}
           </div>
         </section>
@@ -254,8 +264,9 @@
           <h2 class="text-lg font-semibold mb-4">SMS Campaigns</h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each smsCampaigns as campaign}
-              <div
-                class="campaign-card border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+              <button
+                type="button"
+                class="campaign-card border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer text-left"
                 onclick={() => handleViewCampaign(campaign.id)}
               >
                 <div class="flex justify-between items-start mb-2">
@@ -277,30 +288,39 @@
                   <div>Inbox: {campaign.inbox?.name || 'N/A'}</div>
                   <div>Created: {formatDate(campaign.createdAt)}</div>
                 </div>
-                <div class="flex gap-2" onclick={(e: MouseEvent) => e.stopPropagation()}>
+                <div class="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onclick={() => handleEditCampaign(campaign)}
+                    onclick={(e: MouseEvent) => {
+                      e.stopPropagation();
+                      handleEditCampaign(campaign);
+                    }}
                   >
                     Edit
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    onclick={() => handleToggleStatus(campaign.id)}
+                    onclick={(e: MouseEvent) => {
+                      e.stopPropagation();
+                      handleToggleStatus(campaign.id);
+                    }}
                   >
                     {campaign.enabled ? 'Disable' : 'Enable'}
                   </Button>
                   <Button
                     variant="destructive"
                     size="sm"
-                    onclick={() => handleDeleteCampaign(campaign.id)}
+                    onclick={(e: MouseEvent) => {
+                      e.stopPropagation();
+                      handleDeleteCampaign(campaign.id);
+                    }}
                   >
                     Delete
                   </Button>
                 </div>
-              </div>
+              </button>
             {/each}
           </div>
         </section>
@@ -312,8 +332,9 @@
           <h2 class="text-lg font-semibold mb-4">WhatsApp Campaigns</h2>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {#each whatsappCampaigns as campaign}
-              <div
-                class="campaign-card border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+              <button
+                type="button"
+                class="campaign-card border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer text-left"
                 onclick={() => handleViewCampaign(campaign.id)}
               >
                 <div class="flex justify-between items-start mb-2">
@@ -335,30 +356,39 @@
                   <div>Inbox: {campaign.inbox?.name || 'N/A'}</div>
                   <div>Created: {formatDate(campaign.createdAt)}</div>
                 </div>
-                <div class="flex gap-2" onclick={(e: MouseEvent) => e.stopPropagation()}>
+                <div class="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onclick={() => handleEditCampaign(campaign)}
+                    onclick={(e: MouseEvent) => {
+                      e.stopPropagation();
+                      handleEditCampaign(campaign);
+                    }}
                   >
                     Edit
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    onclick={() => handleToggleStatus(campaign.id)}
+                    onclick={(e: MouseEvent) => {
+                      e.stopPropagation();
+                      handleToggleStatus(campaign.id);
+                    }}
                   >
                     {campaign.enabled ? 'Disable' : 'Enable'}
                   </Button>
                   <Button
                     variant="destructive"
                     size="sm"
-                    onclick={() => handleDeleteCampaign(campaign.id)}
+                    onclick={(e: MouseEvent) => {
+                      e.stopPropagation();
+                      handleDeleteCampaign(campaign.id);
+                    }}
                   >
                     Delete
                   </Button>
                 </div>
-              </div>
+              </button>
             {/each}
           </div>
         </section>
@@ -408,10 +438,11 @@
 />
 
 <style>
-  .line-clamp-2 {
+.line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-clamp: 2;
   }
 </style>

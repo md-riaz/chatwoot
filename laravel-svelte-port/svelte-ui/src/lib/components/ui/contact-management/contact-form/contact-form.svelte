@@ -20,13 +20,25 @@
 
   const dispatch = createEventDispatcher();
 
-  let form: Contact = contact
-    ? { ...contact }
-    : { name: '', email: '', phone: '', company: '', tags: [], status: 'active' };
+  let form: Contact = {
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    tags: [],
+    status: 'active'
+  };
 
-  let avatarFile: File | null = null;
-  let avatarPreview: string | null = form.avatar || null;
-  let errors: Record<string, string> = {};
+  let avatarFile = $state<File | null>(null);
+  let avatarPreview = $state<string | null>(null);
+  let errors = $state<Record<string, string>>({});
+
+  $effect(() => {
+    if (contact) {
+      form = { ...contact };
+    }
+    avatarPreview = form.avatar || null;
+  });
 
   function onFileChange(e: Event) {
     const input = e.target as HTMLInputElement;
@@ -77,49 +89,57 @@
       {/if}
     </Avatar>
     <div class="flex flex-col flex-1">
-      <label class="text-sm text-muted-foreground">Upload Avatar</label>
-      <input type="file" accept="image/*" onchange={(e: Event) => onFileChange(e)} />
+      <label class="text-sm text-muted-foreground" for="contact-avatar">Upload Avatar</label>
+      <input id="contact-avatar" type="file" accept="image/*" onchange={(e: Event) => onFileChange(e)} />
     </div>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <label class="text-sm">Name</label>
-      <Input bind:value={form.name} placeholder="Full name" />
+      <label class="text-sm" for="contact-name">Name</label>
+      <Input id="contact-name" bind:value={form.name} placeholder="Full name" />
       {#if errors.name}
         <p class="text-xs text-destructive">{errors.name}</p>
       {/if}
     </div>
 
     <div>
-      <label class="text-sm">Email</label>
-      <Input bind:value={form.email} placeholder="name@example.com" type="email" />
+      <label class="text-sm" for="contact-email">Email</label>
+      <Input id="contact-email" bind:value={form.email} placeholder="name@example.com" type="email" />
       {#if errors.email}
         <p class="text-xs text-destructive">{errors.email}</p>
       {/if}
     </div>
 
     <div>
-      <label class="text-sm">Phone</label>
-      <Input bind:value={form.phone} placeholder="(555) 555-5555" />
+      <label class="text-sm" for="contact-phone">Phone</label>
+      <Input id="contact-phone" bind:value={form.phone} placeholder="(555) 555-5555" />
     </div>
 
     <div>
-      <label class="text-sm">Company</label>
-      <Input bind:value={form.company} placeholder="Company name" />
+      <label class="text-sm" for="contact-company">Company</label>
+      <Input id="contact-company" bind:value={form.company} placeholder="Company name" />
     </div>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <label class="text-sm">Tags (comma separated)</label>
-      <Input value={form.tags?.join(', ')} oninput={(e: Event) => (form.tags = (e.target as HTMLInputElement).value.split(',').map((s: string) => s.trim()).filter(Boolean))} />
+      <label class="text-sm" for="contact-tags">Tags (comma separated)</label>
+      <Input
+        id="contact-tags"
+        value={form.tags?.join(', ')}
+        oninput={(e: Event) =>
+          (form.tags = (e.target as HTMLInputElement).value
+            .split(',')
+            .map((s: string) => s.trim())
+            .filter(Boolean))}
+      />
     </div>
 
     <div>
-      <label class="text-sm">Status</label>
+      <label class="text-sm" for="contact-status">Status</label>
       <Select bind:value={form.status}>
-        <SelectTrigger class="w-full">
+        <SelectTrigger class="w-full" id="contact-status" aria-label="Status">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

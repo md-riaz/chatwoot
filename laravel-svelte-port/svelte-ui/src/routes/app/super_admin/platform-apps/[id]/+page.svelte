@@ -133,12 +133,12 @@ function copyAccessToken() {
 							<!-- Left Column -->
 							<div class="space-y-4">
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">ID</label>
+									<p class="text-sm font-medium text-muted-foreground">ID</p>
 									<p class="text-lg font-mono">{platformApp.id}</p>
 								</div>
 
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">NAME</label>
+									<p class="text-sm font-medium text-muted-foreground">NAME</p>
 									<p class="text-lg">{platformApp.name}</p>
 								</div>
 							</div>
@@ -146,12 +146,12 @@ function copyAccessToken() {
 							<!-- Right Column -->
 							<div class="space-y-4">
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">CREATED AT</label>
+									<p class="text-sm font-medium text-muted-foreground">CREATED AT</p>
 									<p class="text-lg">{new Date(platformApp.createdAt).toLocaleString()}</p>
 								</div>
 
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">UPDATED AT</label>
+									<p class="text-sm font-medium text-muted-foreground">UPDATED AT</p>
 									<p class="text-lg">{new Date(platformApp.updatedAt).toLocaleString()}</p>
 								</div>
 							</div>
@@ -169,7 +169,7 @@ function copyAccessToken() {
 						<CardContent>
 							<div class="space-y-4">
 								<div>
-									<label class="text-sm font-medium text-muted-foreground">TOKEN</label>
+									<p class="text-sm font-medium text-muted-foreground">TOKEN</p>
 									<div class="flex items-center gap-2 mt-2">
 										<div class="flex-1 relative">
 											<input

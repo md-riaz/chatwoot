@@ -37,7 +37,7 @@ const createApiClient = (): KyInstance => {
     },
     hooks: {
       beforeRequest: [
-        (request, options: RequestOptions) => {
+        async (request, options: RequestOptions) => {
           // Add authentication header
           if (!options.skipAuth) {
             const token = getAuthToken();

@@ -88,7 +88,7 @@
     width: 100%;
   }
 
-  .search-icon {
+  :global(.search-icon) {
     position: absolute;
     left: 16px;
     top: 50%;

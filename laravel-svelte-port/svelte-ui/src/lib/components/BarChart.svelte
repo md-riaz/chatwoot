@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Chart, Svg, Axis, Bars, Highlight, Tooltip } from 'layerchart';
+  import { Chart, Svg, Axis, Bars, Highlight, Tooltip as LayerTooltip } from 'layerchart';
   import { cn } from '$lib/utils';
   
   interface Props {
@@ -9,6 +9,8 @@
     class?: string;
   }
   
+  const Tooltip: any = LayerTooltip;
+
   let {
     data = [],
     xKey = 'label',
@@ -28,9 +30,11 @@
       </Svg>
       <Tooltip header={(data: any) => data[xKey] || 'Unknown'}>
         {#snippet children(data: any)}
-          <div class="tooltip">
+          <div class="rounded-md border bg-popover p-2 text-popover-foreground shadow-md">
             <div class="font-semibold">{data[xKey] || 'N/A'}</div>
-            <div class="text-sm text-surface-content/50">{data[yKey] != null ? data[yKey] : 'N/A'}</div>
+            <div class="text-sm text-surface-content/50">
+              {data[yKey] != null ? data[yKey] : 'N/A'}
+            </div>
           </div>
         {/snippet}
       </Tooltip>
@@ -41,11 +45,5 @@
     </div>
   {/if}
 </div>
-
-<style>
-  .tooltip {
-    @apply rounded-md border bg-popover p-2 text-popover-foreground shadow-md;
-  }
-</style>
 
 
