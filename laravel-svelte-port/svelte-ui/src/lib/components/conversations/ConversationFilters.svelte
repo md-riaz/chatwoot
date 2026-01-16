@@ -94,7 +94,7 @@
   <!-- Sort Selector -->
   <div class="flex items-center gap-2">
     <span class="text-sm text-muted-foreground">Sort by:</span>
-    <Select.Root value={selectedSort} onValueChange={handleSortChange}>
+    <Select.Root bind:value={selectedSort} onValueChange={handleSortChange}>
       <Select.Trigger class="w-[180px]">
         <Select.Value placeholder="Select sort order" />
       </Select.Trigger>

@@ -59,8 +59,8 @@ class ConversationsStore {
         case 'unread':
           return (b.unreadCount || 0) - (a.unreadCount || 0);
         case 'priority':
-          const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3, null: 4 };
-          return (priorityOrder[a.priority] || 4) - (priorityOrder[b.priority] || 4);
+          const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3, '': 4 };
+          return (priorityOrder[a.priority || ''] || 4) - (priorityOrder[b.priority || ''] || 4);
         default:
           return 0;
       }
@@ -125,7 +125,7 @@ class ConversationsStore {
       });
       
       // Handle Laravel pagination format
-      const conversations = response?.data || response?.items || response || [];
+      const conversations = response?.data || (response as any)?.items || response || [];
       this.setConversations(conversations);
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch conversations';
@@ -202,12 +202,12 @@ class ConversationsStore {
     const previousStatus = this.getConversationById(conversationId)?.status;
     
     // Optimistic update
-    this.updateConversationLocally(conversationId, { status, snoozedUntil: snoozedUntil || null });
+    this.updateConversationLocally(conversationId, { status, snoozedUntil: snoozedUntil || undefined });
     
     try {
       const updated = await conversationsAPI.updateConversation(accountId, conversationId, {
         status,
-        snoozedUntil: snoozedUntil || null
+        snoozedUntil: snoozedUntil || undefined
       });
       this.updateConversation(updated);
     } catch (err: any) {
