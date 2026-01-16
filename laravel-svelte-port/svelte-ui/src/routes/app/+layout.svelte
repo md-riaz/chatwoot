@@ -8,6 +8,7 @@
   import AppSidebar from '$lib/components/layout/AppSidebar.svelte';
   import { authStore } from '$lib/stores/auth.svelte';
   import { ReverbClient, getReverbClient } from '$lib/websocket/reverb-client';
+  import * as Sidebar from '$lib/components/ui/sidebar/index.js';
   import type { Snippet } from 'svelte';
   import { onMount } from 'svelte';
   
@@ -18,8 +19,6 @@
   let { children }: Props = $props();
   
   // Local state
-  let sidebarOpen = $state(true);
-  let mobileMenuOpen = $state(false);
   let reverbClient: ReverbClient | null = null;
   
   // WebSocket configuration constants
@@ -27,16 +26,6 @@
   // In production, both typically use the same domain with reverse proxy
   const DEFAULT_API_URL = 'http://localhost:8000';
   const DEFAULT_WS_URL = 'ws://localhost:8080/ws';
-  
-  // Toggle mobile menu
-  function toggleMobileMenu() {
-    mobileMenuOpen = !mobileMenuOpen;
-  }
-  
-  // Close mobile menu
-  function closeMobileMenu() {
-    mobileMenuOpen = false;
-  }
   
   // Initialize auth and WebSocket on mount
   onMount(async () => {
@@ -106,21 +95,12 @@
   });
 </script>
 
-<div class="flex h-screen overflow-hidden bg-background">
-  <!-- Sidebar -->
-  <AppSidebar
-    isOpen={sidebarOpen || mobileMenuOpen}
-    onClose={closeMobileMenu}
-  />
-  
-  <!-- Main content area -->
-  <div class="flex flex-1 flex-col overflow-hidden">
-    <!-- Header -->
-    <AppHeader onMobileMenuToggle={toggleMobileMenu} />
-    
-    <!-- Page content -->
+<Sidebar.Provider>
+  <AppSidebar />
+  <Sidebar.Inset class="h-svh overflow-hidden">
+    <AppHeader />
     <main class="flex-1 overflow-y-auto">
       {@render children()}
     </main>
-  </div>
-</div>
+  </Sidebar.Inset>
+</Sidebar.Provider>

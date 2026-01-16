@@ -89,7 +89,7 @@
       variant="ghost"
       size="icon"
       class="lg:hidden"
-      onclick={(e: MouseEvent) => onMobileMenuToggle?.()}
+      onclick={() => sidebar.toggle()}
       aria-label="Toggle menu"
     >
       <Menu class="h-5 w-5" />
