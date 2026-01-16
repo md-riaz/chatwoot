@@ -108,7 +108,7 @@
         type="search"
         placeholder="Search companies by name, website, or industry..."
         value={searchQuery}
-        on:input={handleSearchInput}
+        oninput={handleSearchInput}
         class="max-w-md"
       />
     </div>
@@ -161,8 +161,8 @@
           class="company-card border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
           role="button"
           tabindex="0"
-          on:click={() => handleViewCompany(company.id)}
-          on:keydown={(event) => {
+          onclick={() => handleViewCompany(company.id)}
+          onkeydown={(event) => {
             if (event.key === 'Enter' || event.key === ' ') {
               event.preventDefault();
               handleViewCompany(company.id);
@@ -179,7 +179,7 @@
                 href={isValidUrl(company.website) ? company.website : `https://${company.website}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                on:click|stopPropagation={() => {}}
+                onclick={(e) => e.stopPropagation()}
               >
                 {company.website}
               </a>

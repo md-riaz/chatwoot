@@ -150,7 +150,7 @@
         <Filter class="mr-2 h-4 w-4" />
         Filters
       </Button>
-      <Select.Root bind:value={selectedTag}>
+      <Select.Root bind:value={selectedTag} type="single">
         <Select.Trigger class="w-[140px]">
           <Select.Value placeholder="All Tags" />
         </Select.Trigger>

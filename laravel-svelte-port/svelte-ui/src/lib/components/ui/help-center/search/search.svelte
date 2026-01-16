@@ -73,7 +73,7 @@
 
     <div class="flex gap-2">
       {#if categories.length > 0}
-        <Select.Root bind:value={selectedCategory}>
+        <Select.Root bind:value={selectedCategory} type="single">
           <Select.Trigger class="w-[180px]">
             <Select.Value placeholder="All Categories" />
           </Select.Trigger>
@@ -87,7 +87,7 @@
       {/if}
 
       {#if locales.length > 0}
-        <Select.Root bind:value={selectedLocale}>
+        <Select.Root bind:value={selectedLocale} type="single">
           <Select.Trigger class="w-[180px]">
             <Select.Value placeholder="All Languages" />
           </Select.Trigger>

@@ -140,7 +140,7 @@
     <div class="grid grid-cols-2 gap-4">
       <div class="space-y-2">
         <Label for="category">Category</Label>
-        <Select.Root bind:value={categoryValue}>
+        <Select.Root bind:value={categoryValue} type="single">
           <Select.Trigger id="category">
             <Select.Value placeholder="Select category" />
           </Select.Trigger>
@@ -154,7 +154,7 @@
 
       <div class="space-y-2">
         <Label for="locale">Locale</Label>
-        <Select.Root bind:value={localeValue}>
+        <Select.Root bind:value={localeValue} type="single">
           <Select.Trigger id="locale">
             <Select.Value placeholder="Select locale" />
           </Select.Trigger>

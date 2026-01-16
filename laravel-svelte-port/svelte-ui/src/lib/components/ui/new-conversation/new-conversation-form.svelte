@@ -28,7 +28,7 @@
 <form class={cn('space-y-4', className)} onsubmit={handleSubmit}>
   <div class="space-y-2">
     <Label for="inbox">Inbox</Label>
-    <Select.Root bind:value={selectedInbox}>
+    <Select.Root bind:value={selectedInbox} type="single">
       <Select.Trigger id="inbox">
         <Select.Value placeholder="Select an inbox" />
       </Select.Trigger>
@@ -52,7 +52,7 @@
 
   <div class="flex justify-end gap-2 pt-4">
     <Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
-    <Button type="submit" disabled={!selectedInbox.value || !contact || !message}>
+    <Button type="submit" disabled={!selectedInbox || !contact || !message}>
       Start Conversation
     </Button>
   </div>

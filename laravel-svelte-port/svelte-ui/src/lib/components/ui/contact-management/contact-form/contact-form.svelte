@@ -20,14 +20,14 @@
 
   const dispatch = createEventDispatcher();
 
-  let form: Contact = {
+  let form = $state<Contact>({
     name: '',
     email: '',
     phone: '',
     company: '',
     tags: [],
     status: 'active'
-  };
+  });
 
   let avatarFile = $state<File | null>(null);
   let avatarPreview = $state<string | null>(null);
@@ -138,7 +138,7 @@
 
     <div>
       <label class="text-sm" for="contact-status">Status</label>
-      <Select.Root bind:value={form.status}>
+      <Select.Root bind:value={form.status} type="single">
         <Select.Trigger class="w-full" id="contact-status" aria-label="Status">
           <Select.Value />
         </Select.Trigger>
