@@ -15,13 +15,13 @@
 
   let { inboxes = [], onSubmit, onCancel, class: className }: Props = $props();
   
-  let selectedInbox = $state({ value: '' });
+  let selectedInbox = $state<string>('');
   let contact = $state('');
   let message = $state('');
 
   function handleSubmit(e: Event) {
     e.preventDefault();
-    onSubmit?.({ inbox: selectedInbox.value, contact, message });
+    onSubmit?.({ inbox: selectedInbox, contact, message });
   }
 </script>
 

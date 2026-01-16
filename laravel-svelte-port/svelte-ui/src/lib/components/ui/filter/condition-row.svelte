@@ -46,38 +46,38 @@
   const operators = $derived(selectedFilterType?.operators || []);
   const options = $derived(selectedFilterType?.options || []);
 
-  // Wrap primitive values in objects for shadcn-svelte select
-  let queryOperatorValue = $state({ value: condition.queryOperator || 'and' });
-  let attributeKeyValue = $state({ value: condition.attributeKey || '' });
-  let filterOperatorValue = $state({ value: condition.filterOperator || '' });
-  let filterValueValue = $state({ value: condition.values[0] || '' });
+  // Use string values directly for shadcn-svelte select
+  let queryOperatorValue = $state<string>(condition.queryOperator || 'and');
+  let attributeKeyValue = $state<string>(condition.attributeKey || '');
+  let filterOperatorValue = $state<string>(condition.filterOperator || '');
+  let filterValueValue = $state<string>(condition.values[0] || '');
 
   // Sync back to condition when select values change
   $effect(() => {
-    condition.queryOperator = queryOperatorValue.value as 'and' | 'or';
+    condition.queryOperator = queryOperatorValue as 'and' | 'or';
   });
 
   $effect(() => {
-    condition.attributeKey = attributeKeyValue.value;
+    condition.attributeKey = attributeKeyValue;
   });
 
   $effect(() => {
-    condition.filterOperator = filterOperatorValue.value;
+    condition.filterOperator = filterOperatorValue;
   });
 
   $effect(() => {
     if (condition.values.length === 0) {
       condition.values = [''];
     }
-    condition.values[0] = filterValueValue.value;
+    condition.values[0] = filterValueValue;
   });
 
   // Sync from condition when it changes externally
   $effect(() => {
-    queryOperatorValue = { value: condition.queryOperator || 'and' };
-    attributeKeyValue = { value: condition.attributeKey || '' };
-    filterOperatorValue = { value: condition.filterOperator || '' };
-    filterValueValue = { value: condition.values[0] || '' };
+    queryOperatorValue = condition.queryOperator || 'and';
+    attributeKeyValue = condition.attributeKey || '';
+    filterOperatorValue = condition.filterOperator || '';
+    filterValueValue = condition.values[0] || '';
   });
 </script>
 

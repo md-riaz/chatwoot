@@ -3,7 +3,7 @@
   import { Avatar } from '$lib/components/ui/avatar';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '$lib/components/ui/select';
+  import * as Select from '$lib/components/ui/select';
 
   interface Contact {
     id?: string;
@@ -138,15 +138,15 @@
 
     <div>
       <label class="text-sm" for="contact-status">Status</label>
-      <Select bind:value={form.status}>
-        <SelectTrigger class="w-full" id="contact-status" aria-label="Status">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="active">Active</SelectItem>
-          <SelectItem value="inactive">Inactive</SelectItem>
-        </SelectContent>
-      </Select>
+      <Select.Root bind:value={form.status}>
+        <Select.Trigger class="w-full" id="contact-status" aria-label="Status">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="active">Active</Select.Item>
+          <Select.Item value="inactive">Inactive</Select.Item>
+        </Select.Content>
+      </Select.Root>
     </div>
   </div>
 

@@ -58,7 +58,7 @@
       <h4 class="text-sm font-medium truncate text-slate-900 dark:text-slate-100">
         {attribute.label}
       </h4>
-      <div class="w-px h-3 bg-slate-300 dark:bg-slate-700" />
+      <div class="w-px h-3 bg-slate-300 dark:bg-slate-700"></div>
       <div class="flex gap-2 items-center text-sm text-slate-600 dark:text-slate-400">
         {#snippet attributeIconSection()}
           {@const AttributeIcon = attributeIcon()}
@@ -68,7 +68,7 @@
           </div>
         {/snippet}
         {@render attributeIconSection()}
-        <div class="w-px h-3 bg-slate-300 dark:bg-slate-700" />
+        <div class="w-px h-3 bg-slate-300 dark:bg-slate-700"></div>
         <div class="flex items-center gap-1.5">
           <KeyRound class="size-4" />
           <span class="line-clamp-1 text-sm">{attribute.value}</span>
@@ -80,7 +80,7 @@
         <Badge variant="outline">{badge.label || badge.type}</Badge>
       {/each}
       {#if badges.length > 0}
-        <div class="w-px h-3 bg-slate-300 dark:bg-slate-700 ml-1.5" />
+        <div class="w-px h-3 bg-slate-300 dark:bg-slate-700 ml-1.5"></div>
       {/if}
       <Button
         size="sm"
@@ -89,7 +89,7 @@
       >
         <Pencil class="h-4 w-4" />
       </Button>
-      <div class="w-px h-3 bg-slate-300 dark:bg-slate-700" />
+      <div class="w-px h-3 bg-slate-300 dark:bg-slate-700"></div>
       <Button
         size="sm"
         variant="ghost"
