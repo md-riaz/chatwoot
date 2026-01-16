@@ -7,6 +7,8 @@ type Props = {
   required?: boolean;
   name?: string;
   value?: string;
+  onclick?: (event: MouseEvent) => void;
+  onchange?: (event: Event) => void;
 };
 
 export {

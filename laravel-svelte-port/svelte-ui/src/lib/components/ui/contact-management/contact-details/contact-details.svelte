@@ -14,7 +14,7 @@
     Description as DialogDescription,
     Footer as DialogFooter,
     Close as DialogClose,
-  } from '../../../dialog/index.js';
+  } from '$lib/components/ui/dialog';
 
   interface Activity {
     id: string;
@@ -50,9 +50,9 @@
 
   const dispatch = createEventDispatcher();
 
-  let newNote = '';
-  let localNotes: Note[] = contact?.notes ? [...contact.notes] : [];
-  let showEditor = false;
+  let newNote = $state('');
+  let localNotes = $state<Note[]>(contact?.notes ? [...contact.notes] : []);
+  let showEditor = $state(false);
 
   // Use $effect instead of $:
   $effect(() => {

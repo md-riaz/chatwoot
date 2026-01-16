@@ -2,7 +2,7 @@ import Root from './input.svelte';
 import type { HTMLInputAttributes } from 'svelte/elements';
 
 type Props = HTMLInputAttributes & {
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search';
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' | 'date';
   class?: string;
   value?: string;
   placeholder?: string;

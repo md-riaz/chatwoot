@@ -5,6 +5,8 @@
 
   type Props = HTMLAttributes<HTMLTableCellElement> & {
     class?: string;
+    colspan?: number;
+    rowspan?: number;
     children?: Snippet;
   };
 

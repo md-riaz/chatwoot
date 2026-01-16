@@ -89,8 +89,8 @@
     currentPage * itemsPerPage
   ));
 
-  $: totalPages = Math.ceil(filteredContacts.length / itemsPerPage);
-  $: allSelected = paginatedContacts.length > 0 && paginatedContacts.every((c: Contact) => selectedContacts.has(c.id));
+  const totalPages = $derived(Math.ceil(filteredContacts.length / itemsPerPage));
+  const allSelected = $derived(paginatedContacts.length > 0 && paginatedContacts.every((c: Contact) => selectedContacts.has(c.id)));
 
   function toggleAll() {
     if (allSelected) {
