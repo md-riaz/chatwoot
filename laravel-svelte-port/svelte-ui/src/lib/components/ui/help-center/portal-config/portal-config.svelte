@@ -6,7 +6,7 @@
   import { Card } from '$lib/components/ui/card';
   import * as Select from '$lib/components/ui/select';
 
-  export let config: {
+  interface PortalConfig {
     siteName: string;
     description: string;
     logo: string;
@@ -15,31 +15,40 @@
     fontFamily: string;
     seoTitle: string;
     seoDescription: string;
-  } = {
-    siteName: '',
-    description: '',
-    logo: '',
-    customDomain: '',
-    primaryColor: '#3B82F6',
-    fontFamily: 'Inter',
-    seoTitle: '',
-    seoDescription: ''
-  };
+  }
 
-  export let onSave: (config: typeof config) => void = () => {};
-  export let saving = false;
+  interface Props {
+    config?: PortalConfig;
+    onSave?: (config: PortalConfig) => void;
+    saving?: boolean;
+  }
+
+  let {
+    config = {
+      siteName: '',
+      description: '',
+      logo: '',
+      customDomain: '',
+      primaryColor: '#3B82F6',
+      fontFamily: 'Inter',
+      seoTitle: '',
+      seoDescription: ''
+    },
+    onSave = () => {},
+    saving = false
+  }: Props = $props();
 
   const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
   const fonts = ['Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat'];
 
-  let fontFamilyValue = $state({ value: config.fontFamily });
+  let fontFamilyValue = $state<string>(config.fontFamily);
 
   $effect(() => {
-    config.fontFamily = fontFamilyValue.value;
+    config.fontFamily = fontFamilyValue;
   });
 
   $effect(() => {
-    fontFamilyValue = { value: config.fontFamily };
+    fontFamilyValue = config.fontFamily;
   });
 
   function handleSave() {
@@ -50,7 +59,7 @@
 <div class="w-full max-w-4xl mx-auto space-y-6 p-6">
   <div class="flex items-center justify-between">
     <h2 class="text-2xl font-bold">Portal Configuration</h2>
-    <Button on:click={handleSave} disabled={saving}>
+    <Button onclick={handleSave} disabled={saving}>
       {saving ? 'Saving...' : 'Save Changes'}
     </Button>
   </div>
@@ -91,15 +100,16 @@
               type="button"
               class="w-10 h-10 rounded-md border-2 transition-all {config.primaryColor === color ? 'scale-110 border-primary' : 'border-transparent'}"
               style="background-color: {color}"
-              on:click={() => config.primaryColor = color}
-            />
+              onclick={() => config.primaryColor = color}
+              aria-label="Select color {color}"
+            ></button>
           {/each}
         </div>
       </div>
 
       <div class="space-y-2">
         <Label for="fontFamily">Font Family</Label>
-        <Select.Root bind:value={fontFamilyValue}>
+        <Select.Root bind:value={fontFamilyValue} type="single">
           <Select.Trigger id="fontFamily">
             <Select.Value placeholder="Select font" />
           </Select.Trigger>

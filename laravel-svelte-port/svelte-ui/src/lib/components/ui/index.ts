@@ -57,7 +57,7 @@ export { Flag } from './flag';
 export { FileIcon } from './file-icon';
 
 // Filter
-export { Filter, ActiveFilterPreview, ConditionRow } from './filter';
+export { ActiveFilterPreview, ConditionRow } from './filter';
 
 // Chatwoot-specific
 export { MessageBubble } from './message-bubble';
@@ -80,7 +80,7 @@ export { MessageTemplateText, MessageTemplateCard, MessageTemplateMedia } from '
 // Contacts
 export { ContactForm } from './contact-form';
 export { ContactHeader } from './contact-header';
-export { ContactNote } from './contact-note';
+export { ContactNoteItem } from './contact-note';
 
 // Empty States
 export { EmptyState } from './empty-state';

@@ -1,9 +1,12 @@
 <script lang="ts">
   import { cn } from '$lib/utils';
-  import type { Snippet, HTMLAttributes } from 'svelte';
+  import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
 
   type Props = HTMLAttributes<HTMLTableCellElement> & {
     class?: string;
+    colspan?: number;
+    rowspan?: number;
     children?: Snippet;
   };
 

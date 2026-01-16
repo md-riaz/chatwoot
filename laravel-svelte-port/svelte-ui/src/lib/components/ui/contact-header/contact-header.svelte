@@ -32,7 +32,7 @@
       <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
     </Avatar>
     {#if status}
-      <span class={cn('absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white dark:border-slate-900', statusColors[status])} />
+      <span class={cn('absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white dark:border-slate-900', statusColors[status])}></span>
     {/if}
   </div>
   

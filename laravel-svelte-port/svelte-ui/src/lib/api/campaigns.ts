@@ -52,6 +52,8 @@ export interface Campaign {
     avatarUrl?: string;
   };
   scheduledAt?: string;
+  templateId?: number;
+  templateParams?: Record<string, any>;
   createdAt: string;
   updatedAt: string;
 }

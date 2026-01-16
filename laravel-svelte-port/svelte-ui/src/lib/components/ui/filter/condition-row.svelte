@@ -46,44 +46,44 @@
   const operators = $derived(selectedFilterType?.operators || []);
   const options = $derived(selectedFilterType?.options || []);
 
-  // Wrap primitive values in objects for shadcn-svelte select
-  let queryOperatorValue = $state({ value: condition.queryOperator || 'and' });
-  let attributeKeyValue = $state({ value: condition.attributeKey || '' });
-  let filterOperatorValue = $state({ value: condition.filterOperator || '' });
-  let filterValueValue = $state({ value: condition.values[0] || '' });
+  // Use string values directly for shadcn-svelte select
+  let queryOperatorValue = $state<string>(condition.queryOperator || 'and');
+  let attributeKeyValue = $state<string>(condition.attributeKey || '');
+  let filterOperatorValue = $state<string>(condition.filterOperator || '');
+  let filterValueValue = $state<string>(condition.values[0] || '');
 
   // Sync back to condition when select values change
   $effect(() => {
-    condition.queryOperator = queryOperatorValue.value as 'and' | 'or';
+    condition.queryOperator = queryOperatorValue as 'and' | 'or';
   });
 
   $effect(() => {
-    condition.attributeKey = attributeKeyValue.value;
+    condition.attributeKey = attributeKeyValue;
   });
 
   $effect(() => {
-    condition.filterOperator = filterOperatorValue.value;
+    condition.filterOperator = filterOperatorValue;
   });
 
   $effect(() => {
     if (condition.values.length === 0) {
       condition.values = [''];
     }
-    condition.values[0] = filterValueValue.value;
+    condition.values[0] = filterValueValue;
   });
 
   // Sync from condition when it changes externally
   $effect(() => {
-    queryOperatorValue = { value: condition.queryOperator || 'and' };
-    attributeKeyValue = { value: condition.attributeKey || '' };
-    filterOperatorValue = { value: condition.filterOperator || '' };
-    filterValueValue = { value: condition.values[0] || '' };
+    queryOperatorValue = condition.queryOperator || 'and';
+    attributeKeyValue = condition.attributeKey || '';
+    filterOperatorValue = condition.filterOperator || '';
+    filterValueValue = condition.values[0] || '';
   });
 </script>
 
 <div class={cn('flex items-center gap-2 p-2', className)} {...restProps}>
   {#if showQueryOperator}
-    <Select.Root bind:value={queryOperatorValue}>
+    <Select.Root bind:value={queryOperatorValue} type="single">
       <Select.Trigger class="h-8 w-[80px]">
         <Select.Value />
       </Select.Trigger>
@@ -94,7 +94,7 @@
     </Select.Root>
   {/if}
 
-  <Select.Root bind:value={attributeKeyValue}>
+  <Select.Root bind:value={attributeKeyValue} type="single">
     <Select.Trigger class="h-8 min-w-[140px]">
       <Select.Value placeholder="Select attribute..." />
     </Select.Trigger>
@@ -106,7 +106,7 @@
   </Select.Root>
 
   {#if condition.attributeKey}
-    <Select.Root bind:value={filterOperatorValue}>
+    <Select.Root bind:value={filterOperatorValue} type="single">
       <Select.Trigger class="h-8 min-w-[120px]">
         <Select.Value placeholder="Select operator..." />
       </Select.Trigger>
@@ -119,7 +119,7 @@
   {/if}
 
   {#if condition.filterOperator && options.length > 0}
-    <Select.Root bind:value={filterValueValue}>
+    <Select.Root bind:value={filterValueValue} type="single">
       <Select.Trigger class="h-8 min-w-[140px]">
         <Select.Value placeholder="Select value..." />
       </Select.Trigger>

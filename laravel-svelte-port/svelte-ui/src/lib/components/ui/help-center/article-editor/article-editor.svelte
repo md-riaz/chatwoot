@@ -7,7 +7,7 @@
   import { Switch } from '$lib/components/ui/switch';
   import * as Select from '$lib/components/ui/select';
 
-  export let article: {
+  interface Article {
     id?: string;
     title: string;
     content: string;
@@ -17,47 +17,60 @@
     tags: string[];
     featured: boolean;
     locale: string;
-  } = {
-    title: '',
-    content: '',
-    status: 'draft',
-    category: '',
-    author: '',
-    tags: [],
-    featured: false,
-    locale: 'en'
-  };
+  }
 
-  export let categories: string[] = [];
-  export let locales: string[] = ['en', 'es', 'fr', 'de'];
-  export let onSave: (article: typeof article) => void = () => {};
-  export let onPublish: (article: typeof article) => void = () => {};
-  export let onCancel: () => void = () => {};
-  export let saving = false;
+  interface Props {
+    article?: Article;
+    categories?: string[];
+    locales?: string[];
+    onSave?: (article: Article) => void;
+    onPublish?: (article: Article) => void;
+    onCancel?: () => void;
+    saving?: boolean;
+  }
 
-  let newTag = '';
-  let charCount = 0;
+  let {
+    article = {
+      title: '',
+      content: '',
+      status: 'draft',
+      category: '',
+      author: '',
+      tags: [],
+      featured: false,
+      locale: 'en'
+    },
+    categories = [],
+    locales = ['en', 'es', 'fr', 'de'],
+    onSave = () => {},
+    onPublish = () => {},
+    onCancel = () => {},
+    saving = false
+  }: Props = $props();
 
-  // Wrapped values for shadcn-svelte select
-  let categoryValue = $state({ value: article.category });
-  let localeValue = $state({ value: article.locale });
+  let newTag = $state('');
+
+  // Use string values directly for shadcn-svelte select
+  let categoryValue = $state<string>(article.category);
+  let localeValue = $state<string>(article.locale);
 
   // Sync back to article
   $effect(() => {
-    article.category = categoryValue.value;
+    article.category = categoryValue;
   });
 
   $effect(() => {
-    article.locale = localeValue.value;
+    article.locale = localeValue;
   });
 
   // Sync from article when it changes externally
   $effect(() => {
-    categoryValue = { value: article.category };
-    localeValue = { value: article.locale };
+    categoryValue = article.category;
+    localeValue = article.locale;
   });
 
-  $: charCount = article.content.length;
+  // Use $derived for reactive values
+  const charCount = $derived(article.content.length);
 
   function addTag() {
     if (newTag.trim() && !article.tags.includes(newTag.trim())) {
@@ -126,7 +139,7 @@
     <div class="grid grid-cols-2 gap-4">
       <div class="space-y-2">
         <Label for="category">Category</Label>
-        <Select.Root bind:value={categoryValue}>
+        <Select.Root bind:value={categoryValue} type="single">
           <Select.Trigger id="category">
             <Select.Value placeholder="Select category" />
           </Select.Trigger>
@@ -140,7 +153,7 @@
 
       <div class="space-y-2">
         <Label for="locale">Locale</Label>
-        <Select.Root bind:value={localeValue}>
+        <Select.Root bind:value={localeValue} type="single">
           <Select.Trigger id="locale">
             <Select.Value placeholder="Select locale" />
           </Select.Trigger>

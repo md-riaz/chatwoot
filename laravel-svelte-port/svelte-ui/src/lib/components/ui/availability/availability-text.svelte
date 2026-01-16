@@ -31,7 +31,7 @@
 </script>
 
 <div class={cn('flex items-center gap-2', className)}>
-  <span class={cn('h-2 w-2 rounded-full', config.color)} />
+  <span class={cn('h-2 w-2 rounded-full', config.color)}></span>
   <div>
     <div class="text-sm font-medium text-slate-900 dark:text-slate-100">
       {customText || config.text}

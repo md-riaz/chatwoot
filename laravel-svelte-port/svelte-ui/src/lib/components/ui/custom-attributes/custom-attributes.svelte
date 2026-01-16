@@ -2,6 +2,7 @@
   import { cn } from '$lib/utils';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import DateAttributeInput from './DateAttributeInput.svelte';
 
   interface CustomAttribute {
     id: string;
@@ -51,11 +52,10 @@
             disabled={readonly}
           />
         {:else if attr.attribute_display_type === 'date'}
-          <Input
-            id={attr.attribute_key}
-            type="date"
+          <DateAttributeInput
             bind:value={values[attr.attribute_key]}
             disabled={readonly}
+            readonly={readonly}
           />
         {:else if attr.attribute_display_type === 'link'}
           <div class="flex gap-2">

@@ -81,7 +81,7 @@
       name: name.trim(),
       website: website.trim() || undefined,
       industry: industry.trim() || undefined,
-      size: size ? parseInt(size, 10) : undefined,
+      size: size || undefined,
       description: description.trim() || undefined,
     };
 

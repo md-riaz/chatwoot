@@ -134,7 +134,7 @@
               <Card.Title class="text-sm">Custom Attributes</Card.Title>
             </Card.Header>
             <Card.Content>
-              <CustomAttributes.Root>
+              <div class="space-y-2">
                 {#each Object.entries(customAttributes) as [key, value]}
                   <div class="py-2 border-b last:border-b-0">
                     <p class="text-xs text-muted-foreground mb-1 capitalize">
@@ -143,7 +143,7 @@
                     <p class="text-sm break-all">{value}</p>
                   </div>
                 {/each}
-              </CustomAttributes.Root>
+              </div>
             </Card.Content>
           </Card.Root>
         {/if}
@@ -155,15 +155,15 @@
               <Card.Title class="text-sm">Social Profiles</Card.Title>
             </Card.Header>
             <Card.Content class="space-y-2">
-              {#each Object.entries(contact.socialProfiles) as [platform, url]}
-                {#if url}
+              {#each contact.socialProfiles as profile}
+                {#if profile.url}
                   <a
-                    href={url}
+                    href={profile.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     class="flex items-center gap-2 text-sm hover:underline"
                   >
-                    <span class="capitalize">{platform}</span>
+                    <span class="capitalize">{profile.type}</span>
                     <span class="text-muted-foreground">→</span>
                   </a>
                 {/if}

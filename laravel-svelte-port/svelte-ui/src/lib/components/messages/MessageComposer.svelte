@@ -128,9 +128,9 @@
         // Default: use messagesStore
         await messagesStore.sendMessage({
           conversationId,
-          content: messageContent,
+          message: messageContent,
           private: isPrivate,
-          attachments: files,
+          files: files,
         });
       }
       

@@ -14,7 +14,7 @@
     Description as DialogDescription,
     Footer as DialogFooter,
     Close as DialogClose,
-  } from '../../../dialog/index.js';
+  } from '$lib/components/ui/dialog';
 
   interface Activity {
     id: string;
@@ -50,11 +50,9 @@
 
   const dispatch = createEventDispatcher();
 
-  let newNote = '';
-  let localNotes: Note[] = contact?.notes ? [...contact.notes] : [];
-  let showEditor = false;
-
-  $: localNotes = contact?.notes ? [...contact.notes] : localNotes;
+  let newNote = $state('');
+  let localNotes = $derived<Note[]>(contact?.notes ? [...contact.notes] : []);
+  let showEditor = $state(false);
 
   function goBack() {
     dispatch('back');
@@ -65,9 +63,11 @@
     showEditor = true;
   }
 
-  $: if (showEditor) {
-  dispatch('edit', contact);
-}
+  $effect(() => {
+    if (showEditor) {
+      dispatch('edit', contact);
+    }
+  });
 
   function addNote() {
     if (!newNote.trim()) return;
@@ -83,7 +83,7 @@
   }
 </script>
 
-<DialogRoot bind:open={showEditor}>
+<DialogRoot open={showEditor} onOpenChange={(open) => showEditor = open}>
   <DialogContent>
     <DialogHeader>
       <DialogTitle>Edit Contact</DialogTitle>

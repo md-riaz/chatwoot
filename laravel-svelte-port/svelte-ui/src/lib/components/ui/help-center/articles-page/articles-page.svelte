@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Button } from '../../../button/index.js';
-  import { Input } from '../../../input/index.js';
-  import { Badge } from '../../../badge/index.js';
-  import { Card } from '../../../card/index.js';
-  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../select/index.js';
+  import { Button } from '$lib/components/ui/button';
+  import { Input } from '$lib/components/ui/input';
+  import { Badge } from '$lib/components/ui/badge';
+  import { Card } from '$lib/components/ui/card';
+  import * as Select from '$lib/components/ui/select';
   import { Search, Plus, Edit2, Trash2, Eye, FileText } from 'lucide-svelte';
 
   export let articles: Article[] = [];
@@ -101,29 +101,29 @@
           class="pl-9"
         />
       </div>
-      <Select bind:value={selectedCategory}>
-        <SelectTrigger class="w-[180px]">
-          <SelectValue placeholder="All Categories" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Categories</SelectItem>
+      <Select.Root bind:value={selectedCategory} type="single">
+        <Select.Trigger class="w-[180px]">
+          <Select.Value placeholder="All Categories" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="all">All Categories</Select.Item>
           {#each categories as category}
-            <SelectItem value={category.id}>
+            <Select.Item value={category.id}>
               {category.name} ({category.count})
-            </SelectItem>
+            </Select.Item>
           {/each}
-        </SelectContent>
-      </Select>
-      <Select bind:value={sortBy}>
-        <SelectTrigger class="w-[160px]">
-          <SelectValue placeholder="Sort by" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="date">Date</SelectItem>
-          <SelectItem value="popularity">Popularity</SelectItem>
-          <SelectItem value="title">Title</SelectItem>
-        </SelectContent>
-      </Select>
+        </Select.Content>
+      </Select.Root>
+      <Select.Root bind:value={sortBy} type="single">
+        <Select.Trigger class="w-[160px]">
+          <Select.Value placeholder="Sort by" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="date">Date</Select.Item>
+          <Select.Item value="popularity">Popularity</Select.Item>
+          <Select.Item value="title">Title</Select.Item>
+        </Select.Content>
+      </Select.Root>
     </div>
     <Button onclick={onArticleCreate}>
       <Plus class="mr-2 h-4 w-4" />
@@ -150,7 +150,7 @@
       {#each paginatedArticles as article}
         <Card class="p-4 hover:shadow-md transition-shadow">
           <div class="flex items-start justify-between gap-4">
-            <div class="flex-1 space-y-2 cursor-pointer" onclick={() => onArticleSelect(article.id)} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && onArticleSelect(article.id)}>
+            <div class="flex-1 space-y-2 cursor-pointer" onclick={() => onArticleSelect(article.id)} onkeydown={(e) => e.key === 'Enter' && onArticleSelect(article.id)} role="button" tabindex="0">
               <div class="flex items-center gap-2">
                 <h3 class="text-lg font-semibold hover:text-primary transition-colors">
                   {article.title}

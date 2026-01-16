@@ -21,15 +21,15 @@
     ...restProps
   }: AudioRecorderProps = $props();
   
-  let state = $state('idle') as RecordingState;
+  let recordingState = $state<RecordingState>('idle');
   let mediaRecorder: MediaRecorder | null = null;
   let audioChunks: Blob[] = [];
-  let recordingDuration = $state(0) as number;
+  let recordingDuration = $state<number>(0);
   let recordingInterval: ReturnType<typeof setInterval> | null = null;
-  let audioUrl = $state(null as string | null);
-  let audioElement = $state(null as HTMLAudioElement | null);
-  let isPlaying = $state(false) as boolean;
-  let error = $state(null as string | null);
+  let audioUrl = $state<string | null>(null);
+  let audioElement = $state<HTMLAudioElement | null>(null);
+  let isPlaying = $state<boolean>(false);
+  let error = $state<string | null>(null);
   
   async function startRecording() {
     try {
@@ -59,7 +59,7 @@
       };
       
       mediaRecorder.start();
-      state = 'recording';
+      recordingState = 'recording';
       
       recordingInterval = setInterval(() => {
         recordingDuration++;
@@ -75,9 +75,9 @@
   }
   
   function stopRecording() {
-    if (mediaRecorder && state === 'recording') {
+    if (mediaRecorder && recordingState === 'recording') {
       mediaRecorder.stop();
-      state = 'stopped';
+      recordingState = 'stopped';
       
       if (recordingInterval) {
         clearInterval(recordingInterval);
@@ -92,7 +92,7 @@
   
   function cancelRecording() {
     if (mediaRecorder) {
-      if (state === 'recording') {
+      if (recordingState === 'recording') {
         mediaRecorder.stop();
       }
       
@@ -102,7 +102,7 @@
       }
     }
     
-    state = 'idle';
+    recordingState = 'idle';
     recordingDuration = 0;
     audioUrl = null;
     audioChunks = [];
@@ -147,7 +147,7 @@
       </div>
     {/if}
     
-    {#if state === 'idle'}
+    {#if recordingState === 'idle'}
       <!-- Ready to Record -->
       <div class="flex flex-col items-center gap-4">
         <div class="flex size-20 items-center justify-center rounded-full bg-primary/10">
@@ -187,7 +187,7 @@
           Start Recording
         </Button>
       </div>
-    {:else if state === 'recording'}
+    {:else if recordingState === 'recording'}
       <!-- Recording -->
       <div class="flex flex-col items-center gap-4">
         <div class="flex size-20 items-center justify-center rounded-full bg-destructive/10 animate-pulse">
@@ -237,7 +237,7 @@
           </Button>
         </div>
       </div>
-    {:else if state === 'stopped'}
+    {:else if recordingState === 'stopped'}
       <!-- Playback -->
       <div class="space-y-4">
         <div class="flex items-center gap-4">
@@ -291,7 +291,7 @@
             onended={() => { isPlaying = false; }}
             class="w-full"
             controls
-          />
+          ></audio>
         {/if}
       </div>
     {/if}

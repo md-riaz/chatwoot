@@ -154,11 +154,11 @@
     <div class="space-y-2">
       <Label for="inbox">Inbox *</Label>
       <Select.Root
-        value={inboxId ? [inboxId.toString()] : []}
+        value={inboxId?.toString()}
         onValueChange={(value: any) => {
-          const v = Array.isArray(value) ? value[0] : undefined;
-          if (v) inboxId = parseInt(v) as number;
+          if (value) inboxId = parseInt(value) as number;
         }}
+        type="single"
       >
         <Select.Trigger class={errors.inboxId ? 'border-red-500' : ''}>
           <Select.Value placeholder="Select an inbox" />

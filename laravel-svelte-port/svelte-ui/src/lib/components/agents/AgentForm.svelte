@@ -137,11 +137,11 @@
     <div class="space-y-2">
       <Label for="role">Role *</Label>
       <Select.Root
-        value={role ? [role] : []}
+        value={role}
         onValueChange={(value: any) => {
-          const v = Array.isArray(value) ? value[0] : undefined;
-          if (v) role = v as 'administrator' | 'agent';
+          if (value) role = value as 'administrator' | 'agent';
         }}
+        type="single"
       >
         <Select.Trigger class={errors.role ? 'border-red-500' : ''}>
           <Select.Value placeholder="Select a role" />

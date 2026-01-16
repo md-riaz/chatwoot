@@ -179,8 +179,9 @@
   <div class="space-y-2">
     <Label for="inbox">SMS Inbox *</Label>
     <Select.Root
-      onValueChange={(value: string | undefined) => { inboxId = value ? parseInt(value) : null; }}
+      onValueChange={(value: any) => { inboxId = value ? parseInt(value) : null; }}
       value={inboxId?.toString()}
+      type="single"
     >
       <Select.Trigger id="inbox" class={errors.inboxId ? 'border-red-500' : ''}>
         <Select.Value placeholder="Select SMS inbox" />

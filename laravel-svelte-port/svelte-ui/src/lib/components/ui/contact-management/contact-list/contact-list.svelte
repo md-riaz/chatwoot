@@ -5,7 +5,7 @@
   import { Card } from '$lib/components/ui/card';
   import { Avatar } from '$lib/components/ui/avatar';
   import { Checkbox } from '$lib/components/ui/checkbox';
-  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '$lib/components/ui/select';
+  import * as Select from '$lib/components/ui/select';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
   import { Search, Plus, Mail, Phone, Tag, Download, Filter } from 'lucide-svelte';
 
@@ -51,9 +51,10 @@
     onFilterOpen?: () => void;
   }>();
 
-  let selectedContacts: Set<string> = new Set();
+  let selectedContacts = $state<Set<string>>(new Set());
 
-  $: filteredContacts = contacts
+  // Use $derived instead of $:
+  const filteredContacts = $derived(contacts
     .filter((contact: Contact) => {
       const matchesSearch =
         searchQuery === '' ||
@@ -81,15 +82,15 @@
           break;
       }
       return sortOrder === 'asc' ? comparison : -comparison;
-    });
+    }));
 
-  $: paginatedContacts = filteredContacts.slice(
+  const paginatedContacts = $derived(filteredContacts.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
-  );
+  ));
 
-  $: totalPages = Math.ceil(filteredContacts.length / itemsPerPage);
-  $: allSelected = paginatedContacts.length > 0 && paginatedContacts.every((c: Contact) => selectedContacts.has(c.id));
+  const totalPages = $derived(Math.ceil(filteredContacts.length / itemsPerPage));
+  const allSelected = $derived(paginatedContacts.length > 0 && paginatedContacts.every((c: Contact) => selectedContacts.has(c.id)));
 
   function toggleAll() {
     if (allSelected) {
@@ -149,17 +150,17 @@
         <Filter class="mr-2 h-4 w-4" />
         Filters
       </Button>
-      <Select bind:value={selectedTag}>
-        <SelectTrigger class="w-[140px]">
-          <SelectValue placeholder="All Tags" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Tags</SelectItem>
-          <SelectItem value="vip">VIP</SelectItem>
-          <SelectItem value="lead">Lead</SelectItem>
-          <SelectItem value="customer">Customer</SelectItem>
-        </SelectContent>
-      </Select>
+      <Select.Root bind:value={selectedTag} type="single">
+        <Select.Trigger class="w-[140px]">
+          <Select.Value placeholder="All Tags" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="all">All Tags</Select.Item>
+          <Select.Item value="vip">VIP</Select.Item>
+          <Select.Item value="lead">Lead</Select.Item>
+          <Select.Item value="customer">Customer</Select.Item>
+        </Select.Content>
+      </Select.Root>
     </div>
     <div class="flex items-center gap-2">
       {#if selectedContacts.size > 0}
@@ -204,7 +205,7 @@
       <TableBody>
         {#if paginatedContacts.length === 0}
           <TableRow>
-            <TableCell colspan="8" class="h-24 text-center">
+            <TableCell colspan={8} class="h-24 text-center">
               <div class="flex flex-col items-center justify-center text-muted-foreground">
                 <p class="text-sm font-medium">No contacts found</p>
                 <p class="text-xs">Try adjusting your search or filters</p>
