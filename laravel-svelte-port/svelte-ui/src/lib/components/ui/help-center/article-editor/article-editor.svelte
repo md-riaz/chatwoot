@@ -70,8 +70,8 @@
     localeValue = article.locale;
   });
 
-  // Use $derived instead of $: for reactive statements
-  charCount = $derived(article.content.length);
+  // Use $derived for reactive values
+  const charCount = $derived(article.content.length);
 
   function addTag() {
     if (newTag.trim() && !article.tags.includes(newTag.trim())) {

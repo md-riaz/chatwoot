@@ -51,13 +51,8 @@
   const dispatch = createEventDispatcher();
 
   let newNote = $state('');
-  let localNotes = $state<Note[]>(contact?.notes ? [...contact.notes] : []);
+  let localNotes = $derived<Note[]>(contact?.notes ? [...contact.notes] : []);
   let showEditor = $state(false);
-
-  // Use $effect instead of $:
-  $effect(() => {
-    localNotes = contact?.notes ? [...contact.notes] : localNotes;
-  });
 
   function goBack() {
     dispatch('back');
@@ -88,7 +83,7 @@
   }
 </script>
 
-<DialogRoot bind:open={showEditor}>
+<DialogRoot open={showEditor} onOpenChange={(open) => showEditor = open}>
   <DialogContent>
     <DialogHeader>
       <DialogTitle>Edit Contact</DialogTitle>

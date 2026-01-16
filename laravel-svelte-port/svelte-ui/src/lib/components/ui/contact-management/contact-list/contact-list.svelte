@@ -51,7 +51,7 @@
     onFilterOpen?: () => void;
   }>();
 
-  let selectedContacts: Set<string> = new Set();
+  let selectedContacts = $state<Set<string>>(new Set());
 
   // Use $derived instead of $:
   const filteredContacts = $derived(contacts
@@ -205,7 +205,7 @@
       <TableBody>
         {#if paginatedContacts.length === 0}
           <TableRow>
-            <TableCell colspan="8" class="h-24 text-center">
+            <TableCell colspan={8} class="h-24 text-center">
               <div class="flex flex-col items-center justify-center text-muted-foreground">
                 <p class="text-sm font-medium">No contacts found</p>
                 <p class="text-xs">Try adjusting your search or filters</p>
