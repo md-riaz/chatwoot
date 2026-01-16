@@ -100,8 +100,9 @@
               type="button"
               class="w-10 h-10 rounded-md border-2 transition-all {config.primaryColor === color ? 'scale-110 border-primary' : 'border-transparent'}"
               style="background-color: {color}"
-              on:click={() => config.primaryColor = color}
-            />
+              onclick={() => config.primaryColor = color}
+              aria-label="Select color {color}"
+            ></button>
           {/each}
         </div>
       </div>

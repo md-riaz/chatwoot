@@ -49,7 +49,6 @@
   }: Props = $props();
 
   let newTag = '';
-  let charCount = 0;
 
   // Use string values directly for shadcn-svelte select
   let categoryValue = $state<string>(article.category);

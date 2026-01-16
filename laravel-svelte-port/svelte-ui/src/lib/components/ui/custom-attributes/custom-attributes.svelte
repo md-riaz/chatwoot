@@ -2,10 +2,7 @@
   import { cn } from '$lib/utils';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { DatePicker } from '$lib/components/ui/date-picker';
-  import { parseDate, type DateValue } from '@internationalized/date';
-  import { Popover, PopoverTrigger, PopoverContent } from '$lib/components/ui/popover';
-  import { Calendar } from '$lib/components/ui/calendar';
+  import DateAttributeInput from './DateAttributeInput.svelte';
 
   interface CustomAttribute {
     id: string;
@@ -27,31 +24,6 @@
     readonly?: boolean;
     class?: string;
   } = $props();
-
-  // Helper function to convert string to DateValue
-  function getDateValue(dateStr: string | undefined): DateValue | undefined {
-    if (!dateStr) return undefined;
-    try {
-      return parseDate(dateStr);
-    } catch {
-      return undefined;
-    }
-  }
-
-  // Format date for display
-  function formatDate(dateStr: string | undefined): string {
-    if (!dateStr) return '';
-    try {
-      const dateValue = parseDate(dateStr);
-      return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }).format(new Date(dateValue.toString()));
-    } catch {
-      return dateStr;
-    }
-  }
 </script>
 
 <div class={cn('space-y-4', className)} {...restProps}>
@@ -80,66 +52,11 @@
             disabled={readonly}
           />
         {:else if attr.attribute_display_type === 'date'}
-          {#snippet dateField()}
-            {@const key = attr.attribute_key}
-            {(() => {
-              let open = $state(false);
-              let dateValue = $state(getDateValue(values[key]));
-              
-              $effect(() => {
-                const newDate = getDateValue(values[key]);
-                if (newDate?.toString() !== dateValue?.toString()) {
-                  dateValue = newDate;
-                }
-              });
-              
-              return null;
-            })()}
-            
-            <Popover bind:open>
-              <PopoverTrigger>
-                {#snippet child({ props }: { props: any })}
-                  <Button
-                    {...props}
-                    variant="outline"
-                    class="w-full justify-start text-left font-normal"
-                    disabled={readonly}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="mr-2 size-4"
-                    >
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                    {values[key] ? formatDate(values[key]) : 'Select a date'}
-                  </Button>
-                {/snippet}
-              </PopoverTrigger>
-              <PopoverContent class="w-auto p-0" align="start">
-                <Calendar
-                  value={getDateValue(values[key])}
-                  disabled={readonly}
-                  readonly={readonly}
-                  onvaluechange={(newValue) => {
-                    values[key] = newValue?.toString() || '';
-                    open = false;
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-          {/snippet}
-          {@render dateField()}
+          <DateAttributeInput
+            bind:value={values[attr.attribute_key]}
+            disabled={readonly}
+            readonly={readonly}
+          />
         {:else if attr.attribute_display_type === 'link'}
           <div class="flex gap-2">
             <Input

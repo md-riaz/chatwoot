@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Button } from '../../../button/index.js';
-  import { Input } from '../../../input/index.js';
-  import { Badge } from '../../../badge/index.js';
-  import { Card } from '../../../card/index.js';
-  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../select/index.js';
+  import { Button } from '$lib/components/ui/button';
+  import { Input } from '$lib/components/ui/input';
+  import { Badge } from '$lib/components/ui/badge';
+  import { Card } from '$lib/components/ui/card';
+  import * as Select from '$lib/components/ui/select';
   import { Search, Plus, Edit2, Trash2, Eye, FileText } from 'lucide-svelte';
 
   export let articles: Article[] = [];
@@ -150,7 +150,7 @@
       {#each paginatedArticles as article}
         <Card class="p-4 hover:shadow-md transition-shadow">
           <div class="flex items-start justify-between gap-4">
-            <div class="flex-1 space-y-2 cursor-pointer" onclick={() => onArticleSelect(article.id)} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && onArticleSelect(article.id)}>
+            <div class="flex-1 space-y-2 cursor-pointer" onclick={() => onArticleSelect(article.id)} onkeydown={(e) => e.key === 'Enter' && onArticleSelect(article.id)} role="button" tabindex="0">
               <div class="flex items-center gap-2">
                 <h3 class="text-lg font-semibold hover:text-primary transition-colors">
                   {article.title}
