@@ -31,6 +31,13 @@
   
   let open = $state(false);
   
+  // Close popover when value changes
+  $effect(() => {
+    if (value !== undefined) {
+      open = false;
+    }
+  });
+  
   let displayValue = $derived(
     value
       ? new Intl.DateTimeFormat('en-US', {
@@ -83,9 +90,6 @@
         {maxValue}
         {disabled}
         {readonly}
-        onvaluechange={() => {
-          open = false;
-        }}
       />
     </PopoverContent>
   </Popover>

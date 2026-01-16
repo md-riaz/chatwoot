@@ -24,6 +24,7 @@ type Variant = VariantProps<typeof badgeVariants>['variant'];
 type Props = {
   class?: string;
   variant?: Variant;
+  style?: string;
   onclick?: (event: MouseEvent) => void;
 };
 
