@@ -34,7 +34,7 @@
     searching = false
   }: Props = $props();
 
-  let query = '';
+  let query = $state('');
   let selectedCategory = $state<string>('');
   let selectedLocale = $state<string>('');
 

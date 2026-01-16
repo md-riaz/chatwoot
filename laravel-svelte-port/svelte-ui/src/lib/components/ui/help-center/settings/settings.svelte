@@ -89,7 +89,7 @@
       
       <div class="space-y-2">
         <Label for="customCss">Custom CSS</Label>
-        <Textarea id="customCss" bind:value={settings.customCss} placeholder=".my-class { color: red; }" rows={6} class="font-mono text-sm" />
+        <Textarea id="customCss" bind:value={settings.customCss} placeholder=".my-class {'{'} color: red; {'}'}" rows={6} class="font-mono text-sm" />
       </div>
 
       <div class="space-y-2">

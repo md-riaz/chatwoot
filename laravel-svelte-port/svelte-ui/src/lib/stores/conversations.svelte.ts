@@ -201,8 +201,11 @@ class ConversationsStore {
     
     const previousStatus = this.getConversationById(conversationId)?.status;
     
-    // Optimistic update
-    this.updateConversationLocally(conversationId, { status, snoozedUntil: snoozedUntil || undefined });
+    // Optimistic update - convert number to string for snoozedUntil
+    this.updateConversationLocally(conversationId, { 
+      status, 
+      snoozedUntil: snoozedUntil ? snoozedUntil.toString() : undefined 
+    });
     
     try {
       const updated = await conversationsAPI.updateConversation(accountId, conversationId, {
