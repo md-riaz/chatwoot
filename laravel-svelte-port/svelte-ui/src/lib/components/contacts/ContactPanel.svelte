@@ -155,15 +155,15 @@
               <Card.Title class="text-sm">Social Profiles</Card.Title>
             </Card.Header>
             <Card.Content class="space-y-2">
-              {#each Object.entries(contact.socialProfiles) as [platform, url]}
-                {#if url}
+              {#each contact.socialProfiles as profile}
+                {#if profile.url}
                   <a
-                    href={url}
+                    href={profile.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     class="flex items-center gap-2 text-sm hover:underline"
                   >
-                    <span class="capitalize">{platform}</span>
+                    <span class="capitalize">{profile.type}</span>
                     <span class="text-muted-foreground">→</span>
                   </a>
                 {/if}

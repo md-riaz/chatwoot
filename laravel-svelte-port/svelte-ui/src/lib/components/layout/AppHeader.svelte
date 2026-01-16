@@ -125,7 +125,7 @@
             {#each (currentUser.accounts || []) as account}
               <DropdownMenu.Item
                 class="gap-2"
-                onclick={(e: MouseEvent) => handleAccountSwitch(account.id)}
+                onclick={() => handleAccountSwitch(account.id)}
               >
                 <Avatar.Root class="h-6 w-6">
                   <Avatar.Image src="" alt={account.name} />
