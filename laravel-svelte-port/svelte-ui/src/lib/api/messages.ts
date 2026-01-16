@@ -207,6 +207,14 @@ export async function getPreviousMessages(
 }
 
 /**
+ * Get messages for a conversation (wrapper for getPreviousMessages)
+ */
+export async function getMessages(conversationId: number): Promise<Message[]> {
+  const result = await getPreviousMessages({ conversationId });
+  return result.messages;
+}
+
+/**
  * Translate a message to target language
  */
 export async function translateMessage(

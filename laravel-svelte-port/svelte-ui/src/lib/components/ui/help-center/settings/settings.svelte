@@ -24,7 +24,8 @@
     customJs: ''
   };
 
-  export let onSave: (settings: typeof settings) => void = () => {};
+  type SettingsType = typeof settings;
+  export let onSave: (settings: SettingsType) => void = () => {};
   export let saving = false;
 </script>
 
