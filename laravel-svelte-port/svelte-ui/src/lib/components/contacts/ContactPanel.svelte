@@ -134,7 +134,7 @@
               <Card.Title class="text-sm">Custom Attributes</Card.Title>
             </Card.Header>
             <Card.Content>
-              <CustomAttributes.Root>
+              <div class="space-y-2">
                 {#each Object.entries(customAttributes) as [key, value]}
                   <div class="py-2 border-b last:border-b-0">
                     <p class="text-xs text-muted-foreground mb-1 capitalize">
@@ -143,7 +143,7 @@
                     <p class="text-sm break-all">{value}</p>
                   </div>
                 {/each}
-              </CustomAttributes.Root>
+              </div>
             </Card.Content>
           </Card.Root>
         {/if}

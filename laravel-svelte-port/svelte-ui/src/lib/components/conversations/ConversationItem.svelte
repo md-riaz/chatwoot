@@ -25,10 +25,10 @@
   // Computed values
   const contactName = $derived(contact?.name || 'Unknown');
   const contactThumbnail = $derived(contact?.thumbnail || '');
-  const contactStatus = $derived(contact?.availability_status);
+  const contactStatus = $derived(contact?.availabilityStatus);
   const inboxName = $derived(inbox?.name || '');
   const inboxIcon = $derived(
-    inbox ? getInboxIconByType(inbox.channelType, inbox.channelMedium) : 'inbox'
+    inbox ? getInboxIconByType(inbox.channelType, inbox.channel_medium) : 'inbox'
   );
   
   const lastActivityTime = $derived(() => {
@@ -81,7 +81,7 @@
   });
   
   const lastMessagePreview = $derived(() => {
-    const content = conversation.last_message_content || '';
+    const content = conversation.lastMessageContent || '';
     const maxLength = 80;
     return content.length > maxLength 
       ? content.substring(0, maxLength) + '...' 
