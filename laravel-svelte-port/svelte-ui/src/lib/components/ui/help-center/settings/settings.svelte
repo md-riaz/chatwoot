@@ -31,7 +31,7 @@
 <div class="w-full max-w-4xl mx-auto space-y-6 p-6">
   <div class="flex items-center justify-between">
     <h2 class="text-2xl font-bold">Settings</h2>
-    <Button on:click={() => onSave(settings)} disabled={saving}>
+    <Button onclick={() => onSave(settings)} disabled={saving}>
       {saving ? 'Saving...' : 'Save Changes'}
     </Button>
   </div>

@@ -198,8 +198,9 @@
   <div class="space-y-2">
     <Label for="inbox">WhatsApp Inbox *</Label>
     <Select.Root
-      onValueChange={(value: string | undefined) => { inboxId = value ? parseInt(value) : null; }}
+      onValueChange={(value: any) => { inboxId = value ? parseInt(value) : null; }}
       value={inboxId?.toString()}
+      type="single"
     >
       <Select.Trigger id="inbox" class={errors.inboxId ? 'border-red-500' : ''}>
         <Select.Value placeholder="Select WhatsApp inbox" />
@@ -219,9 +220,10 @@
   <div class="space-y-2">
     <Label for="template">WhatsApp Template *</Label>
     <Select.Root
-      onValueChange={(value: string | undefined) => { templateId = value ? parseInt(value) : null; }}
+      onValueChange={(value: any) => { templateId = value ? parseInt(value) : null; }}
       value={templateId?.toString()}
       disabled={!inboxId}
+      type="single"
     >
       <Select.Trigger id="template" class={errors.templateId ? 'border-red-500' : ''}>
         <Select.Value placeholder={inboxId ? "Select a template" : "Select inbox first"} />

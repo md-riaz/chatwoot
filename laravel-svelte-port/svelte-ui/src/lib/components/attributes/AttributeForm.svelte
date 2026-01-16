@@ -174,12 +174,12 @@
     <div class="space-y-2">
       <Label for="displayType">Attribute Type *</Label>
       <Select.Root
-        value={displayType ? [displayType] : []}
+        value={displayType}
         onValueChange={(value: any) => {
-          const v = Array.isArray(value) ? value[0] : undefined;
-          if (v) displayType = v as typeof displayType;
+          if (value) displayType = value as typeof displayType;
         }}
         disabled={mode === 'edit'}
+        type="single"
       >
         <Select.Trigger class={errors.displayType ? 'border-red-500' : ''}>
           <Select.Value placeholder="Select a type" />
@@ -202,12 +202,12 @@
     <div class="space-y-2">
       <Label for="model">Applies To *</Label>
       <Select.Root
-        value={model ? [model] : []}
+        value={model}
         onValueChange={(value: any) => {
-          const v = Array.isArray(value) ? value[0] : undefined;
-          if (v) model = v as typeof model;
+          if (value) model = value as typeof model;
         }}
         disabled={mode === 'edit'}
+        type="single"
       >
         <Select.Trigger class={errors.model ? 'border-red-500' : ''}>
           <Select.Value placeholder="Select where to apply" />
