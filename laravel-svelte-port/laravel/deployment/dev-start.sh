@@ -343,8 +343,8 @@ sleep 5
 log "Verifying development servers..."
 
 # Check Laravel server
-if curl -f -s http://localhost:8000 >/dev/null 2>&1; then
-    log "✓ Laravel server is running on http://localhost:8000"
+if curl -f -s http://localhost:8000/api/v1 >/dev/null 2>&1; then
+    log "✓ Laravel server is running on http://localhost:8000/api/v1"
 else
     warning "✗ Laravel server is not responding"
 fi
