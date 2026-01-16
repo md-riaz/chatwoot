@@ -8,7 +8,7 @@
   import SearchResults from './SearchResults.svelte';
   
   let isOpen = $state(false);
-  let searchInput: HTMLInputElement;
+  let searchInput = $state<HTMLInputElement | null>(null);
   
   const query = $derived(searchStore.query);
   const isSearching = $derived(searchStore.isSearching);
@@ -84,7 +84,7 @@
         <form onsubmit={handleSearch} class="relative">
           <Search class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            bind:this={searchInput}
+            bind:ref={searchInput}
             type="search"
             name="query"
             placeholder="Search conversations, contacts, messages..."

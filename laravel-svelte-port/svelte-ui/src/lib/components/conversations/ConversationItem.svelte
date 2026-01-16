@@ -136,11 +136,7 @@
         </div>
         
         <!-- Message Preview -->
-        <ConversationCard.Preview>
-          <p class="text-sm text-muted-foreground line-clamp-2">
-            {lastMessagePreview()}
-          </p>
-        </ConversationCard.Preview>
+        <ConversationCard.Preview message={lastMessagePreview()} class="line-clamp-2" />
         
         <!-- Meta Row: Status, Labels, Unread Count -->
         <ConversationCard.Meta>

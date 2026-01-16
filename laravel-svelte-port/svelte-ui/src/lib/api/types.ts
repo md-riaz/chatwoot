@@ -44,6 +44,8 @@ export type UploadProgressCallback = (progress: number) => void;
 export interface UploadOptions {
   onProgress?: UploadProgressCallback;
   signal?: AbortSignal;
+  method?: string;
+  headers?: Record<string, string>;
 }
 
 /**

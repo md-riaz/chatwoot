@@ -148,11 +148,13 @@ export const api = createApiClient();
  */
 export async function uploadFile(
   endpoint: string,
-  file: File,
+  file: File | FormData,
   options: UploadOptions = {}
 ): Promise<any> {
-  const formData = new FormData();
-  formData.append('file', file);
+  const formData = file instanceof FormData ? file : new FormData();
+  if (file instanceof File) {
+    formData.append('file', file);
+  }
 
   // Create XMLHttpRequest for progress tracking
   return new Promise((resolve, reject) => {
@@ -160,10 +162,16 @@ export async function uploadFile(
     const token = getAuthToken();
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
-    xhr.open('POST', `${baseUrl}/${endpoint}`);
+    xhr.open(options.method || 'POST', `${baseUrl}/${endpoint}`);
     
     if (token) {
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    }
+    
+    if (options.headers) {
+      Object.entries(options.headers).forEach(([key, value]) => {
+        xhr.setRequestHeader(key, value);
+      });
     }
 
     // Progress tracking

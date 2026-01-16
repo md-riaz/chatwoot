@@ -13,7 +13,7 @@
   import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar';
   import { Input } from '$lib/components/ui/input';
   import { goto } from '$app/navigation';
-  import { MessageBubble } from '$lib/components/ui/message-bubble';
+  import MessageBubble from '$lib/components/messages/MessageBubble.svelte';
   import { onMount } from 'svelte';
   
   // Using Svelte 5 runes

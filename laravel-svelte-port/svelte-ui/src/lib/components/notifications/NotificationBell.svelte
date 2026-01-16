@@ -5,6 +5,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { Bell, Check, CheckCheck, Trash2 } from '@lucide/svelte';
   import { toast } from 'svelte-sonner';
+  import NotificationItem from './NotificationItem.svelte';
   
   const unreadCount = $derived(notificationsStore.unreadCount);
   const hasUnread = $derived(notificationsStore.hasUnread);
@@ -59,7 +60,13 @@
     </div>
     
     <div class="max-h-96 overflow-y-auto">
-      {@render children?.()}
+      {#if notificationsStore.sortedNotifications.length === 0}
+        <div class="px-4 py-6 text-sm text-muted-foreground">No notifications</div>
+      {:else}
+        {#each notificationsStore.sortedNotifications as n (n.id)}
+          <NotificationItem notification={n} />
+        {/each}
+      {/if}
     </div>
   </DropdownMenu.Content>
 </DropdownMenu.Root>

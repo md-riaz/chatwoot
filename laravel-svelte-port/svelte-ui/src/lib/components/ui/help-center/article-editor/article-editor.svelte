@@ -51,8 +51,8 @@
   let newTag = $state('');
 
   // Use string values directly for shadcn-svelte select
-  let categoryValue = $state<string>(article.category);
-  let localeValue = $state<string>(article.locale);
+  let categoryValue = $state<string>('');
+  let localeValue = $state<string>('');
 
   // Sync back to article
   $effect(() => {

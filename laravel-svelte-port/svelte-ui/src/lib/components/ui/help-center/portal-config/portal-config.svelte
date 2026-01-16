@@ -41,7 +41,7 @@
   const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
   const fonts = ['Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat'];
 
-  let fontFamilyValue = $state<string>(config.fontFamily);
+  let fontFamilyValue = $state<string>('');
 
   $effect(() => {
     config.fontFamily = fontFamilyValue;

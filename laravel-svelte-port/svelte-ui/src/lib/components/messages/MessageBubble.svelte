@@ -7,10 +7,11 @@
   import * as Avatar from '$lib/components/ui/avatar';
   import * as MessageBubble from '$lib/components/ui/message-bubble';
   import { Badge } from '$lib/components/ui/badge';
-  import type { Message } from '$lib/api/messages';
+  import type { Message as MessagesMessage } from '$lib/api/messages';
+  import type { Message as ConversationsMessage } from '$lib/api/conversations';
   
   interface Props {
-    message: Message;
+    message: MessagesMessage | ConversationsMessage;
     isOutgoing?: boolean;
     showAvatar?: boolean;
   }
@@ -25,16 +26,14 @@
   });
   
   const senderName = $derived(message.sender?.name || 'Unknown');
-  const senderAvatar = $derived(message.sender?.avatarUrl || message.sender?.thumbnail || '');
+  const senderAvatar = $derived((message as MessagesMessage).sender?.avatarUrl || (message as MessagesMessage).sender?.thumbnail || '');
   
   const timestamp = $derived(() => {
-    if (!message.createdAt) return '';
+    const created = (message as any).createdAt;
+    if (!created && created !== 0) return '';
     try {
-      const date = new Date(message.createdAt);
-      return date.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
+      const date = new Date(typeof created === 'number' ? created : created);
+      return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     } catch {
       return '';
     }
@@ -77,21 +76,21 @@
     {#if message.attachments && message.attachments.length > 0}
       <div class="mt-2 space-y-2">
         {#each message.attachments as attachment}
-          {#if attachment.fileType === 'image'}
+          {#if (attachment as any).fileType === 'image'}
             <img 
-              src={attachment.dataUrl} 
+              src={(attachment as any).dataUrl} 
               alt="Attachment"
               class="max-w-xs rounded-lg"
             />
           {:else}
             <a 
-              href={attachment.dataUrl}
+              href={(attachment as any).dataUrl}
               class="flex items-center gap-2 p-2 bg-background rounded-md border text-sm hover:bg-accent"
             >
               <span class="flex-1 truncate">File</span>
-              {#if attachment.fileSize}
+              {#if (attachment as any).fileSize}
               <Badge variant="outline" class="text-xs">
-                {(attachment.fileSize / 1024).toFixed(1)} KB
+                {((attachment as any).fileSize / 1024).toFixed(1)} KB
               </Badge>
               {/if}
             </a>
@@ -101,13 +100,9 @@
     {/if}
     
     <!-- Metadata -->
-    <MessageBubble.Timestamp>
-      <div class="flex items-center gap-2 mt-1">
-        <span class="text-xs text-muted-foreground">{timestamp()}</span>
-        {#if message.private}
-          <Badge variant="secondary" class="text-xs">Private</Badge>
-        {/if}
-      </div>
-    </MessageBubble.Timestamp>
+    <MessageBubble.Timestamp time={timestamp()} class="inline-flex items-center gap-2 mt-1" />
+    {#if (message as any).private}
+      <Badge variant="secondary" class="text-xs">Private</Badge>
+    {/if}
   </MessageBubble.Content>
 </MessageBubble.Root>

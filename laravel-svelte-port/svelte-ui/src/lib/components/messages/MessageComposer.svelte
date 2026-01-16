@@ -32,7 +32,7 @@
   let isSending = $state(false);
   let showEmojiPicker = $state(false);
   let showFileUpload = $state(false);
-  let textareaElement: HTMLTextAreaElement | undefined;
+  let textareaElement = $state<HTMLTextAreaElement | null>(null);
   
   // Derived values
   const isSendDisabled = $derived(
@@ -250,7 +250,7 @@
   <!-- Message Input -->
   <Textarea
     bind:value={messageContent}
-    bind:this={textareaElement}
+    bind:ref={textareaElement}
     placeholder={isPrivate ? 'Add a private note...' : 'Type your message...'}
     class="min-h-[80px] resize-none"
     disabled={isSending}
