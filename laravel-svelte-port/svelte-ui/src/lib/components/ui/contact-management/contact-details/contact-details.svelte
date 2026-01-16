@@ -54,7 +54,10 @@
   let localNotes: Note[] = contact?.notes ? [...contact.notes] : [];
   let showEditor = false;
 
-  $: localNotes = contact?.notes ? [...contact.notes] : localNotes;
+  // Use $effect instead of $:
+  $effect(() => {
+    localNotes = contact?.notes ? [...contact.notes] : localNotes;
+  });
 
   function goBack() {
     dispatch('back');
@@ -65,9 +68,11 @@
     showEditor = true;
   }
 
-  $: if (showEditor) {
-  dispatch('edit', contact);
-}
+  $effect(() => {
+    if (showEditor) {
+      dispatch('edit', contact);
+    }
+  });
 
   function addNote() {
     if (!newNote.trim()) return;

@@ -5,30 +5,43 @@
   import { Card } from '$lib/components/ui/card';
   import * as Select from '$lib/components/ui/select';
 
-  export let results: {
+  interface SearchResult {
     id: string;
     title: string;
     content: string;
     category: string;
     locale: string;
     relevance: number;
-  }[] = [];
+  }
 
-  export let recentSearches: string[] = [];
-  export let categories: string[] = [];
-  export let locales: string[] = [];
-  export let onSearch: (query: string, filters: { category?: string; locale?: string }) => void = () => {};
-  export let onResultClick: (id: string) => void = () => {};
-  export let searching = false;
+  interface Props {
+    results?: SearchResult[];
+    recentSearches?: string[];
+    categories?: string[];
+    locales?: string[];
+    onSearch?: (query: string, filters: { category?: string; locale?: string }) => void;
+    onResultClick?: (id: string) => void;
+    searching?: boolean;
+  }
+
+  let {
+    results = [],
+    recentSearches = [],
+    categories = [],
+    locales = [],
+    onSearch = () => {},
+    onResultClick = () => {},
+    searching = false
+  }: Props = $props();
 
   let query = '';
-  let selectedCategory = $state({ value: '' });
-  let selectedLocale = $state({ value: '' });
+  let selectedCategory = $state<string>('');
+  let selectedLocale = $state<string>('');
 
   function handleSearch() {
     const filters: { category?: string; locale?: string } = {};
-    if (selectedCategory.value) filters.category = selectedCategory.value;
-    if (selectedLocale.value) filters.locale = selectedLocale.value;
+    if (selectedCategory) filters.category = selectedCategory;
+    if (selectedLocale) filters.locale = selectedLocale;
     onSearch(query, filters);
   }
 
