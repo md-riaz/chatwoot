@@ -16,7 +16,7 @@
 >
   <!-- Sample messages -->
   <div class="flex items-start gap-2">
-    <div class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+    <div class="shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
       A
     </div>
     <div class="flex-1">

@@ -18,7 +18,7 @@
 <button
 	type="button"
 	{onclick}
-	class="block w-full text-left transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg {className}"
+	class="block w-full text-left transition-shadow hover:shadow-md focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-lg {className}"
 	{...restProps}
 >
 	<Card.Root>

@@ -96,7 +96,7 @@
   <!-- Lightbox -->
   {#if isLightboxOpen && selectedImageIndex !== null}
     <Dialog.Root open={isLightboxOpen} onOpenChange={(open: boolean) => { if (!open) closeLightbox(); }}>
-      <Dialog.Content class="max-w-screen-lg p-0">
+      <Dialog.Content class="max-w-(--breakpoint-lg) p-0">
         <div class="relative">
           <!-- Image -->
           <img

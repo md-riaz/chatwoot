@@ -1,24 +1,30 @@
 <script lang="ts" module>
-  export type FormFieldProps = {
-    name: string;
-    class?: string;
-  };
+	import type { FormPath as _FormPath } from "sveltekit-superforms";
+	type T = Record<string, unknown>;
+	type U = _FormPath<T>;
 </script>
 
-<script lang="ts">
-  import { cn } from '$lib/utils';
-  import type { Snippet } from 'svelte';
-  
-  let {
-    name,
-    class: className,
-    children,
-    ...restProps
-  }: FormFieldProps & { children?: Snippet } = $props();
+<script lang="ts" generics="T extends Record<string, unknown>, U extends _FormPath<T>">
+	import * as FormPrimitive from "formsnap";
+	import type { WithoutChildren, WithElementRef } from "bits-ui";
+	import { cn } from "$lib/utils.js";
+	import type { HTMLAttributes } from "svelte/elements";
+
+	let {
+		ref = $bindable(null),
+		class: className,
+		form,
+		name,
+		children: childrenProp,
+		...restProps
+	}: FormPrimitive.FieldProps<T, U> &
+		WithoutChildren<WithElementRef<HTMLAttributes<HTMLDivElement>>> = $props();
 </script>
 
-<div class={cn('space-y-2', className)} {...restProps}>
-  {#if children}
-    {@render children()}
-  {/if}
-</div>
+<FormPrimitive.Field {form} {name}>
+	{#snippet children({ constraints, errors, tainted, value })}
+		<div bind:this={ref} class={cn("space-y-2", className)} {...restProps}>
+			{@render childrenProp?.({ constraints, errors, tainted, value: value as T[U] })}
+		</div>
+	{/snippet}
+</FormPrimitive.Field>

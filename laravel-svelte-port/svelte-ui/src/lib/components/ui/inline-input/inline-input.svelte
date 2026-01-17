@@ -42,7 +42,7 @@
     class={cn(
       'w-full bg-transparent text-sm',
       'border-0 border-b border-input focus:border-primary',
-      'outline-none transition-colors',
+      'outline-hidden transition-colors',
       'py-1.5 px-0',
       'placeholder:text-muted-foreground',
       'disabled:cursor-not-allowed disabled:opacity-50',

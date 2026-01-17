@@ -68,14 +68,14 @@
 	}
 
 	// Get role badge variant
-	function getRoleBadgeVariant(role: string): 'default' | 'secondary' | 'outline' {
+	function getRoleBadgeVariant(role: string): 'default' | 'secondary' | 'outline-solid' {
 		switch (role) {
 			case 'Admin':
 				return 'default';
 			case 'Agent':
 				return 'secondary';
 			default:
-				return 'outline';
+				return 'outline-solid';
 		}
 	}
 
@@ -92,14 +92,14 @@
 	}
 
 	// Get availability badge variant
-	function getAvailabilityVariant(availability: string): 'default' | 'secondary' | 'outline' {
+	function getAvailabilityVariant(availability: string): 'default' | 'secondary' | 'outline-solid' {
 		switch (availability) {
 			case 'Online':
 				return 'default';
 			case 'Away':
 				return 'secondary';
 			default:
-				return 'outline';
+				return 'outline-solid';
 		}
 	}
 

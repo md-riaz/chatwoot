@@ -29,7 +29,7 @@
 </script>
 
 <div
-  class="rounded-t-lg flex-shrink-0 transition-[max-height] duration-300"
+  class="rounded-t-lg shrink-0 transition-[max-height] duration-300"
   class:bg-slate-100={showDefaultScreen}
   class:dark:bg-slate-900={showDefaultScreen}
   class:px-4={showDefaultScreen}
@@ -64,12 +64,12 @@
     {#if showDefaultScreen}
       <div class="overflow-auto max-h-60">
         {#if welcomeHeading}
-          <h2 class="mb-2 text-2xl break-words text-slate-900 dark:text-slate-100">
+          <h2 class="mb-2 text-2xl wrap-break-word text-slate-900 dark:text-slate-100">
             {welcomeHeading}
           </h2>
         {/if}
         {#if welcomeTagline}
-          <p class="text-sm break-words text-slate-600 dark:text-slate-400">
+          <p class="text-sm wrap-break-word text-slate-600 dark:text-slate-400">
             {@html welcomeTagline}
           </p>
         {/if}

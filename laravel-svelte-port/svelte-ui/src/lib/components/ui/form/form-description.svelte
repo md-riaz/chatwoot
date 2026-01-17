@@ -1,22 +1,17 @@
-<script lang="ts" module>
-  export type FormDescriptionProps = {
-    class?: string;
-  };
-</script>
-
 <script lang="ts">
-  import { cn } from '$lib/utils';
-  import type { Snippet } from 'svelte';
-  
-  let {
-    class: className,
-    children,
-    ...restProps
-  }: FormDescriptionProps & { children?: Snippet } = $props();
+	import * as FormPrimitive from "formsnap";
+	import type { WithoutChild } from "bits-ui";
+	import { cn } from "$lib/utils.js";
+
+	let {
+		ref = $bindable(null),
+		class: className,
+		...restProps
+	}: WithoutChild<FormPrimitive.DescriptionProps> = $props();
 </script>
 
-<p class={cn('text-sm text-muted-foreground', className)} {...restProps}>
-  {#if children}
-    {@render children()}
-  {/if}
-</p>
+<FormPrimitive.Description
+	bind:ref
+	class={cn("text-muted-foreground text-sm", className)}
+	{...restProps}
+/>

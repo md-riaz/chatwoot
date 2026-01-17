@@ -75,7 +75,7 @@
           <Card.Content class="space-y-3">
             {#if email}
               <div class="flex items-start gap-3">
-                <Mail class="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                <Mail class="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
                 <div class="flex-1 min-w-0">
                   <p class="text-xs text-muted-foreground">Email</p>
                   <a 
@@ -90,7 +90,7 @@
             
             {#if phoneNumber}
               <div class="flex items-start gap-3">
-                <Phone class="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                <Phone class="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
                 <div class="flex-1 min-w-0">
                   <p class="text-xs text-muted-foreground">Phone</p>
                   <a 
@@ -105,7 +105,7 @@
             
             {#if contact.company}
               <div class="flex items-start gap-3">
-                <Building class="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                <Building class="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
                 <div class="flex-1 min-w-0">
                   <p class="text-xs text-muted-foreground">Company</p>
                   <p class="text-sm break-all">{contact.company}</p>
@@ -115,7 +115,7 @@
             
             {#if contact.city || contact.country}
               <div class="flex items-start gap-3">
-                <MapPin class="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                <MapPin class="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
                 <div class="flex-1 min-w-0">
                   <p class="text-xs text-muted-foreground">Location</p>
                   <p class="text-sm break-all">

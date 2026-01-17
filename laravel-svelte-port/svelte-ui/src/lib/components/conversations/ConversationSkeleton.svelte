@@ -16,7 +16,7 @@
   {#each Array(count) as _, i (i)}
     <div class="flex gap-3 p-3 border-b">
       <!-- Avatar skeleton -->
-      <Skeleton.Root class="h-10 w-10 rounded-full flex-shrink-0" />
+      <Skeleton.Root class="h-10 w-10 rounded-full shrink-0" />
       
       <!-- Content skeleton -->
       <div class="flex flex-col gap-2 flex-1">

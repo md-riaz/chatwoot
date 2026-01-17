@@ -119,7 +119,7 @@
       <div class="space-y-4">
         {#each Array(5) as _, i (i)}
           <div class="flex gap-2 {i % 2 === 0 ? '' : 'flex-row-reverse'}">
-            <Skeleton.Root class="h-8 w-8 rounded-full flex-shrink-0" />
+            <Skeleton.Root class="h-8 w-8 rounded-full shrink-0" />
             <div class="flex flex-col gap-2 flex-1 max-w-md">
               <Skeleton.Root class="h-4 w-24" />
               <Skeleton.Root class="h-16 w-full rounded-lg" />

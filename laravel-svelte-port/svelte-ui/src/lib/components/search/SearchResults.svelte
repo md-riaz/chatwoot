@@ -57,7 +57,7 @@
             class="w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors flex items-start gap-3"
             onclick={() => handleResultClick(result)}
           >
-            <MessageCircle class="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" />
+            <MessageCircle class="h-5 w-5 text-gray-400 shrink-0 mt-0.5" />
             <div class="flex-1 min-w-0">
               <p class="font-medium text-sm truncate">{result.title}</p>
               {#if result.description}
@@ -112,7 +112,7 @@
             class="w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors flex items-start gap-3"
             onclick={() => handleResultClick(result)}
           >
-            <Mail class="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" />
+            <Mail class="h-5 w-5 text-gray-400 shrink-0 mt-0.5" />
             <div class="flex-1 min-w-0">
               <p class="text-sm truncate">{result.description || result.title}</p>
               <p class="text-xs text-gray-400 mt-1">{formatDate(result.createdAt)}</p>

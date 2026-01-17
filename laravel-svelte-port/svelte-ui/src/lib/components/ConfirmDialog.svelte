@@ -8,7 +8,7 @@
     description: string;
     confirmText?: string;
     cancelText?: string;
-    variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+    variant?: 'default' | 'destructive' | 'outline-solid' | 'secondary' | 'ghost' | 'link';
     onConfirm?: () => void;
     onCancel?: () => void;
   }

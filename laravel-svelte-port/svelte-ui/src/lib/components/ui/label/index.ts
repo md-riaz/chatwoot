@@ -1,14 +1,7 @@
-import Root from './label.svelte';
-
-type Props = {
-  class?: string;
-  for?: string;
-};
+import Root from "./label.svelte";
 
 export {
-  Root,
-  type Props,
-  //
-  Root as Label,
-  type Props as LabelProps
+	Root,
+	//
+	Root as Label,
 };

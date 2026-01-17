@@ -1,17 +1,16 @@
 <script lang="ts">
-  import { cn } from '$lib/utils';
-  import type { Snippet } from 'svelte';
+	import type { WithElementRef } from "bits-ui";
+	import type { HTMLAttributes } from "svelte/elements";
+	import { cn } from "$lib/utils.js";
 
-  type Props = {
-    class?: string;
-    children?: Snippet;
-  };
-
-  let { class: className, children, ...restProps }: Props = $props();
+	let {
+		ref = $bindable(null),
+		class: className,
+		children,
+		...restProps
+	}: WithElementRef<HTMLAttributes<HTMLParagraphElement>> = $props();
 </script>
 
-<p class={cn('text-sm text-muted-foreground', className)} {...restProps}>
-  {#if children}
-    {@render children()}
-  {/if}
+<p bind:this={ref} class={cn("text-muted-foreground text-sm", className)} {...restProps}>
+	{@render children?.()}
 </p>

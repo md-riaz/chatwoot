@@ -206,7 +206,7 @@
                   variant={
                     conversation.status === 'open' ? 'default' : 
                     conversation.status === 'resolved' ? 'secondary' : 
-                    'outline'
+                    'outline-solid'
                   }
                 >
                   {conversation.status}
@@ -252,7 +252,7 @@
                   variant={
                     conversation.status === 'open' ? 'default' : 
                     conversation.status === 'resolved' ? 'secondary' : 
-                    'outline'
+                    'outline-solid'
                   }
                 >
                   {conversation.status}
@@ -298,7 +298,7 @@
                   variant={
                     conversation.status === 'open' ? 'default' : 
                     conversation.status === 'resolved' ? 'secondary' : 
-                    'outline'
+                    'outline-solid'
                   }
                 >
                   {conversation.status}

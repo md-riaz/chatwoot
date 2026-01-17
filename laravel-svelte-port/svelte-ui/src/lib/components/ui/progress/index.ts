@@ -1,15 +1,7 @@
-import Root from './progress.svelte';
-
-type Props = {
-  class?: string;
-  value?: number;
-  max?: number;
-};
+import Root from "./progress.svelte";
 
 export {
-  Root,
-  type Props,
-  //
-  Root as Progress,
-  type Props as ProgressProps
+	Root,
+	//
+	Root as Progress,
 };

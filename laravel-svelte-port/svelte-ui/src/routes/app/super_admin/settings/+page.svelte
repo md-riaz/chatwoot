@@ -348,7 +348,7 @@
 
 									{#if setting.locked}
 										<div class="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/20 p-3 rounded-md border border-amber-200 dark:border-amber-800">
-											<AlertCircle class="h-4 w-4 flex-shrink-0" />
+											<AlertCircle class="h-4 w-4 shrink-0" />
 											<span>This setting is locked and cannot be modified.</span>
 										</div>
 									{/if}

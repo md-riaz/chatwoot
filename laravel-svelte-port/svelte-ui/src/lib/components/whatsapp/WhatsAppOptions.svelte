@@ -70,7 +70,7 @@
   </Button>
 
   {#if showTemplatesMenu}
-    <div class="absolute top-full mt-1.5 max-h-96 overflow-y-auto left-0 flex flex-col gap-2 p-4 items-center w-[21.875rem] h-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg rounded-lg z-50">
+    <div class="absolute top-full mt-1.5 max-h-96 overflow-y-auto left-0 flex flex-col gap-2 p-4 items-center w-87.5 h-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg rounded-lg z-50">
       <!-- Search Input -->
       <div class="relative w-full">
         <Search class="absolute size-3.5 top-2 left-3 text-slate-400" />

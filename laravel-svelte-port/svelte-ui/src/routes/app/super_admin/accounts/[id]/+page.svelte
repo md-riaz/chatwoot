@@ -273,7 +273,7 @@
 	<!-- Main Content -->
 	<main class="flex-1 overflow-auto bg-background p-8">
 		{#if loading}
-			<div class="bg-card rounded-lg shadow-sm p-8">
+			<div class="bg-card rounded-lg shadow-xs p-8">
 				<div class="animate-pulse space-y-4">
 					<div class="h-4 bg-muted rounded w-1/4"></div>
 					<div class="h-4 bg-muted rounded w-1/2"></div>
@@ -282,7 +282,7 @@
 			</div>
 		{:else}
 			<!-- Basic Information Section -->
-			<section class="bg-card rounded-lg shadow-sm mb-6">
+			<section class="bg-card rounded-lg shadow-xs mb-6">
 				<div class="px-6 py-4 border-b border-border">
 					<h2 class="text-lg font-medium text-foreground">Basic Information</h2>
 				</div>
@@ -321,7 +321,7 @@
 			</section>
 
 			<!-- Account Limits Section -->
-			<section class="bg-card rounded-lg shadow-sm mb-6">
+			<section class="bg-card rounded-lg shadow-xs mb-6">
 				<div class="px-6 py-4 border-b border-border">
 					<h2 class="text-lg font-medium text-foreground">Account Limits</h2>
 					<p class="text-sm text-muted-foreground mt-1">Usage limits configured for this account</p>
@@ -353,7 +353,7 @@
 			</section>
 
 			<!-- Statistics Section -->
-			<section class="bg-card rounded-lg shadow-sm mb-6">
+			<section class="bg-card rounded-lg shadow-xs mb-6">
 				<div class="px-6 py-4 border-b border-border">
 					<h2 class="text-lg font-medium text-foreground">Statistics</h2>
 				</div>
@@ -380,7 +380,7 @@
 			</section>
 
 			<!-- Account Users Section -->
-			<section class="bg-card rounded-lg shadow-sm mb-6">
+			<section class="bg-card rounded-lg shadow-xs mb-6">
 				<div class="px-6 py-4 border-b border-border">
 					<h2 class="text-lg font-medium text-foreground">Account Users</h2>
 					<p class="text-sm text-muted-foreground mt-1">Users with access to this account</p>
@@ -451,7 +451,7 @@
 
 			<!-- Configuration Section -->
 			{#if formData.domain || formData.supportEmail || formData.autoResolveDuration}
-				<section class="bg-card rounded-lg shadow-sm mb-6">
+				<section class="bg-card rounded-lg shadow-xs mb-6">
 					<div class="px-6 py-4 border-b border-border">
 						<h2 class="text-lg font-medium text-foreground">Configuration</h2>
 					</div>
@@ -481,7 +481,7 @@
 			{/if}
 
 			<!-- Custom Attributes Section -->
-			<section class="bg-card rounded-lg shadow-sm mb-6">
+			<section class="bg-card rounded-lg shadow-xs mb-6">
 				<div class="px-6 py-4 border-b border-border">
 					<h2 class="text-lg font-medium text-foreground">Custom Attributes</h2>
 				</div>
@@ -502,7 +502,7 @@
 			</section>
 
 			<!-- Feature Flags Section -->
-			<section class="bg-card rounded-lg shadow-sm mb-6">
+			<section class="bg-card rounded-lg shadow-xs mb-6">
 				<div class="px-6 py-4 border-b border-border">
 					<h2 class="text-lg font-medium text-foreground">Feature Flags</h2>
 					<p class="text-sm text-muted-foreground mt-1">Enabled features for this account</p>
@@ -518,7 +518,7 @@
 			</section>
 
 			<!-- Account Actions Section -->
-			<section class="bg-card rounded-lg shadow-sm mb-6">
+			<section class="bg-card rounded-lg shadow-xs mb-6">
 				<div class="px-6 py-4 border-b border-border">
 					<h2 class="text-lg font-medium text-foreground">Account Actions</h2>
 				</div>

@@ -188,7 +188,7 @@
 					<h4 class="text-sm font-medium text-foreground mb-3">{category}</h4>
 					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 						{#each features as feature}
-							<div class="flex items-center justify-between p-3 bg-card rounded-lg shadow-sm border border-border hover:bg-accent/50 transition-colors">
+							<div class="flex items-center justify-between p-3 bg-card rounded-lg shadow-xs border border-border hover:bg-accent/50 transition-colors">
 								<span class="text-sm text-foreground">{formatFeatureName(feature)}</span>
 								<input
 									type="checkbox"
@@ -215,7 +215,7 @@
 						<h4 class="text-sm font-medium text-foreground mb-3">{category}</h4>
 						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 							{#each features as feature}
-								<div class="flex items-center justify-between p-3 bg-card rounded-lg shadow-sm border border-border hover:bg-accent/50 transition-colors">
+								<div class="flex items-center justify-between p-3 bg-card rounded-lg shadow-xs border border-border hover:bg-accent/50 transition-colors">
 									<div class="flex items-center gap-2">
 										<span class="text-amber-500 dark:text-amber-400">
 											<Star class="h-4 w-4" fill="currentColor" />

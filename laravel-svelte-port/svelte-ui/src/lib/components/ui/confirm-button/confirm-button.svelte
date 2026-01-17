@@ -2,7 +2,7 @@
   import { cn } from '$lib/utils';
   import { Button } from '$lib/components/ui/button';
 
-  type ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  type ButtonVariant = 'default' | 'destructive' | 'outline-solid' | 'secondary' | 'ghost' | 'link';
 
   let {
     label = 'Click',

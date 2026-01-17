@@ -25,7 +25,7 @@
   {rows}
   {disabled}
   class={cn(
-    'w-full resize-none border-0 bg-transparent text-sm focus:outline-none focus:ring-0 placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
+    'w-full resize-none border-0 bg-transparent text-sm focus:outline-hidden focus:ring-0 placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
     className
   )}
   {...restProps}

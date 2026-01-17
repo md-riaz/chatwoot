@@ -189,7 +189,7 @@
 
 						<!-- Action button -->
 						<Button
-							variant={integration.status === 'connected' ? 'outline' : 'default'}
+							variant={integration.status === 'connected' ? 'outline-solid' : 'default'}
 							size="sm"
 							class="w-full"
 						>

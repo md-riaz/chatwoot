@@ -1,26 +1,24 @@
 <script lang="ts">
-  import { Accordion as AccordionPrimitive } from 'bits-ui';
-  import { cn } from '$lib/utils';
-  import type { Snippet } from 'svelte';
+	import { Accordion as AccordionPrimitive, type WithoutChild } from "bits-ui";
+	import { cn } from "$lib/utils.js";
 
-  type Props = {
-    class?: string;
-    children?: Snippet;
-  };
-
-  let { class: className, children, ...restProps }: Props = $props();
+	let {
+		ref = $bindable(null),
+		class: className,
+		children,
+		...restProps
+	}: WithoutChild<AccordionPrimitive.ContentProps> = $props();
 </script>
 
 <AccordionPrimitive.Content
-  class={cn(
-    'overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down',
-    className
-  )}
-  {...restProps}
+	bind:ref
+	class={cn(
+		"data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm transition-all",
+		className
+	)}
+	{...restProps}
 >
-  <div class="pb-4 pt-0">
-    {#if children}
-      {@render children()}
-    {/if}
-  </div>
+	<div class="pb-4 pt-0">
+		{@render children?.()}
+	</div>
 </AccordionPrimitive.Content>

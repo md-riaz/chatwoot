@@ -50,7 +50,7 @@
 
   const statusVariant = $derived(
     status === 'draft' ? 'secondary' : 
-    status === 'archived' ? 'outline' : 
+    status === 'archived' ? 'outline-solid' : 
     'default'
   );
 </script>

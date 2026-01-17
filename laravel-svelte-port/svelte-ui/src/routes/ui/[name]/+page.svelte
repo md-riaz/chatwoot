@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <div class="p-8 border rounded-xl bg-card text-card-foreground shadow-sm min-h-[300px] flex flex-col items-center justify-center gap-8">
+  <div class="p-8 border rounded-xl bg-card text-card-foreground shadow-xs min-h-[300px] flex flex-col items-center justify-center gap-8">
     {#if componentName === 'button'}
       <div class="flex flex-col gap-6 items-center">
         <div class="flex gap-2 flex-wrap justify-center">

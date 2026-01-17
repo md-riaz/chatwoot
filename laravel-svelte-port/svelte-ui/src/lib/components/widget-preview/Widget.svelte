@@ -83,7 +83,7 @@
     <!-- Widget window -->
     {#if isWidgetVisible}
       <div
-        class="absolute bottom-24 {widgetBubblePosition === 'left' ? 'left-6' : 'right-6'} w-96 h-[32rem] bg-white dark:bg-slate-950 rounded-lg shadow-2xl flex flex-col overflow-hidden transition-all duration-300"
+        class="absolute bottom-24 {widgetBubblePosition === 'left' ? 'left-6' : 'right-6'} w-96 h-128 bg-white dark:bg-slate-950 rounded-lg shadow-2xl flex flex-col overflow-hidden transition-all duration-300"
         style="border-top: 4px solid {color}"
       >
         <WidgetHead

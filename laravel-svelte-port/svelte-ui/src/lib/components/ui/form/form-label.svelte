@@ -1,36 +1,21 @@
-<script lang="ts" module>
-  export type FormLabelProps = {
-    for?: string;
-    required?: boolean;
-    class?: string;
-  };
-</script>
-
 <script lang="ts">
-  import { cn } from '$lib/utils';
-  import type { Snippet } from 'svelte';
-  
-  let {
-    for: htmlFor,
-    required = false,
-    class: className,
-    children,
-    ...restProps
-  }: FormLabelProps & { children?: Snippet } = $props();
+	import type { WithoutChild } from "bits-ui";
+	import * as FormPrimitive from "formsnap";
+	import { Label } from "$lib/components/ui/label/index.js";
+	import { cn } from "$lib/utils.js";
+
+	let {
+		ref = $bindable(null),
+		children,
+		class: className,
+		...restProps
+	}: WithoutChild<FormPrimitive.LabelProps> = $props();
 </script>
 
-<label
-  for={htmlFor}
-  class={cn(
-    'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-    className
-  )}
-  {...restProps}
->
-  {#if children}
-    {@render children()}
-  {/if}
-  {#if required}
-    <span class="text-destructive ml-1">*</span>
-  {/if}
-</label>
+<FormPrimitive.Label {...restProps} bind:ref>
+	{#snippet child({ props })}
+		<Label {...props} class={cn("data-[fs-error]:text-destructive", className)}>
+			{@render children?.()}
+		</Label>
+	{/snippet}
+</FormPrimitive.Label>

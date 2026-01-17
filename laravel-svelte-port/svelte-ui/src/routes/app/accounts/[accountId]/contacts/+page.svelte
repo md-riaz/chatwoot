@@ -134,21 +134,21 @@
                   
                   {#if contact.email}
                     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                      <Mail class="h-3 w-3 flex-shrink-0" />
+                      <Mail class="h-3 w-3 shrink-0" />
                       <span class="truncate">{contact.email}</span>
                     </div>
                   {/if}
                   
                   {#if contact.phoneNumber}
                     <div class="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                      <Phone class="h-3 w-3 flex-shrink-0" />
+                      <Phone class="h-3 w-3 shrink-0" />
                       <span class="truncate">{contact.phoneNumber}</span>
                     </div>
                   {/if}
                   
                   {#if contact.company}
                     <div class="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Building class="h-3 w-3 flex-shrink-0" />
+                      <Building class="h-3 w-3 shrink-0" />
                       <span class="truncate">{contact.company}</span>
                     </div>
                   {/if}

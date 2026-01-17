@@ -27,7 +27,7 @@
 
 <div
   class={cn(
-    'relative p-4 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-lg',
+    'relative p-4 bg-linear-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-lg',
     className
   )}
   {...restProps}

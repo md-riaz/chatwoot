@@ -8,6 +8,7 @@ export interface NavigationItem {
   icon?: string;
   href: string;
   badge?: number;
+  activeOn?: string[];
   children?: NavigationItem[];
 }
 

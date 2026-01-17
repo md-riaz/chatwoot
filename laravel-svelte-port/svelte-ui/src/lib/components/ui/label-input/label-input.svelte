@@ -90,7 +90,7 @@
       <div class="absolute z-50 top-full left-0 mt-1 w-64 bg-popover border rounded-md shadow-lg">
         <input
           type="text"
-          class="w-full px-3 py-2 text-sm border-b bg-transparent outline-none"
+          class="w-full px-3 py-2 text-sm border-b bg-transparent outline-hidden"
           placeholder="Search labels..."
           bind:value={searchQuery}
         />

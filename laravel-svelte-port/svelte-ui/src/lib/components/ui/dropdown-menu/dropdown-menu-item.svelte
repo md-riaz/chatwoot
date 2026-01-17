@@ -1,35 +1,23 @@
 <script lang="ts">
-  import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
-  import { cn } from '$lib/utils';
-  import type { Snippet } from 'svelte';
+	import { cn } from "$lib/utils.js";
+	import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
 
-  type Props = {
-    class?: string;
-    inset?: boolean;
-    children?: Snippet;
-    onclick?: () => void;
-    disabled?: boolean;
-  };
-
-  let {
-    class: className,
-    inset = false,
-    children,
-    onclick,
-    ...restProps
-  }: Props = $props();
+	let {
+		ref = $bindable(null),
+		class: className,
+		inset,
+		...restProps
+	}: DropdownMenuPrimitive.ItemProps & {
+		inset?: boolean;
+	} = $props();
 </script>
 
 <DropdownMenuPrimitive.Item
-  class={cn(
-    'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-    inset && 'pl-8',
-    className
-  )}
-  onselect={onclick}
-  {...restProps}
->
-  {#if children}
-    {@render children()}
-  {/if}
-</DropdownMenuPrimitive.Item>
+	bind:ref
+	class={cn(
+		"data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+		inset && "pl-8",
+		className
+	)}
+	{...restProps}
+/>

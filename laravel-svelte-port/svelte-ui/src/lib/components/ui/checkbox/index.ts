@@ -1,20 +1,6 @@
-import Root from './checkbox.svelte';
-
-type Props = {
-  class?: string;
-  checked?: boolean | 'indeterminate';
-  disabled?: boolean;
-  required?: boolean;
-  name?: string;
-  value?: string;
-  onclick?: (event: MouseEvent) => void;
-  onchange?: (event: Event) => void;
-};
-
+import Root from "./checkbox.svelte";
 export {
-  Root,
-  type Props,
-  //
-  Root as Checkbox,
-  type Props as CheckboxProps
+	Root,
+	//
+	Root as Checkbox,
 };

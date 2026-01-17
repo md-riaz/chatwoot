@@ -95,7 +95,7 @@
   <ConversationCard.Header>
     <div class="flex items-start gap-3 w-full">
       <!-- Contact Avatar -->
-      <Avatar.Root class="h-10 w-10 flex-shrink-0">
+      <Avatar.Root class="h-10 w-10 shrink-0">
         <Avatar.Image src={contactThumbnail} alt={contactName} />
         <Avatar.Fallback>
           {contactName.charAt(0).toUpperCase()}
@@ -110,7 +110,7 @@
             {contactName}
           </h4>
           
-          <div class="flex items-center gap-2 flex-shrink-0">
+          <div class="flex items-center gap-2 shrink-0">
             <!-- Priority Badge -->
             {#if priorityConfig()}
               <Badge variant={priorityConfig()?.variant as any} class="text-xs">

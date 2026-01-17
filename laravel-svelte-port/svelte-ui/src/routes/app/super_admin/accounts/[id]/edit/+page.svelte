@@ -163,7 +163,7 @@
 	<!-- Main Content -->
 	<main class="flex-1 overflow-auto bg-background p-8">
 		{#if loading}
-			<div class="bg-card rounded-lg shadow-sm p-8">
+			<div class="bg-card rounded-lg shadow-xs p-8">
 				<div class="animate-pulse space-y-4">
 					<div class="h-4 bg-muted rounded w-1/4"></div>
 					<div class="h-4 bg-muted rounded w-1/2"></div>
@@ -173,7 +173,7 @@
 		{:else}
 			<form onsubmit={handleSubmit} class="space-y-6">
 				<!-- Account Information Section -->
-				<section class="bg-card rounded-lg shadow-sm">
+				<section class="bg-card rounded-lg shadow-xs">
 					<div class="px-6 py-4 border-b border-border">
 						<h2 class="text-lg font-medium text-foreground">Account Information</h2>
 						<p class="text-sm text-muted-foreground mt-1">Update basic account details</p>
@@ -259,7 +259,7 @@
 				</section>
 
 				<!-- Feature Flags Section -->
-				<section class="bg-card rounded-lg shadow-sm">
+				<section class="bg-card rounded-lg shadow-xs">
 					<div class="px-6 py-4 border-b border-border">
 						<h2 class="text-lg font-medium text-foreground">Feature Flags</h2>
 						<p class="text-sm text-muted-foreground mt-1">Enable or disable features for this account</p>
@@ -275,7 +275,7 @@
 				</section>
 
 				<!-- Account Limits Section -->
-				<section class="bg-card rounded-lg shadow-sm">
+				<section class="bg-card rounded-lg shadow-xs">
 					<div class="px-6 py-4 border-b border-border">
 						<h2 class="text-lg font-medium text-foreground">Account Limits</h2>
 						<p class="text-sm text-muted-foreground mt-1">Set usage limits for this account</p>
@@ -316,7 +316,7 @@
 				</section>
 
 				<!-- Form Actions -->
-				<div class="flex items-center justify-end space-x-4 bg-card rounded-lg shadow-sm p-6">
+				<div class="flex items-center justify-end space-x-4 bg-card rounded-lg shadow-xs p-6">
 					<Button type="button" variant="outline" onclick={() => goto(`/app/super_admin/accounts/${accountId}`)} disabled={submitting}>
 						Cancel
 					</Button>

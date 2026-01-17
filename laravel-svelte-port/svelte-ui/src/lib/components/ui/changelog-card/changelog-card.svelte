@@ -24,7 +24,7 @@
     onclick?: (entry: ChangelogEntry) => void;
   } = $props();
 
-  const typeConfig: Record<ChangelogEntry['type'], { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
+  const typeConfig: Record<ChangelogEntry['type'], { variant: 'default' | 'secondary' | 'destructive' | 'outline-solid'; label: string }> = {
     feature: { variant: 'default', label: 'New Feature' },
     improvement: { variant: 'secondary', label: 'Improvement' },
     fix: { variant: 'outline', label: 'Bug Fix' },

@@ -227,7 +227,7 @@
 									<button
 										type="button"
 										onclick={() => selectUser(user)}
-										class="w-full px-4 py-2 text-left hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+										class="w-full px-4 py-2 text-left hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-hidden"
 									>
 										<div class="font-medium">{user.displayName || user.name}</div>
 										<div class="text-sm text-muted-foreground">{user.email}</div>

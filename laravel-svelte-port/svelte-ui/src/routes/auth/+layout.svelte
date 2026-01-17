@@ -25,7 +25,7 @@
     </div>
     
     <!-- Content -->
-    <div class="rounded-lg border bg-card p-8 shadow-sm">
+    <div class="rounded-lg border bg-card p-8 shadow-xs">
       {@render children()}
     </div>
     

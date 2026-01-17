@@ -82,7 +82,7 @@
   }
 </script>
 
-<header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+<header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60">
   <div class="flex h-16 items-center px-4 gap-4">
     <!-- Mobile menu toggle -->
     <Button

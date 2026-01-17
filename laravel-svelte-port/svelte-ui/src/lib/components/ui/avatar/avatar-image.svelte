@@ -1,32 +1,12 @@
 <script lang="ts">
-  import { cn } from '$lib/utils';
+	import { Avatar as AvatarPrimitive } from "bits-ui";
+	import { cn } from "$lib/utils.js";
 
-  type Props = {
-    class?: string;
-    src?: string;
-    alt?: string;
-  };
-
-  let {
-    class: className,
-    src,
-    alt = '',
-    ...restProps
-  }: Props = $props();
-
-  let hasError = $state(false);
-
-  function handleError() {
-    hasError = true;
-  }
+	let {
+		ref = $bindable(null),
+		class: className,
+		...restProps
+	}: AvatarPrimitive.ImageProps = $props();
 </script>
 
-{#if src && !hasError}
-  <img
-    {src}
-    {alt}
-    class={cn('aspect-square h-full w-full object-cover', className)}
-    onerror={handleError}
-    {...restProps}
-  />
-{/if}
+<AvatarPrimitive.Image bind:ref class={cn("aspect-square size-full", className)} {...restProps} />

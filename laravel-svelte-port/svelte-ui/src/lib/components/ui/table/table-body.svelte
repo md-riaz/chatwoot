@@ -1,18 +1,16 @@
 <script lang="ts">
-  import { cn } from '$lib/utils';
-  import type { Snippet } from 'svelte';
-  import type { HTMLAttributes } from 'svelte/elements';
+	import type { HTMLAttributes } from "svelte/elements";
+	import type { WithElementRef } from "bits-ui";
+	import { cn } from "$lib/utils.js";
 
-  type Props = HTMLAttributes<HTMLTableSectionElement> & {
-    class?: string;
-    children?: Snippet;
-  };
-
-  let { class: className, children, ...restProps }: Props = $props();
+	let {
+		ref = $bindable(null),
+		class: className,
+		children,
+		...restProps
+	}: WithElementRef<HTMLAttributes<HTMLTableSectionElement>> = $props();
 </script>
 
-<tbody class={cn('[&_tr:last-child]:border-0', className)} {...restProps}>
-  {#if children}
-    {@render children()}
-  {/if}
+<tbody bind:this={ref} class={cn("[&_tr:last-child]:border-0", className)} {...restProps}>
+	{@render children?.()}
 </tbody>

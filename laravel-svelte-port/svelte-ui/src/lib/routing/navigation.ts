@@ -107,6 +107,11 @@ export function reportsURL(accountId: number | string, reportType?: string): str
   return reportType ? `${base}/${reportType}` : base;
 }
 
+export function accountScopedPath(accountId: number | string, path: string): string {
+  const clean = path.startsWith('/') ? path.slice(1) : path;
+  return `/app/accounts/${accountId}/${clean}`;
+}
+
 /**
  * Check if current route matches path
  */
@@ -121,6 +126,11 @@ export function isCurrentRoute(path: string): boolean {
 export function isRouteActive(path: string): boolean {
   if (typeof window === 'undefined') return false;
   return window.location.pathname.startsWith(path);
+}
+
+export function isAnyRouteActive(paths: string[]): boolean {
+  if (typeof window === 'undefined') return false;
+  return paths.some(path => window.location.pathname.startsWith(path));
 }
 
 /**

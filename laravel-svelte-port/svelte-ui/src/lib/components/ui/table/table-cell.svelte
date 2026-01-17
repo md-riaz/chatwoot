@@ -1,23 +1,20 @@
 <script lang="ts">
-  import { cn } from '$lib/utils';
-  import type { Snippet } from 'svelte';
-  import type { HTMLAttributes } from 'svelte/elements';
+	import type { HTMLTdAttributes } from "svelte/elements";
+	import type { WithElementRef } from "bits-ui";
+	import { cn } from "$lib/utils.js";
 
-  type Props = HTMLAttributes<HTMLTableCellElement> & {
-    class?: string;
-    colspan?: number;
-    rowspan?: number;
-    children?: Snippet;
-  };
-
-  let { class: className, children, ...restProps }: Props = $props();
+	let {
+		ref = $bindable(null),
+		class: className,
+		children,
+		...restProps
+	}: WithElementRef<HTMLTdAttributes> = $props();
 </script>
 
 <td
-  class={cn('p-4 align-middle [&:has([role=checkbox])]:pr-0', className)}
-  {...restProps}
+	bind:this={ref}
+	class={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
+	{...restProps}
 >
-  {#if children}
-    {@render children()}
-  {/if}
+	{@render children?.()}
 </td>
