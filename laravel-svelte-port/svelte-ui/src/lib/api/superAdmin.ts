@@ -32,7 +32,7 @@ export interface Account {
   inboxesCount?: number;
   conversationsCount?: number;
   contactsCount?: number;
-  selectedFeatureFlags?: string[];
+  selectedFeatureFlags?: string[] | Record<string, boolean>;
   allFeatures?: Record<string, {
     available: boolean;
     display_name?: string;

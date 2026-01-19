@@ -165,10 +165,10 @@ php artisan about  # Verify environment
       $table->id();
       $table->foreignId('account_id')->constrained()->cascadeOnDelete();
       $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-      $table->integer('role')->default(1); // 1=agent, 2=admin
-      $table->boolean('active_at')->default(true);
-      $table->integer('availability')->default(1);
-      $table->json('settings')->nullable();
+      $table->integer('role')->default(0); // 0=agent, 1=administrator (Rails parity)
+      $table->integer('availability')->default(0);
+      $table->boolean('auto_offline')->default(true);
+      $table->timestamp('active_at')->nullable();
       $table->timestamps();
       
       $table->unique(['account_id', 'user_id']);

@@ -22,7 +22,7 @@
 		domain: '',
 		supportEmail: '',
 		autoResolveDuration: '',
-		selectedFeatureFlags: [] as string[],
+		selectedFeatureFlags: [] as string[] | Record<string, boolean>,
 		allFeatures: {} as Record<string, {
 			available: boolean;
 			display_name?: string;
@@ -89,6 +89,12 @@
    
 	   submitting = true;
 		try {
+			   const selectedFeatureFlagsPayload: Record<string, boolean> = Array.isArray(formData.selectedFeatureFlags)
+				   ? Object.fromEntries(
+					   formData.selectedFeatureFlags.map((feature) => [feature, true])
+				     )
+				   : formData.selectedFeatureFlags;
+
 			   await superAdminApi.updateAccount(accountId, {
 				   name: formData.name,
 				   status: formData.status as 'active' | 'suspended' | undefined,
@@ -96,12 +102,11 @@
 				   domain: formData.domain,
 				   supportEmail: formData.supportEmail,
 				   autoResolveDuration: formData.autoResolveDuration ? Number(formData.autoResolveDuration) : undefined,
-				   selectedFeatureFlags: formData.selectedFeatureFlags, // Send whatever format the component provides
+				   selectedFeatureFlags: selectedFeatureFlagsPayload,
 				   settings: formData.settings,
 				   limits: {
 					   agents: formData.limits.agents ? Number(formData.limits.agents) : null,
 					   inboxes: formData.limits.inboxes ? Number(formData.limits.inboxes) : null,
-					   // Include any other limits that might exist
 					   ...Object.fromEntries(
 						   Object.entries(formData.limits)
 							   .filter(([key]) => !['agents', 'inboxes'].includes(key))
@@ -124,13 +129,7 @@
 	}
 	
 	   function handleFeaturesChange(features: string[] | Record<string, boolean>) {
-		   // Convert to string[] format for storage
-		   if (Array.isArray(features)) {
-			   formData.selectedFeatureFlags = features;
-		   } else {
-			   // Convert Record<string, boolean> to string[] (keys where value is true)
-			   formData.selectedFeatureFlags = Object.keys(features).filter(key => features[key]);
-		   }
+		   formData.selectedFeatureFlags = features;
 	   }
 	   
 	   onMount(() => {

@@ -1,10 +1,4 @@
 <script lang="ts">
-  /**
-   * App Root - Redirect to Account Dashboard
-   * Redirects to the user's default account or super admin dashboard
-   * Matches Vue's validateAuthenticateRoutePermission behavior
-   */
-  
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth.svelte';
   import { onMount } from 'svelte';
@@ -25,20 +19,15 @@
     
     // Check if user is logged in
     if (authStore.isLoggedIn) {
-      // Both regular users and SuperAdmins should go to their account dashboard
-      // SuperAdmins are also part of an account, so they should go to regular dashboard
       if (authStore.userAccounts.length > 0) {
-        // Redirect to the first account's dashboard
         const firstAccount = authStore.userAccounts[0];
         console.log('User with accounts, redirecting to account:', firstAccount.id);
-        goto(`/app/accounts/${firstAccount.id}/dashboard`, { replaceState: true });
+        goto(`/app/accounts/${firstAccount.id}/inbox-view`, { replaceState: true });
       } else {
-        // User is logged in but has no accounts
         console.warn('User is logged in but has no accounts');
         goto('/app/no-accounts', { replaceState: true });
       }
     } else {
-      // User is not logged in
       console.log('User not logged in, redirecting to login');
       goto('/app/login', { replaceState: true });
     }

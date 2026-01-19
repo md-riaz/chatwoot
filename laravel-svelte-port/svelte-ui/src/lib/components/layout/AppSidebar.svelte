@@ -1,37 +1,13 @@
 <script lang="ts">
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-  import * as Collapsible from "$lib/components/ui/collapsible/index.js";
   import {
-    Home,
-    MessageSquare,
-    Users,
-    Inbox,
-    Tags,
-    BarChart3,
-    Settings,
-    ChevronRight,
+    ChevronDown,
     Search,
-    Plus,
-    Building2,
-    Megaphone,
-    Library,
-    Briefcase,
-    SquareUser,
-    UserCog,
-    Code,
-    Workflow,
-    Bot,
-    ToyBrick,
-    MessageSquareQuote,
-    Blocks,
-    ShieldPlus,
-    ClockAlert,
-    Shield,
-    CreditCard,
-    Folder
+    Plus
   } from '@lucide/svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Badge } from '$lib/components/ui/badge';
+  import * as Avatar from '$lib/components/ui/avatar';
+  import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { navigate, isRouteActive, isAnyRouteActive } from '$lib/routing/navigation';
   import type { NavigationItem, SidebarSection } from './types';
   import { labelsStore } from '$lib/stores/labels.svelte';
@@ -39,10 +15,16 @@
   import { teamsStore } from '$lib/stores/teams.svelte';
   import type { ComponentProps } from "svelte";
   import { authStore } from '$lib/stores/auth.svelte';
+  import SidebarAccountSwitcher from './SidebarAccountSwitcher.svelte';
+  import SidebarProfileMenu from './SidebarProfileMenu.svelte';
+  import Logo from './Logo.svelte';
 
   let { ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
 
   const accountId = authStore.currentAccountId;
+  const currentUser = $derived(authStore.currentUser);
+  const currentAccount = $derived(authStore.currentAccount);
+  const isLoggedIn = $derived(authStore.isLoggedIn);
 
   const navigationSections: SidebarSection[] = $derived([
     {
@@ -52,11 +34,9 @@
           id: 'inbox',
           label: 'Inbox',
           icon: 'inbox',
-          href: `/app/accounts/${accountId}/inbox`,
+          href: `/app/accounts/${accountId}/inbox-view`,
           activeOn: [
-            `/app/accounts/${accountId}/inbox`,
-            `/app/accounts/${accountId}/inbox/`,
-            `/app/accounts/${accountId}/conversations`,
+            `/app/accounts/${accountId}/inbox-view`,
           ],
         },
       ],
@@ -456,13 +436,14 @@
     },
   ]);
 
-  let searchQuery = $state('');
-
-  function onSearchKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter' && searchQuery.trim().length) {
-      const q = encodeURIComponent(searchQuery.trim());
-      navigate(`/app/accounts/${accountId}/search?q=${q}`);
-      searchQuery = '';
+  function handleAccountSwitch(id: number) {
+    authStore.setActiveAccount(id);
+    navigate(`/app/accounts/${id}`);
+  }
+  
+  function onSearchClick() {
+    if (accountId) {
+      navigate(`/app/accounts/${accountId}/search`);
     }
   }
 
@@ -470,125 +451,55 @@
     navigate(`/app/accounts/${accountId}/conversations/new`);
   }
 
-  // Icon component mapper
-  const icons: Record<string, any> = {
-      'home': Home,
-      'message-square': MessageSquare,
-      'users': Users,
-      'inbox': Inbox,
-      'tags': Tags,
-      'bar-chart-3': BarChart3,
-      'settings': Settings,
-      'building-2': Building2,
-      'megaphone': Megaphone,
-      'library': Library,
-      'briefcase': Briefcase,
-      'square-user': SquareUser,
-      'user-cog': UserCog,
-      'code': Code,
-      'workflow': Workflow,
-      'bot': Bot,
-      'toy-brick': ToyBrick,
-      'message-square-quote': MessageSquareQuote,
-      'blocks': Blocks,
-      'shield-plus': ShieldPlus,
-      'clock-alert': ClockAlert,
-      'shield': Shield,
-      'credit-card': CreditCard,
-      'folder': Folder
-  };
-
-  function getIconComponent(iconName: string) {
-    return icons[iconName] || Home;
-  }
+  import SidebarGroup from './SidebarGroup.svelte';
 </script>
 
 <Sidebar.Root collapsible="icon" {...restProps}>
   <Sidebar.Header>
-     <div class="flex flex-col gap-2 p-2">
+    <div class="flex flex-col gap-2 p-2">
+      {#if isLoggedIn && currentAccount}
+        <div class="flex gap-2 items-center px-2 min-w-0 group-data-[collapsible=icon]:hidden">
+          <div class="grid flex-shrink-0 place-content-center size-6">
+            <Logo class="h-4 w-4" aria-label="Chatwoot logo" />
+          </div>
+          <div class="flex-shrink-0 w-px h-3 bg-border" />
+          <SidebarAccountSwitcher class="flex-1 min-w-0" />
+        </div>
+      {:else}
         <div class="flex items-center gap-2 px-2">
-            <span class="text-lg font-semibold truncate">ClearLine</span>
+          <div class="grid flex-shrink-0 place-content-center size-6">
+            <Logo class="h-4 w-4" aria-label="Chatwoot logo" />
+          </div>
+          <span class="text-lg font-semibold truncate">ClearLine</span>
         </div>
-        <div class="flex items-center gap-1">
-             <div class="relative flex-1 group-data-[collapsible=icon]:hidden">
-                <Search class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <input
-                  class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 pl-8 text-sm shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="Search..."
-                  bind:value={searchQuery}
-                  onkeydown={onSearchKeydown}
-                />
-             </div>
-             <Button variant="ghost" size="icon" onclick={onComposeClick} class="h-9 w-9 group-data-[collapsible=icon]:hidden">
-                <Plus class="h-4 w-4" />
-             </Button>
-        </div>
-     </div>
+      {/if}
+      <div class="flex gap-2 px-2">
+        <button
+          type="button"
+          class="flex gap-2 items-center px-2 py-1 w-full h-7 rounded-md border border-input bg-muted text-xs text-muted-foreground group-data-[collapsible=icon]:hidden"
+          onclick={onSearchClick}
+        >
+          <Search class="h-4 w-4 text-muted-foreground" />
+          <span class="flex-1 text-left truncate">Search</span>
+        </button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onclick={onComposeClick}
+          class="h-7 w-7 group-data-[collapsible=icon]:hidden"
+        >
+          <Plus class="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
   </Sidebar.Header>
   <Sidebar.Content>
     {#each navigationSections as section}
-      <Sidebar.Group>
-        {#if section.title}
-            <Sidebar.GroupLabel>{section.title}</Sidebar.GroupLabel>
-        {/if}
-        <Sidebar.GroupContent>
-            <Sidebar.Menu>
-                {#each section.items as item}
-                    {@const Icon = getIconComponent(item.icon || 'home')}
-                    {#if item.children && item.children.length > 0}
-                         <Collapsible.Root class="group/collapsible">
-                             <Sidebar.MenuItem>
-                                 <Collapsible.Trigger>
-                                     {#snippet child({ props })}
-                                        <Sidebar.MenuButton {...props}>
-                                            <Icon />
-                                            <span>{item.label}</span>
-                                            <ChevronRight class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
-                                        </Sidebar.MenuButton>
-                                     {/snippet}
-                                 </Collapsible.Trigger>
-                                 <Collapsible.Content>
-                                     <Sidebar.MenuSub>
-                                         {#each item.children as child}
-                                            <Sidebar.MenuSubItem>
-                                                <Sidebar.MenuSubButton
-                                isActive={child.activeOn ? isAnyRouteActive(child.activeOn) : isRouteActive(child.href)}
-                                                    onclick={() => navigate(child.href)}
-                                                >
-                                                    <span>{child.label}</span>
-                                                </Sidebar.MenuSubButton>
-                                            </Sidebar.MenuSubItem>
-                                         {/each}
-                                     </Sidebar.MenuSub>
-                                 </Collapsible.Content>
-                             </Sidebar.MenuItem>
-                         </Collapsible.Root>
-                    {:else}
-                        <Sidebar.MenuItem>
-                            <Sidebar.MenuButton
-                                isActive={item.activeOn ? isAnyRouteActive(item.activeOn) : isRouteActive(item.href)}
-                                onclick={() => navigate(item.href)}
-                            >
-                                <Icon />
-                                <span>{item.label}</span>
-                                {#if item.badge && item.badge > 0}
-                                    <Badge variant="secondary" class="ml-auto text-xs px-1.5 min-w-5 h-5 flex items-center justify-center">
-                                        {item.badge > 99 ? '99+' : item.badge}
-                                    </Badge>
-                                {/if}
-                            </Sidebar.MenuButton>
-                        </Sidebar.MenuItem>
-                    {/if}
-                {/each}
-            </Sidebar.Menu>
-        </Sidebar.GroupContent>
-      </Sidebar.Group>
+      <SidebarGroup {section} />
     {/each}
   </Sidebar.Content>
   <Sidebar.Footer>
-      <div class="p-4 text-xs text-center text-muted-foreground group-data-[collapsible=icon]:hidden">
-        © 2026 ClearLine
-      </div>
+    <SidebarProfileMenu />
   </Sidebar.Footer>
   <Sidebar.Rail />
 </Sidebar.Root>

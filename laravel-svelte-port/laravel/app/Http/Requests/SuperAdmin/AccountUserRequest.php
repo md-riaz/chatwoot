@@ -29,7 +29,6 @@ class AccountUserRequest extends FormRequest
             'role' => 'required|in:agent,administrator',
             'availability' => 'nullable|integer|in:0,1',
             'active_at' => 'nullable|boolean',
-            'settings' => 'nullable|array',
         ];
     }
 

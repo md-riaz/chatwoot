@@ -70,5 +70,19 @@
     "error": "Error!",
     "warning": "Warning!",
     "info": "Info"
+  },
+  "inbox": {
+    "list": {
+      "my_inbox": "My Inbox",
+      "mark_all_read": "Mark all read",
+      "delete_all": "Delete all",
+      "delete_all_read": "Delete all read",
+      "sort": "Sort",
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "display": "Display",
+      "snoozed": "Snoozed",
+      "read": "Read"
+    }
   }
 }

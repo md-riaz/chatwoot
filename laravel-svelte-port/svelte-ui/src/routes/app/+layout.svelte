@@ -4,8 +4,9 @@
    * Main application shell with header and sidebar
    */
   
-  import AppHeader from '$lib/components/layout/AppHeader.svelte';
   import AppSidebar from '$lib/components/layout/AppSidebar.svelte';
+  import MobileSidebarLauncher from '$lib/components/layout/MobileSidebarLauncher.svelte';
+  import KeyboardShortcutsModal from '$lib/components/ui/keyboard-shortcuts-modal.svelte';
   import { authStore } from '$lib/stores/auth.svelte';
   import { ReverbClient, getReverbClient } from '$lib/websocket/reverb-client';
   import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -97,10 +98,11 @@
 
 <Sidebar.Provider>
   <AppSidebar />
+  <MobileSidebarLauncher />
   <Sidebar.Inset class="h-svh overflow-hidden">
-    <AppHeader />
     <main class="flex-1 overflow-y-auto">
       {@render children()}
     </main>
   </Sidebar.Inset>
+  <KeyboardShortcutsModal />
 </Sidebar.Provider>

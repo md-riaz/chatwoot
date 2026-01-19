@@ -271,7 +271,6 @@ class AccountUsersController extends Controller
                     'account_id' => $data['account_id'],
                     'role' => $role,
                     'availability' => $availability,
-                    'settings' => $data['settings'] ?? null,
                 ]);
 
                 $created[] = $accountUser;

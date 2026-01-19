@@ -2,7 +2,7 @@
 	import { Star } from 'lucide-svelte';
 	
 	interface Props {
-		selectedFeatures: string[];
+		selectedFeatures: string[] | Record<string, boolean>;
 		allFeatures: Record<string, {
 			available: boolean;
 			display_name?: string;

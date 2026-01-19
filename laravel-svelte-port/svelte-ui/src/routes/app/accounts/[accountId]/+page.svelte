@@ -4,7 +4,7 @@
 
   export const load: PageLoad = async ({ params }) => {
     const { accountId } = params;
-    throw goto(302, `/app/accounts/${accountId}/dashboard`);
+    throw goto(302, `/app/accounts/${accountId}/inbox-view`);
   };
 </script>
 

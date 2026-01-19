@@ -21,7 +21,7 @@
 		domain: '',
 		supportEmail: '',
 		autoResolveDuration: '',
-		selectedFeatureFlags: [] as string[],
+		selectedFeatureFlags: [] as string[] | Record<string, boolean>,
 		allFeatures: {} as Record<string, {
 			available: boolean;
 			display_name?: string;
@@ -212,12 +212,12 @@
 	   }
 	
 	   function handleFeaturesChange(features: string[] | Record<string, boolean>) {
-		   // Convert Record to string[] if needed
 		   if (Array.isArray(features)) {
-			   formData.selectedFeatureFlags = features;
+			   formData.selectedFeatureFlags = Object.fromEntries(
+				   features.map((feature) => [feature, true])
+			   );
 		   } else {
-			   // Convert Record<string, boolean> to string[] (keys where value is true)
-			   formData.selectedFeatureFlags = Object.keys(features).filter(key => features[key]);
+			   formData.selectedFeatureFlags = features;
 		   }
 	   }
 

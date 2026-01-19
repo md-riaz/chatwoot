@@ -46,14 +46,14 @@
 		tooltipContent,
 		tooltipContentProps,
 		...restProps
-	}: WithElementRef<HTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
-		isActive?: boolean;
-		variant?: SidebarMenuButtonVariant;
-		size?: SidebarMenuButtonSize;
-		tooltipContent?: Snippet;
-		tooltipContentProps?: WithoutChildrenOrChild<ComponentProps<typeof Tooltip.Content>>;
-		child?: Snippet<[{ props: Record<string, unknown> }]>;
-	} = $props();
+  }: WithElementRef<HTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
+    isActive?: boolean;
+    variant?: SidebarMenuButtonVariant;
+    size?: SidebarMenuButtonSize;
+    tooltipContent?: Snippet | string;
+    tooltipContentProps?: WithoutChildrenOrChild<ComponentProps<typeof Tooltip.Content>>;
+    child?: Snippet<[{ props: Record<string, unknown> }]>;
+  } = $props();
 
 	const sidebar = useSidebar();
 
@@ -78,20 +78,25 @@
 {/snippet}
 
 {#if !tooltipContent}
-	{@render Button({})}
+  {@render Button({})}
 {:else}
-	<Tooltip.Root>
-		<Tooltip.Trigger>
-			{#snippet child({ props })}
-				{@render Button({ props })}
-			{/snippet}
-		</Tooltip.Trigger>
-		<Tooltip.Content
-			side="right"
-			align="center"
-			hidden={sidebar.state !== "collapsed" || sidebar.isMobile}
-			children={tooltipContent}
-			{...tooltipContentProps}
-		/>
-	</Tooltip.Root>
+  <Tooltip.Root>
+    <Tooltip.Trigger>
+      {#snippet child({ props })}
+        {@render Button({ props })}
+      {/snippet}
+    </Tooltip.Trigger>
+    <Tooltip.Content
+      side="right"
+      align="center"
+      hidden={sidebar.state !== "collapsed" || sidebar.isMobile}
+      {...tooltipContentProps}
+    >
+      {#if typeof tooltipContent === "string"}
+        {tooltipContent}
+      {:else if tooltipContent}
+        {@render tooltipContent()}
+      {/if}
+    </Tooltip.Content>
+  </Tooltip.Root>
 {/if}

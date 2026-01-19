@@ -60,6 +60,8 @@ CREATE TABLE account_users (
 );
 ```
 
+> Note: The Rails backend never relied on a generic `account_users.settings` JSON column. The Laravel port originally planned such a field during early design, but the final parity implementation uses explicit columns (`role`, `availability`, `auto_offline`, `active_at`) together with a `permissions` JSON field for fine-grained access control. For this reason, there is no `settings` column on `account_users` in the Laravel schema.
+
 ## Authentication & Authorization
 
 ### Middleware: EnsureSuperAdmin

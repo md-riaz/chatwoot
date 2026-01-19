@@ -5,8 +5,44 @@
   import { Button } from '$lib/components/ui/button';
   import { AlertCircle, Loader2 } from '@lucide/svelte';
   
-  const notifications = $derived(notificationsStore.sortedNotifications);
+  type SortOrder = 'newest' | 'oldest';
+  
+  interface Props {
+    sortOrder?: SortOrder;
+    showSnoozed?: boolean;
+    showRead?: boolean;
+    onNotificationOpen?: (notification: Notification) => void;
+  }
+  
+  let {
+    sortOrder = 'newest',
+    showSnoozed = true,
+    showRead = true,
+    onNotificationOpen = undefined
+  }: Props = $props();
+  
+  const rawNotifications = $derived(notificationsStore.all);
   const isLoading = $derived(notificationsStore.isLoading);
+  
+  const notifications = $derived(() => {
+    let items = rawNotifications;
+    
+    if (!showRead) {
+      items = items.filter(n => !n.readAt);
+    }
+    
+    if (!showSnoozed) {
+      items = items.filter(n => !n.snoozedUntil);
+    }
+    
+    const sorted = [...items].sort((a, b) => {
+      const aTime = new Date(a.createdAt).getTime();
+      const bTime = new Date(b.createdAt).getTime();
+      return sortOrder === 'newest' ? bTime - aTime : aTime - bTime;
+    });
+    
+    return sorted;
+  });
   
   function handleLoadMore() {
     notificationsStore.loadMore();
@@ -26,7 +62,7 @@
   {:else}
     <div class="divide-y">
       {#each notifications as notification (notification.id)}
-        <NotificationItem {notification} />
+        <NotificationItem notification={notification} onOpen={onNotificationOpen} />
       {/each}
     </div>
     

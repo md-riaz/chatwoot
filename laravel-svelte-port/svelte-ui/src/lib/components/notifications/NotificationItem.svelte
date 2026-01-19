@@ -7,14 +7,22 @@
   
   interface Props {
     notification: Notification;
+    onOpen?: (notification: Notification) => void;
   }
   
-  let { notification }: Props = $props();
+  let { notification, onOpen = undefined }: Props = $props();
   
   const isUnread = $derived(!notification.readAt);
   
   async function handleMarkRead() {
     await notificationsStore.markAsRead(notification.id);
+  }
+  
+  async function handleClick() {
+    await handleMarkRead();
+    if (onOpen) {
+      onOpen(notification);
+    }
   }
   
   async function handleDelete() {
@@ -43,7 +51,7 @@
   type="button"
   class="notification-item px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer w-full text-left"
   class:unread={isUnread}
-  onclick={handleMarkRead}
+  onclick={handleClick}
 >
   <div class="flex items-start gap-3">
     {#if notification.primaryActor?.thumbnail}

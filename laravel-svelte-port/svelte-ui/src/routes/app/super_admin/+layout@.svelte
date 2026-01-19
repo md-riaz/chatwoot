@@ -89,7 +89,7 @@
 </script>
 
 <Sidebar.Provider>
-	<Sidebar.Root collapsible="offcanvas">
+	<Sidebar.Root variant="inset" collapsible="offcanvas">
 		<Sidebar.Header>
 			<!-- Logo -->
 			<div class="flex items-center space-x-2 px-2">
@@ -212,12 +212,14 @@
 		<Sidebar.Rail />
 	</Sidebar.Root>
 	
-	<!-- Main content with trigger button -->
 	<Sidebar.Inset>
-		<header class="flex h-12 items-center px-4 border-b sticky top-0 bg-background z-10">
-			<Sidebar.Trigger />
+		<header class="flex h-16 shrink-0 items-center gap-2 px-4 border-b sticky top-0 bg-background z-10">
+			<Sidebar.Trigger class="-ms-1" />
+			<h1 class="text-sm font-medium text-muted-foreground">
+				Super Admin
+			</h1>
 		</header>
-		<main class="p-4">
+		<main class="flex-1 p-4">
 			{@render children()}
 		</main>
 	</Sidebar.Inset>

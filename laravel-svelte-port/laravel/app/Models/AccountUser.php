@@ -21,7 +21,6 @@ class AccountUser extends Model
         'agent_capacity_policy_id',
         'active_at',
         'availability',
-        'settings',
         'auto_offline',    // Rails parity
         'permissions',     // Rails parity
     ];
@@ -30,7 +29,6 @@ class AccountUser extends Model
         'role' => AccountUserRole::class,
         'availability' => UserAvailability::class,
         'active_at' => 'boolean',
-        'settings' => 'array',
         'permissions' => 'array',
         'auto_offline' => 'boolean',
         'created_at' => 'datetime',
