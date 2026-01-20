@@ -30,18 +30,25 @@ class HandleConversationAssigned
         // Notify the new assignee via Notification channels (Rails parity: manual creation for DB, standard for others)
         if ($assignee) {
             try {
-                // 1. Create DB Notification manually (Rails parity schema)
-                \App\Models\Notification::create([
-                    'user_id' => $assignee->id,
-                    'account_id' => $conversation->account_id,
-                    'notification_type' => \App\Models\NotificationSetting::NOTIFICATION_TYPES['conversation_assignment'],
-                    'primary_actor_type' => get_class($conversation),
-                    'primary_actor_id' => $conversation->id,
-                    'meta' => [
-                        'conversation_id' => $conversation->id,
-                        'previous_assignee_id' => $event->previousAssignee?->id ?? null,
-                    ]
-                ]);
+                // Check if user is subscribed to 'conversation_assignment'
+                $setting = \App\Models\NotificationSetting::where('user_id', $assignee->id)
+                    ->where('account_id', $conversation->account_id)
+                    ->first();
+
+                if ($setting && $setting->isSubscribed('conversation_assignment')) {
+                    // 1. Create DB Notification manually (Rails parity schema)
+                    \App\Models\Notification::create([
+                        'user_id' => $assignee->id,
+                        'account_id' => $conversation->account_id,
+                        'notification_type' => \App\Models\NotificationSetting::NOTIFICATION_TYPES['conversation_assignment'],
+                        'primary_actor_type' => get_class($conversation),
+                        'primary_actor_id' => $conversation->id,
+                        'meta' => [
+                            'conversation_id' => $conversation->id,
+                            'previous_assignee_id' => $event->previousAssignee?->id ?? null,
+                        ]
+                    ]);
+                }
 
                 // 2. Dispatch Laravel Notification for Email/Broadcast
                 $assignee->notify(new \App\Notifications\ConversationAssignedNotification($conversation, $event->previousAssignee));

@@ -22,17 +22,26 @@ class NotificationsController extends Controller
         $query = $user->notifications()
             ->where('account_id', $account->id);
 
-        // Apply read/unread filter
-        $query->when($request->has('read'), function ($q) use ($request) {
-            if ($request->read === 'true') {
-                $q->whereNotNull('read_at');
-            } else {
-                $q->whereNull('read_at');
-            }
-        });
+        $includes = $request->input('includes', []);
+        
+        // Filter read notifications
+        // If 'read' is NOT in includes, we only show unread (where read_at is null).
+        // If 'read' IS in includes, we show everything (don't filter).
+        if (!in_array('read', $includes)) {
+             $query->whereNull('read_at');
+        }
 
-        // Apply pagination
-        $notifications = $query->orderBy('created_at', 'desc')->paginate(15);
+        // Filter snoozed notifications
+        // If 'snoozed' is NOT in includes, we only show unsnoozed (where snoozed_until is null).
+        if (!in_array('snoozed', $includes)) {
+             $query->whereNull('snoozed_until');
+        }
+
+        // Apply sort order
+        $sortOrder = $request->input('sort_order', 'desc');
+        $query->orderBy('last_activity_at', $sortOrder);
+        
+        $notifications = $query->paginate(15);
         
         // Calculate unread count for this account
         $unreadCount = $user->notifications()

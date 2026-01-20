@@ -4,6 +4,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import InboxDisplayMenu from './InboxDisplayMenu.svelte';
   import { notificationsStore } from '$lib/stores/notifications.svelte';
+  import { _ } from '$lib/i18n';
 
   type SortOrder = 'newest' | 'oldest';
 

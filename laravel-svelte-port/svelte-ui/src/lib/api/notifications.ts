@@ -50,10 +50,17 @@ export interface UnreadCountResponse {
 
 export async function getNotifications(
   accountId: number,
-  page: number = 1
+  page: number = 1,
+  sortOrder: 'asc' | 'desc' = 'desc',
+  includes: string[] = ['snoozed', 'read']
 ): Promise<NotificationsListResponse> {
+  const searchParams = new URLSearchParams();
+  searchParams.append('page', String(page));
+  searchParams.append('sort_order', sortOrder);
+  includes.forEach(inc => searchParams.append('includes[]', inc));
+
   return api.get(`api/v1/accounts/${accountId}/notifications`, {
-    searchParams: toSearchParams({ page })
+    searchParams
   }).json();
 }
 

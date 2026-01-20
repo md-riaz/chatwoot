@@ -21,10 +21,9 @@ class HandlePushNotification implements ShouldQueue
             return;
         }
 
-        // Generate title and body
-        // Ideally use translation keys, but for now hardcoding English with placeholders to match Rails parity
-        $title = $this->getPushMessageTitle($notification);
-        $body = $this->getPushMessageBody($notification);
+        // Generate title and body from model accessors
+        $title = $notification->push_message_title;
+        $body = $notification->push_message_body;
         
         if (!$title) {
             return;
@@ -35,54 +34,9 @@ class HandlePushNotification implements ShouldQueue
             $user->id,
             $title,
             $body,
-            $notification->push_event_data ?? [], // Assuming we add push_event_data or similar
+            $notification->push_event_data ?? [],
             $notification->account_id,
-            $this->getNotificationTypeString($notification->notification_type)
+            $notification->notification_type_string
         );
-    }
-
-    private function getNotificationTypeString(int $type): ?string
-    {
-        $types = array_flip(\App\Models\NotificationSetting::NOTIFICATION_TYPES);
-        return $types[$type] ?? null;
-    }
-
-    private function getPushMessageTitle($notification): string
-    {
-        $type = $this->getNotificationTypeString($notification->notification_type);
-        $primaryActor = $notification->primaryActor;
-        $conversation = $notification->primaryActor instanceof \App\Models\Conversation ? $notification->primaryActor : null;
-        
-        // If primary actor is not conversation, try to get conversation from it if possible
-        // But usually primary actor IS conversation for these types.
-        
-        $displayId = $conversation ? $conversation->display_id : ($primaryActor->id ?? '');
-        
-        // Basic mapping based on Rails
-        return match ($type) {
-            'conversation_creation' => "A new conversation [ID - {$displayId}] has been created in " . ($conversation->inbox->name ?? 'Inbox'),
-            'conversation_assignment' => "A new conversation [ID - {$displayId}] has been assigned to you.",
-            'conversation_mention' => "You have been mentioned in conversation [ID - {$displayId}]",
-            'assigned_conversation_new_message' => "New message in your assigned conversation [ID - {$displayId}].",
-            'participating_conversation_new_message' => "New message in your participating conversation [ID - {$displayId}].",
-            'sla_missed_first_response' => "SLA missed for first response in conversation [ID - {$displayId}]",
-            'sla_missed_next_response' => "SLA missed for next response in conversation [ID - {$displayId}]",
-            'sla_missed_resolution' => "SLA missed for resolution in conversation [ID - {$displayId}]",
-            default => "Notification for conversation [ID - {$displayId}]",
-        };
-    }
-
-    private function getPushMessageBody($notification): string
-    {
-        $primaryActor = $notification->primaryActor;
-        $secondaryActor = $notification->secondaryActor;
-        
-        // If secondary actor is a message, use its content (truncated)
-        if ($secondaryActor instanceof \App\Models\Message) {
-            return Str::limit($secondaryActor->content ?? 'New attachment', 100);
-        }
-
-        // Default body
-        return "Click to view details";
     }
 }

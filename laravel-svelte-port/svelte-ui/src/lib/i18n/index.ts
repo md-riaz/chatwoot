@@ -210,4 +210,4 @@ export function getAvailableLocales(): Array<{ code: SupportedLocale; name: stri
 }
 
 // Re-export svelte-i18n utilities
-export { locale, _ , t, date, time, number } from 'svelte-i18n';
+export { locale, _, t, date, time, number, isLoading, dictionary } from 'svelte-i18n';

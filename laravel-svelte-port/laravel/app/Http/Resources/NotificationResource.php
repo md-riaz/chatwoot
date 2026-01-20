@@ -14,18 +14,11 @@ class NotificationResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Rails parity: direct column access
-        $notificationType = $this->notification_type;
-        
-        // Map integer type to string
-        $types = array_flip(\App\Models\NotificationSetting::NOTIFICATION_TYPES);
-        $typeString = $types[$notificationType] ?? 'unknown';
-
         return [
             'id' => $this->id,
             'accountId' => $this->account_id,
             'userId' => $this->user_id,
-            'notificationType' => $typeString,
+            'notificationType' => $this->notification_type_string ?? 'unknown',
             'primaryActorType' => $this->primary_actor_type,
             'primaryActorId' => $this->primary_actor_id,
             'primaryActor' => $this->mapPrimaryActor($this->primaryActor),
@@ -34,7 +27,7 @@ class NotificationResource extends JsonResource
             'createdAt' => $this->created_at->timestamp,
             'lastActivityAt' => $this->last_activity_at ? $this->last_activity_at->timestamp : $this->created_at->timestamp,
             'meta' => $this->meta,
-            'pushMessageTitle' => $this->meta['push_message_title'] ?? null,
+            'pushMessageTitle' => $this->push_message_title,
         ];
     }
 

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Str;
 
 class Notification extends Model
 {
@@ -38,6 +39,12 @@ class Notification extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (Notification $notification) {
+            if (!$notification->last_activity_at) {
+                $notification->last_activity_at = now();
+            }
+        });
+
         static::created(function (Notification $notification) {
             \App\Events\Notification\NotificationCreated::dispatch($notification);
         });
@@ -60,6 +67,7 @@ class Notification extends Model
      */
     protected $appends = [
         'push_event_data',
+        'push_message_title',
     ];
 
     public function account(): BelongsTo
@@ -82,6 +90,53 @@ class Notification extends Model
         return $this->morphTo();
     }
 
+    public function getPushEventDataAttribute()
+    {
+        // ... (implementation pending, for now returning minimal data)
+        return [];
+    }
+
+    public function getPushMessageTitleAttribute(): string
+    {
+        $type = $this->notification_type_string;
+        $primaryActor = $this->primaryActor;
+        $conversation = $primaryActor instanceof \App\Models\Conversation ? $primaryActor : null;
+        
+        $displayId = $conversation ? $conversation->display_id : ($primaryActor->id ?? '');
+        $inboxName = $conversation && $conversation->inbox ? $conversation->inbox->name : 'Inbox';
+        
+        return match ($type) {
+            'conversation_creation' => "A new conversation [ID - {$displayId}] has been created in {$inboxName}",
+            'conversation_assignment' => "A new conversation [ID - {$displayId}] has been assigned to you.",
+            'conversation_mention' => "You have been mentioned in conversation [ID - {$displayId}]",
+            'assigned_conversation_new_message' => "New message in your assigned conversation [ID - {$displayId}].",
+            'participating_conversation_new_message' => "New message in your participating conversation [ID - {$displayId}].",
+            'sla_missed_first_response' => "SLA missed for first response in conversation [ID - {$displayId}]",
+            'sla_missed_next_response' => "SLA missed for next response in conversation [ID - {$displayId}]",
+            'sla_missed_resolution' => "SLA missed for resolution in conversation [ID - {$displayId}]",
+            default => "Notification for conversation [ID - {$displayId}]",
+        };
+    }
+
+    public function getPushMessageBodyAttribute(): string
+    {
+        $secondaryActor = $this->secondaryActor;
+        
+        // If secondary actor is a message, use its content (truncated)
+        if ($secondaryActor instanceof \App\Models\Message) {
+            return Str::limit($secondaryActor->content ?? 'New attachment', 100);
+        }
+
+        // Default body
+        return "Click to view details";
+    }
+
+    public function getNotificationTypeStringAttribute(): ?string
+    {
+        $types = array_flip(NotificationSetting::NOTIFICATION_TYPES);
+        return $types[$this->notification_type] ?? null;
+    }
+
     /**
      * Mark the notification as read.
      *
@@ -93,6 +148,7 @@ class Notification extends Model
             $this->forceFill(['read_at' => $this->freshTimestamp()])->save();
         }
     }
+}
 
     /**
      * Mark the notification as unread.

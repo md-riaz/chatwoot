@@ -3,6 +3,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Checkbox } from '$lib/components/ui/checkbox';
   import * as Popover from '$lib/components/ui/popover';
+  import { _ } from '$lib/i18n';
 
   type SortOrder = 'newest' | 'oldest';
 
