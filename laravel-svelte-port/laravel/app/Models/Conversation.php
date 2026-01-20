@@ -221,4 +221,15 @@ class Conversation extends Model
     {
         return $this->hasMany(SlaEvent::class);
     }
+
+    /**
+     * Get push event data for real-time updates
+     */
+    public function pushEventData(): array
+    {
+        return [
+            'id' => $this->id,
+            'conversation_id' => $this->display_id,
+        ];
+    }
 }

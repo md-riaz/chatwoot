@@ -18,7 +18,7 @@ class ConversationAssignedNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['mail', 'database', 'broadcast'];
+        return ['mail'];
     }
 
     public function toMail($notifiable): MailMessage
@@ -35,6 +35,10 @@ class ConversationAssignedNotification extends Notification
     public function toArray($notifiable): array
     {
         return [
+            'account_id' => $this->conversation->account_id,
+            'notification_type' => \App\Models\NotificationSetting::NOTIFICATION_TYPES['conversation_assignment'],
+            'primary_actor_type' => get_class($this->conversation),
+            'primary_actor_id' => $this->conversation->id,
             'conversation_id' => $this->conversation->id,
             'previous_assignee_id' => $this->previousAssignee?->id ?? null,
         ];

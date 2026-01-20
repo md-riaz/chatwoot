@@ -22,6 +22,7 @@ use App\Listeners\HandleConversationStatusChanged;
 use App\Listeners\HandleConversationUpdated;
 use App\Listeners\HandleContactCreated;
 use App\Listeners\HandleContactUpdated;
+use App\Listeners\HandleMessageCreated;
 use App\Listeners\HandleMessageLifecycle;
 use App\Listeners\HandleSlaBreached;
 use App\Listeners\HandlePortalUpdated;
@@ -38,6 +39,7 @@ class EventServiceProvider extends ServiceProvider
         MessageCreated::class => [
             EnqueueOpenAiEnrichment::class,
             HandleMessageLifecycle::class,
+            HandleMessageCreated::class,
         ],
         // Also process updates to messages (reuse enrichment listener)
         MessageUpdated::class => [
@@ -82,6 +84,11 @@ class EventServiceProvider extends ServiceProvider
 
         ArticleUpdated::class => [
             HandleArticleUpdated::class,
+        ],
+
+        \App\Events\Notification\NotificationCreated::class => [
+            \App\Listeners\HandleNotificationCreated::class,
+            \App\Listeners\HandlePushNotification::class,
         ],
     ];
 

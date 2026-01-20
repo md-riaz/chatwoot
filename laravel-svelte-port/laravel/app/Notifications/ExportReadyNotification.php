@@ -24,9 +24,17 @@ class ExportReadyNotification extends Notification
         $downloadUrl = route('contacts.exports.download', ['account' => $this->accountId], true);
 
         return [
+            'account_id' => $this->accountId,
+            'notification_type' => 'contact_export_ready',
+            'primary_actor_type' => null,
+            'primary_actor_id' => null,
             'message' => 'Your contacts export is ready',
             'path' => $this->path,
             'download_url' => $downloadUrl,
+            'meta' => [
+                'message' => 'Your contacts export is ready',
+                'download_url' => $downloadUrl,
+            ],
         ];
     }
 }

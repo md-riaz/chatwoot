@@ -16,7 +16,8 @@ class CreateMessageAction
 
     public function __construct(
         private MessageRepository $messageRepository,
-        private ConversationRepository $conversationRepository
+        private ConversationRepository $conversationRepository,
+        private \App\Actions\Notification\ProcessNewMessageNotificationsAction $processNotifications
     ) {}
 
     public function handle(MessageData $data): Message
@@ -52,6 +53,9 @@ class CreateMessageAction
 
             // Trigger event
             event(new MessageCreated($message));
+
+            // Process Notifications (Rails parity)
+            $this->processNotifications->handle($message);
 
             return $message;
         });

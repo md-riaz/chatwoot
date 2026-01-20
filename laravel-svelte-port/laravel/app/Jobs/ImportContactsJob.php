@@ -89,7 +89,7 @@ class ImportContactsJob implements ShouldQueue
             // Notify user about import completion
             $user = User::find($this->userId);
             if ($user) {
-                $user->notify(new ImportCompletedNotification($result));
+                $user->notify(new ImportCompletedNotification($result, $this->accountId));
             }
         } catch (Throwable $exception) {
             Cache::put("import_status:{$this->importId}", ['status' => 'failed', 'error' => $exception->getMessage()], now()->addHours(6));

@@ -96,6 +96,11 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Conversation::class, 'assignee_id');
     }
 
+    public function notifications(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Notification::class)->latest();
+    }
+
     /**
      * Alias for conversations - get assigned conversations for this user.
      */

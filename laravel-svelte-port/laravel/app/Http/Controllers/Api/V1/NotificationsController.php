@@ -3,85 +3,122 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\NotificationResource;
 use App\Models\Account;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class NotificationsController extends Controller
 {
     /**
-     * Get notifications for the authenticated user.
+     * Get notifications for the authenticated user (account scoped).
      */
-    public function index(Request $request): JsonResource
+    public function index(Request $request, Account $account): AnonymousResourceCollection
     {
         $user = auth()->user();
         
-        $notifications = $user->notifications()
-            ->when($request->has('read'), function ($q) use ($request) {
-                if ($request->read === 'true') {
-                    $q->whereNotNull('read_at');
-                } else {
-                    $q->whereNull('read_at');
-                }
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate();
+        // Rails parity: direct column scoping
+        $query = $user->notifications()
+            ->where('account_id', $account->id);
 
-        return JsonResource::collection($notifications);
+        // Apply read/unread filter
+        $query->when($request->has('read'), function ($q) use ($request) {
+            if ($request->read === 'true') {
+                $q->whereNotNull('read_at');
+            } else {
+                $q->whereNull('read_at');
+            }
+        });
+
+        // Apply pagination
+        $notifications = $query->orderBy('created_at', 'desc')->paginate(15);
+        
+        // Calculate unread count for this account
+        $unreadCount = $user->notifications()
+            ->where('account_id', $account->id)
+            ->whereNull('read_at')
+            ->count();
+
+        return NotificationResource::collection($notifications)->additional([
+            'meta' => [
+                'unread_count' => $unreadCount,
+            ],
+        ]);
     }
 
     /**
-     * Get unread notification count.
+     * Get unread count.
      */
-    public function unreadCount(): JsonResponse
+    public function unreadCount(Account $account): JsonResponse
     {
-        $count = auth()->user()->unreadNotifications()->count();
-
-        return response()->json(['data' => ['count' => $count]]);
+        $count = auth()->user()->notifications()
+            ->where('account_id', $account->id)
+            ->whereNull('read_at')
+            ->count();
+            
+        return response()->json(['unreadCount' => $count]);
     }
 
     /**
-     * Mark a notification as read.
+     * Mark notification as read.
      */
-    public function markAsRead(string $notificationId): JsonResponse
+    public function markAsRead(Account $account, $id): JsonResponse
     {
-        $notification = auth()->user()->notifications()->findOrFail($notificationId);
+        $notification = auth()->user()->notifications()
+            ->where('id', $id)
+            ->where('account_id', $account->id)
+            ->firstOrFail();
+            
         $notification->markAsRead();
-
-        return response()->json(['data' => $notification]);
+        
+        return response()->json(new NotificationResource($notification));
     }
 
     /**
      * Mark all notifications as read.
      */
-    public function markAllAsRead(): JsonResponse
+    public function markAllAsRead(Account $account): JsonResponse
     {
-        auth()->user()->unreadNotifications->markAsRead();
-
+        auth()->user()->notifications()
+            ->where('account_id', $account->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+            
         return response()->json(['message' => 'All notifications marked as read']);
     }
 
     /**
      * Delete a notification.
      */
-    public function destroy(string $notificationId): JsonResponse
+    public function destroy(Account $account, $id): JsonResponse
     {
-        $notification = auth()->user()->notifications()->findOrFail($notificationId);
+        $notification = auth()->user()->notifications()
+            ->where('id', $id)
+            ->where('account_id', $account->id)
+            ->firstOrFail();
+            
         $notification->delete();
-
-        return response()->json(null, 204);
+        
+        return response()->json(['message' => 'Notification deleted']);
     }
 
     /**
-     * Delete all read notifications.
+     * Delete all notifications.
      */
-    public function destroyAll(): JsonResponse
+    public function destroyAll(Request $request, Account $account): JsonResponse
     {
-        auth()->user()->notifications()->whereNotNull('read_at')->delete();
+        $type = $request->query('type', 'read'); // 'read' or 'all'
 
-        return response()->json(['message' => 'All read notifications deleted']);
+        $query = auth()->user()->notifications()
+            ->where('data->account_id', $account->id);
+
+        if ($type === 'read') {
+            $query->whereNotNull('read_at');
+        }
+        
+        $query->delete();
+
+        return response()->json(['message' => 'Notifications deleted']);
     }
 }

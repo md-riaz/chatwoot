@@ -100,4 +100,19 @@ class NotificationSetting extends Model
 
         return $value;
     }
+
+    /**
+     * Check if the user is subscribed to a specific notification type.
+     * Checks if either email or push flag is enabled for the type.
+     */
+    public function isSubscribed(string $type): bool
+    {
+        if (!isset(self::NOTIFICATION_TYPES[$type])) {
+            return false;
+        }
+
+        $bitMask = self::NOTIFICATION_TYPES[$type];
+
+        return ($this->email_flags & $bitMask) || ($this->push_flags & $bitMask);
+    }
 }

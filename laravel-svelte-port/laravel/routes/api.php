@@ -324,16 +324,6 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
     Route::post('notification_subscriptions', [NotificationSubscriptionsController::class, 'store']);
     Route::delete('notification_subscriptions', [NotificationSubscriptionsController::class, 'destroy']);
 
-    // Notifications routes
-    Route::prefix('notifications')->group(function () {
-        Route::get('/', [NotificationsController::class, 'index']);
-        Route::get('unread_count', [NotificationsController::class, 'unreadCount']);
-        Route::post('{notification}/read', [NotificationsController::class, 'markAsRead']);
-        Route::post('read_all', [NotificationsController::class, 'markAllAsRead']);
-        Route::delete('{notification}', [NotificationsController::class, 'destroy']);
-        Route::delete('/', [NotificationsController::class, 'destroyAll']);
-    });
-
     // Account routes
     Route::apiResource('accounts', AccountsController::class);
         // Custom account actions
@@ -342,6 +332,16 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
 
     // Account-scoped resources (with account access middleware)
     Route::prefix('accounts/{account}')->middleware(\App\Http\Middleware\EnsureAccountAccess::class)->group(function () {
+        // Notifications routes (Account Scoped)
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [NotificationsController::class, 'index']);
+            Route::get('unread_count', [NotificationsController::class, 'unreadCount']);
+            Route::post('{notification}/read', [NotificationsController::class, 'markAsRead']);
+            Route::post('read_all', [NotificationsController::class, 'markAllAsRead']);
+            Route::delete('{notification}', [NotificationsController::class, 'destroy']);
+            Route::delete('/', [NotificationsController::class, 'destroyAll']);
+        });
+
         // Conversations
         Route::apiResource('conversations', ConversationsController::class);
         Route::get('conversations/meta', [ConversationsController::class, 'meta']);

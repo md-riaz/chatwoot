@@ -15,7 +15,7 @@
   const isUnread = $derived(!notification.readAt);
   
   async function handleMarkRead() {
-    await notificationsStore.markAsRead(notification.id);
+    await notificationsStore.markAsRead(notification.accountId, notification.id);
   }
   
   async function handleClick() {
@@ -26,7 +26,7 @@
   }
   
   async function handleDelete() {
-    await notificationsStore.deleteNotification(notification.id);
+    await notificationsStore.deleteNotification(notification.accountId, notification.id);
     toast.success('Notification deleted');
   }
   

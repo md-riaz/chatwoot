@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import * as Separator from '$lib/components/ui/separator';
   import NotificationList from '$lib/components/notifications/NotificationList.svelte';
@@ -10,7 +9,7 @@
 
   type SortOrder = 'newest' | 'oldest';
 
-  const accountId = $derived($page.params.accountId);
+  const accountId = $derived(Number($page.params.accountId));
   const unreadCount = $derived(notificationsStore.unreadCount);
   const totalCount = $derived(notificationsStore.all.length);
   const isLoading = $derived(notificationsStore.isLoading);
@@ -19,10 +18,10 @@
   let showSnoozed = $state(true);
   let showRead = $state(true);
 
-  onMount(() => {
-    if (notificationsStore.all.length === 0) {
-      notificationsStore.fetchNotifications();
-      notificationsStore.fetchUnreadCount();
+  $effect(() => {
+    if (accountId && notificationsStore.accountId !== accountId) {
+      notificationsStore.fetchNotifications(accountId);
+      notificationsStore.fetchUnreadCount(accountId);
     }
   });
 
@@ -40,15 +39,21 @@
   }
 
   async function handleMarkAllRead() {
-    await notificationsStore.markAllAsRead();
+    if (accountId) {
+      await notificationsStore.markAllAsRead(accountId);
+    }
   }
 
   async function handleDeleteAll() {
-    await notificationsStore.deleteAll('all');
+    if (accountId) {
+      await notificationsStore.deleteAll(accountId, 'all');
+    }
   }
 
   async function handleDeleteAllRead() {
-    await notificationsStore.deleteAll('read');
+    if (accountId) {
+      await notificationsStore.deleteAll(accountId, 'read');
+    }
   }
 </script>
 

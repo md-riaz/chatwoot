@@ -15,6 +15,7 @@ interface NotificationsState {
   error: string | null;
   currentPage: number;
   hasMore: boolean;
+  accountId: number | null;
 }
 
 class NotificationsStore {
@@ -26,7 +27,8 @@ class NotificationsStore {
     isDeleting: false,
     error: null,
     currentPage: 1,
-    hasMore: true
+    hasMore: true,
+    accountId: null
   });
 
   // Getters
@@ -52,6 +54,10 @@ class NotificationsStore {
 
   get error() {
     return this.state.error;
+  }
+
+  get accountId() {
+    return this.state.accountId;
   }
 
   // Derived getters
@@ -80,22 +86,23 @@ class NotificationsStore {
   }
 
   // Actions
-  async fetchNotifications(page: number = 1) {
+  async fetchNotifications(accountId: number, page: number = 1) {
     this.state.isLoading = true;
     this.state.error = null;
+    this.state.accountId = accountId;
 
     try {
-      const response = await notificationsApi.getNotifications(page);
+      const response = await notificationsApi.getNotifications(accountId, page);
       
       if (page === 1) {
-        this.state.all = response.data.payload;
+        this.state.all = response.data;
       } else {
-        this.state.all = [...this.state.all, ...response.data.payload];
+        this.state.all = [...this.state.all, ...response.data];
       }
       
-      this.state.unreadCount = response.data.meta.unreadCount;
-      this.state.currentPage = response.data.meta.currentPage;
-      this.state.hasMore = response.data.payload.length > 0;
+      this.state.unreadCount = response.meta.unread_count;
+      this.state.currentPage = response.meta.current_page;
+      this.state.hasMore = response.data.length > 0;
     } catch (error) {
       this.state.error = error instanceof Error ? error.message : 'Failed to fetch notifications';
       console.error('Error fetching notifications:', error);
@@ -104,9 +111,9 @@ class NotificationsStore {
     }
   }
 
-  async fetchUnreadCount() {
+  async fetchUnreadCount(accountId: number) {
     try {
-      const response = await notificationsApi.getUnreadCount();
+      const response = await notificationsApi.getUnreadCount(accountId);
       this.state.unreadCount = response.unreadCount;
     } catch (error) {
       console.error('Error fetching unread count:', error);
@@ -114,12 +121,12 @@ class NotificationsStore {
   }
 
   async loadMore() {
-    if (!this.state.hasMore || this.state.isLoading) return;
+    if (!this.state.hasMore || this.state.isLoading || !this.state.accountId) return;
     
-    await this.fetchNotifications(this.state.currentPage + 1);
+    await this.fetchNotifications(this.state.accountId, this.state.currentPage + 1);
   }
 
-  async markAsRead(notificationId: number) {
+  async markAsRead(accountId: number, notificationId: string) {
     this.state.isMarkingRead = true;
     
     // Optimistic update
@@ -132,7 +139,7 @@ class NotificationsStore {
     }
 
     try {
-      await notificationsApi.markAsRead(notificationId);
+      await notificationsApi.markAsRead(accountId, notificationId);
     } catch (error) {
       // Rollback on error
       if (notification) {
@@ -148,7 +155,7 @@ class NotificationsStore {
     }
   }
 
-  async markAllAsRead() {
+  async markAllAsRead(accountId: number) {
     this.state.isMarkingRead = true;
     
     // Optimistic update
@@ -160,7 +167,7 @@ class NotificationsStore {
     this.state.unreadCount = 0;
 
     try {
-      await notificationsApi.markAllAsRead();
+      await notificationsApi.markAllAsRead(accountId);
     } catch (error) {
       // Rollback on error
       this.state.all = oldNotifications;
@@ -172,7 +179,7 @@ class NotificationsStore {
     }
   }
 
-  async deleteNotification(notificationId: number) {
+  async deleteNotification(accountId: number, notificationId: string) {
     this.state.isDeleting = true;
     
     // Optimistic delete
@@ -184,7 +191,7 @@ class NotificationsStore {
     }
 
     try {
-      await notificationsApi.deleteNotification(notificationId);
+      await notificationsApi.deleteNotification(accountId, notificationId);
     } catch (error) {
       // Rollback on error
       if (deletedNotification) {
@@ -200,22 +207,24 @@ class NotificationsStore {
     }
   }
 
-  async deleteAll(type?: string) {
+  async deleteAll(accountId: number, type: 'read' | 'all' = 'read') {
     this.state.isDeleting = true;
     
     // Optimistic delete
     const oldNotifications = [...this.state.all];
     const oldUnreadCount = this.state.unreadCount;
     
-    if (type) {
-      this.state.all = this.state.all.filter(n => n.notificationType !== type);
+    if (type === 'read') {
+      this.state.all = this.state.all.filter(n => !n.readAt);
+      // unreadCount shouldn't change as we only remove read ones
     } else {
+      // type === 'all'
       this.state.all = [];
+      this.state.unreadCount = 0;
     }
-    this.state.unreadCount = 0;
 
     try {
-      await notificationsApi.deleteAll(type);
+      await notificationsApi.deleteAll(accountId, type);
     } catch (error) {
       // Rollback on error
       this.state.all = oldNotifications;
@@ -229,12 +238,15 @@ class NotificationsStore {
 
   // WebSocket event handlers
   handleNewNotification(notification: Notification) {
-    // Add to beginning of list
-    this.state.all = [notification, ...this.state.all];
-    this.state.unreadCount = this.state.unreadCount + 1;
+    // Check if notification belongs to current account
+    if (this.state.accountId && notification.accountId === this.state.accountId) {
+      // Add to beginning of list
+      this.state.all = [notification, ...this.state.all];
+      this.state.unreadCount = this.state.unreadCount + 1;
+    }
   }
 
-  handleNotificationRead(notificationId: number) {
+  handleNotificationRead(notificationId: string) {
     this.state.all = this.state.all.map(n =>
       n.id === notificationId ? { ...n, readAt: new Date().toISOString() } : n
     );
@@ -254,7 +266,8 @@ class NotificationsStore {
       isDeleting: false,
       error: null,
       currentPage: 1,
-      hasMore: true
+      hasMore: true,
+      accountId: null
     };
   }
 }
