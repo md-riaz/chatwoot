@@ -8,6 +8,8 @@ import { page } from '$app/state';
 import type { AvailabilityUpdateParams, CurrentUser, PasswordUpdateParams, ProfileUpdateParams } from '$lib/api/auth';
 import * as authAPI from '$lib/api/auth';
 import { clearStorage, loadFromStorage, saveToStorage } from './persistence';
+import { ROLES, AVAILABLE_CUSTOM_ROLE_PERMISSIONS } from '$lib/constants/permissions';
+import { globalConfig } from '$lib/stores/globalConfig.svelte';
 
 /**
  * Initial user state
@@ -51,6 +53,43 @@ class AuthStore {
     const accountId = this.currentAccountId;
     if (!accountId) return null;
     return this.currentUser.accounts.find(acc => acc.id === accountId) || null;
+  }
+
+  /**
+   * Check if user has a specific permission
+   */
+  hasPermission(permission: string): boolean {
+    if (!this.isLoggedIn || !this.currentAccount) return false;
+    
+    const role = this.currentAccount.role;
+    if (role === 'administrator') return true;
+    
+    // If permission specifically asks for administrator, deny non-admins
+    if (permission === 'administrator') return false;
+    
+    // For agents, check specific permissions if using custom roles
+    // If not using custom roles, agents have basic permissions
+    if (role === 'agent') {
+      // Logic for standard agent vs custom role would go here
+      // For now, assuming standard agent has access to basic features
+      return true; 
+    }
+    
+    return false;
+  }
+
+  /**
+   * Check if a feature is enabled for the current account
+   */
+  isFeatureEnabled(featureFlag: string): boolean {
+    // Check account specific features first
+    const account = this.currentAccount;
+    if (account && account.features && account.features[featureFlag] !== undefined) {
+      return account.features[featureFlag];
+    }
+    
+    // Fallback to global config
+    return globalConfig.isFeatureEnabled(featureFlag);
   }
   
   /**

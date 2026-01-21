@@ -52,6 +52,10 @@ class LabelsStore {
 
   // Getter for sorted labels (alphabetically by title)
   get sortedLabels(): Label[] {
+    if (!Array.isArray(this.allLabels)) {
+      console.error('LabelsStore: allLabels is not an array in sortedLabels', this.allLabels);
+      return [];
+    }
     return [...this.allLabels].sort((a, b) => {
       const titleA = a.title?.toLowerCase() || '';
       const titleB = b.title?.toLowerCase() || '';
@@ -61,17 +65,26 @@ class LabelsStore {
 
   // Getter for labels count
   get labelsCount(): number {
-    return this.allLabels.length;
+    return Array.isArray(this.allLabels) ? this.allLabels.length : 0;
   }
 
   // Getter for sidebar labels (labels with showOnSidebar = true)
   get sidebarLabels(): Label[] {
+    if (!Array.isArray(this.allLabels)) {
+      console.error('LabelsStore: allLabels is not an array in sidebarLabels', this.allLabels);
+      return [];
+    }
     return this.allLabels.filter((label) => label.showOnSidebar);
   }
 
   // Getter for labels sorted by color
   get labelsByColor(): Map<string, Label[]> {
     const labelsByColorMap = new Map<string, Label[]>();
+    
+    if (!Array.isArray(this.allLabels)) {
+      console.error('LabelsStore: allLabels is not an array in labelsByColor', this.allLabels);
+      return labelsByColorMap;
+    }
     
     this.allLabels.forEach((label) => {
       const color = label.color || '#000000';
@@ -88,12 +101,22 @@ class LabelsStore {
    * Fetch all labels
    */
   async fetchLabels(params?: LabelListParams): Promise<void> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return;
+
     this.uiFlags.isFetching = true;
     this.error = null;
 
     try {
-      const labels = await labelsAPI.getLabels(params);
-      this.allLabels = labels;
+      const labels = await labelsAPI.getLabels(accountId, params);
+      if (Array.isArray(labels)) {
+        this.allLabels = labels;
+      } else {
+        console.error('LabelsStore: fetchLabels returned non-array data', labels);
+        // Fallback to empty array to prevent runtime errors
+        this.allLabels = [];
+        this.error = 'Received invalid data format for labels';
+      }
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch labels';
       console.error('Error fetching labels:', err);
@@ -123,14 +146,17 @@ class LabelsStore {
   /**
    * Create new label
    */
-  async createLabel(params: CreateLabelParams): Promise<Label | null> {
+  async createLabel(data: CreateLabelParams): Promise<Label | null> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return null;
+
     this.uiFlags.isCreating = true;
     this.error = null;
 
     try {
-      const label = await labelsAPI.createLabel(params);
-      this.allLabels = [...this.allLabels, label];
-      return label;
+      const newLabel = await labelsAPI.createLabel(accountId, data);
+      this.allLabels = [...this.allLabels, newLabel];
+      return newLabel;
     } catch (err: any) {
       this.error = err.message || 'Failed to create label';
       console.error('Error creating label:', err);
@@ -143,13 +169,21 @@ class LabelsStore {
   /**
    * Update label
    */
-  async updateLabel(labelId: number, params: UpdateLabelParams): Promise<Label | null> {
+  async updateLabel(id: number, data: UpdateLabelParams): Promise<Label | null> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return null;
+
     this.uiFlags.isUpdating = true;
     this.error = null;
 
     try {
-      const updatedLabel = await labelsAPI.updateLabel(labelId, params);
-      this.addOrUpdateLabel(updatedLabel);
+      const updatedLabel = await labelsAPI.updateLabel(accountId, id, data);
+      this.allLabels = this.allLabels.map((label) =>
+        label.id === id ? updatedLabel : label
+      );
+      if (this.selectedLabelId === id) {
+        // Force reactivity update if needed
+      }
       return updatedLabel;
     } catch (err: any) {
       this.error = err.message || 'Failed to update label';

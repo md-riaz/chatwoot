@@ -14,11 +14,33 @@ class CustomFiltersController extends Controller
     private const DEFAULT_FILTER_TYPE = 'conversation';
 
     /**
+     * Map filter type input (string or int) to internal integer constant.
+     */
+    private function mapFilterTypeToInt($value): int
+    {
+        if (is_numeric($value)) {
+            return (int) $value;
+        }
+
+        switch (strtolower((string) $value)) {
+            case 'conversation':
+                return CustomFilter::TYPE_CONVERSATION;
+            case 'contact':
+                return CustomFilter::TYPE_CONTACT;
+            case 'report':
+                return CustomFilter::TYPE_REPORT;
+            default:
+                return CustomFilter::TYPE_CONVERSATION;
+        }
+    }
+
+    /**
      * Display a listing of custom filters for an account (scoped to current user).
      */
     public function index(Account $account, Request $request): JsonResource
     {
-        $filterType = $request->input('filter_type', self::DEFAULT_FILTER_TYPE);
+        $filterTypeInput = $request->input('filter_type', $request->input('filterType', self::DEFAULT_FILTER_TYPE));
+        $filterType = $this->mapFilterTypeToInt($filterTypeInput);
 
         $query = CustomFilter::where('account_id', $account->id)
             ->where('user_id', auth()->id())
@@ -34,13 +56,15 @@ class CustomFiltersController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'filter_type' => 'required|string|in:conversation,contact,report',
+            'filter_type' => 'required',
             'query' => 'required|array',
         ]);
 
+        $filterType = $this->mapFilterTypeToInt($validated['filter_type']);
+
         $filter = CustomFilter::create([
             'name' => $validated['name'],
-            'filter_type' => $validated['filter_type'],
+            'filter_type' => $filterType,
             'query' => $validated['query'],
             'account_id' => $account->id,
             'user_id' => auth()->id(),
@@ -70,9 +94,14 @@ class CustomFiltersController extends Controller
 
         $validated = $request->validate([
             'name' => 'string|max:255',
-            'filter_type' => 'string|in:conversation,contact,report',
+            'filter_type' => '',
             'query' => 'array',
         ]);
+
+        // Map filter_type if provided
+        if (array_key_exists('filter_type', $validated)) {
+            $validated['filter_type'] = $this->mapFilterTypeToInt($validated['filter_type']);
+        }
 
         $customFilter->update($validated);
 

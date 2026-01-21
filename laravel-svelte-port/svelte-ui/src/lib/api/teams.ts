@@ -44,61 +44,61 @@ export interface UpdateTeamParams {
 /**
  * Get list of teams
  */
-export async function getTeams(params?: TeamListParams): Promise<Team[]> {
-  const response = await api.get('teams', {
+export async function getTeams(accountId: number, params?: TeamListParams): Promise<Team[]> {
+  const response = await api.get(`api/v1/accounts/${accountId}/teams`, {
     searchParams: toSearchParams(params),
-  }).json<Team[]>();
-  return response;
+  }).json<{ data: Team[] }>();
+  return response.data;
 }
 
 /**
  * Get single team by ID
  */
-export async function getTeam(teamId: number): Promise<Team> {
-  const response = await api.get(`teams/${teamId}`).json<Team>();
-  return response;
+export async function getTeam(accountId: number, teamId: number): Promise<Team> {
+  const response = await api.get(`api/v1/accounts/${accountId}/teams/${teamId}`).json<{ data: Team }>();
+  return response.data;
 }
 
 /**
  * Create new team
  */
-export async function createTeam(params: CreateTeamParams): Promise<Team> {
-  const response = await api.post('teams', {
+export async function createTeam(accountId: number, params: CreateTeamParams): Promise<Team> {
+  const response = await api.post(`api/v1/accounts/${accountId}/teams`, {
     json: params,
-  }).json<Team>();
-  return response;
+  }).json<{ data: Team }>();
+  return response.data;
 }
 
 /**
  * Update team
  */
-export async function updateTeam(teamId: number, params: UpdateTeamParams): Promise<Team> {
-  const response = await api.patch(`teams/${teamId}`, {
+export async function updateTeam(accountId: number, teamId: number, params: UpdateTeamParams): Promise<Team> {
+  const response = await api.patch(`api/v1/accounts/${accountId}/teams/${teamId}`, {
     json: params,
-  }).json<Team>();
-  return response;
+  }).json<{ data: Team }>();
+  return response.data;
 }
 
 /**
  * Delete team
  */
-export async function deleteTeam(teamId: number): Promise<void> {
-  await api.delete(`teams/${teamId}`);
+export async function deleteTeam(accountId: number, teamId: number): Promise<void> {
+  await api.delete(`api/v1/accounts/${accountId}/teams/${teamId}`);
 }
 
 /**
  * Get team members
  */
-export async function getTeamMembers(teamId: number): Promise<TeamMember[]> {
-  const response = await api.get(`teams/${teamId}/team_members`).json<TeamMember[]>();
+export async function getTeamMembers(accountId: number, teamId: number): Promise<TeamMember[]> {
+  const response = await api.get(`api/v1/accounts/${accountId}/teams/${teamId}/team_members`).json<TeamMember[]>();
   return response;
 }
 
 /**
  * Add agent to team
  */
-export async function addTeamMember(teamId: number, agentId: number): Promise<void> {
-  await api.post(`teams/${teamId}/team_members`, {
+export async function addTeamMember(accountId: number, teamId: number, agentId: number): Promise<void> {
+  await api.post(`api/v1/accounts/${accountId}/teams/${teamId}/team_members`, {
     json: {
       user_ids: [agentId],
     },
@@ -108,8 +108,8 @@ export async function addTeamMember(teamId: number, agentId: number): Promise<vo
 /**
  * Remove agent from team
  */
-export async function removeTeamMember(teamId: number, agentId: number): Promise<void> {
-  await api.delete(`teams/${teamId}/team_members`, {
+export async function removeTeamMember(accountId: number, teamId: number, agentId: number): Promise<void> {
+  await api.delete(`api/v1/accounts/${accountId}/teams/${teamId}/team_members`, {
     json: {
       user_ids: [agentId],
     },
@@ -119,8 +119,8 @@ export async function removeTeamMember(teamId: number, agentId: number): Promise
 /**
  * Update team members (bulk operation)
  */
-export async function updateTeamMembers(teamId: number, agentIds: number[]): Promise<void> {
-  await api.patch(`teams/${teamId}/team_members`, {
+export async function updateTeamMembers(accountId: number, teamId: number, agentIds: number[]): Promise<void> {
+  await api.patch(`api/v1/accounts/${accountId}/teams/${teamId}/team_members`, {
     json: {
       user_ids: agentIds,
     },

@@ -1,0 +1,75 @@
+<script lang="ts">
+  import {
+    Home,
+    MessageSquare,
+    Users,
+    Inbox,
+    Tags,
+    BarChart3,
+    Settings,
+    Building2,
+    Megaphone,
+    Library,
+    Briefcase,
+    SquareUser,
+    UserCog,
+    Code,
+    Workflow,
+    Bot,
+    ToyBrick,
+    MessageSquareQuote,
+    Blocks,
+    ShieldPlus,
+    ClockAlert,
+    Shield,
+    CreditCard,
+    Folder,
+    Facebook,
+    Twitter,
+    Mail,
+    Globe,
+    Smartphone,
+    Send,
+    MessageCircle
+  } from "lucide-svelte";
+
+  let { name, class: className }: { name?: string; class?: string } = $props();
+
+  const icons: Record<string, any> = {
+    home: Home,
+    "message-square": MessageSquare,
+    users: Users,
+    inbox: Inbox,
+    tags: Tags,
+    "bar-chart-3": BarChart3,
+    settings: Settings,
+    "building-2": Building2,
+    megaphone: Megaphone,
+    library: Library,
+    briefcase: Briefcase,
+    "square-user": SquareUser,
+    "user-cog": UserCog,
+    code: Code,
+    workflow: Workflow,
+    bot: Bot,
+    "toy-brick": ToyBrick,
+    "message-square-quote": MessageSquareQuote,
+    blocks: Blocks,
+    "shield-plus": ShieldPlus,
+    "clock-alert": ClockAlert,
+    shield: Shield,
+    "credit-card": CreditCard,
+    folder: Folder,
+    facebook: Facebook,
+    twitter: Twitter,
+    mail: Mail,
+    globe: Globe,
+    smartphone: Smartphone,
+    send: Send,
+    "message-circle": MessageCircle
+  };
+
+  const Icon = $derived(name && icons[name] ? icons[name] : Home);
+</script>
+
+<Icon class={className} />

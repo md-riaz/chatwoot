@@ -17,6 +17,7 @@ export interface UserAccount {
   availability: 'online' | 'offline' | 'busy';
   availabilityStatus?: 'online' | 'offline' | 'busy';
   autoOffline: boolean;
+  features?: Record<string, boolean>;
 }
 
 /**

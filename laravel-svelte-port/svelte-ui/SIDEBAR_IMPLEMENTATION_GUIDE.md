@@ -33,64 +33,64 @@ This document explains how the `/app/` sidebar is constructed in the Vue fronten
 - `frontendURL` / `accountScopedRoute` → `src/lib/utils/route.js` providing a consistent `accountScopedRoute(name, params)` string builder; use SvelteKit `goto(path)` for navigation.
 - Dropdown primitives → `shadcn-svelte` components/primitives (Tailwind v4). `shadcn-svelte` commonly composes primitives that use `data-slot` attributes and child composition rather than relying on named `<slot>` hacks. Prefer the library's primitives and composition APIs (bindings, `bind:ref`, `data-slot` usage) for dropdowns/menus to ensure accessibility and consistent styling in Svelte 5.
 
-## Concrete SvelteKit implementation guidance and patterns
+## Concrete SvelteKit implementation guidance and patterns (IMPLEMENTED)
 
-1. Layout and placement
+1. Layout and placement (Completed)
 
-  - `src/routes/app/+layout.svelte` will import `Sidebar.svelte` and render the main page outlet (the layout's default content area). Place global widgets and modals at layout level so they're shared across child pages.
+  - `src/routes/app/+layout.svelte` acts as the main shell. It wraps the content in `<Sidebar.Provider>` and `<Sidebar.Inset>`.
+  - Global keyboard shortcuts (`Cmd+K`, `Cmd+/`, `Alt+O`) are handled via `window` event listeners in the layout.
+  - Reverb WebSocket client is initialized here to subscribe to `user.{id}` channels for real-time notifications.
 
-2. Stores (replace Vuex)
+2. Stores (Replaced Vuex with Svelte 5 Runes)
 
-  - Create stores per domain: `account.js`, `inboxes.js`, `labels.js`, `teams.js`, `customViews.js`, `notifications.js`, `uiSettings.js`.
-  - Each store exports a `load()` or `fetch()` method that calls the API and updates the writable store. Use `derived()` for computed lists (e.g., `sortedInboxes`).
-  - Example API surface:
+  - Implemented domain-specific stores using `.svelte.ts` files: `auth.svelte.ts`, `inboxes.svelte.ts`, `labels.svelte.ts`, `teams.svelte.ts`, `customViews.svelte.ts`, `notifications.svelte.ts`.
+  - Stores use `$state` for reactivity and expose `fetch()` methods.
+  - `notificationsStore` handles optimistic updates via WebSocket events (`handleNewNotification`).
 
-  - account.js:
+3. Menu data model (Completed)
 
-    - `export const currentAccount = writable(null)`
-    - `export const accountId = derived(currentAccount, a => a?.id)`
-    - `export async function loadAccount()` — fetch user/account and set stores.
+  - `src/lib/components/layout/AppSidebar.svelte` builds the menu structure dynamically.
+  - Menu items are derived from store data using `$derived` runes to ensure reactivity.
+  - Structure follows the Vue pattern: `primary` (Inboxes, Teams), `secondary` (Reports, Settings), and `custom` (Labels, Custom Views).
 
-3. Menu data model
+4. Rendering and custom leafs (Completed)
 
-  - Build the menu as a JS data structure in `Sidebar.svelte` or a helper `menuFactory.js`:
+  - `src/lib/components/layout/SidebarGroup.svelte` handles recursive rendering of menu groups.
+  - Supports icon rendering for sub-items (e.g., specific Inbox channel icons) using dynamic component references.
+  - Active state is calculated using `$page.url.pathname` and helper functions.
 
-    - item: { name, labelKey, icon, to, activeOn, children?, countStore? , renderComponent? }
-    - For children from stores, compute the array reactively: `$: inboxChildren = $inboxes.map(...)`.
+5. Account switcher & dropdowns (Completed)
 
-  - Keep menu-building logic pure where possible and testable — export a function `buildMenu({inboxes, labels, teams, customViews, uiSettings})` that returns `menuItems`.
+  - `SidebarHeader` contains the account switcher, using `shadcn-svelte`'s `DropdownMenu` primitives.
+  - Account switching is handled by `authStore` and navigation.
 
-4. Rendering and custom leafs
+6. Keyboard shortcuts & accessibility (Completed)
 
-  - For inline custom rendering (Vue `h(ChannelLeaf, {...})`), use `<svelte:component this={item.renderComponent} {...props} />` in Svelte.
-  - Sidebar groups: `SidebarGroup.svelte` renders title, toggles open/close, and iterates children (recursively if nested).
+  - Global shortcuts:
+    - `Cmd+K` / `Ctrl+K`: Navigate to Search.
+    - `Cmd+/` / `Ctrl+/`: Open Keyboard Shortcuts modal.
+    - `Alt+O`: Toggle Sidebar (Legacy support).
+  - Sidebar toggle via `Cmd+B` is handled by `Sidebar.Provider`.
+  - `KeyboardShortcutsModal.svelte` displays available shortcuts dynamically.
 
-5. Account switcher & dropdowns
+7. Routing & active detection (Completed)
 
-  - Implement a dropdown using `shadcn-svelte` primitives (use the library's trigger/content primitives or `data-slot` composition patterns). Use a Svelte action `use:clickOutside` to close the list.
-  - `SidebarAccountSwitcher.svelte` will read `userAccounts` store and call `goto(accountPath)` on selection.
+  - `isNavigationItemActive` helper function compares the current URL with menu item paths.
+  - Supports exact matches and prefix matches for nested routes.
 
-6. Keyboard shortcuts & accessibility
+8. Permissions & feature flags (Completed)
 
-  - Use a small global hotkey helper (`hotkeys-js` or `Mousetrap`) registered in the layout `onMount` or as a Svelte action. Provide `aria-*` attributes and role semantics for lists and menu items.
+  - Menu items are conditionally rendered based on `authStore.currentUser` permissions and role checks (e.g., admin-only settings).
 
-7. Routing & active detection
+9. Data fetching (Completed)
 
-  - Use `$page.url.pathname` to compute active state. Port `activeOn` semantics by checking route name equivalents or path patterns. Provide a helper `isActive(item, $page)` used by `SidebarGroup`.
+  - `+layout.svelte` triggers parallel fetching of initial data (`inboxes`, `labels`, `teams`, `notifications`) on mount.
+  - WebSocket connection ensures data stays fresh without manual polling.
 
-8. Permissions & feature flags
+10. Event bus / cross-component events (Completed)
 
-  - Expose `currentUser` and `globalConfig` stores and helper `hasPermission(permission)` and `isFeatureEnabled(flag)` to decide which menu items to show.
-
-9. Data fetching
-
-  - In `+layout.server.js` (SSR), load minimal account/user data. On client `onMount` call `inboxes.load()`, `labels.load()`, `teams.load()`, `customViews.load()`, and `notifications.loadUnread()` to match Vue `onMounted` behavior.
-
-10. Event bus / cross-component events
-
-  - Replace Vue `emitter` event bus with either:
-    - Svelte stores (writable) for global booleans (e.g., `showComposer`), or
-    - A tiny event emitter util exported from `src/lib/utils/eventBus.js`.
+  - Replaced Vue event bus with native DOM events or Svelte stores where appropriate.
+  - `open-keyboard-shortcuts` custom event is used to trigger the modal from anywhere.
 
 ## File layout suggestions (SvelteKit)
 

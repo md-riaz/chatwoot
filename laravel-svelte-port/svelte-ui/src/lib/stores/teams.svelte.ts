@@ -47,6 +47,10 @@ class TeamsStore {
 
   // Getter for sorted teams (alphabetically by name)
   get sortedTeams(): Team[] {
+    if (!Array.isArray(this.allTeams)) {
+      console.error('TeamsStore: allTeams is not an array in sortedTeams', this.allTeams);
+      return [];
+    }
     return [...this.allTeams].sort((a, b) => {
       const nameA = a.name?.toLowerCase() || '';
       const nameB = b.name?.toLowerCase() || '';
@@ -56,11 +60,15 @@ class TeamsStore {
 
   // Getter for teams count
   get teamsCount(): number {
-    return this.allTeams.length;
+    return Array.isArray(this.allTeams) ? this.allTeams.length : 0;
   }
 
   // Getter for user's teams
   get myTeams(): Team[] {
+    if (!Array.isArray(this.allTeams)) {
+      console.error('TeamsStore: allTeams is not an array in myTeams', this.allTeams);
+      return [];
+    }
     return this.allTeams.filter((team) => team.isMember);
   }
 
@@ -68,12 +76,21 @@ class TeamsStore {
    * Fetch all teams
    */
   async fetchTeams(params?: TeamListParams): Promise<void> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return;
+
     this.uiFlags.isFetching = true;
     this.error = null;
 
     try {
-      const teams = await teamsAPI.getTeams(params);
-      this.allTeams = teams;
+      const teams = await teamsAPI.getTeams(accountId, params);
+      if (Array.isArray(teams)) {
+        this.allTeams = teams;
+      } else {
+        console.error('TeamsStore: fetchTeams returned non-array data', teams);
+        this.allTeams = [];
+        this.error = 'Received invalid data format for teams';
+      }
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch teams';
       console.error('Error fetching teams:', err);
@@ -86,11 +103,14 @@ class TeamsStore {
    * Fetch single team
    */
   async fetchTeam(teamId: number): Promise<void> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return;
+
     this.uiFlags.isFetchingItem = true;
     this.error = null;
 
     try {
-      const team = await teamsAPI.getTeam(teamId);
+      const team = await teamsAPI.getTeam(accountId, teamId);
       this.addOrUpdateTeam(team);
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch team';
@@ -103,12 +123,15 @@ class TeamsStore {
   /**
    * Create new team
    */
-  async createTeam(params: CreateTeamParams): Promise<Team | null> {
+  async createTeam(data: CreateTeamParams): Promise<Team | null> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return null;
+
     this.uiFlags.isCreating = true;
     this.error = null;
 
     try {
-      const team = await teamsAPI.createTeam(params);
+      const team = await teamsAPI.createTeam(accountId, data);
       this.allTeams = [...this.allTeams, team];
       return team;
     } catch (err: any) {
@@ -123,12 +146,15 @@ class TeamsStore {
   /**
    * Update team
    */
-  async updateTeam(teamId: number, params: UpdateTeamParams): Promise<Team | null> {
+  async updateTeam(id: number, data: UpdateTeamParams): Promise<Team | null> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return null;
+
     this.uiFlags.isUpdating = true;
     this.error = null;
 
     try {
-      const updatedTeam = await teamsAPI.updateTeam(teamId, params);
+      const updatedTeam = await teamsAPI.updateTeam(accountId, id, data);
       this.addOrUpdateTeam(updatedTeam);
       return updatedTeam;
     } catch (err: any) {

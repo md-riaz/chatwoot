@@ -8,10 +8,16 @@
   import MobileSidebarLauncher from '$lib/components/layout/MobileSidebarLauncher.svelte';
   import KeyboardShortcutsModal from '$lib/components/ui/keyboard-shortcuts-modal.svelte';
   import { authStore } from '$lib/stores/auth.svelte';
+  import { inboxesStore } from '$lib/stores/inboxes.svelte';
+  import { labelsStore } from '$lib/stores/labels.svelte';
+  import { teamsStore } from '$lib/stores/teams.svelte';
+  import { customViewsStore } from '$lib/stores/customViews.svelte';
+  import { notificationsStore } from '$lib/stores/notifications.svelte';
   import { ReverbClient, getReverbClient } from '$lib/websocket/reverb-client';
   import * as Sidebar from '$lib/components/ui/sidebar/index.js';
   import type { Snippet } from 'svelte';
   import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
   
   interface Props {
     children: Snippet;
@@ -21,6 +27,29 @@
   
   // Local state
   let reverbClient: ReverbClient | null = null;
+  let isSidebarOpen = $state(true);
+
+  function handleGlobalKeydown(e: KeyboardEvent) {
+    // Cmd+K or Ctrl+K -> Search
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      if (authStore.currentAccountId) {
+        goto(`/app/accounts/${authStore.currentAccountId}/search`);
+      }
+    }
+
+    // Cmd+/ or Ctrl+/ -> Keyboard Shortcuts
+    if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('open-keyboard-shortcuts'));
+    }
+
+    // Alt+O -> Toggle Sidebar (Chatwoot Legacy)
+    if (e.altKey && (e.key === 'o' || e.key === 'O')) {
+      e.preventDefault();
+      isSidebarOpen = !isSidebarOpen;
+    }
+  }
   
   // WebSocket configuration constants
   // Note: Default ports - Laravel API: 8000, Reverb WebSocket: 8080
@@ -33,6 +62,17 @@
     // Validate auth session
     try {
       await authStore.validateSession();
+      
+      // Load initial data if user is logged in and account is selected
+      if (authStore.isLoggedIn && authStore.currentAccountId) {
+        Promise.all([
+          inboxesStore.fetchInboxes(),
+          labelsStore.fetchLabels(),
+          teamsStore.fetchTeams(),
+          customViewsStore.fetchCustomViews(),
+          notificationsStore.fetchUnreadCount(authStore.currentAccountId)
+        ]).catch(err => console.error('Failed to load initial data:', err));
+      }
     } catch (error) {
       console.error('Session validation failed:', error);
       // Auth guard will handle redirect
@@ -92,11 +132,24 @@
       });
       
       reverbClient.connect();
+
+      // Subscribe to user notifications
+      if (authStore.currentUser?.id) {
+        reverbClient.subscribePrivate(
+          `user.${authStore.currentUser.id}`,
+          'notification.created',
+          (data: any) => {
+            notificationsStore.handleNewNotification(data);
+          }
+        );
+      }
     }
   });
 </script>
 
-<Sidebar.Provider>
+<svelte:window onkeydown={handleGlobalKeydown} />
+
+<Sidebar.Provider bind:open={isSidebarOpen}>
   <AppSidebar />
   <MobileSidebarLauncher />
   <Sidebar.Inset class="h-svh overflow-hidden">

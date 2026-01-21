@@ -13,8 +13,11 @@
   import { labelsStore } from '$lib/stores/labels.svelte';
   import { inboxesStore } from '$lib/stores/inboxes.svelte';
   import { teamsStore } from '$lib/stores/teams.svelte';
+  import { customViewsStore } from '$lib/stores/customViews.svelte';
+  import { notificationsStore } from '$lib/stores/notifications.svelte';
   import type { ComponentProps } from "svelte";
   import { authStore } from '$lib/stores/auth.svelte';
+  import { globalConfig } from '$lib/stores/globalConfig.svelte';
   import SidebarAccountSwitcher from './SidebarAccountSwitcher.svelte';
   import SidebarProfileMenu from './SidebarProfileMenu.svelte';
   import Logo from './Logo.svelte';
@@ -26,39 +29,76 @@
   const currentAccount = $derived(authStore.currentAccount);
   const isLoggedIn = $derived(authStore.isLoggedIn);
 
-  const navigationSections: SidebarSection[] = $derived([
+  function getChannelIcon(channelType: string) {
+    const map: Record<string, string> = {
+      'Channel::FacebookPage': 'facebook',
+      'Channel::TwitterProfile': 'twitter',
+      'Channel::TwilioSms': 'smartphone',
+      'Channel::Whatsapp': 'message-circle',
+      'Channel::Email': 'mail',
+      'Channel::Api': 'globe',
+      'Channel::WebWidget': 'globe',
+      'Channel::Line': 'message-circle',
+      'Channel::Telegram': 'send',
+    };
+    return map[channelType] || 'inbox';
+  }
+
+  function filterItems(items: NavigationItem[]): NavigationItem[] {
+    return items.filter(item => {
+      // Check permissions
+      if (item.permission && !authStore.hasPermission(item.permission)) {
+        return false;
+      }
+      // Check feature flags
+      if (item.featureFlag && !globalConfig.isFeatureEnabled(item.featureFlag)) {
+        return false;
+      }
+      
+      // Filter children
+      if (item.children) {
+        const filteredChildren = filterItems(item.children);
+        // If it was a folder (has children prop) and now empty, hide it unless it's a link itself
+        if (filteredChildren.length === 0 && !item.href) {
+          return false;
+        }
+        // Return a new object with filtered children to avoid mutating
+        item.children = filteredChildren;
+      }
+      
+      return true;
+    });
+  }
+
+  const mainNavItems: NavigationItem[] = $derived(filterItems([
     {
-      id: 'main',
-      items: [
-        {
-          id: 'inbox',
-          label: 'Inbox',
-          icon: 'inbox',
-          href: `/app/accounts/${accountId}/inbox-view`,
-          activeOn: [
-            `/app/accounts/${accountId}/inbox-view`,
-          ],
-        },
+      id: 'inbox',
+      label: 'Inbox',
+      icon: 'inbox',
+      href: `/app/accounts/${accountId}/inbox-view`,
+      badge: notificationsStore.unreadCount,
+      activeOn: [
+        `/app/accounts/${accountId}/inbox-view`,
       ],
     },
     {
       id: 'conversations',
-      title: 'Conversations',
-      items: [
+      label: 'Conversations',
+      icon: 'message-circle',
+      children: [
         {
           id: 'all',
           label: 'All Conversations',
-          icon: 'message-square',
           href: `/app/accounts/${accountId}/conversations`,
           activeOn: [
             `/app/accounts/${accountId}/conversations`,
             `/app/accounts/${accountId}/conversations/`,
           ],
+          permission: 'conversation_manage',
         },
         {
           id: 'mentions',
           label: 'Mentions',
-          icon: 'message-square',
           href: `/app/accounts/${accountId}/conversations/mentions`,
           activeOn: [
             `/app/accounts/${accountId}/conversations/mentions`,
@@ -67,26 +107,35 @@
         {
           id: 'unattended',
           label: 'Unattended',
-          icon: 'message-square',
           href: `/app/accounts/${accountId}/conversations/unattended`,
           activeOn: [
             `/app/accounts/${accountId}/conversations/unattended`,
           ],
         },
         {
-          id: 'folders',
-          label: 'Folders',
+          id: 'custom-views',
+          label: 'Custom Views',
           icon: 'folder',
-          children: labelsStore.sidebarLabels.map(label => ({
-            id: `label-${label.id}`,
-            label: label.title,
-            href: `/app/accounts/${accountId}/conversations/label/${encodeURIComponent(
-              label.title
-            )}`,
+          children: customViewsStore.conversationViews.map(view => ({
+            id: `view-${view.id}`,
+            label: view.name,
+            href: `/app/accounts/${accountId}/conversations/custom_view/${view.id}`,
             activeOn: [
-              `/app/accounts/${accountId}/conversations/label/${encodeURIComponent(
-                label.title
-              )}`,
+              `/app/accounts/${accountId}/conversations/custom_view/${view.id}`,
+            ],
+          })),
+        },
+        {
+          id: 'channels',
+          label: 'Inboxes',
+          icon: 'inbox',
+          children: inboxesStore.sortedInboxes.map(inbox => ({
+            id: `inbox-${inbox.id}`,
+            label: inbox.name,
+            icon: getChannelIcon(inbox.channelType),
+            href: `/app/accounts/${accountId}/conversations/inbox/${inbox.id}`,
+            activeOn: [
+              `/app/accounts/${accountId}/conversations/inbox/${inbox.id}`,
             ],
           })),
         },
@@ -104,49 +153,48 @@
           })),
         },
         {
-          id: 'channels',
-          label: 'Channels',
-          icon: 'inbox',
-          children: inboxesStore.sortedInboxes.map(inbox => ({
-            id: `inbox-${inbox.id}`,
-            label: inbox.name,
-            href: `/app/accounts/${accountId}/conversations/inbox/${inbox.id}`,
+          id: 'folders',
+          label: 'Labels',
+          icon: 'tags',
+          children: labelsStore.sidebarLabels.map(label => ({
+            id: `label-${label.id}`,
+            label: label.title,
+            href: `/app/accounts/${accountId}/conversations/label/${encodeURIComponent(
+              label.title
+            )}`,
             activeOn: [
-              `/app/accounts/${accountId}/conversations/inbox/${inbox.id}`,
+              `/app/accounts/${accountId}/conversations/label/${encodeURIComponent(
+                label.title
+              )}`,
             ],
           })),
         },
-      ],
+      ]
     },
     {
       id: 'contacts',
-      title: 'Contacts',
-      items: [
+      label: 'Contacts',
+      icon: 'users',
+      children: [
         {
           id: 'contacts-all',
           label: 'All Contacts',
-          icon: 'users',
           href: `/app/accounts/${accountId}/contacts`,
           activeOn: [
             `/app/accounts/${accountId}/contacts`,
             `/app/accounts/${accountId}/contacts/`,
           ],
+          permission: 'contact_manage',
         },
         {
           id: 'contacts-active',
           label: 'Active',
-          icon: 'users',
           href: `/app/accounts/${accountId}/contacts/active`,
           activeOn: [
             `/app/accounts/${accountId}/contacts/active`,
           ],
+          permission: 'contact_manage',
         },
-      ],
-    },
-    {
-      id: 'companies',
-      title: 'Companies',
-      items: [
         {
           id: 'companies-all',
           label: 'All Companies',
@@ -155,130 +203,135 @@
           activeOn: [
             `/app/accounts/${accountId}/companies`,
           ],
+          permission: 'contact_manage',
         },
-      ],
+      ]
     },
     {
       id: 'reports',
-      title: 'Reports',
-      items: [
+      label: 'Reports',
+      icon: 'bar-chart-3',
+      children: [
         {
           id: 'reports-agent',
           label: 'Agent Reports',
-          icon: 'bar-chart-3',
           href: `/app/accounts/${accountId}/reports/agent`,
           activeOn: [
             `/app/accounts/${accountId}/reports/agent`,
           ],
+          permission: 'report_manage',
         },
         {
           id: 'reports-label',
           label: 'Label Reports',
-          icon: 'bar-chart-3',
           href: `/app/accounts/${accountId}/reports/label`,
           activeOn: [
             `/app/accounts/${accountId}/reports/label`,
           ],
+          permission: 'report_manage',
         },
         {
           id: 'reports-inbox',
           label: 'Inbox Reports',
-          icon: 'bar-chart-3',
           href: `/app/accounts/${accountId}/reports/inbox`,
           activeOn: [
             `/app/accounts/${accountId}/reports/inbox`,
           ],
+          permission: 'report_manage',
         },
         {
           id: 'reports-team',
           label: 'Team Reports',
-          icon: 'bar-chart-3',
           href: `/app/accounts/${accountId}/reports/team`,
           activeOn: [
             `/app/accounts/${accountId}/reports/team`,
           ],
+          permission: 'report_manage',
         },
-      ],
+      ]
     },
     {
       id: 'campaigns',
-      title: 'Campaigns',
-      items: [
+      label: 'Campaigns',
+      icon: 'megaphone',
+      children: [
         {
           id: 'campaigns-livechat',
           label: 'Live chat',
-          icon: 'megaphone',
           href: `/app/accounts/${accountId}/campaigns/livechat`,
           activeOn: [
             `/app/accounts/${accountId}/campaigns/livechat`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'campaigns-sms',
           label: 'SMS',
-          icon: 'megaphone',
           href: `/app/accounts/${accountId}/campaigns/sms`,
           activeOn: [
             `/app/accounts/${accountId}/campaigns/sms`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'campaigns-whatsapp',
           label: 'WhatsApp',
-          icon: 'megaphone',
           href: `/app/accounts/${accountId}/campaigns/whatsapp`,
           activeOn: [
             `/app/accounts/${accountId}/campaigns/whatsapp`,
           ],
+          permission: 'administrator',
         },
-      ],
+      ]
     },
     {
       id: 'portals',
-      title: 'Help Center',
-      items: [
+      label: 'Help Center',
+      icon: 'library',
+      children: [
         {
           id: 'portal-articles',
           label: 'Articles',
-          icon: 'library',
           href: `/app/accounts/${accountId}/portals/articles`,
           activeOn: [
             `/app/accounts/${accountId}/portals/articles`,
           ],
+          permission: 'knowledge_base_manage',
         },
         {
           id: 'portal-categories',
           label: 'Categories',
-          icon: 'library',
           href: `/app/accounts/${accountId}/portals/categories`,
           activeOn: [
             `/app/accounts/${accountId}/portals/categories`,
           ],
+          permission: 'knowledge_base_manage',
         },
         {
           id: 'portal-locales',
           label: 'Locales',
-          icon: 'library',
           href: `/app/accounts/${accountId}/portals/locales`,
           activeOn: [
             `/app/accounts/${accountId}/portals/locales`,
           ],
+          permission: 'knowledge_base_manage',
         },
         {
           id: 'portal-settings',
           label: 'Settings',
-          icon: 'library',
           href: `/app/accounts/${accountId}/portals/settings`,
           activeOn: [
             `/app/accounts/${accountId}/portals/settings`,
           ],
+          permission: 'knowledge_base_manage',
         },
-      ],
+      ]
     },
     {
       id: 'settings',
-      title: 'Settings',
-      items: [
+      label: 'Settings',
+      icon: 'settings',
+      children: [
         {
           id: 'settings-account',
           label: 'Account Settings',
@@ -287,6 +340,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/account`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-agents',
@@ -296,6 +350,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/agents`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-teams',
@@ -305,6 +360,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/teams`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-assignment',
@@ -314,6 +370,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/assignment`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-inboxes',
@@ -323,6 +380,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/inboxes`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-labels',
@@ -332,6 +390,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/labels`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-attributes',
@@ -341,6 +400,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/attributes`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-automation',
@@ -350,6 +410,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/automation`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-agent-bots',
@@ -359,6 +420,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/agent-bots`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-macros',
@@ -368,6 +430,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/macros`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-canned',
@@ -377,6 +440,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/canned`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-integrations',
@@ -386,6 +450,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/integrations`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-audit',
@@ -395,6 +460,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/audit`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-roles',
@@ -404,6 +470,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/roles`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-sla',
@@ -413,6 +480,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/sla`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-security',
@@ -422,6 +490,7 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/security`,
           ],
+          permission: 'administrator',
         },
         {
           id: 'settings-billing',
@@ -431,10 +500,11 @@
           activeOn: [
             `/app/accounts/${accountId}/settings/billing`,
           ],
+          permission: 'administrator',
         },
-      ],
+      ]
     },
-  ]);
+  ]));
 
   function handleAccountSwitch(id: number) {
     authStore.setActiveAccount(id);
@@ -494,9 +564,7 @@
     </div>
   </Sidebar.Header>
   <Sidebar.Content>
-    {#each navigationSections as section}
-      <SidebarGroup {section} />
-    {/each}
+    <SidebarGroup section={{ id: 'main', items: mainNavItems }} />
   </Sidebar.Content>
   <Sidebar.Footer>
     <SidebarProfileMenu />

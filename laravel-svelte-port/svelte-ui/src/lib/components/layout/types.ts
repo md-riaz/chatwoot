@@ -6,10 +6,14 @@ export interface NavigationItem {
   id: string;
   label: string;
   icon?: string;
+  channelType?: string;
+  avatarUrl?: string;
   href: string;
   badge?: number;
   activeOn?: string[];
   children?: NavigationItem[];
+  permission?: string;
+  featureFlag?: string;
 }
 
 export interface UserMenuItem {

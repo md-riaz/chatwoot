@@ -127,8 +127,8 @@ export interface SMTPSettings {
 export async function getInboxes(accountId: number, params?: InboxListParams): Promise<Inbox[]> {
   const response = await api.get(`api/v1/accounts/${accountId}/inboxes`, {
     searchParams: toSearchParams(params),
-  }).json<Inbox[]>();
-  return response;
+  }).json<{ data: Inbox[] }>();
+  return response.data;
 }
 
 /**

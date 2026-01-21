@@ -35,44 +35,44 @@ export interface UpdateLabelParams {
 /**
  * Get list of labels
  */
-export async function getLabels(params?: LabelListParams): Promise<Label[]> {
-  const response = await api.get('labels', {
+export async function getLabels(accountId: number, params?: LabelListParams): Promise<Label[]> {
+  const response = await api.get(`api/v1/accounts/${accountId}/labels`, {
     searchParams: toSearchParams(params),
-  }).json<Label[]>();
-  return response;
+  }).json<{ data: Label[] }>();
+  return response.data;
 }
 
 /**
  * Get single label by ID
  */
-export async function getLabel(labelId: number): Promise<Label> {
-  const response = await api.get(`labels/${labelId}`).json<Label>();
-  return response;
+export async function getLabel(accountId: number, labelId: number): Promise<Label> {
+  const response = await api.get(`api/v1/accounts/${accountId}/labels/${labelId}`).json<{ data: Label }>();
+  return response.data;
 }
 
 /**
  * Create new label
  */
-export async function createLabel(params: CreateLabelParams): Promise<Label> {
-  const response = await api.post('labels', {
+export async function createLabel(accountId: number, params: CreateLabelParams): Promise<Label> {
+  const response = await api.post(`api/v1/accounts/${accountId}/labels`, {
     json: params,
-  }).json<Label>();
-  return response;
+  }).json<{ data: Label }>();
+  return response.data;
 }
 
 /**
  * Update label
  */
-export async function updateLabel(labelId: number, params: UpdateLabelParams): Promise<Label> {
-  const response = await api.patch(`labels/${labelId}`, {
+export async function updateLabel(accountId: number, labelId: number, params: UpdateLabelParams): Promise<Label> {
+  const response = await api.patch(`api/v1/accounts/${accountId}/labels/${labelId}`, {
     json: params,
-  }).json<Label>();
-  return response;
+  }).json<{ data: Label }>();
+  return response.data;
 }
 
 /**
  * Delete label
  */
-export async function deleteLabel(labelId: number): Promise<void> {
-  await api.delete(`labels/${labelId}`);
+export async function deleteLabel(accountId: number, labelId: number): Promise<void> {
+  await api.delete(`api/v1/accounts/${accountId}/labels/${labelId}`);
 }

@@ -90,12 +90,6 @@ class Notification extends Model
         return $this->morphTo();
     }
 
-    public function getPushEventDataAttribute()
-    {
-        // ... (implementation pending, for now returning minimal data)
-        return [];
-    }
-
     public function getPushMessageTitleAttribute(): string
     {
         $type = $this->notification_type_string;
@@ -148,7 +142,6 @@ class Notification extends Model
             $this->forceFill(['read_at' => $this->freshTimestamp()])->save();
         }
     }
-}
 
     /**
      * Mark the notification as unread.
@@ -200,7 +193,7 @@ class Notification extends Model
             $actorData = $this->primaryActor->pushEventData();
             // Rails slices 'conversation_id' and 'id', we can keep it simple or match it
             $data['primary_actor'] = $actorData;
-        } elseif ($this->primaryActor instanceof Conversation) {
+        } elseif ($this->primaryActor instanceof \App\Models\Conversation) {
              // Fallback for Conversation if pushEventData not defined
              $data['primary_actor'] = [
                  'id' => $this->primaryActor->id,
@@ -209,14 +202,5 @@ class Notification extends Model
         }
 
         return $data;
-    }
-
-    /**
-     * Get the string representation of the notification type.
-     */
-    public function getNotificationTypeStringAttribute(): string
-    {
-        $types = array_flip(NotificationSetting::NOTIFICATION_TYPES);
-        return $types[$this->notification_type] ?? 'unknown';
     }
 }

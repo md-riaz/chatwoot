@@ -81,6 +81,33 @@
             </div>
           </DropdownMenu.Label>
           <DropdownMenu.Separator />
+          
+          <DropdownMenu.Group>
+            <DropdownMenu.Sub>
+              <DropdownMenu.SubTrigger>
+                <div class="flex items-center">
+                  <div class="h-2 w-2 rounded-full mr-2 {authStore.currentAvailability === 'online' ? 'bg-green-500' : authStore.currentAvailability === 'busy' ? 'bg-orange-500' : 'bg-slate-300'}"></div>
+                  Availability
+                </div>
+              </DropdownMenu.SubTrigger>
+              <DropdownMenu.SubContent>
+                <DropdownMenu.Item onclick={() => authStore.updateAvailability({ availability: 'online' })}>
+                  <div class="h-2 w-2 rounded-full mr-2 bg-green-500"></div>
+                  Online
+                </DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => authStore.updateAvailability({ availability: 'busy' })}>
+                  <div class="h-2 w-2 rounded-full mr-2 bg-orange-500"></div>
+                  Busy
+                </DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => authStore.updateAvailability({ availability: 'offline' })}>
+                  <div class="h-2 w-2 rounded-full mr-2 bg-slate-300"></div>
+                  Offline
+                </DropdownMenu.Item>
+              </DropdownMenu.SubContent>
+            </DropdownMenu.Sub>
+          </DropdownMenu.Group>
+          <DropdownMenu.Separator />
+          
           <DropdownMenu.Group>
             <DropdownMenu.Item onclick={() => (window as any).$chatwoot?.toggle?.()}>
               <LifeBuoy class="mr-2 h-4 w-4" />
@@ -112,9 +139,10 @@
             {/if}
           </DropdownMenu.Group>
           <DropdownMenu.Separator />
+          
           <DropdownMenu.Item onclick={() => authStore.logout()}>
             <Power class="mr-2 h-4 w-4" />
-            Logout
+            Log out
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Root>
