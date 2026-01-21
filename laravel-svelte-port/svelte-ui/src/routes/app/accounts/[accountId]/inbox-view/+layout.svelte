@@ -13,10 +13,11 @@
   const unreadCount = $derived(notificationsStore.unreadCount);
   const totalCount = $derived(notificationsStore.all.length);
   const isLoading = $derived(notificationsStore.isLoading);
-
-  let sortOrder = $state<SortOrder>('newest');
-  let showSnoozed = $state(true);
-  let showRead = $state(true);
+  
+  const filters = $derived(notificationsStore.filters);
+  const sortOrder = $derived(filters.sortOrder);
+  const showSnoozed = $derived(filters.showSnoozed);
+  const showRead = $derived(filters.showRead);
 
   $effect(() => {
     if (accountId && notificationsStore.accountId !== accountId) {
@@ -33,9 +34,9 @@
   }
 
   function handleDisplayChange(change: { sortOrder: SortOrder; showSnoozed: boolean; showRead: boolean }) {
-    sortOrder = change.sortOrder;
-    showSnoozed = change.showSnoozed;
-    showRead = change.showRead;
+    if (accountId) {
+      notificationsStore.updateFilters(accountId, change);
+    }
   }
 
   async function handleMarkAllRead() {
@@ -75,9 +76,6 @@
 
     <div class="flex-1 overflow-y-auto">
       <NotificationList
-        sortOrder={sortOrder}
-        showSnoozed={showSnoozed}
-        showRead={showRead}
         onNotificationOpen={handleNotificationOpen}
       />
     </div>

@@ -16,6 +16,11 @@ interface NotificationsState {
   currentPage: number;
   hasMore: boolean;
   accountId: number | null;
+  filters: {
+    sortOrder: 'newest' | 'oldest';
+    showRead: boolean;
+    showSnoozed: boolean;
+  };
 }
 
 class NotificationsStore {
@@ -28,7 +33,12 @@ class NotificationsStore {
     error: null,
     currentPage: 1,
     hasMore: true,
-    accountId: null
+    accountId: null,
+    filters: {
+      sortOrder: 'newest',
+      showRead: true,
+      showSnoozed: true
+    }
   });
 
   // Getters
@@ -58,6 +68,10 @@ class NotificationsStore {
 
   get accountId() {
     return this.state.accountId;
+  }
+
+  get filters() {
+    return this.state.filters;
   }
 
   // Derived getters
@@ -92,7 +106,17 @@ class NotificationsStore {
     this.state.accountId = accountId;
 
     try {
-      const response = await notificationsApi.getNotifications(accountId, page);
+      const sortOrder = this.state.filters.sortOrder === 'newest' ? 'desc' : 'asc';
+      const includes: string[] = [];
+      if (this.state.filters.showRead) includes.push('read');
+      if (this.state.filters.showSnoozed) includes.push('snoozed');
+
+      const response = await notificationsApi.getNotifications(
+        accountId, 
+        page, 
+        sortOrder, 
+        includes
+      );
       
       if (page === 1) {
         this.state.all = response.data;
@@ -109,6 +133,12 @@ class NotificationsStore {
     } finally {
       this.state.isLoading = false;
     }
+  }
+
+  async updateFilters(accountId: number, filters: Partial<NotificationsState['filters']>) {
+    this.state.filters = { ...this.state.filters, ...filters };
+    this.state.all = []; // Clear list to show loading state
+    await this.fetchNotifications(accountId, 1);
   }
 
   async fetchUnreadCount(accountId: number) {
