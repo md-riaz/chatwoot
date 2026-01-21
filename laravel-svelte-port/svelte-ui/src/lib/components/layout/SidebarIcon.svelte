@@ -30,7 +30,12 @@
     Globe,
     Smartphone,
     Send,
-    MessageCircle
+    MessageCircle,
+    Contact,
+    Book,
+    Bolt,
+    ChartSpline,
+    LibraryBig
   } from "lucide-svelte";
 
   let { name, class: className }: { name?: string; class?: string } = $props();
@@ -43,9 +48,11 @@
     tags: Tags,
     "bar-chart-3": BarChart3,
     settings: Settings,
+    bolt: Bolt,
     "building-2": Building2,
     megaphone: Megaphone,
     library: Library,
+    "library-big": LibraryBig,
     briefcase: Briefcase,
     "square-user": SquareUser,
     "user-cog": UserCog,
@@ -66,7 +73,10 @@
     globe: Globe,
     smartphone: Smartphone,
     send: Send,
-    "message-circle": MessageCircle
+    "message-circle": MessageCircle,
+    contact: Contact,
+    book: Book,
+    "chart-spline": ChartSpline
   };
 
   const Icon = $derived(name && icons[name] ? icons[name] : Home);

@@ -96,6 +96,32 @@ class ContactsStore {
   }
 
   /**
+   * Fetch active contacts
+   */
+  async fetchActiveContacts(params: ContactListParams = {}): Promise<void> {
+    if (!this.currentAccountId) return;
+
+    try {
+      this.isLoading = true;
+      this.error = null;
+
+      const response = await contactsApi.getActiveContacts(
+        this.currentAccountId,
+        params
+      );
+
+      this.allContacts = response.data || [];
+      this.currentPage = params.page || 1;
+      this.hasMorePages = !!response.meta?.nextPage;
+    } catch (err: any) {
+      this.error = err.message || 'Failed to fetch active contacts';
+      console.error('Error fetching active contacts:', err);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  /**
    * Search contacts by query
    */
   async searchContacts(query: string, page = 1): Promise<void> {

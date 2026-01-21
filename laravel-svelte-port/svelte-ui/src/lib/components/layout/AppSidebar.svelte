@@ -174,7 +174,7 @@
     {
       id: 'contacts',
       label: 'Contacts',
-      icon: 'users',
+      icon: 'contact',
       children: [
         {
           id: 'contacts-all',
@@ -210,7 +210,7 @@
     {
       id: 'reports',
       label: 'Reports',
-      icon: 'bar-chart-3',
+      icon: 'chart-spline',
       children: [
         {
           id: 'reports-agent',
@@ -287,7 +287,7 @@
     {
       id: 'portals',
       label: 'Help Center',
-      icon: 'library',
+      icon: 'library-big',
       children: [
         {
           id: 'portal-articles',
@@ -330,7 +330,7 @@
     {
       id: 'settings',
       label: 'Settings',
-      icon: 'settings',
+      icon: 'bolt',
       children: [
         {
           id: 'settings-account',

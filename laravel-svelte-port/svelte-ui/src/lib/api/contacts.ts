@@ -120,6 +120,20 @@ export async function filterContacts(
 }
 
 /**
+ * Get active contacts
+ */
+export async function getActiveContacts(
+  accountId: number,
+  params: ContactListParams = {}
+): Promise<PaginatedResponse<Contact>> {
+  return api
+    .get(`api/v1/accounts/${accountId}/contacts/active`, {
+      searchParams: toSearchParams(params),
+    })
+    .json();
+}
+
+/**
  * Get single contact by ID
  */
 export async function getContact(

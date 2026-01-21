@@ -343,11 +343,12 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
         });
 
         // Conversations
-        Route::apiResource('conversations', ConversationsController::class);
         Route::get('conversations/meta', [ConversationsController::class, 'meta']);
         Route::get('conversations/search', [ConversationsController::class, 'search']);
         Route::post('conversations/filter', [ConversationsController::class, 'filter']);
-            // Enterprise-only actions
+        Route::apiResource('conversations', ConversationsController::class)->where(['conversation' => '[0-9]+']);
+        
+        // Enterprise-only actions
             Route::get('conversations/{conversation}/inbox_assistant', [ConversationsController::class, 'inboxAssistant']);
             Route::get('conversations/{conversation}/reporting_events', [ConversationsController::class, 'reportingEvents']);
         Route::post('conversations/{conversation}/assign', [ConversationsController::class, 'assign']);
@@ -386,7 +387,6 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
             ->only(['index', 'store', 'show', 'destroy']);
 
         // Contacts
-        Route::apiResource('contacts', ContactsController::class);
         Route::get('contacts/search', [ContactsController::class, 'search']);
         Route::get('contacts/active', [ContactsController::class, 'active']);
         Route::post('contacts/filter', [ContactsController::class, 'filter']);
@@ -399,6 +399,9 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
         Route::post('contacts/export', [ContactsController::class, 'export']);
         // Secure download endpoint for latest export for the authenticated user
         Route::get('contacts/exports/download', [ContactsController::class, 'downloadExport'])->name('contacts.exports.download');
+
+        Route::apiResource('contacts', ContactsController::class)->where(['contact' => '[0-9]+']);
+        
         Route::post('contacts/{contact}/merge', [ContactsController::class, 'merge']);
         Route::get('contacts/{contact}/contactable_inboxes', [ContactsController::class, 'contactableInboxes']);
         Route::post('contacts/{contact}/destroy_custom_attributes', [ContactsController::class, 'destroyCustomAttributes']);

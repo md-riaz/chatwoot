@@ -5,28 +5,40 @@
   import { ChevronRight } from "lucide-svelte";
   import type { NavigationItem } from "./types";
   import SidebarIcon from "./SidebarIcon.svelte";
-  import { isRouteActive, isAnyRouteActive } from "$lib/routing/navigation";
+  import { page } from "$app/stores";
 
   let { item, sub = false }: { item: NavigationItem; sub?: boolean } = $props();
 
-  function isNavigationItemActive(item: NavigationItem): boolean {
+  function isNavigationItemActive(item: NavigationItem, currentPath: string): boolean {
     if (item.activeOn && item.activeOn.length > 0) {
-      return isAnyRouteActive(item.activeOn);
+      return item.activeOn.some(path => currentPath.startsWith(path));
     }
     if (item.href) {
-      return isRouteActive(item.href);
+      return currentPath.startsWith(item.href);
     }
     if (item.children && item.children.length > 0) {
-      return item.children.some(child => isNavigationItemActive(child));
+      return item.children.some(child => isNavigationItemActive(child, currentPath));
     }
     return false;
   }
 
-  const isActive = $derived(isNavigationItemActive(item));
+  const isActive = $derived(isNavigationItemActive(item, $page.url.pathname));
+  
+  let isOpen = $state(false);
+
+  $effect(() => {
+    // Sync open state with active state on navigation
+    const _ = $page.url.pathname;
+    if (isActive) {
+      isOpen = true;
+    } else {
+      isOpen = false;
+    }
+  });
 </script>
 
 {#if item.children && item.children.length > 0}
-  <Collapsible.Root open={isActive} class="group/collapsible">
+  <Collapsible.Root bind:open={isOpen} class="group/collapsible">
     {#snippet child({ props })}
       {#if sub}
         <Sidebar.MenuSubItem {...props}>
@@ -65,33 +77,38 @@
         </Sidebar.MenuSubItem>
       {:else}
         <Sidebar.MenuItem {...props}>
-            <Sidebar.MenuButton isActive={isActive} tooltipContent={item.label}>
-              {#snippet child({ props: btnProps })}
-                 {#if item.href}
+            {#if item.href}
+                <Sidebar.MenuButton isActive={isActive} tooltipContent={item.label}>
+                  {#snippet child({ props: btnProps })}
                     <a href={item.href} {...btnProps}>
                       <SidebarIcon name={item.icon} />
                       <span>{item.label}</span>
                     </a>
-                 {:else}
-                    <div {...btnProps} class="cursor-pointer">
-                      <SidebarIcon name={item.icon} />
-                      <span>{item.label}</span>
-                    </div>
-                 {/if}
-              {/snippet}
-            </Sidebar.MenuButton>
-            
-            <Collapsible.Trigger>
-              {#snippet child({ props: triggerProps })}
-                <Sidebar.MenuAction
-                  {...triggerProps}
-                  class="data-[state=open]:rotate-90"
-                >
-                  <ChevronRight />
-                  <span class="sr-only">Toggle</span>
-                </Sidebar.MenuAction>
-              {/snippet}
-            </Collapsible.Trigger>
+                  {/snippet}
+                </Sidebar.MenuButton>
+                
+                <Collapsible.Trigger>
+                  {#snippet child({ props: triggerProps })}
+                    <Sidebar.MenuAction
+                      {...triggerProps}
+                      class="data-[state=open]:rotate-90"
+                    >
+                      <ChevronRight />
+                      <span class="sr-only">Toggle</span>
+                    </Sidebar.MenuAction>
+                  {/snippet}
+                </Collapsible.Trigger>
+            {:else}
+                <Collapsible.Trigger>
+                  {#snippet child({ props: triggerProps })}
+                    <Sidebar.MenuButton {...triggerProps} tooltipContent={item.label}>
+                        <SidebarIcon name={item.icon} />
+                        <span>{item.label}</span>
+                        <ChevronRight class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </Sidebar.MenuButton>
+                  {/snippet}
+                </Collapsible.Trigger>
+            {/if}
 
             <Collapsible.Content>
               <Sidebar.MenuSub>
