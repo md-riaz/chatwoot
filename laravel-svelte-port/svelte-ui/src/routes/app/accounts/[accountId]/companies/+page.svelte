@@ -90,7 +90,7 @@
   }
 </script>
 
-<div class="companies-page p-6">
+<div class="companies-page p-6 max-w-[60rem] mx-auto">
   <div class="companies-header mb-6">
     <div class="flex items-center justify-between mb-4">
       <div>

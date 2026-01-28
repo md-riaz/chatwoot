@@ -26,6 +26,10 @@ class ContactData extends Data
         public ?string $identifier,
         #[Nullable]
         public ?string $avatar_url,
+        #[Nullable, StringType, Max(255)]
+        public ?string $city,
+        #[Nullable, StringType, Max(10)]
+        public ?string $country_code,
         public array|Optional $custom_attributes,
         public array|Optional $additional_attributes,
     ) {}
@@ -38,6 +42,8 @@ class ContactData extends Data
             'email' => ['nullable', 'email'],
             'phone_number' => ['nullable', 'string', 'max:50'],
             'identifier' => ['nullable', 'string'],
+            'city' => ['nullable', 'string', 'max:255'],
+            'country_code' => ['nullable', 'string', 'max:10'],
         ];
     }
 }

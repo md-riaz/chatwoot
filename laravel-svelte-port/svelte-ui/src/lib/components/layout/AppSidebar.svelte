@@ -1,23 +1,24 @@
 <script lang="ts">
-  import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-  import {
-    ChevronDown,
-    Search,
-    Plus
-  } from '@lucide/svelte';
+  import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+  import { ChevronDown, Search, Plus } from '@lucide/svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Avatar from '$lib/components/ui/avatar';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-  import { navigate, isRouteActive, isAnyRouteActive } from '$lib/routing/navigation';
+  import {
+    navigate,
+    isRouteActive,
+    isAnyRouteActive,
+  } from '$lib/routing/navigation';
   import type { NavigationItem, SidebarSection } from './types';
   import { labelsStore } from '$lib/stores/labels.svelte';
   import { inboxesStore } from '$lib/stores/inboxes.svelte';
   import { teamsStore } from '$lib/stores/teams.svelte';
   import { customViewsStore } from '$lib/stores/customViews.svelte';
   import { notificationsStore } from '$lib/stores/notifications.svelte';
-  import type { ComponentProps } from "svelte";
+  import type { ComponentProps } from 'svelte';
   import { authStore } from '$lib/stores/auth.svelte';
   import { globalConfig } from '$lib/stores/globalConfig.svelte';
+  import { segmentsStore } from '$lib/stores/segments.svelte';
   import SidebarAccountSwitcher from './SidebarAccountSwitcher.svelte';
   import SidebarProfileMenu from './SidebarProfileMenu.svelte';
   import Logo from './Logo.svelte';
@@ -51,10 +52,13 @@
         return false;
       }
       // Check feature flags
-      if (item.featureFlag && !globalConfig.isFeatureEnabled(item.featureFlag)) {
+      if (
+        item.featureFlag &&
+        !globalConfig.isFeatureEnabled(item.featureFlag)
+      ) {
         return false;
       }
-      
+
       // Filter children
       if (item.children) {
         const filteredChildren = filterItems(item.children);
@@ -65,452 +69,424 @@
         // Return a new object with filtered children to avoid mutating
         item.children = filteredChildren;
       }
-      
+
       return true;
     });
   }
 
-  const mainNavItems: NavigationItem[] = $derived(filterItems([
-    {
-      id: 'inbox',
-      label: 'Inbox',
-      icon: 'inbox',
-      href: `/app/accounts/${accountId}/inbox-view`,
-      badge: notificationsStore.unreadCount,
-      activeOn: [
-        `/app/accounts/${accountId}/inbox-view`,
-      ],
-    },
-    {
-      id: 'conversations',
-      label: 'Conversations',
-      icon: 'message-circle',
-      children: [
-        {
-          id: 'all',
-          label: 'All Conversations',
-          href: `/app/accounts/${accountId}/conversations`,
-          activeOn: [
-            `/app/accounts/${accountId}/conversations`,
-            `/app/accounts/${accountId}/conversations/`,
-          ],
-          permission: 'conversation_manage',
-        },
-        {
-          id: 'mentions',
-          label: 'Mentions',
-          href: `/app/accounts/${accountId}/conversations/mentions`,
-          activeOn: [
-            `/app/accounts/${accountId}/conversations/mentions`,
-          ],
-        },
-        {
-          id: 'unattended',
-          label: 'Unattended',
-          href: `/app/accounts/${accountId}/conversations/unattended`,
-          activeOn: [
-            `/app/accounts/${accountId}/conversations/unattended`,
-          ],
-        },
-        {
-          id: 'custom-views',
-          label: 'Custom Views',
-          icon: 'folder',
-          children: customViewsStore.conversationViews.map(view => ({
-            id: `view-${view.id}`,
-            label: view.name,
-            href: `/app/accounts/${accountId}/conversations/custom_view/${view.id}`,
+  const mainNavItems: NavigationItem[] = $derived(
+    filterItems([
+      {
+        id: 'inbox',
+        label: 'Inbox',
+        icon: 'inbox',
+        href: `/app/accounts/${accountId}/inbox-view`,
+        badge: notificationsStore.unreadCount,
+        activeOn: [`/app/accounts/${accountId}/inbox-view`],
+      },
+      {
+        id: 'conversations',
+        label: 'Conversations',
+        icon: 'message-circle',
+        children: [
+          {
+            id: 'all',
+            label: 'All Conversations',
+            href: `/app/accounts/${accountId}/conversations`,
             activeOn: [
-              `/app/accounts/${accountId}/conversations/custom_view/${view.id}`,
+              `/app/accounts/${accountId}/conversations`,
+              `/app/accounts/${accountId}/conversations/`,
             ],
-          })),
-        },
-        {
-          id: 'channels',
-          label: 'Inboxes',
-          icon: 'inbox',
-          children: inboxesStore.sortedInboxes.map(inbox => ({
-            id: `inbox-${inbox.id}`,
-            label: inbox.name,
-            icon: getChannelIcon(inbox.channelType),
-            href: `/app/accounts/${accountId}/conversations/inbox/${inbox.id}`,
-            activeOn: [
-              `/app/accounts/${accountId}/conversations/inbox/${inbox.id}`,
-            ],
-          })),
-        },
-        {
-          id: 'teams',
-          label: 'Teams',
-          icon: 'users',
-          children: teamsStore.myTeams.map(team => ({
-            id: `team-${team.id}`,
-            label: team.name,
-            href: `/app/accounts/${accountId}/conversations/team/${team.id}`,
-            activeOn: [
-              `/app/accounts/${accountId}/conversations/team/${team.id}`,
-            ],
-          })),
-        },
-        {
-          id: 'folders',
-          label: 'Labels',
-          icon: 'tags',
-          children: labelsStore.sidebarLabels.map(label => ({
-            id: `label-${label.id}`,
-            label: label.title,
-            href: `/app/accounts/${accountId}/conversations/label/${encodeURIComponent(
-              label.title
-            )}`,
-            activeOn: [
-              `/app/accounts/${accountId}/conversations/label/${encodeURIComponent(
+            permission: 'conversation_manage',
+          },
+          {
+            id: 'mentions',
+            label: 'Mentions',
+            href: `/app/accounts/${accountId}/conversations/mentions`,
+            activeOn: [`/app/accounts/${accountId}/conversations/mentions`],
+          },
+          {
+            id: 'unattended',
+            label: 'Unattended',
+            href: `/app/accounts/${accountId}/conversations/unattended`,
+            activeOn: [`/app/accounts/${accountId}/conversations/unattended`],
+          },
+          {
+            id: 'custom-views',
+            label: 'Custom Views',
+            icon: 'folder',
+            children: customViewsStore.conversationViews.map(view => ({
+              id: `view-${view.id}`,
+              label: view.name,
+              href: `/app/accounts/${accountId}/conversations/custom_view/${view.id}`,
+              activeOn: [
+                `/app/accounts/${accountId}/conversations/custom_view/${view.id}`,
+              ],
+            })),
+          },
+          {
+            id: 'channels',
+            label: 'Inboxes',
+            icon: 'inbox',
+            children: inboxesStore.sortedInboxes.map(inbox => ({
+              id: `inbox-${inbox.id}`,
+              label: inbox.name,
+              icon: getChannelIcon(inbox.channelType),
+              href: `/app/accounts/${accountId}/conversations/inbox/${inbox.id}`,
+              activeOn: [
+                `/app/accounts/${accountId}/conversations/inbox/${inbox.id}`,
+              ],
+            })),
+          },
+          {
+            id: 'teams',
+            label: 'Teams',
+            icon: 'users',
+            children: teamsStore.myTeams.map(team => ({
+              id: `team-${team.id}`,
+              label: team.name,
+              href: `/app/accounts/${accountId}/conversations/team/${team.id}`,
+              activeOn: [
+                `/app/accounts/${accountId}/conversations/team/${team.id}`,
+              ],
+            })),
+          },
+          {
+            id: 'folders',
+            label: 'Labels',
+            icon: 'tags',
+            children: labelsStore.sidebarLabels.map(label => ({
+              id: `label-${label.id}`,
+              label: label.title,
+              href: `/app/accounts/${accountId}/conversations/label/${encodeURIComponent(
                 label.title
               )}`,
+              activeOn: [
+                `/app/accounts/${accountId}/conversations/label/${encodeURIComponent(
+                  label.title
+                )}`,
+              ],
+            })),
+          },
+        ],
+      },
+      {
+        id: 'contacts',
+        label: 'Contacts',
+        icon: 'contact',
+        children: [
+          {
+            id: 'contacts-all',
+            label: 'All Contacts',
+            href: `/app/accounts/${accountId}/contacts`,
+            activeOn: [
+              `/app/accounts/${accountId}/contacts`,
+              `/app/accounts/${accountId}/contacts/`,
             ],
-          })),
-        },
-      ]
-    },
-    {
-      id: 'contacts',
-      label: 'Contacts',
-      icon: 'contact',
-      children: [
-        {
-          id: 'contacts-all',
-          label: 'All Contacts',
-          href: `/app/accounts/${accountId}/contacts`,
-          activeOn: [
-            `/app/accounts/${accountId}/contacts`,
-            `/app/accounts/${accountId}/contacts/`,
-          ],
-          permission: 'contact_manage',
-        },
-        {
-          id: 'contacts-active',
-          label: 'Active',
-          href: `/app/accounts/${accountId}/contacts/active`,
-          activeOn: [
-            `/app/accounts/${accountId}/contacts/active`,
-          ],
-          permission: 'contact_manage',
-        },
-        {
-          id: 'companies-all',
-          label: 'All Companies',
-          icon: 'building-2',
-          href: `/app/accounts/${accountId}/companies`,
-          activeOn: [
-            `/app/accounts/${accountId}/companies`,
-          ],
-          permission: 'contact_manage',
-        },
-      ]
-    },
-    {
-      id: 'reports',
-      label: 'Reports',
-      icon: 'chart-spline',
-      children: [
-        {
-          id: 'reports-agent',
-          label: 'Agent Reports',
-          href: `/app/accounts/${accountId}/reports/agent`,
-          activeOn: [
-            `/app/accounts/${accountId}/reports/agent`,
-          ],
-          permission: 'report_manage',
-        },
-        {
-          id: 'reports-label',
-          label: 'Label Reports',
-          href: `/app/accounts/${accountId}/reports/label`,
-          activeOn: [
-            `/app/accounts/${accountId}/reports/label`,
-          ],
-          permission: 'report_manage',
-        },
-        {
-          id: 'reports-inbox',
-          label: 'Inbox Reports',
-          href: `/app/accounts/${accountId}/reports/inbox`,
-          activeOn: [
-            `/app/accounts/${accountId}/reports/inbox`,
-          ],
-          permission: 'report_manage',
-        },
-        {
-          id: 'reports-team',
-          label: 'Team Reports',
-          href: `/app/accounts/${accountId}/reports/team`,
-          activeOn: [
-            `/app/accounts/${accountId}/reports/team`,
-          ],
-          permission: 'report_manage',
-        },
-      ]
-    },
-    {
-      id: 'campaigns',
-      label: 'Campaigns',
-      icon: 'megaphone',
-      children: [
-        {
-          id: 'campaigns-livechat',
-          label: 'Live chat',
-          href: `/app/accounts/${accountId}/campaigns/livechat`,
-          activeOn: [
-            `/app/accounts/${accountId}/campaigns/livechat`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'campaigns-sms',
-          label: 'SMS',
-          href: `/app/accounts/${accountId}/campaigns/sms`,
-          activeOn: [
-            `/app/accounts/${accountId}/campaigns/sms`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'campaigns-whatsapp',
-          label: 'WhatsApp',
-          href: `/app/accounts/${accountId}/campaigns/whatsapp`,
-          activeOn: [
-            `/app/accounts/${accountId}/campaigns/whatsapp`,
-          ],
-          permission: 'administrator',
-        },
-      ]
-    },
-    {
-      id: 'portals',
-      label: 'Help Center',
-      icon: 'library-big',
-      children: [
-        {
-          id: 'portal-articles',
-          label: 'Articles',
-          href: `/app/accounts/${accountId}/portals/articles`,
-          activeOn: [
-            `/app/accounts/${accountId}/portals/articles`,
-          ],
-          permission: 'knowledge_base_manage',
-        },
-        {
-          id: 'portal-categories',
-          label: 'Categories',
-          href: `/app/accounts/${accountId}/portals/categories`,
-          activeOn: [
-            `/app/accounts/${accountId}/portals/categories`,
-          ],
-          permission: 'knowledge_base_manage',
-        },
-        {
-          id: 'portal-locales',
-          label: 'Locales',
-          href: `/app/accounts/${accountId}/portals/locales`,
-          activeOn: [
-            `/app/accounts/${accountId}/portals/locales`,
-          ],
-          permission: 'knowledge_base_manage',
-        },
-        {
-          id: 'portal-settings',
-          label: 'Settings',
-          href: `/app/accounts/${accountId}/portals/settings`,
-          activeOn: [
-            `/app/accounts/${accountId}/portals/settings`,
-          ],
-          permission: 'knowledge_base_manage',
-        },
-      ]
-    },
-    {
-      id: 'settings',
-      label: 'Settings',
-      icon: 'bolt',
-      children: [
-        {
-          id: 'settings-account',
-          label: 'Account Settings',
-          icon: 'briefcase',
-          href: `/app/accounts/${accountId}/settings/account`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/account`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-agents',
-          label: 'Agents',
-          icon: 'square-user',
-          href: `/app/accounts/${accountId}/settings/agents`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/agents`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-teams',
-          label: 'Teams',
-          icon: 'users',
-          href: `/app/accounts/${accountId}/settings/teams`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/teams`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-assignment',
-          label: 'Agent Assignment',
-          icon: 'user-cog',
-          href: `/app/accounts/${accountId}/settings/assignment`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/assignment`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-inboxes',
-          label: 'Inboxes',
-          icon: 'inbox',
-          href: `/app/accounts/${accountId}/settings/inboxes`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/inboxes`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-labels',
-          label: 'Labels',
-          icon: 'tags',
-          href: `/app/accounts/${accountId}/settings/labels`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/labels`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-attributes',
-          label: 'Custom Attributes',
-          icon: 'code',
-          href: `/app/accounts/${accountId}/settings/attributes`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/attributes`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-automation',
-          label: 'Automation',
-          icon: 'workflow',
-          href: `/app/accounts/${accountId}/settings/automation`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/automation`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-agent-bots',
-          label: 'Agent Bots',
-          icon: 'bot',
-          href: `/app/accounts/${accountId}/settings/agent-bots`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/agent-bots`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-macros',
-          label: 'Macros',
-          icon: 'toy-brick',
-          href: `/app/accounts/${accountId}/settings/macros`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/macros`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-canned',
-          label: 'Canned Responses',
-          icon: 'message-square-quote',
-          href: `/app/accounts/${accountId}/settings/canned`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/canned`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-integrations',
-          label: 'Integrations',
-          icon: 'blocks',
-          href: `/app/accounts/${accountId}/settings/integrations`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/integrations`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-audit',
-          label: 'Audit Logs',
-          icon: 'briefcase',
-          href: `/app/accounts/${accountId}/settings/audit`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/audit`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-roles',
-          label: 'Custom Roles',
-          icon: 'shield-plus',
-          href: `/app/accounts/${accountId}/settings/roles`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/roles`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-sla',
-          label: 'SLA',
-          icon: 'clock-alert',
-          href: `/app/accounts/${accountId}/settings/sla`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/sla`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-security',
-          label: 'Security',
-          icon: 'shield',
-          href: `/app/accounts/${accountId}/settings/security`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/security`,
-          ],
-          permission: 'administrator',
-        },
-        {
-          id: 'settings-billing',
-          label: 'Billing',
-          icon: 'credit-card',
-          href: `/app/accounts/${accountId}/settings/billing`,
-          activeOn: [
-            `/app/accounts/${accountId}/settings/billing`,
-          ],
-          permission: 'administrator',
-        },
-      ]
-    },
-  ]));
+            permission: 'contact_manage',
+          },
+          {
+            id: 'contacts-active',
+            label: 'Active',
+            href: `/app/accounts/${accountId}/contacts/active`,
+            activeOn: [`/app/accounts/${accountId}/contacts/active`],
+            permission: 'contact_manage',
+          },
+
+          // Segments
+          {
+            id: 'contacts-segments',
+            label: 'Segments',
+            icon: 'users-round',
+            href: `/app/accounts/${accountId}/contacts/segments`, // This might not be a real page, wait.
+            // Actually, we usually list segments as children, OR have a segments management page.
+            // Chatwoot sidebar lists segments directly.
+            children: segmentsStore.allSegments.map(segment => ({
+              id: `segment-${segment.id}`,
+              label: segment.name,
+              href: `/app/accounts/${accountId}/contacts/segments/${segment.id}`,
+              activeOn: [
+                `/app/accounts/${accountId}/contacts/segments/${segment.id}`,
+              ],
+            })),
+            permission: 'contact_manage',
+          },
+          // Labels
+          {
+            id: 'contacts-labels',
+            label: 'Labels',
+            icon: 'tags',
+            children: labelsStore.sidebarLabels.map(label => ({
+              id: `contact-label-${label.title}`,
+              label: label.title,
+              icon: 'tag',
+              iconColor: label.color,
+              href: `/app/accounts/${accountId}/contacts/labels/${encodeURIComponent(label.title)}`,
+              activeOn: [
+                `/app/accounts/${accountId}/contacts/labels/${encodeURIComponent(label.title)}`,
+              ],
+            })),
+            permission: 'contact_manage',
+          },
+          {
+            id: 'companies-all',
+            label: 'All Companies',
+            icon: 'building-2',
+            href: `/app/accounts/${accountId}/companies`,
+            activeOn: [`/app/accounts/${accountId}/companies`],
+            permission: 'contact_manage',
+          },
+        ],
+      },
+      {
+        id: 'reports',
+        label: 'Reports',
+        icon: 'chart-spline',
+        children: [
+          {
+            id: 'reports-agent',
+            label: 'Agent Reports',
+            href: `/app/accounts/${accountId}/reports/agent`,
+            activeOn: [`/app/accounts/${accountId}/reports/agent`],
+            permission: 'report_manage',
+          },
+          {
+            id: 'reports-label',
+            label: 'Label Reports',
+            href: `/app/accounts/${accountId}/reports/label`,
+            activeOn: [`/app/accounts/${accountId}/reports/label`],
+            permission: 'report_manage',
+          },
+          {
+            id: 'reports-inbox',
+            label: 'Inbox Reports',
+            href: `/app/accounts/${accountId}/reports/inbox`,
+            activeOn: [`/app/accounts/${accountId}/reports/inbox`],
+            permission: 'report_manage',
+          },
+          {
+            id: 'reports-team',
+            label: 'Team Reports',
+            href: `/app/accounts/${accountId}/reports/team`,
+            activeOn: [`/app/accounts/${accountId}/reports/team`],
+            permission: 'report_manage',
+          },
+        ],
+      },
+      {
+        id: 'campaigns',
+        label: 'Campaigns',
+        icon: 'megaphone',
+        children: [
+          {
+            id: 'campaigns-livechat',
+            label: 'Live chat',
+            href: `/app/accounts/${accountId}/campaigns/livechat`,
+            activeOn: [`/app/accounts/${accountId}/campaigns/livechat`],
+            permission: 'administrator',
+          },
+          {
+            id: 'campaigns-sms',
+            label: 'SMS',
+            href: `/app/accounts/${accountId}/campaigns/sms`,
+            activeOn: [`/app/accounts/${accountId}/campaigns/sms`],
+            permission: 'administrator',
+          },
+          {
+            id: 'campaigns-whatsapp',
+            label: 'WhatsApp',
+            href: `/app/accounts/${accountId}/campaigns/whatsapp`,
+            activeOn: [`/app/accounts/${accountId}/campaigns/whatsapp`],
+            permission: 'administrator',
+          },
+        ],
+      },
+      {
+        id: 'portals',
+        label: 'Help Center',
+        icon: 'library-big',
+        children: [
+          {
+            id: 'portal-articles',
+            label: 'Articles',
+            href: `/app/accounts/${accountId}/portals/articles`,
+            activeOn: [`/app/accounts/${accountId}/portals/articles`],
+            permission: 'knowledge_base_manage',
+          },
+          {
+            id: 'portal-categories',
+            label: 'Categories',
+            href: `/app/accounts/${accountId}/portals/categories`,
+            activeOn: [`/app/accounts/${accountId}/portals/categories`],
+            permission: 'knowledge_base_manage',
+          },
+          {
+            id: 'portal-locales',
+            label: 'Locales',
+            href: `/app/accounts/${accountId}/portals/locales`,
+            activeOn: [`/app/accounts/${accountId}/portals/locales`],
+            permission: 'knowledge_base_manage',
+          },
+          {
+            id: 'portal-settings',
+            label: 'Settings',
+            href: `/app/accounts/${accountId}/portals/settings`,
+            activeOn: [`/app/accounts/${accountId}/portals/settings`],
+            permission: 'knowledge_base_manage',
+          },
+        ],
+      },
+      {
+        id: 'settings',
+        label: 'Settings',
+        icon: 'bolt',
+        children: [
+          {
+            id: 'settings-account',
+            label: 'Account Settings',
+            icon: 'briefcase',
+            href: `/app/accounts/${accountId}/settings/account`,
+            activeOn: [`/app/accounts/${accountId}/settings/account`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-agents',
+            label: 'Agents',
+            icon: 'square-user',
+            href: `/app/accounts/${accountId}/settings/agents`,
+            activeOn: [`/app/accounts/${accountId}/settings/agents`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-teams',
+            label: 'Teams',
+            icon: 'users',
+            href: `/app/accounts/${accountId}/settings/teams`,
+            activeOn: [`/app/accounts/${accountId}/settings/teams`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-assignment',
+            label: 'Agent Assignment',
+            icon: 'user-cog',
+            href: `/app/accounts/${accountId}/settings/assignment`,
+            activeOn: [`/app/accounts/${accountId}/settings/assignment`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-inboxes',
+            label: 'Inboxes',
+            icon: 'inbox',
+            href: `/app/accounts/${accountId}/settings/inboxes`,
+            activeOn: [`/app/accounts/${accountId}/settings/inboxes`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-labels',
+            label: 'Labels',
+            icon: 'tags',
+            href: `/app/accounts/${accountId}/settings/labels`,
+            activeOn: [`/app/accounts/${accountId}/settings/labels`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-attributes',
+            label: 'Custom Attributes',
+            icon: 'code',
+            href: `/app/accounts/${accountId}/settings/attributes`,
+            activeOn: [`/app/accounts/${accountId}/settings/attributes`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-automation',
+            label: 'Automation',
+            icon: 'workflow',
+            href: `/app/accounts/${accountId}/settings/automation`,
+            activeOn: [`/app/accounts/${accountId}/settings/automation`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-agent-bots',
+            label: 'Agent Bots',
+            icon: 'bot',
+            href: `/app/accounts/${accountId}/settings/agent-bots`,
+            activeOn: [`/app/accounts/${accountId}/settings/agent-bots`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-macros',
+            label: 'Macros',
+            icon: 'toy-brick',
+            href: `/app/accounts/${accountId}/settings/macros`,
+            activeOn: [`/app/accounts/${accountId}/settings/macros`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-canned',
+            label: 'Canned Responses',
+            icon: 'message-square-quote',
+            href: `/app/accounts/${accountId}/settings/canned`,
+            activeOn: [`/app/accounts/${accountId}/settings/canned`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-integrations',
+            label: 'Integrations',
+            icon: 'blocks',
+            href: `/app/accounts/${accountId}/settings/integrations`,
+            activeOn: [`/app/accounts/${accountId}/settings/integrations`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-audit',
+            label: 'Audit Logs',
+            icon: 'briefcase',
+            href: `/app/accounts/${accountId}/settings/audit`,
+            activeOn: [`/app/accounts/${accountId}/settings/audit`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-roles',
+            label: 'Custom Roles',
+            icon: 'shield-plus',
+            href: `/app/accounts/${accountId}/settings/roles`,
+            activeOn: [`/app/accounts/${accountId}/settings/roles`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-sla',
+            label: 'SLA',
+            icon: 'clock-alert',
+            href: `/app/accounts/${accountId}/settings/sla`,
+            activeOn: [`/app/accounts/${accountId}/settings/sla`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-security',
+            label: 'Security',
+            icon: 'shield',
+            href: `/app/accounts/${accountId}/settings/security`,
+            activeOn: [`/app/accounts/${accountId}/settings/security`],
+            permission: 'administrator',
+          },
+          {
+            id: 'settings-billing',
+            label: 'Billing',
+            icon: 'credit-card',
+            href: `/app/accounts/${accountId}/settings/billing`,
+            activeOn: [`/app/accounts/${accountId}/settings/billing`],
+            permission: 'administrator',
+          },
+        ],
+      },
+    ])
+  );
 
   function handleAccountSwitch(id: number) {
     authStore.setActiveAccount(id);
     navigate(`/app/accounts/${id}`);
   }
-  
+
   function onSearchClick() {
     if (accountId) {
       navigate(`/app/accounts/${accountId}/search`);
@@ -528,7 +504,9 @@
   <Sidebar.Header>
     <div class="flex flex-col gap-2 p-2">
       {#if isLoggedIn && currentAccount}
-        <div class="flex gap-2 items-center px-2 min-w-0 group-data-[collapsible=icon]:hidden">
+        <div
+          class="flex gap-2 items-center px-2 min-w-0 group-data-[collapsible=icon]:hidden"
+        >
           <div class="grid flex-shrink-0 place-content-center size-6">
             <Logo class="h-4 w-4" aria-label="Chatwoot logo" />
           </div>

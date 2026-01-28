@@ -108,7 +108,7 @@
   }
 </script>
 
-<div class="campaigns-page p-6">
+<div class="campaigns-page p-6 max-w-[60rem] mx-auto">
   <div class="campaigns-header mb-6 flex items-center justify-between">
     <div>
       <h1 class="text-2xl font-bold">Campaigns</h1>

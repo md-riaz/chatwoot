@@ -46,6 +46,9 @@ export interface CreateContactParams {
   email?: string;
   phoneNumber?: string;
   identifier?: string;
+  company?: string;
+  city?: string;
+  countryCode?: string;
   customAttributes?: Record<string, any>;
   additionalAttributes?: Record<string, any>;
   socialProfiles?: Partial<SocialProfile>[];
@@ -269,4 +272,67 @@ export async function exportContacts(accountId: number): Promise<Blob> {
   return api
     .get(`api/v1/accounts/${accountId}/contacts/export`)
     .blob();
+}
+
+/**
+ * Bulk assign labels to contacts
+ */
+export async function bulkAssignLabels(
+  accountId: number,
+  contactIds: number[],
+  labels: string[]
+): Promise<{ success: boolean; updated: number }> {
+  return api
+    .post(`api/v1/accounts/${accountId}/contacts/bulk_actions`, {
+      json: {
+        type: 'assign_labels',
+        contact_ids: contactIds,
+        labels: labels,
+      },
+    })
+    .json();
+}
+
+/**
+ * Bulk delete contacts
+ */
+export async function bulkDeleteContacts(
+  accountId: number,
+  contactIds: number[]
+): Promise<{ success: boolean; deleted: number }> {
+  return api
+    .post(`api/v1/accounts/${accountId}/contacts/bulk_actions`, {
+      json: {
+        type: 'delete',
+        contact_ids: contactIds,
+      },
+    })
+    .json();
+}
+
+/**
+ * Get contact labels
+ */
+export async function getContactLabels(
+  accountId: number,
+  contactId: number
+): Promise<string[]> {
+  return api
+    .get(`api/v1/accounts/${accountId}/contacts/${contactId}/labels`)
+    .json();
+}
+
+/**
+ * Update contact labels
+ */
+export async function updateContactLabels(
+  accountId: number,
+  contactId: number,
+  labels: string[]
+): Promise<string[]> {
+  return api
+    .post(`api/v1/accounts/${accountId}/contacts/${contactId}/labels`, {
+      json: { labels },
+    })
+    .json();
 }

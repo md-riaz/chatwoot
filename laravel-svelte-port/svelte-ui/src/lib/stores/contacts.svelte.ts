@@ -9,6 +9,7 @@ import type {
   ContactFilterParams,
 } from '$lib/api/contacts';
 import { saveToStorage, loadFromStorage, clearStorage } from './persistence';
+import { ApiError } from '$lib/api/errors';
 import { get } from 'svelte/store';
 
 /**
@@ -21,6 +22,7 @@ class ContactsStore {
   selectedContactId = $state<number | null>(null);
   isLoading = $state<boolean>(false);
   error = $state<string | null>(null);
+  validationErrors = $state<Record<string, string>>({});
   searchQuery = $state<string>('');
   appliedFilters = $state<ContactFilterParams>({});
   currentPage = $state<number>(1);
@@ -122,6 +124,37 @@ class ContactsStore {
   }
 
   /**
+   * Fetch contacts for a specific segment
+   */
+  async fetchSegmentContacts(segmentId: number, params: ContactListParams = {}): Promise<void> {
+    if (!this.currentAccountId) return;
+
+    try {
+      this.isLoading = true;
+      this.error = null;
+
+      // Dynamic import to avoid circular dependencies if any, 
+      // though typically stores import apis.
+      const { getSegmentContacts } = await import('$lib/api/segments');
+
+      const response = await getSegmentContacts(
+        this.currentAccountId,
+        segmentId,
+        params
+      );
+
+      this.allContacts = response.data || [];
+      this.currentPage = params.page || 1;
+      this.hasMorePages = !!response.meta?.nextPage;
+    } catch (err: any) {
+      this.error = err.message || 'Failed to fetch segment contacts';
+      console.error('Error fetching segment contacts:', err);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  /**
    * Search contacts by query
    */
   async searchContacts(query: string, page = 1): Promise<void> {
@@ -215,6 +248,7 @@ class ContactsStore {
     try {
       this.isLoading = true;
       this.error = null;
+      this.validationErrors = {};
 
       const contact = await contactsApi.createContact(
         this.currentAccountId,
@@ -226,6 +260,12 @@ class ContactsStore {
 
       return contact;
     } catch (err: any) {
+      if (err instanceof ApiError && err.isValidationError()) {
+        const errors = err.data.errors || err.data.details || {};
+        Object.entries(errors).forEach(([key, msgs]) => {
+          this.validationErrors[key] = Array.isArray(msgs) ? msgs[0] : msgs as string;
+        });
+      }
       this.error = err.message || 'Failed to create contact';
       console.error('Error creating contact:', err);
       return null;
@@ -246,6 +286,7 @@ class ContactsStore {
     try {
       this.isLoading = true;
       this.error = null;
+      this.validationErrors = {};
 
       const contact = await contactsApi.updateContact(
         this.currentAccountId,
@@ -261,6 +302,12 @@ class ContactsStore {
 
       return contact;
     } catch (err: any) {
+      if (err instanceof ApiError && err.isValidationError()) {
+        const errors = err.data.errors || err.data.details || {};
+        Object.entries(errors).forEach(([key, msgs]) => {
+          this.validationErrors[key] = Array.isArray(msgs) ? msgs[0] : msgs as string;
+        });
+      }
       this.error = err.message || 'Failed to update contact';
       console.error('Error updating contact:', err);
       return null;
@@ -486,6 +533,64 @@ class ContactsStore {
     this.clearContacts();
     this.isLoading = false;
     this.error = null;
+  }
+
+  /**
+   * Bulk assign labels to selected contacts
+   */
+  async bulkAssignLabels(
+    contactIds: number[],
+    labels: string[]
+  ): Promise<boolean> {
+    if (!this.currentAccountId || contactIds.length === 0) return false;
+
+    try {
+      this.isLoading = true;
+      this.error = null;
+
+      await contactsApi.bulkAssignLabels(
+        this.currentAccountId,
+        contactIds,
+        labels
+      );
+
+      // Refresh contacts to get updated labels
+      await this.fetchContacts();
+      return true;
+    } catch (err: any) {
+      this.error = err.message || 'Failed to assign labels';
+      console.error('Error assigning labels:', err);
+      return false;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  /**
+   * Bulk delete selected contacts
+   */
+  async bulkDelete(contactIds: number[]): Promise<boolean> {
+    if (!this.currentAccountId || contactIds.length === 0) return false;
+
+    try {
+      this.isLoading = true;
+      this.error = null;
+
+      await contactsApi.bulkDeleteContacts(this.currentAccountId, contactIds);
+
+      // Remove deleted contacts from local state
+      this.allContacts = this.allContacts.filter(
+        (c) => !contactIds.includes(c.id)
+      );
+
+      return true;
+    } catch (err: any) {
+      this.error = err.message || 'Failed to delete contacts';
+      console.error('Error deleting contacts:', err);
+      return false;
+    } finally {
+      this.isLoading = false;
+    }
   }
 }
 

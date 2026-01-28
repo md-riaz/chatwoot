@@ -4,14 +4,15 @@
    * Ensures user has access to the specified account
    * Updated with Svelte 5 runes and shadcn-svelte components
    */
-  
+
   import { authStore } from '$lib/stores/auth.svelte';
   import { inboxesStore } from '$lib/stores/inboxes.svelte';
   import { labelsStore } from '$lib/stores/labels.svelte';
   import { teamsStore } from '$lib/stores/teams.svelte';
   import { customViewsStore } from '$lib/stores/customViews.svelte';
   import { notificationsStore } from '$lib/stores/notifications.svelte';
-  
+  import { segmentsStore } from '$lib/stores/segments.svelte';
+
   // Fetch data when account context is active or changes
   $effect(() => {
     const accountId = authStore.currentAccountId;
@@ -22,6 +23,7 @@
       teamsStore.fetchTeams();
       customViewsStore.fetchCustomViews();
       notificationsStore.fetchUnreadCount(accountId);
+      segmentsStore.fetchSegments();
     }
   });
 </script>

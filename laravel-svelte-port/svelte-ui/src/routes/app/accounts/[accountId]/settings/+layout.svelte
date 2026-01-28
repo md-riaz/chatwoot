@@ -44,7 +44,7 @@
   
   <!-- Settings Content Area -->
   <div class="flex-1 overflow-y-auto">
-    <div class="container max-w-4xl py-8">
+    <div class="container max-w-[60rem] py-8">
       {@render children()}
     </div>
   </div>

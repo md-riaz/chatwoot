@@ -43,8 +43,32 @@ This document provides context and guidelines for AI agents working on the Chatw
 │       │   ├── lib/              # Shared components/utilities
 │       │   └── app.html          # SPA entry point
 │       └── build/                # Built assets (copied to Laravel public/)
+│   └── shadcn-svelte-extras/     # Reference Library (Do not develop here, copy from here)
 └── AGENTS.md                     # This file
 ```
+
+## Component Library Strategy
+
+We use `shadcn-svelte` as the base UI library. We also maintain reference folders for additional components.
+
+**Reference Directories**:
+- `laravel-svelte-port/shadcn-svelte/`: The core library reference.
+- `laravel-svelte-port/shadcn-svelte-extras/`: A reference library for extra components (e.g., `PhoneInput`).
+
+**IMPORTANT**: These directories are **External Reference Projects**. Do not develop features inside them. They exist solely to provide component code that should be copied into the `svelte-ui` project.
+
+**Workflow**:
+1. **Locate**: Find the desired component in the reference directories.
+2. **Copy**: Copy the component files to `svelte-ui/src/lib/components/ui/<component>`.
+3. **Implement**: Integrate and modify the copied component within the `svelte-ui` project.
+
+**Example**:
+To use the `PhoneInput` component:
+1. Copy `shadcn-svelte-extras/phone-input` to `svelte-ui/src/lib/components/ui/phone-input`.
+2. Import in your component:
+   ```svelte
+   import PhoneInput from '$lib/components/ui/phone-input/phone-input.svelte';
+   ```
 
 ## Migration Scope & Feature Exclusions
 
