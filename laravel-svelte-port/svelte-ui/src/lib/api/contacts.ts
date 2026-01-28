@@ -67,6 +67,15 @@ export interface ContactFilterParams {
   perPage?: number;
 }
 
+// Advanced filter condition (Vue parity)
+// API client auto-transforms camelCase to snake_case
+export interface AdvancedFilterCondition {
+  attributeKey: string;
+  filterOperator: string;
+  values: string[];
+  queryOperator: 'and' | 'or';
+}
+
 export interface ImportContactsParams {
   file: File;
 }
@@ -109,15 +118,19 @@ export async function searchContacts(
 }
 
 /**
- * Filter contacts with advanced filters
+ * Filter contacts with advanced filters (Vue parity)
+ * Sends filters wrapped in {payload: []} as Vue does
+ * API client auto-transforms keys to snake_case
  */
 export async function filterContacts(
   accountId: number,
-  params: ContactFilterParams
+  filters: AdvancedFilterCondition[],
+  page = 1,
+  sortAttr = 'name'
 ): Promise<PaginatedResponse<Contact>> {
   return api
-    .post(`api/v1/accounts/${accountId}/contacts/filter`, {
-      json: params,
+    .post(`api/v1/accounts/${accountId}/contacts/filter?page=${page}&sort=${sortAttr}`, {
+      json: { payload: filters },
     })
     .json();
 }

@@ -13,11 +13,12 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { Badge } from '$lib/components/ui/badge';
 
-  // Filter condition interface
+  // Filter condition interface (matches Vue format)
+  // values is always an array for API parity
   export interface FilterCondition {
     attributeKey: string;
     filterOperator: string;
-    values: string | string[] | { id: string; name: string };
+    values: string[];  // Always array for Vue/Laravel parity
     queryOperator: 'and' | 'or';
   }
 
@@ -222,11 +223,11 @@
     { value: 'or', label: 'OR', icon: '||' },
   ];
 
-  // Default filter
+  // Default filter (values as empty array for Vue parity)
   const DEFAULT_FILTER: FilterCondition = {
     attributeKey: 'name',
     filterOperator: 'equal_to',
-    values: '',
+    values: [],  // Always array for Vue/Laravel parity
     queryOperator: 'and',
   };
 
@@ -272,17 +273,17 @@
 
   function getSelectedOptionName(filter: FilterCondition): string {
     const type = getFilterType(filter.attributeKey);
-    if (!type.options) return String(filter.values);
-    if (typeof filter.values === 'object' && filter.values && 'name' in filter.values) {
-      return filter.values.name;
-    }
-    const opt = type.options.find(o => o.id === filter.values);
+    if (!type.options) return filter.values.join(', ');
+    // For searchSelect, values is array with single element
+    const selectedId = filter.values[0];
+    if (!selectedId) return 'Select...';
+    const opt = type.options.find(o => o.id === selectedId);
     return opt?.name || 'Select...';
   }
 
   function getSelectedMultipleNames(filter: FilterCondition): string[] {
     const type = getFilterType(filter.attributeKey);
-    if (!type.options || !Array.isArray(filter.values)) return [];
+    if (!type.options) return [];
     return filter.values
       .map(v => type.options?.find(o => o.id === v)?.name || v)
       .filter(Boolean) as string[];
@@ -309,7 +310,7 @@
       ...newFilters[index],
       attributeKey: newKey,
       filterOperator: newType.filterOperators[0].value,
-      values: newType.inputType === 'multiSelect' ? [] : '',
+      values: [],  // Always reset to empty array
     };
     filters = newFilters;
   }
@@ -325,27 +326,27 @@
 
   function updateValue(index: number, newValue: string) {
     const newFilters = [...filters];
+    // Store as array with single value (Vue format)
     newFilters[index] = {
       ...newFilters[index],
-      values: newValue,
+      values: newValue ? [newValue] : [],
     };
     filters = newFilters;
   }
 
   function updateSelectValue(index: number, option: FilterOption) {
     const newFilters = [...filters];
+    // Store as array with single value (Vue format)
     newFilters[index] = {
       ...newFilters[index],
-      values: option.id,
+      values: [option.id],
     };
     filters = newFilters;
   }
 
   function toggleMultiSelectValue(index: number, optionId: string) {
     const newFilters = [...filters];
-    const currentValues = Array.isArray(newFilters[index].values) 
-      ? [...newFilters[index].values as string[]] 
-      : [];
+    const currentValues = [...newFilters[index].values];
     
     const valueIndex = currentValues.indexOf(optionId);
     if (valueIndex > -1) {
@@ -388,6 +389,8 @@
   }
 
   function applyFilters() {
+    // Dispatch filters with values always as arrays (Vue parity)
+    // The API client will auto-convert keys to snake_case
     dispatch('apply', filters);
     open = false;
   }
@@ -552,12 +555,12 @@
                         size="sm"
                         class="h-8 min-w-[150px] justify-between font-normal gap-1"
                       >
-                        {#if Array.isArray(filter.values) && filter.values.length > 0}
+                        {#if filter.values.length > 0}
                           <div class="flex gap-1 flex-wrap max-w-[200px]">
                             {#each getSelectedMultipleNames(filter).slice(0, 2) as name}
                               <Badge variant="secondary" class="text-xs px-1">{name}</Badge>
                             {/each}
-                            {#if Array.isArray(filter.values) && filter.values.length > 2}
+                            {#if filter.values.length > 2}
                               <Badge variant="secondary" class="text-xs px-1">+{filter.values.length - 2}</Badge>
                             {/if}
                           </div>
@@ -588,7 +591,7 @@
                           onclick={() => toggleMultiSelectValue(index, option.id)}
                         >
                           <Checkbox
-                            checked={Array.isArray(filter.values) && filter.values.includes(option.id)}
+                            checked={filter.values.includes(option.id)}
                             class="h-4 w-4"
                           />
                           {option.name}
@@ -602,7 +605,7 @@
                 <!-- Date Input -->
                 <Input
                   type="date"
-                  value={filter.values as string}
+                  value={filter.values[0] || ''}
                   oninput={(e) => updateValue(index, e.currentTarget.value)}
                   class="h-8 w-[150px]"
                 />
@@ -610,7 +613,7 @@
               {:else}
                 <!-- Plain Text Input -->
                 <Input
-                  value={filter.values as string}
+                  value={filter.values[0] || ''}
                   oninput={(e) => updateValue(index, e.currentTarget.value)}
                   placeholder="Enter value"
                   class="h-8 flex-1"
