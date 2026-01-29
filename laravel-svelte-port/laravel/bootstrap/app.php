@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'platform.app.auth' => \App\Http\Middleware\PlatformAppAuthentication::class,
             'validate.platform.permissible' => \App\Http\Middleware\ValidatePlatformPermissible::class,
             'account.admin' => \App\Http\Middleware\EnsureAccountAdmin::class,
+            'permission' => \App\Http\Middleware\CheckCustomRolePermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

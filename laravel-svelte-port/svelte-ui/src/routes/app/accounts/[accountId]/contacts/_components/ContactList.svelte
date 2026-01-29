@@ -60,6 +60,7 @@
   // Local state
   let searchQuery = $state('');
   let showCreateModal = $state(false);
+  let contactFormInstance = $state<any>(null); // Type 'any' for now or import the type if exported
   let showDeleteDialog = $state(false);
   let showFilterDialog = $state(false);
   let showImportDialog = $state(false);
@@ -675,15 +676,25 @@
 
   <!-- Create Contact Dialog -->
   <Dialog.Root bind:open={showCreateModal}>
-    <Dialog.Content class="sm:max-w-[600px]">
+    <Dialog.Content class="sm:max-w-2xl">
       <Dialog.Header>
         <Dialog.Title>Create New Contact</Dialog.Title>
       </Dialog.Header>
       <ContactForm
+        bind:this={contactFormInstance}
         on:save={handleCreateContact}
         on:cancel={() => (showCreateModal = false)}
         serverErrors={contactsStore.validationErrors}
       />
+      <Dialog.Footer>
+        <Button variant="ghost" onclick={() => (showCreateModal = false)}>Cancel</Button>
+        <Button 
+          onclick={() => contactFormInstance?.submit()}
+          disabled={isCreating}
+        >
+          {isCreating ? 'Saving...' : 'Save Contact'}
+        </Button>
+      </Dialog.Footer>
     </Dialog.Content>
   </Dialog.Root>
 

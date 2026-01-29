@@ -12,36 +12,26 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 
+use App\Repositories\Company\CompanyRepository;
+
 class CompaniesController extends Controller
 {
     const RESULTS_PER_PAGE = 25;
 
-    public function __construct()
+    protected $companyRepository;
+
+    public function __construct(CompanyRepository $companyRepository)
     {
         $this->middleware('permission:manage_companies')->only(['store', 'update', 'destroy']);
+        $this->companyRepository = $companyRepository;
     }
 
     public function index(Request $request, Account $account): JsonResource
     {
-        $query = $this->resolvedCompanies($account);
-
-        // Apply sorting
-        $sortBy = $request->get('sort_by', 'name');
-        $sortOrder = $request->get('sort_order', 'asc');
-
-        switch ($sortBy) {
-            case 'name':
-                $query->orderBy('name', $sortOrder);
-                break;
-            case 'domain':
-                $query->orderBy('domain', $sortOrder);
-                break;
-            case 'created_at':
-                $query->orderBy('created_at', $sortOrder);
-                break;
-            default:
-                $query->orderedByName();
-        }
+        $query = $this->companyRepository->getCompaniesForAccount($account->id, [
+            'sort_by' => $request->get('sort_by'),
+            'sort_order' => $request->get('sort_order')
+        ]);
 
         $companies = $query->paginate($request->get('per_page', self::RESULTS_PER_PAGE));
 
@@ -60,8 +50,7 @@ class CompaniesController extends Controller
             ]);
         }
 
-        $query = $this->resolvedCompanies($account)
-            ->searchByNameOrDomain($request->get('q'));
+        $query = $this->companyRepository->search($account->id, $request->get('q'));
 
         $companies = $query->paginate($request->get('per_page', self::RESULTS_PER_PAGE));
 
@@ -86,7 +75,7 @@ class CompaniesController extends Controller
             'avatar_url' => 'nullable|url',
         ]);
 
-        $company = Company::create(array_merge($validated, ['account_id' => $account->id]));
+        $company = $this->companyRepository->create($validated, $account->id);
 
         return (new CompanyResource($company))->response()->setStatusCode(201);
     }
@@ -117,7 +106,7 @@ class CompaniesController extends Controller
             'avatar_url' => 'nullable|url',
         ]);
 
-        $company->update($validated);
+        $company = $this->companyRepository->update($company, $validated);
 
         return new CompanyResource($company);
     }
@@ -126,13 +115,8 @@ class CompaniesController extends Controller
     {
         abort_unless($company->account_id === $account->id, 404);
 
-        $company->delete();
+        $this->companyRepository->delete($company);
 
         return response()->json(null, 204);
-    }
-
-    private function resolvedCompanies(Account $account)
-    {
-        return Company::where('account_id', $account->id);
     }
 }

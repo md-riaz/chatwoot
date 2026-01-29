@@ -16,6 +16,8 @@
     Close as DialogClose,
   } from '$lib/components/ui/dialog';
 
+  import { page } from '$app/stores';
+
   interface Activity {
     id: string;
     type: string;
@@ -37,6 +39,7 @@
     phone?: string;
     avatar?: string;
     company?: string;
+    companyId?: number | string;
     tags?: string[];
     status?: 'active' | 'inactive';
     createdAt?: string;
@@ -118,7 +121,15 @@
           {/if}
         </Avatar>
         <div class="text-lg font-medium">{contact.name}</div>
-        <div class="text-sm text-muted-foreground">{contact.company || '-'}</div>
+        <div class="text-sm text-muted-foreground">
+          {#if contact.companyId && contact.company}
+            <a href={`/app/accounts/${$page.params.accountId}/companies/${contact.companyId}`} class="hover:underline text-blue-600">
+              {contact.company}
+            </a>
+          {:else}
+            {contact.company || '-'}
+          {/if}
+        </div>
         <div class="flex items-center gap-2 mt-2">
           {#if contact.tags}
             {#each contact.tags as t}

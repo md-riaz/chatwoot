@@ -62,7 +62,8 @@
   let search = $state('');
 
   function handleSelect(currentValue: string) {
-    const selected = picker.countryList.find((c) => c.name === currentValue);
+    // cmdk/bits-ui often normalizes values to lowercase
+    const selected = picker.countryList.find((c) => c.name.toLowerCase() === currentValue.toLowerCase());
     if (selected) {
       picker.selectCountry(selected);
     }
@@ -84,7 +85,6 @@
         >
           {#if picker.selectedCountry}
             <span class="text-lg">{picker.selectedCountry.flag}</span>
-            <span class="ml-1 text-xs text-muted-foreground">{picker.selectedCountry.code}</span>
           {:else}
              Select
           {/if}

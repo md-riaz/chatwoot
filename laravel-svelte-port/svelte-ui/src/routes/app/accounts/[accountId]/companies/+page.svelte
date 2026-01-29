@@ -5,8 +5,10 @@
   import { companiesStore } from '$lib/stores/companies.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import { Search, Plus, Filter, ArrowUpDown, MoreVertical } from 'lucide-svelte';
   import type { Company } from '$lib/api/companies';
   import CompanyDialog from '$lib/components/companies/CompanyDialog.svelte';
+  import CompanyCard from './_components/CompanyCard.svelte';
 
   let accountId = $derived($page.params.accountId);
   let isLoading = $derived(companiesStore.isLoading);
@@ -75,184 +77,124 @@
       }
     }, 300);
   }
-
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString();
-  }
-
-  function isValidUrl(url: string): boolean {
-    try {
-      const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
-      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
-    } catch {
-      return false;
-    }
-  }
 </script>
 
-<div class="companies-page p-6 max-w-[60rem] mx-auto">
-  <div class="companies-header mb-6">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h1 class="text-2xl font-bold">Companies</h1>
-        <p class="text-gray-600 mt-1">
-          Manage your organizations and track their interactions
-        </p>
+<div class="h-full flex flex-col bg-background">
+  <!-- Header -->
+  <div class="flex items-center justify-between px-6 py-4 border-b">
+    <h1 class="text-xl font-medium">Companies</h1>
+    
+    <div class="flex items-center gap-2">
+      <!-- Search -->
+      <div class="relative w-64">
+        <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          value={searchQuery}
+          oninput={handleSearchInput}
+          placeholder="Search companies..."
+          class="pl-9 h-9"
+        />
       </div>
-      <Button onclick={handleCreateCompany}>Create Company</Button>
-    </div>
 
-    <!-- Search bar -->
-    <div class="search-bar">
-      <Input
-        type="search"
-        placeholder="Search companies by name, website, or industry..."
-        value={searchQuery}
-        oninput={handleSearchInput}
-        class="max-w-md"
-      />
+      <!-- Actions -->
+      <div class="flex items-center gap-1 border-l pl-2 ml-2">
+        <Button variant="ghost" size="icon" class="h-9 w-9 text-muted-foreground">
+          <Filter class="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon" class="h-9 w-9 text-muted-foreground">
+          <ArrowUpDown class="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon" class="h-9 w-9 text-muted-foreground">
+          <MoreVertical class="h-4 w-4" />
+        </Button>
+      </div>
+
+      <Button class="gap-2 ml-2 bg-blue-600 hover:bg-blue-700 text-white" onclick={handleCreateCompany}>
+        <Plus class="h-4 w-4" />
+        New Company
+      </Button>
     </div>
   </div>
 
-  {#if isLoading}
-    <div class="flex justify-center items-center py-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-    </div>
-  {:else if companies.length === 0}
-    <div class="empty-state text-center py-20">
-      <div class="mb-4">
-        <svg
-          class="mx-auto h-16 w-16 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-          />
-        </svg>
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto relative">
+    {#if isLoading}
+      <!-- Loading skeleton -->
+      <div class="p-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {#each Array(6) as _}
+          <div class="border rounded-lg p-6 bg-card">
+            <div class="flex items-start gap-4">
+              <div class="h-12 w-12 rounded-full bg-muted animate-pulse"></div>
+              <div class="flex-1 space-y-2">
+                <div class="h-4 w-32 bg-muted animate-pulse rounded"></div>
+                <div class="h-3 w-40 bg-muted animate-pulse rounded"></div>
+                <div class="h-3 w-36 bg-muted animate-pulse rounded"></div>
+              </div>
+            </div>
+          </div>
+        {/each}
       </div>
-      <h2 class="text-xl font-semibold mb-2">
-        {searchQuery ? 'No companies found' : 'No companies yet'}
-      </h2>
-      <p class="text-gray-600 mb-4">
-        {searchQuery
-          ? 'Try adjusting your search criteria'
-          : 'Create your first company to start organizing your contacts'}
-      </p>
-      {#if !searchQuery}
-        <Button onclick={handleCreateCompany}>Create Your First Company</Button>
-      {/if}
-    </div>
-  {:else}
-    <div class="companies-stats mb-4 text-sm text-gray-600">
-      Showing {companies.length} {companies.length === 1 ? 'company' : 'companies'}
-      {#if searchQuery}
-        matching "{searchQuery}"
-      {/if}
-    </div>
-
-    <div class="companies-grid grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {#each companies as company}
-        <div
-          class="company-card border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-          role="button"
-          tabindex="0"
-          onclick={() => handleViewCompany(company.id)}
-          onkeydown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              handleViewCompany(company.id);
-            }
-          }}
-        >
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="font-semibold text-lg">{company.name}</h3>
-          </div>
-
-          {#if company.website}
-            <div class="text-sm text-blue-600 mb-2 truncate">
-              <a
-                href={isValidUrl(company.website) ? company.website : `https://${company.website}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onclick={(e) => e.stopPropagation()}
-              >
-                {company.website}
-              </a>
-            </div>
-          {/if}
-
-          {#if company.description}
-            <p class="text-sm text-gray-600 mb-3 line-clamp-2">
-              {company.description}
-            </p>
-          {/if}
-
-          <div class="company-meta text-xs text-gray-500 space-y-1 mb-3">
-            {#if company.industry}
-              <div class="flex items-center gap-1">
-                <span class="font-medium">Industry:</span>
-                <span>{company.industry}</span>
+    {:else if companies.length === 0}
+      <!-- Empty state -->
+      <div class="relative w-full max-w-[60rem] mx-auto overflow-hidden h-full max-h-[28rem] mt-12">
+        {#if !searchQuery}
+          <!-- Ghost Background for Empty State -->
+          <div class="w-full h-full space-y-4 overflow-y-hidden opacity-50 pointer-events-none">
+            {#each Array(5) as _}
+              <div class="flex items-center gap-4 p-4 border rounded-lg bg-card/50">
+                <div class="h-10 w-10 rounded-full bg-muted"></div>
+                <div class="flex-1 space-y-2">
+                  <div class="h-4 bg-muted w-1/4 rounded"></div>
+                  <div class="h-3 bg-muted w-1/3 rounded"></div>
+                </div>
               </div>
-            {/if}
-            {#if company.size}
-              <div class="flex items-center gap-1">
-                <span class="font-medium">Size:</span>
-                <span>{company.size}</span>
-              </div>
-            {/if}
-            <div class="flex items-center gap-1">
-              <span class="font-medium">Contacts:</span>
-              <span>{company.contactsCount || 0}</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <span class="font-medium">Created:</span>
-              <span>{formatDate(company.createdAt)}</span>
-            </div>
+            {/each}
           </div>
+        {/if}
 
-          <div class="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onclick={(event: MouseEvent) => {
-                event.stopPropagation();
-                handleViewCompany(company.id);
-              }}
-            >
-              View
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onclick={(event: MouseEvent) => {
-                event.stopPropagation();
-                handleEditCompany(company);
-              }}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onclick={(event: MouseEvent) => {
-                event.stopPropagation();
-                handleDeleteCompany(company.id, company.name);
-              }}
-            >
-              Delete
-            </Button>
+        <div class="absolute inset-x-0 bottom-0 flex flex-col items-center justify-end w-full h-full pb-20 bg-gradient-to-t from-background from-25% to-transparent">
+          <div class="flex flex-col items-center justify-center gap-6">
+            {#if searchQuery}
+              <div class="flex flex-col items-center text-center">
+                <div class="mb-4 h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                  <Search class="h-6 w-6 text-muted-foreground" />
+                </div>
+                <h3 class="text-lg font-semibold mb-2">No companies found</h3>
+                <p class="text-sm text-muted-foreground max-w-md">
+                  We couldn't find any companies matching "{searchQuery}". Try adjusting your search query.
+                </p>
+              </div>
+            {:else}
+              <div class="flex flex-col items-center justify-center gap-3">
+                <h2 class="text-3xl font-medium text-center text-foreground">
+                  No companies found in this account
+                </h2>
+                <p class="max-w-xl text-base text-center text-muted-foreground">
+                  Start adding new companies by clicking on the button below
+                </p>
+              </div>
+              <Button class="gap-2 bg-blue-600 hover:bg-blue-700 text-white min-w-[140px]" onclick={handleCreateCompany}>
+                <Plus class="h-4 w-4" />
+                Add Company
+              </Button>
+            {/if}
           </div>
         </div>
-      {/each}
-    </div>
-
-    <!-- Pagination would go here if needed -->
-  {/if}
+      </div>
+    {:else}
+      <!-- Companies Grid -->
+      <div class="p-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {#each companies as company (company.id)}
+          <CompanyCard 
+            {company}
+            onView={handleViewCompany}
+            onEdit={handleEditCompany}
+            onDelete={handleDeleteCompany}
+          />
+        {/each}
+      </div>
+    {/if}
+  </div>
 </div>
 
 <!-- Company Dialogs -->
@@ -268,13 +210,3 @@
   company={editingCompany}
   on:submit={handleSubmitEdit}
 />
-
-<style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    line-clamp: 2;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-</style>

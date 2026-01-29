@@ -17,7 +17,8 @@
   const dispatch = createEventDispatcher();
 
   let form = $state({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     company: '',
@@ -40,6 +41,7 @@
   let avatarFile = $state<File | null>(null);
   let avatarPreview = $state<string | null>(null);
   let errors = $state<Record<string, string>>({});
+  let activeSocials = $state<Set<string>>(new Set());
 
   const socialNetworks = [
     { key: 'facebook', label: 'Facebook', icon: Facebook, placeholder: 'Username or URL' },
@@ -52,10 +54,11 @@
   $effect(() => {
     if (contact) {
       form = {
-        name: contact.name || '',
+        firstName: contact.name ? contact.name.split(' ')[0] : '',
+        lastName: contact.name ? contact.name.split(' ').slice(1).join(' ') : '',
         email: contact.email || '',
         phone: contact.phoneNumber || '',
-        company: contact.company || '',
+        company: typeof contact.company === 'string' ? contact.company : (contact.company?.name || ''),
         city: contact.city || '',
         countryCode: contact.countryCode || '',
         description: contact.additionalAttributes?.description || '',
@@ -74,8 +77,26 @@
         phoneCountry = contact.countryCode.toUpperCase();
       }
       avatarPreview = contact.avatarUrl || contact.thumbnail || null;
+      
+      // Initialize active social profiles
+      if (contact.additionalAttributes?.social_profiles) {
+        Object.entries(contact.additionalAttributes.social_profiles).forEach(([k, v]) => {
+          if (v) activeSocials.add(k);
+        });
+      }
     }
   });
+
+  function addSocialProfile(key: string) {
+    activeSocials = new Set([...activeSocials, key]);
+  }
+
+  function removeSocialProfile(key: string) {
+    const newSet = new Set(activeSocials);
+    newSet.delete(key);
+    activeSocials = newSet;
+    form.socialProfiles[key] = '';
+  }
 
   function onFileChange(e: Event) {
     const input = e.target as HTMLInputElement;
@@ -90,8 +111,8 @@
 
   function validate(): boolean {
     errors = {};
-    if (!form.name || form.name.trim().length === 0) {
-      errors.name = 'Name is required';
+    if (!form.firstName || form.firstName.trim().length === 0) {
+      errors.firstName = 'First name is required';
     }
     if (form.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) {
       errors.email = 'A valid email is required';
@@ -106,7 +127,7 @@
     return Object.keys(errors).length === 0;
   }
 
-  function save() {
+  export function submit() {
     if (!validate()) return;
     
     // Filter out empty social profiles
@@ -116,7 +137,7 @@
 
     // Transform form data to match API expectation
     const payload: any = {
-      name: form.name,
+      name: `${form.firstName} ${form.lastName}`.trim(),
       email: form.email,
       phoneNumber: form.phone,
       company: form.company,
@@ -138,20 +159,16 @@
     
     dispatch('save', payload);
   }
-
-  function cancel() {
-    dispatch('cancel');
-  }
 </script>
 
-<div class="space-y-6 p-1 max-w-2xl h-[calc(100vh-200px)] overflow-y-auto pr-2">
+<div class="space-y-6 max-h-[80vh] overflow-y-auto pr-2">
   <div class="flex items-center gap-4">
     <Avatar class="h-16 w-16">
       {#if avatarPreview}
         <img src={avatarPreview} alt={form.name || 'avatar'} />
       {:else}
         <div class="flex h-full w-full items-center justify-center bg-primary text-primary-foreground text-xl">
-          {form.name ? form.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) : '??'}
+          {form.firstName ? (form.firstName[0] + (form.lastName ? form.lastName[0] : '')) : '??'}
         </div>
       {/if}
     </Avatar>
@@ -163,11 +180,16 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="space-y-2">
-      <Label for="contact-name">Name <span class="text-destructive">*</span></Label>
-      <Input id="contact-name" bind:value={form.name} placeholder="Full name" />
-      {#if errors.name || serverErrors.name}
-        <p class="text-xs text-destructive">{errors.name || serverErrors.name}</p>
+      <Label for="contact-first-name">First Name <span class="text-destructive">*</span></Label>
+      <Input id="contact-first-name" bind:value={form.firstName} placeholder="First name" />
+      {#if errors.firstName || serverErrors.name}
+        <p class="text-xs text-destructive">{errors.firstName || serverErrors.name}</p>
       {/if}
+    </div>
+
+    <div class="space-y-2">
+      <Label for="contact-last-name">Last Name</Label>
+      <Input id="contact-last-name" bind:value={form.lastName} placeholder="Last name" />
     </div>
 
     <div class="space-y-2">
@@ -216,27 +238,55 @@
     <Textarea id="contact-bio" bind:value={form.description} placeholder="Add a description..." class="resize-none h-24" />
   </div>
 
-  <div class="space-y-4">
-    <Label>Social Profiles</Label>
-    <div class="space-y-3">
-      {#each socialNetworks as network}
-        <div class="flex items-center gap-3">
-          <div class="flex items-center justify-center w-8 h-8 rounded bg-muted text-muted-foreground">
-            <svelte:component this={network.icon} class="h-4 w-4" />
-          </div>
-          <div class="flex-1">
-            <Input 
-              bind:value={form.socialProfiles[network.key]} 
-              placeholder={network.placeholder} 
-            />
-          </div>
+    <div class="space-y-4">
+      <div class="flex items-center gap-2">
+        <Label>Social Profiles</Label>
+      </div>
+      
+      <!-- Check if we have active profiles first -->
+      {#if activeSocials.size > 0}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {#each socialNetworks as network}
+            {#if activeSocials.has(network.key)}
+              <div class="relative flex items-center">
+                <div class="absolute left-3 text-muted-foreground flex items-center justify-center">
+                  <svelte:component this={network.icon} class="h-4 w-4" />
+                </div>
+                <Input 
+                  bind:value={form.socialProfiles[network.key]} 
+                  placeholder={network.placeholder}
+                  class="pl-9 pr-8"
+                />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  class="absolute right-1 h-7 w-7 text-muted-foreground hover:text-destructive"
+                  onclick={() => removeSocialProfile(network.key)}
+                >
+                  <span class="sr-only">Remove</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </Button>
+              </div>
+            {/if}
+          {/each}
         </div>
-      {/each}
-    </div>
-  </div>
+      {/if}
 
-  <div class="flex items-center justify-end gap-2 pt-4 border-t">
-    <Button variant="ghost" onclick={(e: MouseEvent) => cancel()}>Cancel</Button>
-    <Button onclick={(e: MouseEvent) => save()}>Save Contact</Button>
-  </div>
+      <!-- Add Buttons -->
+      <div class="flex flex-wrap gap-2">
+        {#each socialNetworks as network}
+          {#if !activeSocials.has(network.key)}
+            <button 
+              class="inline-flex items-center gap-2 h-9 px-3 text-sm transition-colors rounded-md bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              onclick={() => addSocialProfile(network.key)}
+            >
+              <svelte:component this={network.icon} class="h-4 w-4" />
+              <span>Add {network.label}</span>
+            </button>
+          {/if}
+        {/each}
+      </div>
+    </div>
+
+
 </div>

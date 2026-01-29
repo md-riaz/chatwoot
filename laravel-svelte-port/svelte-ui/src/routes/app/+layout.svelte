@@ -87,7 +87,7 @@
       let wsHost = '127.0.0.1';
       let wsPort = 8080;
       let useTLS = false;
-      let reverbKey = 'clearline-app-key'; // Default key from Laravel .env
+      let reverbKey = import.meta.env.VITE_REVERB_APP_KEY || 'clearline-app-key';
       
       try {
         const url = new URL(wsUrl);
