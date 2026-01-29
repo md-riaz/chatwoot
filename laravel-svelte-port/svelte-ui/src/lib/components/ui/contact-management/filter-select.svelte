@@ -52,10 +52,8 @@
   );
 
   // Derived: icon to render
-  const iconToRender = $derived(() => {
-    if (hideIcon) return null;
-    return selectedOption?.icon || null;
-  });
+  // Derived: icon to render
+  const iconToRender = $derived(hideIcon ? null : selectedOption?.icon || null);
 
   // Update selected value
   function updateSelected(newValue: string | number) {
@@ -72,8 +70,8 @@
       size="sm"
       class="h-8 gap-1 text-sm font-normal {className}"
     >
-      {#if iconToRender()}
-        <span class={iconToRender()}></span>
+      {#if iconToRender}
+        <span class={iconToRender}></span>
       {/if}
       {#if !hideLabel}
         <span class="truncate max-w-[120px]">

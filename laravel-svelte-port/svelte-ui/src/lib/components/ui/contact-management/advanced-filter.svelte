@@ -54,10 +54,11 @@
   // - Correct labels ("Country name", "True"/"False")
   // - All 12 filter attributes
   // - Correct operator labels ("Is lesser than")
-  const filterTypes = $derived(() => {
-    const labelOptions = labels.map(l => ({ id: l.title || l.id, name: l.title || l.name }));
-    return buildFilterTypes(labelOptions);
-  });
+  const filterTypes = $derived(
+    buildFilterTypes(
+      labels.map(l => ({ id: l.title || l.id, name: l.title || l.name }))
+    )
+  );
 
   // Query operator options (AND / OR)
   const queryOperatorOptions = [
@@ -84,7 +85,7 @@
 
   // Helpers
   function getFilterType(key: string): FilterType {
-    const types = filterTypes();
+    const types = filterTypes;
     return types.find(f => f.attributeKey === key) || types[0];
   }
 

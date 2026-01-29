@@ -17,8 +17,6 @@
     MoreVertical,
     Check,
     ChevronRight,
-    Tag,
-    Trash2,
     X,
     Save,
   } from 'lucide-svelte';
@@ -38,9 +36,10 @@
   import AdvancedFilter from '$lib/components/ui/contact-management/advanced-filter.svelte';
   import ImportDialog from '$lib/components/ui/contact-management/import-dialog.svelte';
   import ExportDialog from '$lib/components/ui/contact-management/export-dialog.svelte';
+  import BulkActionBar from '$lib/components/ui/contact-management/bulk-action-bar.svelte';
   import type { Contact } from '$lib/api/contacts';
   import CreateSegmentDialog from '$lib/components/ui/contact-management/create-segment-dialog.svelte';
-  import { getLabels, type Label } from '$lib/api/labels';
+  import { labelsStore } from '$lib/stores/labels.svelte';
 
   // Props
   interface Props {
@@ -61,7 +60,6 @@
   // Local state
   let searchQuery = $state('');
   let showCreateModal = $state(false);
-  let showLabelsDialog = $state(false);
   let showDeleteDialog = $state(false);
   let showFilterDialog = $state(false);
   let showImportDialog = $state(false);
@@ -71,9 +69,8 @@
   let isBulkProcessing = $state(false);
   let sortBy = $state('last_activity_at');
   let sortOrder = $state<'asc' | 'desc'>('desc');
-  let selectedIds = $state<Set<number>>(new Set());
-  let availableLabels = $state<Label[]>([]);
-  let selectedLabels = $state<Set<string>>(new Set());
+  let selectedIds = $state<number[]>([]);
+
   let activeFiltersArray = $state<Array<{
     attributeKey: string;
     filterOperator: string;
@@ -117,9 +114,9 @@
   );
 
   // Selection state
-  const hasSelection = $derived(selectedIds.size > 0);
+  const hasSelection = $derived(selectedIds.length > 0);
   const allSelected = $derived(
-    contacts.length > 0 && contacts.every(c => selectedIds.has(c.id))
+    contacts.length > 0 && contacts.every(c => selectedIds.includes(c.id))
   );
 
   // Total items for pagination (approximate from store state)
@@ -201,22 +198,20 @@
 
   // Toggle contact selection
   function toggleSelection(contactId: number) {
-    if (selectedIds.has(contactId)) {
-      selectedIds.delete(contactId);
+    if (selectedIds.includes(contactId)) {
+      selectedIds = selectedIds.filter(id => id !== contactId);
     } else {
-      selectedIds.add(contactId);
+      selectedIds = [...selectedIds, contactId];
     }
-    selectedIds = new Set(selectedIds); // Trigger reactivity
   }
 
   // Toggle select all
-  function toggleSelectAll() {
-    if (allSelected) {
-      selectedIds.clear();
+  function toggleSelectAll(selectAll: boolean) {
+    if (!selectAll) {
+      selectedIds = [];
     } else {
-      contacts.forEach(c => selectedIds.add(c.id));
+      selectedIds = contacts.map(c => c.id);
     }
-    selectedIds = new Set(selectedIds);
   }
 
   // Navigate to contact detail
@@ -249,44 +244,21 @@
     }
   }
 
-  // Open labels dialog
-  async function openLabelsDialog() {
-    try {
-      if (availableLabels.length === 0) {
-        availableLabels = await getLabels(accountId);
-      }
-      selectedLabels = new Set();
-      showLabelsDialog = true;
-    } catch (error) {
-      console.error('Failed to fetch labels', error);
-    }
-  }
 
-  // Toggle label selection
-  function toggleLabel(labelTitle: string) {
-    const newSet = new Set(selectedLabels);
-    if (newSet.has(labelTitle)) {
-      newSet.delete(labelTitle);
-    } else {
-      newSet.add(labelTitle);
-    }
-    selectedLabels = newSet;
-  }
+
+
 
   // Handle bulk assign labels
-  async function handleBulkAssignLabels() {
-    if (selectedLabels.size === 0) return;
+  async function handleBulkAssignLabels(labels: string[]) {
+    if (labels.length === 0) return;
     
     try {
       isBulkProcessing = true;
-      const contactIds = Array.from(selectedIds);
-      const labels = Array.from(selectedLabels);
+      const contactIds = selectedIds;
       
       const success = await contactsStore.bulkAssignLabels(contactIds, labels);
       if (success) {
-        showLabelsDialog = false;
-        selectedIds = new Set(); // Clear selection
-        selectedLabels = new Set();
+        selectedIds = []; // Clear selection
       }
     } catch (error) {
       console.error('Failed to assign labels', error);
@@ -299,12 +271,10 @@
   async function handleBulkDelete() {
     try {
       isBulkProcessing = true;
-      const contactIds = Array.from(selectedIds);
-      
-      const success = await contactsStore.bulkDelete(contactIds);
+      const success = await contactsStore.bulkDelete(selectedIds);
       if (success) {
         showDeleteDialog = false;
-        selectedIds = new Set(); // Clear selection
+        selectedIds = []; // Clear selection
       }
     } catch (error) {
       console.error('Failed to delete contacts', error);
@@ -314,9 +284,11 @@
   }
 
   // Load labels on mount (contacts loaded by effect)
+  // Load labels on mount (contacts loaded by effect)
   onMount(async () => {
     try {
-      availableLabels = await getLabels(accountId);
+      // Fetch labels for the bulk action bar
+      await labelsStore.fetchLabels();
     } catch (e) {
       console.error('Failed to fetch labels', e);
     }
@@ -330,7 +302,7 @@
       <span class="text-xl font-medium truncate text-foreground">
         {title}
         {#if hasSelection}
-          <Badge variant="secondary" class="ml-2">{selectedIds.size} selected</Badge>
+          <Badge variant="secondary" class="ml-2">{selectedIds.length} selected</Badge>
         {/if}
       </span>
       
@@ -465,33 +437,15 @@
 
 
   <!-- Bulk Action Bar -->
-  {#if hasSelection}
-    <div class="flex items-center gap-4 px-6 py-3 bg-muted/50 border-b">
-      <Checkbox checked={allSelected} onCheckedChange={toggleSelectAll} />
-      <span class="text-sm text-muted-foreground"
-        >{selectedIds.size} contacts selected</span
-      >
-      <div class="flex-1"></div>
-      <Button variant="outline" size="sm" onclick={openLabelsDialog} class="gap-1">
-        <Tag class="h-3 w-3" />
-        Assign Labels
-      </Button>
-      <Button variant="destructive" size="sm" onclick={() => (showDeleteDialog = true)} class="gap-1">
-        <Trash2 class="h-3 w-3" />
-        Delete
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        onclick={() => {
-          selectedIds.clear();
-          selectedIds = new Set();
-        }}
-      >
-        Clear
-      </Button>
-    </div>
-  {/if}
+  <BulkActionBar
+    visibleContactIds={contacts.map(c => c.id)}
+    bind:selectedContactIds={selectedIds}
+    isLoading={isBulkProcessing}
+    onClearSelection={() => (selectedIds = [])}
+    onToggleAll={toggleSelectAll}
+    onAssignLabels={handleBulkAssignLabels}
+    onDeleteSelected={() => (showDeleteDialog = true)}
+  />
 
   <!-- Contacts List - Row-based layout -->
   <main class="flex-1 overflow-y-auto">
@@ -631,8 +585,8 @@
               }}
             >
               <Checkbox
-                checked={selectedIds.has(contact.id)}
-                class={selectedIds.has(contact.id) ? 'opacity-100' : ''}
+                checked={selectedIds.includes(contact.id)}
+                class={selectedIds.includes(contact.id) ? 'opacity-100' : ''}
               />
             </div>
 
@@ -734,59 +688,13 @@
   </Dialog.Root>
 
   <!-- Assign Labels Dialog -->
-  <Dialog.Root bind:open={showLabelsDialog}>
-    <Dialog.Content class="sm:max-w-[400px]">
-      <Dialog.Header>
-        <Dialog.Title>Assign Labels</Dialog.Title>
-        <Dialog.Description>
-          Select labels to assign to {selectedIds.size} contact{selectedIds.size > 1 ? 's' : ''}
-        </Dialog.Description>
-      </Dialog.Header>
-      <div class="py-4 space-y-2 max-h-64 overflow-y-auto">
-        {#if availableLabels.length === 0}
-          <p class="text-sm text-muted-foreground text-center py-4">
-            No labels available. Create labels in settings.
-          </p>
-        {:else}
-          {#each availableLabels as label}
-            <button
-              type="button"
-              onclick={() => toggleLabel(label.title)}
-              class="w-full flex items-center gap-3 p-2 rounded-md hover:bg-muted transition-colors {selectedLabels.has(label.title) ? 'bg-muted' : ''}"
-            >
-              <div
-                class="w-3 h-3 rounded-full"
-                style="background-color: {label.color}"
-              ></div>
-              <span class="flex-1 text-left text-sm">{label.title}</span>
-              {#if selectedLabels.has(label.title)}
-                <Check class="h-4 w-4 text-primary" />
-              {/if}
-            </button>
-          {/each}
-        {/if}
-      </div>
-      <Dialog.Footer>
-        <Button variant="outline" onclick={() => (showLabelsDialog = false)}>
-          Cancel
-        </Button>
-        <Button
-          onclick={handleBulkAssignLabels}
-          disabled={selectedLabels.size === 0 || isBulkProcessing}
-        >
-          {isBulkProcessing ? 'Assigning...' : `Assign ${selectedLabels.size} Label${selectedLabels.size !== 1 ? 's' : ''}`}
-        </Button>
-      </Dialog.Footer>
-    </Dialog.Content>
-  </Dialog.Root>
-
   <!-- Bulk Delete Confirmation Dialog -->
   <Dialog.Root bind:open={showDeleteDialog}>
     <Dialog.Content class="sm:max-w-[400px]">
       <Dialog.Header>
         <Dialog.Title class="text-destructive">Delete Contacts</Dialog.Title>
         <Dialog.Description>
-          Are you sure you want to delete {selectedIds.size} contact{selectedIds.size > 1 ? 's' : ''}? 
+          Are you sure you want to delete {selectedIds.length} contact{selectedIds.length > 1 ? 's' : ''}? 
           This action cannot be undone.
         </Dialog.Description>
       </Dialog.Header>
@@ -799,7 +707,7 @@
           onclick={handleBulkDelete}
           disabled={isBulkProcessing}
         >
-          {isBulkProcessing ? 'Deleting...' : `Delete ${selectedIds.size} Contact${selectedIds.size !== 1 ? 's' : ''}`}
+          {isBulkProcessing ? 'Deleting...' : `Delete ${selectedIds.length} Contact${selectedIds.length !== 1 ? 's' : ''}`}
         </Button>
       </Dialog.Footer>
     </Dialog.Content>

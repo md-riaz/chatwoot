@@ -46,47 +46,47 @@
   let isWiggling = $state(false);
 
   // Derived: current filter type
-  const currentFilter = $derived(() => {
-    return (
-      filterTypes.find(f => f.attributeKey === attributeKey) || filterTypes[0]
-    );
-  });
+  // Derived: current filter type
+  const currentFilter = $derived(
+    filterTypes.find(f => f.attributeKey === attributeKey) || filterTypes[0]
+  );
 
   // Derived: available operators for current filter
-  const operatorOptions = $derived(() => {
-    const filter = currentFilter();
-    if (!filter) return [];
-    return filter.filterOperators.map(op => ({
+  // Derived: available operators for current filter
+  const operatorOptions = $derived(
+    currentFilter?.filterOperators.map(op => ({
       value: op.value,
       label: op.label,
       icon: op.icon,
-    }));
-  });
+    })) || []
+  );
 
   // Derived: attribute options for dropdown
-  const attributeOptions = $derived(() => {
-    return filterTypes.map(f => ({
+  // Derived: attribute options for dropdown
+  const attributeOptions = $derived(
+    filterTypes.map(f => ({
       value: f.attributeKey,
       label: f.label,
-    }));
-  });
+    }))
+  );
 
   // Derived: should show input field
-  const showInput = $derived(() => {
-    return !NO_INPUT_OPS.includes(filterOperator as FilterOpValue);
-  });
+  // Derived: should show input field
+  const showInput = $derived(
+    !NO_INPUT_OPS.includes(filterOperator as FilterOpValue)
+  );
 
   // Derived: input type for current filter
-  const inputType = $derived(() => {
+  // Derived: input type for current filter
+  const inputType = $derived.by(() => {
     const override = OPS_INPUT_OVERRIDE[filterOperator as FilterOpValue];
     if (override) return override;
-    return currentFilter()?.inputType || 'plainText';
+    return currentFilter?.inputType || 'plainText';
   });
 
   // Derived: options for select inputs
-  const selectOptions = $derived(() => {
-    return currentFilter()?.options || [];
-  });
+  // Derived: options for select inputs
+  const selectOptions = $derived(currentFilter?.options || []);
 
   // Query operator options
   const queryOperatorOptions = [
@@ -128,7 +128,7 @@
   // Validate the condition
   export function validate(): boolean {
     // No validation needed for no-input operators
-    if (!showInput()) {
+    if (!showInput) {
       hasError = false;
       return true;
     }
@@ -181,7 +181,7 @@
       filterOperator,
       values: normalizedValues,
       queryOperator,
-      attributeModel: currentFilter()?.attributeModel || 'standard',
+      attributeModel: currentFilter?.attributeModel || 'standard',
     };
   }
 </script>
@@ -202,7 +202,7 @@
 
   <!-- Attribute Selector -->
   <FilterSelect
-    options={attributeOptions()}
+    options={attributeOptions}
     value={attributeKey}
     on:change={e => handleAttributeChange(e.detail)}
     variant="secondary"
@@ -210,25 +210,25 @@
 
   <!-- Operator Selector -->
   <FilterSelect
-    options={operatorOptions()}
+    options={operatorOptions}
     value={filterOperator}
     on:change={e => handleOperatorChange(e.detail)}
     variant="secondary"
   />
 
   <!-- Value Input -->
-  {#if showInput()}
+  {#if showInput}
     <div class="flex items-center gap-1">
-      {#if inputType() === 'plainText' || inputType() === 'number'}
+      {#if inputType === 'plainText' || inputType === 'number'}
         <Input
-          type={inputType() === 'number' ? 'number' : 'text'}
+          type={inputType === 'number' ? 'number' : 'text'}
           bind:value={values}
           placeholder="Enter value"
           class="h-8 w-40 text-sm {hasError && showErrors
             ? 'border-destructive'
             : ''}"
         />
-      {:else if inputType() === 'date'}
+      {:else if inputType === 'date'}
         <Input
           type="date"
           bind:value={values}
@@ -236,14 +236,14 @@
             ? 'border-destructive'
             : ''}"
         />
-      {:else if inputType() === 'searchSelect' || inputType() === 'booleanSelect'}
+      {:else if inputType === 'searchSelect' || inputType === 'booleanSelect'}
         <SingleSelect
-          options={selectOptions()}
+          options={selectOptions}
           bind:value={values}
           placeholder="Select value"
         />
-      {:else if inputType() === 'multiSelect'}
-        <MultiSelect options={selectOptions()} bind:value={values} />
+      {:else if inputType === 'multiSelect'}
+        <MultiSelect options={selectOptions} bind:value={values} />
       {/if}
 
       <!-- Validation Error Icon -->

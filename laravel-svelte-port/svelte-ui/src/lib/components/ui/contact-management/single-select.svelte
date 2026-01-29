@@ -36,7 +36,8 @@
   let searchTerm = $state('');
 
   // Derived: search results using simple filtering (picoSearch equivalent)
-  const searchResults = $derived(() => {
+  // Derived: search results using simple filtering (picoSearch equivalent)
+  const searchResults = $derived.by(() => {
     if (!options || options.length === 0) return [];
     if (!searchTerm.trim()) return options;
 
@@ -47,7 +48,8 @@
   });
 
   // Derived: selected item
-  const selectedItem = $derived(() => {
+  // Derived: selected item
+  const selectedItem = $derived.by(() => {
     if (!options || !value) return null;
 
     // Handle case where value is an array
@@ -82,14 +84,14 @@
 
 <DropdownMenu.Root bind:open>
   <DropdownMenu.Trigger asChild let:builder>
-    {#if selectedItem()}
+    {#if selectedItem}
       <Button
         builders={[builder]}
         variant="secondary"
         size="sm"
         class="h-8 gap-1 text-sm font-normal"
       >
-        <span class="truncate max-w-[150px]">{selectedItem()?.name}</span>
+        <span class="truncate max-w-[150px]">{selectedItem?.name}</span>
       </Button>
     {:else}
       <Button
@@ -121,14 +123,14 @@
       </div>
     {/if}
     <div class="max-h-80 overflow-y-auto">
-      {#if searchResults().length > 0}
-        {#each searchResults() as option (option.id)}
+      {#if searchResults.length > 0}
+        {#each searchResults as option (option.id)}
           <DropdownMenu.Item
             class="cursor-pointer gap-2 justify-between"
             on:click={() => toggleSelected(option)}
           >
             <span class="truncate">{option.name}</span>
-            {#if selectedItem() && selectedItem()?.id === option.id}
+            {#if selectedItem && selectedItem?.id === option.id}
               <Check class="h-4 w-4 text-primary shrink-0" />
             {/if}
           </DropdownMenu.Item>
