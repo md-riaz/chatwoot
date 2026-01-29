@@ -13,34 +13,27 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { Badge } from '$lib/components/ui/badge';
 
-  // Filter condition interface (matches Vue format)
-  // values is always an array for API parity
-  export interface FilterCondition {
-    attributeKey: string;
-    filterOperator: string;
-    values: string[];  // Always array for Vue/Laravel parity
-    queryOperator: 'and' | 'or';
-  }
+  // Import constants from Vue-parity files
+  import {
+    buildFilterTypes,
+    countries,
+    booleanOptions,
+    DEFAULT_FILTER,
+    type FilterType,
+    type FilterOption,
+    type FilterCondition,
+  } from '$lib/constants/filter-types';
+  import {
+    equalityOperators,
+    containmentOperators,
+    dateOperators,
+    NO_INPUT_OPS,
+    type FilterOperator,
+    type FilterOpValue,
+  } from '$lib/constants/filter-operators';
 
-  // Filter type definition
-  interface FilterOperator {
-    value: string;
-    label: string;
-    hasInput: boolean;
-  }
-
-  interface FilterOption {
-    id: string;
-    name: string;
-  }
-
-  interface FilterType {
-    attributeKey: string;
-    label: string;
-    inputType: 'plainText' | 'date' | 'searchSelect' | 'multiSelect';
-    filterOperators: FilterOperator[];
-    options?: FilterOption[];
-  }
+  // Re-export FilterCondition for backwards compatibility
+  export type { FilterCondition };
 
   // Props
   interface Props {
@@ -55,166 +48,15 @@
     labels = [],
   }: Props = $props();
 
-  // Countries list (common countries)
-  const countries: FilterOption[] = [
-    { id: 'US', name: 'United States' },
-    { id: 'GB', name: 'United Kingdom' },
-    { id: 'CA', name: 'Canada' },
-    { id: 'AU', name: 'Australia' },
-    { id: 'DE', name: 'Germany' },
-    { id: 'FR', name: 'France' },
-    { id: 'IN', name: 'India' },
-    { id: 'JP', name: 'Japan' },
-    { id: 'CN', name: 'China' },
-    { id: 'BR', name: 'Brazil' },
-    { id: 'MX', name: 'Mexico' },
-    { id: 'ES', name: 'Spain' },
-    { id: 'IT', name: 'Italy' },
-    { id: 'NL', name: 'Netherlands' },
-    { id: 'SE', name: 'Sweden' },
-    { id: 'NO', name: 'Norway' },
-    { id: 'DK', name: 'Denmark' },
-    { id: 'FI', name: 'Finland' },
-    { id: 'CH', name: 'Switzerland' },
-    { id: 'AT', name: 'Austria' },
-    { id: 'BE', name: 'Belgium' },
-    { id: 'PL', name: 'Poland' },
-    { id: 'PT', name: 'Portugal' },
-    { id: 'IE', name: 'Ireland' },
-    { id: 'NZ', name: 'New Zealand' },
-    { id: 'SG', name: 'Singapore' },
-    { id: 'HK', name: 'Hong Kong' },
-    { id: 'KR', name: 'South Korea' },
-    { id: 'AE', name: 'United Arab Emirates' },
-    { id: 'SA', name: 'Saudi Arabia' },
-    { id: 'ZA', name: 'South Africa' },
-    { id: 'RU', name: 'Russia' },
-    { id: 'TR', name: 'Turkey' },
-    { id: 'ID', name: 'Indonesia' },
-    { id: 'TH', name: 'Thailand' },
-    { id: 'PH', name: 'Philippines' },
-    { id: 'VN', name: 'Vietnam' },
-    { id: 'MY', name: 'Malaysia' },
-    { id: 'AR', name: 'Argentina' },
-    { id: 'CL', name: 'Chile' },
-    { id: 'CO', name: 'Colombia' },
-    { id: 'PE', name: 'Peru' },
-    { id: 'EG', name: 'Egypt' },
-    { id: 'NG', name: 'Nigeria' },
-    { id: 'KE', name: 'Kenya' },
-    { id: 'IL', name: 'Israel' },
-    { id: 'PK', name: 'Pakistan' },
-    { id: 'BD', name: 'Bangladesh' },
-  ];
-
-  // Boolean options for Blocked filter
-  const booleanOptions: FilterOption[] = [
-    { id: 'true', name: 'Yes' },
-    { id: 'false', name: 'No' },
-  ];
-
-  // Common operators
-  const equalityOperators: FilterOperator[] = [
-    { value: 'equal_to', label: 'Equal to', hasInput: true },
-    { value: 'not_equal_to', label: 'Not equal to', hasInput: true },
-    { value: 'is_present', label: 'Is present', hasInput: false },
-    { value: 'is_not_present', label: 'Is not present', hasInput: false },
-  ];
-
-  const containmentOperators: FilterOperator[] = [
-    { value: 'equal_to', label: 'Equal to', hasInput: true },
-    { value: 'not_equal_to', label: 'Not equal to', hasInput: true },
-    { value: 'contains', label: 'Contains', hasInput: true },
-    { value: 'does_not_contain', label: 'Does not contain', hasInput: true },
-    { value: 'is_present', label: 'Is present', hasInput: false },
-    { value: 'is_not_present', label: 'Is not present', hasInput: false },
-  ];
-
-  const dateOperators: FilterOperator[] = [
-    { value: 'is_greater_than', label: 'Is greater than', hasInput: true },
-    { value: 'is_less_than', label: 'Is less than', hasInput: true },
-    { value: 'days_before', label: 'Is x days before', hasInput: true },
-  ];
-
-  // All contact filter types (matching Vue)
-  const filterTypes: FilterType[] = [
-    {
-      attributeKey: 'name',
-      label: 'Name',
-      inputType: 'plainText',
-      filterOperators: equalityOperators,
-    },
-    {
-      attributeKey: 'email',
-      label: 'Email',
-      inputType: 'plainText',
-      filterOperators: containmentOperators,
-    },
-    {
-      attributeKey: 'phone_number',
-      label: 'Phone number',
-      inputType: 'plainText',
-      filterOperators: containmentOperators,
-    },
-    {
-      attributeKey: 'identifier',
-      label: 'Identifier',
-      inputType: 'plainText',
-      filterOperators: equalityOperators,
-    },
-    {
-      attributeKey: 'country_code',
-      label: 'Country',
-      inputType: 'searchSelect',
-      filterOperators: equalityOperators,
-      options: countries,
-    },
-    {
-      attributeKey: 'city',
-      label: 'City',
-      inputType: 'plainText',
-      filterOperators: containmentOperators,
-    },
-    {
-      attributeKey: 'created_at',
-      label: 'Created at',
-      inputType: 'date',
-      filterOperators: dateOperators,
-    },
-    {
-      attributeKey: 'last_activity_at',
-      label: 'Last activity',
-      inputType: 'date',
-      filterOperators: dateOperators,
-    },
-    {
-      attributeKey: 'referer',
-      label: 'Referer link',
-      inputType: 'plainText',
-      filterOperators: containmentOperators,
-    },
-    {
-      attributeKey: 'blocked',
-      label: 'Blocked',
-      inputType: 'searchSelect',
-      filterOperators: equalityOperators,
-      options: booleanOptions,
-    },
-    {
-      attributeKey: 'labels',
-      label: 'Labels',
-      inputType: 'multiSelect',
-      filterOperators: equalityOperators,
-      options: [], // Will be populated from props
-    },
-  ];
-
-  // Derive labels options
-  $effect(() => {
-    const labelsType = filterTypes.find(f => f.attributeKey === 'labels');
-    if (labelsType && labels.length > 0) {
-      labelsType.options = labels.map(l => ({ id: l.title || l.id, name: l.title || l.name }));
-    }
+  // Build filter types with labels from props
+  // This uses the Vue-parity constants including:
+  // - Full countries list (250+)
+  // - Correct labels ("Country name", "True"/"False")
+  // - All 12 filter attributes
+  // - Correct operator labels ("Is lesser than")
+  const filterTypes = $derived(() => {
+    const labelOptions = labels.map(l => ({ id: l.title || l.id, name: l.title || l.name }));
+    return buildFilterTypes(labelOptions);
   });
 
   // Query operator options (AND / OR)
@@ -223,13 +65,7 @@
     { value: 'or', label: 'OR', icon: '||' },
   ];
 
-  // Default filter (values as empty array for Vue parity)
-  const DEFAULT_FILTER: FilterCondition = {
-    attributeKey: 'name',
-    filterOperator: 'equal_to',
-    values: [],  // Always array for Vue/Laravel parity
-    queryOperator: 'and',
-  };
+  // Use DEFAULT_FILTER from constants (already imported from filter-types.ts)
 
   // Initialize with one filter if empty
   $effect(() => {
@@ -248,7 +84,8 @@
 
   // Helpers
   function getFilterType(key: string): FilterType {
-    return filterTypes.find(f => f.attributeKey === key) || filterTypes[0];
+    const types = filterTypes();
+    return types.find(f => f.attributeKey === key) || types[0];
   }
 
   function getOperators(key: string): FilterOperator[] {

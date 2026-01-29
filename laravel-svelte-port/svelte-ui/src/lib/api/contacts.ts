@@ -121,6 +121,9 @@ export async function searchContacts(
  * Filter contacts with advanced filters (Vue parity)
  * Sends filters wrapped in {payload: []} as Vue does
  * API client auto-transforms keys to snake_case
+ * 
+ * IMPORTANT: First filter should NOT have query_operator (Vue parity)
+ * Only filters[1+] have query_operator to chain conditions
  */
 export async function filterContacts(
   accountId: number,
@@ -128,9 +131,22 @@ export async function filterContacts(
   page = 1,
   sortAttr = 'name'
 ): Promise<PaginatedResponse<Contact>> {
+  // Transform filters to match Vue API format:
+  // - First filter: NO queryOperator
+  // - Subsequent filters: include queryOperator
+  const transformedPayload = filters.map((filter, index) => {
+    if (index === 0) {
+      // First filter: exclude queryOperator (Vue parity)
+      const { queryOperator, ...rest } = filter;
+      return rest;
+    }
+    // Subsequent filters: keep queryOperator
+    return filter;
+  });
+
   return api
-    .post(`api/v1/accounts/${accountId}/contacts/filter?page=${page}&sort=${sortAttr}`, {
-      json: { payload: filters },
+    .post(`api/v1/accounts/${accountId}/contacts/filter?include_contact_inboxes=false&page=${page}&sort=${sortAttr}`, {
+      json: { payload: transformedPayload },
     })
     .json();
 }

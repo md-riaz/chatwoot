@@ -183,23 +183,28 @@ class ContactsStore {
   }
 
   /**
-   * Filter contacts with advanced filters
+   * Filter contacts with advanced filters (Vue parity)
    */
-  async filterContacts(filters: ContactFilterParams): Promise<void> {
+  async filterContacts(
+    filters: contactsApi.AdvancedFilterCondition[],
+    page = 1,
+    sortAttr = 'last_activity_at'
+  ): Promise<void> {
     if (!this.currentAccountId) return;
 
     try {
       this.isLoading = true;
       this.error = null;
-      this.appliedFilters = filters;
 
       const response = await contactsApi.filterContacts(
         this.currentAccountId,
-        filters
+        filters,
+        page,
+        sortAttr
       );
 
       this.allContacts = response.data || [];
-      this.currentPage = filters.page || 1;
+      this.currentPage = page;
       this.hasMorePages = !!response.meta?.nextPage;
     } catch (err: any) {
       this.error = err.message || 'Failed to filter contacts';

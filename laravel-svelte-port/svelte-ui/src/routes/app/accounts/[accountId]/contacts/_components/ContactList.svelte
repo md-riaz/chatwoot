@@ -77,14 +77,14 @@
   let activeFiltersArray = $state<Array<{
     attributeKey: string;
     filterOperator: string;
-    values: string;
+    values: string[];  // Array for Vue/API parity
     queryOperator: 'and' | 'or';
   }>>([]);
 
   // Derive hasActiveFilters from the filters array
   const hasActiveFilters = $derived(
     activeFiltersArray.length > 0 && 
-    activeFiltersArray.some(f => f.values !== '' || !['equal_to', 'not_equal_to', 'contains', 'does_not_contain'].includes(f.filterOperator))
+    activeFiltersArray.some(f => f.values.length > 0 || ['is_present', 'is_not_present'].includes(f.filterOperator))
   );
 
   // Merge params
@@ -163,14 +163,18 @@
     });
   }
 
-  // Handle filter apply
-  function handleFilterApply(event: CustomEvent<typeof activeFiltersArray>) {
+  // Handle filter apply - call the filter API with payload
+  async function handleFilterApply(event: CustomEvent<typeof activeFiltersArray>) {
     const filters = event.detail;
     activeFiltersArray = filters;
-    // TODO: Convert filters to API query params and fetch
-    // For now, just store the filters
-    console.log('Applying filters:', filters);
-    fetchContactsData({ page: 1 });
+    
+    // Call the filter API with the payload
+    if (filters.length > 0 && filters.some(f => f.values.length > 0 || ['is_present', 'is_not_present'].includes(f.filterOperator))) {
+      await contactsStore.filterContacts(filters, 1, sortBy);
+    } else {
+      // No active filters, fetch all contacts
+      await fetchContactsData({ page: 1 });
+    }
   }
 
   // Handle filter clear

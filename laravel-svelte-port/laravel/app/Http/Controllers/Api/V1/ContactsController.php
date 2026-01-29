@@ -62,15 +62,20 @@ class ContactsController extends Controller
     }
 
     /**
-     * Filter contacts with advanced filters.
+     * Filter contacts with advanced filters (Rails API parity).
      */
     public function filter(Request $request, Account $account): JsonResponse
     {
-        $result = $this->contactRepository->filter(
+        $filterService = new \App\Services\Contact\ContactFilterService(
             $account->id,
             $request->input('payload', []),
-            $request->input('label')
+            $request->input('label'),
+            (int) $request->input('page', 1),
+            $request->input('sort', 'last_activity_at'),
+            $request->input('sort_direction', 'desc')
         );
+
+        $result = $filterService->perform();
 
         return response()->json([
             'data' => ContactResource::collection($result['contacts']),
