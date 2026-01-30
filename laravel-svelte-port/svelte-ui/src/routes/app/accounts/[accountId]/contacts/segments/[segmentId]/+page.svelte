@@ -4,14 +4,14 @@
    */
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
-  import ContactList from '../../../_components/ContactList.svelte';
+  import ContactList from '../../_components/ContactList.svelte';
   import { getSegment } from '$lib/api/segments';
 
-  const accountId = $derived(parseInt($page.params.accountId, 10));
-  const segmentId = $derived(parseInt($page.params.segmentId, 10));
+  const accountId = $derived(parseInt($page.params.accountId ?? '', 10));
+  const segmentId = $derived(parseInt($page.params.segmentId ?? '', 10));
 
   let segmentName = $state('Segment');
-  let isLoading = $state(true);
+  let isLoading = $state(true); // Loading state
 
   $effect(() => {
     // Fetch segment details to set title

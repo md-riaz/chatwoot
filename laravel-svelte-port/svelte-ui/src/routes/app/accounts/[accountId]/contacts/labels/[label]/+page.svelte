@@ -5,8 +5,8 @@
   import { page } from '$app/stores';
   import ContactList from '../../_components/ContactList.svelte';
 
-  const accountId = $derived(parseInt($page.params.accountId, 10));
-  const label = $derived($page.params.label);
+  const accountId = $derived(parseInt($page.params.accountId ?? '', 10));
+  const label = $derived($page.params.label ?? '');
 
   // Decoding the label from URL is handled by SvelteKit routing,
   // but we might need to be careful if it defaults to encoded.

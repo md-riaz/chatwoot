@@ -78,7 +78,7 @@
             <Badge 
               variant={conversation?.status === 'open' ? 'default' : 
                      conversation?.status === 'resolved' ? 'secondary' : 
-                     conversation?.status === 'pending' ? 'outline-solid' : 
+                     conversation?.status === 'pending' ? 'outline' : 
                      'secondary'}
             >
               {conversation?.status || 'open'}

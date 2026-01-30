@@ -37,7 +37,7 @@
   import type { Contact } from '$lib/api/contacts';
 
   // Route params
-  const accountId = $derived(parseInt($page.params.accountId, 10));
+  const accountId = $derived(parseInt($page.params.accountId ?? '', 10));
 
   // Reactive store access
   const contacts = $derived(contactsStore.allContacts);

@@ -27,7 +27,7 @@
   import * as Dialog from '$lib/components/ui/dialog';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { Badge } from '$lib/components/ui/badge';
-  import { Button } from '$lib/components/ui/button';
+  import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { Input } from '$lib/components/ui/input';
   import * as Skeleton from '$lib/components/ui/skeleton';
@@ -49,7 +49,12 @@
     segmentId?: number | null;
   }
 
-  let { title = 'Contacts', accountId, initialFetchParams = {}, segmentId = null }: Props = $props();
+  let {
+    title = 'Contacts',
+    accountId,
+    initialFetchParams = {},
+    segmentId = null,
+  }: Props = $props();
 
   // Reactive store access
   const contacts = $derived(contactsStore.allContacts);
@@ -72,17 +77,24 @@
   let sortOrder = $state<'asc' | 'desc'>('desc');
   let selectedIds = $state<number[]>([]);
 
-  let activeFiltersArray = $state<Array<{
-    attributeKey: string;
-    filterOperator: string;
-    values: string[];  // Array for Vue/API parity
-    queryOperator: 'and' | 'or';
-  }>>([]);
+  let activeFiltersArray = $state<
+    Array<{
+      attributeKey: string;
+      filterOperator: string;
+      values: string[]; // Array for Vue/API parity
+      queryOperator: 'and' | 'or';
+      attributeModel: string;
+    }>
+  >([]);
 
   // Derive hasActiveFilters from the filters array
   const hasActiveFilters = $derived(
-    activeFiltersArray.length > 0 && 
-    activeFiltersArray.some(f => f.values.length > 0 || ['is_present', 'is_not_present'].includes(f.filterOperator))
+    activeFiltersArray.length > 0 &&
+      activeFiltersArray.some(
+        f =>
+          f.values.length > 0 ||
+          ['is_present', 'is_not_present'].includes(f.filterOperator)
+      )
   );
 
   // Merge params
@@ -95,7 +107,10 @@
   // Helper to fetch contacts based on mode
   async function fetchContactsData(params: any = {}) {
     if (segmentId) {
-      await contactsStore.fetchSegmentContacts(segmentId, { ...currentParams, ...params });
+      await contactsStore.fetchSegmentContacts(segmentId, {
+        ...currentParams,
+        ...params,
+      });
     } else {
       await contactsStore.fetchContacts({ ...currentParams, ...params });
     }
@@ -148,7 +163,7 @@
     // This effect runs when initialFetchParams or segmentId changes
     // We trigger a fresh fetch
     if (!searchQuery) {
-        fetchContactsData({ page: 1 });
+      fetchContactsData({ page: 1 });
     }
   });
 
@@ -162,12 +177,21 @@
   }
 
   // Handle filter apply - call the filter API with payload
-  async function handleFilterApply(event: CustomEvent<typeof activeFiltersArray>) {
+  async function handleFilterApply(
+    event: CustomEvent<typeof activeFiltersArray>
+  ) {
     const filters = event.detail;
     activeFiltersArray = filters;
-    
+
     // Call the filter API with the payload
-    if (filters.length > 0 && filters.some(f => f.values.length > 0 || ['is_present', 'is_not_present'].includes(f.filterOperator))) {
+    if (
+      filters.length > 0 &&
+      filters.some(
+        f =>
+          f.values.length > 0 ||
+          ['is_present', 'is_not_present'].includes(f.filterOperator)
+      )
+    ) {
       await contactsStore.filterContacts(filters, 1, sortBy);
     } else {
       // No active filters, fetch all contacts
@@ -245,18 +269,14 @@
     }
   }
 
-
-
-
-
   // Handle bulk assign labels
   async function handleBulkAssignLabels(labels: string[]) {
     if (labels.length === 0) return;
-    
+
     try {
       isBulkProcessing = true;
       const contactIds = selectedIds;
-      
+
       const success = await contactsStore.bulkAssignLabels(contactIds, labels);
       if (success) {
         selectedIds = []; // Clear selection
@@ -299,14 +319,18 @@
 <div class="h-full flex flex-col bg-background">
   <!-- Sticky Header -->
   <header class="sticky top-0 z-10 bg-background">
-    <div class="flex items-start sm:items-center justify-between w-full py-6 px-6 gap-2 mx-auto max-w-[60rem]">
+    <div
+      class="flex items-start sm:items-center justify-between w-full py-6 px-6 gap-2 mx-auto max-w-[60rem]"
+    >
       <span class="text-xl font-medium truncate text-foreground">
         {title}
         {#if hasSelection}
-          <Badge variant="secondary" class="ml-2">{selectedIds.length} selected</Badge>
+          <Badge variant="secondary" class="ml-2"
+            >{selectedIds.length} selected</Badge
+          >
         {/if}
       </span>
-      
+
       <div class="flex items-center flex-col sm:flex-row flex-shrink-0 gap-4">
         <!-- Search Input -->
         <div class="flex items-center gap-2 w-full">
@@ -322,7 +346,7 @@
             />
           </div>
         </div>
-        
+
         <div class="flex items-center flex-shrink-0 gap-4">
           <div class="flex items-center gap-2">
             <!-- Filter button -->
@@ -337,9 +361,11 @@
                 <Filter class="h-4 w-4" />
               </Button>
               {#if hasActiveFilters}
-                <div class="absolute top-0 right-0 w-2 h-2 rounded-full bg-blue-600"></div>
+                <div
+                  class="absolute top-0 right-0 w-2 h-2 rounded-full bg-blue-600"
+                ></div>
               {/if}
-              
+
               <!-- Advanced Filter Panel -->
               <AdvancedFilter
                 bind:open={showFilterDialog}
@@ -363,17 +389,11 @@
 
             <!-- Sort dropdown -->
             <DropdownMenu.Root>
-              <DropdownMenu.Trigger>
-                {#snippet child({ props })}
-                  <Button
-                    {...props}
-                    variant="ghost"
-                    size="sm"
-                    class="h-8 w-8 text-muted-foreground"
-                  >
-                    <ArrowUpDown class="h-4 w-4" />
-                  </Button>
-                {/snippet}
+              <DropdownMenu.Trigger
+                class={buttonVariants({ variant: 'ghost', size: 'sm' }) +
+                  ' h-8 w-8 text-muted-foreground'}
+              >
+                <ArrowUpDown class="h-4 w-4" />
               </DropdownMenu.Trigger>
               <DropdownMenu.Content align="end" class="w-48">
                 <DropdownMenu.Label>Sort by</DropdownMenu.Label>
@@ -398,44 +418,38 @@
 
             <!-- More actions dropdown -->
             <DropdownMenu.Root>
-              <DropdownMenu.Trigger>
-                {#snippet child({ props })}
-                  <Button
-                    {...props}
-                    variant="ghost"
-                    size="sm"
-                    class="h-8 w-8 text-muted-foreground"
-                  >
-                    <MoreVertical class="h-4 w-4" />
-                  </Button>
-                {/snippet}
+              <DropdownMenu.Trigger
+                class={buttonVariants({ variant: 'ghost', size: 'sm' }) +
+                  ' h-8 w-8 text-muted-foreground'}
+              >
+                <MoreVertical class="h-4 w-4" />
               </DropdownMenu.Trigger>
               <DropdownMenu.Content align="end">
                 <DropdownMenu.Item onclick={() => (showCreateModal = true)}>
                   <Plus class="h-4 w-4 mr-2" />
                   Add contact
                 </DropdownMenu.Item>
-                <DropdownMenu.Item onclick={() => (showImportDialog = true)}>Import contacts</DropdownMenu.Item>
-                <DropdownMenu.Item onclick={() => (showExportDialog = true)}>Export contacts</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => (showImportDialog = true)}
+                  >Import contacts</DropdownMenu.Item
+                >
+                <DropdownMenu.Item onclick={() => (showExportDialog = true)}
+                  >Export contacts</DropdownMenu.Item
+                >
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           </div>
-          
+
           <!-- Divider -->
           <div class="w-px h-4 bg-border"></div>
-          
+
           <!-- Message button (primary action) -->
-          <Button
-            class="bg-blue-600 hover:bg-blue-700 text-white"
-            size="sm"
-          >
+          <Button class="bg-blue-600 hover:bg-blue-700 text-white" size="sm">
             Message
           </Button>
         </div>
       </div>
     </div>
   </header>
-
 
   <!-- Bulk Action Bar -->
   <BulkActionBar
@@ -451,216 +465,245 @@
   <!-- Contacts List - Row-based layout -->
   <main class="flex-1 overflow-y-auto">
     <div class="w-full mx-auto max-w-[60rem]">
-    {#if isLoading && contacts.length === 0}
-      <!-- Loading skeleton -->
-      <div class="divide-y">
-        {#each Array(8) as _}
-          <div class="flex items-center gap-4 px-6 py-4">
-            <Skeleton.Root class="h-10 w-10 rounded-full" />
-            <div class="flex-1 space-y-2">
-              <Skeleton.Root class="h-4 w-48" />
-              <Skeleton.Root class="h-3 w-32" />
-            </div>
-            <Skeleton.Root class="h-4 w-24" />
-            <Skeleton.Root class="h-4 w-20" />
-          </div>
-        {/each}
-      </div>
-    {:else if contacts.length === 0}
-      <!-- Empty state -->
-      <div
-        class="relative w-full max-w-[60rem] mx-auto overflow-hidden h-full min-h-[28rem] flex flex-col items-center justify-center"
-      >
-        {#if !searchQuery}
-          <!-- Ghost Background for Empty State -->
-          <div
-            class="w-full h-full space-y-0 overflow-y-hidden opacity-50 pointer-events-none"
-          >
-            <!-- Mock Contact 1: Candice Matherson -->
-            <div class="flex items-center gap-4 px-6 py-4 border-b">
-              <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium text-sm">CM</div>
-              <div class="flex-1 min-w-0 flex items-center gap-4">
-                <div class="flex flex-col min-w-0">
-                  <span class="font-medium text-sm">Candice Matherson</span>
-                  <span class="text-xs text-muted-foreground truncate">candice.matherson@lumora.com</span>
-                </div>
-                <span class="text-xs text-muted-foreground">Lumora</span>
-                <span class="text-xs text-muted-foreground">+14155552671</span>
-                <span class="text-xs text-muted-foreground">🇺🇸 Los Angeles, United States</span>
+      {#if isLoading && contacts.length === 0}
+        <!-- Loading skeleton -->
+        <div class="divide-y">
+          {#each Array(8) as _}
+            <div class="flex items-center gap-4 px-6 py-4">
+              <Skeleton.Root class="h-10 w-10 rounded-full" />
+              <div class="flex-1 space-y-2">
+                <Skeleton.Root class="h-4 w-48" />
+                <Skeleton.Root class="h-3 w-32" />
               </div>
-              <span class="text-xs text-blue-600">View details</span>
+              <Skeleton.Root class="h-4 w-24" />
+              <Skeleton.Root class="h-4 w-20" />
             </div>
-            <!-- Mock Contact 2: Ophelia Folkard -->
-            <div class="flex items-center gap-4 px-6 py-4 border-b">
-              <div class="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-medium text-sm">OF</div>
-              <div class="flex-1 min-w-0 flex items-center gap-4">
-                <div class="flex flex-col min-w-0">
-                  <span class="font-medium text-sm">Ophelia Folkard</span>
-                  <span class="text-xs text-muted-foreground truncate">ophelia.folkard@designify.com</span>
-                </div>
-                <span class="text-xs text-muted-foreground">Designify</span>
-                <span class="text-xs text-muted-foreground">+14155552672</span>
-                <span class="text-xs text-muted-foreground">🇺🇸 San Francisco, United States</span>
-              </div>
-              <span class="text-xs text-blue-600">View details</span>
-            </div>
-            <!-- Mock Contact 3: Willy Castelot -->
-            <div class="flex items-center gap-4 px-6 py-4 border-b">
-              <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium text-sm">WC</div>
-              <div class="flex-1 min-w-0 flex items-center gap-4">
-                <div class="flex flex-col min-w-0">
-                  <span class="font-medium text-sm">Willy Castelot</span>
-                  <span class="text-xs text-muted-foreground truncate">willy.castelot@codehub.io</span>
-                </div>
-                <span class="text-xs text-muted-foreground">CodeHub</span>
-                <span class="text-xs text-muted-foreground">+14155552673</span>
-                <span class="text-xs text-muted-foreground">🇺🇸 Austin, United States</span>
-              </div>
-              <span class="text-xs text-blue-600">View details</span>
-            </div>
-          </div>
-        {/if}
-
+          {/each}
+        </div>
+      {:else if contacts.length === 0}
+        <!-- Empty state -->
         <div
-          class="absolute inset-x-0 bottom-0 flex flex-col items-center justify-end w-full h-full pb-20 bg-gradient-to-t from-background from-25% to-transparent"
+          class="relative w-full max-w-[60rem] mx-auto overflow-hidden h-full min-h-[28rem] flex flex-col items-center justify-center"
         >
-          <div class="flex flex-col items-center justify-center gap-6">
-            {#if searchQuery}
-              <div class="flex flex-col items-center text-center">
+          {#if !searchQuery}
+            <!-- Ghost Background for Empty State -->
+            <div
+              class="w-full h-full space-y-0 overflow-y-hidden opacity-50 pointer-events-none"
+            >
+              <!-- Mock Contact 1: Candice Matherson -->
+              <div class="flex items-center gap-4 px-6 py-4 border-b">
                 <div
-                  class="mb-4 h-12 w-12 rounded-full bg-muted flex items-center justify-center"
+                  class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium text-sm"
                 >
-                  <Search class="h-6 w-6 text-muted-foreground" />
+                  CM
                 </div>
-                <h3 class="text-lg font-semibold mb-2">No contacts found</h3>
-                <p class="text-sm text-muted-foreground max-w-md">
-                  We couldn't find any contacts matching "{searchQuery}". Try
-                  adjusting your search query.
-                </p>
+                <div class="flex-1 min-w-0 flex items-center gap-4">
+                  <div class="flex flex-col min-w-0">
+                    <span class="font-medium text-sm">Candice Matherson</span>
+                    <span class="text-xs text-muted-foreground truncate"
+                      >candice.matherson@lumora.com</span
+                    >
+                  </div>
+                  <span class="text-xs text-muted-foreground">Lumora</span>
+                  <span class="text-xs text-muted-foreground">+14155552671</span
+                  >
+                  <span class="text-xs text-muted-foreground"
+                    >🇺🇸 Los Angeles, United States</span
+                  >
+                </div>
+                <span class="text-xs text-blue-600">View details</span>
               </div>
-            {:else}
-              <div class="flex flex-col items-center justify-center gap-3">
-                <h2 class="text-3xl font-medium text-center text-foreground">
-                  No contacts found in this account
-                </h2>
-                <p class="max-w-xl text-base text-center text-muted-foreground">
-                  Start adding new contacts by clicking on the button below
-                </p>
+              <!-- Mock Contact 2: Ophelia Folkard -->
+              <div class="flex items-center gap-4 px-6 py-4 border-b">
+                <div
+                  class="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-medium text-sm"
+                >
+                  OF
+                </div>
+                <div class="flex-1 min-w-0 flex items-center gap-4">
+                  <div class="flex flex-col min-w-0">
+                    <span class="font-medium text-sm">Ophelia Folkard</span>
+                    <span class="text-xs text-muted-foreground truncate"
+                      >ophelia.folkard@designify.com</span
+                    >
+                  </div>
+                  <span class="text-xs text-muted-foreground">Designify</span>
+                  <span class="text-xs text-muted-foreground">+14155552672</span
+                  >
+                  <span class="text-xs text-muted-foreground"
+                    >🇺🇸 San Francisco, United States</span
+                  >
+                </div>
+                <span class="text-xs text-blue-600">View details</span>
               </div>
-              <Button
-                class="gap-2 bg-blue-600 hover:bg-blue-700 text-white min-w-[140px]"
-                onclick={() => (showCreateModal = true)}
-              >
-                <Plus class="h-4 w-4" />
-                Add Contact
-              </Button>
-            {/if}
+              <!-- Mock Contact 3: Willy Castelot -->
+              <div class="flex items-center gap-4 px-6 py-4 border-b">
+                <div
+                  class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium text-sm"
+                >
+                  WC
+                </div>
+                <div class="flex-1 min-w-0 flex items-center gap-4">
+                  <div class="flex flex-col min-w-0">
+                    <span class="font-medium text-sm">Willy Castelot</span>
+                    <span class="text-xs text-muted-foreground truncate"
+                      >willy.castelot@codehub.io</span
+                    >
+                  </div>
+                  <span class="text-xs text-muted-foreground">CodeHub</span>
+                  <span class="text-xs text-muted-foreground">+14155552673</span
+                  >
+                  <span class="text-xs text-muted-foreground"
+                    >🇺🇸 Austin, United States</span
+                  >
+                </div>
+                <span class="text-xs text-blue-600">View details</span>
+              </div>
+            </div>
+          {/if}
+
+          <div
+            class="absolute inset-x-0 bottom-0 flex flex-col items-center justify-end w-full h-full pb-20 bg-gradient-to-t from-background from-25% to-transparent"
+          >
+            <div class="flex flex-col items-center justify-center gap-6">
+              {#if searchQuery}
+                <div class="flex flex-col items-center text-center">
+                  <div
+                    class="mb-4 h-12 w-12 rounded-full bg-muted flex items-center justify-center"
+                  >
+                    <Search class="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <h3 class="text-lg font-semibold mb-2">No contacts found</h3>
+                  <p class="text-sm text-muted-foreground max-w-md">
+                    We couldn't find any contacts matching "{searchQuery}". Try
+                    adjusting your search query.
+                  </p>
+                </div>
+              {:else}
+                <div class="flex flex-col items-center justify-center gap-3">
+                  <h2 class="text-3xl font-medium text-center text-foreground">
+                    No contacts found in this account
+                  </h2>
+                  <p
+                    class="max-w-xl text-base text-center text-muted-foreground"
+                  >
+                    Start adding new contacts by clicking on the button below
+                  </p>
+                </div>
+                <Button
+                  class="gap-2 bg-blue-600 hover:bg-blue-700 text-white min-w-[140px]"
+                  onclick={() => (showCreateModal = true)}
+                >
+                  <Plus class="h-4 w-4" />
+                  Add Contact
+                </Button>
+              {/if}
+            </div>
           </div>
         </div>
-      </div>
-    {:else}
-      <!-- Contacts List - Row Layout -->
-      <div class="divide-y">
-        {#each contacts as contact (contact.id)}
-          <div
-            class="group flex items-center gap-4 px-6 py-4 hover:bg-muted/50 transition-colors cursor-pointer"
-            onclick={() => viewContactDetails(contact)}
-            onkeydown={e => e.key === 'Enter' && viewContactDetails(contact)}
-            tabindex="0"
-            role="button"
-          >
-            <!-- Selection checkbox (visible on hover) -->
+      {:else}
+        <!-- Contacts List - Row Layout -->
+        <div class="divide-y">
+          {#each contacts as contact (contact.id)}
             <div
-              class="opacity-0 group-hover:opacity-100 transition-opacity"
-              onclick={e => {
-                e.stopPropagation();
-                toggleSelection(contact.id);
-              }}
+              class="group flex items-center gap-4 px-6 py-4 hover:bg-muted/50 transition-colors cursor-pointer"
+              onclick={() => viewContactDetails(contact)}
+              onkeydown={e => e.key === 'Enter' && viewContactDetails(contact)}
+              tabindex="0"
               role="button"
-              tabindex="-1"
-              onkeydown={e => {
-                if (e.key === 'Enter') {
+            >
+              <!-- Selection checkbox (visible on hover) -->
+              <div
+                class="opacity-0 group-hover:opacity-100 transition-opacity"
+                onclick={e => {
                   e.stopPropagation();
                   toggleSelection(contact.id);
-                }
-              }}
-            >
-              <Checkbox
-                checked={selectedIds.includes(contact.id)}
-                class={selectedIds.includes(contact.id) ? 'opacity-100' : ''}
-              />
-            </div>
+                }}
+                role="button"
+                tabindex="-1"
+                onkeydown={e => {
+                  if (e.key === 'Enter') {
+                    e.stopPropagation();
+                    toggleSelection(contact.id);
+                  }
+                }}
+              >
+                <Checkbox
+                  checked={selectedIds.includes(contact.id)}
+                  class={selectedIds.includes(contact.id) ? 'opacity-100' : ''}
+                />
+              </div>
 
-            <!-- Avatar -->
-            <Avatar.Root class="h-10 w-10">
-              <Avatar.Image
-                src={contact.thumbnail || contact.avatarUrl || ''}
-                alt={contact.name}
-              />
-              <Avatar.Fallback>
-                {contact.name?.charAt(0).toUpperCase() || '?'}
-              </Avatar.Fallback>
-            </Avatar.Root>
+              <!-- Avatar -->
+              <Avatar.Root class="h-10 w-10">
+                <Avatar.Image
+                  src={contact.thumbnail || contact.avatarUrl || ''}
+                  alt={contact.name}
+                />
+                <Avatar.Fallback>
+                  {contact.name?.charAt(0).toUpperCase() || '?'}
+                </Avatar.Fallback>
+              </Avatar.Root>
 
-            <!-- Name and Email -->
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <h3 class="font-medium truncate">
-                  {contact.name || 'Unknown Contact'}
-                </h3>
-                {#if contact.availabilityStatus === 'online'}
-                  <span class="h-2 w-2 rounded-full bg-green-500"></span>
+              <!-- Name and Email -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-medium truncate">
+                    {contact.name || 'Unknown Contact'}
+                  </h3>
+                  {#if contact.availabilityStatus === 'online'}
+                    <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                  {/if}
+                </div>
+                {#if contact.email}
+                  <p class="text-sm text-muted-foreground truncate">
+                    {contact.email}
+                  </p>
                 {/if}
               </div>
-              {#if contact.email}
-                <p class="text-sm text-muted-foreground truncate">
-                  {contact.email}
-                </p>
-              {/if}
-            </div>
 
-            <!-- Phone -->
-            <div
-              class="hidden md:flex items-center gap-2 text-sm text-muted-foreground w-36"
-            >
-              {#if contact.phoneNumber}
-                <Phone class="h-3 w-3 shrink-0" />
-                <span class="truncate">{contact.phoneNumber}</span>
-              {/if}
-            </div>
+              <!-- Phone -->
+              <div
+                class="hidden md:flex items-center gap-2 text-sm text-muted-foreground w-36"
+              >
+                {#if contact.phoneNumber}
+                  <Phone class="h-3 w-3 shrink-0" />
+                  <span class="truncate">{contact.phoneNumber}</span>
+                {/if}
+              </div>
 
-            <!-- Company -->
-            <div
-              class="hidden lg:flex items-center gap-2 text-sm text-muted-foreground w-40"
-            >
-              {#if contact.company}
-                <Building class="h-3 w-3 shrink-0" />
-                <span class="truncate">{contact.company}</span>
-              {/if}
-            </div>
+              <!-- Company -->
+              <div
+                class="hidden lg:flex items-center gap-2 text-sm text-muted-foreground w-40"
+              >
+                {#if contact.company}
+                  <Building class="h-3 w-3 shrink-0" />
+                  <span class="truncate">{contact.company}</span>
+                {/if}
+              </div>
 
-            <!-- Location -->
-            <div
-              class="hidden xl:flex items-center gap-2 text-sm text-muted-foreground w-32"
-            >
-              {#if contact.city || contact.country}
-                <MapPin class="h-3 w-3 shrink-0" />
-                <span class="truncate"
-                  >{[contact.city, contact.country]
-                    .filter(Boolean)
-                    .join(', ')}</span
-                >
-              {/if}
-            </div>
+              <!-- Location -->
+              <div
+                class="hidden xl:flex items-center gap-2 text-sm text-muted-foreground w-32"
+              >
+                {#if contact.city || contact.country}
+                  <MapPin class="h-3 w-3 shrink-0" />
+                  <span class="truncate"
+                    >{[contact.city, contact.country]
+                      .filter(Boolean)
+                      .join(', ')}</span
+                  >
+                {/if}
+              </div>
 
-            <!-- Chevron -->
-            <ChevronRight
-              class="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-            />
-          </div>
-        {/each}
-      </div>
-    {/if}
+              <!-- Chevron -->
+              <ChevronRight
+                class="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+              />
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
   </main>
 
@@ -687,8 +730,10 @@
         serverErrors={contactsStore.validationErrors}
       />
       <Dialog.Footer>
-        <Button variant="ghost" onclick={() => (showCreateModal = false)}>Cancel</Button>
-        <Button 
+        <Button variant="ghost" onclick={() => (showCreateModal = false)}
+          >Cancel</Button
+        >
+        <Button
           onclick={() => contactFormInstance?.submit()}
           disabled={isCreating}
         >
@@ -705,8 +750,10 @@
       <Dialog.Header>
         <Dialog.Title class="text-destructive">Delete Contacts</Dialog.Title>
         <Dialog.Description>
-          Are you sure you want to delete {selectedIds.length} contact{selectedIds.length > 1 ? 's' : ''}? 
-          This action cannot be undone.
+          Are you sure you want to delete {selectedIds.length} contact{selectedIds.length >
+          1
+            ? 's'
+            : ''}? This action cannot be undone.
         </Dialog.Description>
       </Dialog.Header>
       <Dialog.Footer>
@@ -718,7 +765,9 @@
           onclick={handleBulkDelete}
           disabled={isBulkProcessing}
         >
-          {isBulkProcessing ? 'Deleting...' : `Delete ${selectedIds.length} Contact${selectedIds.length !== 1 ? 's' : ''}`}
+          {isBulkProcessing
+            ? 'Deleting...'
+            : `Delete ${selectedIds.length} Contact${selectedIds.length !== 1 ? 's' : ''}`}
         </Button>
       </Dialog.Footer>
     </Dialog.Content>
@@ -735,16 +784,13 @@
   />
 
   <!-- Export Dialog -->
-  <ExportDialog
-    bind:open={showExportDialog}
-    contactCount={contacts.length}
-  />
+  <ExportDialog bind:open={showExportDialog} contactCount={contacts.length} />
 
   <!-- Create Segment Dialog -->
   {#if segmentId === undefined || segmentId === null}
     <CreateSegmentDialog
-        bind:open={showCreateSegmentDialog}
-        query={currentParams}
+      bind:open={showCreateSegmentDialog}
+      query={currentParams}
     />
   {/if}
 </div>

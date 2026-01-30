@@ -71,17 +71,17 @@
           </div>
         </div>
 
-        {#if company.website}
+        {#if company.domain}
           <div class="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             <Globe class="h-3.5 w-3.5 shrink-0" />
             <a
-              href={isValidUrl(company.website) ? company.website : `https://${company.website}`}
+              href={isValidUrl(company.domain) ? company.domain : `https://${company.domain}`}
               target="_blank"
               rel="noopener noreferrer"
               class="hover:underline truncate"
               onclick={(e) => e.stopPropagation()}
             >
-              {company.website}
+              {company.domain}
             </a>
           </div>
         {/if}

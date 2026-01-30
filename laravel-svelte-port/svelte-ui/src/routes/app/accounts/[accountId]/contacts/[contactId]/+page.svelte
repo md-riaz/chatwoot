@@ -28,40 +28,29 @@
     Check,
     Merge,
   } from 'lucide-svelte';
-  // ... imports ...
+
+  // UI Components
+  import { Button, buttonVariants } from '$lib/components/ui/button';
+  import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+  import * as Dialog from '$lib/components/ui/dialog';
+  import * as Sheet from '$lib/components/ui/sheet';
+  import * as Tabs from '$lib/components/ui/tabs';
+  import * as Card from '$lib/components/ui/card';
+  import * as Avatar from '$lib/components/ui/avatar';
+  import * as Skeleton from '$lib/components/ui/skeleton';
+  import { Input } from '$lib/components/ui/input';
+  import { Textarea } from '$lib/components/ui/textarea';
+  import { Badge } from '$lib/components/ui/badge';
+
+  // Specific Components
+  import ContactForm from '$lib/components/ui/contact-management/contact-form/contact-form.svelte';
+  import { contactsStore } from '$lib/stores/contacts.svelte';
 
   // ... state ...
   let showMergeDialog = $state(false);
 
-  // ... inside dropdown ...
-          <DropdownMenu.Item onclick={() => (showMergeDialog = true)}>
-            <Merge class="h-4 w-4 mr-2" />
-            Merge Contact
-          </DropdownMenu.Item>
-
-  // ... inside Merge tab ...
-            <Tabs.Content value="merge" class="mt-0">
-              <h3 class="font-medium mb-3">Merge Contact</h3>
-              <p class="text-sm text-muted-foreground mb-4">
-                Merge this contact with another one. This contact will be the primary one.
-              </p>
-              <Button onclick={() => (showMergeDialog = true)} class="w-full sm:w-auto">
-                <Merge class="h-4 w-4 mr-2" />
-                Find Contact to Merge
-              </Button>
-            </Tabs.Content>
-
-  // ... end of file ...
-  <!-- Merge Contact Dialog -->
-  {#if contact}
-    <MergeContactDialog
-      bind:open={showMergeDialog}
-      primaryContact={contact}
-    />
-  {/if}
-</div>
-  const accountId = $derived(parseInt($page.params.accountId, 10));
-  const contactId = $derived(parseInt($page.params.contactId, 10));
+  const accountId = $derived(parseInt($page.params.accountId ?? '', 10));
+  const contactId = $derived(parseInt($page.params.contactId ?? '', 10));
 
   // Reactive store access
   const isLoading = $derived(contactsStore.isLoading);
@@ -238,12 +227,10 @@
 
       <!-- More actions -->
       <DropdownMenu.Root>
-        <DropdownMenu.Trigger>
-          {#snippet child({ props })}
-            <Button {...props} variant="ghost" size="icon">
-              <MoreVertical class="h-4 w-4" />
-            </Button>
-          {/snippet}
+        <DropdownMenu.Trigger
+          class={buttonVariants({ variant: 'ghost', size: 'icon' })}
+        >
+          <MoreVertical class="h-4 w-4" />
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end">
           <DropdownMenu.Item onclick={() => (showEditDialog = true)}>
@@ -324,9 +311,13 @@
                 </Avatar.Fallback>
               </Avatar.Root>
               <!-- Camera overlay on hover -->
-              <div class="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div
+                class="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+              >
                 {#if isUploadingAvatar}
-                  <div class="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full"></div>
+                  <div
+                    class="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full"
+                  ></div>
                 {:else}
                   <Camera class="h-6 w-6 text-white" />
                 {/if}
@@ -576,7 +567,10 @@
           <Sheet.Header class="px-4 py-3 border-b">
             <Sheet.Title>Contact Details</Sheet.Title>
           </Sheet.Header>
-          <Tabs.Root bind:value={activeTab} class="flex flex-col h-[calc(100%-60px)]">
+          <Tabs.Root
+            bind:value={activeTab}
+            class="flex flex-col h-[calc(100%-60px)]"
+          >
             <Tabs.List class="grid w-full grid-cols-4 border-b px-2 pt-2">
               <Tabs.Trigger value="attributes">Attrs</Tabs.Trigger>
               <Tabs.Trigger value="history">History</Tabs.Trigger>

@@ -56,7 +56,7 @@ class CompaniesStore {
       companies = companies.filter(
         (company) =>
           company.name?.toLowerCase().includes(query) ||
-          company.website?.toLowerCase().includes(query) ||
+          company.domain?.toLowerCase().includes(query) ||
           company.industry?.toLowerCase().includes(query)
       );
     }

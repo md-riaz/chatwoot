@@ -8,6 +8,8 @@
   import InboxListHeader from '$lib/components/inbox/InboxListHeader.svelte';
 
   type SortOrder = 'newest' | 'oldest';
+  
+  let { children } = $props();
 
   const accountId = $derived(Number($page.params.accountId));
   const unreadCount = $derived(notificationsStore.unreadCount);
@@ -82,6 +84,6 @@
   </div>
 
   <div class="flex-1 min-w-0">
-    <slot />
+    {@render children()}
   </div>
 </section>

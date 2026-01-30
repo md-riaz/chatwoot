@@ -8,9 +8,19 @@
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/auth.svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+  import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+  } from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
-  import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar';
+  import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+  } from '$lib/components/ui/avatar';
   import * as Tabs from '$lib/components/ui/tabs';
   import { Input } from '$lib/components/ui/input';
   import { Skeleton } from '$lib/components/ui/skeleton';
@@ -29,14 +39,16 @@
     if (match) {
       accountId = parseInt(match[1]);
       inboxId = match[2]; // This could be an inbox ID or a special inbox identifier
-      
+
       // Validate that user has access to this account
-      const hasAccess = authStore.currentUser.accounts.some(acc => acc.id === accountId);
+      const hasAccess = authStore.currentUser.accounts.some(
+        acc => acc.id === accountId
+      );
       if (!hasAccess) {
         goto('/app/unauthorized');
         return;
       }
-      
+
       try {
         // Load inbox conversations
         await loadInboxConversations();
@@ -58,7 +70,12 @@
   async function loadInboxConversations() {
     // In a real implementation, this would call the API to get inbox conversations
     // For now, using mock data
-    console.log('Loading conversations for inbox:', inboxId, 'in account:', accountId);
+    console.log(
+      'Loading conversations for inbox:',
+      inboxId,
+      'in account:',
+      accountId
+    );
   }
 
   function handleNewConversation() {
@@ -81,7 +98,7 @@
       unread: true,
       status: 'open',
       priority: 'medium',
-      channel: 'website'
+      channel: 'website',
     },
     {
       id: 2,
@@ -92,7 +109,7 @@
       unread: false,
       status: 'resolved',
       priority: 'low',
-      channel: 'email'
+      channel: 'email',
     },
     {
       id: 3,
@@ -103,8 +120,8 @@
       unread: true,
       status: 'open',
       priority: 'high',
-      channel: 'facebook'
-    }
+      channel: 'facebook',
+    },
   ];
 </script>
 
@@ -114,19 +131,19 @@
       <Skeleton class="h-8 w-[200px]" />
       <Skeleton class="h-9 w-[120px]" />
     </div>
-    
+
     <div class="flex items-center gap-2 mb-4">
       <Skeleton class="h-10 w-full max-w-sm" />
       <Skeleton class="h-10 w-10" />
     </div>
-    
+
     <Tabs.Root value="all" class="space-y-4">
       <Tabs.List>
         <Skeleton class="h-9 w-20" />
         <Skeleton class="h-9 w-20" />
         <Skeleton class="h-9 w-20" />
       </Tabs.List>
-      
+
       <div class="space-y-4">
         {#each Array(5) as _}
           <Card>
@@ -144,7 +161,7 @@
     </Tabs.Root>
   </div>
 {:else}
-      <div class="container mx-auto py-6 space-y-6">
+  <div class="container mx-auto py-6 space-y-6">
     <div class="flex justify-between items-center">
       <div>
         <h1 class="text-2xl font-bold tracking-tight">Inbox: {inboxId}</h1>
@@ -155,41 +172,64 @@
 
     <div class="flex items-center gap-2">
       <div class="relative flex-1 max-w-sm">
-        <Search class="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-        <Input 
-          placeholder="Search conversations..." 
-          class="pl-8" 
+        <Search
+          class="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4"
+        />
+        <Input
+          placeholder="Search conversations..."
+          class="pl-8"
           bind:value={searchTerm}
         />
       </div>
     </div>
 
-    <Tabs.Root value={activeTab} onValueChange={(value) => activeTab = value} class="space-y-4">
+    <Tabs.Root
+      value={activeTab}
+      onValueChange={value => (activeTab = value)}
+      class="space-y-4"
+    >
       <Tabs.List class="grid w-full max-w-md grid-cols-3">
         <Tabs.Trigger value="all">All</Tabs.Trigger>
         <Tabs.Trigger value="unread">Unread</Tabs.Trigger>
         <Tabs.Trigger value="assigned">Assigned</Tabs.Trigger>
       </Tabs.List>
-      
+
       <Tabs.Content value="all" class="space-y-4">
         {#each mockConversations as conversation}
-          <Card class="cursor-pointer hover:bg-accent transition-colors" onclick={() => handleConversationClick(conversation.id)}>
+          <Card
+            class="cursor-pointer hover:bg-accent transition-colors"
+            onclick={() => handleConversationClick(conversation.id)}
+          >
             <CardContent class="flex items-center gap-4 p-4">
               <Avatar>
-                <AvatarImage src={conversation.customerAvatar} alt={conversation.customerName} />
-                <AvatarFallback>{conversation.customerName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                <AvatarImage
+                  src={conversation.customerAvatar}
+                  alt={conversation.customerName}
+                />
+                <AvatarFallback
+                  >{conversation.customerName
+                    .split(' ')
+                    .map(n => n[0])
+                    .join('')}</AvatarFallback
+                >
               </Avatar>
-              
+
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2">
-                  <h3 class="font-medium truncate">{conversation.customerName}</h3>
+                  <h3 class="font-medium truncate">
+                    {conversation.customerName}
+                  </h3>
                   {#if conversation.unread}
                     <Badge variant="default">New</Badge>
                   {/if}
                 </div>
-                <p class="text-sm text-muted-foreground truncate">{conversation.lastMessage}</p>
+                <p class="text-sm text-muted-foreground truncate">
+                  {conversation.lastMessage}
+                </p>
                 <div class="flex items-center gap-2 mt-1">
-                  <span class="text-xs text-muted-foreground">{conversation.timestamp}</span>
+                  <span class="text-xs text-muted-foreground"
+                    >{conversation.timestamp}</span
+                  >
                   <Badge variant="secondary">{conversation.channel}</Badge>
                   {#if conversation.priority === 'high'}
                     <Badge variant="destructive">High Priority</Badge>
@@ -200,14 +240,14 @@
                   {/if}
                 </div>
               </div>
-              
+
               <div class="flex flex-col items-end">
-                <Badge 
-                  variant={
-                    conversation.status === 'open' ? 'default' : 
-                    conversation.status === 'resolved' ? 'secondary' : 
-                    'outline-solid'
-                  }
+                <Badge
+                  variant={conversation.status === 'open'
+                    ? 'default'
+                    : conversation.status === 'resolved'
+                      ? 'secondary'
+                      : 'outline'}
                 >
                   {conversation.status}
                 </Badge>
@@ -216,26 +256,43 @@
           </Card>
         {/each}
       </Tabs.Content>
-      
+
       <Tabs.Content value="unread" class="space-y-4">
         {#each mockConversations.filter(c => c.unread) as conversation}
-          <Card class="cursor-pointer hover:bg-accent transition-colors" onclick={() => handleConversationClick(conversation.id)}>
+          <Card
+            class="cursor-pointer hover:bg-accent transition-colors"
+            onclick={() => handleConversationClick(conversation.id)}
+          >
             <CardContent class="flex items-center gap-4 p-4">
               <Avatar>
-                <AvatarImage src={conversation.customerAvatar} alt={conversation.customerName} />
-                <AvatarFallback>{conversation.customerName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                <AvatarImage
+                  src={conversation.customerAvatar}
+                  alt={conversation.customerName}
+                />
+                <AvatarFallback
+                  >{conversation.customerName
+                    .split(' ')
+                    .map(n => n[0])
+                    .join('')}</AvatarFallback
+                >
               </Avatar>
-              
+
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2">
-                  <h3 class="font-medium truncate">{conversation.customerName}</h3>
+                  <h3 class="font-medium truncate">
+                    {conversation.customerName}
+                  </h3>
                   {#if conversation.unread}
                     <Badge variant="default">New</Badge>
                   {/if}
                 </div>
-                <p class="text-sm text-muted-foreground truncate">{conversation.lastMessage}</p>
+                <p class="text-sm text-muted-foreground truncate">
+                  {conversation.lastMessage}
+                </p>
                 <div class="flex items-center gap-2 mt-1">
-                  <span class="text-xs text-muted-foreground">{conversation.timestamp}</span>
+                  <span class="text-xs text-muted-foreground"
+                    >{conversation.timestamp}</span
+                  >
                   <Badge variant="secondary">{conversation.channel}</Badge>
                   {#if conversation.priority === 'high'}
                     <Badge variant="destructive">High Priority</Badge>
@@ -246,14 +303,14 @@
                   {/if}
                 </div>
               </div>
-              
+
               <div class="flex flex-col items-end">
-                <Badge 
-                  variant={
-                    conversation.status === 'open' ? 'default' : 
-                    conversation.status === 'resolved' ? 'secondary' : 
-                    'outline-solid'
-                  }
+                <Badge
+                  variant={conversation.status === 'open'
+                    ? 'default'
+                    : conversation.status === 'resolved'
+                      ? 'secondary'
+                      : 'outline'}
                 >
                   {conversation.status}
                 </Badge>
@@ -262,26 +319,43 @@
           </Card>
         {/each}
       </Tabs.Content>
-      
+
       <Tabs.Content value="assigned" class="space-y-4">
         {#each mockConversations as conversation}
-          <Card class="cursor-pointer hover:bg-accent transition-colors" onclick={() => handleConversationClick(conversation.id)}>
+          <Card
+            class="cursor-pointer hover:bg-accent transition-colors"
+            onclick={() => handleConversationClick(conversation.id)}
+          >
             <CardContent class="flex items-center gap-4 p-4">
               <Avatar>
-                <AvatarImage src={conversation.customerAvatar} alt={conversation.customerName} />
-                <AvatarFallback>{conversation.customerName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                <AvatarImage
+                  src={conversation.customerAvatar}
+                  alt={conversation.customerName}
+                />
+                <AvatarFallback
+                  >{conversation.customerName
+                    .split(' ')
+                    .map(n => n[0])
+                    .join('')}</AvatarFallback
+                >
               </Avatar>
-              
+
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2">
-                  <h3 class="font-medium truncate">{conversation.customerName}</h3>
+                  <h3 class="font-medium truncate">
+                    {conversation.customerName}
+                  </h3>
                   {#if conversation.unread}
                     <Badge variant="default">New</Badge>
                   {/if}
                 </div>
-                <p class="text-sm text-muted-foreground truncate">{conversation.lastMessage}</p>
+                <p class="text-sm text-muted-foreground truncate">
+                  {conversation.lastMessage}
+                </p>
                 <div class="flex items-center gap-2 mt-1">
-                  <span class="text-xs text-muted-foreground">{conversation.timestamp}</span>
+                  <span class="text-xs text-muted-foreground"
+                    >{conversation.timestamp}</span
+                  >
                   <Badge variant="secondary">{conversation.channel}</Badge>
                   {#if conversation.priority === 'high'}
                     <Badge variant="destructive">High Priority</Badge>
@@ -292,14 +366,14 @@
                   {/if}
                 </div>
               </div>
-              
+
               <div class="flex flex-col items-end">
-                <Badge 
-                  variant={
-                    conversation.status === 'open' ? 'default' : 
-                    conversation.status === 'resolved' ? 'secondary' : 
-                    'outline-solid'
-                  }
+                <Badge
+                  variant={conversation.status === 'open'
+                    ? 'default'
+                    : conversation.status === 'resolved'
+                      ? 'secondary'
+                      : 'outline'}
                 >
                   {conversation.status}
                 </Badge>

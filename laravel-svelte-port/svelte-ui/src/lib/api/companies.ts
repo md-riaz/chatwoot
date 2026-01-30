@@ -7,8 +7,9 @@ import type { PaginatedResponse } from './types';
 export interface Company {
   id: number;
   name: string;
-  website?: string;
+  domain?: string;
   description?: string;
+  website?: string;
   industry?: string;
   size?: string;
   customAttributes: Record<string, any>;
@@ -20,14 +21,14 @@ export interface Company {
 
 export interface CreateCompanyParams {
   name: string;
-  website?: string;
+  domain?: string;
   description?: string;
   industry?: string;
   size?: string;
   customAttributes?: Record<string, any>;
 }
 
-export interface UpdateCompanyParams extends Partial<CreateCompanyParams> {}
+export interface UpdateCompanyParams extends Partial<CreateCompanyParams> { }
 
 export interface CompanyListParams {
   page?: number;
@@ -88,7 +89,10 @@ export async function getCompany(
   accountId: number,
   companyId: number
 ): Promise<Company> {
-  return api.get(`api/v1/accounts/${accountId}/companies/${companyId}`).json();
+  return api
+    .get(`api/v1/accounts/${accountId}/companies/${companyId}`)
+    .json<{ data: Company }>()
+    .then((r) => r.data);
 }
 
 /**
@@ -100,7 +104,8 @@ export async function createCompany(
 ): Promise<Company> {
   return api
     .post(`api/v1/accounts/${accountId}/companies`, { json: data })
-    .json();
+    .json<{ data: Company }>()
+    .then((r) => r.data);
 }
 
 /**
@@ -115,7 +120,8 @@ export async function updateCompany(
     .patch(`api/v1/accounts/${accountId}/companies/${companyId}`, {
       json: data,
     })
-    .json();
+    .json<{ data: Company }>()
+    .then((r) => r.data);
 }
 
 /**

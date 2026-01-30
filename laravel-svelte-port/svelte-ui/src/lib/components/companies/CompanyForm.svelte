@@ -23,7 +23,7 @@
   }>();
 
   let name = $state('');
-  let website = $state('');
+  let domain = $state('');
   let industry = $state('');
   let size = $state('');
   let description = $state('');
@@ -35,22 +35,19 @@
     // If editing, populate form with company data
     if (mode === 'edit' && company) {
       name = company.name;
-      website = company.website || '';
+      domain = company.domain || '';
       industry = company.industry || '';
       size = company.size?.toString() || '';
       description = company.description || '';
     }
   });
 
-  function validateWebsite(url: string): boolean {
-    if (!url) return true; // Website is optional
+  function validateDomain(url: string): boolean {
+    if (!url) return true; // Domain is optional
     
-    try {
-      const urlObj = new URL(url);
-      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
-    } catch {
-      return false;
-    }
+    // Simple regex for domain validation
+    const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z]{2,})+$/;
+    return domainRegex.test(url);
   }
 
   function validateForm(): boolean {
@@ -62,8 +59,8 @@
       isValid = false;
     }
 
-    if (website && !validateWebsite(website)) {
-      errors.website = 'Please enter a valid URL (must start with http:// or https://)';
+    if (domain && !validateDomain(domain)) {
+      errors.domain = 'Please enter a valid domain (e.g. example.com)';
       isValid = false;
     }
 
@@ -79,7 +76,7 @@
 
     const companyData: CreateCompanyParams = {
       name: name.trim(),
-      website: website.trim() || undefined,
+      domain: domain.trim() || undefined,
       industry: industry.trim() || undefined,
       size: size || undefined,
       description: description.trim() || undefined,
@@ -110,19 +107,15 @@
     </div>
 
     <div class="space-y-2">
-      <Label for="website">Website</Label>
+      <Label for="domain">Domain</Label>
       <Input
-        id="website"
-        bind:value={website}
-        placeholder="https://example.com"
-        type="url"
-        class={errors.website ? 'border-red-500' : ''}
+        id="domain"
+        placeholder="e.g. example.com"
+        bind:value={domain}
+        disabled={isSubmitting}
       />
-      <p class="text-sm text-muted-foreground">
-        Company website URL (optional)
-      </p>
-      {#if errors.website}
-        <p class="text-sm text-red-500">{errors.website}</p>
+      {#if errors.domain}
+        <p class="text-sm text-destructive">{errors.domain}</p>
       {/if}
     </div>
 
