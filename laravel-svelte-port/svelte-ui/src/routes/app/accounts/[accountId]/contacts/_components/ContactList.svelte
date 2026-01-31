@@ -27,6 +27,11 @@
   import * as Dialog from '$lib/components/ui/dialog';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { Badge } from '$lib/components/ui/badge';
+  import type { FilterCondition } from '$lib/constants/filter-types';
+  import {
+    buildFilterTypes,
+    CONTACT_ATTRIBUTES,
+  } from '$lib/constants/filter-types';
   import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { Input } from '$lib/components/ui/input';
@@ -76,16 +81,7 @@
   let sortBy = $state('last_activity_at');
   let sortOrder = $state<'asc' | 'desc'>('desc');
   let selectedIds = $state<number[]>([]);
-
-  let activeFiltersArray = $state<
-    Array<{
-      attributeKey: string;
-      filterOperator: string;
-      values: string[]; // Array for Vue/API parity
-      queryOperator: 'and' | 'or';
-      attributeModel: string;
-    }>
-  >([]);
+  let activeFiltersArray: FilterCondition[] = $state([]);
 
   // Derive hasActiveFilters from the filters array
   const hasActiveFilters = $derived(
@@ -177,9 +173,7 @@
   }
 
   // Handle filter apply - call the filter API with payload
-  async function handleFilterApply(
-    event: CustomEvent<typeof activeFiltersArray>
-  ) {
+  async function handleFilterApply(event: CustomEvent<FilterCondition[]>) {
     const filters = event.detail;
     activeFiltersArray = filters;
 
@@ -192,7 +186,12 @@
           ['is_present', 'is_not_present'].includes(f.filterOperator)
       )
     ) {
-      await contactsStore.filterContacts(filters, 1, sortBy);
+      // Convert to API format (ensure values is array)
+      const apiFilters = filters.map(f => ({
+        ...f,
+        values: Array.isArray(f.values) ? f.values : [f.values],
+      }));
+      await contactsStore.filterContacts(apiFilters, 1, sortBy);
     } else {
       // No active filters, fetch all contacts
       await fetchContactsData({ page: 1 });

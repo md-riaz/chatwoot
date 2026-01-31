@@ -33,6 +33,13 @@
 		scrollTo,
 	});
 
+	// Update state when props change
+	$effect(() => {
+		carouselState.orientation = orientation;
+		carouselState.options = opts;
+		carouselState.plugins = plugins;
+	});
+
 	setEmblaContext(carouselState);
 
 	function scrollPrev() {

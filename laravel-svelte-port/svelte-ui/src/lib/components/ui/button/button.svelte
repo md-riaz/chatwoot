@@ -35,6 +35,7 @@
 		WithElementRef<HTMLAnchorAttributes> & {
 			variant?: ButtonVariant;
 			size?: ButtonSize;
+			builders?: any[];
 		};
 </script>
 
@@ -48,9 +49,25 @@
 		ref = $bindable(null),
 		href = undefined,
 		type = "button",
+		builders = [],
 		children,
 		...restProps
 	}: ButtonProps = $props();
+
+	function applyBuilders(node: HTMLElement, builders: any[]) {
+		const destructors: (() => void)[] = [];
+		builders.forEach((builder) => {
+			if (builder?.action) {
+				const result = builder.action(node);
+				if (result?.destroy) destructors.push(result.destroy);
+			}
+		});
+		return {
+			destroy() {
+				destructors.forEach((d) => d());
+			}
+		};
+	}
 </script>
 
 {#if href}
@@ -58,6 +75,7 @@
 		bind:this={ref}
 		class={cn(buttonVariants({ variant, size }), className)}
 		{href}
+		use:applyBuilders={builders}
 		{...restProps}
 	>
 		{@render children?.()}
@@ -67,6 +85,7 @@
 		bind:this={ref}
 		class={cn(buttonVariants({ variant, size }), className)}
 		{type}
+		use:applyBuilders={builders}
 		{...restProps}
 	>
 		{@render children?.()}

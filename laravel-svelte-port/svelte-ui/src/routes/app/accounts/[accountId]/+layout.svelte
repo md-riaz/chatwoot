@@ -13,6 +13,8 @@
   import { notificationsStore } from '$lib/stores/notifications.svelte';
   import { segmentsStore } from '$lib/stores/segments.svelte';
 
+  let { children } = $props();
+
   // Fetch data when account context is active or changes
   $effect(() => {
     const accountId = authStore.currentAccountId;
@@ -29,4 +31,4 @@
 </script>
 
 <!-- This layout will wrap all account-specific routes -->
-<slot />
+{@render children()}

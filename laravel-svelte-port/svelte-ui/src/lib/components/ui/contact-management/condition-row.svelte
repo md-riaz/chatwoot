@@ -25,7 +25,7 @@
     filterTypes: FilterType[];
     attributeKey?: string;
     filterOperator?: string;
-    values?: string | string[] | FilterOption | FilterOption[];
+    values?: any;
     queryOperator?: 'and' | 'or';
     onRemove?: () => void;
   }
@@ -204,7 +204,7 @@
   <FilterSelect
     options={attributeOptions}
     value={attributeKey}
-    on:change={e => handleAttributeChange(e.detail)}
+    on:change={e => handleAttributeChange(e.detail as string)}
     variant="secondary"
   />
 
@@ -212,7 +212,7 @@
   <FilterSelect
     options={operatorOptions}
     value={filterOperator}
-    on:change={e => handleOperatorChange(e.detail)}
+    on:change={e => handleOperatorChange(e.detail as string)}
     variant="secondary"
   />
 
@@ -259,7 +259,7 @@
       variant="ghost"
       size="icon"
       class="h-8 w-8 shrink-0"
-      on:click={onRemove}
+      onclick={onRemove}
     >
       <X class="h-4 w-4" />
     </Button>

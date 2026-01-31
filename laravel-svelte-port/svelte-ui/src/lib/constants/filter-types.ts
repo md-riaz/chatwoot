@@ -439,7 +439,7 @@ export function buildFilterTypes(labels: FilterOption[] = []): FilterType[] {
 export const DEFAULT_FILTER = {
     attributeKey: 'name',
     filterOperator: 'equal_to',
-    values: '' as string | string[],
+    values: [] as string[],
     queryOperator: 'and' as 'and' | 'or',
     attributeModel: 'standard',
 };

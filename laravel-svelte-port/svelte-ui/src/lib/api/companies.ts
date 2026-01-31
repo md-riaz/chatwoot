@@ -12,17 +12,19 @@ export interface Company {
   website?: string;
   industry?: string;
   size?: string;
+  employees?: number;
   customAttributes: Record<string, any>;
   contactsCount?: number;
   conversationsCount?: number;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CreateCompanyParams {
   name: string;
   domain?: string;
   description?: string;
+  website?: string;
   industry?: string;
   size?: string;
   customAttributes?: Record<string, any>;
@@ -92,7 +94,7 @@ export async function getCompany(
   return api
     .get(`api/v1/accounts/${accountId}/companies/${companyId}`)
     .json<{ data: Company }>()
-    .then((r) => r.data);
+    .then((r: { data: Company }) => r.data);
 }
 
 /**
@@ -105,7 +107,7 @@ export async function createCompany(
   return api
     .post(`api/v1/accounts/${accountId}/companies`, { json: data })
     .json<{ data: Company }>()
-    .then((r) => r.data);
+    .then((r: { data: Company }) => r.data);
 }
 
 /**
@@ -121,7 +123,7 @@ export async function updateCompany(
       json: data,
     })
     .json<{ data: Company }>()
-    .then((r) => r.data);
+    .then((r: { data: Company }) => r.data);
 }
 
 /**

@@ -22,7 +22,7 @@
 
   let { open = $bindable(false) }: Props = $props();
 
-  const accountId = $derived(parseInt($page.params.accountId, 10));
+  const accountId = $derived(parseInt($page.params.accountId ?? '0', 10));
 
   // State
   let file = $state<File | null>(null);
@@ -33,7 +33,7 @@
     failed: number;
   } | null>(null);
   let error = $state<string | null>(null);
-  let fileInput: HTMLInputElement;
+  let fileInput = $state<HTMLInputElement>();
 
   const dispatch = createEventDispatcher<{
     imported: { total: number; failed: number };
@@ -99,72 +99,84 @@
 
     <div class="py-4">
       {#if result}
-        <!-- Success state -->
-        <div class="text-center py-6">
+        <div class="text-center">
           <CheckCircle class="h-12 w-12 text-green-500 mx-auto mb-3" />
           <h3 class="font-medium text-lg mb-1">Import Complete</h3>
-          <p class="text-sm text-muted-foreground">
-            Successfully imported {result.total - result.failed} of {result.total}
-            contacts
+          <p class="text-sm text-muted-foreground mb-4">
+            Processed {result.total} contacts with {result.failed} failures
           </p>
-          {#if result.failed > 0}
-            <p class="text-sm text-amber-600 mt-1">
-              {result.failed} contact{result.failed > 1 ? 's' : ''} failed to import
-            </p>
-          {/if}
+        </div>
+      {:else if error}
+        <div class="text-center">
+          <AlertCircle class="h-12 w-12 text-destructive mx-auto mb-3" />
+          <h3 class="font-medium text-lg mb-1">Import Failed</h3>
+          <p class="text-sm text-muted-foreground mb-4">{error}</p>
+        </div>
+      {:else if file}
+        <div class="text-center p-6 border rounded-lg bg-muted/50">
+          <FileSpreadsheet class="h-8 w-8 text-primary mx-auto mb-2" />
+          <p class="font-medium text-sm">{file.name}</p>
+          <p class="text-xs text-muted-foreground mt-1">
+            {(file.size / 1024).toFixed(1)} KB
+          </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            class="mt-2 text-xs text-destructive hover:text-destructive"
+            onclick={() => (file = null)}
+          >
+            Remove
+          </Button>
         </div>
       {:else}
-        <!-- Upload area -->
-        <input
-          type="file"
-          accept=".csv"
-          class="hidden"
-          bind:this={fileInput}
-          onchange={handleFileSelect}
-        />
-
-        <button
-          type="button"
-          onclick={() => fileInput?.click()}
+        <div
+          class="border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/50 transition-colors cursor-pointer"
           ondrop={handleDrop}
           ondragover={handleDragOver}
-          class="w-full border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 hover:bg-muted/30 transition-colors cursor-pointer"
+          onclick={() => fileInput?.click()}
+          role="button"
+          tabindex="0"
+          onkeydown={(e) => e.key === 'Enter' && fileInput?.click()}
         >
-          {#if file}
-            <FileSpreadsheet class="h-10 w-10 text-primary mx-auto mb-3" />
-            <p class="font-medium">{file.name}</p>
-            <p class="text-sm text-muted-foreground mt-1">
-              {(file.size / 1024).toFixed(1)} KB
-            </p>
-          {:else}
-            <Upload class="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-            <p class="font-medium">Drop your CSV file here</p>
-            <p class="text-sm text-muted-foreground mt-1">or click to browse</p>
-          {/if}
-        </button>
-
-        {#if error}
-          <div class="flex items-center gap-2 text-destructive text-sm mt-3">
-            <AlertCircle class="h-4 w-4" />
-            {error}
-          </div>
-        {/if}
-
-        <div class="mt-4 text-xs text-muted-foreground">
-          <p class="font-medium mb-1">CSV Format:</p>
-          <p>name, email, phone_number, company, city, country</p>
+          <Upload class="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+          <h3 class="font-medium text-sm mb-1">Click to upload</h3>
+          <p class="text-xs text-muted-foreground mb-4">
+            or drag and drop CSV file here
+          </p>
+          <input
+            type="file"
+            accept=".csv"
+            class="hidden"
+            bind:this={fileInput}
+            onchange={handleFileSelect}
+          />
         </div>
       {/if}
     </div>
 
     <Dialog.Footer>
       {#if result}
-        <Button onclick={resetAndClose}>Done</Button>
+        <Button onclick={resetAndClose} class="w-full">Done</Button>
+      {:else if error}
+        <div class="flex gap-2 w-full">
+          <Button variant="outline" onclick={resetAndClose} class="flex-1"
+            >Close</Button
+          >
+          <Button onclick={() => (error = null)} class="flex-1">Try Again</Button>
+        </div>
       {:else}
-        <Button variant="outline" onclick={resetAndClose}>Cancel</Button>
-        <Button onclick={handleImport} disabled={!file || isImporting}>
-          {isImporting ? 'Importing...' : 'Import Contacts'}
-        </Button>
+        <div class="flex gap-2 w-full">
+          <Button variant="outline" onclick={() => (open = false)} class="flex-1"
+            >Cancel</Button
+          >
+          <Button
+            onclick={handleImport}
+            disabled={!file || isImporting}
+            class="flex-1"
+          >
+            {isImporting ? 'Importing...' : 'Import Contacts'}
+          </Button>
+        </div>
       {/if}
     </Dialog.Footer>
   </Dialog.Content>

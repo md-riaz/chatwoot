@@ -1,3 +1,7 @@
+<!--
+  This component should not be modified or replaced by AI tools or automated processes.
+  It aligns with the shadcn-svelte specifications and styling guidelines.
+-->
 <script lang="ts">
 	import type { Separator as SeparatorPrimitive } from "bits-ui";
 	import { Separator } from "$lib/components/ui/separator/index.js";
@@ -10,4 +14,9 @@
 	}: SeparatorPrimitive.RootProps = $props();
 </script>
 
-<Separator bind:ref class={cn("bg-muted -mx-1 my-1 h-px", className)} {...restProps} />
+<Separator
+	bind:ref
+	data-slot="select-separator"
+	class={cn("bg-border pointer-events-none -mx-1 my-1 h-px", className)}
+	{...restProps}
+/>

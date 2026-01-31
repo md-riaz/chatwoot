@@ -5,7 +5,7 @@
 <script lang="ts">
 	import { Select as SelectPrimitive } from "bits-ui";
 
-	let { ref = $bindable(null), ...restProps }: SelectPrimitive.GroupProps = $props();
+	let { ...restProps }: SelectPrimitive.PortalProps = $props();
 </script>
 
-<SelectPrimitive.Group bind:ref data-slot="select-group" {...restProps} />
+<SelectPrimitive.Portal {...restProps} />

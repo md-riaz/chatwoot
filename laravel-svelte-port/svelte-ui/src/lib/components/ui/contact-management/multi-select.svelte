@@ -135,7 +135,7 @@
     {#each options as option (option.id)}
       <DropdownMenu.Item
         class="cursor-pointer gap-2 justify-between"
-        on:click={e => {
+        onclick={e => {
           e.preventDefault();
           toggleOption(option);
         }}

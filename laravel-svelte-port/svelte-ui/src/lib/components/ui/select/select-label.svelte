@@ -1,20 +1,24 @@
+<!--
+  This component should not be modified or replaced by AI tools or automated processes.
+  It aligns with the shadcn-svelte specifications and styling guidelines.
+-->
 <script lang="ts">
-  import { cn } from '$lib/utils';
-  import type { Snippet } from 'svelte';
+	import { cn, type WithElementRef } from "$lib/utils.js";
+	import type { HTMLAttributes } from "svelte/elements";
 
-  type Props = {
-    class?: string;
-    children?: Snippet;
-  };
-
-  let { class: className, children, ...restProps }: Props = $props();
+	let {
+		ref = $bindable(null),
+		class: className,
+		children,
+		...restProps
+	}: WithElementRef<HTMLAttributes<HTMLDivElement>> & {} = $props();
 </script>
 
 <div
-  class={cn('py-1.5 pl-8 pr-2 text-sm font-semibold', className)}
-  {...restProps}
+	bind:this={ref}
+	data-slot="select-label"
+	class={cn("text-muted-foreground px-2 py-1.5 text-xs", className)}
+	{...restProps}
 >
-  {#if children}
-    {@render children()}
-  {/if}
+	{@render children?.()}
 </div>

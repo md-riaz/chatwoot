@@ -22,7 +22,7 @@
 
   let { open = $bindable(false), contactCount = 0 }: Props = $props();
 
-  const accountId = $derived(parseInt($page.params.accountId, 10));
+  const accountId = $derived(parseInt($page.params.accountId ?? '0', 10));
 
   // State
   let isExporting = $state(false);
@@ -103,21 +103,27 @@
 
     <Dialog.Footer>
       {#if isComplete}
-        <Button onclick={resetAndClose}>Done</Button>
+        <Button onclick={resetAndClose} class="w-full">Done</Button>
       {:else if error}
-        <Button variant="outline" onclick={resetAndClose}>Close</Button>
-        <Button onclick={handleExport}>Try Again</Button>
+        <div class="flex gap-2 w-full">
+          <Button variant="outline" onclick={resetAndClose} class="flex-1"
+            >Close</Button
+          >
+          <Button onclick={handleExport} class="flex-1">Try Again</Button>
+        </div>
       {:else}
-        <Button variant="outline" onclick={resetAndClose}>Cancel</Button>
-        <Button onclick={handleExport} disabled={isExporting}>
-          {#if isExporting}
-            <span class="animate-spin mr-2">⏳</span>
-            Exporting...
-          {:else}
-            <Download class="h-4 w-4 mr-2" />
-            Export CSV
-          {/if}
-        </Button>
+        <div class="flex gap-2 w-full">
+          <Button variant="outline" onclick={() => (open = false)} class="flex-1"
+            >Cancel</Button
+          >
+          <Button
+            onclick={handleExport}
+            disabled={isExporting}
+            class="flex-1"
+          >
+            {isExporting ? 'Exporting...' : 'Export CSV'}
+          </Button>
+        </div>
       {/if}
     </Dialog.Footer>
   </Dialog.Content>

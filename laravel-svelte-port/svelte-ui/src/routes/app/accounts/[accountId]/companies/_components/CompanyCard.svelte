@@ -12,7 +12,7 @@
     onDelete?: (id: number, name: string) => void;
   }
 
-  let { company, onView, onEdit, onDelete } = $props<Props>();
+  let { company, onView, onEdit, onDelete }: Props = $props();
 
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleDateString();
@@ -43,7 +43,7 @@
   }
 </script>
 
-<Card.Root 
+<Card.Root
   class="hover:shadow-md transition-shadow cursor-pointer group"
   onclick={() => onView?.(company.id)}
 >
@@ -59,27 +59,43 @@
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between mb-2">
           <h3 class="font-semibold text-lg truncate pr-2">{company.name}</h3>
-          
+
           <!-- Actions visible on hover or focus -->
-          <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="sm" class="h-8 px-2" onclick={handleEdit}>
+          <div
+            class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <Button
+              variant="ghost"
+              size="sm"
+              class="h-8 px-2"
+              onclick={handleEdit}
+            >
               Edit
             </Button>
-            <Button variant="ghost" size="sm" class="h-8 px-2 text-destructive hover:text-destructive" onclick={handleDelete}>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="h-8 px-2 text-destructive hover:text-destructive"
+              onclick={handleDelete}
+            >
               Delete
             </Button>
           </div>
         </div>
 
         {#if company.domain}
-          <div class="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+          <div
+            class="flex items-center gap-2 text-sm text-muted-foreground mb-2"
+          >
             <Globe class="h-3.5 w-3.5 shrink-0" />
             <a
-              href={isValidUrl(company.domain) ? company.domain : `https://${company.domain}`}
+              href={isValidUrl(company.domain)
+                ? company.domain
+                : `https://${company.domain}`}
               target="_blank"
               rel="noopener noreferrer"
               class="hover:underline truncate"
-              onclick={(e) => e.stopPropagation()}
+              onclick={e => e.stopPropagation()}
             >
               {company.domain}
             </a>
@@ -92,22 +108,26 @@
           </p>
         {/if}
 
-        <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground mt-auto pt-2 border-t">
+        <div
+          class="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground mt-auto pt-2 border-t"
+        >
           {#if company.industry}
             <div class="flex items-center gap-1.5">
               <Building class="h-3.5 w-3.5" />
               <span>{company.industry}</span>
             </div>
           {/if}
-          
-          <div class="flex items-center gap-1.5">
-            <Users class="h-3.5 w-3.5" />
-            <span>{company.contactsCount || 0} contacts</span>
-          </div>
+
+          {#if company.employees}
+            <div class="flex items-center gap-1.5">
+              <Users class="h-3.5 w-3.5" />
+              <span>{company.employees} employees</span>
+            </div>
+          {/if}
 
           <div class="flex items-center gap-1.5 ml-auto">
             <Calendar class="h-3.5 w-3.5" />
-            <span>{formatDate(company.createdAt)}</span>
+            <span>Added {formatDate(company.created_at)}</span>
           </div>
         </div>
       </div>

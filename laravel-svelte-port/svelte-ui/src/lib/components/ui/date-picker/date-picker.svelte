@@ -47,6 +47,10 @@
         }).format(new Date(value.toString()))
       : placeholder
   );
+
+  function handleCalendarChange(v: DateValue | undefined) {
+    value = v;
+  }
 </script>
 
 <div class={cn('grid gap-2', className)} {...restProps}>
@@ -85,7 +89,8 @@
     </PopoverTrigger>
     <PopoverContent class="w-auto p-0" align="start">
       <Calendar
-        bind:value
+        value={value}
+        onValueChange={handleCalendarChange}
         {minValue}
         {maxValue}
         {disabled}

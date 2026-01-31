@@ -80,7 +80,7 @@
             checked={selectedDuplicates.includes(contact.id)}
             class="h-4 w-4 rounded border-slate-300"
           />
-          <Avatar size="sm">
+          <Avatar class="h-8 w-8">
             <AvatarImage src={contact.avatar} alt={contact.name} />
             <AvatarFallback>{contact.name.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>

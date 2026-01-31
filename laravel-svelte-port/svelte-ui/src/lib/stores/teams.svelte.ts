@@ -170,6 +170,9 @@ class TeamsStore {
    * Delete team
    */
   async deleteTeam(teamId: number): Promise<boolean> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return false;
+
     this.uiFlags.isDeleting = true;
     this.error = null;
 
@@ -178,7 +181,7 @@ class TeamsStore {
     this.allTeams = this.allTeams.filter((team) => team.id !== teamId);
 
     try {
-      await teamsAPI.deleteTeam(teamId);
+      await teamsAPI.deleteTeam(accountId, teamId);
       
       // Remove team members from cache
       this.teamMembers.delete(teamId);
@@ -199,11 +202,14 @@ class TeamsStore {
    * Fetch team members
    */
   async fetchTeamMembers(teamId: number): Promise<void> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return;
+
     this.uiFlags.isFetchingMembers = true;
     this.error = null;
 
     try {
-      const members = await teamsAPI.getTeamMembers(teamId);
+      const members = await teamsAPI.getTeamMembers(accountId, teamId);
       this.teamMembers.set(teamId, members);
       this.teamMembers = new Map(this.teamMembers);
     } catch (err: any) {
@@ -218,10 +224,13 @@ class TeamsStore {
    * Add agent to team
    */
   async addTeamMember(teamId: number, agentId: number): Promise<boolean> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return false;
+
     this.error = null;
 
     try {
-      await teamsAPI.addTeamMember(teamId, agentId);
+      await teamsAPI.addTeamMember(accountId, teamId, agentId);
       
       // Refresh team members
       await this.fetchTeamMembers(teamId);
@@ -238,10 +247,13 @@ class TeamsStore {
    * Remove agent from team
    */
   async removeTeamMember(teamId: number, agentId: number): Promise<boolean> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return false;
+
     this.error = null;
 
     try {
-      await teamsAPI.removeTeamMember(teamId, agentId);
+      await teamsAPI.removeTeamMember(accountId, teamId, agentId);
       
       // Refresh team members
       await this.fetchTeamMembers(teamId);
@@ -258,11 +270,14 @@ class TeamsStore {
    * Update team members (bulk operation)
    */
   async updateTeamMembers(teamId: number, agentIds: number[]): Promise<boolean> {
+    const accountId = this.currentAccountId;
+    if (!accountId) return false;
+
     this.uiFlags.isUpdatingMembers = true;
     this.error = null;
 
     try {
-      await teamsAPI.updateTeamMembers(teamId, agentIds);
+      await teamsAPI.updateTeamMembers(accountId, teamId, agentIds);
       
       // Refresh team members
       await this.fetchTeamMembers(teamId);

@@ -127,7 +127,7 @@
         {#each searchResults as option (option.id)}
           <DropdownMenu.Item
             class="cursor-pointer gap-2 justify-between"
-            on:click={() => toggleSelected(option)}
+            onclick={() => toggleSelected(option)}
           >
             <span class="truncate">{option.name}</span>
             {#if selectedItem && selectedItem?.id === option.id}

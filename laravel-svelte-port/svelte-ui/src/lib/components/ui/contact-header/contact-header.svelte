@@ -27,7 +27,7 @@
 
 <div class={cn('flex items-start gap-4 p-4', className)}>
   <div class="relative">
-    <Avatar size="lg">
+    <Avatar class="h-16 w-16">
       <AvatarImage src={avatar} alt={name} />
       <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
     </Avatar>

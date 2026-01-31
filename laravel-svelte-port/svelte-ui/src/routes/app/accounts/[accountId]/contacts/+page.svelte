@@ -6,7 +6,7 @@
   import { page } from '$app/stores';
   import ContactList from './_components/ContactList.svelte';
 
-  const accountId = $derived(parseInt($page.params.accountId, 10));
+  const accountId = $derived(parseInt($page.params.accountId ?? '0', 10));
 </script>
 
 <ContactList title="Contacts" {accountId} initialFetchParams={{}} />

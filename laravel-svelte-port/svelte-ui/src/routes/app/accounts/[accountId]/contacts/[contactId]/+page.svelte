@@ -70,7 +70,7 @@
   let isUploadingAvatar = $state(false);
   let isBlocking = $state(false);
   let newNote = $state('');
-  let avatarInput: HTMLInputElement;
+  let avatarInput = $state<HTMLInputElement>();
 
   // Navigate back to contacts list
   function goBack() {
@@ -420,42 +420,42 @@
           <Card.Content>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="text-sm font-medium text-muted-foreground"
-                  >Email</label
-                >
+                <div class="text-sm font-medium text-muted-foreground">
+                  Email
+                </div>
                 <p class="mt-1">{contact.email || '-'}</p>
               </div>
               <div>
-                <label class="text-sm font-medium text-muted-foreground"
-                  >Phone</label
-                >
+                <div class="text-sm font-medium text-muted-foreground">
+                  Phone
+                </div>
                 <p class="mt-1">{contact.phoneNumber || '-'}</p>
               </div>
               <div>
-                <label class="text-sm font-medium text-muted-foreground"
-                  >Company</label
-                >
+                <div class="text-sm font-medium text-muted-foreground">
+                  Company
+                </div>
                 <p class="mt-1">{contact.company || '-'}</p>
               </div>
               <div>
-                <label class="text-sm font-medium text-muted-foreground"
-                  >Location</label
-                >
+                <div class="text-sm font-medium text-muted-foreground">
+                  Location
+                </div>
                 <p class="mt-1">
                   {[contact.city, contact.country].filter(Boolean).join(', ') ||
                     '-'}
                 </p>
               </div>
               <div>
-                <label class="text-sm font-medium text-muted-foreground"
-                  >Identifier</label
-                >
+                <div class="text-sm font-medium text-muted-foreground">
+                  Identifier
+                </div>
                 <p class="mt-1">{contact.identifier || '-'}</p>
               </div>
               <div>
-                <label class="text-sm font-medium text-muted-foreground"
-                  >Conversations</label
-                >
+                <div class="text-sm font-medium text-muted-foreground">
+                  Conversations
+                </div>
                 <p class="mt-1">{contact.conversationsCount || 0}</p>
               </div>
             </div>
@@ -472,9 +472,9 @@
               <div class="grid grid-cols-2 gap-4">
                 {#each Object.entries(contact.customAttributes) as [key, value]}
                   <div>
-                    <label class="text-sm font-medium text-muted-foreground"
-                      >{key}</label
-                    >
+                    <div class="text-sm font-medium text-muted-foreground">
+                      {key}
+                    </div>
                     <p class="mt-1">{value}</p>
                   </div>
                 {/each}

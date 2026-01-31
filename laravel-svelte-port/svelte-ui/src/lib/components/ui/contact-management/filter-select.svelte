@@ -5,6 +5,7 @@
    *
    * A dropdown select for filter attributes and operators
    */
+  import { createEventDispatcher } from 'svelte';
   import { ChevronDown } from 'lucide-svelte';
   import { Button } from '$lib/components/ui/button';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
@@ -42,6 +43,10 @@
     class: className = '',
   }: Props = $props();
 
+  const dispatch = createEventDispatcher<{
+    change: string | number;
+  }>();
+
   // State
   let open = $state(false);
 
@@ -58,6 +63,7 @@
   // Update selected value
   function updateSelected(newValue: string | number) {
     value = newValue;
+    dispatch('change', newValue);
     open = false;
   }
 </script>
@@ -90,7 +96,7 @@
     {#each options as option (option.value)}
       <DropdownMenu.Item
         class="cursor-pointer gap-2"
-        on:click={() => updateSelected(option.value)}
+        onclick={() => updateSelected(option.value)}
       >
         {#if option.icon}
           <span class={option.icon}></span>

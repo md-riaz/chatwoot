@@ -36,14 +36,30 @@
   }
 
   // Local state
+  // svelte-ignore state_referenced_locally
   let selectedLabels = $state<Set<string>>(
     new Set(appliedFilters.labels || [])
   );
+  // svelte-ignore state_referenced_locally
   let dateFrom = $state(appliedFilters.dateFrom || '');
+  // svelte-ignore state_referenced_locally
   let dateTo = $state(appliedFilters.dateTo || '');
+  // svelte-ignore state_referenced_locally
   let hasEmail = $state(appliedFilters.hasEmail || false);
+  // svelte-ignore state_referenced_locally
   let hasPhone = $state(appliedFilters.hasPhone || false);
+  // svelte-ignore state_referenced_locally
   let onlineOnly = $state(appliedFilters.onlineOnly || false);
+
+  // Sync state when props change
+  $effect(() => {
+    selectedLabels = new Set(appliedFilters.labels || []);
+    dateFrom = appliedFilters.dateFrom || '';
+    dateTo = appliedFilters.dateTo || '';
+    hasEmail = appliedFilters.hasEmail || false;
+    hasPhone = appliedFilters.hasPhone || false;
+    onlineOnly = appliedFilters.onlineOnly || false;
+  });
 
   // Computed: active filter count
   const activeFilterCount = $derived(() => {
@@ -148,19 +164,19 @@
         </label>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-xs text-muted-foreground">From</label>
-            <Input type="date" bind:value={dateFrom} />
+            <label for="date-from" class="text-xs text-muted-foreground">From</label>
+            <Input id="date-from" type="date" bind:value={dateFrom} />
           </div>
           <div>
-            <label class="text-xs text-muted-foreground">To</label>
-            <Input type="date" bind:value={dateTo} />
+            <label for="date-to" class="text-xs text-muted-foreground">To</label>
+            <Input id="date-to" type="date" bind:value={dateTo} />
           </div>
         </div>
       </div>
 
       <!-- Quick filters -->
       <div class="space-y-3">
-        <label class="text-sm font-medium">Quick Filters</label>
+        <h3 class="text-sm font-medium">Quick Filters</h3>
         <div class="space-y-2">
           <label class="flex items-center gap-2 cursor-pointer">
             <Checkbox bind:checked={hasEmail} />
