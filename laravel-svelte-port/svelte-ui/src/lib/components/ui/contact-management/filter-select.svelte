@@ -69,25 +69,27 @@
 </script>
 
 <DropdownMenu.Root bind:open>
-  <DropdownMenu.Trigger asChild let:builder>
-    <Button
-      builders={[builder]}
-      {variant}
-      size="sm"
-      class="h-8 gap-1 text-sm font-normal {className}"
-    >
-      {#if iconToRender}
-        <span class={iconToRender}></span>
-      {/if}
-      {#if !hideLabel}
-        <span class="truncate max-w-[120px]">
-          {label || selectedOption?.label || ''}
-        </span>
-      {/if}
-      {#if !hideIcon && !selectedOption?.icon}
-        <ChevronDown class="h-4 w-4 shrink-0 opacity-50" />
-      {/if}
-    </Button>
+  <DropdownMenu.Trigger>
+    {#snippet child({ props })}
+      <Button
+        {...props}
+        {variant}
+        size="sm"
+        class="h-8 gap-1 text-sm font-normal {className}"
+      >
+        {#if iconToRender}
+          <span class={iconToRender}></span>
+        {/if}
+        {#if !hideLabel}
+          <span class="truncate max-w-[120px]">
+            {label || selectedOption?.label || ''}
+          </span>
+        {/if}
+        {#if !hideIcon && !selectedOption?.icon}
+          <ChevronDown class="h-4 w-4 shrink-0 opacity-50" />
+        {/if}
+      </Button>
+    {/snippet}
   </DropdownMenu.Trigger>
   <DropdownMenu.Content
     class="min-w-48 max-h-80 overflow-y-auto z-50"

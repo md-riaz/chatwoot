@@ -83,31 +83,34 @@
 </script>
 
 <DropdownMenu.Root bind:open>
-  <DropdownMenu.Trigger asChild let:builder>
-    {#if selectedItem}
-      <Button
-        builders={[builder]}
-        variant="secondary"
-        size="sm"
-        class="h-8 gap-1 text-sm font-normal"
-      >
-        <span class="truncate max-w-[150px]">{selectedItem?.name}</span>
-      </Button>
-    {:else}
-      <Button
-        builders={[builder]}
-        variant="secondary"
-        size="sm"
-        class="h-8 gap-1 text-sm font-normal text-muted-foreground"
-      >
-        {#if placeholderIcon}
-          <span class={placeholderIcon}></span>
-        {:else}
-          <Plus class="h-4 w-4" />
-        {/if}
-        <span>{placeholder}</span>
-      </Button>
-    {/if}
+  <DropdownMenu.Trigger>
+    {#snippet child({ props })}
+      {#if selectedItem}
+        <Button
+          {...props}
+          variant="secondary"
+          size="sm"
+          class="h-8 gap-1 text-sm font-normal"
+        >
+          <span class="truncate max-w-[150px]">{selectedItem?.name}</span>
+        </Button>
+      {:else}
+        <Button
+          {...props}
+          variant="secondary"
+          size="sm"
+          class="h-8 gap-1 text-sm font-normal text-muted-foreground"
+        >
+          {#if placeholderIcon}
+            <span class={placeholderIcon}></span>
+          {/if}
+          <span>{placeholder}</span>
+          {#if placeholderTrailingIcon}
+            <Plus class="h-4 w-4" />
+          {/if}
+        </Button>
+      {/if}
+    {/snippet}
   </DropdownMenu.Trigger>
   <DropdownMenu.Content class="min-w-56 z-50" align="start">
     {#if !disableSearch}

@@ -426,10 +426,10 @@
                         <button
                           type="button"
                           class="w-full px-2 py-1.5 text-sm text-left rounded hover:bg-muted flex items-center gap-2"
-                          onclick={() => toggleMultiSelectValue(index, option.id)}
+                          onclick={() => toggleMultiSelectValue(index, String(option.id))}
                         >
                           <Checkbox
-                            checked={filter.values.includes(option.id)}
+                            checked={filter.values.includes(String(option.id))}
                             class="h-4 w-4"
                           />
                           {option.name}

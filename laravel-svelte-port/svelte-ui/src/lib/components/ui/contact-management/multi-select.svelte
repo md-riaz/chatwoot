@@ -82,51 +82,53 @@
 </script>
 
 <DropdownMenu.Root bind:open>
-  <DropdownMenu.Trigger asChild let:builder>
-    {#if hasItems}
-      <button
-        use:builder.action
-        {...builder}
-        class="bg-muted/50 py-2 rounded-lg h-8 flex items-center px-0 hover:bg-muted/80 transition-colors"
-      >
-        {#each selectedVisibleItems as item (item.id)}
-          <div
-            class="px-3 border-r border-border text-foreground text-sm flex gap-2 items-center max-w-[100px]"
-          >
-            <span class="truncate">{item.name}</span>
+  <DropdownMenu.Trigger>
+    {#snippet child({ props })}
+      {#if hasItems}
+        <button
+          {...props}
+          class="bg-muted/50 py-2 rounded-lg h-8 flex items-center px-0 hover:bg-muted/80 transition-colors"
+        >
+          {#each selectedVisibleItems as item (item.id)}
+            <div
+              class="px-3 border-r border-border text-foreground text-sm flex gap-2 items-center max-w-[100px]"
+            >
+              <span class="truncate">{item.name}</span>
+            </div>
+          {/each}
+          {#if remainingItems.length > 0}
+            <Tooltip.Root>
+              <Tooltip.Trigger>
+                {#snippet child({ props })}
+                  <div
+                    {...props}
+                    class="px-3 border-r border-border text-foreground text-sm flex gap-2 items-center max-w-[100px]"
+                  >
+                    <span class="truncate">+{remainingItems.length} more</span>
+                  </div>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content>
+                <p>{remainingTooltip}</p>
+              </Tooltip.Content>
+            </Tooltip.Root>
+          {/if}
+          <div class="flex items-center border-none px-3 gap-2">
+            <Plus class="h-4 w-4" />
           </div>
-        {/each}
-        {#if remainingItems.length > 0}
-          <Tooltip.Root>
-            <Tooltip.Trigger asChild let:builder>
-              <div
-                use:builder.action
-                {...builder}
-                class="px-3 border-r border-border text-foreground text-sm flex gap-2 items-center max-w-[100px]"
-              >
-                <span class="truncate">+{remainingItems.length} more</span>
-              </div>
-            </Tooltip.Trigger>
-            <Tooltip.Content>
-              <p>{remainingTooltip}</p>
-            </Tooltip.Content>
-          </Tooltip.Root>
-        {/if}
-        <div class="flex items-center border-none px-3 gap-2">
+        </button>
+      {:else}
+        <Button
+          {...props}
+          variant="secondary"
+          size="sm"
+          class="h-8 gap-1 text-sm font-normal text-muted-foreground"
+        >
           <Plus class="h-4 w-4" />
-        </div>
-      </button>
-    {:else}
-      <Button
-        builders={[builder]}
-        variant="secondary"
-        size="sm"
-        class="h-8 gap-1 text-sm font-normal text-muted-foreground"
-      >
-        <Plus class="h-4 w-4" />
-        <span>Select value</span>
-      </Button>
-    {/if}
+          <span>Select value</span>
+        </Button>
+      {/if}
+    {/snippet}
   </DropdownMenu.Trigger>
   <DropdownMenu.Content
     class="min-w-48 max-h-80 overflow-y-auto z-50"

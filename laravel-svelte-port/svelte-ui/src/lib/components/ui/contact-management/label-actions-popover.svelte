@@ -71,7 +71,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between p-2 border-b">
     <span id="label-dialog-title" class="text-sm font-medium">Assign Labels</span>
-    <Button variant="ghost" size="icon" class="h-6 w-6" on:click={onClose}>
+    <Button variant="ghost" size="icon" class="h-6 w-6" onclick={onClose}>
       <X class="h-4 w-4" />
     </Button>
   </div>
@@ -125,7 +125,7 @@
     <Button
       class="w-full h-8 text-xs"
       disabled={selectedLabels.length === 0}
-      on:click={handleAssign}
+      onclick={handleAssign}
     >
       Assign selected labels
     </Button>

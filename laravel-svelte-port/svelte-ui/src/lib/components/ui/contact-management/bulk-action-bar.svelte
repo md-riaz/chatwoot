@@ -58,7 +58,7 @@
   );
 
   // Handlers
-  function handleCheckboxChange(checked: boolean | 'indeterminate') {
+  function handleCheckboxChange(checked: boolean) {
     // If indeterminate, treating as "select all" or "deselect all" depending on UX, usually "select all"
     // But logically, clicking main checkbox when some selected -> select all? Or deselect all?
     // Vue implementation:
@@ -93,10 +93,10 @@
           <Checkbox
             checked={allSelected
               ? true
-              : isIndeterminate
+              : selectedContactIds.length > 0 && !allSelected
                 ? 'indeterminate'
                 : false}
-            onCheckedChange={handleCheckboxChange}
+            onCheckedChange={onToggleAll}
           />
           <span
             class="text-sm font-medium truncate text-foreground tabular-nums"
@@ -116,7 +116,7 @@
           variant="ghost"
           size="sm"
           class="h-8 px-2 text-muted-foreground hover:text-foreground"
-          on:click={onClearSelection}
+          onclick={onClearSelection}
         >
           Clear selection
         </Button>
@@ -151,18 +151,20 @@
 
         <!-- Delete -->
         <Tooltip.Root>
-          <Tooltip.Trigger asChild let:builder>
-            <Button
-              builders={[builder]}
-              variant="outline"
-              size="sm"
-              class="h-8 w-8 px-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-              disabled={isLoading}
-              on:click={onDeleteSelected}
-            >
-              <Trash class="h-4 w-4" />
-              <span class="sr-only">Delete</span>
-            </Button>
+          <Tooltip.Trigger>
+            {#snippet child({ props })}
+              <Button
+                {...props}
+                variant="outline"
+                size="sm"
+                class="h-8 w-8 px-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                disabled={isLoading}
+                onclick={onDeleteSelected}
+              >
+                <Trash class="h-4 w-4" />
+                <span class="sr-only">Delete</span>
+              </Button>
+            {/snippet}
           </Tooltip.Trigger>
           <Tooltip.Content>Delete contacts</Tooltip.Content>
         </Tooltip.Root>
