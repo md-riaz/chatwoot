@@ -1,10 +1,12 @@
 # API Route Comparison (Laravel vs Rails)
 This document compares the Laravel API OpenAPI spec (`laravel-svelte-port/laravel/docs/openapi/openapi.yaml`) with the Rails Swagger spec (`swagger/swagger.json`). It lists every endpoint found in either spec, the supported query/body parameters, and the top-level response keys so API porting gaps are visible.
 **Legend**:
+- **"—"**: Indicates no parameters or response keys for that operation.
 - **Query params**: `in: query` parameters for the operation.
 - **Body params**: top-level JSON keys from the request body schema.
 - **Response keys**: top-level JSON keys from the success response schema (200/201/202). For array responses, "[]: ..." indicates item keys.
 ## Endpoint Comparison Table
+
 | Endpoint (Method + Path) | Rails Query Params | Rails Body Params | Rails Response Keys | Laravel Query Params | Laravel Body Params | Laravel Response Keys | Parity |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | DELETE /api/v1/accounts/{account_id}/agent_bots/{id} | — | — | — | — | — | — | Rails only |
@@ -21,11 +23,11 @@ This document compares the Laravel API OpenAPI spec (`laravel-svelte-port/larave
 | DELETE /api/v1/accounts/{account_id}/custom_attribute_definitions/{id} | — | — | — | — | — | — | Rails only |
 | DELETE /api/v1/accounts/{account_id}/custom_filters/{custom_filter_id} | — | — | — | — | — | — | Rails only |
 | DELETE /api/v1/accounts/{account_id}/dashboard_apps/{dashboardApp} | — | — | — | — | — | — | Laravel only |
-| DELETE /api/v1/accounts/{account_id}/inbox_members | — | — | — | — | — | — | Rails only |
+| DELETE /api/v1/accounts/{account_id}/inbox_members | — | inbox_id<br>user_ids | — | — | — | — | Rails only |
 | DELETE /api/v1/accounts/{account_id}/integrations/hooks/{hook_id} | — | — | — | — | — | — | Rails only |
 | DELETE /api/v1/accounts/{account_id}/segments/{segment} | — | — | — | — | — | — | Laravel only |
 | DELETE /api/v1/accounts/{account_id}/teams/{team_id} | — | — | — | — | — | — | Rails only |
-| DELETE /api/v1/accounts/{account_id}/teams/{team_id}/team_members | — | — | — | — | — | — | Rails only |
+| DELETE /api/v1/accounts/{account_id}/teams/{team_id}/team_members | — | user_ids | — | — | — | — | Rails only |
 | DELETE /api/v1/accounts/{account_id}/webhooks/{webhook_id} | — | — | — | — | — | — | Rails only |
 | DELETE /api/v1/notification_subscriptions | — | — | — | — | — | — | Laravel only |
 | DELETE /api/v1/super_admin/access_tokens/{accessToken} | — | — | — | — | — | — | Laravel only |
@@ -87,7 +89,7 @@ This document compares the Laravel API OpenAPI spec (`laravel-svelte-port/larave
 | GET /api/v1/accounts/{account_id}/dashboard_apps/{dashboardApp} | — | — | — | — | — | — | Laravel only |
 | GET /api/v1/accounts/{account_id}/inbox_members/{inbox_id} | — | — | — | — | — | — | Rails only |
 | GET /api/v1/accounts/{account_id}/inboxes | — | — | — | — | — | — | Rails only |
-| GET /api/v1/accounts/{account_id}/inboxes/{id}/ | — | — | — | — | — | — | Rails only |
+| GET /api/v1/accounts/{account_id}/inboxes/{id} | — | — | — | — | — | — | Rails only |
 | GET /api/v1/accounts/{account_id}/inboxes/{id}/agent_bot | — | — | — | — | — | — | Rails only |
 | GET /api/v1/accounts/{account_id}/inboxes/{inbox}/is_open | — | — | — | — | — | is_open | Laravel only |
 | GET /api/v1/accounts/{account_id}/inboxes/{inbox}/working_hours | — | — | — | — | — | — | Laravel only |
@@ -139,7 +141,7 @@ This document compares the Laravel API OpenAPI spec (`laravel-svelte-port/larave
 | GET /api/v1/webhooks/whatsapp | — | — | — | hub.challenge<br>hub.mode<br>hub.verify_token | — | — | Laravel only |
 | GET /api/v2/accounts/{account_id}/reports | — | — | — | — | — | — | Rails only |
 | GET /api/v2/accounts/{account_id}/reports/conversations | — | — | — | — | — | — | Rails only |
-| GET /api/v2/accounts/{account_id}/reports/conversations/ | — | — | — | — | — | — | Rails only |
+| GET /api/v2/accounts/{account_id}/reports/conversations | — | — | — | — | — | — | Rails only |
 | GET /api/v2/accounts/{account_id}/reports/summary | — | — | — | — | — | — | Rails only |
 | GET /api/v2/accounts/{account_id}/summary_reports/channel | — | — | — | — | — | — | Rails only |
 | GET /platform/api/v1/accounts/{account_id} | — | — | — | — | — | — | Rails only |
@@ -154,11 +156,11 @@ This document compares the Laravel API OpenAPI spec (`laravel-svelte-port/larave
 | GET /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations/{conversation_id} | — | — | — | — | — | — | Rails only |
 | GET /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations/{conversation_id}/messages | — | — | — | — | — | — | Rails only |
 | GET /survey/responses/{conversation_uuid} | — | — | — | — | — | — | Rails only |
-| PATCH /api/v1/accounts/{account_id}/agent_bots/{id} | — | — | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/agent_bots/{id} | — | avatar<br>avatar_url<br>bot_config<br>bot_type<br>description<br>name<br>outgoing_url | — | — | — | — | Rails only |
 | PATCH /api/v1/accounts/{account_id}/agents/{agent} | — | — | — | — | — | — | Laravel only |
-| PATCH /api/v1/accounts/{account_id}/agents/{id} | — | — | — | — | — | — | Rails only |
-| PATCH /api/v1/accounts/{account_id}/automation_rules/{id} | — | — | — | — | — | — | Rails only |
-| PATCH /api/v1/accounts/{account_id}/canned_responses/{id} | — | — | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/agents/{id} | — | auto_offline<br>availability_status<br>role | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/automation_rules/{id} | — | actions<br>active<br>conditions<br>description<br>event_name<br>name | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/canned_responses/{id} | — | content<br>short_code | — | — | — | — | Rails only |
 | PATCH /api/v1/accounts/{account_id}/channels/api/{inbox} | — | — | — | — | — | — | Laravel only |
 | PATCH /api/v1/accounts/{account_id}/channels/email/{inbox} | — | — | — | — | — | — | Laravel only |
 | PATCH /api/v1/accounts/{account_id}/channels/facebook/{inbox} | — | — | — | — | — | — | Laravel only |
@@ -169,20 +171,20 @@ This document compares the Laravel API OpenAPI spec (`laravel-svelte-port/larave
 | PATCH /api/v1/accounts/{account_id}/channels/voice/{inbox} | — | — | — | — | name<br>provider_config | data | Laravel only |
 | PATCH /api/v1/accounts/{account_id}/channels/web_widget/{inbox} | — | — | — | — | — | — | Laravel only |
 | PATCH /api/v1/accounts/{account_id}/channels/whatsapp/{inbox} | — | — | — | — | name<br>provider_config | — | Laravel only |
-| PATCH /api/v1/accounts/{account_id}/conversations/{conversation_id} | — | — | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/conversations/{conversation_id} | — | priority<br>sla_policy_id | — | — | — | — | Rails only |
 | PATCH /api/v1/accounts/{account_id}/custom_attribute_definitions/{definition} | — | — | — | — | — | — | Laravel only |
-| PATCH /api/v1/accounts/{account_id}/custom_attribute_definitions/{id} | — | — | — | — | — | — | Rails only |
-| PATCH /api/v1/accounts/{account_id}/custom_filters/{custom_filter_id} | — | — | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/custom_attribute_definitions/{id} | — | attribute_description<br>attribute_display_name<br>attribute_display_type<br>attribute_key<br>attribute_model<br>attribute_values<br>regex_cue<br>regex_pattern | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/custom_filters/{custom_filter_id} | — | name<br>query<br>type | — | — | — | — | Rails only |
 | PATCH /api/v1/accounts/{account_id}/dashboard_apps/{dashboardApp} | — | — | — | — | — | — | Laravel only |
-| PATCH /api/v1/accounts/{account_id}/inbox_members | — | — | — | — | — | — | Rails only |
-| PATCH /api/v1/accounts/{account_id}/inboxes/{id} | — | — | — | — | — | — | Rails only |
-| PATCH /api/v1/accounts/{account_id}/integrations/hooks/{hook_id} | — | — | — | — | — | — | Rails only |
-| PATCH /api/v1/accounts/{account_id}/portals/{id} | — | — | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/inbox_members | — | inbox_id<br>user_ids | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/inboxes/{id} | — | allow_messages_after_resolved<br>avatar<br>business_name<br>channel<br>csat_survey_enabled<br>enable_auto_assignment<br>enable_email_collect<br>greeting_enabled<br>greeting_message<br>lock_to_single_conversation<br>name<br>out_of_office_message<br>portal_id<br>sender_name_type<br>timezone<br>working_hours_enabled | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/integrations/hooks/{hook_id} | — | settings<br>status | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/portals/{id} | — | archived<br>color<br>config<br>custom_domain<br>header_text<br>homepage_link<br>name<br>page_title<br>slug | — | — | — | — | Rails only |
 | PATCH /api/v1/accounts/{account_id}/segments/{segment} | — | — | — | — | — | — | Laravel only |
-| PATCH /api/v1/accounts/{account_id}/teams/{team_id} | — | — | — | — | — | — | Rails only |
-| PATCH /api/v1/accounts/{account_id}/teams/{team_id}/team_members | — | — | — | — | — | — | Rails only |
-| PATCH /api/v1/accounts/{account_id}/webhooks/{webhook_id} | — | — | — | — | — | — | Rails only |
-| PATCH /api/v1/accounts/{id} | — | — | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/teams/{team_id} | — | allow_auto_assign<br>description<br>name | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/teams/{team_id}/team_members | — | user_ids | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{account_id}/webhooks/{webhook_id} | — | name<br>subscriptions<br>url | — | — | — | — | Rails only |
+| PATCH /api/v1/accounts/{id} | — | auto_resolve_after<br>auto_resolve_ignore_waiting<br>auto_resolve_message<br>company_size<br>domain<br>industry<br>locale<br>name<br>support_email<br>timezone | — | — | — | — | Rails only |
 | PATCH /api/v1/super_admin/account_users/{accountUser} | — | — | — | — | active_at<br>availability<br>role<br>settings | — | Laravel only |
 | PATCH /api/v1/super_admin/accounts/{account} | — | — | — | — | domain<br>enabled_features<br>features<br>limits<br>locale<br>name<br>settings<br>status<br>support_email | — | Laravel only |
 | PATCH /api/v1/super_admin/agent_bots/{agentBot} | — | — | — | — | — | — | Laravel only |
@@ -190,17 +192,17 @@ This document compares the Laravel API OpenAPI spec (`laravel-svelte-port/larave
 | PATCH /api/v1/super_admin/platform_apps/{platformApp} | — | — | — | — | — | — | Laravel only |
 | PATCH /api/v1/super_admin/settings | — | — | — | — | force<br>settings | — | Laravel only |
 | PATCH /api/v1/super_admin/users/{user} | — | — | — | — | availability<br>confirmed_at<br>display_name<br>email<br>name<br>password<br>phone_number | — | Laravel only |
-| PATCH /platform/api/v1/accounts/{account_id} | — | — | — | — | — | — | Rails only |
-| PATCH /platform/api/v1/agent_bots/{id} | — | — | — | — | — | — | Rails only |
-| PATCH /platform/api/v1/users/{id} | — | — | — | — | — | — | Rails only |
-| PATCH /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier} | — | — | — | — | — | — | Rails only |
-| PATCH /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations/{conversation_id}/messages/{message_id} | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/actions/contact_merge | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/agent_bots | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/agents | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/automation_rules | — | — | — | — | — | — | Rails only |
+| PATCH /platform/api/v1/accounts/{account_id} | — | custom_attributes<br>domain<br>limits<br>locale<br>name<br>status<br>support_email | — | — | — | — | Rails only |
+| PATCH /platform/api/v1/agent_bots/{id} | — | account_id<br>avatar<br>avatar_url<br>description<br>name<br>outgoing_url | — | — | — | — | Rails only |
+| PATCH /platform/api/v1/users/{id} | — | custom_attributes<br>display_name<br>email<br>name<br>password | — | — | — | — | Rails only |
+| PATCH /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier} | — | avatar<br>custom_attributes<br>email<br>identifier<br>identifier_hash<br>name<br>phone_number | — | — | — | — | Rails only |
+| PATCH /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations/{conversation_id}/messages/{message_id} | — | submitted_values | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/actions/contact_merge | — | base_contact_id<br>mergee_contact_id | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/agent_bots | — | avatar<br>avatar_url<br>bot_config<br>bot_type<br>description<br>name<br>outgoing_url | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/agents | — | auto_offline<br>availability_status<br>email<br>name<br>role | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/automation_rules | — | actions<br>active<br>conditions<br>description<br>event_name<br>name | — | — | — | — | Rails only |
 | POST /api/v1/accounts/{account_id}/bulk_actions/conversations | — | — | — | — | action<br>conversation_ids<br>params | — | Laravel only |
-| POST /api/v1/accounts/{account_id}/canned_responses | — | — | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/canned_responses | — | content<br>short_code | — | — | — | — | Rails only |
 | POST /api/v1/accounts/{account_id}/channels/api | — | — | — | — | name | — | Laravel only |
 | POST /api/v1/accounts/{account_id}/channels/api/{inbox}/regenerate_key | — | — | — | — | — | — | Laravel only |
 | POST /api/v1/accounts/{account_id}/channels/email | — | — | — | — | email<br>imap_address<br>imap_enabled<br>imap_login<br>imap_password<br>imap_port<br>name<br>smtp_address<br>smtp_enabled<br>smtp_login<br>smtp_password<br>smtp_port | — | Laravel only |
@@ -217,34 +219,34 @@ This document compares the Laravel API OpenAPI spec (`laravel-svelte-port/larave
 | POST /api/v1/accounts/{account_id}/channels/web_widget | — | — | — | — | name<br>website_url<br>welcome_tagline<br>welcome_title<br>widget_color | — | Laravel only |
 | POST /api/v1/accounts/{account_id}/channels/whatsapp | — | — | — | — | name<br>phone_number<br>provider<br>provider_config | — | Laravel only |
 | POST /api/v1/accounts/{account_id}/conference | — | — | — | — | call_sid<br>conversation_id | conference_sid<br>id<br>status<br>using_webrtc | Laravel only |
-| POST /api/v1/accounts/{account_id}/contacts | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/contacts/filter | page | — | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/contacts | — | additional_attributes<br>avatar<br>avatar_url<br>blocked<br>custom_attributes<br>email<br>identifier<br>inbox_id<br>name<br>phone_number | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/contacts/filter | page | payload | — | — | — | — | Rails only |
 | POST /api/v1/accounts/{account_id}/contacts/{contact_id}/calls | — | — | — | — | inbox_id | call_sid<br>conference_sid<br>conversation_id<br>inbox_id | Laravel only |
-| POST /api/v1/accounts/{account_id}/contacts/{id}/contact_inboxes | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/contacts/{id}/labels | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/conversations | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/conversations/filter | page | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/assignments | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/custom_attributes | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/labels | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/messages | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/toggle_priority | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/toggle_status | — | — | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/contacts/{id}/contact_inboxes | — | inbox_id<br>source_id | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/contacts/{id}/labels | — | labels | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/conversations | — | additional_attributes<br>assignee_id<br>contact_id<br>custom_attributes<br>inbox_id<br>message<br>snoozed_until<br>source_id<br>status<br>team_id | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/conversations/filter | page | payload | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/assignments | — | assignee_id<br>team_id | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/custom_attributes | — | custom_attributes | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/labels | — | labels | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/messages | — | campaign_id<br>content<br>content_attributes<br>content_type<br>message_type<br>private<br>template_params | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/toggle_priority | — | priority | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/conversations/{conversation_id}/toggle_status | — | snoozed_until<br>status | — | — | — | — | Rails only |
 | POST /api/v1/accounts/{account_id}/conversations/{conversation}/attachments | — | — | — | — | — | — | Laravel only |
-| POST /api/v1/accounts/{account_id}/custom_attribute_definitions | — | — | — | — | attribute_display_name<br>attribute_display_type<br>attribute_key<br>attribute_model<br>attribute_values | — | Both |
-| POST /api/v1/accounts/{account_id}/custom_filters | — | — | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/custom_attribute_definitions | — | attribute_description<br>attribute_display_name<br>attribute_display_type<br>attribute_key<br>attribute_model<br>attribute_values<br>regex_cue<br>regex_pattern | — | — | attribute_display_name<br>attribute_display_type<br>attribute_key<br>attribute_model<br>attribute_values | — | Both |
+| POST /api/v1/accounts/{account_id}/custom_filters | — | name<br>query<br>type | — | — | — | — | Rails only |
 | POST /api/v1/accounts/{account_id}/dashboard_apps | — | — | — | — | content<br>title | — | Laravel only |
-| POST /api/v1/accounts/{account_id}/inbox_members | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/inboxes/ | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/inboxes/{id}/set_agent_bot | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/integrations/hooks | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/portals | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/portals/{id}/articles | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/portals/{id}/categories | — | — | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/inbox_members | — | inbox_id<br>user_ids | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/inboxes | — | allow_messages_after_resolved<br>avatar<br>business_name<br>channel<br>csat_survey_enabled<br>enable_auto_assignment<br>enable_email_collect<br>greeting_enabled<br>greeting_message<br>lock_to_single_conversation<br>name<br>out_of_office_message<br>portal_id<br>sender_name_type<br>timezone<br>working_hours_enabled | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/inboxes/{id}/set_agent_bot | — | agent_bot | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/integrations/hooks | — | app_id<br>inbox_id<br>settings<br>status | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/portals | — | archived<br>color<br>config<br>custom_domain<br>header_text<br>homepage_link<br>name<br>page_title<br>slug | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/portals/{id}/articles | — | associated_article_id<br>author_id<br>category_id<br>content<br>description<br>locale<br>meta<br>position<br>slug<br>status<br>title | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/portals/{id}/categories | — | associated_category_id<br>description<br>icon<br>locale<br>name<br>parent_category_id<br>position<br>slug | — | — | — | — | Rails only |
 | POST /api/v1/accounts/{account_id}/segments | — | — | — | — | description<br>name<br>query | — | Laravel only |
-| POST /api/v1/accounts/{account_id}/teams | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/teams/{team_id}/team_members | — | — | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/webhooks | — | — | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/teams | — | allow_auto_assign<br>description<br>name | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/teams/{team_id}/team_members | — | user_ids | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/webhooks | — | name<br>subscriptions<br>url | — | — | — | — | Rails only |
 | POST /api/v1/installation/onboarding | — | — | — | — | user | — | Laravel only |
 | POST /api/v1/notification_subscriptions | — | — | — | — | subscription | — | Laravel only |
 | POST /api/v1/super_admin/access_tokens | — | — | — | — | abilities<br>name | — | Laravel only |
@@ -273,19 +275,20 @@ This document compares the Laravel API OpenAPI spec (`laravel-svelte-port/larave
 | POST /api/v1/webhooks/voice/conference_status/{phone} | — | — | — | — | — | success | Laravel only |
 | POST /api/v1/webhooks/voice/status/{phone} | — | — | — | — | — | success | Laravel only |
 | POST /api/v1/webhooks/whatsapp | — | — | — | — | — | — | Laravel only |
-| POST /platform/api/v1/accounts | — | — | — | — | — | — | Rails only |
-| POST /platform/api/v1/accounts/{account_id}/account_users | — | — | — | — | — | — | Rails only |
-| POST /platform/api/v1/agent_bots | — | — | — | — | — | — | Rails only |
-| POST /platform/api/v1/users | — | — | — | — | — | — | Rails only |
-| POST /public/api/v1/inboxes/{inbox_identifier}/contacts | — | — | — | — | — | — | Rails only |
-| POST /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations | — | — | — | — | — | — | Rails only |
-| POST /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations/{conversation_id}/messages | — | — | — | — | — | — | Rails only |
+| POST /platform/api/v1/accounts | — | custom_attributes<br>domain<br>limits<br>locale<br>name<br>status<br>support_email | — | — | — | — | Rails only |
+| POST /platform/api/v1/accounts/{account_id}/account_users | — | role<br>user_id | — | — | — | — | Rails only |
+| POST /platform/api/v1/agent_bots | — | account_id<br>avatar<br>avatar_url<br>description<br>name<br>outgoing_url | — | — | — | — | Rails only |
+| POST /platform/api/v1/users | — | custom_attributes<br>display_name<br>email<br>name<br>password | — | — | — | — | Rails only |
+| POST /public/api/v1/inboxes/{inbox_identifier}/contacts | — | avatar<br>custom_attributes<br>email<br>identifier<br>identifier_hash<br>name<br>phone_number | — | — | — | — | Rails only |
+| POST /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations | — | custom_attributes | — | — | — | — | Rails only |
+| POST /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations/{conversation_id}/messages | — | content<br>echo_id | — | — | — | — | Rails only |
 | POST /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations/{conversation_id}/toggle_status | — | — | — | — | — | — | Rails only |
-| POST /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations/{conversation_id}/toggle_typing | typing_status | — | — | — | — | — | Rails only |
+| POST /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations/{conversation_id}/toggle_typing | typing_status | typing_status | — | — | — | — | Rails only |
 | POST /public/api/v1/inboxes/{inbox_identifier}/contacts/{contact_identifier}/conversations/{conversation_id}/update_last_seen | — | — | — | — | — | — | Rails only |
-| PUT /api/v1/accounts/{account_id}/contacts/{id} | — | — | — | — | — | — | Rails only |
+| PUT /api/v1/accounts/{account_id}/contacts/{id} | — | additional_attributes<br>avatar<br>avatar_url<br>blocked<br>custom_attributes<br>email<br>identifier<br>name<br>phone_number | — | — | — | — | Rails only |
 | PUT /api/v1/accounts/{account_id}/inboxes/{inbox}/working_hours | — | — | — | — | working_hours | — | Laravel only |
 
 ## Notes
 - This table is derived from the OpenAPI/Swagger schemas and reflects documented request/response shapes, not runtime data transformations.
+- This comparison represents a snapshot as of 2026-02-02 and may require updates as the specs evolve.
 - For nested response details (e.g., the full `Contact` or `Conversation` schema), see the schema definitions in the respective API specs.
