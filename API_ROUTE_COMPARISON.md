@@ -237,7 +237,7 @@ This document compares the Laravel API OpenAPI spec (`laravel-svelte-port/larave
 | POST /api/v1/accounts/{account_id}/custom_filters | — | name<br>query<br>type | — | — | — | — | Rails only |
 | POST /api/v1/accounts/{account_id}/dashboard_apps | — | — | — | — | content<br>title | — | Laravel only |
 | POST /api/v1/accounts/{account_id}/inbox_members | — | inbox_id<br>user_ids | — | — | — | — | Rails only |
-| POST /api/v1/accounts/{account_id}/inboxes | — | allow_messages_after_resolved<br>avatar<br>business_name<br>channel<br>csat_survey_enabled<br>enable_auto_assignment<br>enable_email_collect<br>greeting_enabled<br>greeting_message<br>lock_to_single_conversation<br>name<br>out_of_office_message<br>portal_id<br>sender_name_type<br>timezone<br>working_hours_enabled | — | — | — | — | Rails only |
+| POST /api/v1/accounts/{account_id}/inboxes | — | — | — | — | — | — | Rails only |
 | POST /api/v1/accounts/{account_id}/inboxes/{id}/set_agent_bot | — | agent_bot | — | — | — | — | Rails only |
 | POST /api/v1/accounts/{account_id}/integrations/hooks | — | app_id<br>inbox_id<br>settings<br>status | — | — | — | — | Rails only |
 | POST /api/v1/accounts/{account_id}/portals | — | archived<br>color<br>config<br>custom_domain<br>header_text<br>homepage_link<br>name<br>page_title<br>slug | — | — | — | — | Rails only |
