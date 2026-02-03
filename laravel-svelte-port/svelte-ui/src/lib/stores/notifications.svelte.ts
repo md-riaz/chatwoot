@@ -297,8 +297,106 @@ class NotificationsStore {
       error: null,
       currentPage: 1,
       hasMore: true,
-      accountId: null
+      accountId: null,
+      filters: {
+        sortOrder: 'newest',
+        showRead: true,
+        showSnoozed: true
+      }
     };
+  }
+
+  // WebSocket event handlers
+
+  /**
+   * Handle notification updated via WebSocket
+   */
+  handleNotificationUpdated(notification: Notification): void {
+    const index = this.state.all.findIndex(n => n.id === notification.id);
+    if (index >= 0) {
+      this.state.all[index] = notification;
+    }
+  }
+
+  /**
+   * Handle notification deleted via WebSocket
+   */
+  handleNotificationDeleted(notificationId: string): void {
+    const notification = this.state.all.find(n => n.id === notificationId);
+    this.state.all = this.state.all.filter(n => n.id !== notificationId);
+    
+    // Update unread count if deleted notification was unread
+    if (notification && !notification.readAt) {
+      this.state.unreadCount = Math.max(0, this.state.unreadCount - 1);
+    }
+  }
+
+  /**
+   * Add notification from WebSocket
+   */
+  addNotification(notification: Notification): void {
+    // Check if notification already exists
+    const exists = this.state.all.some(n => n.id === notification.id);
+    if (!exists) {
+      this.state.all.unshift(notification);
+      if (!notification.readAt) {
+        this.state.unreadCount += 1;
+      }
+    }
+  }
+
+  /**
+   * Update notification from WebSocket
+   */
+  updateNotification(notification: Notification): void {
+    const index = this.state.all.findIndex(n => n.id === notification.id);
+    if (index >= 0) {
+      const wasUnread = !this.state.all[index].readAt;
+      const isUnread = !notification.readAt;
+      
+      this.state.all[index] = notification;
+      
+      // Update unread count if read status changed
+      if (wasUnread && !isUnread) {
+        this.state.unreadCount = Math.max(0, this.state.unreadCount - 1);
+      } else if (!wasUnread && isUnread) {
+        this.state.unreadCount += 1;
+      }
+    }
+  }
+
+  /**
+   * Remove notification from WebSocket
+   */
+  removeNotification(notificationId: string): void {
+    this.handleNotificationDeleted(notificationId);
+  }
+
+  /**
+   * Add mention notification from WebSocket
+   */
+  addMentionNotification(conversation: any, message: any): void {
+    const mentionNotification: Notification = {
+      id: `mention-${Date.now()}`,
+      notificationType: 'conversation_mention',
+      primaryActorType: 'Conversation',
+      primaryActorId: conversation.id,
+      primaryActor: conversation,
+      secondaryActor: message,
+      accountId: conversation.account_id,
+      userId: message.mentioned_user?.id,
+      readAt: null,
+      snoozedUntil: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      meta: {
+        conversation,
+        message,
+        mentioner: message.user
+      }
+    };
+    
+    this.addNotification(mentionNotification);
   }
 }
 

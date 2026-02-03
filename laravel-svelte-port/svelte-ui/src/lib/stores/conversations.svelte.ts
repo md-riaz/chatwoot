@@ -432,6 +432,130 @@ class ConversationsStore {
     this.selectedConversationId = null;
   }
   
+  // WebSocket event handlers
+
+  /**
+   * Handle new message created via WebSocket
+   */
+  handleMessageCreated(message: any): void {
+    const conversation = this.getConversationById(message.conversation_id);
+    if (conversation) {
+      // Add message to conversation
+      if (!conversation.messages) {
+        conversation.messages = [];
+      }
+      conversation.messages.push(message);
+      
+      // Update conversation metadata
+      conversation.lastActivityAt = message.created_at;
+      conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+      
+      // Move conversation to top of list
+      this.moveConversationToTop(message.conversation_id);
+    }
+  }
+
+  /**
+   * Add new conversation from WebSocket
+   */
+  addConversation(conversation: Conversation): void {
+    const existing = this.getConversationById(conversation.id);
+    if (!existing) {
+      this.allConversations.unshift(conversation);
+    }
+  }
+
+  /**
+   * Update message via WebSocket
+   */
+  updateMessage(message: any): void {
+    const conversation = this.getConversationById(message.conversation_id);
+    if (conversation && conversation.messages) {
+      const messageIndex = conversation.messages.findIndex(m => m.id === message.id);
+      if (messageIndex >= 0) {
+        conversation.messages[messageIndex] = message;
+      }
+    }
+  }
+
+  /**
+   * Remove message via WebSocket
+   */
+  removeMessage(messageId: number): void {
+    this.allConversations.forEach(conversation => {
+      if (conversation.messages) {
+        conversation.messages = conversation.messages.filter(m => m.id !== messageId);
+      }
+    });
+  }
+
+  /**
+   * Mark conversation as read via WebSocket
+   */
+  markAsRead(conversationId: number): void {
+    const conversation = this.getConversationById(conversationId);
+    if (conversation) {
+      conversation.unreadCount = 0;
+      conversation.agentLastSeenAt = new Date().toISOString();
+    }
+  }
+
+  /**
+   * Set typing status for a conversation
+   */
+  setTyping(conversationId: number, typer: any, isTyping: boolean): void {
+    const conversation = this.getConversationById(conversationId);
+    if (conversation) {
+      if (!conversation.typingUsers) {
+        (conversation as any).typingUsers = [];
+      }
+      
+      const existingIndex = (conversation as any).typingUsers.findIndex((u: any) => u.id === typer.id);
+      
+      if (isTyping && existingIndex === -1) {
+        (conversation as any).typingUsers.push(typer);
+      } else if (!isTyping && existingIndex >= 0) {
+        (conversation as any).typingUsers.splice(existingIndex, 1);
+      }
+    }
+  }
+
+  /**
+   * Mark first reply for conversation
+   */
+  markFirstReply(conversationId: number, message: any): void {
+    const conversation = this.getConversationById(conversationId);
+    if (conversation) {
+      (conversation as any).firstReplyCreatedAt = message.created_at;
+      // Update conversation to reflect first reply status
+      this.updateConversationLocally(conversationId, {
+        firstReplyCreatedAt: message.created_at
+      } as any);
+    }
+  }
+
+  /**
+   * Refresh conversations (for cache invalidation)
+   */
+  async refreshConversations(): Promise<void> {
+    try {
+      await this.fetchConversations();
+    } catch (error) {
+      console.error('Failed to refresh conversations:', error);
+    }
+  }
+
+  /**
+   * Move conversation to top of list (for new messages)
+   */
+  private moveConversationToTop(conversationId: number): void {
+    const index = this.allConversations.findIndex(c => c.id === conversationId);
+    if (index > 0) {
+      const conversation = this.allConversations.splice(index, 1)[0];
+      this.allConversations.unshift(conversation);
+    }
+  }
+  
   // Private helper methods
   
   /**
@@ -473,7 +597,7 @@ class ConversationsStore {
   /**
    * Update a single conversation in the list
    */
-  private updateConversation(conversation: Conversation) {
+  updateConversation(conversation: Conversation) {
     const index = this.allConversations.findIndex(c => c.id === conversation.id);
     
     if (index >= 0) {

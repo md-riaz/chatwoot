@@ -13,10 +13,12 @@
   import { teamsStore } from '$lib/stores/teams.svelte';
   import { customViewsStore } from '$lib/stores/customViews.svelte';
   import { notificationsStore } from '$lib/stores/notifications.svelte';
-  import { ReverbClient, getReverbClient } from '$lib/websocket/reverb-client';
+  import { getReverbClient } from '$lib/websocket/reverb-client';
+  import { getWebSocketEventManager } from '$lib/websocket/event-manager';
+  import { getWebSocketStore } from '$lib/websocket/store.svelte';
   import * as Sidebar from '$lib/components/ui/sidebar/index.js';
   import type { Snippet } from 'svelte';
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
   
   interface Props {
@@ -26,8 +28,11 @@
   let { children }: Props = $props();
   
   // Local state
-  let reverbClient: ReverbClient | null = null;
   let isSidebarOpen = $state(true);
+  
+  // WebSocket state
+  let eventManager = getWebSocketEventManager();
+  let wsStore = getWebSocketStore();
 
   function handleGlobalKeydown(e: KeyboardEvent) {
     // Cmd+K or Ctrl+K -> Search
@@ -72,53 +77,67 @@
           customViewsStore.fetchCustomViews(),
           notificationsStore.fetchUnreadCount(authStore.currentAccountId)
         ]).catch(err => console.error('Failed to load initial data:', err));
+        
+        // Initialize WebSocket
+        await initializeWebSocket();
       }
     } catch (error) {
       console.error('Session validation failed:', error);
       // Auth guard will handle redirect
     }
-    
-    // Initialize WebSocket connection
+  });
+  
+  // Cleanup on destroy
+  onDestroy(() => {
+    eventManager.cleanup();
+    try {
+      const client = getReverbClient();
+      client.disconnect();
+    } catch (error) {
+      // Client might not be initialized
+      console.debug('WebSocket client cleanup skipped:', error);
+    }
+  });
+
+  async function initializeWebSocket() {
     const token = localStorage.getItem('auth_token');
-    
-    if (token) {
-      // Get WebSocket URL from environment or construct default
+    if (!token || !authStore.currentAccountId || !authStore.currentUser?.id) {
+      return;
+    }
+
+    try {
+      // WebSocket configuration
       const wsUrl = import.meta.env.VITE_WS_URL || DEFAULT_WS_URL;
       let wsHost = '127.0.0.1';
       let wsPort = 8080;
       let useTLS = false;
       let reverbKey = import.meta.env.VITE_REVERB_APP_KEY || 'clearline-app-key';
       
+      // Parse WebSocket URL
       try {
         const url = new URL(wsUrl);
         wsHost = url.hostname;
         useTLS = url.protocol === 'wss:';
         
-        // Handle different URL formats:
-        // Direct Reverb: ws://host:port (Pusher.js will add /app/{key})
-        // Proxied: ws://host/ws or wss://host/ws
         if (url.pathname === '/' || url.pathname === '') {
-          // Direct connection to Reverb - use port from URL or default
           wsPort = url.port ? parseInt(url.port) : 8080;
         } else if (url.pathname.startsWith('/ws')) {
-          // Proxied connection - use standard ports
           wsPort = url.port ? parseInt(url.port) : (url.protocol === 'wss:' ? 443 : 80);
         } else if (url.pathname.startsWith('/app/')) {
-          // Legacy format with key in path - extract key and use direct connection
           const pathParts = url.pathname.split('/');
           if (pathParts.length >= 3) {
             reverbKey = pathParts[2];
           }
           wsPort = url.port ? parseInt(url.port) : 8080;
         } else {
-          // Unknown format - assume direct connection
           wsPort = url.port ? parseInt(url.port) : 8080;
         }
       } catch (error) {
         console.error('Invalid WebSocket URL, using defaults:', error);
       }
-      
-      reverbClient = getReverbClient({
+
+      // Initialize Reverb client
+      const client = getReverbClient({
         host: wsHost,
         port: wsPort,
         key: reverbKey,
@@ -130,19 +149,24 @@
           },
         },
       });
-      
-      reverbClient.connect();
 
-      // Subscribe to user notifications
-      if (authStore.currentUser?.id) {
-        reverbClient.subscribePrivate(
-          `user.${authStore.currentUser.id}`,
-          'notification.created',
-          (data: any) => {
-            notificationsStore.handleNewNotification(data);
-          }
-        );
-      }
+      // Connect to WebSocket
+      client.connect();
+
+      // Initialize event subscriptions
+      eventManager.initializeForAccount(authStore.currentAccountId, authStore.currentUser.id);
+
+      console.log('WebSocket initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize WebSocket:', error);
+      wsStore.setError(error instanceof Error ? error.message : 'WebSocket initialization failed');
+    }
+  }
+
+  // Reactive: reinitialize WebSocket when account changes
+  $effect(() => {
+    if (authStore.currentAccountId && authStore.currentUser?.id) {
+      initializeWebSocket();
     }
   });
 </script>
