@@ -24,7 +24,9 @@ class InboxFactory extends Factory
             'account_id' => Account::factory(),
             'name' => fake()->words(2, true).' Inbox',
             'channel_type' => 'App\Models\Channels\WebWidget',
-            'channel_id' => null,
+            'channel_id' => function (array $attributes) {
+                return \App\Models\Channels\WebWidget::factory()->create()->id;
+            },
             'enable_auto_assignment' => fake()->boolean(80),
             'greeting_enabled' => fake()->boolean(30),
             'greeting_message' => fake()->optional()->sentence(),

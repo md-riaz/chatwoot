@@ -27,6 +27,7 @@ use App\Listeners\HandleMessageLifecycle;
 use App\Listeners\HandleSlaBreached;
 use App\Listeners\HandlePortalUpdated;
 use App\Listeners\HandleArticleUpdated;
+use App\Listeners\WebSocketEventListener;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -40,12 +41,15 @@ class EventServiceProvider extends ServiceProvider
             EnqueueOpenAiEnrichment::class,
             HandleMessageLifecycle::class,
             HandleMessageCreated::class,
+            WebSocketEventListener::class . '@handleMessageCreated', // Check for first reply
         ],
+        
         // Also process updates to messages (reuse enrichment listener)
         MessageUpdated::class => [
             EnqueueOpenAiEnrichment::class,
             HandleMessageLifecycle::class,
         ],
+        
         MessageDeleted::class => [
             HandleMessageLifecycle::class,
         ],
@@ -89,6 +93,55 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\Notification\NotificationCreated::class => [
             \App\Listeners\HandleNotificationCreated::class,
             \App\Listeners\HandlePushNotification::class,
+        ],
+
+        // WebSocket Events - New events for real-time functionality
+        \App\Events\Notification\NotificationUpdated::class => [
+            WebSocketEventListener::class . '@handleNotificationUpdated',
+        ],
+
+        \App\Events\Notification\NotificationDeleted::class => [
+            WebSocketEventListener::class . '@handleNotificationDeleted',
+        ],
+
+        \App\Events\Conversation\ConversationRead::class => [
+            WebSocketEventListener::class . '@handleConversationRead',
+        ],
+
+        \App\Events\Conversation\ConversationTyping::class => [
+            // This will be triggered directly, no listener needed
+        ],
+
+        \App\Events\Conversation\AssigneeChanged::class => [
+            WebSocketEventListener::class . '@handleAssigneeChanged',
+        ],
+
+        \App\Events\Conversation\TeamChanged::class => [
+            WebSocketEventListener::class . '@handleTeamChanged',
+        ],
+
+        \App\Events\Conversation\ConversationContactChanged::class => [
+            WebSocketEventListener::class . '@handleConversationContactChanged',
+        ],
+
+        \App\Events\Conversation\ConversationMentioned::class => [
+            WebSocketEventListener::class . '@handleConversationMentioned',
+        ],
+
+        \App\Events\Contact\ContactMerged::class => [
+            WebSocketEventListener::class . '@handleContactMerged',
+        ],
+
+        \App\Events\Contact\ContactDeleted::class => [
+            WebSocketEventListener::class . '@handleContactDeleted',
+        ],
+
+        \App\Events\Account\AccountCacheInvalidated::class => [
+            WebSocketEventListener::class . '@handleAccountCacheInvalidated',
+        ],
+
+        \App\Events\Presence\PresenceUpdate::class => [
+            // This will be triggered directly, no listener needed
         ],
     ];
 

@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Article;
+use App\Models\Contact;
 use App\Models\Conversation;
+use App\Models\Inbox;
 use App\Models\Portal;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -69,4 +71,50 @@ Broadcast::channel('article.{articleId}', function ($user, $articleId) {
     }
 
     return $user->accounts()->where('account_id', $article->account_id)->exists();
+});
+
+// Contact-based channels for widget support
+Broadcast::channel('contact.{contactId}', function ($user, $contactId) {
+    // For authenticated contacts (widget users)
+    if ($user instanceof Contact) {
+        return (int) $user->id === (int) $contactId;
+    }
+    
+    // For agents viewing contact conversations
+    $contact = Contact::find($contactId);
+    if (!$contact) {
+        return false;
+    }
+    
+    return $user->accounts()->where('account_id', $contact->account_id)->exists();
+});
+
+// Contact presence channels
+Broadcast::channel('contact.{contactId}.presence', function ($user, $contactId) {
+    if ($user instanceof Contact && (int) $user->id === (int) $contactId) {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'avatar_url' => $user->avatar_url ?? null,
+            'type' => 'contact'
+        ];
+    }
+    
+    return false;
+});
+
+// Inbox-specific channels for widget conversations
+Broadcast::channel('inbox.{inboxId}', function ($user, $inboxId) {
+    $inbox = Inbox::find($inboxId);
+    if (!$inbox) {
+        return false;
+    }
+    
+    // For contacts - check if they have conversations in this inbox
+    if ($user instanceof Contact) {
+        return $user->conversations()->where('inbox_id', $inboxId)->exists();
+    }
+    
+    // For agents - check account membership
+    return $user->accounts()->where('account_id', $inbox->account_id)->exists();
 });

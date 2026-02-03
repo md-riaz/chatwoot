@@ -30,6 +30,7 @@ class ConversationFactory extends Factory
             'contact_inbox_id' => null,
             'assignee_id' => null,
             'team_id' => null,
+            'uuid' => fake()->uuid(),
             'display_id' => fake()->unique()->numberBetween(1, 100000),
             'status' => fake()->randomElement([
                 Conversation::STATUS_OPEN,

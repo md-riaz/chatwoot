@@ -21,7 +21,7 @@ class AccountUserFactory extends Factory
         return [
             'account_id' => Account::factory(),
             'user_id' => User::factory(),
-            'role' => fake()->randomElement(['administrator', 'agent']),
+            'role' => fake()->randomElement([0, 1]), // Use integer values for enum (0=AGENT, 1=ADMINISTRATOR)
             'availability' => fake()->randomElement([0, 1, 2]), // Use integer values for enum
             'active_at' => fake()->optional()->dateTimeBetween('-1 month', 'now'),
         ];
@@ -33,7 +33,7 @@ class AccountUserFactory extends Factory
     public function administrator(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => 'administrator',
+            'role' => 1, // ADMINISTRATOR = 1
         ]);
     }
 
@@ -43,7 +43,7 @@ class AccountUserFactory extends Factory
     public function agent(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => 'agent',
+            'role' => 0, // AGENT = 0
         ]);
     }
 

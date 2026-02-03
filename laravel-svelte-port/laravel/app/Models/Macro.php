@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Macro extends Model
+class Macro extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     // Visibility constants
     public const VISIBILITY_PERSONAL = 0;
@@ -69,7 +71,7 @@ class Macro extends Model
      */
     public function media(): MorphMany
     {
-        return $this->morphMany(Media::class, 'mediable');
+        return $this->morphMany(\Spatie\MediaLibrary\MediaCollections\Models\Media::class, 'model');
     }
 
     public function isPersonal(): bool

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasAvatar;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Spatie\MediaLibrary\HasMedia;
 
-class Contact extends Model implements HasMedia
+class Contact extends Model implements HasMedia, Authenticatable
 {
     use HasFactory, SoftDeletes, HasAvatar;
 
@@ -92,6 +93,42 @@ class Contact extends Model implements HasMedia
      */
     public function media(): MorphMany
     {
-        return $this->morphMany(Media::class, 'mediable');
+        return $this->morphMany(\Spatie\MediaLibrary\MediaCollections\Models\Media::class, 'model');
+    }
+
+    // Authenticatable interface methods (for testing purposes)
+    public function getAuthIdentifierName()
+    {
+        return 'id';
+    }
+
+    public function getAuthIdentifier()
+    {
+        return $this->id;
+    }
+
+    public function getAuthPassword()
+    {
+        return null; // Contacts don't have passwords
+    }
+
+    public function getRememberToken()
+    {
+        return null;
+    }
+
+    public function setRememberToken($value)
+    {
+        // Not implemented for contacts
+    }
+
+    public function getRememberTokenName()
+    {
+        return null;
+    }
+
+    public function getAuthPasswordName()
+    {
+        return null;
     }
 }
