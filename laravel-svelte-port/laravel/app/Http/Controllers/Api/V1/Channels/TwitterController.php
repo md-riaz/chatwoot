@@ -76,7 +76,7 @@ class TwitterController extends Controller
     /**
      * Get OAuth URL for Twitter authorization.
      */
-    public function authorize(Account $account): JsonResponse
+    public function initiateAuthorization(Account $account): JsonResponse
     {
         // Generate OAuth URL for Twitter
         $oauthUrl = 'https://api.twitter.com/oauth/authorize?oauth_token=...';

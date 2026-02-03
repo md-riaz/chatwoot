@@ -1,0 +1,172 @@
+name: Authentication
+description: |-
+
+  API endpoints for user authentication and session management
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/auth/login
+    metadata:
+      custom: []
+      groupName: Authentication
+      groupDescription: |-
+
+        API endpoints for user authentication and session management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Login user and create API token'
+      description: |-
+        Authenticate a user with email and password to obtain an API token
+        for subsequent authenticated requests.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      email:
+        custom: []
+        name: email
+        description: "The user's email address."
+        required: true
+        example: user@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: "The user's password."
+        required: true
+        example: secret123
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      email: user@example.com
+      password: secret123
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Login successful'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: 'Invalid credentials'
+      -
+        custom: []
+        status: 422
+        content: ''
+        headers: []
+        description: 'Validation error'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/auth/logout
+    metadata:
+      custom: []
+      groupName: Authentication
+      groupDescription: |-
+
+        API endpoints for user authentication and session management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Logout user and revoke current token'
+      description: 'Revoke the current authentication token and end the user session.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 204
+        content: ''
+        headers: []
+        description: 'Logout successful'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: Unauthenticated
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/auth/me
+    metadata:
+      custom: []
+      groupName: Authentication
+      groupDescription: |-
+
+        API endpoints for user authentication and session management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get authenticated user'
+      description: "Retrieve the currently authenticated user's profile information."
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'User retrieved'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: Unauthenticated
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

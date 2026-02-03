@@ -1,0 +1,35 @@
+name: Generate API Documentation
+
+on:
+  workflow_dispatch:  # Manual trigger only
+    inputs:
+      branch:
+        description: 'Branch to run documentation generation on'
+        required: true
+        default: 'copilot/convert-to-laravel'
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/copilot/convert-to-laravel'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || 'copilot/convert-to-laravel' }}
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction --prefer-dist
+      - name: Generate documentation
+        run: |
+          php artisan scribe:generate
+      - name: Deploy docs
+        run: |
+          # Deploy to GitHub Pages or documentation hosting
+          # This is a placeholder - implement actual deployment logic
+          echo "Documentation generated successfully"
+          echo "OpenAPI spec location: storage/app/scribe/openapi.yaml"
+          echo "HTML docs location: public/docs/"

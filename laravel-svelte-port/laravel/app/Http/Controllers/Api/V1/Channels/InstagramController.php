@@ -100,7 +100,7 @@ class InstagramController extends Controller
     /**
      * Authorization callback for Instagram OAuth.
      */
-    public function authorize(Request $request, Account $account): JsonResponse
+    public function initiateAuthorization(Request $request, Account $account): JsonResponse
     {
         // TODO: Implement OAuth flow
         return response()->json([

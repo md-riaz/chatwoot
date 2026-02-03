@@ -8,10 +8,20 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * @group Profile
+ * 
+ * API endpoints for user profile management
+ */
 class ProfileController extends Controller
 {
     /**
-     * Get the authenticated user's profile.
+     * Get user profile
+     * 
+     * Retrieve the authenticated user's profile information.
+     * 
+     * @response 200 scenario="Profile retrieved"
+     * @response 401 scenario="Unauthenticated"
      */
     public function show(): JsonResponse
     {
@@ -32,7 +42,20 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the authenticated user's profile.
+     * Update user profile
+     * 
+     * Update the authenticated user's profile information.
+     * 
+     * @bodyParam name string The user's name. Example: John Doe
+     * @bodyParam display_name string The user's display name. Example: John
+     * @bodyParam email string The user's email. Example: john@example.com
+     * @bodyParam avatar_url string The user's avatar URL. Example: https://example.com/avatar.jpg
+     * @bodyParam message_signature string The user's message signature. Example: Best regards,
+     * @bodyParam ui_settings array The user's UI settings.
+     * 
+     * @response 200 scenario="Profile updated"
+     * @response 401 scenario="Unauthenticated"
+     * @response 422 scenario="Validation error"
      */
     public function update(Request $request): JsonResponse
     {
@@ -53,7 +76,17 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update user password
+     * 
      * Update the authenticated user's password.
+     * 
+     * @bodyParam current_password string required The current password. Example: oldpassword123
+     * @bodyParam password string required The new password. Example: newpassword123
+     * @bodyParam password_confirmation string required Password confirmation. Example: newpassword123
+     * 
+     * @response 200 scenario="Password updated"
+     * @response 401 scenario="Unauthenticated"
+     * @response 422 scenario="Validation error"
      */
     public function updatePassword(Request $request): JsonResponse
     {
@@ -78,7 +111,16 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update user availability.
+     * Update user availability
+     * 
+     * Update the user's availability status for a specific account.
+     * 
+     * @bodyParam account_id int required The account ID. Example: 1
+     * @bodyParam availability string required The availability status. Must be: online, offline, busy. Example: online
+     * 
+     * @response 200 scenario="Availability updated"
+     * @response 401 scenario="Unauthenticated"
+     * @response 422 scenario="Validation error"
      */
     public function updateAvailability(Request $request): JsonResponse
     {
@@ -98,7 +140,16 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update user auto-offline setting.
+     * Update auto-offline setting
+     * 
+     * Update the user's auto-offline setting for a specific account.
+     * 
+     * @bodyParam account_id int required The account ID. Example: 1
+     * @bodyParam auto_offline boolean required The auto-offline setting. Example: true
+     * 
+     * @response 200 scenario="Auto-offline setting updated"
+     * @response 401 scenario="Unauthenticated"
+     * @response 422 scenario="Validation error"
      */
     public function updateAutoOffline(Request $request): JsonResponse
     {
@@ -117,7 +168,12 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete user avatar.
+     * Delete user avatar
+     * 
+     * Remove the user's avatar.
+     * 
+     * @response 204 scenario="Avatar deleted"
+     * @response 401 scenario="Unauthenticated"
      */
     public function avatar(): JsonResponse
     {
@@ -129,7 +185,15 @@ class ProfileController extends Controller
     }
 
     /**
-     * Set active account for user.
+     * Set active account
+     * 
+     * Set the active account for the user.
+     * 
+     * @bodyParam account_id int required The account ID. Example: 1
+     * 
+     * @response 200 scenario="Active account set"
+     * @response 401 scenario="Unauthenticated"
+     * @response 422 scenario="Validation error"
      */
     public function setActiveAccount(Request $request): JsonResponse
     {
@@ -148,7 +212,13 @@ class ProfileController extends Controller
     }
 
     /**
-     * Resend confirmation email.
+     * Resend confirmation email
+     * 
+     * Resend the email confirmation email to the user.
+     * 
+     * @response 200 scenario="Confirmation email sent"
+     * @response 401 scenario="Unauthenticated"
+     * @response 422 scenario="Email already confirmed"
      */
     public function resendConfirmation(): JsonResponse
     {
@@ -165,9 +235,12 @@ class ProfileController extends Controller
     }
 
     /**
-     * Reset access token.
+     * Reset access token
      * 
-     * Uses Sanctum's token system via HasAutoApiToken trait.
+     * Generate a new access token for the user.
+     * 
+     * @response 200 scenario="Token reset"
+     * @response 401 scenario="Unauthenticated"
      */
     public function resetAccessToken(): JsonResponse
     {

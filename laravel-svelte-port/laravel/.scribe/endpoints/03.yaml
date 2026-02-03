@@ -1,0 +1,598 @@
+name: Accounts
+description: |-
+
+  API endpoints for account management
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/accounts
+    metadata:
+      custom: []
+      groupName: Accounts
+      groupDescription: |-
+
+        API endpoints for account management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'List all accounts'
+      description: 'Get a paginated list of accounts with user and inbox counts.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      page:
+        custom: []
+        name: page
+        description: 'Page number.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      per_page:
+        custom: []
+        name: per_page
+        description: 'Items per page.'
+        required: false
+        example: 15
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      page: 1
+      per_page: 15
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Accounts retrieved'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/accounts
+    metadata:
+      custom: []
+      groupName: Accounts
+      groupDescription: |-
+
+        API endpoints for account management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Create a new account'
+      description: 'Create a new account with the provided details.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'The account name.'
+        required: true
+        example: 'Acme Corporation'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      locale:
+        custom: []
+        name: locale
+        description: 'The account locale.'
+        required: false
+        example: en
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      domain:
+        custom: []
+        name: domain
+        description: 'The account domain.'
+        required: false
+        example: acme.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      support_email:
+        custom: []
+        name: support_email
+        description: 'The support email.'
+        required: false
+        example: support@acme.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      status:
+        custom: []
+        name: status
+        description: ''
+        required: true
+        example: suspended
+        type: string
+        enumValues:
+          - active
+          - suspended
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      name: 'Acme Corporation'
+      locale: en
+      domain: acme.com
+      support_email: support@acme.com
+      status: suspended
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: ''
+        headers: []
+        description: 'Account created'
+      -
+        custom: []
+        status: 422
+        content: ''
+        headers: []
+        description: 'Validation error'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/accounts/{id}'
+    metadata:
+      custom: []
+      groupName: Accounts
+      groupDescription: |-
+
+        API endpoints for account management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get account details'
+      description: 'Retrieve detailed information about a specific account.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the account.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      account_id:
+        custom: []
+        name: account_id
+        description: 'int The ID of the account.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 16
+      account_id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Account retrieved'
+      -
+        custom: []
+        status: 404
+        content: ''
+        headers: []
+        description: 'Account not found'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+      - PATCH
+    uri: 'api/v1/accounts/{id}'
+    metadata:
+      custom: []
+      groupName: Accounts
+      groupDescription: |-
+
+        API endpoints for account management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update account'
+      description: 'Update an existing account with new details.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the account.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      account_id:
+        custom: []
+        name: account_id
+        description: 'int The ID of the account.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 16
+      account_id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'The account name.'
+        required: false
+        example: 'Acme Corporation'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      locale:
+        custom: []
+        name: locale
+        description: 'The account locale.'
+        required: false
+        example: en
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      domain:
+        custom: []
+        name: domain
+        description: 'The account domain.'
+        required: false
+        example: acme.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      support_email:
+        custom: []
+        name: support_email
+        description: 'The support email.'
+        required: false
+        example: support@acme.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      settings:
+        custom: []
+        name: settings
+        description: ''
+        required: false
+        example: null
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      features:
+        custom: []
+        name: features
+        description: ''
+        required: false
+        example: null
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      limits:
+        custom: []
+        name: limits
+        description: ''
+        required: false
+        example: null
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      status:
+        custom: []
+        name: status
+        description: ''
+        required: false
+        example: active
+        type: string
+        enumValues:
+          - active
+          - suspended
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      name: 'Acme Corporation'
+      locale: en
+      domain: acme.com
+      support_email: support@acme.com
+      status: active
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Account updated'
+      -
+        custom: []
+        status: 404
+        content: ''
+        headers: []
+        description: 'Account not found'
+      -
+        custom: []
+        status: 422
+        content: ''
+        headers: []
+        description: 'Validation error'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/v1/accounts/{id}'
+    metadata:
+      custom: []
+      groupName: Accounts
+      groupDescription: |-
+
+        API endpoints for account management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Delete account'
+      description: 'Permanently delete an account and all associated data.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the account.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      account_id:
+        custom: []
+        name: account_id
+        description: 'int The ID of the account.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 16
+      account_id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 204
+        content: ''
+        headers: []
+        description: 'Account deleted'
+      -
+        custom: []
+        status: 404
+        content: ''
+        headers: []
+        description: 'Account not found'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/accounts/{account_id}/update_active_at'
+    metadata:
+      custom: []
+      groupName: Accounts
+      groupDescription: |-
+
+        API endpoints for account management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update account active timestamp'
+      description: 'Update the last active timestamp for an account.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      account_id:
+        custom: []
+        name: account_id
+        description: 'int The ID of the account.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      account_id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Active timestamp updated'
+      -
+        custom: []
+        status: 404
+        content: ''
+        headers: []
+        description: 'Account not found'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/accounts/{account_id}/cache_keys'
+    metadata:
+      custom: []
+      groupName: Accounts
+      groupDescription: |-
+
+        API endpoints for account management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get account cache keys'
+      description: 'Retrieve the cache keys associated with an account.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      account_id:
+        custom: []
+        name: account_id
+        description: 'int The ID of the account.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      account_id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Cache keys retrieved'
+      -
+        custom: []
+        status: 404
+        content: ''
+        headers: []
+        description: 'Account not found'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

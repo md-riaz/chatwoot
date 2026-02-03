@@ -1,0 +1,616 @@
+name: Profile
+description: |-
+
+  API endpoints for user profile management
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/profile
+    metadata:
+      custom: []
+      groupName: Profile
+      groupDescription: |-
+
+        API endpoints for user profile management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get user profile'
+      description: "Retrieve the authenticated user's profile information."
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Profile retrieved'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: Unauthenticated
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: api/v1/profile
+    metadata:
+      custom: []
+      groupName: Profile
+      groupDescription: |-
+
+        API endpoints for user profile management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update user profile'
+      description: "Update the authenticated user's profile information."
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: "The user's name."
+        required: false
+        example: 'John Doe'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      display_name:
+        custom: []
+        name: display_name
+        description: "The user's display name."
+        required: false
+        example: John
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: "The user's email."
+        required: false
+        example: john@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      avatar_url:
+        custom: []
+        name: avatar_url
+        description: "The user's avatar URL."
+        required: false
+        example: 'https://example.com/avatar.jpg'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      message_signature:
+        custom: []
+        name: message_signature
+        description: "The user's message signature."
+        required: false
+        example: 'Best regards,'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      ui_settings:
+        custom: []
+        name: ui_settings
+        description: "The user's UI settings."
+        required: false
+        example:
+          - architecto
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: 'John Doe'
+      display_name: John
+      email: john@example.com
+      avatar_url: 'https://example.com/avatar.jpg'
+      message_signature: 'Best regards,'
+      ui_settings:
+        - architecto
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Profile updated'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: Unauthenticated
+      -
+        custom: []
+        status: 422
+        content: ''
+        headers: []
+        description: 'Validation error'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: api/v1/profile/password
+    metadata:
+      custom: []
+      groupName: Profile
+      groupDescription: |-
+
+        API endpoints for user profile management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update user password'
+      description: "Update the authenticated user's password."
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      current_password:
+        custom: []
+        name: current_password
+        description: 'The current password.'
+        required: true
+        example: oldpassword123
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: 'The new password.'
+        required: true
+        example: newpassword123
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      password_confirmation:
+        custom: []
+        name: password_confirmation
+        description: 'Password confirmation.'
+        required: true
+        example: newpassword123
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      current_password: oldpassword123
+      password: newpassword123
+      password_confirmation: newpassword123
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Password updated'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: Unauthenticated
+      -
+        custom: []
+        status: 422
+        content: ''
+        headers: []
+        description: 'Validation error'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: api/v1/profile/availability
+    metadata:
+      custom: []
+      groupName: Profile
+      groupDescription: |-
+
+        API endpoints for user profile management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update user availability'
+      description: "Update the user's availability status for a specific account."
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      availability:
+        custom: []
+        name: availability
+        description: 'The availability status. Must be: online, offline, busy.'
+        required: true
+        example: online
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      account_id:
+        custom: []
+        name: account_id
+        description: 'The account ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      availability: online
+      account_id: 1
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Availability updated'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: Unauthenticated
+      -
+        custom: []
+        status: 422
+        content: ''
+        headers: []
+        description: 'Validation error'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: api/v1/profile/auto_offline
+    metadata:
+      custom: []
+      groupName: Profile
+      groupDescription: |-
+
+        API endpoints for user profile management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update auto-offline setting'
+      description: "Update the user's auto-offline setting for a specific account."
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      auto_offline:
+        custom: []
+        name: auto_offline
+        description: 'The auto-offline setting.'
+        required: true
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      account_id:
+        custom: []
+        name: account_id
+        description: 'The account ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      auto_offline: true
+      account_id: 1
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Auto-offline setting updated'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: Unauthenticated
+      -
+        custom: []
+        status: 422
+        content: ''
+        headers: []
+        description: 'Validation error'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: api/v1/profile/avatar
+    metadata:
+      custom: []
+      groupName: Profile
+      groupDescription: |-
+
+        API endpoints for user profile management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Delete user avatar'
+      description: "Remove the user's avatar."
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 204
+        content: ''
+        headers: []
+        description: 'Avatar deleted'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: Unauthenticated
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: api/v1/profile/set_active_account
+    metadata:
+      custom: []
+      groupName: Profile
+      groupDescription: |-
+
+        API endpoints for user profile management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Set active account'
+      description: 'Set the active account for the user.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      account_id:
+        custom: []
+        name: account_id
+        description: 'The account ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      account_id: 1
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Active account set'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: Unauthenticated
+      -
+        custom: []
+        status: 422
+        content: ''
+        headers: []
+        description: 'Validation error'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/profile/resend_confirmation
+    metadata:
+      custom: []
+      groupName: Profile
+      groupDescription: |-
+
+        API endpoints for user profile management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Resend confirmation email'
+      description: 'Resend the email confirmation email to the user.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Confirmation email sent'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: Unauthenticated
+      -
+        custom: []
+        status: 422
+        content: ''
+        headers: []
+        description: 'Email already confirmed'
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/profile/reset_access_token
+    metadata:
+      custom: []
+      groupName: Profile
+      groupDescription: |-
+
+        API endpoints for user profile management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Reset access token'
+      description: 'Generate a new access token for the user.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: ''
+        headers: []
+        description: 'Token reset'
+      -
+        custom: []
+        status: 401
+        content: ''
+        headers: []
+        description: Unauthenticated
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

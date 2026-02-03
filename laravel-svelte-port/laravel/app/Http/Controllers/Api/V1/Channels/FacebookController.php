@@ -127,7 +127,7 @@ class FacebookController extends Controller
     /**
      * Initiate Facebook OAuth flow.
      */
-    public function authorize(Request $request, Account $account): JsonResponse
+    public function initiateAuthorization(Request $request, Account $account): JsonResponse
     {
         $redirectUri = config('services.facebook.redirect_uri', url('/callback'));
         $appId = config('services.facebook.app_id', '');

@@ -191,7 +191,7 @@ Route::prefix('webhooks')->group(function () {
 });
 
     // OAuth callbacks for third-party installs (Shopify)
-    Route::get('callbacks/shopify/authorize', [ShopifyController::class, 'authorize']);
+    Route::get('callbacks/shopify/initiateAuthorization', [ShopifyController::class, 'initiateAuthorization']);
     Route::get('callbacks/shopify/callback', [ShopifyController::class, 'callback']);
 
 // Public CSAT Survey routes (no auth required)
@@ -594,7 +594,7 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
             // Twitter
             Route::post('twitter', [TwitterController::class, 'create']);
             Route::patch('twitter/{inbox}', [TwitterController::class, 'update']);
-            Route::get('twitter/authorize', [TwitterController::class, 'authorize']);
+            Route::get('twitter/initiateAuthorization', [TwitterController::class, 'initiateAuthorization']);
             Route::post('twitter/callback', [TwitterController::class, 'callback']);
             
             // Email
@@ -625,7 +625,7 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
             // Instagram
             Route::post('instagram', [InstagramController::class, 'create']);
             Route::patch('instagram/{inbox}', [InstagramController::class, 'update']);
-            Route::get('instagram/authorize', [InstagramController::class, 'authorize']);
+            Route::get('instagram/initiateAuthorization', [InstagramController::class, 'initiateAuthorization']);
             Route::post('instagram/callback', [InstagramController::class, 'callback']);
             
             // Voice (Twilio)
@@ -666,7 +666,7 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
             
             // Slack
             Route::get('slack', [SlackController::class, 'show']);
-            Route::get('slack/authorize', [SlackController::class, 'authorize']);
+            Route::get('slack/initiateAuthorization', [SlackController::class, 'initiateAuthorization']);
             Route::post('slack', [SlackController::class, 'create']);
             Route::patch('slack', [SlackController::class, 'update']);
             Route::delete('slack', [SlackController::class, 'destroy']);
@@ -744,10 +744,10 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
 
         // Callbacks (OAuth and webhooks for channels)
         Route::prefix('callbacks')->group(function () {
-            Route::get('facebook/authorize', [FacebookController::class, 'authorize']);
+            Route::get('facebook/initiateAuthorization', [FacebookController::class, 'authorize']);
             Route::get('facebook/pages', [FacebookController::class, 'pages']);
             Route::post('facebook/create', [FacebookController::class, 'createFromCallback']);
-            Route::get('twitter/authorize', [TwitterController::class, 'authorize']);
+            Route::get('twitter/initiateAuthorization', [TwitterController::class, 'initiateAuthorization']);
             Route::post('twitter/callback', [TwitterController::class, 'callback']);
         });
     });

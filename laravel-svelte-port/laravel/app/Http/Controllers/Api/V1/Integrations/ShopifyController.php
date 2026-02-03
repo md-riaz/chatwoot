@@ -173,7 +173,7 @@ class ShopifyController extends Controller
     /**
      * Start OAuth install: generate state and redirect to Shopify authorize URL.
      */
-    public function authorize(Request $request)
+    public function initiateAuthorization(Request $request)
     {
         $request->validate(['shop' => 'required|string']);
 

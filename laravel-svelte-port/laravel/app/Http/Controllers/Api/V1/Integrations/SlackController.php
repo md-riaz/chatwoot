@@ -24,7 +24,7 @@ class SlackController extends Controller
     /**
      * Get Slack OAuth authorization URL.
      */
-    public function authorize(Account $account): JsonResponse
+    public function initiateAuthorization(Account $account): JsonResponse
     {
         $clientId = config('services.slack.client_id', '');
         $redirectUri = config('services.slack.redirect_uri', url('/callback/slack'));
