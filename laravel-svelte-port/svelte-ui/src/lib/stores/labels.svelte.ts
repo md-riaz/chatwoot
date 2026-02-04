@@ -270,6 +270,20 @@ class LabelsStore {
       isDeleting: false,
     };
   }
+
+  /**
+   * Revalidate labels with cache key (matching Vue implementation)
+   * Used by WebSocket cache invalidation events
+   */
+  async revalidate(cacheKey?: string): Promise<void> {
+    console.log('Revalidating labels store with cache key:', cacheKey);
+    
+    // Force refresh labels from server
+    await this.fetchLabels();
+    
+    // Log successful revalidation
+    console.log(`Labels store revalidated successfully. Count: ${this.labelsCount}`);
+  }
 }
 
 // Export singleton instance

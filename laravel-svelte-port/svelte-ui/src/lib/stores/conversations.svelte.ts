@@ -1,15 +1,20 @@
 /**
- * Conversations Store using Svelte 5 runes
+ * Conversations Store using Svelte 5 runes with Vue-style mutation/action pattern
  * Replaces app/javascript/dashboard/store/modules/conversations/
  * 
- * This is a simplified version focusing on core conversation management.
- * Additional features like filtering, sorting, and advanced actions can be added incrementally.
+ * Implements Vue ActionCable parity with:
+ * - Strict separation of mutations (pure state) and actions (side effects)
+ * - Account event validation for security
+ * - Audio notifications and event bus integration
+ * - Message synchronization and private message filtering
  */
 
 import { page } from '$app/stores';
 import type { Conversation, ConversationListParams, ConversationPriority, ConversationStatus } from '$lib/api/conversations';
 import * as conversationsAPI from '$lib/api/conversations';
 import { get } from 'svelte/store';
+import { eventBus, BUS_EVENTS } from '$lib/utils/event-bus';
+import { audioNotificationManager } from '$lib/utils/audio-notifications';
 
 /**
  * Sort type for conversations
@@ -17,7 +22,22 @@ import { get } from 'svelte/store';
 type SortType = 'latest' | 'oldest' | 'unread' | 'priority';
 
 /**
- * Conversations store using Svelte 5 runes
+ * Message interface for type safety
+ */
+interface Message {
+  id: number;
+  conversation_id: number;
+  content: string;
+  message_type: string;
+  created_at: string;
+  sender_type: string;
+  sender_id: number;
+  is_private?: boolean;
+  attachments?: any[];
+}
+
+/**
+ * Conversations store using Svelte 5 runes with Vue-style mutation/action pattern
  */
 class ConversationsStore {
   // Reactive state
@@ -432,110 +452,77 @@ class ConversationsStore {
     this.selectedConversationId = null;
   }
   
-  // WebSocket event handlers
+  // WebSocket event handlers with Vue parity
 
   /**
-   * Handle new message created via WebSocket
+   * Handle new message created via WebSocket (Action with side effects)
    */
   handleMessageCreated(message: any): void {
-    const conversation = this.getConversationById(message.conversation_id);
-    if (conversation) {
-      // Add message to conversation
-      if (!conversation.messages) {
-        conversation.messages = [];
-      }
-      conversation.messages.push(message);
-      
-      // Update conversation metadata
-      conversation.lastActivityAt = message.created_at;
-      conversation.unreadCount = (conversation.unreadCount || 0) + 1;
-      
-      // Move conversation to top of list
-      this.moveConversationToTop(message.conversation_id);
-    }
+    // Mutation: Pure state update
+    this.mutations.ADD_MESSAGE(message);
+    
+    // Actions: Side effects (matching Vue pattern)
+    this.playAudioNotification(message);
+    this.updateConversationStats();
+    this.moveConversationToTop(message.conversation_id);
+    
+    // Emit event for external listeners
+    eventBus.emit(BUS_EVENTS.AGENT_MESSAGE_RECEIVED, message);
   }
 
   /**
-   * Add new conversation from WebSocket
+   * Add new conversation from WebSocket (Action)
    */
   addConversation(conversation: Conversation): void {
-    const existing = this.getConversationById(conversation.id);
-    if (!existing) {
-      this.allConversations.unshift(conversation);
-    }
+    // Mutation: Pure state update
+    this.mutations.ADD_CONVERSATION(conversation);
+    
+    // Actions: Side effects
+    this.updateConversationStats();
   }
 
   /**
-   * Update message via WebSocket
+   * Update message via WebSocket (Action)
    */
   updateMessage(message: any): void {
-    const conversation = this.getConversationById(message.conversation_id);
-    if (conversation && conversation.messages) {
-      const messageIndex = conversation.messages.findIndex(m => m.id === message.id);
-      if (messageIndex >= 0) {
-        conversation.messages[messageIndex] = message;
-      }
-    }
+    // Mutation: Pure state update
+    this.mutations.UPDATE_MESSAGE(message);
   }
 
   /**
-   * Remove message via WebSocket
+   * Remove message via WebSocket (Action)
    */
   removeMessage(messageId: number): void {
-    this.allConversations.forEach(conversation => {
-      if (conversation.messages) {
-        conversation.messages = conversation.messages.filter(m => m.id !== messageId);
-      }
-    });
+    // Mutation: Pure state update
+    this.mutations.REMOVE_MESSAGE(messageId);
   }
 
   /**
-   * Mark conversation as read via WebSocket
+   * Mark conversation as read via WebSocket (Action)
    */
   markAsRead(conversationId: number): void {
-    const conversation = this.getConversationById(conversationId);
-    if (conversation) {
-      conversation.unreadCount = 0;
-      conversation.agentLastSeenAt = new Date().toISOString();
-    }
+    // Mutation: Pure state update
+    this.mutations.MARK_AS_READ(conversationId);
   }
 
   /**
-   * Set typing status for a conversation
+   * Set typing status for a conversation (Action)
    */
   setTyping(conversationId: number, typer: any, isTyping: boolean): void {
-    const conversation = this.getConversationById(conversationId);
-    if (conversation) {
-      if (!conversation.typingUsers) {
-        (conversation as any).typingUsers = [];
-      }
-      
-      const existingIndex = (conversation as any).typingUsers.findIndex((u: any) => u.id === typer.id);
-      
-      if (isTyping && existingIndex === -1) {
-        (conversation as any).typingUsers.push(typer);
-      } else if (!isTyping && existingIndex >= 0) {
-        (conversation as any).typingUsers.splice(existingIndex, 1);
-      }
-    }
+    // Mutation: Pure state update
+    this.mutations.SET_TYPING(conversationId, typer, isTyping);
   }
 
   /**
-   * Mark first reply for conversation
+   * Mark first reply for conversation (Action)
    */
   markFirstReply(conversationId: number, message: any): void {
-    const conversation = this.getConversationById(conversationId);
-    if (conversation) {
-      (conversation as any).firstReplyCreatedAt = message.created_at;
-      // Update conversation to reflect first reply status
-      this.updateConversationLocally(conversationId, {
-        firstReplyCreatedAt: message.created_at
-      } as any);
-    }
+    // Mutation: Pure state update
+    this.mutations.MARK_FIRST_REPLY(conversationId, message);
   }
 
   /**
-   * Refresh conversations (for cache invalidation)
+   * Refresh conversations (for cache invalidation) (Action)
    */
   async refreshConversations(): Promise<void> {
     try {
@@ -543,6 +530,135 @@ class ConversationsStore {
     } catch (error) {
       console.error('Failed to refresh conversations:', error);
     }
+  }
+
+  /**
+   * Set last message ID for sync on reconnect (matching Vue implementation)
+   */
+  setLastMessageId(): number | null {
+    const allMessages = this.allConversations.flatMap(c => c.messages || []);
+    
+    if (allMessages.length > 0) {
+      const lastMessage = allMessages.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )[0];
+      
+      return lastMessage.id;
+    }
+    
+    return null;
+  }
+
+  // Private mutations (pure state updates, matching Vue pattern)
+  private mutations = {
+    ADD_MESSAGE: (message: any) => {
+      const conversation = this.getConversationById(message.conversation_id);
+      if (conversation) {
+        // Add message to conversation
+        if (!conversation.messages) {
+          conversation.messages = [];
+        }
+        conversation.messages.push(message);
+        
+        // Update conversation metadata
+        conversation.lastActivityAt = message.created_at;
+        conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+      }
+    },
+
+    ADD_CONVERSATION: (conversation: Conversation) => {
+      const existing = this.getConversationById(conversation.id);
+      if (!existing) {
+        this.allConversations.unshift(conversation);
+      }
+    },
+
+    UPDATE_MESSAGE: (message: any) => {
+      const conversation = this.getConversationById(message.conversation_id);
+      if (conversation && conversation.messages) {
+        const messageIndex = conversation.messages.findIndex(m => m.id === message.id);
+        if (messageIndex >= 0) {
+          conversation.messages[messageIndex] = message;
+        }
+      }
+    },
+
+    REMOVE_MESSAGE: (messageId: number) => {
+      this.allConversations.forEach(conversation => {
+        if (conversation.messages) {
+          conversation.messages = conversation.messages.filter(m => m.id !== messageId);
+        }
+      });
+    },
+
+    MARK_AS_READ: (conversationId: number) => {
+      const conversation = this.getConversationById(conversationId);
+      if (conversation) {
+        conversation.unreadCount = 0;
+        conversation.agentLastSeenAt = new Date().toISOString();
+      }
+    },
+
+    SET_TYPING: (conversationId: number, typer: any, isTyping: boolean) => {
+      const conversation = this.getConversationById(conversationId);
+      if (conversation) {
+        if (!conversation.typingUsers) {
+          (conversation as any).typingUsers = [];
+        }
+        
+        const existingIndex = (conversation as any).typingUsers.findIndex((u: any) => u.id === typer.id);
+        
+        if (isTyping && existingIndex === -1) {
+          (conversation as any).typingUsers.push(typer);
+        } else if (!isTyping && existingIndex >= 0) {
+          (conversation as any).typingUsers.splice(existingIndex, 1);
+        }
+      }
+    },
+
+    MARK_FIRST_REPLY: (conversationId: number, message: any) => {
+      const conversation = this.getConversationById(conversationId);
+      if (conversation) {
+        (conversation as any).firstReplyCreatedAt = message.created_at;
+      }
+    },
+
+    UPDATE_CONVERSATION: (conversation: Conversation) => {
+      const index = this.allConversations.findIndex(c => c.id === conversation.id);
+      
+      if (index >= 0) {
+        // Merge with existing to preserve local state
+        const existing = this.allConversations[index];
+        this.allConversations[index] = {
+          ...existing,
+          ...conversation,
+          messages: existing.messages || conversation.messages
+        };
+      } else {
+        // Add new conversation
+        this.allConversations.push(conversation);
+      }
+    },
+  };
+
+  // Private action helpers (side effects, matching Vue pattern)
+  
+  /**
+   * Play audio notification for new message (matching Vue DashboardAudioNotificationHelper)
+   */
+  private playAudioNotification(message: any): void {
+    audioNotificationManager.onNewMessage({
+      sender_id: message.sender_id,
+      message_type: message.message_type,
+      conversation: this.getConversationById(message.conversation_id)
+    });
+  }
+
+  /**
+   * Update conversation statistics (matching Vue fetchConversationStats)
+   */
+  private updateConversationStats(): void {
+    eventBus.emit(BUS_EVENTS.FETCH_CONVERSATION_STATS);
   }
 
   /**
@@ -595,23 +711,11 @@ class ConversationsStore {
   }
   
   /**
-   * Update a single conversation in the list
+   * Update a single conversation in the list (Action)
    */
   updateConversation(conversation: Conversation) {
-    const index = this.allConversations.findIndex(c => c.id === conversation.id);
-    
-    if (index >= 0) {
-      // Merge with existing to preserve local state
-      const existing = this.allConversations[index];
-      this.allConversations[index] = {
-        ...existing,
-        ...conversation,
-        messages: existing.messages || conversation.messages
-      };
-    } else {
-      // Add new conversation
-      this.allConversations.push(conversation);
-    }
+    // Mutation: Pure state update
+    this.mutations.UPDATE_CONVERSATION(conversation);
   }
   
   /**

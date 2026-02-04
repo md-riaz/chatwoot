@@ -215,6 +215,21 @@ export async function getMessages(conversationId: number): Promise<Message[]> {
 }
 
 /**
+ * Get messages since a specific message ID (for WebSocket sync)
+ * Used to sync missed messages after reconnection
+ */
+export async function getMessagesSince(
+  conversationId: number,
+  lastMessageId: number
+): Promise<Message[]> {
+  const result = await getPreviousMessages({ 
+    conversationId, 
+    after: lastMessageId 
+  });
+  return result.messages;
+}
+
+/**
  * Translate a message to target language
  */
 export async function translateMessage(

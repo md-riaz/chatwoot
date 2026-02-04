@@ -57,6 +57,15 @@ class WidgetConversationStore {
     ));
   }
 
+  get lastMessage() {
+    return this.sortedMessages[this.sortedMessages.length - 1] || null;
+  }
+
+  // Methods for WebSocket integration
+  getLastMessage(): Message | null {
+    return this.lastMessage;
+  }
+
   // Actions
   async createConversation(params: CreateConversationParams): Promise<Conversation | null> {
     this.isLoading = true;

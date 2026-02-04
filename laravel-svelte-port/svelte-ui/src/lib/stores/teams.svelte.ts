@@ -348,6 +348,20 @@ class TeamsStore {
       isUpdatingMembers: false,
     };
   }
+
+  /**
+   * Revalidate teams with cache key (matching Vue implementation)
+   * Used by WebSocket cache invalidation events
+   */
+  async revalidate(cacheKey?: string): Promise<void> {
+    console.log('Revalidating teams store with cache key:', cacheKey);
+    
+    // Force refresh teams from server
+    await this.fetchTeams();
+    
+    // Log successful revalidation
+    console.log(`Teams store revalidated successfully. Count: ${this.teamsCount}`);
+  }
 }
 
 // Export singleton instance

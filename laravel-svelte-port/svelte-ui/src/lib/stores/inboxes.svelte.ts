@@ -479,6 +479,20 @@ class InboxesStore {
       isSyncingTemplates: false,
     };
   }
+
+  /**
+   * Revalidate inboxes with cache key (matching Vue implementation)
+   * Used by WebSocket cache invalidation events
+   */
+  async revalidate(cacheKey?: string): Promise<void> {
+    console.log('Revalidating inboxes store with cache key:', cacheKey);
+    
+    // Force refresh inboxes from server
+    await this.fetchInboxes();
+    
+    // Log successful revalidation
+    console.log(`Inboxes store revalidated successfully. Count: ${this.inboxesCount}`);
+  }
 }
 
 // Export singleton instance
