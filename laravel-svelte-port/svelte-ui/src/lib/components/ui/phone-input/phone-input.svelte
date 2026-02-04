@@ -36,7 +36,7 @@
 
   // Sync picker selection back to country prop
   $effect(() => {
-    if (picker.selectedCountry && picker.selectedCountry.code !== country) {
+    if (picker.selectedCountry && picker.selectedCountry.code && picker.selectedCountry.code !== country) {
       country = picker.selectedCountry.code;
     }
   });
@@ -50,7 +50,7 @@
   
   // Watch for external country changes
   $effect(() => {
-    if (country && picker.selectedCountry.code !== country) {
+    if (country && picker.selectedCountry && picker.selectedCountry.code !== country) {
       const found = picker.countryList.find(c => c.code === country);
       if (found) {
         picker.selectCountry(found);
@@ -63,7 +63,9 @@
 
   function handleSelect(currentValue: string) {
     // cmdk/bits-ui often normalizes values to lowercase
-    const selected = picker.countryList.find((c) => c.name.toLowerCase() === currentValue.toLowerCase());
+    const selected = picker.countryList.find((c) => 
+      c.name && c.name.toLowerCase() === currentValue.toLowerCase()
+    );
     if (selected) {
       picker.selectCountry(selected);
     }
@@ -99,20 +101,22 @@
           <Command.Empty>No country found.</Command.Empty>
           <Command.Group>
             {#each picker.countryList as c (c.code)}
-              <Command.Item
-                value={c.name}
-                onSelect={handleSelect}
-              >
-                <Check
-                  class={cn(
-                    "mr-2 h-4 w-4",
-                    picker.selectedCountry.code === c.code ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                <span class="mr-2 text-lg">{c.flag}</span>
-                {c.name}
-                <span class="ml-auto text-muted-foreground">{c.dialCode}</span>
-              </Command.Item>
+              {#if c.name}
+                <Command.Item
+                  value={c.name}
+                  onSelect={handleSelect}
+                >
+                  <Check
+                    class={cn(
+                      "mr-2 h-4 w-4",
+                      picker.selectedCountry && picker.selectedCountry.code === c.code ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  <span class="mr-2 text-lg">{c.flag}</span>
+                  {c.name}
+                  <span class="ml-auto text-muted-foreground">{c.dialCode}</span>
+                </Command.Item>
+              {/if}
             {/each}
           </Command.Group>
         </Command.List>

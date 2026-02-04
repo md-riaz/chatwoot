@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,9 @@ Route::get('/', function () {
         'documentation' => '/api/documentation',
     ]);
 });
+
+// Broadcasting Auth Routes
+Broadcast::routes(['prefix' => 'api', 'middleware' => ['auth:sanctum']]);
 
 // SAML Authentication Routes
 use App\Http\Controllers\Api\V1\Auth\SamlController;

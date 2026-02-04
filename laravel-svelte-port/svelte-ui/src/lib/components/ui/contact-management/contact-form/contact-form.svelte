@@ -23,7 +23,7 @@
     phone: '',
     company: '',
     city: '',
-    countryCode: '',
+    countryCode: 'US', // Set default country to US
     description: '',
     tags: [] as string[],
     status: 'active',

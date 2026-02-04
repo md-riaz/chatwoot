@@ -78,8 +78,7 @@
           notificationsStore.fetchUnreadCount(authStore.currentAccountId)
         ]).catch(err => console.error('Failed to load initial data:', err));
         
-        // Initialize WebSocket
-        await initializeWebSocket();
+        // WebSocket initialization is handled by $effect below
       }
     } catch (error) {
       console.error('Session validation failed:', error);
@@ -142,7 +141,7 @@
         port: wsPort,
         key: reverbKey,
         forceTLS: useTLS,
-        authEndpoint: `${import.meta.env.VITE_API_BASE_URL || DEFAULT_API_URL}/api/broadcasting/auth`,
+        authEndpoint: `${import.meta.env.VITE_API_BASE_URL || DEFAULT_API_URL}/broadcasting/auth`,
         auth: {
           headers: {
             Authorization: `Bearer ${token}`,

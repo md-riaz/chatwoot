@@ -39,7 +39,7 @@ export class ReverbClient {
    */
   connect(): void {
     if (this.pusher) {
-      console.warn('Reverb client already connected');
+      // Client already connected, no action needed
       return;
     }
 
