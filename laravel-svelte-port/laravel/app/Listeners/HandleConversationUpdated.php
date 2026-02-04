@@ -4,12 +4,12 @@ namespace App\Listeners;
 
 use App\Events\Conversation\ConversationUpdated;
 use App\Jobs\Webhooks\SendWebhooksJob;
-use Illuminate\Contracts\Logging\Log as LogContract;
+use Psr\Log\LoggerInterface;
 use function Spatie\Activitylog\activity;
 
 class HandleConversationUpdated
 {
-    public function __construct(private LogContract $log) {}
+    public function __construct(private LoggerInterface $log) {}
 
     public function handle(ConversationUpdated $event): void
     {

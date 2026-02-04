@@ -141,7 +141,7 @@
         port: wsPort,
         key: reverbKey,
         forceTLS: useTLS,
-        authEndpoint: `${import.meta.env.VITE_API_BASE_URL || DEFAULT_API_URL}/broadcasting/auth`,
+        authEndpoint: `${import.meta.env.VITE_API_BASE_URL || DEFAULT_API_URL}/api/v1/broadcasting/auth`,
         auth: {
           headers: {
             Authorization: `Bearer ${token}`,

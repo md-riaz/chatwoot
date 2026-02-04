@@ -6,12 +6,12 @@ use App\Events\Message\MessageCreated;
 use App\Events\Message\MessageDeleted;
 use App\Events\Message\MessageUpdated;
 use App\Jobs\Webhooks\SendWebhooksJob;
-use Illuminate\Contracts\Logging\Log as LogContract;
+use Psr\Log\LoggerInterface;
 use function Spatie\Activitylog\activity;
 
 class HandleMessageLifecycle
 {
-    public function __construct(private LogContract $log) {}
+    public function __construct(private LoggerInterface $log) {}
 
     public function handle(MessageCreated|MessageUpdated|MessageDeleted $event): void
     {

@@ -290,7 +290,8 @@ Route::prefix('platform')->middleware(['platform.app.auth'])->group(function () 
 // Uses ValidateBotAccess middleware to restrict bot access to specific endpoints
 Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
     // Broadcasting authentication for WebSocket channels
-    Broadcast::routes();
+    // Explicitly set middleware to avoid default 'web' middleware which causes CSRF issues
+    Broadcast::routes(['middleware' => ['auth:sanctum']]);
     
     // Auth routes
     Route::prefix('auth')->group(function () {

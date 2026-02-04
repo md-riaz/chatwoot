@@ -16,7 +16,8 @@ export function transformContactFromApi(rawContact: any): Contact {
   // Create base contact object
   const contact = {
     ...rawContact,
-    // Ensure timestamps are numbers (Rails sends Unix timestamps)
+    // Ensure id and timestamps are numbers (API may return strings)
+    id: rawContact.id !== undefined ? Number(rawContact.id) : undefined,
     lastActivityAt: rawContact.lastActivityAt ? Number(rawContact.lastActivityAt) : null,
     createdAt: Number(rawContact.createdAt),
     updatedAt: rawContact.updatedAt ? Number(rawContact.updatedAt) : undefined,

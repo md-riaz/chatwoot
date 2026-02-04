@@ -8,12 +8,12 @@ use App\Actions\Sla\DispatchSlaTimersAction;
 use App\Jobs\Conversations\RunAutoAssignConversationJob;
 use App\Jobs\Conversations\CreateActivityMessageJob;
 use App\Jobs\Webhooks\SendWebhooksJob;
-use Illuminate\Contracts\Logging\Log as LogContract;
+use Psr\Log\LoggerInterface;
 use function Spatie\Activitylog\activity;
 
 class HandleConversationCreated
 {
-    public function __construct(private LogContract $log) {}
+    public function __construct(private LoggerInterface $log) {}
 
     public function handle(ConversationCreated $event): void
     {

@@ -21,10 +21,9 @@ class SendWebhooksJob implements ShouldQueue
 
     public int $timeout = 120;
 
-    public string $queue = 'webhooks';
-
     public function __construct(public int $accountId, public string $eventName, public array $payload = [])
     {
+        $this->onQueue('webhooks');
     }
 
     public function handle(): void

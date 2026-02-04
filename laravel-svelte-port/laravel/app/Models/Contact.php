@@ -31,6 +31,7 @@ class Contact extends Model implements HasMedia, Authenticatable
         'blocked',
         'country_code',
         'location', // Rails pattern: synced from additional_attributes['city']
+        'contact_type', // Rails pattern: 0=visitor, 1=lead, 2=customer
     ];
 
     protected $casts = [

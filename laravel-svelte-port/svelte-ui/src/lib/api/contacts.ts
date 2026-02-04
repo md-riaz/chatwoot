@@ -198,8 +198,9 @@ export async function getContact(
   accountId: number,
   contactId: number
 ): Promise<Contact> {
-  const rawContact = await api.get(`api/v1/accounts/${accountId}/contacts/${contactId}`).json();
-  return transformContactFromApi(rawContact);
+  const raw = await api.get(`api/v1/accounts/${accountId}/contacts/${contactId}`).json();
+  const contactPayload = raw?.data ?? raw;
+  return transformContactFromApi(contactPayload);
 }
 
 /**
@@ -212,13 +213,14 @@ export async function createContact(
   // Transform data to Rails-compatible format
   const apiData = transformContactForApi(params);
   
-  const rawContact = await api
+  const raw = await api
     .post(`api/v1/accounts/${accountId}/contacts`, {
       json: apiData,
     })
     .json();
 
-  return transformContactFromApi(rawContact);
+  const contactPayload = raw?.data ?? raw;
+  return transformContactFromApi(contactPayload);
 }
 
 /**
@@ -246,24 +248,26 @@ export async function updateContact(
       }
     });
 
-    const rawContact = await api
+    const raw = await api
       .patch(`api/v1/accounts/${accountId}/contacts/${contactId}`, {
         body: formData,
       })
       .json();
 
-    return transformContactFromApi(rawContact);
+    const contactPayload = raw?.data ?? raw;
+    return transformContactFromApi(contactPayload);
   }
 
   // Otherwise use JSON with Rails-compatible format
   const apiData = transformContactForApi(params);
-  const rawContact = await api
+  const raw = await api
     .patch(`api/v1/accounts/${accountId}/contacts/${contactId}`, {
       json: apiData,
     })
     .json();
 
-  return transformContactFromApi(rawContact);
+  const contactPayload = raw?.data ?? raw;
+  return transformContactFromApi(contactPayload);
 }
 
 /**
@@ -283,11 +287,12 @@ export async function deleteContactAvatar(
   accountId: number,
   contactId: number
 ): Promise<Contact> {
-  const rawContact = await api
+  const raw = await api
     .delete(`api/v1/accounts/${accountId}/contacts/${contactId}/avatar`)
     .json();
 
-  return transformContactFromApi(rawContact);
+  const contactPayload = raw?.data ?? raw;
+  return transformContactFromApi(contactPayload);
 }
 
 /**
@@ -310,13 +315,14 @@ export async function mergeContacts(
   primaryContactId: number,
   secondaryContactId: number
 ): Promise<Contact> {
-  const rawContact = await api
+  const raw = await api
     .post(`api/v1/accounts/${accountId}/contacts/${primaryContactId}/merge`, {
       json: { child_contact_id: secondaryContactId },
     })
     .json();
 
-  return transformContactFromApi(rawContact);
+  const contactPayload = raw?.data ?? raw;
+  return transformContactFromApi(contactPayload);
 }
 
 /**

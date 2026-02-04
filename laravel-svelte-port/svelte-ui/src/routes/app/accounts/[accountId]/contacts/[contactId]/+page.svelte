@@ -27,6 +27,11 @@
     PanelRightOpen,
     Check,
     Merge,
+    Facebook,
+    Twitter,
+    Linkedin,
+    Instagram,
+    Github,
   } from 'lucide-svelte';
 
   // UI Components
@@ -64,6 +69,7 @@
   );
   let showEditDialog = $state(false);
   let showDeleteDialog = $state(false);
+  let contactFormInstance = $state<any>(null);
   let showMobileSidebar = $state(false);
   let isUpdating = $state(false);
   let isDeleting = $state(false);
@@ -193,6 +199,33 @@
       contactsStore.selectContact(contactId);
     }
   });
+
+  // Social profiles computed (merge common keys)
+  const socialProfiles = $derived(
+    (contact && {
+      ...(contact.additionalAttributes?.social_profiles || {}),
+      twitter: contact?.additionalAttributes?.screen_name || null,
+      telegram: contact?.additionalAttributes?.social_telegram_user_name || null,
+    }) || {}
+  );
+
+  const socialMediaLinks = [
+    { key: 'facebook', icon: Facebook, link: 'https://facebook.com/' },
+    { key: 'twitter', icon: Twitter, link: 'https://twitter.com/' },
+    { key: 'linkedin', icon: Linkedin, link: 'https://linkedin.com/in/' },
+    { key: 'github', icon: Github, link: 'https://github.com/' },
+    { key: 'instagram', icon: Instagram, link: 'https://instagram.com/' },
+    { key: 'telegram', icon: MessageCircle, link: 'https://t.me/' },
+  ];
+
+  function formatAttributeKey(k: string) {
+    // Convert snake_case to camelCase-like display (basic)
+    return k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function formatSocialLabel(k: string) {
+    return k.charAt(0).toUpperCase() + k.slice(1);
+  }
 </script>
 
 <div class="h-full flex flex-col bg-background">
@@ -388,6 +421,23 @@
               {/if}
             </div>
 
+            {#if Object.keys(socialProfiles || {}).length > 0}
+              <div class="mt-3 flex items-center gap-3">
+                {#each socialMediaLinks as media}
+                  {#if socialProfiles[media.key]}
+                    <a
+                      href={media.link + socialProfiles[media.key]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-muted-foreground hover:text-foreground"
+                    >
+                      <svelte:component this={media.icon} class="h-5 w-5" />
+                    </a>
+                  {/if}
+                {/each}
+              </div>
+            {/if}
+
             <div
               class="flex items-center gap-6 mt-4 text-sm text-muted-foreground"
             >
@@ -501,12 +551,29 @@
               <h3 class="font-medium mb-3">Additional Attributes</h3>
               {#if contact.additionalAttributes && Object.keys(contact.additionalAttributes).length > 0}
                 <div class="space-y-3">
-                  {#each Object.entries(contact.additionalAttributes) as [key, value]}
-                    <div class="text-sm">
-                      <span class="text-muted-foreground">{key}:</span>
-                      <span class="ml-2">{value}</span>
-                    </div>
-                  {/each}
+                      {#each Object.entries(contact.additionalAttributes) as [key, value]}
+                        <div class="text-sm">
+                          <span class="text-muted-foreground">{formatAttributeKey(key)}:</span>
+                          {#if value === null || value === ''}
+                            <span class="ml-2">-</span>
+                          {:else if typeof value === 'object'}
+                            {#if key === 'social_profiles'}
+                              <div class="ml-2 space-y-1">
+                                {#each Object.entries(value) as [sk, sv]}
+                                  <div class="flex items-center gap-2">
+                                    <span class="text-sm text-muted-foreground">{formatSocialLabel(sk)}:</span>
+                                    <a class="text-sm text-blue-600 underline" href={String(sv).startsWith('http') ? sv : `https://${String(sv)}`} target="_blank" rel="noopener noreferrer">{sv}</a>
+                                  </div>
+                                {/each}
+                              </div>
+                            {:else}
+                              <pre class="ml-2 whitespace-pre-wrap">{JSON.stringify(value)}</pre>
+                            {/if}
+                          {:else}
+                            <span class="ml-2">{value}</span>
+                          {/if}
+                        </div>
+                      {/each}
                 </div>
               {:else}
                 <p class="text-sm text-muted-foreground">
@@ -584,11 +651,28 @@
                 {#if contact.additionalAttributes && Object.keys(contact.additionalAttributes).length > 0}
                   <div class="space-y-3">
                     {#each Object.entries(contact.additionalAttributes) as [key, value]}
-                      <div class="text-sm">
-                        <span class="text-muted-foreground">{key}:</span>
-                        <span class="ml-2">{value}</span>
-                      </div>
-                    {/each}
+                          <div class="text-sm">
+                            <span class="text-muted-foreground">{formatAttributeKey(key)}:</span>
+                            {#if value === null || value === ''}
+                              <span class="ml-2">-</span>
+                            {:else if typeof value === 'object'}
+                              {#if key === 'social_profiles'}
+                                <div class="ml-2 space-y-1">
+                                  {#each Object.entries(value) as [sk, sv]}
+                                    <div class="flex items-center gap-2">
+                                      <span class="text-sm text-muted-foreground">{formatSocialLabel(sk)}:</span>
+                                      <a class="text-sm text-blue-600 underline" href={String(sv).startsWith('http') ? sv : `https://${String(sv)}`} target="_blank" rel="noopener noreferrer">{sv}</a>
+                                    </div>
+                                  {/each}
+                                </div>
+                              {:else}
+                                <pre class="ml-2 whitespace-pre-wrap">{JSON.stringify(value)}</pre>
+                              {/if}
+                            {:else}
+                              <span class="ml-2">{value}</span>
+                            {/if}
+                          </div>
+                        {/each}
                   </div>
                 {:else}
                   <p class="text-sm text-muted-foreground">
@@ -639,11 +723,21 @@
       </Dialog.Header>
       {#if contact}
         <ContactForm
+          bind:this={contactFormInstance}
           {contact}
           on:save={handleUpdateContact}
           on:cancel={() => (showEditDialog = false)}
           serverErrors={contactsStore.validationErrors}
         />
+
+        <Dialog.Footer>
+          <Button variant="ghost" onclick={() => (showEditDialog = false)}>
+            Cancel
+          </Button>
+          <Button onclick={() => contactFormInstance?.submit()} disabled={isUpdating}>
+            {isUpdating ? 'Saving...' : 'Save'}
+          </Button>
+        </Dialog.Footer>
       {/if}
     </Dialog.Content>
   </Dialog.Root>

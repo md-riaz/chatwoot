@@ -26,7 +26,8 @@ Route::get('/', function () {
 });
 
 // Broadcasting Auth Routes
-Broadcast::routes(['prefix' => 'api', 'middleware' => ['auth:sanctum']]);
+// Defined in routes/api.php with correct middleware
+// Broadcast::routes(['prefix' => 'api', 'middleware' => ['auth:sanctum']]);
 
 // SAML Authentication Routes
 use App\Http\Controllers\Api\V1\Auth\SamlController;

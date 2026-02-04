@@ -5,12 +5,12 @@ namespace App\Listeners;
 use App\Events\Conversation\ConversationAssigned;
 use App\Jobs\Conversations\CreateActivityMessageJob;
 use App\Jobs\Webhooks\SendWebhooksJob;
-use Illuminate\Contracts\Logging\Log as LogContract;
+use Psr\Log\LoggerInterface;
 use function Spatie\Activitylog\activity;
 
 class HandleConversationAssigned
 {
-    public function __construct(private LogContract $log) {}
+    public function __construct(private LoggerInterface $log) {}
 
     public function handle(ConversationAssigned $event): void
     {

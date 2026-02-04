@@ -135,7 +135,7 @@ cd "$LARAVEL_DIR"
 # Install Composer dependencies
 if [ ! -d "vendor" ] || [ "composer.json" -nt "vendor/autoload.php" ]; then
     log "Installing/updating Composer dependencies..."
-    composer install
+    # composer install
     # Update timestamp to prevent re-running loop if composer didn't modify files
     touch vendor/autoload.php
 fi

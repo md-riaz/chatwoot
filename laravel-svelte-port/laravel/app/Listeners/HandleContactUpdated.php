@@ -5,12 +5,12 @@ namespace App\Listeners;
 use App\Events\Contact\ContactUpdated;
 use App\Jobs\Contacts\SyncContactJob;
 use App\Jobs\Webhooks\SendWebhooksJob;
-use Illuminate\Contracts\Logging\Log as LogContract;
+use Psr\Log\LoggerInterface;
 use function Spatie\Activitylog\activity;
 
 class HandleContactUpdated
 {
-    public function __construct(private LogContract $log) {}
+    public function __construct(private LoggerInterface $log) {}
 
     public function handle(ContactUpdated $event): void
     {
@@ -22,11 +22,14 @@ class HandleContactUpdated
         // Emit webhooks for 'contact_updated'
         SendWebhooksJob::dispatch($contact->account_id, 'contact_updated', ['contact_id' => $contact->id]);
 
-        activity()
-            ->performedOn($contact)
-            ->withProperties(['event' => 'contact_updated'])
-            ->event('contact_updated')
-            ->log('Contact updated');
+        \Spatie\Activitylog\Models\Activity::create([
+            'log_name' => 'default',
+            'description' => 'Contact updated',
+            'subject_type' => get_class($contact),
+            'subject_id' => $contact->id,
+            'event' => 'contact_updated',
+            'properties' => ['event' => 'contact_updated'],
+        ]);
 
         $this->log->info('HandleContactUpdated dispatched side-effects', ['contact_id' => $contact->id]);
     }
