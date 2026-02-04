@@ -11,33 +11,14 @@
   import CountrySelect from '$lib/components/ui/country-select/country-select.svelte';
   import PhoneInput from '$lib/components/ui/phone-input/phone-input.svelte';
   import type { Contact } from '$lib/api/contacts';
+  import { extractContactFormData, transformFormDataToApi } from '$lib/utils/contact-data';
 
   let { contact = null, serverErrors = {} } = $props<{ contact?: Contact | null, serverErrors?: Record<string, string> }>();
 
   const dispatch = createEventDispatcher();
 
-  let form = $state({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    company: '',
-    city: '',
-    countryCode: 'US', // Set default country to US
-    description: '',
-    tags: [] as string[],
-    status: 'active',
-    socialProfiles: {
-      facebook: '',
-      twitter: '',
-      linkedin: '',
-      github: '',
-      instagram: ''
-    } as Record<string, string>
-  });
-  
+  let form = $state(extractContactFormData(contact));
   let phoneCountry = $state('US');
-
   let avatarFile = $state<File | null>(null);
   let avatarPreview = $state<string | null>(null);
   let errors = $state<Record<string, string>>({});
@@ -52,27 +33,10 @@
   ];
 
   $effect(() => {
+    // Update form when contact changes
+    form = extractContactFormData(contact);
+    
     if (contact) {
-      form = {
-        firstName: contact.name ? contact.name.split(' ')[0] : '',
-        lastName: contact.name ? contact.name.split(' ').slice(1).join(' ') : '',
-        email: contact.email || '',
-        phone: contact.phoneNumber || '',
-        company: typeof contact.company === 'string' ? contact.company : (contact.company?.name || ''),
-        city: contact.city || '',
-        countryCode: contact.countryCode || '',
-        description: contact.additionalAttributes?.description || '',
-        tags: contact.tags || [],
-        status: 'active',
-        socialProfiles: {
-          facebook: '',
-          twitter: '',
-          linkedin: '',
-          github: '',
-          instagram: '',
-          ...(contact.additionalAttributes?.social_profiles || {})
-        }
-      };
       if (contact.countryCode) {
         phoneCountry = contact.countryCode.toUpperCase();
       }
@@ -130,31 +94,11 @@
   export function submit() {
     if (!validate()) return;
     
-    // Filter out empty social profiles
-    const activeSocialProfiles = Object.entries(form.socialProfiles)
-      .filter(([_, value]) => value && value.trim() !== '')
-      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-
-    // Transform form data to match API expectation
-    const payload: any = {
-      name: `${form.firstName} ${form.lastName}`.trim(),
-      email: form.email,
-      phoneNumber: form.phone,
-      company: form.company,
-      city: form.city,
-      countryCode: form.countryCode,
-      additionalAttributes: {
-        description: form.description,
-        company_name: form.company,
-        city: form.city,
-        country_code: form.countryCode,
-        social_profiles: activeSocialProfiles
-      },
-      customAttributes: {}
-    };
+    // Transform form data to Rails-compatible API format
+    const payload = transformFormDataToApi(form);
 
     if (avatarFile) {
-      payload._avatarFile = avatarFile;
+      payload.avatar = avatarFile;
     }
     
     dispatch('save', payload);
@@ -211,24 +155,24 @@
     <div class="space-y-2">
       <Label for="contact-company">Company</Label>
       <Input id="contact-company" bind:value={form.company} placeholder="Company name" />
-      {#if serverErrors.company_name || serverErrors.company}
-        <p class="text-xs text-destructive">{serverErrors.company_name || serverErrors.company}</p>
+      {#if serverErrors.company_name || serverErrors['additional_attributes.company_name'] || serverErrors.company}
+        <p class="text-xs text-destructive">{serverErrors.company_name || serverErrors['additional_attributes.company_name'] || serverErrors.company}</p>
       {/if}
     </div>
     
     <div class="space-y-2">
       <Label for="contact-city">City</Label>
       <Input id="contact-city" bind:value={form.city} placeholder="City" />
-      {#if serverErrors.city}
-        <p class="text-xs text-destructive">{serverErrors.city}</p>
+      {#if serverErrors.city || serverErrors['additional_attributes.city']}
+        <p class="text-xs text-destructive">{serverErrors.city || serverErrors['additional_attributes.city']}</p>
       {/if}
     </div>
 
     <div class="space-y-2">
       <Label for="contact-country">Country</Label>
       <CountrySelect bind:value={form.countryCode} placeholder="Select country" />
-      {#if serverErrors.country_code}
-        <p class="text-xs text-destructive">{serverErrors.country_code}</p>
+      {#if serverErrors.country_code || serverErrors['additional_attributes.country_code']}
+        <p class="text-xs text-destructive">{serverErrors.country_code || serverErrors['additional_attributes.country_code']}</p>
       {/if}
     </div>
   </div>

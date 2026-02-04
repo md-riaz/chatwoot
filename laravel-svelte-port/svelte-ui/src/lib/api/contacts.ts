@@ -1,5 +1,6 @@
 import { api, toSearchParams } from './client';
 import type { PaginatedResponse } from './types';
+import { transformContactFromApi, transformContactForApi } from '$lib/utils/contact-data';
 
 // Contact interfaces
 export interface Contact {
@@ -9,19 +10,23 @@ export interface Contact {
   email: string | null;
   phoneNumber: string | null;
   identifier: string | null;
-  avatarUrl: string | null;
+  blocked: boolean;
+  thumbnail: string | null; // Rails uses 'thumbnail' not 'avatarUrl'
   customAttributes: Record<string, any>;
   additionalAttributes: Record<string, any>;
-  lastActivityAt: string | null;
-  createdAt: string;
-  updatedAt?: string;
+  lastActivityAt: number | null; // Rails uses Unix timestamp
+  createdAt: number; // Rails uses Unix timestamp
+  updatedAt?: number; // Rails uses Unix timestamp
   conversationsCount?: number;
-  // Legacy support
-  thumbnail?: string | null;
-  company?: string | null;
-  city?: string | null;
-  country?: string | null;
-  countryCode?: string | null;
+  
+  // Computed properties from additionalAttributes (Rails pattern)
+  get city(): string | null;
+  get country(): string | null;
+  get countryCode(): string | null;
+  get company(): string | null;
+  get avatarUrl(): string | null; // Alias for thumbnail
+  
+  // Legacy support for backward compatibility
   availabilityStatus?: string | null;
   conversations?: any[];
   socialProfiles?: SocialProfile[];
@@ -46,9 +51,7 @@ export interface CreateContactParams {
   email?: string;
   phoneNumber?: string;
   identifier?: string;
-  company?: string;
-  city?: string;
-  countryCode?: string;
+  blocked?: boolean;
   customAttributes?: Record<string, any>;
   additionalAttributes?: Record<string, any>;
   socialProfiles?: Partial<SocialProfile>[];
@@ -56,7 +59,6 @@ export interface CreateContactParams {
 
 export interface UpdateContactParams extends CreateContactParams {
   avatar?: File;
-  avatarUrl?: string;
 }
 
 export interface ContactFilterParams {
@@ -94,11 +96,17 @@ export async function getContacts(
   accountId: number,
   params: ContactListParams = {}
 ): Promise<PaginatedResponse<Contact>> {
-  return api
+  const response = await api
     .get(`api/v1/accounts/${accountId}/contacts`, {
       searchParams: toSearchParams(params),
     })
     .json();
+
+  // Transform contacts to add computed properties
+  return {
+    ...response,
+    data: response.data?.map(transformContactFromApi) || [],
+  };
 }
 
 /**
@@ -110,11 +118,17 @@ export async function searchContacts(
   page = 1,
   perPage = 15
 ): Promise<PaginatedResponse<Contact>> {
-  return api
+  const response = await api
     .get(`api/v1/accounts/${accountId}/contacts/search`, {
       searchParams: toSearchParams({ q: query, page, per_page: perPage }),
     })
     .json();
+
+  // Transform contacts to add computed properties
+  return {
+    ...response,
+    data: response.data?.map(transformContactFromApi) || [],
+  };
 }
 
 /**
@@ -144,11 +158,17 @@ export async function filterContacts(
     return filter;
   });
 
-  return api
+  const response = await api
     .post(`api/v1/accounts/${accountId}/contacts/filter?include_contact_inboxes=false&page=${page}&sort=${sortAttr}`, {
       json: { payload: transformedPayload },
     })
     .json();
+
+  // Transform contacts to add computed properties
+  return {
+    ...response,
+    data: response.data?.map(transformContactFromApi) || [],
+  };
 }
 
 /**
@@ -158,11 +178,17 @@ export async function getActiveContacts(
   accountId: number,
   params: ContactListParams = {}
 ): Promise<PaginatedResponse<Contact>> {
-  return api
+  const response = await api
     .get(`api/v1/accounts/${accountId}/contacts/active`, {
       searchParams: toSearchParams(params),
     })
     .json();
+
+  // Transform contacts to add computed properties
+  return {
+    ...response,
+    data: response.data?.map(transformContactFromApi) || [],
+  };
 }
 
 /**
@@ -172,7 +198,8 @@ export async function getContact(
   accountId: number,
   contactId: number
 ): Promise<Contact> {
-  return api.get(`api/v1/accounts/${accountId}/contacts/${contactId}`).json();
+  const rawContact = await api.get(`api/v1/accounts/${accountId}/contacts/${contactId}`).json();
+  return transformContactFromApi(rawContact);
 }
 
 /**
@@ -182,11 +209,16 @@ export async function createContact(
   accountId: number,
   params: CreateContactParams
 ): Promise<Contact> {
-  return api
+  // Transform data to Rails-compatible format
+  const apiData = transformContactForApi(params);
+  
+  const rawContact = await api
     .post(`api/v1/accounts/${accountId}/contacts`, {
-      json: params,
+      json: apiData,
     })
     .json();
+
+  return transformContactFromApi(rawContact);
 }
 
 /**
@@ -202,8 +234,9 @@ export async function updateContact(
     const formData = new FormData();
     formData.append('avatar', params.avatar);
 
-    // Add other fields
-    Object.entries(params).forEach(([key, value]) => {
+    // Transform other data to Rails format and add to FormData
+    const apiData = transformContactForApi(params);
+    Object.entries(apiData).forEach(([key, value]) => {
       if (key !== 'avatar' && value !== undefined) {
         if (typeof value === 'object') {
           formData.append(key, JSON.stringify(value));
@@ -213,19 +246,24 @@ export async function updateContact(
       }
     });
 
-    return api
+    const rawContact = await api
       .patch(`api/v1/accounts/${accountId}/contacts/${contactId}`, {
         body: formData,
       })
       .json();
+
+    return transformContactFromApi(rawContact);
   }
 
-  // Otherwise use JSON
-  return api
+  // Otherwise use JSON with Rails-compatible format
+  const apiData = transformContactForApi(params);
+  const rawContact = await api
     .patch(`api/v1/accounts/${accountId}/contacts/${contactId}`, {
-      json: params,
+      json: apiData,
     })
     .json();
+
+  return transformContactFromApi(rawContact);
 }
 
 /**
@@ -245,9 +283,11 @@ export async function deleteContactAvatar(
   accountId: number,
   contactId: number
 ): Promise<Contact> {
-  return api
+  const rawContact = await api
     .delete(`api/v1/accounts/${accountId}/contacts/${contactId}/avatar`)
     .json();
+
+  return transformContactFromApi(rawContact);
 }
 
 /**
@@ -270,11 +310,13 @@ export async function mergeContacts(
   primaryContactId: number,
   secondaryContactId: number
 ): Promise<Contact> {
-  return api
+  const rawContact = await api
     .post(`api/v1/accounts/${accountId}/contacts/${primaryContactId}/merge`, {
       json: { child_contact_id: secondaryContactId },
     })
     .json();
+
+  return transformContactFromApi(rawContact);
 }
 
 /**

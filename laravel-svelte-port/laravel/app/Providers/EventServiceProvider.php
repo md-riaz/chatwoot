@@ -151,5 +151,8 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         parent::boot();
+
+        // Register model observers
+        \App\Models\Contact::observe(\App\Observers\ContactObserver::class);
     }
 }

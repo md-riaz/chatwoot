@@ -26,8 +26,13 @@ class StoreContactRequest extends FormRequest
             'phone_number' => ['nullable', 'string', 'max:50'],
             'identifier' => ['nullable', 'string'],
             'avatar_url' => ['nullable', 'url'],
+            'blocked' => ['nullable', 'boolean'],
             'custom_attributes' => ['nullable', 'array'],
             'additional_attributes' => ['nullable', 'array'],
+            // Rails pattern: city and country_code are stored in additional_attributes
+            'additional_attributes.city' => ['nullable', 'string', 'max:255'],
+            'additional_attributes.country_code' => ['nullable', 'string', 'max:10'],
+            'additional_attributes.company_name' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

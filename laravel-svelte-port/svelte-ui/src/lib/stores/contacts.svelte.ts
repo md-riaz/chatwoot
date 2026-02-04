@@ -11,6 +11,7 @@ import type {
 import { saveToStorage, loadFromStorage, clearStorage } from './persistence';
 import { ApiError } from '$lib/api/errors';
 import { get } from 'svelte/store';
+import { transformContactFromApi } from '$lib/utils/contact-data';
 
 /**
  * Contacts Store using Svelte 5 runes
@@ -479,11 +480,13 @@ class ContactsStore {
    * Add or update contact (from WebSocket event)
    */
   addOrUpdateContact(contact: Contact): void {
-    const index = this.allContacts.findIndex((c) => c.id === contact.id);
+    // Ensure contact is properly transformed
+    const transformedContact = transformContactFromApi(contact);
+    const index = this.allContacts.findIndex((c) => c.id === transformedContact.id);
     if (index >= 0) {
-      this.allContacts[index] = contact;
+      this.allContacts[index] = transformedContact;
     } else {
-      this.allContacts.push(contact);
+      this.allContacts.push(transformedContact);
     }
   }
 

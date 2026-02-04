@@ -26,10 +26,8 @@ class ContactData extends Data
         public ?string $identifier,
         #[Nullable]
         public ?string $avatar_url,
-        #[Nullable, StringType, Max(255)]
-        public ?string $city,
-        #[Nullable, StringType, Max(10)]
-        public ?string $country_code,
+        #[Nullable]
+        public ?bool $blocked,
         public array|Optional $custom_attributes,
         public array|Optional $additional_attributes,
     ) {}
@@ -42,8 +40,12 @@ class ContactData extends Data
             'email' => ['nullable', 'email'],
             'phone_number' => ['nullable', 'string', 'max:50'],
             'identifier' => ['nullable', 'string'],
-            'city' => ['nullable', 'string', 'max:255'],
-            'country_code' => ['nullable', 'string', 'max:10'],
+            'blocked' => ['nullable', 'boolean'],
+            // Rails pattern: city and country_code stored in additional_attributes
+            'additional_attributes' => ['nullable', 'array'],
+            'additional_attributes.city' => ['nullable', 'string', 'max:255'],
+            'additional_attributes.country_code' => ['nullable', 'string', 'max:10'],
+            'additional_attributes.company_name' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

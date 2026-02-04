@@ -239,10 +239,37 @@ class ContactsController extends Controller
     {
         abort_unless($contact->account_id === $account->id, 404);
 
-        $updatedContact = UpdateContactAction::run(
-            $contact,
-            $request->only(['name', 'email', 'phone_number', 'identifier', 'avatar_url', 'custom_attributes', 'additional_attributes', 'blocked'])
-        );
+        // Validate the request data
+        $validatedData = $request->validate([
+            'name' => ['nullable', 'string', 'max:255'],
+            'email' => ['nullable', 'email'],
+            'phone_number' => ['nullable', 'string', 'max:50'],
+            'identifier' => ['nullable', 'string'],
+            'avatar_url' => ['nullable', 'url'],
+            'blocked' => ['nullable', 'boolean'],
+            'custom_attributes' => ['nullable', 'array'],
+            'additional_attributes' => ['nullable', 'array'],
+        ]);
+
+        // Rails pattern: merge additional_attributes instead of replacing
+        if (isset($validatedData['additional_attributes'])) {
+            $currentAdditionalAttributes = $contact->additional_attributes ?? [];
+            $validatedData['additional_attributes'] = array_merge(
+                $currentAdditionalAttributes,
+                $validatedData['additional_attributes']
+            );
+        }
+
+        // Rails pattern: merge custom_attributes instead of replacing
+        if (isset($validatedData['custom_attributes'])) {
+            $currentCustomAttributes = $contact->custom_attributes ?? [];
+            $validatedData['custom_attributes'] = array_merge(
+                $currentCustomAttributes,
+                $validatedData['custom_attributes']
+            );
+        }
+
+        $updatedContact = UpdateContactAction::run($contact, $validatedData);
 
         return new ContactResource($updatedContact);
     }

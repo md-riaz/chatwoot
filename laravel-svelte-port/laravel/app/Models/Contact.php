@@ -30,7 +30,7 @@ class Contact extends Model implements HasMedia, Authenticatable
         'last_activity_at',
         'blocked',
         'country_code',
-        'city',
+        'location', // Rails pattern: synced from additional_attributes['city']
     ];
 
     protected $casts = [
@@ -38,6 +38,12 @@ class Contact extends Model implements HasMedia, Authenticatable
         'additional_attributes' => 'array',
         'last_activity_at' => 'datetime',
         'blocked' => 'boolean',
+    ];
+
+    protected $attributes = [
+        'blocked' => false, // Default value for blocked field
+        'custom_attributes' => '[]',
+        'additional_attributes' => '[]',
     ];
 
     /**

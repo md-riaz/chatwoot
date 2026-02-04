@@ -80,8 +80,8 @@
   // Handle contact update
   async function handleUpdateContact(event: CustomEvent<any>) {
     const contactData = event.detail;
-    const avatarFile = contactData._avatarFile;
-    const { _avatarFile, ...apiData } = contactData;
+    const avatarFile = contactData.avatar;
+    const { avatar, ...apiData } = contactData;
 
     try {
       isUpdating = true;

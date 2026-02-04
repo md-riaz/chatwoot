@@ -3,17 +3,35 @@
 namespace App\Observers;
 
 use App\Models\Contact;
+use App\Services\Contact\ContactSyncAttributesService;
 
+/**
+ * Contact Observer
+ * 
+ * Handles contact model events and ensures data consistency.
+ * Matches Rails before_save :sync_contact_attributes callback.
+ */
 class ContactObserver
 {
+    /**
+     * Handle the Contact "saving" event.
+     * 
+     * Called before create and update operations.
+     * Matches Rails before_save callback.
+     */
+    public function saving(Contact $contact): void
+    {
+        // Sync attributes from additional_attributes to direct fields
+        $syncService = new ContactSyncAttributesService($contact);
+        $syncService->perform();
+    }
+
     /**
      * Handle the Contact "created" event.
      */
     public function created(Contact $contact): void
     {
-        if ($contact->company_id) {
-            $contact->company->updateContactsCount();
-        }
+        // Additional logic after contact creation if needed
     }
 
     /**
@@ -21,23 +39,7 @@ class ContactObserver
      */
     public function updated(Contact $contact): void
     {
-        // If company_id changed, update both old and new company counts
-        if ($contact->isDirty('company_id')) {
-            $originalCompanyId = $contact->getOriginal('company_id');
-            
-            // Update old company count
-            if ($originalCompanyId) {
-                $oldCompany = \App\Models\Company::find($originalCompanyId);
-                if ($oldCompany) {
-                    $oldCompany->updateContactsCount();
-                }
-            }
-            
-            // Update new company count
-            if ($contact->company_id) {
-                $contact->company->updateContactsCount();
-            }
-        }
+        // Additional logic after contact update if needed
     }
 
     /**
@@ -45,8 +47,6 @@ class ContactObserver
      */
     public function deleted(Contact $contact): void
     {
-        if ($contact->company_id) {
-            $contact->company->updateContactsCount();
-        }
+        // Additional cleanup logic if needed
     }
 }

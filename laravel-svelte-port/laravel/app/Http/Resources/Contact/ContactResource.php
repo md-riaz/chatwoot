@@ -16,12 +16,13 @@ class ContactResource extends JsonResource
             'email' => $this->email,
             'phone_number' => $this->phone_number,
             'identifier' => $this->identifier,
-            'avatar_url' => $this->getAvatarUrl(),
-            'custom_attributes' => $this->custom_attributes,
-            'additional_attributes' => $this->additional_attributes,
-            'last_activity_at' => $this->last_activity_at?->toISOString(),
-            'created_at' => $this->created_at?->toISOString(),
-            'updated_at' => $this->updated_at?->toISOString(),
+            'blocked' => $this->blocked,
+            'thumbnail' => $this->getAvatarUrl(), // Rails uses 'thumbnail' not 'avatar_url'
+            'custom_attributes' => $this->custom_attributes ?? [],
+            'additional_attributes' => $this->additional_attributes ?? [],
+            'last_activity_at' => $this->last_activity_at?->timestamp, // Rails uses timestamp not ISO string
+            'created_at' => $this->created_at?->timestamp,
+            'updated_at' => $this->updated_at?->timestamp,
 
             // Relationships (when loaded)
             'conversations_count' => $this->whenCounted('conversations'),
