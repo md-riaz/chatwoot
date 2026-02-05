@@ -21,12 +21,14 @@
     Save,
   } from 'lucide-svelte';
   import { contactsStore } from '$lib/stores/contacts.svelte';
-  import { debounce } from '$lib/utils';
+  import { debounce, cn } from '$lib/utils';
   import * as Avatar from '$lib/components/ui/avatar';
   import * as Card from '$lib/components/ui/card';
   import * as Dialog from '$lib/components/ui/dialog';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { Badge } from '$lib/components/ui/badge';
+  import { Flag } from '$lib/components/ui/flag';
+  import { toast } from 'svelte-sonner';
   import type { FilterCondition } from '$lib/constants/filter-types';
   import {
     buildFilterTypes,
@@ -260,9 +262,11 @@
           });
         }
         showCreateModal = false;
+        toast.success('Contact created successfully');
       }
     } catch (error) {
       console.error('Failed to create contact', error);
+      toast.error('Failed to create contact');
     } finally {
       isCreating = false;
     }
@@ -279,9 +283,13 @@
       const success = await contactsStore.bulkAssignLabels(contactIds, labels);
       if (success) {
         selectedIds = []; // Clear selection
+        toast.success('Labels assigned successfully');
+      } else {
+        toast.error('Failed to assign labels');
       }
     } catch (error) {
       console.error('Failed to assign labels', error);
+      toast.error('Failed to assign labels');
     } finally {
       isBulkProcessing = false;
     }
@@ -295,9 +303,13 @@
       if (success) {
         showDeleteDialog = false;
         selectedIds = []; // Clear selection
+        toast.success('Contacts deleted successfully');
+      } else {
+        toast.error('Failed to delete contacts');
       }
     } catch (error) {
       console.error('Failed to delete contacts', error);
+      toast.error('Failed to delete contacts');
     } finally {
       isBulkProcessing = false;
     }
@@ -650,9 +662,6 @@
                   <h3 class="font-medium truncate">
                     {contact.name || 'Unknown Contact'}
                   </h3>
-                  {#if contact.availabilityStatus === 'online'}
-                    <span class="h-2 w-2 rounded-full bg-green-500"></span>
-                  {/if}
                 </div>
                 {#if contact.email}
                   <p class="text-sm text-muted-foreground truncate">
@@ -685,8 +694,13 @@
               <div
                 class="hidden xl:flex items-center gap-2 text-sm text-muted-foreground w-32"
               >
-                {#if contact.city || contact.country}
+                {#if contact.countryCode}
+                  <Flag country={contact.countryCode} class="h-4 w-4 shrink-0 rounded-sm" />
+                {:else if contact.city || contact.country}
                   <MapPin class="h-3 w-3 shrink-0" />
+                {/if}
+                
+                {#if contact.city || contact.country}
                   <span class="truncate"
                     >{[contact.city, contact.country]
                       .filter(Boolean)

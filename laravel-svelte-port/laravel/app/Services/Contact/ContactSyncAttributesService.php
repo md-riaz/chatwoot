@@ -55,23 +55,16 @@ class ContactSyncAttributesService
      */
     private function setContactType(): void
     {
-        \Log::info('ContactSyncAttributesService::setContactType', [
-            'current_contact_type' => $this->contact->contact_type,
-            'email' => $this->contact->email,
-        ]);
-
         // If already a lead or customer, don't change
-        if ($this->contact->contact_type !== 0) { // 0 = visitor
-            \Log::info('ContactSyncAttributesService: Already lead or customer, not changing');
+        // Note: Handle null as visitor (0)
+        $currentType = $this->contact->contact_type ?? 0;
+        if ($currentType !== 0) { // 0 = visitor
             return;
         }
 
         // If has email, phone, or social details, promote to lead
         if ($this->hasIdentifyingInformation()) {
-            \Log::info('ContactSyncAttributesService: Promoting to lead');
             $this->contact->contact_type = 1; // 1 = lead
-        } else {
-            \Log::info('ContactSyncAttributesService: No identifying information, staying as visitor');
         }
     }
 
@@ -80,16 +73,8 @@ class ContactSyncAttributesService
      */
     private function hasIdentifyingInformation(): bool
     {
-        // Debug: Let's see what we're working with
-        \Log::info('ContactSyncAttributesService::hasIdentifyingInformation', [
-            'email' => $this->contact->email,
-            'phone_number' => $this->contact->phone_number,
-            'additional_attributes' => $this->contact->additional_attributes,
-        ]);
-
         // Has email or phone number
         if (!empty($this->contact->email) || !empty($this->contact->phone_number)) {
-            \Log::info('ContactSyncAttributesService: Has email or phone, returning true');
             return true;
         }
 
@@ -97,12 +82,10 @@ class ContactSyncAttributesService
         $additionalAttributes = $this->contact->additional_attributes ?? [];
         foreach ($additionalAttributes as $key => $value) {
             if (str_starts_with($key, 'social_') && !empty($value)) {
-                \Log::info('ContactSyncAttributesService: Has social details, returning true', ['key' => $key, 'value' => $value]);
                 return true;
             }
         }
 
-        \Log::info('ContactSyncAttributesService: No identifying information found, returning false');
         return false;
     }
 }

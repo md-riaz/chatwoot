@@ -237,14 +237,6 @@ class ContactApiTest extends TestCase
         $contact = Contact::where('email', 'test@example.com')->first();
         $this->assertNotNull($contact);
         
-        // Debug: Let's see what the contact looks like
-        dump([
-            'contact_type' => $contact->contact_type,
-            'email' => $contact->email,
-            'location' => $contact->location,
-            'additional_attributes' => $contact->additional_attributes,
-        ]);
-        
         // The ContactObserver should have promoted this to lead (1) because it has email
         $this->assertEquals(1, $contact->contact_type); // Should be promoted to lead
     }

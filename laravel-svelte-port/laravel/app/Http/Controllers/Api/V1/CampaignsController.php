@@ -115,4 +115,16 @@ class CampaignsController extends Controller
 
         return response()->json(null, 204);
     }
+
+    /**
+     * Toggle campaign status (enable/disable).
+     */
+    public function toggleStatus(Account $account, Campaign $campaign): JsonResponse
+    {
+        abort_unless($campaign->account_id === $account->id, 404);
+
+        $campaign->update(['enabled' => !$campaign->enabled]);
+
+        return response()->json(['data' => $campaign]);
+    }
 }

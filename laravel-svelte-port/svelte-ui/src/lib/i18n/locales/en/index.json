@@ -85,4 +85,16 @@
       "read": "Read"
     }
   }
+  ,
+  "SIDEBAR": {
+    "REPORTS_OVERVIEW": "Overview",
+    "REPORTS_CONVERSATION": "Conversation",
+    "REPORTS_AGENT": "Agent Reports",
+    "REPORTS_LABEL": "Label Reports",
+    "REPORTS_INBOX": "Inbox Reports",
+    "REPORTS_TEAM": "Team Reports",
+    "CSAT": "CSAT",
+    "REPORTS_SLA": "SLA",
+    "REPORTS_BOT": "Bot"
+  }
 }

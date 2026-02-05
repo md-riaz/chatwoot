@@ -222,6 +222,7 @@ Route::prefix('public')->group(function () {
 Route::prefix('widget')->group(function () {
     Route::post('config', [WidgetConfigsController::class, 'create']);
     Route::get('campaigns', [WidgetCampaignsController::class, 'index']);
+    Route::post('campaigns/trigger', [WidgetCampaignsController::class, 'trigger']);
     
     // Routes requiring widget token authentication
     Route::get('contact', [WidgetContactsController::class, 'show']);
@@ -450,6 +451,7 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
 
         // Campaigns
         Route::apiResource('campaigns', CampaignsController::class);
+        Route::post('campaigns/{campaign}/toggle_status', [CampaignsController::class, 'toggleStatus']);
 
         // Automation Rules
         Route::apiResource('automation_rules', AutomationRulesController::class);

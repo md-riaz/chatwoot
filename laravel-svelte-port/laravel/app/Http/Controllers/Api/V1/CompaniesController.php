@@ -80,14 +80,14 @@ class CompaniesController extends Controller
         return (new CompanyResource($company))->response()->setStatusCode(201);
     }
 
-    public function show(Account $account, Company $company): JsonResponse
+    public function show(Account $account, Company $company): CompanyResource
     {
         abort_unless($company->account_id === $account->id, 404);
 
         return new CompanyResource($company->load('contacts'));
     }
 
-    public function update(Request $request, Account $account, Company $company): JsonResponse
+    public function update(Request $request, Account $account, Company $company): CompanyResource
     {
         abort_unless($company->account_id === $account->id, 404);
 
