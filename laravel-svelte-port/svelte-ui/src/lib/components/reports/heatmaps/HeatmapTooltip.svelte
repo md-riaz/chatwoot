@@ -9,7 +9,7 @@
   let { visible, x, y, value }: Props = $props();
   
   // Position tooltip to avoid going off screen
-  const tooltipStyle = $derived(() => {
+  const tooltipStyle = $derived.by(() => {
     if (!visible) return 'display: none;';
     
     const offset = 10;

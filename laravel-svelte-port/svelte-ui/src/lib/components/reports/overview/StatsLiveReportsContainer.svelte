@@ -18,29 +18,22 @@
   let showTeamDropdown = $state(false);
   
   // Computed values
-  const selectedTeamLabel = $derived(() => {
-    if (!selectedTeam) return 'All Teams';
-    const team = teams.find(t => t.id === selectedTeam);
-    return team?.name || 'All Teams';
+  const selectedTeamLabel = $derived(
+    !selectedTeam 
+      ? 'All Teams' 
+      : teams.find(t => t.id === selectedTeam)?.name || 'All Teams'
+  );
+  
+  const conversationMetrics = $derived({
+    'Open': accountConversationMetric.open,
+    'Unattended': accountConversationMetric.unattended,
+    'Unassigned': accountConversationMetric.unassigned
   });
   
-  const conversationMetrics = $derived(() => {
-    const metric = accountConversationMetric;
-    return {
-      'Open': metric.open,
-      'Unattended': metric.unattended,
-      'Unassigned': metric.unassigned,
-      'Pending': metric.pending
-    };
-  });
-  
-  const agentStatusMetrics = $derived(() => {
-    const status = agentStatus;
-    return {
-      'Online': status.online,
-      'Busy': status.busy,
-      'Offline': status.offline
-    };
+  const agentStatusMetrics = $derived({
+    'Online': agentStatus.online,
+    'Busy': agentStatus.busy,
+    'Offline': agentStatus.offline
   });
   
   // Data fetching
@@ -77,7 +70,7 @@
   <!-- Conversation Metrics (65% width) -->
   <div class="flex-1 w-full max-w-full md:w-[65%] md:max-w-[65%] conversation-metric">
     <MetricCard
-      header="Account Conversations"
+      header="Open Conversations"
       isLive={true}
       isLoading={uiFlags.isFetchingAccountConversationMetric}
       loadingMessage="Loading conversation metrics..."
@@ -96,12 +89,12 @@
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content class="w-56">
-              <DropdownMenu.Item on:click={() => handleTeamSelect(null)}>
+              <DropdownMenu.Item onclick={() => handleTeamSelect(null)}>
                 All Teams
               </DropdownMenu.Item>
               <DropdownMenu.Separator />
               {#each teams as team}
-                <DropdownMenu.Item on:click={() => handleTeamSelect(team.id)}>
+                <DropdownMenu.Item onclick={() => handleTeamSelect(team.id)}>
                   {team.name}
                 </DropdownMenu.Item>
               {/each}
@@ -128,7 +121,7 @@
   <!-- Agent Status (35% width) -->
   <div class="flex-1 w-full max-w-full md:w-[35%] md:max-w-[35%]">
     <MetricCard
-      header="Agent Status"
+      header="Agent status"
       isLive={true}
       isLoading={uiFlags.isFetchingAgentStatus}
       loadingMessage="Loading agent status..."

@@ -48,27 +48,27 @@
   let showInboxDropdown = $state(false);
   
   // Computed values
-  const selectedRange = $derived(() => {
+  const selectedRange = $derived.by(() => {
     if (!selectedFrom || !selectedTo) return null;
     return { from: selectedFrom, to: selectedTo };
   });
   
-  const numberOfRows = $derived(() => {
-    if (!selectedRange) return 7;
-    const diffTime = selectedRange.to.getTime() - selectedRange.from.getTime();
+  const numberOfRows = $derived.by(() => {
+    const range = selectedRange;
+    if (!range) return 7;
+    const diffTime = range.to.getTime() - range.from.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return Math.min(diffDays + 1, 14); // Max 14 days for performance
   });
   
-  const selectedInboxFilter = $derived(() => {
-    if (!selectedInbox) return { label: 'All Inboxes' };
-    return { label: selectedInbox.name };
-  });
+  const selectedInboxFilter = $derived(
+    !selectedInbox ? { label: 'All Inboxes' } : { label: selectedInbox.name }
+  );
   
-  const isLoading = $derived(() => {
+  const isLoading = $derived(
     // @ts-ignore - Dynamic property access
-    return uiFlags[uiFlagKey] || false;
-  });
+    uiFlags[uiFlagKey] || false
+  );
   
   // Resolve active range for live refresh alignment
   function resolveActiveRange() {
@@ -228,12 +228,12 @@
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content class="w-56 max-h-96 overflow-y-auto">
-            <DropdownMenu.Item on:click={() => handleInboxSelect(null)}>
+            <DropdownMenu.Item onclick={() => handleInboxSelect(null)}>
               All Inboxes
             </DropdownMenu.Item>
             <DropdownMenu.Separator />
             {#each inboxes as inbox}
-              <DropdownMenu.Item on:click={() => handleInboxSelect(inbox)}>
+              <DropdownMenu.Item onclick={() => handleInboxSelect(inbox)}>
                 {inbox.name}
               </DropdownMenu.Item>
             {/each}

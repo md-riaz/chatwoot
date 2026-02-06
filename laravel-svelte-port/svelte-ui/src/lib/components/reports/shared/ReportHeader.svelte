@@ -1,26 +1,38 @@
 <script lang="ts">
-  import { BarChart3 } from 'lucide-svelte';
-  
   interface Props {
     headerTitle: string;
-    subtitle?: string;
+    headerDescription?: string;
+    hasBackButton?: boolean;
   }
   
-  let { headerTitle, subtitle = 'Monitor team performance and conversation metrics' }: Props = $props();
+  let { 
+    headerTitle, 
+    headerDescription = '', 
+    hasBackButton = false 
+  }: Props = $props();
 </script>
 
-<div class="header mb-6 border-b border-slate-200 dark:border-slate-700 pb-6">
-  <div class="flex items-start justify-between gap-4">
-    <div class="flex-1">
-      <div class="flex items-center gap-3 mb-2">
-        <BarChart3 class="h-8 w-8 text-blue-600" />
-        <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">
+<section class="flex flex-col gap-1 pt-10 pb-5">
+  {#if hasBackButton}
+    <div>
+      <!-- BackButton component would go here if needed -->
+    </div>
+  {/if}
+  <div class="flex justify-between w-full gap-5">
+    <div class="flex flex-col gap-2">
+      <div>
+        <span class="text-xl font-medium text-slate-900 dark:text-slate-100">
           {headerTitle}
-        </h1>
+        </span>
+        {#if headerDescription}
+          <p class="text-slate-900 dark:text-slate-100 mt-2">
+            {headerDescription}
+          </p>
+        {/if}
       </div>
-      <p class="text-slate-600 dark:text-slate-400">
-        {subtitle}
-      </p>
+    </div>
+    <div class="flex-shrink-0">
+      <slot />
     </div>
   </div>
-</div>
+</section>

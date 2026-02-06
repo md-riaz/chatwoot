@@ -8,29 +8,15 @@
   import TeamLiveReportContainer from '$lib/components/reports/overview/TeamLiveReportContainer.svelte';
 </script>
 
-<div class="reports-page">
-  <ReportHeader headerTitle="Reports & Analytics" />
-  
-  <div class="flex flex-col gap-4 pb-6">
-    <!-- Stats Section (Account Metrics + Agent Status) -->
-    <StatsLiveReportsContainer />
-    
-    <!-- Heatmap Visualizations -->
-    <ConversationHeatmapContainer />
-    <ResolutionHeatmapContainer />
-    
-    <!-- Agent Performance Table -->
-    <AgentLiveReportContainer />
-    
-    <!-- Team Performance Table -->
-    <TeamLiveReportContainer />
+<div class="h-full flex flex-col bg-background">
+  <div class="w-full mx-auto max-w-[80rem] px-6">
+    <ReportHeader headerTitle="Overview" />
+    <div class="flex flex-col gap-4 pb-6">
+      <StatsLiveReportsContainer />
+      <ConversationHeatmapContainer />
+      <ResolutionHeatmapContainer />
+      <AgentLiveReportContainer />
+      <TeamLiveReportContainer />
+    </div>
   </div>
 </div>
-
-<style>
-  .reports-page {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem;
-  }
-</style>

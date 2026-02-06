@@ -38,7 +38,7 @@
   ];
   
   // Current selection label
-  const selectionLabel = $derived(() => {
+  const selectionLabel = $derived.by(() => {
     if (rangeType === 'preset') {
       const preset = presetOptions.find(p => p.value === selectedPreset);
       return preset?.label || 'Last 7 days';
@@ -138,14 +138,14 @@
       </Button>
     </DropdownMenu.Trigger>
     <DropdownMenu.Content class="w-56">
-      <DropdownMenu.Item on:click={() => handlePresetSelect('last_7_days')}>
+      <DropdownMenu.Item onclick={() => handlePresetSelect('last_7_days')}>
         Last 7 days
       </DropdownMenu.Item>
-      <DropdownMenu.Item on:click={() => handlePresetSelect('this_month')}>
+      <DropdownMenu.Item onclick={() => handlePresetSelect('this_month')}>
         This month
       </DropdownMenu.Item>
       <DropdownMenu.Separator />
-      <DropdownMenu.Item on:click={() => showCustomDates = true}>
+      <DropdownMenu.Item onclick={() => showCustomDates = true}>
         <Calendar class="mr-2 h-4 w-4" />
         Custom range...
       </DropdownMenu.Item>

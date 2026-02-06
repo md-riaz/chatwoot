@@ -17,7 +17,7 @@
   let { agent }: Props = $props();
   
   const displayName = $derived(agent.availableName || agent.name);
-  const initials = $derived(() => {
+  const initials = $derived.by(() => {
     return displayName
       .split(' ')
       .map(n => n[0])
@@ -33,9 +33,9 @@
     offline: 'bg-gray-400'
   };
   
-  const statusColor = $derived(() => {
-    return statusColors[agent.availabilityStatus || 'offline'];
-  });
+  const statusColor = $derived(
+    statusColors[agent.availabilityStatus || 'offline']
+  );
 </script>
 
 <div class="flex items-center text-left">

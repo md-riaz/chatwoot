@@ -54,7 +54,7 @@
   });
   
   // Calculate quantile ranges for color intensity
-  const quantileRange = $derived(() => {
+  const quantileRange = $derived.by(() => {
     const flattenedData = heatmapData.map(data => data.value);
     return getQuantileIntervals(flattenedData, [0.2, 0.4, 0.6, 0.8, 0.9, 0.99]);
   });

@@ -45,7 +45,7 @@
   }
   
   // Transform data for table
-  const tableData = $derived(() => {
+  const tableData = $derived.by(() => {
     return agents
       .map(agent => {
         const metrics = getAgentMetrics(agent.id);
@@ -71,13 +71,13 @@
   // Pagination
   const totalItems = $derived(tableData.length);
   const totalPages = $derived(Math.ceil(totalItems / pageSize));
-  const paginatedData = $derived(() => {
+  const paginatedData = $derived.by(() => {
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
     return tableData.slice(start, end);
   });
   
-  const pagination = $derived(() => ({
+  const pagination = $derived.by(() => ({
     page: currentPage,
     perPage: pageSize,
     total: totalItems
