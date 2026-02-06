@@ -33,8 +33,7 @@
   async function markAccountForDeletion() {
     isUpdating = true;
     try {
-      // TODO: Implement API call
-      // await accountsStore.toggleDeletion('delete');
+      await authStore.toggleAccountDeletion('delete');
        toast.success($_('GENERAL_SETTINGS.ACCOUNT_DELETE_SECTION.SUCCESS'));
        showDeletePopup = false;
     } catch (error) {
@@ -47,8 +46,7 @@
   async function clearDeletionMark() {
      isUpdating = true;
     try {
-      // TODO: Implement API call
-      // await accountsStore.toggleDeletion('undelete');
+      await authStore.toggleAccountDeletion('undelete');
        toast.success($_('GENERAL_SETTINGS.UPDATE.SUCCESS'));
     } catch (error) {
        toast.error($_('GENERAL_SETTINGS.UPDATE.ERROR'));

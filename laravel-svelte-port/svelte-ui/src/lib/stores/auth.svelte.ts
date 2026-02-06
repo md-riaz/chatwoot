@@ -7,6 +7,7 @@ import { goto } from '$app/navigation';
 import { page } from '$app/state';
 import type { AvailabilityUpdateParams, CurrentUser, PasswordUpdateParams, ProfileUpdateParams } from '$lib/api/auth';
 import * as authAPI from '$lib/api/auth';
+import * as accountsAPI from '$lib/api/accounts';
 import { clearStorage, loadFromStorage, saveToStorage } from './persistence';
 import { ROLES, AVAILABLE_CUSTOM_ROLE_PERMISSIONS } from '$lib/constants/permissions';
 import { globalConfig } from '$lib/stores/globalConfig.svelte';
@@ -346,6 +347,55 @@ class AuthStore {
     } catch (err) {
       // Ignore error
       console.error('Resend confirmation error:', err);
+    }
+  }
+
+  /**
+   * Update account details
+   */
+  async updateAccount(params: accountsAPI.UpdateAccountParams) {
+    if (!this.currentAccountId) return;
+    
+    try {
+      const updatedAccount = await accountsAPI.update(this.currentAccountId, params);
+      
+      // Update the account in the accounts list
+      const accounts = this.currentUser.accounts.map(account => {
+        if (account.id === this.currentAccountId) {
+          return {
+            ...account,
+            ...updatedAccount
+          };
+        }
+        return account;
+      });
+      
+      this.currentUser = {
+        ...this.currentUser,
+        accounts
+      };
+      
+      this.persistUser();
+      this.error = null;
+      return updatedAccount;
+    } catch (err: any) {
+      this.error = err.message || 'Failed to update account';
+      throw err;
+    }
+  }
+
+  /**
+   * Toggle account deletion
+   */
+  async toggleAccountDeletion(actionType: 'delete' | 'undelete') {
+    if (!this.currentAccountId) return;
+    try {
+      await accountsAPI.toggleDeletion(this.currentAccountId, actionType);
+      // Refresh user/account data to reflect changes
+      await this.validityCheck();
+    } catch (err: any) {
+      this.error = err.message || 'Failed to toggle account deletion';
+      throw err;
     }
   }
   

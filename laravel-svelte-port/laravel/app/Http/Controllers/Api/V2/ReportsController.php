@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V2;
 
+use App\Actions\Reports\GetHeatmapDataAction;
+use App\Actions\Reports\ExportConversationTrafficAction;
 use App\Http\Controllers\Api\V1\Concerns\RequiresAccountAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
@@ -18,18 +20,40 @@ class ReportsController extends Controller
     use RequiresAccountAdmin;
 
     /**
-     * Get timeseries report data.
+     * Get timeseries report data (for heatmaps).
+     * 
+     * GET /api/v2/accounts/{account}/reports
      */
     public function index(Request $request, Account $account): JsonResponse
     {
         $this->ensureAdmin($request, $account);
         
-        $params = $this->validateReportParams($request);
+        // Validate parameters
+        $request->validate([
+            'metric' => 'required|string',
+            'group_by' => 'required|string|in:hour,day,week,month,year',
+            'since' => 'required|integer',
+            'until' => 'required|integer',
+            'type' => 'nullable|string',
+            'id' => 'nullable|integer',
+            'business_hours' => 'nullable|boolean',
+            'timezone_offset' => 'nullable|numeric',
+        ]);
+
+        // Use Action to get heatmap data
+        $data = GetHeatmapDataAction::run(
+            accountId: $account->id,
+            metric: $request->input('metric'),
+            since: $request->integer('since'),
+            until: $request->integer('until'),
+            groupBy: $request->input('group_by', 'hour'),
+            timezoneOffset: $request->input('timezone_offset', 0),
+            type: $request->input('type'),
+            id: $request->integer('id'),
+            businessHours: $request->boolean('business_hours', false)
+        );
         
-        $builder = new ReportBuilder($account, $params);
-        $data = $builder->timeseries();
-        
-        return response()->json($data);
+        return response()->json(['data' => $data]);
     }
 
     /**
@@ -105,15 +129,56 @@ class ReportsController extends Controller
     }
 
     /**
-     * Get conversation traffic report as CSV.
+     * Get conversation traffic report as CSV (heatmap export).
+     * 
+     * GET /api/v2/accounts/{account}/reports/conversation_traffic
      */
     public function conversationTraffic(Request $request, Account $account): Response
     {
         $this->ensureAdmin($request, $account);
         
-        $reportData = $this->generateConversationTrafficReport($account, $request);
+        // Validate parameters
+        $request->validate([
+            'days_before' => 'nullable|integer|min:0|max:365',
+            'timezone_offset' => 'nullable|numeric',
+        ]);
+
+        // Use Action to generate CSV data
+        $result = ExportConversationTrafficAction::run(
+            accountId: $account->id,
+            daysBefore: $request->integer('days_before', 6),
+            timezoneOffset: $request->input('timezone_offset', 0)
+        );
         
-        return $this->generateCsv('conversation_traffic_reports', $reportData);
+        // Generate CSV
+        $csv = $this->generateHeatmapCsv($result['data'], $result['timezone']);
+        
+        return ResponseFacade::make($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="conversation_traffic_reports.csv"',
+        ]);
+    }
+
+    /**
+     * Generate CSV from heatmap data.
+     */
+    private function generateHeatmapCsv(array $reportData, string $timezone): string
+    {
+        $output = fopen('php://temp', 'r+');
+
+        // First line: Timezone
+        fputcsv($output, ['Timezone', $timezone]);
+
+        // Write data rows
+        foreach ($reportData as $row) {
+            fputcsv($output, $row);
+        }
+
+        rewind($output);
+        $csv = stream_get_contents($output);
+        fclose($output);
+
+        return $csv;
     }
 
     /**

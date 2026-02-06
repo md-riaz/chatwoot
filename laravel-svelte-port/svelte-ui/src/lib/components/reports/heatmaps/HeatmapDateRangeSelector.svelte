@@ -127,9 +127,8 @@
 <div class="flex items-center gap-2">
   <!-- Range selector dropdown -->
   <DropdownMenu.Root bind:open={showRangeDropdown}>
-    <DropdownMenu.Trigger asChild let:builder>
+    <DropdownMenu.Trigger asChild>
       <Button
-        builders={[builder]}
         variant="outline"
         size="sm"
         class="min-w-[140px] justify-between"

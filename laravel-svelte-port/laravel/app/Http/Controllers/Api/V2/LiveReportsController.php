@@ -2,107 +2,67 @@
 
 namespace App\Http\Controllers\Api\V2;
 
+use App\Actions\Reports\GetLiveConversationMetricsAction;
+use App\Actions\Reports\GetGroupedConversationMetricsAction;
 use App\Http\Controllers\Api\V1\Concerns\RequiresAccountAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
-use App\Models\Conversation;
-use App\Models\Team;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Live Reports Controller
+ * 
+ * Provides real-time conversation metrics for dashboards.
+ * Rails parity: app/controllers/api/v2/accounts/live_reports_controller.rb
+ */
 class LiveReportsController extends Controller
 {
     use RequiresAccountAdmin;
 
     /**
      * Get live conversation metrics.
+     * 
+     * GET /api/v2/accounts/{account}/live_reports/conversation_metrics
      */
     public function conversationMetrics(Request $request, Account $account): JsonResponse
     {
         $this->ensureAdmin($request, $account);
         
-        $conversations = $this->loadConversations($account, $request);
-        
-        $metrics = [
-            'open' => $conversations->where('status', 'open')->count(),
-            'unattended' => $conversations->where('status', 'open')
-                ->whereNull('last_activity_at')
-                ->count(),
-            'unassigned' => $conversations->where('status', 'open')
-                ->whereNull('assignee_id')
-                ->count(),
-            'pending' => $conversations->where('status', 'pending')->count(),
-        ];
+        $metrics = GetLiveConversationMetricsAction::run(
+            $account->id,
+            $request->input('team_id')
+        );
         
         return response()->json($metrics);
     }
 
     /**
      * Get grouped conversation metrics.
+     * 
+     * GET /api/v2/accounts/{account}/live_reports/grouped_conversation_metrics
      */
     public function groupedConversationMetrics(Request $request, Account $account): JsonResponse
     {
         $this->ensureAdmin($request, $account);
         
-        $groupBy = $this->validateGroupBy($request);
-        if (!$groupBy) {
+        $groupBy = $request->input('group_by');
+        
+        // Validate group_by parameter
+        if (!in_array($groupBy, ['team_id', 'assignee_id'])) {
             return response()->json(['error' => 'invalid group_by'], 422);
         }
         
-        $conversations = $this->loadConversations($account, $request);
-        
-        // Group conversations by the specified field
-        $grouped = $conversations->groupBy($groupBy);
-        
-        $groupMetrics = [];
-        
-        foreach ($grouped as $groupId => $groupConversations) {
-            $openConversations = $groupConversations->where('status', 'open');
+        try {
+            $metrics = GetGroupedConversationMetricsAction::run(
+                $account->id,
+                $groupBy,
+                $request->input('team_id')
+            );
             
-            $metric = [
-                'open' => $openConversations->count(),
-                'unattended' => $openConversations->whereNull('last_activity_at')->count(),
-                'unassigned' => $openConversations->whereNull('assignee_id')->count(),
-                $groupBy => $groupId,
-            ];
-            
-            $groupMetrics[] = $metric;
+            return response()->json($metrics);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
         }
-        
-        return response()->json($groupMetrics);
-    }
-
-    /**
-     * Load conversations based on request parameters.
-     */
-    private function loadConversations(Account $account, Request $request)
-    {
-        $query = $account->conversations();
-        
-        // Filter by team if specified
-        if ($request->has('team_id')) {
-            $team = $account->teams()->find($request->get('team_id'));
-            if ($team) {
-                $query->where('team_id', $team->id);
-            }
-        }
-        
-        return $query->get();
-    }
-
-    /**
-     * Validate and return the group_by parameter.
-     */
-    private function validateGroupBy(Request $request): ?string
-    {
-        $groupBy = $request->get('group_by');
-        
-        $allowedGroupBy = ['team_id', 'assignee_id'];
-        
-        if (!in_array($groupBy, $allowedGroupBy)) {
-            return null;
-        }
-        
-        return $groupBy;
     }
 }

@@ -38,7 +38,12 @@
     
     isSubmitting = true;
     try {
-      // TODO: Implement API update
+      await authStore.updateAccount({
+        autoResolveDuration: duration,
+        autoResolveMessage: message,
+        autoResolveIgnoreWaiting: ignoreWaiting,
+        autoResolveLabel: selectedLabel
+      });
       toast.success($_('GENERAL_SETTINGS.FORM.AUTO_RESOLVE.DURATION.API.SUCCESS'));
     } catch (error) {
       toast.error($_('GENERAL_SETTINGS.FORM.AUTO_RESOLVE.DURATION.API.ERROR'));
@@ -47,10 +52,21 @@
     }
   }
 
-  function toggleAutoResolve(checked: boolean) {
-     isEnabled = checked;
-     if (!checked) {
-        // Handle disable logic
+  async function toggleAutoResolve(checked: boolean) {
+     if (checked) {
+        isEnabled = true;
+        if (duration === 0) duration = 10;
+     } else {
+        isEnabled = false;
+        try {
+          await authStore.updateAccount({
+            autoResolveDuration: 0
+          });
+          toast.success($_('GENERAL_SETTINGS.FORM.AUTO_RESOLVE.DURATION.API.SUCCESS'));
+        } catch (error) {
+           toast.error($_('GENERAL_SETTINGS.FORM.AUTO_RESOLVE.DURATION.API.ERROR'));
+           isEnabled = true;
+        }
      }
   }
 </script>

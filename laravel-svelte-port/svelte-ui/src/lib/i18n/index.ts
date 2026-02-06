@@ -217,6 +217,11 @@ export { locale, _, t, date, time, number, isLoading, dictionary } from 'svelte-
 // NOTE: calling `init` here with `initialLocale` set to `DEFAULT_LOCALE` avoids
 // "Cannot format a message without first setting the initial locale" errors
 // when components call `$_('...')` during render.
+// Register loaders for all supported locales so that the initial locale
+// can be loaded when `init` runs. This prevents missing-key warnings when
+// components call the translator during early render.
+registerLocales();
+
 init({
   fallbackLocale: DEFAULT_LOCALE,
   initialLocale: DEFAULT_LOCALE,

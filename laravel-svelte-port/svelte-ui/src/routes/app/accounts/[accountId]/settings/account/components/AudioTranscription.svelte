@@ -19,8 +19,7 @@
     isEnabled = checked;
     isUpdating = true;
     try {
-      // TODO: Implement API update
-      // await accountsStore.updateAccount({ audio_transcriptions: checked });
+      await authStore.updateAccount({ audioTranscriptions: checked });
       toast.success($_('GENERAL_SETTINGS.FORM.AUDIO_TRANSCRIPTION.API.SUCCESS'));
     } catch (error) {
       toast.error($_('GENERAL_SETTINGS.FORM.AUDIO_TRANSCRIPTION.API.ERROR'));

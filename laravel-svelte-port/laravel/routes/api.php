@@ -551,6 +551,17 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
             Route::get('grouped_conversation_metrics', [\App\Http\Controllers\Api\V2\LiveReportsController::class, 'groupedConversationMetrics']);
         });
 
+        // Agents V2 - Agent status and metrics
+        Route::prefix('v2/agents')->group(function () {
+            Route::get('status', [\App\Http\Controllers\Api\V2\AgentsController::class, 'status']);
+        });
+
+        // Reports V2 - Heatmap data and CSV exports
+        Route::prefix('v2/reports')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Api\V2\ReportsController::class, 'index']); // Heatmap timeseries data
+            Route::get('conversation_traffic', [\App\Http\Controllers\Api\V2\ReportsController::class, 'conversationTraffic']); // CSV export
+        });
+
         // Summary Reports V2 - Detailed summary reports by entity type
         Route::prefix('v2/summary_reports')->group(function () {
             Route::get('agent', [\App\Http\Controllers\Api\V2\SummaryReportsController::class, 'agent']);

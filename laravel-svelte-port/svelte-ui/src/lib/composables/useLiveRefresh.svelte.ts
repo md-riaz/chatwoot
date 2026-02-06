@@ -75,6 +75,14 @@ export function useLiveRefresh(
     startRefetching();
   }
 
+  // Calculate time until next refresh
+  const timeUntilNext = $derived(() => {
+    if (!isActive || !lastRefresh) return null;
+    const elapsed = Date.now() - lastRefresh.getTime();
+    const remaining = Math.max(0, interval - elapsed);
+    return remaining;
+  });
+
   // Cleanup on component unmount
   $effect(() => {
     return () => {
@@ -86,14 +94,9 @@ export function useLiveRefresh(
     startRefetching,
     stopRefetching,
     restartRefetching,
-    isActive: () => isActive,
-    lastRefresh: () => lastRefresh,
-    timeUntilNext: $derived(() => {
-      if (!isActive || !lastRefresh) return null;
-      const elapsed = Date.now() - lastRefresh.getTime();
-      const remaining = Math.max(0, interval - elapsed);
-      return remaining;
-    })
+    get isActive() { return isActive; },
+    get lastRefresh() { return lastRefresh; },
+    get timeUntilNext() { return timeUntilNext; }
   };
 }
 
@@ -130,8 +133,8 @@ export function useLiveRefreshWithLoading(
 
   return {
     ...liveRefresh,
-    isLoading: () => isLoading,
-    error: () => error,
+    get isLoading() { return isLoading; },
+    get error() { return error; },
     clearError: () => { error = null; }
   };
 }

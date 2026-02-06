@@ -211,15 +211,14 @@
           bind:from={selectedFrom}
           bind:to={selectedTo}
           bind:daysNum={selectedDaysBefore}
-          {onRangeTypeChange}
-          {onMonthOffsetChange}
+          onRangeTypeChange={handleRangeTypeChange}
+          onMonthOffsetChange={handleMonthOffsetChange}
         />
         
         <!-- Inbox Filter -->
         <DropdownMenu.Root bind:open={showInboxDropdown}>
-          <DropdownMenu.Trigger asChild let:builder>
+          <DropdownMenu.Trigger asChild>
             <Button
-              builders={[builder]}
               variant="outline"
               size="sm"
               class="max-w-[200px]"

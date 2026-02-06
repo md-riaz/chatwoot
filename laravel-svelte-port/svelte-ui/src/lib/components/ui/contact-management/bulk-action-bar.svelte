@@ -126,9 +126,8 @@
       <div class="flex items-center gap-2 ml-auto">
         <!-- Assign Labels -->
         <Popover.Root bind:open={showLabelSelector}>
-          <Popover.Trigger asChild let:builder>
+          <Popover.Trigger asChild>
             <Button
-              builders={[builder]}
               variant="outline"
               size="sm"
               class="h-8 gap-2 text-muted-foreground"

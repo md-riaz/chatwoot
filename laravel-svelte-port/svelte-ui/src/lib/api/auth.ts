@@ -18,6 +18,10 @@ export interface UserAccount {
   availabilityStatus?: 'online' | 'offline' | 'busy';
   autoOffline: boolean;
   features?: Record<string, boolean>;
+  locale?: string;
+  domain?: string;
+  supportEmail?: string;
+  settings?: Record<string, any>;
 }
 
 /**

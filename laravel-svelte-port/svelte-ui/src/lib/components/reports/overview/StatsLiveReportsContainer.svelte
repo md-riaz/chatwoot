@@ -85,9 +85,8 @@
       {#snippet control()}
         {#if teams.length > 0}
           <DropdownMenu.Root bind:open={showTeamDropdown}>
-            <DropdownMenu.Trigger asChild let:builder>
+            <DropdownMenu.Trigger asChild>
               <Button
-                builders={[builder]}
                 variant="outline"
                 size="sm"
                 class="capitalize"

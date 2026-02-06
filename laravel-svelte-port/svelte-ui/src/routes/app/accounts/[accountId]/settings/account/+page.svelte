@@ -74,17 +74,13 @@
 
     isUpdating = true;
     try {
-      // TODO: Implement API update
-      // await accountsStore.updateAccount({
-      //   name,
-      //   locale,
-      //   domain,
-      //   support_email: supportEmail
-      // });
+      await authStore.updateAccount({
+        name,
+        locale,
+        domain,
+        supportEmail: supportEmail
+      });
       
-      // Update local locale if changed
-      // if (uiSettings?.locale) ...
-
       toast.success($_('GENERAL_SETTINGS.UPDATE.SUCCESS'));
     } catch (error) {
       toast.error($_('GENERAL_SETTINGS.UPDATE.ERROR'));
