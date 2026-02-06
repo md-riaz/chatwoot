@@ -97,4 +97,104 @@
     "REPORTS_SLA": "SLA",
     "REPORTS_BOT": "Bot"
   }
+  ,
+  "GENERAL_SETTINGS": {
+    "TITLE": "General Settings",
+    "SUBMIT": "Save changes",
+    "UPDATE": {
+      "SUCCESS": "Settings updated successfully",
+      "ERROR": "Failed to update settings"
+    },
+    "FORM": {
+      "GENERAL_SECTION": {
+        "TITLE": "General",
+        "NOTE": "Update account details and preferences"
+      },
+      "NAME": {
+        "LABEL": "Account name",
+        "PLACEHOLDER": "e.g., Acme Inc.",
+        "ERROR": "Please enter an account name"
+      },
+      "LANGUAGE": {
+        "LABEL": "Language",
+        "ERROR": "Please select a language"
+      },
+      "DOMAIN": {
+        "LABEL": "Domain",
+        "PLACEHOLDER": "e.g., app.example.com"
+      },
+      "SUPPORT_EMAIL": {
+        "LABEL": "Support email",
+        "PLACEHOLDER": "support@example.com"
+      },
+      "ACCOUNT_ID": {
+        "TITLE": "Account ID",
+        "NOTE": "Unique identifier for this account"
+      },
+      "FEATURES": {
+        "INBOUND_EMAIL_ENABLED": "Enable inbound email",
+        "CUSTOM_EMAIL_DOMAIN_ENABLED": "Use custom email domain"
+      },
+      "AUTO_RESOLVE": {
+        "TITLE": "Auto Resolve",
+        "NOTE": "Automatically resolve conversations after a period of inactivity",
+        "DURATION": {
+          "LABEL": "Auto resolve after",
+          "HELP": "Specify the duration after which unresolved conversations are automatically resolved.",
+          "ERROR": "Please provide a valid duration.",
+          "API": {
+            "SUCCESS": "Auto-resolve settings updated",
+            "ERROR": "Failed to update auto-resolve settings"
+          }
+        },
+        "MESSAGE": {
+          "LABEL": "Auto-resolve message",
+          "HELP": "Message sent when a conversation is automatically resolved",
+          "PLACEHOLDER": "This conversation has been automatically resolved."
+        },
+        "PREFERENCES": "Preferences",
+        "IGNORE_WAITING": {
+          "LABEL": "Ignore waiting conversations"
+        },
+        "LABEL": {
+          "LABEL": "Label",
+          "PLACEHOLDER": "Select a label"
+        },
+        "UPDATE_BUTTON": "Update"
+      },
+      "AUDIO_TRANSCRIPTION": {
+        "TITLE": "Audio Transcription",
+        "NOTE": "Configure speech-to-text settings",
+        "API": {
+          "SUCCESS": "Audio transcription API updated",
+          "ERROR": "Failed to update audio transcription API"
+        }
+      }
+    },
+    "UPDATE_CHATWOOT": "Update Chatwoot",
+    "ACCOUNT_DELETE_SECTION": {
+      "TITLE": "Account deletion",
+      "NOTE": "Schedule permanent deletion of this account",
+      "SCHEDULED_DELETION": {
+        "MESSAGE_MANUAL": "This account is scheduled for deletion.",
+        "MESSAGE_INACTIVITY": "This account will be deleted due to inactivity."
+      ,
+        "CLEAR_BUTTON": "Clear scheduled deletion"
+      },
+      "CONFIRM": {
+        "TITLE": "Confirm account deletion",
+        "MESSAGE": "Are you sure you want to delete this account? This action cannot be undone.",
+        "DISMISS": "Dismiss",
+        "BUTTON_TEXT": "Confirm"
+      },
+      "SUCCESS": "Account deletion scheduled",
+      "FAILURE": "Failed to schedule account deletion",
+      "BUTTON_TEXT": "Delete account"
+    }
+  },
+  "COMPONENTS": {
+    "CODE": {
+      "BUTTON_TEXT": "View code"
+    }
+  }
 }

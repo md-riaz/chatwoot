@@ -1,6 +1,7 @@
 /**
  * Reports API Client
  * Handles analytics and reporting data fetching
+ * Enhanced to match Vue API structure
  */
 
 import api, { toSearchParams } from './client';
@@ -44,6 +45,40 @@ export interface ReportsResponse {
   meta?: {
     period: string;
   };
+}
+
+// Live metrics interfaces
+export interface LiveConversationMetricsResponse {
+  data: {
+    open: number;
+    unattended: number;
+    unassigned: number;
+    pending: number;
+  };
+}
+
+export interface LiveGroupedConversationsResponse {
+  data: Array<{
+    assigneeId?: number;
+    teamId?: number;
+    open: number;
+    unattended: number;
+  }>;
+}
+
+export interface AgentStatusResponse {
+  data: {
+    online: number;
+    busy: number;
+    offline: number;
+  };
+}
+
+export interface HeatmapDataResponse {
+  data: Array<{
+    timestamp: number;
+    value: number;
+  }>;
 }
 
 /**
@@ -116,4 +151,96 @@ export async function getConversationSummary(
   return api.get(`api/v2/accounts/${accountId}/reports/summary`, {
     searchParams: toSearchParams(filters)
   }).json();
+}
+
+/**
+ * Live Reports API - Real-time metrics (matching Vue liveReports.js)
+ */
+
+/**
+ * Get live conversation metrics
+ */
+export async function getLiveConversationMetrics(
+  accountId: number,
+  params: { teamId?: number } = {}
+): Promise<LiveConversationMetricsResponse> {
+  return api.get(`api/v2/accounts/${accountId}/live_reports/conversation_metrics`, {
+    searchParams: toSearchParams(params)
+  }).json();
+}
+
+/**
+ * Get live grouped conversations (by assignee_id or team_id)
+ */
+export async function getLiveGroupedConversations(
+  accountId: number,
+  params: { groupBy: 'assignee_id' | 'team_id' }
+): Promise<LiveGroupedConversationsResponse> {
+  return api.get(`api/v2/accounts/${accountId}/live_reports/grouped_conversation_metrics`, {
+    searchParams: toSearchParams(params)
+  }).json();
+}
+
+/**
+ * Get agent status metrics (online/busy/offline counts)
+ */
+export async function getAgentStatus(
+  accountId: number
+): Promise<AgentStatusResponse> {
+  return api.get(`api/v2/accounts/${accountId}/agents/status`).json();
+}
+
+/**
+ * Get heatmap data (hourly grouped metrics)
+ */
+export async function getHeatmapData(
+  accountId: number,
+  params: {
+    metric: string;
+    from: number;
+    to: number;
+    groupBy: string;
+    businessHours?: boolean;
+    type?: string;
+    id?: number;
+  }
+): Promise<HeatmapDataResponse> {
+  return api.get(`api/v2/accounts/${accountId}/reports`, {
+    searchParams: toSearchParams({
+      metric: params.metric,
+      since: params.from,
+      until: params.to,
+      group_by: params.groupBy,
+      business_hours: params.businessHours,
+      type: params.type,
+      id: params.id,
+      timezone_offset: -new Date().getTimezoneOffset() / 60
+    })
+  }).json();
+}
+
+/**
+ * Download conversation traffic CSV
+ */
+export async function downloadConversationTrafficCSV(
+  accountId: number,
+  params: { daysBefore: number; to?: number }
+): Promise<void> {
+  const response = await api.get(`api/v2/accounts/${accountId}/reports/conversation_traffic`, {
+    searchParams: toSearchParams({
+      days_before: params.daysBefore,
+      timezone_offset: -new Date().getTimezoneOffset() / 60
+    })
+  });
+
+  // Handle CSV download
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `conversation_traffic_${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
 }

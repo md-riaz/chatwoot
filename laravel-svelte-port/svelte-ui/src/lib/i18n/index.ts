@@ -81,17 +81,16 @@ function getPreferredLocale(): SupportedLocale {
  * Call this in root +layout.svelte
  */
 export async function initI18n() {
+  // Register locales for lazy loading and switch to the preferred locale.
+  // The module-level `init()` already set a safe default initial locale so
+  // components can call the translator synchronously without throwing.
   registerLocales();
-  
+
   const preferredLocale = getPreferredLocale();
-  
-  await init({
-    fallbackLocale: DEFAULT_LOCALE,
-    initialLocale: preferredLocale,
-    loadingDelay: 200,
-    warnOnMissingMessages: import.meta.env.DEV
-  });
-  
+
+  // Set the preferred locale (this triggers loading of that locale)
+  locale.set(preferredLocale);
+
   return preferredLocale;
 }
 
@@ -211,3 +210,16 @@ export function getAvailableLocales(): Array<{ code: SupportedLocale; name: stri
 
 // Re-export svelte-i18n utilities
 export { locale, _, t, date, time, number, isLoading, dictionary } from 'svelte-i18n';
+
+// Ensure a safe default initial locale is set at module load so the `_` translator
+// is available synchronously during early renders. Later `initI18n()` will
+// register locales and switch to the user's preferred locale.
+// NOTE: calling `init` here with `initialLocale` set to `DEFAULT_LOCALE` avoids
+// "Cannot format a message without first setting the initial locale" errors
+// when components call `$_('...')` during render.
+init({
+  fallbackLocale: DEFAULT_LOCALE,
+  initialLocale: DEFAULT_LOCALE,
+  loadingDelay: 200,
+  warnOnMissingMessages: import.meta.env.DEV
+});

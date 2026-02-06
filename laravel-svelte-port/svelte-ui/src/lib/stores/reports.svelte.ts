@@ -1,6 +1,7 @@
 /**
  * Reports Store
  * Manages analytics and reporting data using Svelte 5 runes
+ * Enhanced to match Vue reports store structure
  */
 
 import * as reportsApi from '$lib/api/reports';
@@ -12,10 +13,65 @@ import type {
   ReportFilters 
 } from '$lib/api/reports';
 
+// Live metrics interfaces (matching Vue structure)
+export interface LiveAccountMetric {
+  open: number;
+  unattended: number;
+  unassigned: number;
+  pending: number;
+}
+
+export interface LiveAgentMetric {
+  assigneeId: number;
+  open: number;
+  unattended: number;
+}
+
+export interface LiveTeamMetric {
+  teamId: number;
+  open: number;
+  unattended: number;
+}
+
+export interface AgentStatusMetric {
+  online: number;
+  busy: number;
+  offline: number;
+}
+
+export interface HeatmapData {
+  timestamp: number; // Unix timestamp
+  value: number;     // Metric value
+}
+
 interface ReportsState {
+  // Existing metrics (historical data)
   conversationMetrics: ConversationMetrics | null;
   agentMetrics: AgentMetrics[];
   teamMetrics: TeamMetrics[];
+  
+  // Live metrics (real-time data)
+  overview: {
+    accountConversationMetric: LiveAccountMetric;
+    agentConversationMetric: LiveAgentMetric[];
+    teamConversationMetric: LiveTeamMetric[];
+    agentStatus: AgentStatusMetric;
+    
+    // Heatmap data
+    accountConversationHeatmap: HeatmapData[];
+    accountResolutionHeatmap: HeatmapData[];
+    
+    // UI flags (granular loading states)
+    uiFlags: {
+      isFetchingAccountConversationMetric: boolean;
+      isFetchingAccountConversationsHeatmap: boolean;
+      isFetchingAccountResolutionsHeatmap: boolean;
+      isFetchingAgentConversationMetric: boolean;
+      isFetchingTeamConversationMetric: boolean;
+      isFetchingAgentStatus: boolean;
+    };
+  };
+  
   filters: ReportFilters;
   isLoading: boolean;
   error: string | null;
@@ -26,6 +82,33 @@ class ReportsStore {
     conversationMetrics: null,
     agentMetrics: [],
     teamMetrics: [],
+    
+    overview: {
+      accountConversationMetric: {
+        open: 0,
+        unattended: 0,
+        unassigned: 0,
+        pending: 0
+      },
+      agentConversationMetric: [],
+      teamConversationMetric: [],
+      agentStatus: {
+        online: 0,
+        busy: 0,
+        offline: 0
+      },
+      accountConversationHeatmap: [],
+      accountResolutionHeatmap: [],
+      uiFlags: {
+        isFetchingAccountConversationMetric: false,
+        isFetchingAccountConversationsHeatmap: false,
+        isFetchingAccountResolutionsHeatmap: false,
+        isFetchingAgentConversationMetric: false,
+        isFetchingTeamConversationMetric: false,
+        isFetchingAgentStatus: false,
+      }
+    },
+    
     filters: {
       since: this.getDefaultStartDate(),
       until: this.getDefaultEndDate()
@@ -34,7 +117,7 @@ class ReportsStore {
     error: null
   });
 
-  // Getters
+  // Getters - Historical data
   get conversationMetrics() {
     return this.state.conversationMetrics;
   }
@@ -45,6 +128,35 @@ class ReportsStore {
 
   get teamMetrics() {
     return this.state.teamMetrics;
+  }
+
+  // Getters - Live data (matching Vue getters)
+  get accountConversationMetric() {
+    return this.state.overview.accountConversationMetric;
+  }
+
+  get agentConversationMetric() {
+    return this.state.overview.agentConversationMetric;
+  }
+
+  get teamConversationMetric() {
+    return this.state.overview.teamConversationMetric;
+  }
+
+  get agentStatus() {
+    return this.state.overview.agentStatus;
+  }
+
+  get accountConversationHeatmapData() {
+    return this.state.overview.accountConversationHeatmap;
+  }
+
+  get accountResolutionHeatmapData() {
+    return this.state.overview.accountResolutionHeatmap;
+  }
+
+  get overviewUIFlags() {
+    return this.state.overview.uiFlags;
   }
 
   get filters() {
@@ -89,7 +201,190 @@ class ReportsStore {
     return new Date().toISOString().split('T')[0];
   }
 
-  // Actions
+  // Actions - Live metrics (matching Vue actions)
+  async fetchAccountConversationMetric(params: { teamId?: number } = {}) {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    this.state.overview.uiFlags.isFetchingAccountConversationMetric = true;
+    this.state.error = null;
+
+    try {
+      // TODO: Remove mock data when backend is ready
+      if (import.meta.env.DEV) {
+        // Use mock data in development
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+        const { mockAccountConversationMetric } = await import('$lib/components/reports/overview/test-data');
+        this.state.overview.accountConversationMetric = mockAccountConversationMetric;
+      } else {
+        const response = await reportsApi.getLiveConversationMetrics(accountId, params);
+        this.state.overview.accountConversationMetric = response.data as LiveAccountMetric;
+      }
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to fetch account conversation metrics';
+      console.error('Error fetching account conversation metrics:', error);
+    } finally {
+      this.state.overview.uiFlags.isFetchingAccountConversationMetric = false;
+    }
+  }
+
+  async fetchAgentConversationMetric() {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    this.state.overview.uiFlags.isFetchingAgentConversationMetric = true;
+    this.state.error = null;
+
+    try {
+      // TODO: Remove mock data when backend is ready
+      if (import.meta.env.DEV) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const { mockAgentConversationMetric } = await import('$lib/components/reports/overview/test-data');
+        this.state.overview.agentConversationMetric = mockAgentConversationMetric;
+      } else {
+        const response = await reportsApi.getLiveGroupedConversations(accountId, { groupBy: 'assignee_id' });
+        this.state.overview.agentConversationMetric = response.data as LiveAgentMetric[];
+      }
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to fetch agent conversation metrics';
+      console.error('Error fetching agent conversation metrics:', error);
+    } finally {
+      this.state.overview.uiFlags.isFetchingAgentConversationMetric = false;
+    }
+  }
+
+  async fetchTeamConversationMetric() {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    this.state.overview.uiFlags.isFetchingTeamConversationMetric = true;
+    this.state.error = null;
+
+    try {
+      // TODO: Remove mock data when backend is ready
+      if (import.meta.env.DEV) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const { mockTeamConversationMetric } = await import('$lib/components/reports/overview/test-data');
+        this.state.overview.teamConversationMetric = mockTeamConversationMetric;
+      } else {
+        const response = await reportsApi.getLiveGroupedConversations(accountId, { groupBy: 'team_id' });
+        this.state.overview.teamConversationMetric = response.data as LiveTeamMetric[];
+      }
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to fetch team conversation metrics';
+      console.error('Error fetching team conversation metrics:', error);
+    } finally {
+      this.state.overview.uiFlags.isFetchingTeamConversationMetric = false;
+    }
+  }
+
+  async fetchAgentStatus() {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    this.state.overview.uiFlags.isFetchingAgentStatus = true;
+    this.state.error = null;
+
+    try {
+      // TODO: Remove mock data when backend is ready
+      if (import.meta.env.DEV) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const { mockAgentStatus } = await import('$lib/components/reports/overview/test-data');
+        this.state.overview.agentStatus = mockAgentStatus;
+      } else {
+        const response = await reportsApi.getAgentStatus(accountId);
+        this.state.overview.agentStatus = response.data as AgentStatusMetric;
+      }
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to fetch agent status';
+      console.error('Error fetching agent status:', error);
+    } finally {
+      this.state.overview.uiFlags.isFetchingAgentStatus = false;
+    }
+  }
+
+  async fetchAccountConversationHeatmap(params: {
+    metric: string;
+    from: number;
+    to: number;
+    groupBy: string;
+    businessHours?: boolean;
+    type?: string;
+    id?: number;
+  }) {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    this.state.overview.uiFlags.isFetchingAccountConversationsHeatmap = true;
+    this.state.error = null;
+
+    try {
+      // TODO: Remove mock data when backend is ready
+      if (import.meta.env.DEV) {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        const { generateMockHeatmapData } = await import('$lib/components/reports/overview/test-data');
+        this.state.overview.accountConversationHeatmap = generateMockHeatmapData(7);
+      } else {
+        const response = await reportsApi.getHeatmapData(accountId, params);
+        this.state.overview.accountConversationHeatmap = response.data as HeatmapData[];
+      }
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to fetch conversation heatmap';
+      console.error('Error fetching conversation heatmap:', error);
+    } finally {
+      this.state.overview.uiFlags.isFetchingAccountConversationsHeatmap = false;
+    }
+  }
+
+  async fetchAccountResolutionHeatmap(params: {
+    metric: string;
+    from: number;
+    to: number;
+    groupBy: string;
+    businessHours?: boolean;
+    type?: string;
+    id?: number;
+  }) {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    this.state.overview.uiFlags.isFetchingAccountResolutionsHeatmap = true;
+    this.state.error = null;
+
+    try {
+      // TODO: Remove mock data when backend is ready
+      if (import.meta.env.DEV) {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        const { generateMockHeatmapData } = await import('$lib/components/reports/overview/test-data');
+        // Generate different data for resolutions (generally lower values)
+        const baseData = generateMockHeatmapData(7);
+        this.state.overview.accountResolutionHeatmap = baseData.map(item => ({
+          ...item,
+          value: Math.floor(item.value * 0.7) // Resolutions typically lower than conversations
+        }));
+      } else {
+        const response = await reportsApi.getHeatmapData(accountId, params);
+        this.state.overview.accountResolutionHeatmap = response.data as HeatmapData[];
+      }
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to fetch resolution heatmap';
+      console.error('Error fetching resolution heatmap:', error);
+    } finally {
+      this.state.overview.uiFlags.isFetchingAccountResolutionsHeatmap = false;
+    }
+  }
+
+  async downloadAccountConversationHeatmap(params: { daysBefore: number; to: number }) {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    try {
+      await reportsApi.downloadConversationTrafficCSV(accountId, params);
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to download heatmap data';
+      console.error('Error downloading heatmap data:', error);
+    }
+  }
   async fetchAccountReports(filters?: ReportFilters) {
     const accountId = authStore.currentAccount?.id;
     if (!accountId) return;
