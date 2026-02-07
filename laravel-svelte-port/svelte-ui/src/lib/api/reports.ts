@@ -88,7 +88,7 @@ export async function getAccountReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api.get(`api/v2/accounts/${accountId}/reports`, {
+  return api.get(`api/v1/accounts/${accountId}/v2/reports`, {
     searchParams: toSearchParams(filters)
   }).json();
 }
@@ -100,7 +100,7 @@ export async function getAgentReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api.get(`api/v2/accounts/${accountId}/reports/agents`, {
+  return api.get(`api/v1/accounts/${accountId}/v2/reports/agents`, {
     searchParams: toSearchParams(filters)
   }).json();
 }
@@ -112,7 +112,7 @@ export async function getTeamReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api.get(`api/v2/accounts/${accountId}/reports/teams`, {
+  return api.get(`api/v1/accounts/${accountId}/v2/reports/teams`, {
     searchParams: toSearchParams(filters)
   }).json();
 }
@@ -124,7 +124,7 @@ export async function getLabelReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api.get(`api/v2/accounts/${accountId}/reports/labels`, {
+  return api.get(`api/v1/accounts/${accountId}/v2/reports/labels`, {
     searchParams: toSearchParams(filters)
   }).json();
 }
@@ -136,7 +136,7 @@ export async function getInboxReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api.get(`api/v2/accounts/${accountId}/reports/inboxes`, {
+  return api.get(`api/v1/accounts/${accountId}/v2/reports/inboxes`, {
     searchParams: toSearchParams(filters)
   }).json();
 }
@@ -148,7 +148,7 @@ export async function getConversationSummary(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<any> {
-  return api.get(`api/v2/accounts/${accountId}/reports/summary`, {
+  return api.get(`api/v1/accounts/${accountId}/v2/reports/summary`, {
     searchParams: toSearchParams(filters)
   }).json();
 }
@@ -164,7 +164,7 @@ export async function getLiveConversationMetrics(
   accountId: number,
   params: { teamId?: number } = {}
 ): Promise<LiveConversationMetricsResponse> {
-  return api.get(`api/v2/accounts/${accountId}/live_reports/conversation_metrics`, {
+  return api.get(`api/v1/accounts/${accountId}/v2/live_reports/conversation_metrics`, {
     searchParams: toSearchParams(params)
   }).json();
 }
@@ -176,7 +176,7 @@ export async function getLiveGroupedConversations(
   accountId: number,
   params: { groupBy: 'assignee_id' | 'team_id' }
 ): Promise<LiveGroupedConversationsResponse> {
-  return api.get(`api/v2/accounts/${accountId}/live_reports/grouped_conversation_metrics`, {
+  return api.get(`api/v1/accounts/${accountId}/v2/live_reports/grouped_conversation_metrics`, {
     searchParams: toSearchParams(params)
   }).json();
 }
@@ -187,7 +187,7 @@ export async function getLiveGroupedConversations(
 export async function getAgentStatus(
   accountId: number
 ): Promise<AgentStatusResponse> {
-  return api.get(`api/v2/accounts/${accountId}/agents/status`).json();
+  return api.get(`api/v1/accounts/${accountId}/v2/agents/status`).json();
 }
 
 /**
@@ -205,7 +205,7 @@ export async function getHeatmapData(
     id?: number;
   }
 ): Promise<HeatmapDataResponse> {
-  return api.get(`api/v2/accounts/${accountId}/reports`, {
+  return api.get(`api/v1/accounts/${accountId}/v2/reports`, {
     searchParams: toSearchParams({
       metric: params.metric,
       since: params.from,
@@ -226,7 +226,7 @@ export async function downloadConversationTrafficCSV(
   accountId: number,
   params: { daysBefore: number; to?: number }
 ): Promise<void> {
-  const response = await api.get(`api/v2/accounts/${accountId}/reports/conversation_traffic`, {
+  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/conversation_traffic`, {
     searchParams: toSearchParams({
       days_before: params.daysBefore,
       timezone_offset: -new Date().getTimezoneOffset() / 60

@@ -30,6 +30,6 @@ class AgentsController extends Controller
         
         $metrics = GetAgentStatusMetricsAction::run($account->id);
         
-        return response()->json($metrics);
+        return response()->json(['data' => $metrics]);
     }
 }

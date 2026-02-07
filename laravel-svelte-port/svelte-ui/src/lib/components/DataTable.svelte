@@ -77,9 +77,9 @@
   }
 
   $effect(() => {
-    // Ensure page is valid
-    if (pagination && pagination.page < 1) {
-      pagination.page = 1;
+    // Ensure page is valid - notify parent to update instead of mutating prop
+    if (pagination && pagination.page < 1 && onPageChange) {
+      onPageChange(1);
     }
   });
 </script>

@@ -183,6 +183,22 @@ class Conversation extends Model
     }
 
     /**
+     * Scope a query to only include unattended conversations.
+     * Rails parity: scope :unattended, -> { where(first_reply_created_at: nil).or(where.not(waiting_since: nil)) }
+     * 
+     * Unattended means:
+     * - No agent has replied yet (first_reply_created_at is null), OR
+     * - Conversation is waiting for agent response (waiting_since is not null)
+     */
+    public function scopeUnattended($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('first_reply_created_at')
+              ->orWhereNotNull('waiting_since');
+        });
+    }
+
+    /**
      * Scope a query to only include muted conversations.
      */
     public function scopeMuted($query)

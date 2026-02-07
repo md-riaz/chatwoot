@@ -98,6 +98,12 @@
     const range = resolveActiveRange();
     if (!range) return;
     
+    console.log('🔄 BaseHeatmapContainer: Fetching heatmap data', {
+      metric,
+      range,
+      selectedInbox
+    });
+    
     const params = {
       metric,
       from: Math.floor(range.from.getTime() / 1000),
@@ -110,8 +116,12 @@
       })
     };
     
+    console.log('📊 Heatmap API params:', params);
+    
     // @ts-ignore - Dynamic method access
     await reportsStore[storeAction](params);
+    
+    console.log('✅ Heatmap data fetched successfully');
   }
   
   // Download heatmap data
@@ -160,6 +170,7 @@
   
   // Handle inbox selection
   function handleInboxSelect(inbox: any) {
+    console.log('🎯 Inbox selected:', inbox);
     selectedInbox = inbox;
     showInboxDropdown = false;
     if (selectedRange) {

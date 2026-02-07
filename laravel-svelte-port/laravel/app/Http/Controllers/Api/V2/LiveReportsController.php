@@ -34,7 +34,7 @@ class LiveReportsController extends Controller
             $request->input('team_id')
         );
         
-        return response()->json($metrics);
+        return response()->json(['data' => $metrics]);
     }
 
     /**
@@ -60,7 +60,7 @@ class LiveReportsController extends Controller
                 $request->input('team_id')
             );
             
-            return response()->json($metrics);
+            return response()->json(['data' => $metrics]);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 422);
         }

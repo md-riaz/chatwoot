@@ -31,6 +31,15 @@
   
   // Get team metrics by ID
   function getTeamMetrics(teamId: number): TeamMetric {
+    // Handle undefined teamMetrics array
+    if (!teamMetrics || !Array.isArray(teamMetrics)) {
+      return {
+        teamId: teamId,
+        open: 0,
+        unattended: 0
+      };
+    }
+    
     return teamMetrics.find(m => m.teamId === teamId) || {
       teamId: teamId,
       open: 0,

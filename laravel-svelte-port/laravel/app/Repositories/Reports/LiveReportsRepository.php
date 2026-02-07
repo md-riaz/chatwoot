@@ -33,10 +33,11 @@ class LiveReportsRepository extends BaseRepository
             $query->where('team_id', $teamId);
         }
 
+        // Use the unattended scope from Conversation model
         return [
             'open' => (clone $query)->where('status', Conversation::STATUS_OPEN)->count(),
             'unattended' => (clone $query)->where('status', Conversation::STATUS_OPEN)
-                ->where('unattended', true)->count(),
+                ->unattended()->count(),
             'unassigned' => (clone $query)->where('status', Conversation::STATUS_OPEN)
                 ->whereNull('assignee_id')->count(),
             'pending' => (clone $query)->where('status', Conversation::STATUS_PENDING)->count(),
@@ -68,10 +69,10 @@ class LiveReportsRepository extends BaseRepository
             ->pluck('count', $groupBy)
             ->toArray();
 
-        // Get unattended conversations grouped by field
+        // Get unattended conversations grouped by field (use scope)
         $unattendedByGroup = (clone $query)
             ->where('status', Conversation::STATUS_OPEN)
-            ->where('unattended', true)
+            ->unattended()
             ->whereNotNull($groupBy)
             ->selectRaw("{$groupBy}, COUNT(*) as count")
             ->groupBy($groupBy)

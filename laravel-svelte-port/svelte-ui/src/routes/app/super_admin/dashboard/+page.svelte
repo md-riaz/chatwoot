@@ -4,8 +4,8 @@
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { onMount } from 'svelte';
 	
-	let loading = true;
-	let dashboardData: DashboardData | null = null;
+	let loading = $state(true);
+	let dashboardData: DashboardData | null = $state(null);
 	
 	onMount(async () => {
 		try {

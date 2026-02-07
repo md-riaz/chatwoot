@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-  import { DateInput } from '$lib/components/custom';
+  import { Input } from '$lib/components/ui/input';
   import { ChevronDown, ChevronLeft, ChevronRight, Calendar } from 'lucide-svelte';
   
   interface Props {
@@ -25,9 +25,9 @@
   let selectedPreset = $state<'last_7_days' | 'this_month'>('last_7_days');
   let monthOffset = $state(0); // 0 = current month, -1 = previous month, etc.
   let showRangeDropdown = $state(false);
-  let showCustomDates = $state(false);
+  let showCustomInputs = $state(false);
   
-  // Local date state for custom range
+  // Local date state for custom range (ISO format for input[type="date"])
   let customFrom = $state('');
   let customTo = $state('');
   
@@ -36,6 +36,15 @@
     { value: 'last_7_days', label: 'Last 7 days', days: 6 },
     { value: 'this_month', label: 'This month', days: null }
   ];
+  
+  // Helper functions for date formatting
+  function formatDateForInput(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+  
+  function parseDateFromInput(dateStr: string): Date {
+    return new Date(dateStr + 'T00:00:00');
+  }
   
   // Current selection label
   const selectionLabel = $derived.by(() => {
@@ -48,7 +57,9 @@
       return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     } else {
       if (customFrom && customTo) {
-        return `${customFrom} to ${customTo}`;
+        const fromDate = new Date(customFrom);
+        const toDate = new Date(customTo);
+        return `${fromDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${toDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
       }
       return 'Custom range';
     }
@@ -59,6 +70,7 @@
     selectedPreset = preset;
     rangeType = preset === 'this_month' ? 'month' : 'preset';
     showRangeDropdown = false;
+    showCustomInputs = false;
     
     if (preset === 'last_7_days') {
       const to = new Date();
@@ -96,15 +108,26 @@
   // Handle custom date selection
   function handleCustomDates() {
     if (customFrom && customTo) {
-      const fromDate = new Date(customFrom);
-      const toDate = new Date(customTo);
+      const fromDate = parseDateFromInput(customFrom);
+      const toDate = parseDateFromInput(customTo);
       
       if (fromDate <= toDate) {
         rangeType = 'custom';
         updateDates(fromDate, toDate, null);
         onRangeTypeChange?.('custom');
-        showCustomDates = false;
+        showRangeDropdown = false;
       }
+    }
+  }
+  
+  function handleShowCustomInputs() {
+    showCustomInputs = !showCustomInputs;
+    showRangeDropdown = false;
+    
+    // Initialize with current dates if available
+    if (from && to) {
+      customFrom = formatDateForInput(from);
+      customTo = formatDateForInput(to);
     }
   }
   
@@ -124,90 +147,89 @@
   });
 </script>
 
-<div class="flex items-center gap-2">
-  <!-- Range selector dropdown -->
-  <DropdownMenu.Root bind:open={showRangeDropdown}>
-    <DropdownMenu.Trigger asChild>
-      <Button
-        variant="outline"
-        size="sm"
-        class="min-w-[140px] justify-between"
-      >
-        <span class="truncate">{selectionLabel}</span>
-        <ChevronDown class="ml-2 h-4 w-4 flex-shrink-0" />
-      </Button>
-    </DropdownMenu.Trigger>
-    <DropdownMenu.Content class="w-56">
-      <DropdownMenu.Item onclick={() => handlePresetSelect('last_7_days')}>
-        Last 7 days
-      </DropdownMenu.Item>
-      <DropdownMenu.Item onclick={() => handlePresetSelect('this_month')}>
-        This month
-      </DropdownMenu.Item>
-      <DropdownMenu.Separator />
-      <DropdownMenu.Item onclick={() => showCustomDates = true}>
-        <Calendar class="mr-2 h-4 w-4" />
-        Custom range...
-      </DropdownMenu.Item>
-    </DropdownMenu.Content>
-  </DropdownMenu.Root>
+<div class="flex flex-col gap-2">
+  <div class="flex items-center gap-2">
+    <!-- Range selector dropdown -->
+    <DropdownMenu.Root bind:open={showRangeDropdown}>
+      <DropdownMenu.Trigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          class="min-w-[140px] justify-between"
+        >
+          <span class="truncate">{selectionLabel}</span>
+          <ChevronDown class="ml-2 h-4 w-4 flex-shrink-0" />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content class="w-56">
+        <DropdownMenu.Item onclick={() => handlePresetSelect('last_7_days')}>
+          Last 7 days
+        </DropdownMenu.Item>
+        <DropdownMenu.Item onclick={() => handlePresetSelect('this_month')}>
+          This month
+        </DropdownMenu.Item>
+        <DropdownMenu.Separator />
+        <DropdownMenu.Item onclick={handleShowCustomInputs}>
+          <Calendar class="mr-2 h-4 w-4" />
+          Custom range...
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+    
+    <!-- Month navigation (only show for month view) -->
+    {#if rangeType === 'month'}
+      <div class="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onclick={() => handleMonthChange('prev')}
+          class="p-2"
+        >
+          <ChevronLeft class="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onclick={() => handleMonthChange('next')}
+          disabled={monthOffset >= 0}
+          class="p-2"
+        >
+          <ChevronRight class="h-4 w-4" />
+        </Button>
+      </div>
+    {/if}
+  </div>
   
-  <!-- Month navigation (only show for month view) -->
-  {#if rangeType === 'month'}
-    <div class="flex items-center gap-1">
-      <Button
-        variant="outline"
-        size="sm"
-        onclick={() => handleMonthChange('prev')}
-        class="p-2"
+  <!-- Custom date inputs (inline, not modal) -->
+  {#if showCustomInputs}
+    <div class="flex items-center gap-2 p-3 bg-muted rounded-md">
+      <Input
+        type="date"
+        bind:value={customFrom}
+        class="w-40"
+        placeholder="Start date"
+      />
+      <span class="text-sm text-muted-foreground">to</span>
+      <Input
+        type="date"
+        bind:value={customTo}
+        class="w-40"
+        placeholder="End date"
+      />
+      <Button 
+        size="sm" 
+        onclick={handleCustomDates} 
+        disabled={!customFrom || !customTo}
       >
-        <ChevronLeft class="h-4 w-4" />
+        Apply
       </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onclick={() => handleMonthChange('next')}
-        disabled={monthOffset >= 0}
-        class="p-2"
+      <Button 
+        size="sm" 
+        variant="ghost" 
+        onclick={() => showCustomInputs = false}
       >
-        <ChevronRight class="h-4 w-4" />
+        Cancel
       </Button>
     </div>
   {/if}
 </div>
-
-<!-- Custom date range modal/popup -->
-{#if showCustomDates}
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-      <h3 class="text-lg font-semibold mb-4">Select Custom Date Range</h3>
-      
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">From Date</label>
-          <DateInput bind:value={customFrom} placeholder="Start date" />
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium mb-1">To Date</label>
-          <DateInput bind:value={customTo} placeholder="End date" />
-        </div>
-      </div>
-      
-      <div class="flex justify-end gap-2 mt-6">
-        <Button
-          variant="outline"
-          onclick={() => showCustomDates = false}
-        >
-          Cancel
-        </Button>
-        <Button
-          onclick={handleCustomDates}
-          disabled={!customFrom || !customTo}
-        >
-          Apply
-        </Button>
-      </div>
-    </div>
-  </div>
-{/if}

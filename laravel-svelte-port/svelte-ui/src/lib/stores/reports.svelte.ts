@@ -210,19 +210,13 @@ class ReportsStore {
     this.state.error = null;
 
     try {
-      // TODO: Remove mock data when backend is ready
-      if (import.meta.env.DEV) {
-        // Use mock data in development
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
-        const { mockAccountConversationMetric } = await import('$lib/components/reports/overview/test-data');
-        this.state.overview.accountConversationMetric = mockAccountConversationMetric;
-      } else {
-        const response = await reportsApi.getLiveConversationMetrics(accountId, params);
-        this.state.overview.accountConversationMetric = response.data as LiveAccountMetric;
-      }
+      console.log('🔄 Fetching account conversation metrics with params:', params);
+      const response = await reportsApi.getLiveConversationMetrics(accountId, params);
+      this.state.overview.accountConversationMetric = response.data as LiveAccountMetric;
+      console.log('✅ Account conversation metrics fetched:', this.state.overview.accountConversationMetric);
     } catch (error) {
       this.state.error = error instanceof Error ? error.message : 'Failed to fetch account conversation metrics';
-      console.error('Error fetching account conversation metrics:', error);
+      console.error('❌ Error fetching account conversation metrics:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingAccountConversationMetric = false;
     }
@@ -236,18 +230,13 @@ class ReportsStore {
     this.state.error = null;
 
     try {
-      // TODO: Remove mock data when backend is ready
-      if (import.meta.env.DEV) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const { mockAgentConversationMetric } = await import('$lib/components/reports/overview/test-data');
-        this.state.overview.agentConversationMetric = mockAgentConversationMetric;
-      } else {
-        const response = await reportsApi.getLiveGroupedConversations(accountId, { groupBy: 'assignee_id' });
-        this.state.overview.agentConversationMetric = response.data as LiveAgentMetric[];
-      }
+      console.log('🔄 Fetching agent conversation metrics');
+      const response = await reportsApi.getLiveGroupedConversations(accountId, { groupBy: 'assignee_id' });
+      this.state.overview.agentConversationMetric = response.data as LiveAgentMetric[];
+      console.log('✅ Agent conversation metrics fetched:', this.state.overview.agentConversationMetric);
     } catch (error) {
       this.state.error = error instanceof Error ? error.message : 'Failed to fetch agent conversation metrics';
-      console.error('Error fetching agent conversation metrics:', error);
+      console.error('❌ Error fetching agent conversation metrics:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingAgentConversationMetric = false;
     }
@@ -261,18 +250,13 @@ class ReportsStore {
     this.state.error = null;
 
     try {
-      // TODO: Remove mock data when backend is ready
-      if (import.meta.env.DEV) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const { mockTeamConversationMetric } = await import('$lib/components/reports/overview/test-data');
-        this.state.overview.teamConversationMetric = mockTeamConversationMetric;
-      } else {
-        const response = await reportsApi.getLiveGroupedConversations(accountId, { groupBy: 'team_id' });
-        this.state.overview.teamConversationMetric = response.data as LiveTeamMetric[];
-      }
+      console.log('🔄 Fetching team conversation metrics');
+      const response = await reportsApi.getLiveGroupedConversations(accountId, { groupBy: 'team_id' });
+      this.state.overview.teamConversationMetric = response.data as LiveTeamMetric[];
+      console.log('✅ Team conversation metrics fetched:', this.state.overview.teamConversationMetric);
     } catch (error) {
       this.state.error = error instanceof Error ? error.message : 'Failed to fetch team conversation metrics';
-      console.error('Error fetching team conversation metrics:', error);
+      console.error('❌ Error fetching team conversation metrics:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingTeamConversationMetric = false;
     }
@@ -286,18 +270,13 @@ class ReportsStore {
     this.state.error = null;
 
     try {
-      // TODO: Remove mock data when backend is ready
-      if (import.meta.env.DEV) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const { mockAgentStatus } = await import('$lib/components/reports/overview/test-data');
-        this.state.overview.agentStatus = mockAgentStatus;
-      } else {
-        const response = await reportsApi.getAgentStatus(accountId);
-        this.state.overview.agentStatus = response.data as AgentStatusMetric;
-      }
+      console.log('🔄 Fetching agent status');
+      const response = await reportsApi.getAgentStatus(accountId);
+      this.state.overview.agentStatus = response.data as AgentStatusMetric;
+      console.log('✅ Agent status fetched:', this.state.overview.agentStatus);
     } catch (error) {
       this.state.error = error instanceof Error ? error.message : 'Failed to fetch agent status';
-      console.error('Error fetching agent status:', error);
+      console.error('❌ Error fetching agent status:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingAgentStatus = false;
     }
@@ -319,18 +298,13 @@ class ReportsStore {
     this.state.error = null;
 
     try {
-      // TODO: Remove mock data when backend is ready
-      if (import.meta.env.DEV) {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        const { generateMockHeatmapData } = await import('$lib/components/reports/overview/test-data');
-        this.state.overview.accountConversationHeatmap = generateMockHeatmapData(7);
-      } else {
-        const response = await reportsApi.getHeatmapData(accountId, params);
-        this.state.overview.accountConversationHeatmap = response.data as HeatmapData[];
-      }
+      console.log('🔄 Fetching conversation heatmap with params:', params);
+      const response = await reportsApi.getHeatmapData(accountId, params);
+      this.state.overview.accountConversationHeatmap = response.data as HeatmapData[];
+      console.log('✅ Conversation heatmap fetched:', response.data);
     } catch (error) {
       this.state.error = error instanceof Error ? error.message : 'Failed to fetch conversation heatmap';
-      console.error('Error fetching conversation heatmap:', error);
+      console.error('❌ Error fetching conversation heatmap:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingAccountConversationsHeatmap = false;
     }
@@ -352,23 +326,13 @@ class ReportsStore {
     this.state.error = null;
 
     try {
-      // TODO: Remove mock data when backend is ready
-      if (import.meta.env.DEV) {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        const { generateMockHeatmapData } = await import('$lib/components/reports/overview/test-data');
-        // Generate different data for resolutions (generally lower values)
-        const baseData = generateMockHeatmapData(7);
-        this.state.overview.accountResolutionHeatmap = baseData.map(item => ({
-          ...item,
-          value: Math.floor(item.value * 0.7) // Resolutions typically lower than conversations
-        }));
-      } else {
-        const response = await reportsApi.getHeatmapData(accountId, params);
-        this.state.overview.accountResolutionHeatmap = response.data as HeatmapData[];
-      }
+      console.log('🔄 Fetching resolution heatmap with params:', params);
+      const response = await reportsApi.getHeatmapData(accountId, params);
+      this.state.overview.accountResolutionHeatmap = response.data as HeatmapData[];
+      console.log('✅ Resolution heatmap fetched:', response.data);
     } catch (error) {
       this.state.error = error instanceof Error ? error.message : 'Failed to fetch resolution heatmap';
-      console.error('Error fetching resolution heatmap:', error);
+      console.error('❌ Error fetching resolution heatmap:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingAccountResolutionsHeatmap = false;
     }

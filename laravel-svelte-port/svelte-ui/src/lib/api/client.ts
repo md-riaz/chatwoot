@@ -243,6 +243,8 @@ export function buildQueryString(params: Record<string, any>): string {
 /**
  * Helper to convert params object to Record<string, string> for ky searchParams
  * Arrays are converted to comma-separated strings
+ * Booleans are converted to "true"/"false" strings
+ * Keys are automatically transformed to snake_case
  * Returns undefined if params is undefined or empty
  */
 export function toSearchParams(params?: Record<string, any>): Record<string, string> | undefined {
@@ -250,11 +252,16 @@ export function toSearchParams(params?: Record<string, any>): Record<string, str
     return undefined;
   }
   
+  // Transform keys to snake_case first
+  const transformed = keysToSnake(params);
   const result: Record<string, string> = {};
   
-  Object.entries(params).forEach(([key, value]) => {
+  Object.entries(transformed).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
-      if (Array.isArray(value)) {
+      if (typeof value === 'boolean') {
+        // Convert boolean to "true" or "false" string
+        result[key] = value ? 'true' : 'false';
+      } else if (Array.isArray(value)) {
         // Convert arrays to comma-separated strings
         result[key] = value.join(',');
       } else {

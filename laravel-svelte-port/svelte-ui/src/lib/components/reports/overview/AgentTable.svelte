@@ -37,6 +37,15 @@
   
   // Get agent metrics by ID
   function getAgentMetrics(agentId: number): AgentMetric {
+    // Handle undefined agentMetrics array
+    if (!agentMetrics || !Array.isArray(agentMetrics)) {
+      return {
+        assigneeId: agentId,
+        open: 0,
+        unattended: 0
+      };
+    }
+    
     return agentMetrics.find(m => m.assigneeId === agentId) || {
       assigneeId: agentId,
       open: 0,

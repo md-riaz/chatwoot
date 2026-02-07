@@ -25,24 +25,27 @@
   );
   
   const conversationMetrics = $derived({
-    'Open': accountConversationMetric.open,
-    'Unattended': accountConversationMetric.unattended,
-    'Unassigned': accountConversationMetric.unassigned
+    'Open': accountConversationMetric?.open ?? 0,
+    'Unattended': accountConversationMetric?.unattended ?? 0,
+    'Unassigned': accountConversationMetric?.unassigned ?? 0,
+    'Pending': accountConversationMetric?.pending ?? 0
   });
   
   const agentStatusMetrics = $derived({
-    'Online': agentStatus.online,
-    'Busy': agentStatus.busy,
-    'Offline': agentStatus.offline
+    'Online': agentStatus?.online ?? 0,
+    'Busy': agentStatus?.busy ?? 0,
+    'Offline': agentStatus?.offline ?? 0
   });
   
   // Data fetching
   async function fetchData() {
+    console.log('🔄 StatsLiveReportsContainer: Fetching data with team:', selectedTeam);
     const params = selectedTeam ? { teamId: selectedTeam } : {};
     await Promise.all([
       reportsStore.fetchAccountConversationMetric(params),
       reportsStore.fetchAgentStatus()
     ]);
+    console.log('✅ StatsLiveReportsContainer: Data fetched successfully');
   }
   
   // Live refresh setup
@@ -50,6 +53,7 @@
   
   // Team selection handler
   function handleTeamSelect(teamId: number | null) {
+    console.log('🎯 Team selected:', teamId);
     selectedTeam = teamId;
     showTeamDropdown = false;
     fetchData();
