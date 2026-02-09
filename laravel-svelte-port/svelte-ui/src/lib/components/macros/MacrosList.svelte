@@ -48,7 +48,7 @@
     switch (visibility) {
       case 'global': return 'default';
       case 'personal': return 'secondary';
-      case 'team': return 'outline-solid';
+      case 'team': return 'outline';
       default: return 'default';
     }
   }

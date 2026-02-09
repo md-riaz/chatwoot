@@ -208,7 +208,7 @@
             <!-- Page size selector -->
             <select 
               bind:value={pageSize}
-              on:change={(e) => handlePageSizeChange(parseInt(e.currentTarget.value))}
+              onchange={(e) => handlePageSizeChange(parseInt(e.currentTarget.value))}
               class="text-sm border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
             >
               <option value={10}>10 per page</option>

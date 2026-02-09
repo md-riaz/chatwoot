@@ -24,6 +24,11 @@
   let errors = $state<Record<string, string>>({});
   let activeSocials = $state<Set<string>>(new Set());
 
+  // Update form when contact changes
+  $effect(() => {
+    form = extractContactFormData(contact);
+  });
+
   const socialNetworks = [
     { key: 'facebook', label: 'Facebook', icon: Facebook, placeholder: 'Username or URL' },
     { key: 'twitter', label: 'Twitter', icon: Twitter, placeholder: 'Username' },
@@ -194,7 +199,8 @@
             {#if activeSocials.has(network.key)}
               <div class="relative flex items-center">
                 <div class="absolute left-3 text-muted-foreground flex items-center justify-center">
-                  <svelte:component this={network.icon} class="h-4 w-4" />
+                  {@const NetworkIcon = network.icon}
+                  <NetworkIcon class="h-4 w-4" />
                 </div>
                 <Input 
                   bind:value={form.socialProfiles[network.key]} 
@@ -224,7 +230,8 @@
               class="inline-flex items-center gap-2 h-9 px-3 text-sm transition-colors rounded-md bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onclick={() => addSocialProfile(network.key)}
             >
-              <svelte:component this={network.icon} class="h-4 w-4" />
+              {@const NetworkIcon = network.icon}
+              <NetworkIcon class="h-4 w-4" />
               <span>Add {network.label}</span>
             </button>
           {/if}

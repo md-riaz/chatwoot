@@ -49,11 +49,19 @@
 
   let from = $state(0);
   let to = $state(0);
-  let selectedFilter = $state(selectedItem);
   let groupBy = $state(GROUP_BY_FILTER[1]);
   let groupByfilterItemsList = $state(GROUP_BY_OPTIONS.DAY);
   let selectedGroupByFilter = $state<any>(null);
   let businessHours = $state(false);
+
+  // Use $derived to maintain reactive reference to selectedItem prop
+  const selectedItemRef = $derived(selectedItem);
+  let selectedFilter = $state(selectedItemRef);
+
+  // Update local state when prop changes
+  $effect(() => {
+    selectedFilter = selectedItemRef;
+  });
 
   // Get filter items list from store based on getterKey
   const filterItemsList = $derived(

@@ -20,7 +20,7 @@
 
 <div class={cn('p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800', className)}>
   <div class="flex items-start gap-3">
-    <Avatar size="sm">
+    <Avatar class="h-8 w-8">
       <AvatarImage src={author.avatar} alt={author.name} />
       <AvatarFallback>{author.name.slice(0, 2).toUpperCase()}</AvatarFallback>
     </Avatar>

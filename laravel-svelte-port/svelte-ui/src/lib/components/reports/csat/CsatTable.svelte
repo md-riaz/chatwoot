@@ -42,7 +42,7 @@
 
 <div class="border rounded-lg">
   {#if isLoading}
-    <LoadingSkeleton height="400px" />
+    <div class="h-[400px] animate-pulse bg-muted rounded"></div>
   {:else if responses && responses.length > 0}
     <Table>
       <TableHeader>

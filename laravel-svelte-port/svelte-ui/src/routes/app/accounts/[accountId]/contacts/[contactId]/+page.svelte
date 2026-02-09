@@ -431,7 +431,8 @@
                       rel="noopener noreferrer"
                       class="text-muted-foreground hover:text-foreground"
                     >
-                      <svelte:component this={media.icon} class="h-5 w-5" />
+                      {@const MediaIcon = media.icon}
+                      <MediaIcon class="h-5 w-5" />
                     </a>
                   {/if}
                 {/each}

@@ -107,7 +107,7 @@
   <h3 class="text-lg font-semibold mb-4">{title}</h3>
   
   {#if isLoading}
-    <LoadingSkeleton height="300px" />
+    <div class="h-[300px] animate-pulse bg-muted rounded"></div>
   {:else if chartData && chartData.data.length > 0}
     <div class="h-[300px]">
       <Line {data} {options} />

@@ -24,7 +24,7 @@
     inbox: Inbox
   };
   
-  const IconComponent = iconComponents[icon];
+  const IconComponent = $derived(iconComponents[icon]);
 </script>
 
 <div class="flex flex-col items-center justify-center p-8 text-center">

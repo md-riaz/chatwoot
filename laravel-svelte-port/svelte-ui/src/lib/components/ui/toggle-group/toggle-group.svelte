@@ -23,10 +23,14 @@
 		...restProps
 	}: ToggleGroupPrimitive.RootProps & ToggleVariants = $props();
 
-	setToggleGroupCtx({
-		variant,
-		size,
+	// Create reactive context
+	let contextValue = $state({ variant, size });
+	
+	$effect(() => {
+		contextValue = { variant, size };
 	});
+	
+	setToggleGroupCtx(contextValue);
 </script>
 
 <!--

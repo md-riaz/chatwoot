@@ -6,6 +6,7 @@
   import type { NavigationItem } from "./types";
   import SidebarIcon from "./SidebarIcon.svelte";
   import { page } from "$app/stores";
+  import Self from "./SidebarMenuItem.svelte";
 
   let { item, sub = false }: { item: NavigationItem; sub?: boolean } = $props();
 
@@ -70,7 +71,7 @@
           <Collapsible.Content>
             <Sidebar.MenuSub>
               {#each item.children as child (child.id)}
-                <svelte:self item={child} sub={true} />
+                <Self item={child} sub={true} />
               {/each}
             </Sidebar.MenuSub>
           </Collapsible.Content>
@@ -113,7 +114,7 @@
             <Collapsible.Content>
               <Sidebar.MenuSub>
                 {#each item.children as child (child.id)}
-                  <svelte:self item={child} sub={true} />
+                  <Self item={child} sub={true} />
                 {/each}
               </Sidebar.MenuSub>
             </Collapsible.Content>

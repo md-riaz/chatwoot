@@ -35,7 +35,7 @@
   {#if isLoading}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
       {#each Array(3) as _}
-        <LoadingSkeleton height="100px" />
+        <div class="h-[100px] animate-pulse bg-muted rounded"></div>
       {/each}
     </div>
   {:else}

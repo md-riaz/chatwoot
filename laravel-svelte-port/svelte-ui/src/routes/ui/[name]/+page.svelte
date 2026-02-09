@@ -15,7 +15,7 @@
   // Some components might not be exported from the main barrel or need specific imports if they are complex
   // But generally UI.* should work for those in index.ts
 
-  $: componentName = $page.params.name;
+  const componentName = $derived($page.params.name);
 
   // Mock data for various components
   const frameworks = [

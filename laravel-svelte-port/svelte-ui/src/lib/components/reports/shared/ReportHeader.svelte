@@ -1,14 +1,18 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
+  
   interface Props {
     headerTitle: string;
     headerDescription?: string;
     hasBackButton?: boolean;
+    children?: Snippet;
   }
   
   let { 
     headerTitle, 
     headerDescription = '', 
-    hasBackButton = false 
+    hasBackButton = false,
+    children
   }: Props = $props();
 </script>
 
@@ -32,7 +36,7 @@
       </div>
     </div>
     <div class="flex-shrink-0">
-      <slot />
+      {@render children?.()}
     </div>
   </div>
 </section>

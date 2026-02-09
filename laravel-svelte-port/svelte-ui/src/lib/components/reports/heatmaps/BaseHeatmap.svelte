@@ -118,7 +118,7 @@
       </div>
       
       <!-- Spacer -->
-      <div />
+      <div></div>
       
       <!-- Hour labels -->
       <div class="grid grid-cols-[repeat(24,_1fr)] gap-[5px] w-full text-[8px] font-semibold h-5 text-slate-900 dark:text-slate-100">

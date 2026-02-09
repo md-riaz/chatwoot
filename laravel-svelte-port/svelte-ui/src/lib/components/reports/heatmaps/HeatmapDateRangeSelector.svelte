@@ -13,9 +13,9 @@
   }
   
   let { 
-    from = null, 
-    to = null, 
-    daysNum = null,
+    from = $bindable(null), 
+    to = $bindable(null), 
+    daysNum = $bindable(null),
     onRangeTypeChange,
     onMonthOffsetChange
   }: Props = $props();
@@ -151,7 +151,7 @@
   <div class="flex items-center gap-2">
     <!-- Range selector dropdown -->
     <DropdownMenu.Root bind:open={showRangeDropdown}>
-      <DropdownMenu.Trigger asChild>
+      <DropdownMenu.Trigger>
         <Button
           variant="outline"
           size="sm"

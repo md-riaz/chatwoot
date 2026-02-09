@@ -44,7 +44,8 @@
       
       {#if trend !== 0}
         <div class="flex items-center gap-1 {trendColor}">
-          <svelte:component this={TrendIcon} class="h-4 w-4" />
+          {@const Icon = TrendIcon}
+          <Icon class="h-4 w-4" />
           <span class="text-sm font-medium">{Math.abs(trend)}%</span>
         </div>
       {/if}

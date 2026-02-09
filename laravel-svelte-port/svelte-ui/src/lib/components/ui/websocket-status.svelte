@@ -49,7 +49,8 @@
 
 <div class="websocket-status {className}">
   <Badge {variant} class="flex items-center gap-1.5">
-    <svelte:component this={icon} class="w-3 h-3 {iconClass}" />
+    {@const Icon = icon}
+    <Icon class="w-3 h-3 {iconClass}" />
     <span class="text-xs font-medium">
       {connectionStatus}
     </span>

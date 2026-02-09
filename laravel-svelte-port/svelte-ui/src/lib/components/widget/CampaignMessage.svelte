@@ -6,7 +6,7 @@
    */
   import { createEventDispatcher } from 'svelte';
   import type { WidgetCampaign } from '$lib/api/widget-campaigns';
-  import Avatar from '$lib/components/ui/avatar/avatar.svelte';
+  import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/ui/avatar';
 
   interface Props {
     campaign: WidgetCampaign;
@@ -84,13 +84,10 @@
   >
     {#if showSender}
       <div class="row--agent-block">
-        <Avatar
-          src={avatarUrl}
-          size={20}
-          name={agentName}
-          status={availabilityStatus}
-          class="rounded-full"
-        />
+        <Avatar class="h-5 w-5 rounded-full">
+          <AvatarImage src={avatarUrl} alt={agentName} />
+          <AvatarFallback>{agentName.slice(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
         <span class="agent--name">{agentName}</span>
         {#if displayCompanyName}
           <span class="company--name">{displayCompanyName}</span>

@@ -210,7 +210,7 @@
     <div class="space-y-2">
       <Label>Status</Label>
       <div class="flex gap-2">
-        <Badge variant={article.status === 'draft' ? 'default' : 'outline-solid'}>
+        <Badge variant={article.status === 'draft' ? 'default' : 'outline'}>
           {article.status}
         </Badge>
       </div>

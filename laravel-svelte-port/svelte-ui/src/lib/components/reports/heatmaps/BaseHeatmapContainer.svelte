@@ -228,7 +228,7 @@
         
         <!-- Inbox Filter -->
         <DropdownMenu.Root bind:open={showInboxDropdown}>
-          <DropdownMenu.Trigger asChild>
+          <DropdownMenu.Trigger>
             <Button
               variant="outline"
               size="sm"

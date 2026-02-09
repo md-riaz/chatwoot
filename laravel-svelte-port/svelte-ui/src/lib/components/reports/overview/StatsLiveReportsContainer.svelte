@@ -82,7 +82,7 @@
       {#snippet control()}
         {#if teams.length > 0}
           <DropdownMenu.Root bind:open={showTeamDropdown}>
-            <DropdownMenu.Trigger asChild>
+            <DropdownMenu.Trigger>
               <Button
                 variant="outline"
                 size="sm"

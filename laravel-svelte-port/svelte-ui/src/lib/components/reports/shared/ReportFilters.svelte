@@ -23,9 +23,22 @@
 
   const dispatch = createEventDispatcher();
 
-  let selectedFilterValue = $state(currentFilter?.id?.toString() || '');
-  let selectedGroupByValue = $state(selectedGroupByFilter?.id?.toString() || '');
+  // Use $derived to maintain reactive references to props
+  const currentFilterId = $derived(currentFilter?.id?.toString() || '');
+  const selectedGroupById = $derived(selectedGroupByFilter?.id?.toString() || '');
+
+  let selectedFilterValue = $state(currentFilterId);
+  let selectedGroupByValue = $state(selectedGroupById);
   let businessHoursEnabled = $state(false);
+
+  // Update local state when props change
+  $effect(() => {
+    selectedFilterValue = currentFilterId;
+  });
+
+  $effect(() => {
+    selectedGroupByValue = selectedGroupById;
+  });
 
   const filterLabel = $derived(
     filterItemsList.find((item) => item.id?.toString() === selectedFilterValue)?.name || 

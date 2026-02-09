@@ -81,7 +81,7 @@
         <span class="px-2 text-muted-foreground">...</span>
       {:else}
         <Button
-          variant={currentPage === page ? 'default' : 'outline-solid'}
+          variant={currentPage === page ? 'default' : 'outline'}
           size="sm"
           onclick={() => goToPage(page as number)}
         >

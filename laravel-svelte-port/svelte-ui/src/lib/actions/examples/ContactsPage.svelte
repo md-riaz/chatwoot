@@ -388,7 +388,7 @@
       <div class="mt-3">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Create New Contact</h3>
         
-        <form onsubmit|preventDefault={handleCreateContact}>
+        <form onsubmit={(e) => { e.preventDefault(); handleCreateContact(); }}>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
             <input

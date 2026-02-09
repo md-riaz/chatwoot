@@ -18,7 +18,7 @@
 <div class="flex items-center gap-2 overflow-x-auto pb-2">
   {#each filters as filter}
     <Button
-      variant={filter.isActive ? 'default' : 'outline-solid'}
+      variant={filter.isActive ? 'default' : 'outline'}
       size="sm"
       class="gap-2 whitespace-nowrap"
       onclick={() => onFilterChange?.(filter.id)}
