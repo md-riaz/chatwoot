@@ -18,6 +18,11 @@
   let ignoreWaiting = $state(false);
   let selectedLabel = $state<string>('');
   let isSubmitting = $state(false);
+  
+  // Label display
+  const selectedLabelDisplay = $derived(
+    selectedLabel || $_('GENERAL_SETTINGS.FORM.AUTO_RESOLVE.LABEL.PLACEHOLDER')
+  );
 
   // Initialize from account settings
   $effect(() => {
@@ -115,11 +120,11 @@
             <!-- Label Selector placeholder -->
             <Select.Root type="single" bind:value={selectedLabel}>
                <Select.Trigger class="w-[180px]">
-                 <Select.Value placeholder={$_('GENERAL_SETTINGS.FORM.AUTO_RESOLVE.LABEL.PLACEHOLDER')} />
+                 {selectedLabelDisplay}
                </Select.Trigger>
                <Select.Content>
                   {#each labelsStore.all as label}
-                    <Select.Item value={label.title}>{label.title}</Select.Item>
+                    <Select.Item value={label.title} label={label.title}>{label.title}</Select.Item>
                   {/each}
                </Select.Content>
             </Select.Root>

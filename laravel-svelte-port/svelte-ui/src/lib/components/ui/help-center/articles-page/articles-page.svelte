@@ -86,6 +86,13 @@
       day: 'numeric',
     }).format(date);
   }
+  
+  // Display labels
+  $: categoryLabel = selectedCategory === 'all' 
+    ? 'All Categories' 
+    : categories.find(c => c.id === selectedCategory)?.name || 'All Categories';
+  
+  $: sortLabel = sortBy === 'date' ? 'Date' : sortBy === 'popularity' ? 'Popularity' : 'Title';
 </script>
 
 <div class="flex flex-col h-full space-y-4">
@@ -103,12 +110,12 @@
       </div>
       <Select.Root bind:value={selectedCategory} type="single">
         <Select.Trigger class="w-[180px]">
-          <Select.Value placeholder="All Categories" />
+          {categoryLabel}
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value="all">All Categories</Select.Item>
+          <Select.Item value="all" label="All Categories">All Categories</Select.Item>
           {#each categories as category}
-            <Select.Item value={category.id}>
+            <Select.Item value={category.id} label={`${category.name} (${category.count})`}>
               {category.name} ({category.count})
             </Select.Item>
           {/each}
@@ -116,12 +123,12 @@
       </Select.Root>
       <Select.Root bind:value={sortBy} type="single">
         <Select.Trigger class="w-[160px]">
-          <Select.Value placeholder="Sort by" />
+          {sortLabel}
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value="date">Date</Select.Item>
-          <Select.Item value="popularity">Popularity</Select.Item>
-          <Select.Item value="title">Title</Select.Item>
+          <Select.Item value="date" label="Date">Date</Select.Item>
+          <Select.Item value="popularity" label="Popularity">Popularity</Select.Item>
+          <Select.Item value="title" label="Title">Title</Select.Item>
         </Select.Content>
       </Select.Root>
     </div>

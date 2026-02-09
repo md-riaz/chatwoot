@@ -45,6 +45,11 @@
     )
   );
 
+  // Derived label for inbox select display
+  const inboxLabel = $derived(
+    webInboxes.find(inbox => inbox.id === inboxId)?.name || 'Select an inbox'
+  );
+
   onMount(() => {
     // Load inboxes
     inboxesStore.fetchInboxes();
@@ -161,7 +166,7 @@
         type="single"
       >
         <Select.Trigger class={errors.inboxId ? 'border-red-500' : ''}>
-          <Select.Value placeholder="Select an inbox" />
+          {inboxLabel}
         </Select.Trigger>
         <Select.Content>
           {#each webInboxes as inbox}

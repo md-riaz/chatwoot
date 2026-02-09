@@ -67,6 +67,11 @@
     }))
   );
   
+  // Derived label for inbox select display
+  const inboxLabel = $derived(
+    inboxOptions.find(opt => opt.value === inboxId?.toString())?.label || 'Select SMS inbox'
+  );
+  
   // Get current datetime for min attribute
   let currentDateTime = $derived(() => {
     const now = new Date();
@@ -184,11 +189,11 @@
       type="single"
     >
       <Select.Trigger id="inbox" class={errors.inboxId ? 'border-red-500' : ''}>
-        <Select.Value placeholder="Select SMS inbox" />
+        {inboxLabel}
       </Select.Trigger>
       <Select.Content>
         {#each inboxOptions as option}
-          <Select.Item value={option.value}>{option.label}</Select.Item>
+          <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
         {/each}
       </Select.Content>
     </Select.Root>

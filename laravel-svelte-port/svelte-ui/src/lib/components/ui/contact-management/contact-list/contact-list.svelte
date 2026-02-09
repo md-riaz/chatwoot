@@ -53,6 +53,9 @@
 
   let selectedContacts = $state<Set<string>>(new Set());
 
+  // Tag label for select display
+  const tagLabel = $derived(selectedTag === 'all' ? 'All Tags' : selectedTag);
+
   // Use $derived instead of $:
   const filteredContacts = $derived(contacts
     .filter((contact: Contact) => {
@@ -152,13 +155,13 @@
       </Button>
       <Select.Root bind:value={selectedTag} type="single">
         <Select.Trigger class="w-[140px]">
-          <Select.Value placeholder="All Tags" />
+          {tagLabel}
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value="all">All Tags</Select.Item>
-          <Select.Item value="vip">VIP</Select.Item>
-          <Select.Item value="lead">Lead</Select.Item>
-          <Select.Item value="customer">Customer</Select.Item>
+          <Select.Item value="all" label="All Tags">All Tags</Select.Item>
+          <Select.Item value="vip" label="VIP">VIP</Select.Item>
+          <Select.Item value="lead" label="Lead">Lead</Select.Item>
+          <Select.Item value="customer" label="Customer">Customer</Select.Item>
         </Select.Content>
       </Select.Root>
     </div>

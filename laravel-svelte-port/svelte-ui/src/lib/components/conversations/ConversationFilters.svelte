@@ -44,6 +44,11 @@
   let selectedStatus = $state('all');
   let selectedSort = $state('latest');
   
+  // Derived label for sort select display
+  const sortLabel = $derived(
+    sortOptions.find(opt => opt.value === selectedSort)?.label || 'Select sort order'
+  );
+  
   // Sync selectedSort with sort prop
   $effect(() => {
     selectedSort = sort.sortBy;
@@ -96,11 +101,11 @@
     <span class="text-sm text-muted-foreground">Sort by:</span>
     <Select.Root bind:value={selectedSort} onValueChange={handleSortChange} type="single">
       <Select.Trigger class="w-[180px]">
-        <Select.Value placeholder="Select sort order" />
+        {sortLabel}
       </Select.Trigger>
       <Select.Content>
         {#each sortOptions as option}
-          <Select.Item value={option.value}>
+          <Select.Item value={option.value} label={option.label}>
             {option.label}
           </Select.Item>
         {/each}

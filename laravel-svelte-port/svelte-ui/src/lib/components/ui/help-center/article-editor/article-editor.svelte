@@ -54,6 +54,10 @@
   let categoryValue = $state<string>('');
   let localeValue = $state<string>('');
 
+  // Derived labels for select display
+  const categoryLabel = $derived(categoryValue || 'Select category');
+  const localeLabel = $derived(localeValue ? localeValue.toUpperCase() : 'Select locale');
+
   // Sync back to article
   $effect(() => {
     article.category = categoryValue;
@@ -141,11 +145,11 @@
         <Label for="category">Category</Label>
         <Select.Root bind:value={categoryValue} type="single">
           <Select.Trigger id="category">
-            <Select.Value placeholder="Select category" />
+            {categoryLabel}
           </Select.Trigger>
           <Select.Content>
             {#each categories as cat}
-              <Select.Item value={cat}>{cat}</Select.Item>
+              <Select.Item value={cat} label={cat}>{cat}</Select.Item>
             {/each}
           </Select.Content>
         </Select.Root>
@@ -155,11 +159,11 @@
         <Label for="locale">Locale</Label>
         <Select.Root bind:value={localeValue} type="single">
           <Select.Trigger id="locale">
-            <Select.Value placeholder="Select locale" />
+            {localeLabel}
           </Select.Trigger>
           <Select.Content>
             {#each locales as loc}
-              <Select.Item value={loc}>{loc.toUpperCase()}</Select.Item>
+              <Select.Item value={loc} label={loc.toUpperCase()}>{loc.toUpperCase()}</Select.Item>
             {/each}
           </Select.Content>
         </Select.Root>

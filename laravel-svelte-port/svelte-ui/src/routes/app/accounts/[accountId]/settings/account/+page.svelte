@@ -43,6 +43,11 @@
   let languagesSortedByCode = $derived([...enabledLanguages].sort((l1, l2) => 
     l1.iso_639_1_code.localeCompare(l2.iso_639_1_code)
   ));
+  
+  // Language display label
+  const localeLabel = $derived(
+    languagesSortedByCode.find(lang => lang.iso_639_1_code === locale)?.name || 'Select language'
+  );
 
   // Initialize data
   $effect(() => {
@@ -120,7 +125,7 @@
           <Label for="account-locale">{$_('GENERAL_SETTINGS.FORM.LANGUAGE.LABEL')}</Label>
           <Select.Root type="single" bind:value={locale}>
             <Select.Trigger id="account-locale">
-              <Select.Value placeholder="Select language" />
+              {localeLabel}
             </Select.Trigger>
             <Select.Content class="max-h-[300px]">
               {#each languagesSortedByCode as lang}

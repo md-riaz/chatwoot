@@ -125,16 +125,25 @@
         </div>
       </RadioGroup.Root>
     {:else if componentName === 'select'}
-      <Select.Root type="single">
-        <Select.Trigger class="w-[180px]">
-          <Select.Value placeholder="Theme" />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value="light" label="Light">Light</Select.Item>
-          <Select.Item value="dark" label="Dark">Dark</Select.Item>
-          <Select.Item value="system" label="System">System</Select.Item>
-        </Select.Content>
-      </Select.Root>
+      {#snippet selectDemo()}
+        {@const themeValue = $state('light')}
+        {@const themeLabel = $derived(
+          themeValue === 'light' ? 'Light' : 
+          themeValue === 'dark' ? 'Dark' : 
+          themeValue === 'system' ? 'System' : 'Theme'
+        )}
+        <Select.Root bind:value={themeValue} type="single">
+          <Select.Trigger class="w-[180px]">
+            {themeLabel}
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="light" label="Light">Light</Select.Item>
+            <Select.Item value="dark" label="Dark">Dark</Select.Item>
+            <Select.Item value="system" label="System">System</Select.Item>
+          </Select.Content>
+        </Select.Root>
+      {/snippet}
+      {@render selectDemo()}
     {:else}
       <div class="text-center text-muted-foreground p-10">
         <h3 class="text-lg font-medium">Preview not available yet</h3>

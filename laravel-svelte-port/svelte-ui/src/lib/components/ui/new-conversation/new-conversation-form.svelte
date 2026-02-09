@@ -18,6 +18,13 @@
   let selectedInbox = $state<string>('');
   let contact = $state('');
   let message = $state('');
+  
+  // Display label
+  const inboxLabel = $derived(
+    inboxes.find(inbox => inbox.id === selectedInbox)
+      ? `${inboxes.find(inbox => inbox.id === selectedInbox)!.name} (${inboxes.find(inbox => inbox.id === selectedInbox)!.channelType})`
+      : 'Select an inbox'
+  );
 
   function handleSubmit(e: Event) {
     e.preventDefault();
@@ -30,11 +37,11 @@
     <Label for="inbox">Inbox</Label>
     <Select.Root bind:value={selectedInbox} type="single">
       <Select.Trigger id="inbox">
-        <Select.Value placeholder="Select an inbox" />
+        {inboxLabel}
       </Select.Trigger>
       <Select.Content>
         {#each inboxes as inbox}
-          <Select.Item value={inbox.id}>{inbox.name} ({inbox.channelType})</Select.Item>
+          <Select.Item value={inbox.id} label={`${inbox.name} (${inbox.channelType})`}>{inbox.name} ({inbox.channelType})</Select.Item>
         {/each}
       </Select.Content>
     </Select.Root>

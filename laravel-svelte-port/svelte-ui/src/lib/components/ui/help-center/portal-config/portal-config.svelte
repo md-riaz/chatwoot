@@ -42,6 +42,9 @@
   const fonts = ['Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat'];
 
   let fontFamilyValue = $state<string>('');
+  
+  // Font display label
+  const fontLabel = $derived(fontFamilyValue || 'Select font');
 
   $effect(() => {
     config.fontFamily = fontFamilyValue;
@@ -111,11 +114,11 @@
         <Label for="fontFamily">Font Family</Label>
         <Select.Root bind:value={fontFamilyValue} type="single">
           <Select.Trigger id="fontFamily">
-            <Select.Value placeholder="Select font" />
+            {fontLabel}
           </Select.Trigger>
           <Select.Content>
             {#each fonts as font}
-              <Select.Item value={font}>{font}</Select.Item>
+              <Select.Item value={font} label={font}>{font}</Select.Item>
             {/each}
           </Select.Content>
         </Select.Root>

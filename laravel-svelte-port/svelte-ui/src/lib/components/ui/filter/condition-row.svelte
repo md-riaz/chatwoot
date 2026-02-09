@@ -79,13 +79,25 @@
     filterOperatorValue = condition.filterOperator || '';
     filterValueValue = condition.values[0] || '';
   });
+  
+  // Display labels
+  const queryOperatorLabel = $derived(queryOperatorValue.toUpperCase());
+  const attributeKeyLabel = $derived(
+    filterTypes.find(f => f.attributeKey === attributeKeyValue)?.label || 'Select attribute...'
+  );
+  const filterOperatorLabel = $derived(
+    operators.find(op => op.value === filterOperatorValue)?.label || 'Select operator...'
+  );
+  const filterValueLabel = $derived(
+    options.find(opt => opt.value === filterValueValue)?.label || 'Select value...'
+  );
 </script>
 
 <div class={cn('flex items-center gap-2 p-2', className)} {...restProps}>
   {#if showQueryOperator}
     <Select.Root bind:value={queryOperatorValue} type="single">
       <Select.Trigger class="h-8 w-[80px]">
-        <Select.Value />
+        {queryOperatorLabel}
       </Select.Trigger>
       <Select.Content>
         <Select.Item value="and">AND</Select.Item>
@@ -96,7 +108,7 @@
 
   <Select.Root bind:value={attributeKeyValue} type="single">
     <Select.Trigger class="h-8 min-w-[140px]">
-      <Select.Value placeholder="Select attribute..." />
+      {attributeKeyLabel}
     </Select.Trigger>
     <Select.Content>
       {#each filterTypes as filterType}
@@ -108,7 +120,7 @@
   {#if condition.attributeKey}
     <Select.Root bind:value={filterOperatorValue} type="single">
       <Select.Trigger class="h-8 min-w-[120px]">
-        <Select.Value placeholder="Select operator..." />
+        {filterOperatorLabel}
       </Select.Trigger>
       <Select.Content>
         {#each operators as operator}
@@ -121,7 +133,7 @@
   {#if condition.filterOperator && options.length > 0}
     <Select.Root bind:value={filterValueValue} type="single">
       <Select.Trigger class="h-8 min-w-[140px]">
-        <Select.Value placeholder="Select value..." />
+        {filterValueLabel}
       </Select.Trigger>
       <Select.Content>
         {#each options as option}

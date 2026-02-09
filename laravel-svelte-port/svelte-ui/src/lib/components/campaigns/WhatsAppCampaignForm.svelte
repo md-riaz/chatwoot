@@ -83,6 +83,15 @@
     templateOptions().find(t => t.value === templateId?.toString())
   );
   
+  // Derived labels for select display
+  const inboxLabel = $derived(
+    inboxOptions.find(opt => opt.value === inboxId?.toString())?.label || 'Select WhatsApp inbox'
+  );
+  const templateLabel = $derived(
+    templateOptions().find(opt => opt.value === templateId?.toString())?.label || 
+    (inboxId ? 'Select a template' : 'Select inbox first')
+  );
+  
   // Get current datetime for min attribute
   let currentDateTime = $derived(() => {
     const now = new Date();
@@ -203,11 +212,11 @@
       type="single"
     >
       <Select.Trigger id="inbox" class={errors.inboxId ? 'border-red-500' : ''}>
-        <Select.Value placeholder="Select WhatsApp inbox" />
+        {inboxLabel}
       </Select.Trigger>
       <Select.Content>
         {#each inboxOptions as option}
-          <Select.Item value={option.value}>{option.label}</Select.Item>
+          <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
         {/each}
       </Select.Content>
     </Select.Root>
@@ -226,11 +235,11 @@
       type="single"
     >
       <Select.Trigger id="template" class={errors.templateId ? 'border-red-500' : ''}>
-        <Select.Value placeholder={inboxId ? "Select a template" : "Select inbox first"} />
+        {templateLabel}
       </Select.Trigger>
       <Select.Content>
         {#each templateOptions() as option}
-          <Select.Item value={option.value}>{option.label}</Select.Item>
+          <Select.Item value={option.value} label={option.label}>{option.label}</Select.Item>
         {/each}
       </Select.Content>
     </Select.Root>

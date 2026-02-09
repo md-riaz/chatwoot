@@ -33,6 +33,24 @@
   let workingHoursEnabled = $state(false);
   let timezone = $state('UTC');
   
+  // Timezone display label
+  const timezoneOptions = [
+    { value: 'UTC', label: 'UTC' },
+    { value: 'America/New_York', label: 'Eastern Time (ET)' },
+    { value: 'America/Chicago', label: 'Central Time (CT)' },
+    { value: 'America/Denver', label: 'Mountain Time (MT)' },
+    { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
+    { value: 'Europe/London', label: 'London (GMT)' },
+    { value: 'Europe/Paris', label: 'Central European Time (CET)' },
+    { value: 'Asia/Tokyo', label: 'Tokyo (JST)' },
+    { value: 'Asia/Shanghai', label: 'China (CST)' },
+    { value: 'Australia/Sydney', label: 'Sydney (AEST)' }
+  ];
+  
+  const timezoneLabel = $derived(
+    timezoneOptions.find(tz => tz.value === timezone)?.label || 'Select timezone'
+  );
+  
   // Channel-specific data
   let websiteUrl = $state('');
   let widgetColor = $state('#1f93ff');
@@ -1001,19 +1019,19 @@
                 <Label for="timezone">Timezone</Label>
                 <Select.Root type="single" bind:value={timezone}>
                   <Select.Trigger class="w-full">
-                    <Select.Value placeholder="Select timezone" />
+                    {timezoneLabel}
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="UTC">UTC</Select.Item>
-                    <Select.Item value="America/New_York">Eastern Time (ET)</Select.Item>
-                    <Select.Item value="America/Chicago">Central Time (CT)</Select.Item>
-                    <Select.Item value="America/Denver">Mountain Time (MT)</Select.Item>
-                    <Select.Item value="America/Los_Angeles">Pacific Time (PT)</Select.Item>
-                    <Select.Item value="Europe/London">London (GMT)</Select.Item>
-                    <Select.Item value="Europe/Paris">Central European Time (CET)</Select.Item>
-                    <Select.Item value="Asia/Tokyo">Tokyo (JST)</Select.Item>
-                    <Select.Item value="Asia/Shanghai">China (CST)</Select.Item>
-                    <Select.Item value="Australia/Sydney">Sydney (AEST)</Select.Item>
+                    <Select.Item value="UTC" label="UTC">UTC</Select.Item>
+                    <Select.Item value="America/New_York" label="Eastern Time (ET)">Eastern Time (ET)</Select.Item>
+                    <Select.Item value="America/Chicago" label="Central Time (CT)">Central Time (CT)</Select.Item>
+                    <Select.Item value="America/Denver" label="Mountain Time (MT)">Mountain Time (MT)</Select.Item>
+                    <Select.Item value="America/Los_Angeles" label="Pacific Time (PT)">Pacific Time (PT)</Select.Item>
+                    <Select.Item value="Europe/London" label="London (GMT)">London (GMT)</Select.Item>
+                    <Select.Item value="Europe/Paris" label="Central European Time (CET)">Central European Time (CET)</Select.Item>
+                    <Select.Item value="Asia/Tokyo" label="Tokyo (JST)">Tokyo (JST)</Select.Item>
+                    <Select.Item value="Asia/Shanghai" label="China (CST)">China (CST)</Select.Item>
+                    <Select.Item value="Australia/Sydney" label="Sydney (AEST)">Sydney (AEST)</Select.Item>
                   </Select.Content>
                 </Select.Root>
               </div>

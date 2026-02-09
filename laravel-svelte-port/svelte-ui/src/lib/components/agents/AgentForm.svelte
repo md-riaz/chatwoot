@@ -34,6 +34,11 @@
     { value: 'agent', label: 'Agent' },
   ];
 
+  // Derived label for role select display
+  const roleLabel = $derived(
+    roleOptions.find(opt => opt.value === role)?.label || 'Select a role'
+  );
+
   onMount(() => {
     // If editing, populate form with agent data
     if (mode === 'edit' && agent) {
@@ -144,7 +149,7 @@
         type="single"
       >
         <Select.Trigger class={errors.role ? 'border-red-500' : ''}>
-          <Select.Value placeholder="Select a role" />
+          {roleLabel}
         </Select.Trigger>
         <Select.Content>
           {#each roleOptions as roleOption}

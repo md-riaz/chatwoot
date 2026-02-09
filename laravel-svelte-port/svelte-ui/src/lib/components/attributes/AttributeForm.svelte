@@ -46,6 +46,14 @@
     { value: 'conversation_attribute', label: 'Conversation Attribute' },
   ];
 
+  // Derived labels for select display
+  const displayTypeLabel = $derived(
+    typeOptions.find(opt => opt.value === displayType)?.label || 'Select a type'
+  );
+  const modelLabel = $derived(
+    modelOptions.find(opt => opt.value === model)?.label || 'Select where to apply'
+  );
+
   onMount(() => {
     // If editing, populate form with attribute data
     if (mode === 'edit' && attribute) {
@@ -182,7 +190,7 @@
         type="single"
       >
         <Select.Trigger class={errors.displayType ? 'border-red-500' : ''}>
-          <Select.Value placeholder="Select a type" />
+          {displayTypeLabel}
         </Select.Trigger>
         <Select.Content>
           {#each typeOptions as option}
@@ -210,7 +218,7 @@
         type="single"
       >
         <Select.Trigger class={errors.model ? 'border-red-500' : ''}>
-          <Select.Value placeholder="Select where to apply" />
+          {modelLabel}
         </Select.Trigger>
         <Select.Content>
           {#each modelOptions as option}

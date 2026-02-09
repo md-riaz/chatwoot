@@ -37,6 +37,10 @@
   let query = $state('');
   let selectedCategory = $state<string>('');
   let selectedLocale = $state<string>('');
+  
+  // Display labels
+  const categoryLabel = $derived(selectedCategory || 'All Categories');
+  const localeLabel = $derived(selectedLocale ? selectedLocale.toUpperCase() : 'All Languages');
 
   function handleSearch() {
     const filters: { category?: string; locale?: string } = {};
@@ -75,12 +79,12 @@
       {#if categories.length > 0}
         <Select.Root bind:value={selectedCategory} type="single">
           <Select.Trigger class="w-[180px]">
-            <Select.Value placeholder="All Categories" />
+            {categoryLabel}
           </Select.Trigger>
           <Select.Content>
-            <Select.Item value="">All Categories</Select.Item>
+            <Select.Item value="" label="All Categories">All Categories</Select.Item>
             {#each categories as cat}
-              <Select.Item value={cat}>{cat}</Select.Item>
+              <Select.Item value={cat} label={cat}>{cat}</Select.Item>
             {/each}
           </Select.Content>
         </Select.Root>
@@ -89,12 +93,12 @@
       {#if locales.length > 0}
         <Select.Root bind:value={selectedLocale} type="single">
           <Select.Trigger class="w-[180px]">
-            <Select.Value placeholder="All Languages" />
+            {localeLabel}
           </Select.Trigger>
           <Select.Content>
-            <Select.Item value="">All Languages</Select.Item>
+            <Select.Item value="" label="All Languages">All Languages</Select.Item>
             {#each locales as locale}
-              <Select.Item value={locale}>{locale.toUpperCase()}</Select.Item>
+              <Select.Item value={locale} label={locale.toUpperCase()}>{locale.toUpperCase()}</Select.Item>
           {/each}
           </Select.Content>
         </Select.Root>
