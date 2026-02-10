@@ -559,7 +559,7 @@
           <div class="grid flex-shrink-0 place-content-center size-6">
             <Logo class="h-4 w-4" aria-label="Chatwoot logo" />
           </div>
-          <div class="flex-shrink-0 w-px h-3 bg-border" />
+          <div class="flex-shrink-0 w-px h-3 bg-border"></div>
           <SidebarAccountSwitcher class="flex-1 min-w-0" />
         </div>
       {:else}

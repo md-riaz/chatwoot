@@ -439,6 +439,22 @@ class ReportsStore {
       conversationMetrics: null,
       agentMetrics: [],
       teamMetrics: [],
+      overview: {
+        accountConversationMetric: {} as LiveAccountMetric,
+        agentConversationMetric: [],
+        teamConversationMetric: [],
+        agentStatus: {} as AgentStatusMetric,
+        accountConversationHeatmap: [],
+        accountResolutionHeatmap: [],
+        uiFlags: {
+          isFetchingAccountConversationMetric: false,
+          isFetchingAccountConversationsHeatmap: false,
+          isFetchingAccountResolutionsHeatmap: false,
+          isFetchingAgentConversationMetric: false,
+          isFetchingTeamConversationMetric: false,
+          isFetchingAgentStatus: false,
+        },
+      },
       filters: {
         since: this.getDefaultStartDate(),
         until: this.getDefaultEndDate()

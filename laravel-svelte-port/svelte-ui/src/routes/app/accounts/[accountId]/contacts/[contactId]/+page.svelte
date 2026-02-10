@@ -425,13 +425,13 @@
               <div class="mt-3 flex items-center gap-3">
                 {#each socialMediaLinks as media}
                   {#if socialProfiles[media.key]}
+                    {@const MediaIcon = media.icon}
                     <a
                       href={media.link + socialProfiles[media.key]}
                       target="_blank"
                       rel="noopener noreferrer"
                       class="text-muted-foreground hover:text-foreground"
                     >
-                      {@const MediaIcon = media.icon}
                       <MediaIcon class="h-5 w-5" />
                     </a>
                   {/if}

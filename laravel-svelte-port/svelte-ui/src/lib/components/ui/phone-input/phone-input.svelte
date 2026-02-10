@@ -29,7 +29,7 @@
   const picker = usePhonePicker({
     initialCountry: country || 'US',
     initialValue: value || '',
-    onchange: (details) => {
+    onchange: (_details: any) => {
       // details not used, relying on reactive getters
     }
   });
@@ -51,7 +51,7 @@
   // Watch for external country changes
   $effect(() => {
     if (country && picker.selectedCountry && picker.selectedCountry.code !== country) {
-      const found = picker.countryList.find(c => c.code === country);
+      const found = picker.countryList.find((c: any) => c.code === country);
       if (found) {
         picker.selectCountry(found);
       }
@@ -63,13 +63,18 @@
 
   function handleSelect(currentValue: string) {
     // cmdk/bits-ui often normalizes values to lowercase
-    const selected = picker.countryList.find((c) => 
+    const selected = picker.countryList.find((c: any) => 
       c.name && c.name.toLowerCase() === currentValue.toLowerCase()
     );
     if (selected) {
       picker.selectCountry(selected);
     }
     open = false;
+  }
+
+  // Wrapper for onSelect that matches the expected signature
+  function createSelectHandler(countryName: string) {
+    return () => handleSelect(countryName);
   }
 </script>
 
@@ -104,7 +109,7 @@
               {#if c.name}
                 <Command.Item
                   value={c.name}
-                  onSelect={handleSelect}
+                  onSelect={createSelectHandler(c.name)}
                 >
                   <Check
                     class={cn(

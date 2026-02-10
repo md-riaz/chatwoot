@@ -28,37 +28,25 @@
     click: { campaignId: number };
   }>();
 
-  let avatarUrl = $derived(() => {
-    if (campaign.sender) {
-      return campaign.sender.avatar_url || '';
-    }
-    
-    if (useInboxAvatarForBot && inboxAvatarUrl) {
-      return inboxAvatarUrl;
-    }
-    
-    return '/assets/images/chatwoot_bot.png';
-  });
+  let avatarUrl = $derived(
+    campaign.sender
+      ? campaign.sender.avatar_url || ''
+      : useInboxAvatarForBot && inboxAvatarUrl
+        ? inboxAvatarUrl
+        : '/assets/images/chatwoot_bot.png'
+  );
 
-  let agentName = $derived(() => {
-    if (campaign.sender) {
-      return campaign.sender.available_name || campaign.sender.name;
-    }
-    
-    if (useInboxAvatarForBot && companyName) {
-      return companyName;
-    }
-    
-    return 'Bot';
-  });
+  let agentName = $derived(
+    campaign.sender
+      ? campaign.sender.available_name || campaign.sender.name
+      : useInboxAvatarForBot && companyName
+        ? companyName
+        : 'Bot'
+  );
 
-  let availabilityStatus = $derived(() => {
-    return campaign.sender?.availability_status || null;
-  });
+  let availabilityStatus = $derived(campaign.sender?.availability_status || null);
 
-  let displayCompanyName = $derived(() => {
-    return companyName ? `from ${companyName}` : '';
-  });
+  let displayCompanyName = $derived(companyName ? `from ${companyName}` : '');
 
   function handleClick() {
     dispatch('click', { campaignId: campaign.id });

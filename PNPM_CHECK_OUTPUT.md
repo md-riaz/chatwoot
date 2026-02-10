@@ -1,136 +1,17 @@
 
-> @chatwoot/svelte-ui@1.0.0 check
+> @chatwoot/svelte-ui@1.0.0 check /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui
 > svelte-kit sync && svelte-check --tsconfig ./tsconfig.json
 
 Loading svelte-check in workspace: /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui
 Getting Svelte diagnostics...
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/base.svelte.ts:301:14
-Error: Property 'options' is private and only accessible within class 'BaseAction<TData, TVariables, TError>'. 
-    // Apply optimistic update if provided
-    if (this.options.optimisticUpdate) {
-      this.optimisticData = this.data;
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/base.svelte.ts:301:22
-Error: Property 'optimisticUpdate' does not exist on type 'ActionOptions<TData, TVariables>'. 
-    // Apply optimistic update if provided
-    if (this.options.optimisticUpdate) {
-      this.optimisticData = this.data;
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/base.svelte.ts:303:24
-Error: Property 'options' is private and only accessible within class 'BaseAction<TData, TVariables, TError>'. 
-      this.optimisticData = this.data;
-      this.data = this.options.optimisticUpdate(variables);
-    }
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/base.svelte.ts:303:32
-Error: Property 'optimisticUpdate' does not exist on type 'ActionOptions<TData, TVariables>'. 
-      this.optimisticData = this.data;
-      this.data = this.options.optimisticUpdate(variables);
-    }
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/base.svelte.ts:315:15
-Error: Property 'options' is private and only accessible within class 'BaseAction<TData, TVariables, TError>'. 
-        this.optimisticData = null;
-        (this.options as any).onRollback?.(variables);
-      }
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:107:5
-Error: Spread types may only be created from object types. 
-  return {
-    ...response,
-    data: response.data?.map(transformContactFromApi) || [],
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:108:11
-Error: 'response' is of type 'unknown'. 
-    ...response,
-    data: response.data?.map(transformContactFromApi) || [],
-  };
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:129:5
-Error: Spread types may only be created from object types. 
-  return {
-    ...response,
-    data: response.data?.map(transformContactFromApi) || [],
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:130:11
-Error: 'response' is of type 'unknown'. 
-    ...response,
-    data: response.data?.map(transformContactFromApi) || [],
-  };
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:169:5
-Error: Spread types may only be created from object types. 
-  return {
-    ...response,
-    data: response.data?.map(transformContactFromApi) || [],
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:170:11
-Error: 'response' is of type 'unknown'. 
-    ...response,
-    data: response.data?.map(transformContactFromApi) || [],
-  };
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:189:5
-Error: Spread types may only be created from object types. 
-  return {
-    ...response,
-    data: response.data?.map(transformContactFromApi) || [],
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:190:11
-Error: 'response' is of type 'unknown'. 
-    ...response,
-    data: response.data?.map(transformContactFromApi) || [],
-  };
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:202:31
-Error: Property 'data' does not exist on type '{}'. 
-  const raw = await api.get(`api/v1/accounts/${accountId}/contacts/${contactId}`).json();
-  const contactPayload = raw?.data ?? raw;
-  return transformContactFromApi(contactPayload);
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:222:31
-Error: Property 'data' does not exist on type '{}'. 
-
-  const contactPayload = raw?.data ?? raw;
-  return transformContactFromApi(contactPayload);
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:257:33
-Error: Property 'data' does not exist on type '{}'. 
-
-    const contactPayload = raw?.data ?? raw;
-    return transformContactFromApi(contactPayload);
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:269:31
-Error: Property 'data' does not exist on type '{}'. 
-
-  const contactPayload = raw?.data ?? raw;
-  return transformContactFromApi(contactPayload);
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:294:31
-Error: Property 'data' does not exist on type '{}'. 
-
-  const contactPayload = raw?.data ?? raw;
-  return transformContactFromApi(contactPayload);
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/api/contacts.ts:324:31
-Error: Property 'data' does not exist on type '{}'. 
-
-  const contactPayload = raw?.data ?? raw;
-  return transformContactFromApi(contactPayload);
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/contacts.svelte.ts:21:86
-Error: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled. 
-} from '$lib/api/contacts';
-import { BaseAction, QueryAction, MutationAction, createQuery, createMutation } from './base.svelte.ts';
-import type { PaginatedResponse } from '$lib/api/types';
-
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/contacts.svelte.ts:180:9
-Error: Type '(variables: { accountId: number; contactId: number; } & UpdateContactParams) => Contact | { updatedAt: string; accountId: number; contactId: number; ... 20 more ...; conversations?: any[] | undefined; }' is not assignable to type '(variables: { accountId: number; contactId: number; } & UpdateContactParams) => Contact'.
-  Type 'Contact | { updatedAt: string; accountId: number; contactId: number; avatar?: File | undefined; name: string; email: string | null; phoneNumber: string | null; identifier: string | null; ... 15 more ...; conversations?: any[] | undefined; }' is not assignable to type 'Contact'.
-    Type '{ updatedAt: string; accountId: number; contactId: number; avatar?: File; name: string; email: string | null; phoneNumber: string | null; identifier: string | null; blocked: boolean; ... 14 more ...; conversations?: any[]; }' is not assignable to type 'Contact'.
-      Types of property 'updatedAt' are incompatible.
-        Type 'string' is not assignable to type 'number'. 
+Error: Type '(variables: { accountId: number; contactId: number; } & UpdateContactParams) => Contact | { updatedAt: string; accountId: number; contactId: number; ... 20 more ...; conversations?: any[] | undefined; }' is not assignable to type '((variables: { accountId: number; contactId: number; } & UpdateContactParams) => Contact) & ((variables: { accountId: number; contactId: number; } & UpdateContactParams) => Contact)'.
+  Type '(variables: { accountId: number; contactId: number; } & UpdateContactParams) => Contact | { updatedAt: string; accountId: number; contactId: number; ... 20 more ...; conversations?: any[] | undefined; }' is not assignable to type '(variables: { accountId: number; contactId: number; } & UpdateContactParams) => Contact'.
+    Type 'Contact | { updatedAt: string; accountId: number; contactId: number; avatar?: File | undefined; name: string; email: string | null; phoneNumber: string | null; identifier: string | null; ... 15 more ...; conversations?: any[] | undefined; }' is not assignable to type 'Contact'.
+      Type '{ updatedAt: string; accountId: number; contactId: number; avatar?: File; name: string; email: string | null; phoneNumber: string | null; identifier: string | null; blocked: boolean; ... 14 more ...; conversations?: any[]; }' is not assignable to type 'Contact'.
+        Types of property 'updatedAt' are incompatible.
+          Type 'string' is not assignable to type 'number'. 
         // Optimistic update: immediately show changes
         optimisticUpdate: (variables) => {
           if (!this.originalContact) return this.originalContact as Contact;
@@ -155,45 +36,6 @@ Error: Type '(v: DateValue | undefined) => void' is not assignable to type 'OnCh
         value={value}
         onValueChange={handleCalendarChange}
         {minValue}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/EmptyState.svelte:27:40
-Warn: This reference only captures the initial value of `icon`. Did you mean to reference it inside a closure instead?
-https://svelte.dev/e/state_referenced_locally (svelte)
-  
-  const IconComponent = iconComponents[icon];
-</script>
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/stores/reports.svelte.ts:438:5
-Error: Property 'overview' is missing in type '{ conversationMetrics: null; agentMetrics: never[]; teamMetrics: never[]; filters: { since: string; until: string; }; isLoading: false; error: null; }' but required in type 'ReportsState'. 
-  reset() {
-    this.state = {
-      conversationMetrics: null,
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/heatmaps/BaseHeatmap.svelte:107:15
-Warn: Self-closing HTML tags for non-void elements are ambiguous — use `<div ...></div>` rather than `<div ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-            {#each row.data as data}
-              <div
-                class="h-8 rounded-sm cursor-pointer transition-all duration-150 hover:scale-105 {getHeatmapClass(data.value)}"
-                onmouseenter={(e) => handleCellHover(e, data.value)}
-                onmouseleave={handleCellLeave}
-                role="gridcell"
-                tabindex="0"
-                aria-label="{data.value} conversations at {new Date(data.timestamp * 1000).getHours()}:00"
-              />
-            {/each}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/heatmaps/BaseHeatmap.svelte:121:7
-Warn: Self-closing HTML tags for non-void elements are ambiguous — use `<div ...></div>` rather than `<div ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-      <!-- Spacer -->
-      <div />
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/heatmaps/BaseHeatmap.svelte:40:43
-Error: Argument of type '() => { dateKey: string; data: HeatmapData[]; dataHash: string; }[]' is not assignable to parameter of type 'HeatmapRow[]'. (ts)
-  // Process heatmap data into rows
-  const dataRows = $derived<HeatmapRow[]>(() => {
-    const groupedData = groupHeatmapByDay(heatmapData);
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/__tests__/BaseHeatmap.test.ts:35:12
 Error: Argument of type 'Component<Props, {}, "">' is not assignable to parameter of type 'Constructor<SvelteComponent<Record<string, any>, any, any>>'.
@@ -285,31 +127,6 @@ Error: File '/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/node_modules
   import { usePhonePicker } from '@kevwpl/svelte-o-phone';
   import { tick } from 'svelte';
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/phone-input/phone-input.svelte:32:16
-Error: Parameter 'details' implicitly has an 'any' type. (ts)
-    initialValue: value || '',
-    onchange: (details) => {
-      // details not used, relying on reactive getters
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/phone-input/phone-input.svelte:54:45
-Error: Parameter 'c' implicitly has an 'any' type. (ts)
-    if (country && picker.selectedCountry && picker.selectedCountry.code !== country) {
-      const found = picker.countryList.find(c => c.code === country);
-      if (found) {
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/phone-input/phone-input.svelte:66:47
-Error: Parameter 'c' implicitly has an 'any' type. (ts)
-    // cmdk/bits-ui often normalizes values to lowercase
-    const selected = picker.countryList.find((c) => 
-      c.name && c.name.toLowerCase() === currentValue.toLowerCase()
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/phone-input/phone-input.svelte:107:19
-Error: Type '(currentValue: string) => void' is not assignable to type '() => void'.
-  Target signature provides too few arguments. Expected 1 or more, but got 0. (ts)
-                  value={c.name}
-                  onSelect={handleSelect}
-                >
-
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/contact-management/contact-form/contact-form.svelte:20:44
 Warn: This reference only captures the initial value of `contact`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
@@ -317,52 +134,12 @@ https://svelte.dev/e/state_referenced_locally (svelte)
   let form = $state(extractContactFormData(contact));
   let phoneCountry = $state('US');
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/contact-management/contact-form/contact-form.svelte:197:19
-Warn: `<svelte:component>` is deprecated in runes mode — components are dynamic by default
-https://svelte.dev/e/svelte_component_deprecated (svelte)
-                <div class="absolute left-3 text-muted-foreground flex items-center justify-center">
-                  <svelte:component this={network.icon} class="h-4 w-4" />
-                </div>
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/contact-management/contact-form/contact-form.svelte:227:15
-Warn: `<svelte:component>` is deprecated in runes mode — components are dynamic by default
-https://svelte.dev/e/svelte_component_deprecated (svelte)
-            >
-              <svelte:component this={network.icon} class="h-4 w-4" />
-              <span>Add {network.label}</span>
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/contact-management/contact-form/contact-form.svelte:112:44
-Error: Property 'name' does not exist on type '{ firstName: string; lastName: string; email: string; phone: string; company: string; city: string; countryCode: string; description: any; blocked: boolean; socialProfiles: any; }'. (ts)
-      {#if avatarPreview}
-        <img src={avatarPreview} alt={form.name || 'avatar'} />
-      {:else}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/contact-note/contact-note-item.svelte:23:13
-Error: Object literal may only specify known properties, and '"size"' does not exist in type 'Omit<{ delayMs?: number | undefined; loadingStatus?: AvatarImageLoadingStatus | undefined; onLoadingStatusChange?: OnChangeFn<AvatarImageLoadingStatus> | undefined; }, "child" | "children"> & { ...; } & Without<...>'. (ts)
-  <div class="flex items-start gap-3">
-    <Avatar size="sm">
-      <AvatarImage src={author.avatar} alt={author.name} />
-
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/custom-attributes/DateAttributeInput.svelte:92:12
 Error: Type 'DateValue | undefined' is not assignable to type 'DateValue[] | undefined'.
   Type 'CalendarDate' is missing the following properties from type 'DateValue[]': length, pop, push, concat, and 35 more. (ts)
     <Calendar
       bind:value={dateValue}
       {disabled}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/help-center/article-editor/article-editor.svelte:213:16
-Error: Type '"default" | "outline-solid"' is not assignable to type '"default" | "destructive" | "outline" | "secondary" | undefined'.
-  Type '"outline-solid"' is not assignable to type '"default" | "destructive" | "outline" | "secondary" | undefined'. (ts)
-      <div class="flex gap-2">
-        <Badge variant={article.status === 'draft' ? 'default' : 'outline-solid'}>
-          {article.status}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/pagination/pagination-footer.svelte:84:11
-Error: Type '"default" | "outline-solid"' is not assignable to type '"default" | "link" | "destructive" | "outline" | "secondary" | "ghost" | undefined'.
-  Type '"outline-solid"' is not assignable to type '"default" | "link" | "destructive" | "outline" | "secondary" | "ghost" | undefined'. (ts)
-        <Button
-          variant={currentPage === page ? 'default' : 'outline-solid'}
-          size="sm"
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/phone-input/phone-input.test.ts:5:23
 Error: Cannot find module '@testing-library/user-event' or its corresponding type declarations. 
@@ -394,96 +171,24 @@ Error: Argument of type 'Component<$$ComponentProps, {}, "value" | "country">' i
         const user = userEvent.setup();
         render(PhoneInput, { country: 'US' });
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/toggle-group/toggle-group.svelte:27:3
-Warn: This reference only captures the initial value of `variant`. Did you mean to reference it inside a closure instead?
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/toggle-group/toggle-group.svelte:27:30
+Warn: This reference only captures the initial value of `variant`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
-	setToggleGroupCtx({
-		variant,
-		size,
+	// Create reactive context
+	let contextValue = $state({ variant, size });
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/toggle-group/toggle-group.svelte:28:3
-Warn: This reference only captures the initial value of `size`. Did you mean to reference it inside a closure instead?
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/toggle-group/toggle-group.svelte:27:39
+Warn: This reference only captures the initial value of `size`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
-		variant,
-		size,
-	});
+	// Create reactive context
+	let contextValue = $state({ variant, size });
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/composables/useLiveRefresh.svelte.ts:51:7
-Error: Type 'Timeout' is not assignable to type 'number'. 
-    function scheduleNext() {
-      timeoutId = setTimeout(async () => {
-        if (!isActive) return; // Check if still active
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/stores/conversations.svelte.ts:543:20
-Error: Property 'created_at' does not exist on type 'Message'. Did you mean 'createdAt'? 
-      const lastMessage = allMessages.sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )[0];
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/stores/conversations.svelte.ts:543:55
-Error: Property 'created_at' does not exist on type 'Message'. Did you mean 'createdAt'? 
-      const lastMessage = allMessages.sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )[0];
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/stores/conversations.svelte.ts:598:9
-Error: Type 'string' is not assignable to type 'number'. 
-        conversation.unreadCount = 0;
-        conversation.agentLastSeenAt = new Date().toISOString();
-      }
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/stores/conversations.svelte.ts:605:27
-Error: Property 'typingUsers' does not exist on type 'Conversation'. 
-      if (conversation) {
-        if (!conversation.typingUsers) {
-          (conversation as any).typingUsers = [];
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/stores/inboxes.svelte.ts:494:72
-Error: Property 'inboxesCount' does not exist on type 'InboxesStore'. 
-    // Log successful revalidation
-    console.log(`Inboxes store revalidated successfully. Count: ${this.inboxesCount}`);
-  }
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/stores/labels.svelte.ts:136:37
-Error: Expected 2 arguments, but got 1. 
-    try {
-      const label = await labelsAPI.getLabel(labelId);
-      this.addOrUpdateLabel(label);
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/stores/labels.svelte.ts:209:23
-Error: Expected 2 arguments, but got 1. 
-    try {
-      await labelsAPI.deleteLabel(labelId);
-      return true;
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/stores/notifications.svelte.ts:385:7
-Error: Object literal may only specify known properties, and 'secondaryActor' does not exist in type 'Notification'. 
-      primaryActor: conversation,
-      secondaryActor: message,
-      accountId: conversation.account_id,
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/utils/campaign-helper.ts:26:16
-Error: Cannot find name 'URLPattern'. Did you mean 'urlPattern'? 
-    // Use URLPattern for matching (with polyfill support)
-    if (typeof URLPattern !== 'undefined') {
-      const pattern = new URLPattern(updatedUrlPattern);
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/utils/campaign-helper.ts:27:27
-Error: Cannot find name 'URLPattern'. Did you mean 'pattern'? 
-    if (typeof URLPattern !== 'undefined') {
-      const pattern = new URLPattern(updatedUrlPattern);
-      return pattern.test(locationObj.toString());
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/websocket/client.ts:157:25
-Error: Property 'state' is private and only accessible within class 'WebSocketStore'. 
-    return {
-      state: this.store.state,
-      error: this.store.error,
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/websocket/client.ts:171:25
-Error: Argument of type 'null' is not assignable to parameter of type 'string'. 
-    this.store.setState('connected');
-    this.store.setError(null);
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/toggle-group/toggle-group.svelte:33:20
+Warn: This reference only captures the initial value of `contextValue`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+	
+	setToggleGroupCtx(contextValue);
+</script>
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/websocket/event-manager.ts:184:16
 Error: Property 'updatePresence' does not exist on type 'ReverbClient'. 
@@ -564,45 +269,33 @@ Error: Cannot find name 'wsStore'.
       wsConnection: wsStore.stats
     })
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/widget/api/messages.ts:127:29
-Error: Property 'referrerURL' does not exist on type 'Window & typeof globalThis'. 
-        timestamp: new Date().toString(),
-        referer_url: window.referrerURL || '',
-      }
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/widget/websocket/client.ts:143:5
-Error: Type 'number | boolean | null' is not assignable to type 'boolean'.
-  Type 'null' is not assignable to type 'boolean'. 
-    const { conversation_id: conversationId } = message;
-    return this.activeConversationId && conversationId !== this.activeConversationId;
-  }
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/widget/websocket/client.ts:172:44
-Error: Argument of type 'WidgetMessage' is not assignable to parameter of type 'Message'.
-  Types of property 'messageType' are incompatible.
-    Type 'number' is not assignable to type '0 | 2 | 1'. 
-      newMessages.forEach(message => {
-        widgetConversationStore.addMessage(message);
-      });
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/widget/websocket/client.ts:369:29
-Error: Expected 2 arguments, but got 1. 
-
-    widgetConversationStore.updateMessage(data);
-  }
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/examples/ContactsPage.svelte:391:15
-Error: 'onsubmit|preventDefault' is not a valid attribute name
-https://svelte.dev/e/attribute_invalid_name (svelte)
-        
-        <form onsubmit|preventDefault={handleCreateContact}>
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/examples/ContactsPage.svelte:393:13
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
           <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+            <input
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/examples/ContactsPage.svelte:14:37
-Error: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled. (ts)
-  import { page } from '$app/stores';
-  import { useContactActions } from '../contacts.svelte.ts';
-  import type { Contact, CreateContactParams } from '$lib/api/contacts';
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/examples/ContactsPage.svelte:406:13
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <input
+
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/examples/ContactsPage.svelte:418:13
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+            <input
+
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/examples/ContactsPage.svelte:427:13
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
+            <input
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/examples/ContactsPage.svelte:34:5
 Error: Object literal may only specify known properties, and 'company' does not exist in type 'CreateContactParams'. (ts)
@@ -640,486 +333,11 @@ Error: Argument of type 'Partial<Contact>' is not assignable to parameter of typ
   async function handleUpdateContact(contact: Contact, updates: Partial<Contact>) {
     await contacts.updateContact(contact.id, updates, contact);
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/examples/ContactsPage.svelte:391:15
-Error: Object literal may only specify known properties, and '"onsubmit|preventDefault"' does not exist in type 'HTMLProps<"form", HTMLAttributes<any>>'. (ts)
-        
-        <form onsubmit|preventDefault={handleCreateContact}>
-          <div class="mb-4">
-
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/actions/examples/ContactsPage.svelte:429:38
 Error: Property 'company' does not exist on type 'CreateContactParams'. (ts)
             <input
               bind:value={createForm.company}
               type="text"
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ConfirmDialog.svelte:48:16
-Error: Type '"default" | "link" | "destructive" | "secondary" | "ghost" | "outline-solid"' is not assignable to type '"default" | "link" | "destructive" | "outline" | "secondary" | "ghost" | undefined'.
-  Type '"outline-solid"' is not assignable to type '"default" | "link" | "destructive" | "outline" | "secondary" | "ghost" | undefined'. (ts)
-      </Button>
-      <Button {variant} onclick={(e: MouseEvent) => handleConfirm()}>
-        {confirmText}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/SidebarAccountSwitcher.svelte:7:17
-Error: '"svelte/elements"' has no exported member named 'HTMLDivAttributes'. Did you mean 'HTMLAttributes'? (ts)
-  import { navigate } from '$lib/routing/navigation';
-  import type { HTMLDivAttributes } from 'svelte/elements';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/SidebarAccountSwitcher.svelte:53:42
-Error: Property 'avatarUrl' does not exist on type 'UserAccount'. (ts)
-            <Avatar.Root class="h-6 w-6 rounded-lg">
-              <Avatar.Image src={account.avatarUrl || ''} alt={account.name} />
-              <Avatar.Fallback class="rounded-lg">
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/SidebarMenuItem.svelte:73:17
-Warn: `<svelte:self>` is deprecated — use self-imports (e.g. `import Self from './Self.svelte'`) instead
-https://svelte.dev/e/svelte_self_deprecated (svelte)
-              {#each item.children as child (child.id)}
-                <svelte:self item={child} sub={true} />
-              {/each}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/SidebarMenuItem.svelte:116:19
-Warn: `<svelte:self>` is deprecated — use self-imports (e.g. `import Self from './Self.svelte'`) instead
-https://svelte.dev/e/svelte_self_deprecated (svelte)
-                {#each item.children as child (child.id)}
-                  <svelte:self item={child} sub={true} />
-                {/each}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/AppSidebar.svelte:562:11
-Warn: Self-closing HTML tags for non-void elements are ambiguous — use `<div ...></div>` rather than `<div ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-          </div>
-          <div class="flex-shrink-0 w-px h-3 bg-border" />
-          <SidebarAccountSwitcher class="flex-1 min-w-0" />
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/AppSidebar.svelte:125:11
-Error: Property 'href' is missing in type '{ id: string; label: string; icon: string; children: { id: string; label: string; href: string; activeOn: string[]; }[]; }' but required in type 'NavigationItem'. (ts)
-          },
-          {
-            id: 'custom-views',
-            label: 'Custom Views',
-            icon: 'folder',
-            children: customViewsStore.conversationViews.map(view => ({
-              id: `view-${view.id}`,
-              label: view.name,
-              href: `/app/accounts/${accountId}/conversations/custom_view/${view.id}`,
-              activeOn: [
-                `/app/accounts/${accountId}/conversations/custom_view/${view.id}`,
-              ],
-            })),
-          },
-          {
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/AppSidebar.svelte:138:11
-Error: Property 'href' is missing in type '{ id: string; label: string; icon: string; children: { id: string; label: string; icon: string; href: string; activeOn: string[]; }[]; }' but required in type 'NavigationItem'. (ts)
-          },
-          {
-            id: 'channels',
-            label: 'Inboxes',
-            icon: 'inbox',
-            children: inboxesStore.sortedInboxes.map(inbox => ({
-              id: `inbox-${inbox.id}`,
-              label: inbox.name,
-              icon: getChannelIcon(inbox.channelType),
-              href: `/app/accounts/${accountId}/conversations/inbox/${inbox.id}`,
-              activeOn: [
-                `/app/accounts/${accountId}/conversations/inbox/${inbox.id}`,
-              ],
-            })),
-          },
-          {
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/AppSidebar.svelte:152:11
-Error: Property 'href' is missing in type '{ id: string; label: string; icon: string; children: { id: string; label: string; href: string; activeOn: string[]; }[]; }' but required in type 'NavigationItem'. (ts)
-          },
-          {
-            id: 'teams',
-            label: 'Teams',
-            icon: 'users',
-            children: teamsStore.myTeams.map(team => ({
-              id: `team-${team.id}`,
-              label: team.name,
-              href: `/app/accounts/${accountId}/conversations/team/${team.id}`,
-              activeOn: [
-                `/app/accounts/${accountId}/conversations/team/${team.id}`,
-              ],
-            })),
-          },
-          {
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/AppSidebar.svelte:165:11
-Error: Property 'href' is missing in type '{ id: string; label: string; icon: string; children: { id: string; label: string; href: string; activeOn: string[]; }[]; }' but required in type 'NavigationItem'. (ts)
-          },
-          {
-            id: 'folders',
-            label: 'Labels',
-            icon: 'tags',
-            children: labelsStore.sidebarLabels.map(label => ({
-              id: `label-${label.id}`,
-              label: label.title,
-              href: `/app/accounts/${accountId}/conversations/label/${encodeURIComponent(
-                label.title
-              )}`,
-              activeOn: [
-                `/app/accounts/${accountId}/conversations/label/${encodeURIComponent(
-                  label.title
-                )}`,
-              ],
-            })),
-          },
-        ],
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/AppSidebar.svelte:226:11
-Error: Property 'href' is missing in type '{ id: string; label: string; icon: string; children: { id: string; label: string; icon: string; iconColor: string; href: string; activeOn: string[]; }[]; permission: string; }' but required in type 'NavigationItem'. (ts)
-          // Labels
-          {
-            id: 'contacts-labels',
-            label: 'Labels',
-            icon: 'tags',
-            children: labelsStore.sidebarLabels.map(label => ({
-              id: `contact-label-${label.title}`,
-              label: label.title,
-              icon: 'tag',
-              iconColor: label.color,
-              href: `/app/accounts/${accountId}/contacts/labels/${encodeURIComponent(label.title)}`,
-              activeOn: [
-                `/app/accounts/${accountId}/contacts/labels/${encodeURIComponent(label.title)}`,
-              ],
-            })),
-            permission: 'contact_manage',
-          },
-          {
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/AppSidebar.svelte:252:7
-Error: Property 'href' is missing in type '{ id: string; label: string; icon: string; children: { id: string; label: string; href: string; activeOn: string[]; permission: string; }[]; }' but required in type 'NavigationItem'. (ts)
-      },
-      {
-        id: 'reports',
-          label: 'Reports',
-        icon: 'chart-spline',
-        children: [
-          // The following items map to the report pages present in Vue
-          // Use a safe translation helper to avoid calling the formatter before
-          // the initial locale is set (which throws in svelte-i18n).
-          {
-            id: 'reports-overview',
-            label: safeT("SIDEBAR.REPORTS_OVERVIEW", 'Overview'),
-            href: `/app/accounts/${accountId}/reports`,
-            activeOn: [`/app/accounts/${accountId}/reports`],
-            permission: 'report_manage',
-          },
-          {
-            id: 'reports-conversation',
-            label: safeT("SIDEBAR.REPORTS_CONVERSATION", 'Conversation'),
-            href: `/app/accounts/${accountId}/reports/conversations`,
-            activeOn: [`/app/accounts/${accountId}/reports/conversations`],
-            permission: 'report_manage',
-          },
-          {
-            id: 'reports-agent',
-              label: safeT("SIDEBAR.REPORTS_AGENT", 'Agent Reports'),
-            href: `/app/accounts/${accountId}/reports/agent`,
-            activeOn: [`/app/accounts/${accountId}/reports/agent`],
-            permission: 'report_manage',
-          },
-          {
-            id: 'reports-label',
-              label: safeT("SIDEBAR.REPORTS_LABEL", 'Label Reports'),
-            href: `/app/accounts/${accountId}/reports/label`,
-            activeOn: [`/app/accounts/${accountId}/reports/label`],
-            permission: 'report_manage',
-          },
-          {
-            id: 'reports-inbox',
-              label: safeT("SIDEBAR.REPORTS_INBOX", 'Inbox Reports'),
-            href: `/app/accounts/${accountId}/reports/inbox`,
-            activeOn: [`/app/accounts/${accountId}/reports/inbox`],
-            permission: 'report_manage',
-          },
-          {
-            id: 'reports-team',
-              label: safeT("SIDEBAR.REPORTS_TEAM", 'Team Reports'),
-            href: `/app/accounts/${accountId}/reports/team`,
-            activeOn: [`/app/accounts/${accountId}/reports/team`],
-            permission: 'report_manage',
-          },
-            {
-              id: 'reports-csat',
-              label: safeT("SIDEBAR.CSAT", 'CSAT'),
-              href: `/app/accounts/${accountId}/reports/csat`,
-              activeOn: [`/app/accounts/${accountId}/reports/csat`],
-              permission: 'report_manage',
-            },
-            {
-              id: 'reports-sla',
-              label: safeT("SIDEBAR.REPORTS_SLA", 'SLA'),
-              href: `/app/accounts/${accountId}/reports/sla`,
-              activeOn: [`/app/accounts/${accountId}/reports/sla`],
-              permission: 'report_manage',
-            },
-            {
-              id: 'reports-bot',
-              label: safeT("SIDEBAR.REPORTS_BOT", 'Bot'),
-              href: `/app/accounts/${accountId}/reports/bot`,
-              activeOn: [`/app/accounts/${accountId}/reports/bot`],
-              permission: 'report_manage',
-            },
-        ],
-      },
-      {
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/AppSidebar.svelte:325:7
-Error: Property 'href' is missing in type '{ id: string; label: string; icon: string; children: { id: string; label: string; href: string; activeOn: string[]; permission: string; }[]; }' but required in type 'NavigationItem'. (ts)
-      },
-      {
-        id: 'campaigns',
-        label: 'Campaigns',
-        icon: 'megaphone',
-        children: [
-          {
-            id: 'campaigns-livechat',
-            label: 'Live chat',
-            href: `/app/accounts/${accountId}/campaigns/livechat`,
-            activeOn: [`/app/accounts/${accountId}/campaigns/livechat`],
-            permission: 'administrator',
-          },
-          {
-            id: 'campaigns-sms',
-            label: 'SMS',
-            href: `/app/accounts/${accountId}/campaigns/sms`,
-            activeOn: [`/app/accounts/${accountId}/campaigns/sms`],
-            permission: 'administrator',
-          },
-          {
-            id: 'campaigns-whatsapp',
-            label: 'WhatsApp',
-            href: `/app/accounts/${accountId}/campaigns/whatsapp`,
-            activeOn: [`/app/accounts/${accountId}/campaigns/whatsapp`],
-            permission: 'administrator',
-          },
-        ],
-      },
-      {
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/AppSidebar.svelte:353:7
-Error: Property 'href' is missing in type '{ id: string; label: string; icon: string; children: { id: string; label: string; href: string; activeOn: string[]; permission: string; }[]; }' but required in type 'NavigationItem'. (ts)
-      },
-      {
-        id: 'portals',
-        label: 'Help Center',
-        icon: 'library-big',
-        children: [
-          {
-            id: 'portal-articles',
-            label: 'Articles',
-            href: `/app/accounts/${accountId}/portals/articles`,
-            activeOn: [`/app/accounts/${accountId}/portals/articles`],
-            permission: 'knowledge_base_manage',
-          },
-          {
-            id: 'portal-categories',
-            label: 'Categories',
-            href: `/app/accounts/${accountId}/portals/categories`,
-            activeOn: [`/app/accounts/${accountId}/portals/categories`],
-            permission: 'knowledge_base_manage',
-          },
-          {
-            id: 'portal-locales',
-            label: 'Locales',
-            href: `/app/accounts/${accountId}/portals/locales`,
-            activeOn: [`/app/accounts/${accountId}/portals/locales`],
-            permission: 'knowledge_base_manage',
-          },
-          {
-            id: 'portal-settings',
-            label: 'Settings',
-            href: `/app/accounts/${accountId}/portals/settings`,
-            activeOn: [`/app/accounts/${accountId}/portals/settings`],
-            permission: 'knowledge_base_manage',
-          },
-        ],
-      },
-      {
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/AppSidebar.svelte:388:7
-Error: Property 'href' is missing in type '{ id: string; label: string; icon: string; children: { id: string; label: string; icon: string; href: string; activeOn: string[]; permission: string; }[]; }' but required in type 'NavigationItem'. (ts)
-      },
-      {
-        id: 'settings',
-        label: 'Settings',
-        icon: 'bolt',
-        children: [
-          {
-            id: 'settings-account',
-            label: 'Account Settings',
-            icon: 'briefcase',
-            href: `/app/accounts/${accountId}/settings/account`,
-            activeOn: [`/app/accounts/${accountId}/settings/account`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-agents',
-            label: 'Agents',
-            icon: 'square-user',
-            href: `/app/accounts/${accountId}/settings/agents`,
-            activeOn: [`/app/accounts/${accountId}/settings/agents`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-teams',
-            label: 'Teams',
-            icon: 'users',
-            href: `/app/accounts/${accountId}/settings/teams`,
-            activeOn: [`/app/accounts/${accountId}/settings/teams`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-assignment',
-            label: 'Agent Assignment',
-            icon: 'user-cog',
-            href: `/app/accounts/${accountId}/settings/assignment`,
-            activeOn: [`/app/accounts/${accountId}/settings/assignment`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-inboxes',
-            label: 'Inboxes',
-            icon: 'inbox',
-            href: `/app/accounts/${accountId}/settings/inboxes`,
-            activeOn: [`/app/accounts/${accountId}/settings/inboxes`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-labels',
-            label: 'Labels',
-            icon: 'tags',
-            href: `/app/accounts/${accountId}/settings/labels`,
-            activeOn: [`/app/accounts/${accountId}/settings/labels`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-attributes',
-            label: 'Custom Attributes',
-            icon: 'code',
-            href: `/app/accounts/${accountId}/settings/attributes`,
-            activeOn: [`/app/accounts/${accountId}/settings/attributes`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-automation',
-            label: 'Automation',
-            icon: 'workflow',
-            href: `/app/accounts/${accountId}/settings/automation`,
-            activeOn: [`/app/accounts/${accountId}/settings/automation`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-agent-bots',
-            label: 'Agent Bots',
-            icon: 'bot',
-            href: `/app/accounts/${accountId}/settings/agent-bots`,
-            activeOn: [`/app/accounts/${accountId}/settings/agent-bots`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-macros',
-            label: 'Macros',
-            icon: 'toy-brick',
-            href: `/app/accounts/${accountId}/settings/macros`,
-            activeOn: [`/app/accounts/${accountId}/settings/macros`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-canned',
-            label: 'Canned Responses',
-            icon: 'message-square-quote',
-            href: `/app/accounts/${accountId}/settings/canned`,
-            activeOn: [`/app/accounts/${accountId}/settings/canned`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-integrations',
-            label: 'Integrations',
-            icon: 'blocks',
-            href: `/app/accounts/${accountId}/settings/integrations`,
-            activeOn: [`/app/accounts/${accountId}/settings/integrations`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-audit',
-            label: 'Audit Logs',
-            icon: 'briefcase',
-            href: `/app/accounts/${accountId}/settings/audit`,
-            activeOn: [`/app/accounts/${accountId}/settings/audit`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-roles',
-            label: 'Custom Roles',
-            icon: 'shield-plus',
-            href: `/app/accounts/${accountId}/settings/roles`,
-            activeOn: [`/app/accounts/${accountId}/settings/roles`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-sla',
-            label: 'SLA',
-            icon: 'clock-alert',
-            href: `/app/accounts/${accountId}/settings/sla`,
-            activeOn: [`/app/accounts/${accountId}/settings/sla`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-security',
-            label: 'Security',
-            icon: 'shield',
-            href: `/app/accounts/${accountId}/settings/security`,
-            activeOn: [`/app/accounts/${accountId}/settings/security`],
-            permission: 'administrator',
-          },
-          {
-            id: 'settings-billing',
-            label: 'Billing',
-            icon: 'credit-card',
-            href: `/app/accounts/${accountId}/settings/billing`,
-            activeOn: [`/app/accounts/${accountId}/settings/billing`],
-            permission: 'administrator',
-          },
-        ],
-      },
-    ])
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/layout/MobileSidebarLauncher.svelte:32:9
-Warn: Self-closing HTML tags for non-void elements are ambiguous — use `<span ...></span>` rather than `<span ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-      >
-        <span class="i-lucide-menu text-lg" />
-      </Button>
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/macros/MacrosList.svelte:111:24
-Error: Type '"default" | "secondary" | "outline-solid"' is not assignable to type '"default" | "destructive" | "outline" | "secondary" | undefined'.
-  Type '"outline-solid"' is not assignable to type '"default" | "destructive" | "outline" | "secondary" | undefined'. (ts)
-                <h3 class="text-lg font-semibold">{macro.name}</h3>
-                <Badge variant={getVisibilityColor(macro.visibility)}>
-                  {@const VisibilityIcon = getVisibilityIcon(macro.visibility)}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/navigation/FilterChips.svelte:21:7
-Error: Type '"default" | "outline-solid"' is not assignable to type '"default" | "link" | "destructive" | "outline" | "secondary" | "ghost" | undefined'.
-  Type '"outline-solid"' is not assignable to type '"default" | "link" | "destructive" | "outline" | "secondary" | "ghost" | undefined'. (ts)
-    <Button
-      variant={filter.isActive ? 'default' : 'outline-solid'}
-      size="sm"
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/notifications/NotificationBell.svelte:18:26
-Error: Expected 1-2 arguments, but got 0. (ts)
-    if (open && notificationsStore.all.length === 0) {
-      notificationsStore.fetchNotifications();
-    }
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/notifications/NotificationBell.svelte:23:30
-Error: Expected 1 arguments, but got 0. (ts)
-  async function handleMarkAllRead() {
-    await notificationsStore.markAllAsRead();
-    toast.success('All notifications marked as read');
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/csat/CsatFilters.svelte:5:31
 Error: Cannot find module '$lib/components/ui/date-range-picker/DateRangePicker.svelte' or its corresponding type declarations. (ts)
@@ -1144,109 +362,17 @@ Error: Property 'getTeams' does not exist on type 'TeamsStore'. (ts)
   const inboxes = $derived(inboxesStore.getInboxes());
   const teams = $derived(teamsStore.getTeams());
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportMetricCard.svelte:47:11
-Warn: `<svelte:component>` is deprecated in runes mode — components are dynamic by default
-https://svelte.dev/e/svelte_component_deprecated (svelte)
-        <div class="flex items-center gap-1 {trendColor}">
-          <svelte:component this={TrendIcon} class="h-4 w-4" />
-          <span class="text-sm font-medium">{Math.abs(trend)}%</span>
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/csat/CsatMetrics.svelte:12:38
+Error: Property 'getMetrics' does not exist on type 'CSATStore'. Did you mean 'metrics'? (ts)
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportMetricCard.svelte:4:30
-Error: Cannot find module '$lib/utils/timeHelper' or its corresponding type declarations. (ts)
-  import { TrendingUp, TrendingDown } from 'lucide-svelte';
-  import { formatTime } from '$lib/utils/timeHelper';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/csat/CsatMetrics.svelte:2:29
-Error: Cannot find module '$lib/stores/csat.svelte' or its corresponding type declarations. (ts)
-<script lang="ts">
-  import { csatStore } from '$lib/stores/csat.svelte';
-  import ReportMetricCard from '../shared/ReportMetricCard.svelte';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/csat/CsatMetrics.svelte:38:26
-Error: Object literal may only specify known properties, and '"height"' does not exist in type 'Props'. (ts)
-      {#each Array(3) as _}
-        <LoadingSkeleton height="100px" />
-      {/each}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/csat/CsatTable.svelte:3:29
-Error: Cannot find module '$lib/stores/csat.svelte' or its corresponding type declarations. (ts)
-  import { createEventDispatcher } from 'svelte';
-  import { csatStore } from '$lib/stores/csat.svelte';
-  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/csat/CsatTable.svelte:45:22
-Error: Object literal may only specify known properties, and '"height"' does not exist in type 'Props'. (ts)
-  {#if isLoading}
-    <LoadingSkeleton height="400px" />
-  {:else if responses && responses.length > 0}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/LiveBadge.svelte:21:3
-Warn: Self-closing HTML tags for non-void elements are ambiguous — use `<span ...></span>` rather than `<span ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-<span class="flex flex-row items-center rounded bg-teal-100 dark:bg-teal-900/30 {sizeClasses[size]}">
-  <span 
-    class="bg-teal-600 dark:bg-teal-400 rounded-full mr-1 rtl:mr-0 rtl:ml-1 {dotSizeClasses[size]} {pulse ? 'animate-pulse' : ''}"
-  />
-  <span class="text-teal-700 dark:text-teal-300 font-medium">
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/heatmaps/HeatmapDateRangeSelector.svelte:154:29
-Error: Object literal may only specify known properties, and '"asChild"' does not exist in type 'Omit<{ disabled?: boolean | null | undefined; }, "child" | "children"> & { child?: Snippet<[{ props: Record<string, unknown>; }]> | undefined; children?: Snippet<[]> | undefined; style?: any; ref?: HTMLElement | ... 1 more ... | undefined; } & Without<...>'. (ts)
-    <DropdownMenu.Root bind:open={showRangeDropdown}>
-      <DropdownMenu.Trigger asChild>
-        <Button
+  const metrics = $derived(csatStore.getMetrics());
+  const isLoading = $derived(csatStore.getUIFlags().isFetchingMetrics);
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/heatmaps/BaseHeatmapContainer.svelte:214:6
 Error: Object literal may only specify known properties, and 'title' does not exist in type 'Props'. (ts)
   <MetricCard 
     {title}
     isLive={true}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/heatmaps/BaseHeatmapContainer.svelte:222:11
-Error: Cannot use 'bind:' with this property. It is declared as non-bindable inside the component.
-To mark a property as bindable: 'let { from = $bindable() } = $props()' (ts)
-        <HeatmapDateRangeSelector
-          bind:from={selectedFrom}
-          bind:to={selectedTo}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/heatmaps/BaseHeatmapContainer.svelte:223:11
-Error: Cannot use 'bind:' with this property. It is declared as non-bindable inside the component.
-To mark a property as bindable: 'let { to = $bindable() } = $props()' (ts)
-          bind:from={selectedFrom}
-          bind:to={selectedTo}
-          bind:daysNum={selectedDaysBefore}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/heatmaps/BaseHeatmapContainer.svelte:224:11
-Error: Cannot use 'bind:' with this property. It is declared as non-bindable inside the component.
-To mark a property as bindable: 'let { daysNum = $bindable() } = $props()' (ts)
-          bind:to={selectedTo}
-          bind:daysNum={selectedDaysBefore}
-          onRangeTypeChange={handleRangeTypeChange}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/heatmaps/BaseHeatmapContainer.svelte:231:33
-Error: Object literal may only specify known properties, and '"asChild"' does not exist in type 'Omit<{ disabled?: boolean | null | undefined; }, "child" | "children"> & { child?: Snippet<[{ props: Record<string, unknown>; }]> | undefined; children?: Snippet<[]> | undefined; style?: any; ref?: HTMLElement | ... 1 more ... | undefined; } & Without<...>'. (ts)
-        <DropdownMenu.Root bind:open={showInboxDropdown}>
-          <DropdownMenu.Trigger asChild>
-            <Button
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/overview/AgentTable.svelte:211:15
-Warn: Using `on:change` to listen to the change event is deprecated. Use the event attribute `onchange` instead
-https://svelte.dev/e/event_directive_deprecated (svelte)
-              bind:value={pageSize}
-              on:change={(e) => handlePageSizeChange(parseInt(e.currentTarget.value))}
-              class="text-sm border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/overview/StatsLiveReportsContainer.svelte:85:35
-Error: Object literal may only specify known properties, and '"asChild"' does not exist in type 'Omit<{ disabled?: boolean | null | undefined; }, "child" | "children"> & { child?: Snippet<[{ props: Record<string, unknown>; }]> | undefined; children?: Snippet<[]> | undefined; style?: any; ref?: HTMLElement | ... 1 more ... | undefined; } & Without<...>'. (ts)
-          <DropdownMenu.Root bind:open={showTeamDropdown}>
-            <DropdownMenu.Trigger asChild>
-              <Button
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/overview/TeamTable.svelte:172:15
-Warn: Using `on:change` to listen to the change event is deprecated. Use the event attribute `onchange` instead
-https://svelte.dev/e/event_directive_deprecated (svelte)
-              bind:value={pageSize}
-              on:change={(e) => handlePageSizeChange(parseInt(e.currentTarget.value))}
-              class="text-sm border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportChart.svelte:5:24
 Error: Cannot find module 'svelte-chartjs' or its corresponding type declarations. (ts)
@@ -1270,12 +396,6 @@ Error: Property 'getUIFlag' does not exist on type 'ReportsStore'. (ts)
   const chartData = $derived(reportsStore.getChartData(metricKey));
   const isLoading = $derived(reportsStore.getUIFlag(`isFetching_${metricKey}`));
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportChart.svelte:110:22
-Error: Object literal may only specify known properties, and '"height"' does not exist in type 'Props'. (ts)
-  {#if isLoading}
-    <LoadingSkeleton height="300px" />
-  {:else if chartData && chartData.data.length > 0}
-
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportContainer.svelte:21:48
 Error: Property 'getData' does not exist on type 'ReportsStore'. (ts)
 
@@ -1287,59 +407,41 @@ Error: Property 'getUIFlag' does not exist on type 'ReportsStore'. (ts)
   const accountSummary = $derived(reportsStore.getData(accountSummaryKey));
   const isFetchingSummary = $derived(reportsStore.getUIFlag(summaryFetchingKey));
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportContainer.svelte:82:26
-Error: Object literal may only specify known properties, and '"height"' does not exist in type 'Props'. (ts)
-      {#each Array(4) as _}
-        <LoadingSkeleton height="120px" />
-      {/each}
-
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilterSelector.svelte:6:31
 Error: Cannot find module '$lib/components/ui/date-range-picker/DateRangePicker.svelte' or its corresponding type declarations. (ts)
   import { Switch } from '$lib/components/ui/switch';
   import DateRangePicker from '$lib/components/ui/date-range-picker/DateRangePicker.svelte';
   import { GROUP_BY_FILTER } from '$lib/constants/reports';
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilterSelector.svelte:7:35
-Error: Cannot find module '$lib/constants/reports' or its corresponding type declarations. (ts)
-  import DateRangePicker from '$lib/components/ui/date-range-picker/DateRangePicker.svelte';
-  import { GROUP_BY_FILTER } from '$lib/constants/reports';
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilterSelector.svelte:29:42
+Error: Property 'label' does not exist on type 'GroupByFilter'. (ts)
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilterSelector.svelte:39:19
-Error: 'filter' is of type 'unknown'. (ts)
-    const selected = Object.values(GROUP_BY_FILTER).find(
-      (filter) => filter.id?.toString() === value
-    );
+  const groupByLabel = $derived(groupBy?.label || 'Select grouping');
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilterSelector.svelte:85:35
-Error: 'filter' is of type 'unknown'. (ts)
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilterSelector.svelte:85:72
+Error: Property 'label' does not exist on type 'GroupByFilter'. (ts)
             {#each Object.values(GROUP_BY_FILTER) as filter}
               <Select.Item value={filter.id?.toString()} label={filter.label}>
                 {filter.label}
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilterSelector.svelte:85:65
-Error: 'filter' is of type 'unknown'. (ts)
-            {#each Object.values(GROUP_BY_FILTER) as filter}
-              <Select.Item value={filter.id?.toString()} label={filter.label}>
-                {filter.label}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilterSelector.svelte:86:18
-Error: 'filter' is of type 'unknown'. (ts)
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilterSelector.svelte:86:25
+Error: Property 'label' does not exist on type 'GroupByFilter'. (ts)
               <Select.Item value={filter.id?.toString()} label={filter.label}>
                 {filter.label}
               </Select.Item>
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilters.svelte:26:36
-Warn: This reference only captures the initial value of `currentFilter`. Did you mean to reference it inside a derived instead?
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilters.svelte:30:36
+Warn: This reference only captures the initial value of `currentFilterId`. Did you mean to reference it inside a closure instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
 
-  let selectedFilterValue = $state(currentFilter?.id?.toString() || '');
-  let selectedGroupByValue = $state(selectedGroupByFilter?.id?.toString() || '');
+  let selectedFilterValue = $state(currentFilterId);
+  let selectedGroupByValue = $state(selectedGroupById);
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilters.svelte:27:37
-Warn: This reference only captures the initial value of `selectedGroupByFilter`. Did you mean to reference it inside a derived instead?
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilters.svelte:31:37
+Warn: This reference only captures the initial value of `selectedGroupById`. Did you mean to reference it inside a closure instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
-  let selectedFilterValue = $state(currentFilter?.id?.toString() || '');
-  let selectedGroupByValue = $state(selectedGroupByFilter?.id?.toString() || '');
+  let selectedFilterValue = $state(currentFilterId);
+  let selectedGroupByValue = $state(selectedGroupById);
   let businessHoursEnabled = $state(false);
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportFilters.svelte:6:31
@@ -1347,114 +449,53 @@ Error: Cannot find module '$lib/components/ui/date-range-picker/DateRangePicker.
   import { Switch } from '$lib/components/ui/switch';
   import DateRangePicker from '$lib/components/ui/date-range-picker/DateRangePicker.svelte';
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/ReportHeader.svelte:35:7
-Warn: Using `<slot>` to render parent content is deprecated. Use `{@render ...}` tags instead
-https://svelte.dev/e/slot_element_deprecated (svelte)
-    <div class="flex-shrink-0">
-      <slot />
-    </div>
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:52:31
-Warn: This reference only captures the initial value of `selectedItem`. Did you mean to reference it inside a closure instead?
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:59:31
+Warn: This reference only captures the initial value of `selectedItemRef`. Did you mean to reference it inside a closure instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
-  let to = $state(0);
-  let selectedFilter = $state(selectedItem);
-  let groupBy = $state(GROUP_BY_FILTER[1]);
+  const selectedItemRef = $derived(selectedItem);
+  let selectedFilter = $state(selectedItemRef);
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:9:35
-Error: Cannot find module '$lib/constants/reports' or its corresponding type declarations. (ts)
-  import { reportsStore } from '$lib/stores/reports.svelte';
-  import { GROUP_BY_FILTER } from '$lib/constants/reports';
-  import { generateFileName } from '$lib/utils/downloadHelper';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:10:36
-Error: Cannot find module '$lib/utils/downloadHelper' or its corresponding type declarations. (ts)
-  import { GROUP_BY_FILTER } from '$lib/constants/reports';
-  import { generateFileName } from '$lib/utils/downloadHelper';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:60:30
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:68:30
 Error: Property 'getFilterItems' does not exist on type 'ReportsStore'. (ts)
   const filterItemsList = $derived(
     getterKey ? reportsStore.getFilterItems(getterKey) : []
   );
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:79:20
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:87:20
 Error: Property 'dispatchAction' does not exist on type 'ReportsStore'. (ts)
     if (actionKey) {
       reportsStore.dispatchAction(actionKey);
     }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:85:20
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:93:20
 Error: Property 'fetchAccountSummary' does not exist on type 'ReportsStore'. (ts)
     if (selectedFilter) {
       reportsStore.fetchAccountSummary({
         from,
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:100:28
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:108:28
 Error: Property 'fetchAccountReport' does not exist on type 'ReportsStore'. Did you mean 'fetchAccountReports'? (ts)
       try {
         await reportsStore.fetchAccountReport({
           metric: reportKeys[key as keyof typeof reportKeys],
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:126:20
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/reports/shared/WootReports.svelte:134:20
 Error: Property 'dispatchAction' does not exist on type 'ReportsStore'. (ts)
       const params = { from, to, fileName, businessHours };
       reportsStore.dispatchAction(dispatchMethods[type], params);
     }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/presence-indicator.svelte:80:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/presence-indicator.svelte:69:5
 Warn: Unknown at rule @apply (css)
   .presence-indicator {
     @apply inline-flex items-center;
   }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/presence-indicator.svelte:84:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/presence-indicator.svelte:73:5
 Warn: Unknown at rule @apply (css)
   .presence-indicator__dot {
     @apply flex-shrink-0;
   }
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/presence-indicator.svelte:32:12
-Error: Type 'string' is not comparable to type '() => "online" | "offline" | "away"'. (ts)
-    switch (status) {
-      case 'online':
-        return {
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/presence-indicator.svelte:38:12
-Error: Type 'string' is not comparable to type '() => "online" | "offline" | "away"'. (ts)
-        };
-      case 'away':
-        return {
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/presence-indicator.svelte:44:12
-Error: Type 'string' is not comparable to type '() => "online" | "offline" | "away"'. (ts)
-        };
-      case 'offline':
-      default:
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/presence-indicator.svelte:69:34
-Error: Property 'variant' does not exist on type '() => { color: string; label: string; variant: "default"; } | { color: string; label: string; variant: "secondary"; } | { color: string; label: string; variant: "outline"; }'. (ts)
-  {#if showLabel}
-    <Badge variant={statusConfig.variant} class="flex items-center gap-1.5">
-      <div class="presence-indicator__dot {sizeClasses} {statusConfig.color} rounded-full"></div>
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/presence-indicator.svelte:70:71
-Error: Property 'color' does not exist on type '() => { color: string; label: string; variant: "default"; } | { color: string; label: string; variant: "secondary"; } | { color: string; label: string; variant: "outline"; }'. (ts)
-    <Badge variant={statusConfig.variant} class="flex items-center gap-1.5">
-      <div class="presence-indicator__dot {sizeClasses} {statusConfig.color} rounded-full"></div>
-      <span class="text-xs">{statusConfig.label}</span>
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/presence-indicator.svelte:71:43
-Error: Property 'label' does not exist on type '() => { color: string; label: string; variant: "default"; } | { color: string; label: string; variant: "secondary"; } | { color: string; label: string; variant: "outline"; }'. (ts)
-      <div class="presence-indicator__dot {sizeClasses} {statusConfig.color} rounded-full"></div>
-      <span class="text-xs">{statusConfig.label}</span>
-    </Badge>
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/presence-indicator.svelte:74:69
-Error: Property 'color' does not exist on type '() => { color: string; label: string; variant: "default"; } | { color: string; label: string; variant: "secondary"; } | { color: string; label: string; variant: "outline"; }'. (ts)
-  {:else}
-    <div class="presence-indicator__dot {sizeClasses} {statusConfig.color} rounded-full border-2 border-background"></div>
-  {/if}
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/typing-indicator.svelte:38:5
 Warn: Unknown at rule @apply (css)
@@ -1498,42 +539,35 @@ Warn: Unknown at rule @apply (css)
       @apply opacity-100 scale-100;
     }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/websocket-status.svelte:52:5
-Warn: `<svelte:component>` is deprecated in runes mode — components are dynamic by default
-https://svelte.dev/e/svelte_component_deprecated (svelte)
-  <Badge {variant} class="flex items-center gap-1.5">
-    <svelte:component this={icon} class="w-3 h-3 {iconClass}" />
-    <span class="text-xs font-medium">
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/websocket-status.svelte:88:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/websocket-status.svelte:86:5
 Warn: Unknown at rule @apply (css)
   .websocket-status {
     @apply flex flex-col gap-1;
   }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/websocket-status.svelte:92:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/websocket-status.svelte:90:5
 Warn: Unknown at rule @apply (css)
   .websocket-status__details {
     @apply flex flex-col gap-1;
   }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/websocket-status.svelte:96:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/websocket-status.svelte:94:5
 Warn: Unknown at rule @apply (css)
   .websocket-status__error {
     @apply flex items-center gap-1;
   }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/websocket-status.svelte:101:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/websocket-status.svelte:99:5
 Warn: Unknown at rule @apply (css)
   .websocket-status__subscriptions {
     @apply flex items-center;
   }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/websocket-status.svelte:51:11
-Error: Type '() => "default" | "outline" | "secondary" | "destructive"' is not assignable to type '"default" | "destructive" | "outline" | "secondary" | undefined'. (ts)
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/websocket-status.svelte:48:11
+Error: Type 'string' is not assignable to type '"default" | "destructive" | "outline" | "secondary" | undefined'. (ts)
 <div class="websocket-status {className}">
   <Badge {variant} class="flex items-center gap-1.5">
-    <svelte:component this={icon} class="w-3 h-3 {iconClass}" />
+    {@const Icon = icon}
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/contact-management/advanced-filter.svelte:180:16
 Error: Type 'string | number | boolean' is not assignable to type 'string'.
@@ -1555,59 +589,47 @@ Error: Type 'boolean | "indeterminate"' is not assignable to type 'boolean | und
             checked={allSelected
               ? true
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/contact-management/bulk-action-bar.svelte:129:28
-Error: Object literal may only specify known properties, and '"asChild"' does not exist in type 'Omit<{}, "child" | "children"> & { child?: Snippet<[{ props: Record<string, unknown>; }]> | undefined; children?: Snippet<[]> | undefined; style?: any; ref?: HTMLElement | ... 1 more ... | undefined; } & Without<...>'. (ts)
-        <Popover.Root bind:open={showLabelSelector}>
-          <Popover.Trigger asChild>
-            <Button
-
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/ui/select/select.svelte:15:38
 Error: Type 'string | string[] | undefined' is not assignable to type 'string[] | undefined'.
   Type 'string' is not assignable to type 'string[]'. (ts)
 
 <SelectPrimitive.Root bind:open bind:value { ...restProps } />
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:109:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:94:5
 Warn: Unknown at rule @apply (css)
   .chat-bubble {
     @apply max-w-[85%] cursor-pointer p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow;
   }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:113:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:98:5
 Warn: Unknown at rule @apply (css)
   .row--agent-block {
     @apply items-center flex text-left pb-2 text-xs;
   }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:117:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:102:5
 Warn: Unknown at rule @apply (css)
   .agent--name {
     @apply font-medium ml-1 text-gray-900;
   }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:121:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:106:5
 Warn: Unknown at rule @apply (css)
   .company--name {
     @apply text-gray-600 ml-1;
   }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:125:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:110:5
 Warn: Unknown at rule @apply (css)
   .message-content {
     @apply text-sm text-gray-800 leading-relaxed;
   }
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:129:5
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:114:5
 Warn: Unknown at rule @apply (css)
   .message-content :global(br) {
     @apply block mb-1;
   }
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignMessage.svelte:88:11
-Error: Object literal may only specify known properties, and '"src"' does not exist in type 'Omit<{ delayMs?: number | undefined; loadingStatus?: AvatarImageLoadingStatus | undefined; onLoadingStatusChange?: OnChangeFn<AvatarImageLoadingStatus> | undefined; }, "child" | "children"> & { ...; } & Without<...>'. (ts)
-        <Avatar
-          src={avatarUrl}
-          size={20}
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/lib/components/widget/CampaignView.svelte:125:5
 Warn: Unknown at rule @apply (css)
@@ -1676,33 +698,26 @@ Error: Argument of type '{ detail: { campaignId: number; }; }' is not assignable
           <button onclick={() => handleCampaignClick({ detail: { campaignId: activeCampaign.id } })}>
             View Campaign
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/contacts/[contactId]/+page.svelte:434:23
-Warn: `<svelte:component>` is deprecated in runes mode — components are dynamic by default
-https://svelte.dev/e/svelte_component_deprecated (svelte)
-                    >
-                      <svelte:component this={media.icon} class="h-5 w-5" />
-                    </a>
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/contacts/[contactId]/+page.svelte:446:43
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/contacts/[contactId]/+page.svelte:447:43
 Error: Argument of type 'number' is not assignable to parameter of type 'string'. (ts)
                 <Calendar class="h-4 w-4" />
                 <span>Created {formatDate(contact.createdAt)}</span>
               </div>
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/contacts/[contactId]/+page.svelte:452:21
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/contacts/[contactId]/+page.svelte:453:21
 Error: Argument of type 'number | null' is not assignable to parameter of type 'string | null | undefined'.
   Type 'number' is not assignable to type 'string'. (ts)
                   >Last activity {formatRelativeTime(
                     contact.lastActivityAt
                   )}</span
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/contacts/[contactId]/+page.svelte:565:80
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/contacts/[contactId]/+page.svelte:566:80
 Error: Type 'unknown' is not assignable to type 'string | null | undefined'. (ts)
                                     <span class="text-sm text-muted-foreground">{formatSocialLabel(sk)}:</span>
                                     <a class="text-sm text-blue-600 underline" href={String(sv).startsWith('http') ? sv : `https://${String(sv)}`} target="_blank" rel="noopener noreferrer">{sv}</a>
                                   </div>
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/contacts/[contactId]/+page.svelte:664:82
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/contacts/[contactId]/+page.svelte:665:82
 Error: Type 'unknown' is not assignable to type 'string | null | undefined'. (ts)
                                       <span class="text-sm text-muted-foreground">{formatSocialLabel(sk)}:</span>
                                       <a class="text-sm text-blue-600 underline" href={String(sv).startsWith('http') ? sv : `https://${String(sv)}`} target="_blank" rel="noopener noreferrer">{sv}</a>
@@ -1713,11 +728,6 @@ Error: Cannot find module '$lib/components/reports/bot/BotMetrics.svelte' or its
   import ReportHeader from '$lib/components/reports/shared/ReportHeader.svelte';
   import BotMetrics from '$lib/components/reports/bot/BotMetrics.svelte';
   import ReportFilterSelector from '$lib/components/reports/shared/ReportFilterSelector.svelte';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/bot/+page.svelte:8:35
-Error: Cannot find module '$lib/constants/reports' or its corresponding type declarations. (ts)
-  import { reportsStore } from '$lib/stores/reports.svelte';
-  import { GROUP_BY_FILTER } from '$lib/constants/reports';
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/bot/+page.svelte:32:20
 Error: Property 'fetchBotSummary' does not exist on type 'ReportsStore'. (ts)
@@ -1730,17 +740,6 @@ Error: Property 'fetchAccountReport' does not exist on type 'ReportsStore'. Did 
       try {
         await reportsStore.fetchAccountReport({
           metric: reportKeys[key as keyof typeof reportKeys],
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/conversation/+page.svelte:10:35
-Error: Cannot find module '$lib/constants/reports' or its corresponding type declarations. (ts)
-  import { reportsStore } from '$lib/stores/reports.svelte';
-  import { GROUP_BY_FILTER } from '$lib/constants/reports';
-  import { generateFileName } from '$lib/utils/downloadHelper';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/conversation/+page.svelte:11:36
-Error: Cannot find module '$lib/utils/downloadHelper' or its corresponding type declarations. (ts)
-  import { GROUP_BY_FILTER } from '$lib/constants/reports';
-  import { generateFileName } from '$lib/utils/downloadHelper';
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/conversation/+page.svelte:35:20
 Error: Property 'fetchAccountSummary' does not exist on type 'ReportsStore'. (ts)
@@ -1760,28 +759,11 @@ Error: Property 'downloadConversationsSummaryReports' does not exist on type 'Re
     reportsStore.downloadConversationsSummaryReports({
       from,
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/csat/+page.svelte:10:29
-Error: Cannot find module '$lib/stores/csat.svelte' or its corresponding type declarations. (ts)
-  import { Download } from 'lucide-svelte';
-  import { csatStore } from '$lib/stores/csat.svelte';
-  import { accountStore } from '$lib/stores/account.svelte';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/csat/+page.svelte:11:32
-Error: Cannot find module '$lib/stores/account.svelte' or its corresponding type declarations. (ts)
-  import { csatStore } from '$lib/stores/csat.svelte';
-  import { accountStore } from '$lib/stores/account.svelte';
-  import { generateFileName } from '$lib/utils/downloadHelper';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/csat/+page.svelte:12:36
-Error: Cannot find module '$lib/utils/downloadHelper' or its corresponding type declarations. (ts)
-  import { accountStore } from '$lib/stores/account.svelte';
-  import { generateFileName } from '$lib/utils/downloadHelper';
-  import { FEATURE_FLAGS } from '$lib/constants/featureFlags';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/csat/+page.svelte:13:33
-Error: Cannot find module '$lib/constants/featureFlags' or its corresponding type declarations. (ts)
-  import { generateFileName } from '$lib/utils/downloadHelper';
-  import { FEATURE_FLAGS } from '$lib/constants/featureFlags';
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/csat/+page.svelte:38:17
+Error: Property 'getMetrics' does not exist on type 'CSATStore'. Did you mean 'metrics'? (ts)
+    try {
+      csatStore.getMetrics(requestPayload);
+      getResponses();
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/sla/+page.svelte:4:26
 Error: Cannot find module '$lib/components/reports/sla/SLAMetrics.svelte' or its corresponding type declarations. (ts)
@@ -1801,22 +783,55 @@ Error: Cannot find module '$lib/components/reports/sla/SLAReportFilters.svelte' 
   import SLAReportFilters from '$lib/components/reports/sla/SLAReportFilters.svelte';
   import { Button } from '$lib/components/ui/button';
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/sla/+page.svelte:9:35
-Error: Cannot find module '$lib/stores/slaReports.svelte' or its corresponding type declarations. (ts)
-  import { Download } from 'lucide-svelte';
-  import { slaReportsStore } from '$lib/stores/slaReports.svelte';
-  import { agentsStore } from '$lib/stores/agents.svelte';
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/sla/+page.svelte:15:36
-Error: Cannot find module '$lib/utils/downloadHelper' or its corresponding type declarations. (ts)
-  import { slaStore } from '$lib/stores/sla.svelte';
-  import { generateFileName } from '$lib/utils/downloadHelper';
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/sla/+page.svelte:29:47
+Error: Property 'getMetrics' does not exist on type 'SLAReportsStore'. Did you mean 'metrics'? (ts)
+  const slaReports = $derived(slaReportsStore.getAll());
+  const slaMetrics = $derived(slaReportsStore.getMetrics());
+  const slaMeta = $derived(slaReportsStore.getMeta());
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/sla/+page.svelte:38:14
 Error: Property 'fetchSLAs' does not exist on type 'SLAStore'. (ts)
     labelsStore.fetchLabels();
     slaStore.fetchSLAs();
     fetchSLAMetrics();
+
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/sla/+page.svelte:44:25
+Error: Argument of type '{ from: number; to: number; assigned_agent_id: null; inbox_id: null; team_id: null; sla_policy_id: null; label_list: null; page: number; }' is not assignable to parameter of type 'SLAFilterParams & { accountId: number; }'.
+  Property 'accountId' is missing in type '{ from: number; to: number; assigned_agent_id: null; inbox_id: null; team_id: null; sla_policy_id: null; label_list: null; page: number; }' but required in type '{ accountId: number; }'. (ts)
+  function fetchSLAReports({ pageNumber: page }: { pageNumber?: number } = {}) {
+    slaReportsStore.get({
+      page: page || pageNumber,
+      ...activeFilter,
+    });
+  }
+
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/sla/+page.svelte:51:21
+Error: Property 'getMetrics' does not exist on type 'SLAReportsStore'. Did you mean 'metrics'? (ts)
+  function fetchSLAMetrics() {
+    slaReportsStore.getMetrics(activeFilter);
+  }
+
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/sla/+page.svelte:67:32
+Error: Argument of type '{ from: number; to: number; assigned_agent_id: null; inbox_id: null; team_id: null; sla_policy_id: null; label_list: null; fileName: string; }' is not assignable to parameter of type 'SLAFilterParams & { accountId: number; fileName: string; }'.
+  Property 'accountId' is missing in type '{ from: number; to: number; assigned_agent_id: null; inbox_id: null; team_id: null; sla_policy_id: null; label_list: null; fileName: string; }' but required in type '{ accountId: number; fileName: string; }'. (ts)
+    try {
+      slaReportsStore.download({
+        fileName: generateFileName({ type, to: activeFilter.to }),
+        ...activeFilter,
+      });
+    } catch (error) {
+
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/sla/+page.svelte:97:29
+Error: 'slaMeta' is possibly 'null'. (ts)
+        isLoading={uiFlags.isFetching}
+        currentPage={Number(slaMeta.currentPage)}
+        totalCount={Number(slaMeta.count)}
+
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/reports/sla/+page.svelte:98:28
+Error: 'slaMeta' is possibly 'null'. (ts)
+        currentPage={Number(slaMeta.currentPage)}
+        totalCount={Number(slaMeta.count)}
+        on:page-change={onPageChange}
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/settings/account/components/AccountId.svelte:18:2
 Error: Property 'headerActions' is missing in type '{ children: () => any; title: string; description: string; withBorder: true; }' but required in type '$$ComponentProps'. (ts)
@@ -1825,31 +840,31 @@ Error: Property 'headerActions' is missing in type '{ children: () => any; title
   title={$_('GENERAL_SETTINGS.FORM.ACCOUNT_ID.TITLE')}
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/settings/account/components/BuildInfo.svelte:8:66
-Error: Property 'latest_chatwoot_version' does not exist on type 'UserAccount'. (ts)
+Error: Property 'latest_chatwoot_version' does not exist on type 'UserAccount'. Did you mean 'latestChatwootVersion'? (ts)
 
   let latestChatwootVersion = $derived(authStore.currentAccount?.latest_chatwoot_version);
   let appVersion = $derived(globalConfig.get('appVersion'));
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/settings/account/components/AccountDelete.svelte:10:56
-Error: Property 'custom_attributes' does not exist on type 'UserAccount'. (ts)
+Error: Property 'custom_attributes' does not exist on type 'UserAccount'. Did you mean 'customAttributes'? (ts)
   let currentAccount = $derived(authStore.currentAccount);
   let isMarkedForDeletion = $derived(!!currentAccount?.custom_attributes?.marked_for_deletion_at);
   let markedForDeletionDate = $derived(
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/settings/account/components/AccountDelete.svelte:12:21
-Error: Property 'custom_attributes' does not exist on type 'UserAccount'. (ts)
+Error: Property 'custom_attributes' does not exist on type 'UserAccount'. Did you mean 'customAttributes'? (ts)
   let markedForDeletionDate = $derived(
     currentAccount?.custom_attributes?.marked_for_deletion_at 
       ? new Date(currentAccount.custom_attributes.marked_for_deletion_at)
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/settings/account/components/AccountDelete.svelte:13:33
-Error: Property 'custom_attributes' does not exist on type 'UserAccount'. (ts)
+Error: Property 'custom_attributes' does not exist on type 'UserAccount'. Did you mean 'customAttributes'? (ts)
     currentAccount?.custom_attributes?.marked_for_deletion_at 
       ? new Date(currentAccount.custom_attributes.marked_for_deletion_at) 
       : null
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/settings/account/components/AccountDelete.svelte:17:21
-Error: Property 'custom_attributes' does not exist on type 'UserAccount'. (ts)
+Error: Property 'custom_attributes' does not exist on type 'UserAccount'. Did you mean 'customAttributes'? (ts)
   let markedForDeletionReason = $derived(
     currentAccount?.custom_attributes?.marked_for_deletion_reason || 'manual_deletion'
   );
@@ -1860,22 +875,11 @@ Error: Property 'headerActions' is missing in type '{ children: () => any; title
 <SectionLayout
   title={$_('GENERAL_SETTINGS.ACCOUNT_DELETE_SECTION.TITLE')}
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/settings/account/components/AutoResolve.svelte:126:38
-Error: Property 'all' does not exist on type 'LabelsStore'. (ts)
-               <Select.Content>
-                  {#each labelsStore.all as label}
-                    <Select.Item value={label.title} label={label.title}>{label.title}</Select.Item>
-
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/settings/account/components/AudioTranscription.svelte:34:2
 Error: Property 'children' is missing in type '{ title: string; description: string; withBorder: true; headerActions: () => any; }' but required in type '$$ComponentProps'. (ts)
 
 <SectionLayout
   title={$_('GENERAL_SETTINGS.FORM.AUDIO_TRANSCRIPTION.TITLE')}
-
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/settings/account/+page.svelte:58:37
-Error: Property 'support_email' does not exist on type 'UserAccount'. Did you mean 'supportEmail'? (ts)
-      domain = currentAccount.domain || '';
-      supportEmail = currentAccount.support_email || '';
 
 /mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/app/accounts/[accountId]/settings/account/+page.svelte:107:6
 Error: Property 'headerActions' is missing in type '{ children: () => any; title: string; description: string; }' but required in type '$$ComponentProps'. (ts)
@@ -1883,11 +887,13 @@ Error: Property 'headerActions' is missing in type '{ children: () => any; title
     <SectionLayout
       title={$_('GENERAL_SETTINGS.FORM.GENERAL_SECTION.TITLE')}
 
-/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/ui/[name]/+page.svelte:18:3
-Error: `$:` is not allowed in runes mode, use `$derived` or `$effect` instead
-https://svelte.dev/e/legacy_reactive_statement_invalid (svelte)
-
-  $: componentName = $page.params.name;
+/mnt/c/projects/chatwoot/laravel-svelte-port/svelte-ui/src/routes/ui/[name]/+page.svelte:129:30
+Error: `$state(...)` can only be used as a variable declaration initializer, a class field declaration, or the first assignment to a class field at the top level of the constructor.
+https://svelte.dev/e/state_invalid_placement (svelte)
+      {#snippet selectDemo()}
+        {@const themeValue = $state('light')}
+        {@const themeLabel = $derived(
 
 ====================================
-svelte-check found 197 errors and 52 warnings in 74 files
+svelte-check found 102 errors and 41 warnings in 40 files
+ ELIFECYCLE  Command failed with exit code 1.

@@ -382,16 +382,16 @@ class NotificationsStore {
       primaryActorType: 'Conversation',
       primaryActorId: conversation.id,
       primaryActor: conversation,
-      secondaryActor: message,
       accountId: conversation.account_id,
       userId: message.mentioned_user?.id,
       readAt: null,
       snoozedUntil: null,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      lastActivityAt: new Date().toISOString(),
       meta: {
         conversation,
         message,
+        secondaryActor: message,
         mentioner: message.user
       }
     };

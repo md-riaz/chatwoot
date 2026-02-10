@@ -20,7 +20,7 @@ export function useLiveRefresh(
     onError
   } = options;
 
-  let timeoutId = $state<number | null>(null);
+  let timeoutId = $state<ReturnType<typeof setTimeout> | null>(null);
   let isActive = $state(false);
   let lastRefresh = $state<Date | null>(null);
 

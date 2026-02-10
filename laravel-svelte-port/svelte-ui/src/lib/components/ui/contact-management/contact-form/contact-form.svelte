@@ -114,7 +114,7 @@
   <div class="flex items-center gap-4">
     <Avatar class="h-16 w-16">
       {#if avatarPreview}
-        <img src={avatarPreview} alt={form.name || 'avatar'} />
+        <img src={avatarPreview} alt={(form.firstName || form.lastName) ? `${form.firstName} ${form.lastName}`.trim() : 'avatar'} />
       {:else}
         <div class="flex h-full w-full items-center justify-center bg-primary text-primary-foreground text-xl">
           {form.firstName ? (form.firstName[0] + (form.lastName ? form.lastName[0] : '')) : '??'}
@@ -197,9 +197,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           {#each socialNetworks as network}
             {#if activeSocials.has(network.key)}
+              {@const NetworkIcon = network.icon}
               <div class="relative flex items-center">
                 <div class="absolute left-3 text-muted-foreground flex items-center justify-center">
-                  {@const NetworkIcon = network.icon}
                   <NetworkIcon class="h-4 w-4" />
                 </div>
                 <Input 
@@ -226,11 +226,11 @@
       <div class="flex flex-wrap gap-2">
         {#each socialNetworks as network}
           {#if !activeSocials.has(network.key)}
+            {@const NetworkIcon = network.icon}
             <button 
               class="inline-flex items-center gap-2 h-9 px-3 text-sm transition-colors rounded-md bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onclick={() => addSocialProfile(network.key)}
             >
-              {@const NetworkIcon = network.icon}
               <NetworkIcon class="h-4 w-4" />
               <span>Add {network.label}</span>
             </button>

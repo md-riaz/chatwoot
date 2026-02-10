@@ -22,6 +22,9 @@ export interface UserAccount {
   domain?: string;
   supportEmail?: string;
   settings?: Record<string, any>;
+  avatarUrl?: string;
+  latestChatwootVersion?: string;
+  customAttributes?: Record<string, any>;
 }
 
 /**

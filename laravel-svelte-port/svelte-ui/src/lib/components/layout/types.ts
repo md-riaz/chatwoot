@@ -8,7 +8,7 @@ export interface NavigationItem {
   icon?: string;
   channelType?: string;
   avatarUrl?: string;
-  href: string;
+  href?: string;
   badge?: number;
   activeOn?: string[];
   children?: NavigationItem[];

@@ -4,12 +4,12 @@
   import { ChevronDown } from '@lucide/svelte';
   import { authStore } from '$lib/stores/auth.svelte';
   import { navigate } from '$lib/routing/navigation';
-  import type { HTMLDivAttributes } from 'svelte/elements';
+  import type { HTMLAttributes } from 'svelte/elements';
 
   let {
     class: className = '',
     ...restProps
-  }: HTMLDivAttributes = $props();
+  }: HTMLAttributes<HTMLDivElement> = $props();
 
   const currentUser = $derived(authStore.currentUser);
   const currentAccount = $derived(authStore.currentAccount);

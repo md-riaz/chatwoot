@@ -100,13 +100,13 @@ export async function getContacts(
     .get(`api/v1/accounts/${accountId}/contacts`, {
       searchParams: toSearchParams(params),
     })
-    .json();
+    .json<PaginatedResponse<any>>();
 
   // Transform contacts to add computed properties
   return {
     ...response,
     data: response.data?.map(transformContactFromApi) || [],
-  };
+  } as PaginatedResponse<Contact>;
 }
 
 /**
@@ -122,13 +122,13 @@ export async function searchContacts(
     .get(`api/v1/accounts/${accountId}/contacts/search`, {
       searchParams: toSearchParams({ q: query, page, per_page: perPage }),
     })
-    .json();
+    .json<PaginatedResponse<any>>();
 
   // Transform contacts to add computed properties
   return {
     ...response,
     data: response.data?.map(transformContactFromApi) || [],
-  };
+  } as PaginatedResponse<Contact>;
 }
 
 /**
@@ -162,13 +162,13 @@ export async function filterContacts(
     .post(`api/v1/accounts/${accountId}/contacts/filter?include_contact_inboxes=false&page=${page}&sort=${sortAttr}`, {
       json: { payload: transformedPayload },
     })
-    .json();
+    .json<PaginatedResponse<any>>();
 
   // Transform contacts to add computed properties
   return {
     ...response,
     data: response.data?.map(transformContactFromApi) || [],
-  };
+  } as PaginatedResponse<Contact>;
 }
 
 /**
@@ -182,13 +182,13 @@ export async function getActiveContacts(
     .get(`api/v1/accounts/${accountId}/contacts/active`, {
       searchParams: toSearchParams(params),
     })
-    .json();
+    .json<PaginatedResponse<any>>();
 
   // Transform contacts to add computed properties
   return {
     ...response,
     data: response.data?.map(transformContactFromApi) || [],
-  };
+  } as PaginatedResponse<Contact>;
 }
 
 /**
@@ -198,7 +198,7 @@ export async function getContact(
   accountId: number,
   contactId: number
 ): Promise<Contact> {
-  const raw = await api.get(`api/v1/accounts/${accountId}/contacts/${contactId}`).json();
+  const raw = await api.get(`api/v1/accounts/${accountId}/contacts/${contactId}`).json<{ data?: any } | any>();
   const contactPayload = raw?.data ?? raw;
   return transformContactFromApi(contactPayload);
 }
@@ -217,7 +217,7 @@ export async function createContact(
     .post(`api/v1/accounts/${accountId}/contacts`, {
       json: apiData,
     })
-    .json();
+    .json<{ data?: any } | any>();
 
   const contactPayload = raw?.data ?? raw;
   return transformContactFromApi(contactPayload);
@@ -252,7 +252,7 @@ export async function updateContact(
       .patch(`api/v1/accounts/${accountId}/contacts/${contactId}`, {
         body: formData,
       })
-      .json();
+      .json<{ data?: any } | any>();
 
     const contactPayload = raw?.data ?? raw;
     return transformContactFromApi(contactPayload);
@@ -264,7 +264,7 @@ export async function updateContact(
     .patch(`api/v1/accounts/${accountId}/contacts/${contactId}`, {
       json: apiData,
     })
-    .json();
+    .json<{ data?: any } | any>();
 
   const contactPayload = raw?.data ?? raw;
   return transformContactFromApi(contactPayload);
@@ -289,7 +289,7 @@ export async function deleteContactAvatar(
 ): Promise<Contact> {
   const raw = await api
     .delete(`api/v1/accounts/${accountId}/contacts/${contactId}/avatar`)
-    .json();
+    .json<{ data?: any } | any>();
 
   const contactPayload = raw?.data ?? raw;
   return transformContactFromApi(contactPayload);
@@ -319,7 +319,7 @@ export async function mergeContacts(
     .post(`api/v1/accounts/${accountId}/contacts/${primaryContactId}/merge`, {
       json: { child_contact_id: secondaryContactId },
     })
-    .json();
+    .json<{ data?: any } | any>();
 
   const contactPayload = raw?.data ?? raw;
   return transformContactFromApi(contactPayload);

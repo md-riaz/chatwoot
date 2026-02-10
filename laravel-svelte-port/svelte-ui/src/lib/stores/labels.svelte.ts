@@ -133,7 +133,7 @@ class LabelsStore {
     this.error = null;
 
     try {
-      const label = await labelsAPI.getLabel(labelId);
+      const label = await labelsAPI.getLabel(this.currentAccountId, labelId);
       this.addOrUpdateLabel(label);
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch label';
@@ -206,7 +206,7 @@ class LabelsStore {
     this.allLabels = this.allLabels.filter((label) => label.id !== labelId);
 
     try {
-      await labelsAPI.deleteLabel(labelId);
+      await labelsAPI.deleteLabel(this.currentAccountId, labelId);
       return true;
     } catch (err: any) {
       // Rollback on error

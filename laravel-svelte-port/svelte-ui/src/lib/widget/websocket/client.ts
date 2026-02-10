@@ -140,7 +140,7 @@ class WidgetWebSocketClient {
    */
   private isMessageInActiveConversation(message: any): boolean {
     const { conversation_id: conversationId } = message;
-    return this.activeConversationId && conversationId !== this.activeConversationId;
+    return !!(this.activeConversationId && conversationId !== this.activeConversationId);
   }
 
   /**
@@ -169,7 +169,7 @@ class WidgetWebSocketClient {
       
       // Add each new message to the widget conversation store
       newMessages.forEach(message => {
-        widgetConversationStore.addMessage(message);
+        widgetConversationStore.addMessage(message as any);
       });
       
       console.log(`[Widget WS] Synced ${newMessages.length} messages since ID ${this.lastMessageId}`);
@@ -366,7 +366,7 @@ class WidgetWebSocketClient {
       return;
     }
 
-    widgetConversationStore.updateMessage(data);
+    widgetConversationStore.updateMessage(data.id, data);
   }
 
   private handleConversationStatusChanged(data: any) {

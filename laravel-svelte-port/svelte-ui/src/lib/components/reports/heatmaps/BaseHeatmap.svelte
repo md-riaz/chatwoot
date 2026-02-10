@@ -37,7 +37,7 @@
   const tooltip = useHeatmapTooltip();
   
   // Process heatmap data into rows
-  const dataRows = $derived<HeatmapRow[]>(() => {
+  const dataRows = $derived.by(() => {
     const groupedData = groupHeatmapByDay(heatmapData);
     return Array.from(groupedData.keys())
       .sort((a, b) => new Date(b).getTime() - new Date(a).getTime()) // Most recent first
@@ -111,7 +111,7 @@
                 role="gridcell"
                 tabindex="0"
                 aria-label="{data.value} conversations at {new Date(data.timestamp * 1000).getHours()}:00"
-              />
+              ></div>
             {/each}
           </div>
         {/each}

@@ -27,24 +27,21 @@
   let stats = $derived(wsStore.stats);
   
   // Get appropriate icon and variant
-  let icon = $derived(() => {
-    if (isConnected) return Wifi;
-    if (isConnecting || isReconnecting) return RotateCcw;
-    if (isFailed) return AlertTriangle;
-    return WifiOff;
-  });
+  let icon = $derived(
+    isConnected ? Wifi
+    : (isConnecting || isReconnecting) ? RotateCcw
+    : isFailed ? AlertTriangle
+    : WifiOff
+  );
   
-  let variant = $derived(() => {
-    if (isConnected) return 'default';
-    if (isConnecting || isReconnecting) return 'secondary';
-    if (isFailed) return 'destructive';
-    return 'outline';
-  });
+  let variant = $derived(
+    isConnected ? 'default'
+    : (isConnecting || isReconnecting) ? 'secondary'
+    : isFailed ? 'destructive'
+    : 'outline'
+  );
   
-  let iconClass = $derived(() => {
-    if (isConnecting || isReconnecting) return 'animate-spin';
-    return '';
-  });
+  let iconClass = $derived((isConnecting || isReconnecting) ? 'animate-spin' : '');
 </script>
 
 <div class="websocket-status {className}">

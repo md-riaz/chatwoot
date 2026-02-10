@@ -154,7 +154,7 @@ export class WebSocketClient {
    */
   get connectionState() {
     return {
-      state: this.store.state,
+      state: this.store.connectionState,
       error: this.store.error,
       reconnectAttempts: this.store.reconnectAttempts,
       isConnected: this.store.isConnected,
@@ -168,7 +168,7 @@ export class WebSocketClient {
   private handleOpen(): void {
     console.log('WebSocket connected');
     this.store.setState('connected');
-    this.store.setError(null);
+    this.store.clearError();
 
     // Resubscribe to all channels
     this.resubscribeChannels();

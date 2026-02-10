@@ -11,7 +11,7 @@
 -->
 <script lang="ts">
   import { page } from '$app/stores';
-  import { useContactActions } from '../contacts.svelte.ts';
+  import { useContactActions } from '../contacts.svelte';
   import type { Contact, CreateContactParams } from '$lib/api/contacts';
   
   // Get account ID from route params

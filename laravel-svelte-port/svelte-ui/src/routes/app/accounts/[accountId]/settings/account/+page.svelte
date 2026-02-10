@@ -55,7 +55,7 @@
       name = currentAccount.name || '';
       locale = currentAccount.locale || 'en';
       domain = currentAccount.domain || '';
-      supportEmail = currentAccount.support_email || '';
+      supportEmail = currentAccount.supportEmail || '';
       
       // Override with UI settings locale if available (matching Vue logic)
       if (uiSettings?.locale) {

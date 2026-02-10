@@ -38,6 +38,8 @@ export interface ActionOptions<TData = any, TVariables = any> {
   onFinally?: (variables: TVariables) => void;
   /** Transform response data */
   transform?: (data: any) => TData;
+  /** Optimistic update function */
+  optimisticUpdate?: (variables: TVariables) => TData;
 }
 
 /**
@@ -75,7 +77,7 @@ export class BaseAction<TData = any, TVariables = any, TError = any> {
   
   constructor(
     private executor: (variables: TVariables, signal?: AbortSignal) => Promise<TData>,
-    private options: ActionOptions<TData, TVariables> = {}
+    protected options: ActionOptions<TData, TVariables> = {}
   ) {
     // Auto-execute if immediate option is set
     if (options.immediate) {

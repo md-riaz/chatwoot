@@ -4,6 +4,9 @@ import type { WidgetCampaign } from '$lib/api/widget-campaigns';
  * Campaign helper utilities ported from Vue implementation
  */
 
+// Type declaration for URLPattern (not available in all browsers)
+declare const URLPattern: any;
+
 /**
  * Check if URL pattern matches the current URL
  */

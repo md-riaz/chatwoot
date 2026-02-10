@@ -123,7 +123,7 @@
                  {selectedLabelDisplay}
                </Select.Trigger>
                <Select.Content>
-                  {#each labelsStore.all as label}
+                  {#each labelsStore.allLabels as label}
                     <Select.Item value={label.title} label={label.title}>{label.title}</Select.Item>
                   {/each}
                </Select.Content>

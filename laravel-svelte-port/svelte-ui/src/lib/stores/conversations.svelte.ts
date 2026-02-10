@@ -540,7 +540,7 @@ class ConversationsStore {
     
     if (allMessages.length > 0) {
       const lastMessage = allMessages.sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )[0];
       
       return lastMessage.id;
@@ -595,14 +595,14 @@ class ConversationsStore {
       const conversation = this.getConversationById(conversationId);
       if (conversation) {
         conversation.unreadCount = 0;
-        conversation.agentLastSeenAt = new Date().toISOString();
+        conversation.agentLastSeenAt = Date.now();
       }
     },
 
     SET_TYPING: (conversationId: number, typer: any, isTyping: boolean) => {
       const conversation = this.getConversationById(conversationId);
       if (conversation) {
-        if (!conversation.typingUsers) {
+        if (!(conversation as any).typingUsers) {
           (conversation as any).typingUsers = [];
         }
         

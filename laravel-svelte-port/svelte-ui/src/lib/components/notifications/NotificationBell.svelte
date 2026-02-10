@@ -14,13 +14,14 @@
   
   function handleOpenChange(open: boolean) {
     isOpen = open;
-    if (open && notificationsStore.all.length === 0) {
-      notificationsStore.fetchNotifications();
+    if (open && notificationsStore.all.length === 0 && notificationsStore.accountId) {
+      notificationsStore.fetchNotifications(notificationsStore.accountId);
     }
   }
   
   async function handleMarkAllRead() {
-    await notificationsStore.markAllAsRead();
+    if (!notificationsStore.accountId) return;
+    await notificationsStore.markAllAsRead(notificationsStore.accountId);
     toast.success('All notifications marked as read');
   }
 </script>

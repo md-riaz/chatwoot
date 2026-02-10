@@ -124,7 +124,7 @@ export async function createWidgetMessage(params: CreateWidgetMessageParams): Pr
         echo_id: params.echoId,
         reply_to: params.replyTo,
         timestamp: new Date().toString(),
-        referer_url: window.referrerURL || '',
+        referer_url: document.referrer || '',
       }
     }
   });

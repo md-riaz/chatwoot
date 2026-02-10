@@ -22,46 +22,35 @@
   let isAway = $derived(presenceStore.isUserAway(userId));
   
   // Status configuration
-  let status = $derived(() => {
-    if (!userPresence) return 'offline';
-    return userPresence.status;
-  });
+  let status = $derived(userPresence?.status || 'offline');
   
-  let statusConfig = $derived(() => {
-    switch (status) {
-      case 'online':
-        return {
+  let statusConfig = $derived(
+    status === 'online'
+      ? {
           color: 'bg-green-500',
           label: 'Online',
           variant: 'default' as const
-        };
-      case 'away':
-        return {
-          color: 'bg-yellow-500',
-          label: 'Away',
-          variant: 'secondary' as const
-        };
-      case 'offline':
-      default:
-        return {
-          color: 'bg-gray-400',
-          label: 'Offline',
-          variant: 'outline' as const
-        };
-    }
-  });
+        }
+      : status === 'away'
+        ? {
+            color: 'bg-yellow-500',
+            label: 'Away',
+            variant: 'secondary' as const
+          }
+        : {
+            color: 'bg-gray-400',
+            label: 'Offline',
+            variant: 'outline' as const
+          }
+  );
   
-  let sizeClasses = $derived(() => {
-    switch (size) {
-      case 'sm':
-        return 'w-2 h-2';
-      case 'lg':
-        return 'w-4 h-4';
-      case 'md':
-      default:
-        return 'w-3 h-3';
-    }
-  });
+  let sizeClasses = $derived(
+    size === 'sm'
+      ? 'w-2 h-2'
+      : size === 'lg'
+        ? 'w-4 h-4'
+        : 'w-3 h-3'
+  );
 </script>
 
 <div class="presence-indicator {className}" title="{userPresence?.name || 'User'} is {status}">

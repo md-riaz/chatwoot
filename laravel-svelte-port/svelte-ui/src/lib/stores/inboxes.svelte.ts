@@ -491,7 +491,7 @@ class InboxesStore {
     await this.fetchInboxes();
     
     // Log successful revalidation
-    console.log(`Inboxes store revalidated successfully. Count: ${this.inboxesCount}`);
+    console.log(`Inboxes store revalidated successfully. Count: ${this.allInboxes.length}`);
   }
 }
 

@@ -29,7 +29,7 @@
         aria-label="Toggle sidebar"
         onclick={() => sidebar.toggle()}
       >
-        <span class="i-lucide-menu text-lg" />
+        <span class="i-lucide-menu text-lg"></span>
       </Button>
     </div>
   </div>

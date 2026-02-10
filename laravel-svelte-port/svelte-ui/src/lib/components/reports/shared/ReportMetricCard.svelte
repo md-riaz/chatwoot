@@ -43,8 +43,8 @@
       <span class="text-3xl font-bold">{formattedValue}</span>
       
       {#if trend !== 0}
+        {@const Icon = TrendIcon}
         <div class="flex items-center gap-1 {trendColor}">
-          {@const Icon = TrendIcon}
           <Icon class="h-4 w-4" />
           <span class="text-sm font-medium">{Math.abs(trend)}%</span>
         </div>

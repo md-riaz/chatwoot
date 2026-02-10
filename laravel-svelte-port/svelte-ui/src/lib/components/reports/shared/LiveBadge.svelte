@@ -20,7 +20,7 @@
 <span class="flex flex-row items-center rounded bg-teal-100 dark:bg-teal-900/30 {sizeClasses[size]}">
   <span 
     class="bg-teal-600 dark:bg-teal-400 rounded-full mr-1 rtl:mr-0 rtl:ml-1 {dotSizeClasses[size]} {pulse ? 'animate-pulse' : ''}"
-  />
+  ></span>
   <span class="text-teal-700 dark:text-teal-300 font-medium">
     LIVE
   </span>

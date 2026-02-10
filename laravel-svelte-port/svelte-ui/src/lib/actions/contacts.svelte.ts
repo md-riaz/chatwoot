@@ -18,7 +18,7 @@ import type {
   ContactListParams,
   AdvancedFilterCondition,
 } from '$lib/api/contacts';
-import { BaseAction, QueryAction, MutationAction, createQuery, createMutation } from './base.svelte.ts';
+import { BaseAction, QueryAction, MutationAction, createQuery, createMutation } from './base.svelte';
 import type { PaginatedResponse } from '$lib/api/types';
 
 /**
