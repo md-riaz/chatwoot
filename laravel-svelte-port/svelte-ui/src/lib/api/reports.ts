@@ -49,22 +49,19 @@ export interface ReportsResponse {
 
 // Live metrics interfaces
 export interface LiveConversationMetricsResponse {
-  data: {
-    open: number;
-    unattended: number;
-    unassigned: number;
-    pending: number;
-  };
+  open: number;
+  unattended: number;
+  unassigned: number;
+  pending: number;
 }
 
-export interface LiveGroupedConversationsResponse {
-  data: Array<{
-    assigneeId?: number;
-    teamId?: number;
-    open: number;
-    unattended: number;
-  }>;
-}
+export type LiveGroupedConversationsResponse = Array<{
+  assignee_id?: number;
+  team_id?: number;
+  open: number;
+  unattended: number;
+  unassigned: number;
+}>;
 
 export interface AgentStatusResponse {
   data: {
@@ -88,9 +85,11 @@ export async function getAccountReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api.get(`api/v1/accounts/${accountId}/v2/reports`, {
-    searchParams: toSearchParams(filters)
-  }).json();
+  return api
+    .get(`api/v1/accounts/${accountId}/v2/reports`, {
+      searchParams: toSearchParams(filters),
+    })
+    .json();
 }
 
 /**
@@ -100,9 +99,11 @@ export async function getAgentReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api.get(`api/v1/accounts/${accountId}/v2/reports/agents`, {
-    searchParams: toSearchParams(filters)
-  }).json();
+  return api
+    .get(`api/v1/accounts/${accountId}/v2/summary_reports/agent`, {
+      searchParams: toSearchParams(filters),
+    })
+    .json();
 }
 
 /**
@@ -112,9 +113,11 @@ export async function getTeamReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api.get(`api/v1/accounts/${accountId}/v2/reports/teams`, {
-    searchParams: toSearchParams(filters)
-  }).json();
+  return api
+    .get(`api/v1/accounts/${accountId}/v2/summary_reports/team`, {
+      searchParams: toSearchParams(filters),
+    })
+    .json();
 }
 
 /**
@@ -124,9 +127,11 @@ export async function getLabelReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api.get(`api/v1/accounts/${accountId}/v2/reports/labels`, {
-    searchParams: toSearchParams(filters)
-  }).json();
+  return api
+    .get(`api/v1/accounts/${accountId}/v2/summary_reports/label`, {
+      searchParams: toSearchParams(filters),
+    })
+    .json();
 }
 
 /**
@@ -136,9 +141,11 @@ export async function getInboxReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api.get(`api/v1/accounts/${accountId}/v2/reports/inboxes`, {
-    searchParams: toSearchParams(filters)
-  }).json();
+  return api
+    .get(`api/v1/accounts/${accountId}/v2/summary_reports/inbox`, {
+      searchParams: toSearchParams(filters),
+    })
+    .json();
 }
 
 /**
@@ -148,9 +155,11 @@ export async function getConversationSummary(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<any> {
-  return api.get(`api/v1/accounts/${accountId}/v2/reports/summary`, {
-    searchParams: toSearchParams(filters)
-  }).json();
+  return api
+    .get(`api/v1/accounts/${accountId}/v2/reports/summary`, {
+      searchParams: toSearchParams(filters),
+    })
+    .json();
 }
 
 /**
@@ -164,9 +173,11 @@ export async function getLiveConversationMetrics(
   accountId: number,
   params: { teamId?: number } = {}
 ): Promise<LiveConversationMetricsResponse> {
-  return api.get(`api/v1/accounts/${accountId}/v2/live_reports/conversation_metrics`, {
-    searchParams: toSearchParams(params)
-  }).json();
+  return api
+    .get(`api/v1/accounts/${accountId}/v2/live_reports/conversation_metrics`, {
+      searchParams: toSearchParams({ team_id: params.teamId }),
+    })
+    .json();
 }
 
 /**
@@ -176,9 +187,14 @@ export async function getLiveGroupedConversations(
   accountId: number,
   params: { groupBy: 'assignee_id' | 'team_id' }
 ): Promise<LiveGroupedConversationsResponse> {
-  return api.get(`api/v1/accounts/${accountId}/v2/live_reports/grouped_conversation_metrics`, {
-    searchParams: toSearchParams(params)
-  }).json();
+  return api
+    .get(
+      `api/v1/accounts/${accountId}/v2/live_reports/grouped_conversation_metrics`,
+      {
+        searchParams: toSearchParams({ group_by: params.groupBy }),
+      }
+    )
+    .json();
 }
 
 /**
@@ -205,18 +221,20 @@ export async function getHeatmapData(
     id?: number;
   }
 ): Promise<HeatmapDataResponse> {
-  return api.get(`api/v1/accounts/${accountId}/v2/reports`, {
-    searchParams: toSearchParams({
-      metric: params.metric,
-      since: params.from,
-      until: params.to,
-      group_by: params.groupBy,
-      business_hours: params.businessHours,
-      type: params.type,
-      id: params.id,
-      timezone_offset: -new Date().getTimezoneOffset() / 60
+  return api
+    .get(`api/v1/accounts/${accountId}/v2/reports`, {
+      searchParams: toSearchParams({
+        metric: params.metric,
+        since: params.from,
+        until: params.to,
+        group_by: params.groupBy,
+        business_hours: params.businessHours,
+        type: params.type,
+        id: params.id,
+        timezone_offset: -new Date().getTimezoneOffset() / 60,
+      }),
     })
-  }).json();
+    .json();
 }
 
 /**
@@ -226,12 +244,15 @@ export async function downloadConversationTrafficCSV(
   accountId: number,
   params: { daysBefore: number; to?: number }
 ): Promise<void> {
-  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/conversation_traffic`, {
-    searchParams: toSearchParams({
-      days_before: params.daysBefore,
-      timezone_offset: -new Date().getTimezoneOffset() / 60
-    })
-  });
+  const response = await api.get(
+    `api/v1/accounts/${accountId}/v2/reports/conversation_traffic`,
+    {
+      searchParams: toSearchParams({
+        days_before: params.daysBefore,
+        timezone_offset: -new Date().getTimezoneOffset() / 60,
+      }),
+    }
+  );
 
   // Handle CSV download
   const blob = await response.blob();
@@ -259,17 +280,19 @@ export async function getAccountSummary(
     businessHours?: boolean;
   }
 ): Promise<ReportsResponse> {
-  return api.get(`api/v1/accounts/${accountId}/v2/reports/summary`, {
-    searchParams: toSearchParams({
-      since: params.from,
-      until: params.to,
-      type: params.type,
-      id: params.id,
-      group_by: params.groupBy,
-      business_hours: params.businessHours,
-      timezone_offset: -new Date().getTimezoneOffset() / 60
+  return api
+    .get(`api/v1/accounts/${accountId}/v2/reports/summary`, {
+      searchParams: toSearchParams({
+        since: params.from,
+        until: params.to,
+        type: params.type,
+        id: params.id,
+        group_by: params.groupBy,
+        business_hours: params.businessHours,
+        timezone_offset: -new Date().getTimezoneOffset() / 60,
+      }),
     })
-  }).json();
+    .json();
 }
 
 /**
@@ -287,18 +310,20 @@ export async function getAccountReport(
     businessHours?: boolean;
   }
 ): Promise<ReportsResponse> {
-  return api.get(`api/v1/accounts/${accountId}/v2/reports`, {
-    searchParams: toSearchParams({
-      metric: params.metric,
-      since: params.from,
-      until: params.to,
-      type: params.type,
-      id: params.id,
-      group_by: params.groupBy,
-      business_hours: params.businessHours,
-      timezone_offset: -new Date().getTimezoneOffset() / 60
+  return api
+    .get(`api/v1/accounts/${accountId}/v2/reports`, {
+      searchParams: toSearchParams({
+        metric: params.metric,
+        since: params.from,
+        until: params.to,
+        type: params.type,
+        id: params.id,
+        group_by: params.groupBy,
+        business_hours: params.businessHours,
+        timezone_offset: -new Date().getTimezoneOffset() / 60,
+      }),
     })
-  }).json();
+    .json();
 }
 
 /**
@@ -315,17 +340,19 @@ export async function getBotSummary(
     businessHours?: boolean;
   }
 ): Promise<ReportsResponse> {
-  return api.get(`api/v1/accounts/${accountId}/v2/reports/bots/summary`, {
-    searchParams: toSearchParams({
-      since: params.from,
-      until: params.to,
-      type: params.type,
-      id: params.id,
-      group_by: params.groupBy,
-      business_hours: params.businessHours,
-      timezone_offset: -new Date().getTimezoneOffset() / 60
+  return api
+    .get(`api/v1/accounts/${accountId}/v2/reports/bot_summary`, {
+      searchParams: toSearchParams({
+        since: params.from,
+        until: params.to,
+        type: params.type,
+        id: params.id,
+        group_by: params.groupBy,
+        business_hours: params.businessHours,
+        timezone_offset: -new Date().getTimezoneOffset() / 60,
+      }),
     })
-  }).json();
+    .json();
 }
 
 /**
@@ -340,21 +367,26 @@ export async function downloadConversationsSummary(
     businessHours?: boolean;
   }
 ): Promise<void> {
-  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/conversations/download`, {
-    searchParams: toSearchParams({
-      since: params.from,
-      until: params.to,
-      business_hours: params.businessHours,
-      timezone_offset: -new Date().getTimezoneOffset() / 60
-    })
-  });
+  const response = await api.get(
+    `api/v1/accounts/${accountId}/v2/reports/conversations_summary`,
+    {
+      searchParams: toSearchParams({
+        since: params.from,
+        until: params.to,
+        business_hours: params.businessHours,
+        timezone_offset: -new Date().getTimezoneOffset() / 60,
+      }),
+    }
+  );
 
   // Handle CSV download
   const blob = await response.blob();
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = params.fileName || `conversations_summary_${new Date().toISOString().split('T')[0]}.csv`;
+  a.download =
+    params.fileName ||
+    `conversations_summary_${new Date().toISOString().split('T')[0]}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -373,13 +405,16 @@ export async function downloadAgentReports(
     businessHours?: boolean;
   }
 ): Promise<string> {
-  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/agents`, {
-    searchParams: toSearchParams({
-      since: params.from,
-      until: params.to,
-      business_hours: params.businessHours
-    })
-  });
+  const response = await api.get(
+    `api/v1/accounts/${accountId}/v2/summary_reports/agent`,
+    {
+      searchParams: toSearchParams({
+        since: params.from,
+        until: params.to,
+        business_hours: params.businessHours,
+      }),
+    }
+  );
 
   return response.text();
 }
@@ -396,13 +431,16 @@ export async function downloadLabelReports(
     businessHours?: boolean;
   }
 ): Promise<string> {
-  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/labels`, {
-    searchParams: toSearchParams({
-      since: params.from,
-      until: params.to,
-      business_hours: params.businessHours
-    })
-  });
+  const response = await api.get(
+    `api/v1/accounts/${accountId}/v2/summary_reports/label`,
+    {
+      searchParams: toSearchParams({
+        since: params.from,
+        until: params.to,
+        business_hours: params.businessHours,
+      }),
+    }
+  );
 
   return response.text();
 }
@@ -419,13 +457,16 @@ export async function downloadInboxReports(
     businessHours?: boolean;
   }
 ): Promise<string> {
-  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/inboxes`, {
-    searchParams: toSearchParams({
-      since: params.from,
-      until: params.to,
-      business_hours: params.businessHours
-    })
-  });
+  const response = await api.get(
+    `api/v1/accounts/${accountId}/v2/summary_reports/inbox`,
+    {
+      searchParams: toSearchParams({
+        since: params.from,
+        until: params.to,
+        business_hours: params.businessHours,
+      }),
+    }
+  );
 
   return response.text();
 }
@@ -442,13 +483,16 @@ export async function downloadTeamReports(
     businessHours?: boolean;
   }
 ): Promise<string> {
-  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/teams`, {
-    searchParams: toSearchParams({
-      since: params.from,
-      until: params.to,
-      business_hours: params.businessHours
-    })
-  });
+  const response = await api.get(
+    `api/v1/accounts/${accountId}/v2/summary_reports/team`,
+    {
+      searchParams: toSearchParams({
+        since: params.from,
+        until: params.to,
+        business_hours: params.businessHours,
+      }),
+    }
+  );
 
   return response.text();
 }

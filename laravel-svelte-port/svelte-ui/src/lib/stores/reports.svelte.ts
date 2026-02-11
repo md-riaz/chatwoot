@@ -221,7 +221,7 @@ class ReportsStore {
         params
       );
       this.state.overview.accountConversationMetric =
-        response.data as LiveAccountMetric;
+        response as LiveAccountMetric;
       console.log(
         '✅ Account conversation metrics fetched:',
         this.state.overview.accountConversationMetric
@@ -249,8 +249,11 @@ class ReportsStore {
       const response = await reportsApi.getLiveGroupedConversations(accountId, {
         groupBy: 'assignee_id',
       });
-      this.state.overview.agentConversationMetric =
-        response.data as LiveAgentMetric[];
+      this.state.overview.agentConversationMetric = response.map(metric => ({
+        assigneeId: metric.assignee_id || 0,
+        open: metric.open,
+        unattended: metric.unattended,
+      }));
       console.log(
         '✅ Agent conversation metrics fetched:',
         this.state.overview.agentConversationMetric
@@ -278,8 +281,11 @@ class ReportsStore {
       const response = await reportsApi.getLiveGroupedConversations(accountId, {
         groupBy: 'team_id',
       });
-      this.state.overview.teamConversationMetric =
-        response.data as LiveTeamMetric[];
+      this.state.overview.teamConversationMetric = response.map(metric => ({
+        teamId: metric.team_id || 0,
+        open: metric.open,
+        unattended: metric.unattended,
+      }));
       console.log(
         '✅ Team conversation metrics fetched:',
         this.state.overview.teamConversationMetric
@@ -411,7 +417,8 @@ class ReportsStore {
         accountId,
         mergedFilters
       );
-      this.state.conversationMetrics = response.data as ConversationMetrics;
+      this.state.conversationMetrics = ((response as { data?: unknown }).data ??
+        response) as ConversationMetrics;
     } catch (error) {
       this.state.error =
         error instanceof Error ? error.message : 'Failed to fetch reports';
@@ -645,7 +652,8 @@ class ReportsStore {
     try {
       console.log('🔄 Fetching account summary with params:', params);
       const response = await reportsApi.getAccountSummary(accountId, params);
-      this.state.conversationMetrics = response.data as ConversationMetrics;
+      this.state.conversationMetrics = ((response as { data?: unknown }).data ??
+        response) as ConversationMetrics;
       console.log('✅ Account summary fetched');
     } catch (error) {
       this.state.error =
@@ -683,7 +691,8 @@ class ReportsStore {
 
       // Store the report data - in Vue this would update a specific metric
       // For now, we'll update the main metrics
-      this.state.conversationMetrics = response.data as ConversationMetrics;
+      this.state.conversationMetrics = ((response as { data?: unknown }).data ??
+        response) as ConversationMetrics;
       console.log('✅ Account report fetched for metric:', params.metric);
     } catch (error) {
       this.state.error =
@@ -717,7 +726,8 @@ class ReportsStore {
     try {
       console.log('🔄 Fetching bot summary with params:', params);
       const response = await reportsApi.getBotSummary(accountId, params);
-      this.state.conversationMetrics = response.data as ConversationMetrics;
+      this.state.conversationMetrics = ((response as { data?: unknown }).data ??
+        response) as ConversationMetrics;
       console.log('✅ Bot summary fetched');
     } catch (error) {
       this.state.error =
