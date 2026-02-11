@@ -137,6 +137,6 @@
   }
 
   .button {
-    @apply cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+    @apply cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-blue-500/50;
   }
 </style>
