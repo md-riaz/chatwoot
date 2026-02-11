@@ -5,34 +5,37 @@ namespace App\Services\Seeding;
 use App\DataTransferObjects\SeedData;
 use App\Enums\AccountUserRole;
 use App\Models\Account;
-use App\Models\User;
-use App\Models\Team;
-use App\Models\CustomRole;
-use App\Models\Label;
-use App\Models\Contact;
-use App\Models\Inbox;
-use App\Models\Conversation;
-use App\Models\Message;
-use App\Models\CannedResponse;
 use App\Models\AccountUser;
-use App\Models\ContactInbox;
-use App\Models\Channels\WebWidget;
-use App\Models\Channels\FacebookPage;
-use App\Models\Channels\TwitterProfile;
-use App\Models\Channels\Whatsapp;
-use App\Models\Channels\Sms;
-use App\Models\Channels\Email;
+use App\Models\CannedResponse;
 use App\Models\Channels\Api;
-use App\Models\Channels\Telegram;
+use App\Models\Channels\Email;
+use App\Models\Channels\FacebookPage;
 use App\Models\Channels\Line;
+use App\Models\Channels\Sms;
+use App\Models\Channels\Telegram;
+use App\Models\Channels\TwitterProfile;
 use App\Models\Channels\Voice;
+use App\Models\Channels\WebWidget;
+use App\Models\Channels\Whatsapp;
+use App\Models\Contact;
+use App\Models\ContactInbox;
+use App\Models\Conversation;
+use App\Models\CustomRole;
+use App\Models\Inbox;
+use App\Models\Label;
+use App\Models\Message;
+use App\Models\Team;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class AccountSeederService
 {
     private Account $account;
+
     private SeedData $seedData;
+
+    private array $teamLookup = [];
 
     public function __construct(Account $account, ?SeedData $seedData = null)
     {
@@ -59,7 +62,7 @@ class AccountSeederService
         ];
 
         $this->cleanupExistingData();
-        
+
         $stats['teams_created'] = $this->seedTeams();
         $stats['custom_roles_created'] = $this->seedCustomRoles();
         $stats['users_created'] = $this->seedUsers();
@@ -76,18 +79,18 @@ class AccountSeederService
      */
     private function cleanupExistingData(): void
     {
-        // Use raw database queries to avoid model issues
+        // Use raw database queries to avoid model relationship side-effects.
+        // Order matters to preserve referential integrity.
         \Illuminate\Support\Facades\DB::table('team_members')
-            ->whereIn('team_id', function($query) {
+            ->whereIn('team_id', function ($query) {
                 $query->select('id')->from('teams')->where('account_id', $this->account->id);
             })->delete();
-        
+
         // Delete account_users relationships first
         \Illuminate\Support\Facades\DB::table('account_users')->where('account_id', $this->account->id)->delete();
-        
-        // Delete test users (users with @paperlayer.test emails)
-        \Illuminate\Support\Facades\DB::table('users')->where('email', 'like', '%@paperlayer.test')->delete();
-        
+
+        // Delete seeded test users only when they no longer belong to any account.
+
         // Delete all channel tables for this account
         \Illuminate\Support\Facades\DB::table('channel_web_widgets')->where('account_id', $this->account->id)->delete();
         \Illuminate\Support\Facades\DB::table('channel_facebook_pages')->where('account_id', $this->account->id)->delete();
@@ -99,17 +102,26 @@ class AccountSeederService
         \Illuminate\Support\Facades\DB::table('channel_telegram')->where('account_id', $this->account->id)->delete();
         \Illuminate\Support\Facades\DB::table('channel_line')->where('account_id', $this->account->id)->delete();
         \Illuminate\Support\Facades\DB::table('channel_voice')->where('account_id', $this->account->id)->delete();
-        
+
         \Illuminate\Support\Facades\DB::table('teams')->where('account_id', $this->account->id)->delete();
         \Illuminate\Support\Facades\DB::table('conversations')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('labels')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('labelings')->whereIn('label_id', function($query) {
+        \Illuminate\Support\Facades\DB::table('labelings')->whereIn('label_id', function ($query) {
             $query->select('id')->from('labels')->where('account_id', $this->account->id);
         })->delete();
+        \Illuminate\Support\Facades\DB::table('labels')->where('account_id', $this->account->id)->delete();
         \Illuminate\Support\Facades\DB::table('inboxes')->where('account_id', $this->account->id)->delete();
         \Illuminate\Support\Facades\DB::table('contacts')->where('account_id', $this->account->id)->delete();
         \Illuminate\Support\Facades\DB::table('custom_roles')->where('account_id', $this->account->id)->delete();
         \Illuminate\Support\Facades\DB::table('canned_responses')->where('account_id', $this->account->id)->delete();
+
+        \Illuminate\Support\Facades\DB::table('users')
+            ->where('email', 'like', '%@paperlayer.test')
+            ->whereNotExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('account_users')
+                    ->whereColumn('account_users.user_id', 'users.id');
+            })
+            ->delete();
     }
 
     /**
@@ -119,12 +131,15 @@ class AccountSeederService
     {
         $count = 0;
         foreach ($this->seedData->teams as $teamName) {
-            Team::factory()->create([
+            $team = Team::factory()->create([
                 'account_id' => $this->account->id,
                 'name' => $teamName,
             ]);
+
+            $this->teamLookup[$this->normalizeTeamName($teamName)] = $team;
             $count++;
         }
+
         return $count;
     }
 
@@ -143,6 +158,7 @@ class AccountSeederService
             ]);
             $count++;
         }
+
         return $count;
     }
 
@@ -161,13 +177,14 @@ class AccountSeederService
             ]);
 
             $this->createAccountUser($user, $userData);
-            
-            if (!empty($userData['teams'])) {
+
+            if (! empty($userData['teams'])) {
                 $this->addUserToTeams($user, $userData['teams']);
             }
-            
+
             $count++;
         }
+
         return $count;
     }
 
@@ -186,6 +203,7 @@ class AccountSeederService
             ]);
             $count++;
         }
+
         return $count;
     }
 
@@ -199,51 +217,51 @@ class AccountSeederService
 
         // Create all channel types using factories
         $channels = [
-            'WebWidget' => fn() => WebWidget::factory()->create([
+            'WebWidget' => fn () => WebWidget::factory()->create([
                 'account_id' => $this->account->id,
                 'website_url' => "https://{$companyData->domain}",
             ]),
-            'FacebookPage' => fn() => FacebookPage::factory()->create([
+            'FacebookPage' => fn () => FacebookPage::factory()->create([
                 'account_id' => $this->account->id,
             ]),
-            'TwitterProfile' => fn() => TwitterProfile::factory()->create([
+            'TwitterProfile' => fn () => TwitterProfile::factory()->create([
                 'account_id' => $this->account->id,
             ]),
-            'Whatsapp' => fn() => Whatsapp::factory()->create([
+            'Whatsapp' => fn () => Whatsapp::factory()->create([
                 'account_id' => $this->account->id,
             ]),
-            'Sms' => fn() => Sms::factory()->create([
+            'Sms' => fn () => Sms::factory()->create([
                 'account_id' => $this->account->id,
             ]),
-            'Email' => fn() => Email::factory()->create([
+            'Email' => fn () => Email::factory()->create([
                 'account_id' => $this->account->id,
                 'email' => "support-{$this->account->id}@{$companyData->domain}",
             ]),
-            'Api' => fn() => Api::factory()->create([
+            'Api' => fn () => Api::factory()->create([
                 'account_id' => $this->account->id,
             ]),
-            'Telegram' => fn() => Telegram::factory()->create([
+            'Telegram' => fn () => Telegram::factory()->create([
                 'account_id' => $this->account->id,
                 'bot_name' => $companyData->name,
             ]),
-            'Line' => fn() => Line::factory()->create([
+            'Line' => fn () => Line::factory()->create([
                 'account_id' => $this->account->id,
             ]),
-            'Voice' => fn() => Voice::factory()->demo()->create([
+            'Voice' => fn () => Voice::factory()->demo()->create([
                 'account_id' => $this->account->id,
             ]),
         ];
 
         foreach ($channels as $channelType => $channelFactory) {
             $channel = $channelFactory();
-            
+
             Inbox::factory()->create([
                 'account_id' => $this->account->id,
                 'name' => "{$companyData->name} {$channelType}",
                 'channel_type' => $channel::class,
                 'channel_id' => $channel->id,
             ]);
-            
+
             $count++;
         }
 
@@ -266,9 +284,10 @@ class AccountSeederService
             foreach ($contactData['conversations'] as $conversationData) {
                 $this->createConversation($contact, $conversationData);
             }
-            
+
             $count++;
         }
+
         return $count;
     }
 
@@ -280,7 +299,7 @@ class AccountSeederService
         $responses = CannedResponse::factory()
             ->count($count)
             ->create(['account_id' => $this->account->id]);
-            
+
         return $responses->count();
     }
 
@@ -291,16 +310,16 @@ class AccountSeederService
     {
         $roleName = $userData['role'] ?? 'agent';
         $role = AccountUserRole::fromName($roleName);
-        
+
         $accountUserData = [
             'role' => $role,
         ];
 
-        if (!empty($userData['custom_role'])) {
+        if (! empty($userData['custom_role'])) {
             $customRole = $this->account->customRoles()
                 ->where('name', $userData['custom_role'])
                 ->first();
-            
+
             if ($customRole) {
                 $accountUserData['custom_role_id'] = $customRole->id;
             }
@@ -319,9 +338,7 @@ class AccountSeederService
     private function addUserToTeams(User $user, array $teams): void
     {
         foreach ($teams as $teamName) {
-            $team = $this->account->teams()
-                ->where('name', 'LIKE', "%{$teamName}%")
-                ->first();
+            $team = $this->teamLookup[$this->normalizeTeamName($teamName)] ?? null;
 
             if ($team) {
                 $team->members()->syncWithoutDetaching([$user->id]);
@@ -335,8 +352,8 @@ class AccountSeederService
     private function createConversation(Contact $contact, array $conversationData): void
     {
         $inbox = $this->findInboxByChannel($conversationData['channel']);
-        
-        if (!$inbox) {
+
+        if (! $inbox) {
             return;
         }
 
@@ -347,7 +364,7 @@ class AccountSeederService
         ]);
 
         $assignee = null;
-        if (!empty($conversationData['assignee'])) {
+        if (! empty($conversationData['assignee'])) {
             $assignee = User::where('email', $conversationData['assignee'])->first();
         }
 
@@ -363,7 +380,7 @@ class AccountSeederService
 
         $this->createMessages($conversation, $conversationData['messages']);
 
-        if (!empty($conversationData['labels'])) {
+        if (! empty($conversationData['labels'])) {
             $this->attachLabels($conversation, $conversationData['labels']);
         }
     }
@@ -387,7 +404,7 @@ class AccountSeederService
         ];
 
         $channelClass = $channelClassMap[$channelType] ?? null;
-        if (!$channelClass) {
+        if (! $channelClass) {
             return null;
         }
 
@@ -425,7 +442,7 @@ class AccountSeederService
             return $conversation->contact;
         }
 
-        if (!empty($messageData['sender'])) {
+        if (! empty($messageData['sender'])) {
             return User::where('email', $messageData['sender'])->first();
         }
 
@@ -456,10 +473,10 @@ class AccountSeederService
             'total_labels' => count($this->seedData->labels),
             'total_contacts' => count($this->seedData->contacts),
             'total_conversations' => collect($this->seedData->contacts)
-                ->sum(fn($contact) => count($contact['conversations'])),
+                ->sum(fn ($contact) => count($contact['conversations'])),
             'total_messages' => collect($this->seedData->contacts)
-                ->flatMap(fn($contact) => $contact['conversations'])
-                ->sum(fn($conv) => count($conv['messages'])),
+                ->flatMap(fn ($contact) => $contact['conversations'])
+                ->sum(fn ($conv) => count($conv['messages'])),
         ];
     }
 
@@ -493,5 +510,12 @@ class AccountSeederService
             'template' => Message::TYPE_TEMPLATE,
             default => Message::TYPE_INCOMING,
         };
+    }
+
+    private function normalizeTeamName(string $teamName): string
+    {
+        $normalized = preg_replace('/[^\p{L}\p{N}\s]+/u', '', $teamName);
+
+        return strtolower(trim((string) $normalized));
     }
 }
