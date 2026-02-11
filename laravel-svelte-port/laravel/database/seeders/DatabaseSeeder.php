@@ -26,5 +26,6 @@ class DatabaseSeeder extends Seeder
         $this->call(\Database\Seeders\RolesAndPermissionsSeeder::class);
         $this->call(InstallationConfigSeeder::class);
         $this->call(OnboardingFlagSeeder::class);
+        $this->call(DemoReportsSeeder::class);
     }
 }
