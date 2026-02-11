@@ -5,7 +5,7 @@
   import { _ } from '$lib/i18n';
   // import semver from 'semver'; // TODO: Fix semver installation or use alternative
 
-  let latestChatwootVersion = $derived(authStore.currentAccount?.latest_chatwoot_version);
+  let latestChatwootVersion = $derived(authStore.currentAccount?.latestChatwootVersion);
   let appVersion = $derived(globalConfig.get('appVersion'));
   let displayManifest = $derived(globalConfig.get('displayManifest'));
   let gitSha = $derived(globalConfig.get('gitSha')?.substring(0, 7));

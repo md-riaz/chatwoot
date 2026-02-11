@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { page } from '$app/stores';
+  import { get } from 'svelte/store';
   import ReportHeader from '$lib/components/reports/shared/ReportHeader.svelte';
   import SLAMetrics from '$lib/components/reports/sla/SLAMetrics.svelte';
   import SLATable from '$lib/components/reports/sla/SLATable.svelte';
@@ -14,6 +16,8 @@
   import { slaStore } from '$lib/stores/sla.svelte';
   import { generateFileName } from '$lib/utils/downloadHelper';
 
+  const accountId = $derived(parseInt(get(page).params.accountId || '0', 10));
+
   let pageNumber = $state(1);
   let activeFilter = $state({
     from: 0,
@@ -26,7 +30,7 @@
   });
 
   const slaReports = $derived(slaReportsStore.getAll());
-  const slaMetrics = $derived(slaReportsStore.getMetrics());
+  const slaMetrics = $derived(slaReportsStore.metrics);
   const slaMeta = $derived(slaReportsStore.getMeta());
   const uiFlags = $derived(slaReportsStore.getUIFlags());
 
@@ -42,13 +46,17 @@
 
   function fetchSLAReports({ pageNumber: page }: { pageNumber?: number } = {}) {
     slaReportsStore.get({
+      accountId,
       page: page || pageNumber,
       ...activeFilter,
     });
   }
 
   function fetchSLAMetrics() {
-    slaReportsStore.getMetrics(activeFilter);
+    slaReportsStore.fetchMetrics({
+      accountId,
+      ...activeFilter,
+    });
   }
 
   function onPageChange(event: CustomEvent) {
@@ -65,6 +73,7 @@
     const type = 'sla';
     try {
       slaReportsStore.download({
+        accountId,
         fileName: generateFileName({ type, to: activeFilter.to }),
         ...activeFilter,
       });
@@ -86,16 +95,16 @@
     <div class="flex flex-col flex-1 gap-6">
       <SLAReportFilters on:filter-change={onFilterChange} />
       <SLAMetrics
-        hitRate={slaMetrics.hitRate}
-        noOfBreaches={slaMetrics.numberOfSLAMisses}
-        noOfConversations={slaMetrics.numberOfConversations}
+        hitRate={slaMetrics?.hitRate || 0}
+        noOfBreaches={slaMetrics?.missedCount || 0}
+        noOfConversations={slaMetrics?.totalConversations || 0}
         isLoading={uiFlags.isFetchingMetrics}
       />
       <SLATable
         {slaReports}
         isLoading={uiFlags.isFetching}
-        currentPage={Number(slaMeta.currentPage)}
-        totalCount={Number(slaMeta.count)}
+        currentPage={Number(slaMeta?.currentPage || 1)}
+        totalCount={Number(slaMeta?.count || 0)}
         on:page-change={onPageChange}
       />
     </div>

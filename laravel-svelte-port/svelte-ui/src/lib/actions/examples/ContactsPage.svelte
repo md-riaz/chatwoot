@@ -12,7 +12,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { useContactActions } from '../contacts.svelte';
-  import type { Contact, CreateContactParams } from '$lib/api/contacts';
+  import type { Contact, CreateContactParams, UpdateContactParams } from '$lib/api/contacts';
   
   // Get account ID from route params
   const accountId = parseInt($page.params.accountId || '0', 10);
@@ -31,16 +31,15 @@
     name: '',
     email: '',
     phoneNumber: '',
-    company: ''
   });
   
   // Derived state from actions
   const contactList = $derived(contacts.list.data?.data || []);
   const isLoading = $derived(contacts.isAnyLoading);
   const hasError = $derived(contacts.hasAnyError);
-  const totalContacts = $derived(contacts.list.data?.total || 0);
-  const currentPage = $derived(contacts.list.data?.currentPage || 1);
-  const totalPages = $derived(contacts.list.data?.lastPage || 1);
+  const totalContacts = $derived(contacts.list.data?.meta.totalCount || 0);
+  const currentPage = $derived(contacts.list.data?.meta.currentPage || 1);
+  const totalPages = $derived(contacts.list.data?.meta.totalPages || 1);
   
   // Search results
   const searchResults = $derived(contacts.search.data?.data || []);
@@ -76,7 +75,7 @@
     if (newContact) {
       // Success - close modal and reset form
       showCreateModal = false;
-      createForm = { name: '', email: '', phoneNumber: '', company: '' };
+      createForm = { name: '', email: '', phoneNumber: '' };
       
       // Refresh contact list
       await contacts.fetchContacts({ page: currentPage });
@@ -88,7 +87,19 @@
    * Handle contact update with optimistic update
    */
   async function handleUpdateContact(contact: Contact, updates: Partial<Contact>) {
-    await contacts.updateContact(contact.id, updates, contact);
+    // Filter out null values and convert to UpdateContactParams
+    const updateParams: UpdateContactParams = {
+      name: updates.name,
+      email: updates.email ?? undefined,
+      phoneNumber: updates.phoneNumber ?? undefined,
+      identifier: updates.identifier ?? undefined,
+      blocked: updates.blocked,
+      customAttributes: updates.customAttributes,
+      additionalAttributes: updates.additionalAttributes,
+      socialProfiles: updates.socialProfiles,
+    };
+    
+    await contacts.updateContact(contact.id, updateParams, contact);
     
     // Refresh list to ensure consistency
     if (contacts.update.success) {
@@ -419,15 +430,6 @@
             <input
               bind:value={createForm.phoneNumber}
               type="tel"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          
-          <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
-            <input
-              bind:value={createForm.company}
-              type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>

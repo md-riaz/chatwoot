@@ -7,14 +7,14 @@
   import { _ } from '$lib/i18n';
 
   let currentAccount = $derived(authStore.currentAccount);
-  let isMarkedForDeletion = $derived(!!currentAccount?.custom_attributes?.marked_for_deletion_at);
+  let isMarkedForDeletion = $derived(!!currentAccount?.customAttributes?.marked_for_deletion_at);
   let markedForDeletionDate = $derived(
-    currentAccount?.custom_attributes?.marked_for_deletion_at 
-      ? new Date(currentAccount.custom_attributes.marked_for_deletion_at) 
+    currentAccount?.customAttributes?.marked_for_deletion_at 
+      ? new Date(currentAccount.customAttributes.marked_for_deletion_at) 
       : null
   );
   let markedForDeletionReason = $derived(
-    currentAccount?.custom_attributes?.marked_for_deletion_reason || 'manual_deletion'
+    currentAccount?.customAttributes?.marked_for_deletion_reason || 'manual_deletion'
   );
 
   let formattedDeletionDate = $derived(markedForDeletionDate ? markedForDeletionDate.toLocaleString() : '');

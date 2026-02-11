@@ -7,6 +7,7 @@ export interface GroupByFilter {
   id: number;
   period: string;
   groupByKey?: string;
+  label: string;
 }
 
 /**
@@ -14,10 +15,10 @@ export interface GroupByFilter {
  * Used to aggregate data by different time periods
  */
 export const GROUP_BY_FILTER: Record<number, GroupByFilter> = {
-  1: { id: 1, period: 'day', groupByKey: 'Day' },
-  2: { id: 2, period: 'week', groupByKey: 'Week' },
-  3: { id: 3, period: 'month', groupByKey: 'Month' },
-  4: { id: 4, period: 'year', groupByKey: 'Year' },
+  1: { id: 1, period: 'day', groupByKey: 'Day', label: 'Day' },
+  2: { id: 2, period: 'week', groupByKey: 'Week', label: 'Week' },
+  3: { id: 3, period: 'month', groupByKey: 'Month', label: 'Month' },
+  4: { id: 4, period: 'year', groupByKey: 'Year', label: 'Year' },
 };
 
 /**

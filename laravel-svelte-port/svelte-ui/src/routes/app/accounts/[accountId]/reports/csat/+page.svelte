@@ -35,7 +35,7 @@
 
   function getAllData() {
     try {
-      csatStore.getMetrics(requestPayload);
+      csatStore.fetchMetrics(requestPayload);
       getResponses();
     } catch (error) {
       console.error('Failed to fetch CSAT data:', error);

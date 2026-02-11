@@ -34,7 +34,7 @@
     : WifiOff
   );
   
-  let variant = $derived(
+  let variant = $derived<'default' | 'destructive' | 'outline' | 'secondary' | undefined>(
     isConnected ? 'default'
     : (isConnecting || isReconnecting) ? 'secondary'
     : isFailed ? 'destructive'

@@ -211,7 +211,7 @@
 
 <div class="flex flex-row flex-wrap max-w-full">
   <MetricCard 
-    {title}
+    header={title}
     isLive={true}
     class="w-full"
   >

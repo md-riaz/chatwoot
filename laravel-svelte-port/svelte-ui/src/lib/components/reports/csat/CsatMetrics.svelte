@@ -9,13 +9,13 @@
 
   let { filters }: Props = $props();
 
-  const metrics = $derived(csatStore.getMetrics());
+  const metrics = $derived(csatStore.metrics);
   const isLoading = $derived(csatStore.getUIFlags().isFetchingMetrics);
 
   const metricsData = $derived([
     {
       label: 'Total Responses',
-      value: metrics?.totalResponsesCount || 0,
+      value: metrics?.totalResponses || 0,
       infoText: 'Total number of CSAT responses received',
     },
     {

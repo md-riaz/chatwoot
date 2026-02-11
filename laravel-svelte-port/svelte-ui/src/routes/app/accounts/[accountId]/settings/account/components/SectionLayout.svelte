@@ -9,6 +9,14 @@
     beta = false,
     children,
     headerActions
+  }: {
+    title: string;
+    description: string;
+    withBorder?: boolean;
+    hideContent?: boolean;
+    beta?: boolean;
+    children?: any;
+    headerActions?: any;
   } = $props();
 </script>
 

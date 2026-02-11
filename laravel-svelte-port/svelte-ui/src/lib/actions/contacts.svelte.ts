@@ -178,13 +178,13 @@ export class UpdateContactMutation extends MutationAction<Contact, {
       {
         // Optimistic update: immediately show changes
         optimisticUpdate: (variables) => {
-          if (!this.originalContact) return this.originalContact as Contact;
+          if (!this.originalContact) return undefined as unknown as Contact;
           
           return {
             ...this.originalContact,
             ...variables,
-            updatedAt: new Date().toISOString()
-          };
+            updatedAt: Math.floor(Date.now() / 1000)
+          } as Contact;
         },
         onSuccess: (data, variables) => {
           console.log('Contact updated successfully:', data.name);

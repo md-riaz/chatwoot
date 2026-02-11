@@ -446,14 +446,16 @@
                 <Calendar class="h-4 w-4" />
                 <span>Created {formatDate(contact.createdAt)}</span>
               </div>
-              <div class="flex items-center gap-1">
-                <Clock class="h-4 w-4" />
-                <span
-                  >Last activity {formatRelativeTime(
-                    contact.lastActivityAt
-                  )}</span
-                >
-              </div>
+              {#if contact.lastActivityAt}
+                <div class="flex items-center gap-1">
+                  <Clock class="h-4 w-4" />
+                  <span
+                    >Last activity {formatRelativeTime(
+                      contact.lastActivityAt
+                    )}</span
+                  >
+                </div>
+              {/if}
             </div>
           </div>
 
@@ -563,7 +565,7 @@
                                 {#each Object.entries(value) as [sk, sv]}
                                   <div class="flex items-center gap-2">
                                     <span class="text-sm text-muted-foreground">{formatSocialLabel(sk)}:</span>
-                                    <a class="text-sm text-blue-600 underline" href={String(sv).startsWith('http') ? sv : `https://${String(sv)}`} target="_blank" rel="noopener noreferrer">{sv}</a>
+                                    <a class="text-sm text-blue-600 underline" href={String(sv).startsWith('http') ? String(sv) : `https://${String(sv)}`} target="_blank" rel="noopener noreferrer">{String(sv)}</a>
                                   </div>
                                 {/each}
                               </div>
@@ -662,7 +664,7 @@
                                   {#each Object.entries(value) as [sk, sv]}
                                     <div class="flex items-center gap-2">
                                       <span class="text-sm text-muted-foreground">{formatSocialLabel(sk)}:</span>
-                                      <a class="text-sm text-blue-600 underline" href={String(sv).startsWith('http') ? sv : `https://${String(sv)}`} target="_blank" rel="noopener noreferrer">{sv}</a>
+                                      <a class="text-sm text-blue-600 underline" href={String(sv).startsWith('http') ? String(sv) : `https://${String(sv)}`} target="_blank" rel="noopener noreferrer">{String(sv)}</a>
                                     </div>
                                   {/each}
                                 </div>

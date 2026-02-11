@@ -22,9 +22,9 @@
   let selectedTeam = $state<any>(null);
   let selectedRating = $state<any>(null);
 
-  const agents = $derived(agentsStore.getAgents());
-  const inboxes = $derived(inboxesStore.getInboxes());
-  const teams = $derived(teamsStore.getTeams());
+  const agents = $derived(agentsStore.allAgents);
+  const inboxes = $derived(inboxesStore.allInboxes);
+  const teams = $derived(teamsStore.allTeams);
 
   const ratingOptions = [
     { value: 1, label: '1 Star' },

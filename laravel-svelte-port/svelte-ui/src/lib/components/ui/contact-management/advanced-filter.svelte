@@ -177,7 +177,7 @@
     // Store as array with single value (Vue format)
     newFilters[index] = {
       ...newFilters[index],
-      values: [option.id],
+      values: [String(option.id)],
     };
     filters = newFilters;
   }
@@ -373,7 +373,7 @@
                           }}
                         >
                           {option.name}
-                          {#if filter.values === option.id}
+                          {#if filter.values.includes(String(option.id))}
                             <Check class="h-4 w-4 text-blue-600" />
                           {/if}
                         </button>
