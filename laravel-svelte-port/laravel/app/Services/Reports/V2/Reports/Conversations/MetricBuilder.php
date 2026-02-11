@@ -9,6 +9,7 @@ use Carbon\Carbon;
 class MetricBuilder
 {
     protected Account $account;
+
     protected array $params;
 
     public function __construct(Account $account, array $params)
@@ -24,9 +25,9 @@ class MetricBuilder
     {
         $since = Carbon::parse($this->params['since']);
         $until = Carbon::parse($this->params['until']);
-        
+
         $events = $this->getReportingEvents($since, $until);
-        
+
         return [
             'conversations_count' => $this->getConversationsCount($events),
             'incoming_messages_count' => $this->getIncomingMessagesCount($events),
@@ -45,9 +46,9 @@ class MetricBuilder
     {
         $since = Carbon::parse($this->params['since']);
         $until = Carbon::parse($this->params['until']);
-        
+
         $events = $this->getReportingEvents($since, $until);
-        
+
         return [
             'bot_resolutions_count' => $this->getBotResolutionsCount($events),
             'bot_handoffs_count' => $this->getBotHandoffsCount($events),
@@ -63,12 +64,12 @@ class MetricBuilder
     {
         $query = ReportingEvent::where('account_id', $this->account->id)
             ->whereBetween('created_at', [$since, $until]);
-        
+
         // Apply type filter if specified
         if (isset($this->params['type']) && $this->params['type'] !== 'account') {
             $this->applyTypeFilter($query);
         }
-        
+
         return $query->get();
     }
 
@@ -79,7 +80,7 @@ class MetricBuilder
     {
         $type = $this->params['type'];
         $id = $this->params['id'] ?? null;
-        
+
         switch ($type) {
             case 'agent':
                 if ($id) {
@@ -97,7 +98,14 @@ class MetricBuilder
                 }
                 break;
             case 'label':
-                // This would need to be implemented based on how labels are tracked
+                if ($id) {
+                    $conversationIds = \Illuminate\Support\Facades\DB::table('labelings')
+                        ->where('label_id', $id)
+                        ->whereIn('labelable_type', [\App\Models\Conversation::class, 'Conversation'])
+                        ->pluck('labelable_id');
+
+                    $query->whereIn('conversation_id', $conversationIds);
+                }
                 break;
         }
     }
@@ -144,12 +152,13 @@ class MetricBuilder
     private function getAvgFirstResponseTime($events): ?float
     {
         $firstResponseEvents = $events->where('name', 'first_response');
-        
+
         if ($firstResponseEvents->isEmpty()) {
             return null;
         }
-        
+
         $totalTime = $firstResponseEvents->sum('value');
+
         return $totalTime / $firstResponseEvents->count();
     }
 
@@ -159,12 +168,13 @@ class MetricBuilder
     private function getAvgResolutionTime($events): ?float
     {
         $resolutionEvents = $events->where('name', 'conversation_resolved');
-        
+
         if ($resolutionEvents->isEmpty()) {
             return null;
         }
-        
+
         $totalTime = $resolutionEvents->sum('value');
+
         return $totalTime / $resolutionEvents->count();
     }
 
@@ -174,12 +184,13 @@ class MetricBuilder
     private function getAvgReplyTime($events): ?float
     {
         $replyTimeEvents = $events->where('name', 'reply_time');
-        
+
         if ($replyTimeEvents->isEmpty()) {
             return null;
         }
-        
+
         $totalTime = $replyTimeEvents->sum('value');
+
         return $totalTime / $replyTimeEvents->count();
     }
 
@@ -207,11 +218,11 @@ class MetricBuilder
         $botResolutions = $this->getBotResolutionsCount($events);
         $botHandoffs = $this->getBotHandoffsCount($events);
         $totalBotInteractions = $botResolutions + $botHandoffs;
-        
+
         if ($totalBotInteractions === 0) {
             return 0.0;
         }
-        
+
         return ($botResolutions / $totalBotInteractions) * 100;
     }
 
@@ -221,12 +232,13 @@ class MetricBuilder
     private function getAvgBotResolutionTime($events): ?float
     {
         $botResolutionEvents = $events->where('name', 'conversation_bot_resolved');
-        
+
         if ($botResolutionEvents->isEmpty()) {
             return null;
         }
-        
+
         $totalTime = $botResolutionEvents->sum('value');
+
         return $totalTime / $botResolutionEvents->count();
     }
 }

@@ -99,11 +99,13 @@ export async function getAgentReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api
+  const response = (await api
     .get(`api/v1/accounts/${accountId}/v2/summary_reports/agent`, {
       searchParams: toSearchParams(filters),
     })
-    .json();
+    .json()) as { agents?: AgentMetrics[] };
+
+  return { data: response.agents || [] };
 }
 
 /**
@@ -113,11 +115,13 @@ export async function getTeamReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api
+  const response = (await api
     .get(`api/v1/accounts/${accountId}/v2/summary_reports/team`, {
       searchParams: toSearchParams(filters),
     })
-    .json();
+    .json()) as { teams?: TeamMetrics[] };
+
+  return { data: response.teams || [] };
 }
 
 /**
@@ -127,11 +131,13 @@ export async function getLabelReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api
+  const response = (await api
     .get(`api/v1/accounts/${accountId}/v2/summary_reports/label`, {
       searchParams: toSearchParams(filters),
     })
-    .json();
+    .json()) as { labels?: AgentMetrics[] };
+
+  return { data: response.labels || [] };
 }
 
 /**
@@ -141,11 +147,13 @@ export async function getInboxReports(
   accountId: number,
   filters: ReportFilters = {}
 ): Promise<ReportsResponse> {
-  return api
+  const response = (await api
     .get(`api/v1/accounts/${accountId}/v2/summary_reports/inbox`, {
       searchParams: toSearchParams(filters),
     })
-    .json();
+    .json()) as { inboxes?: AgentMetrics[] };
+
+  return { data: response.inboxes || [] };
 }
 
 /**

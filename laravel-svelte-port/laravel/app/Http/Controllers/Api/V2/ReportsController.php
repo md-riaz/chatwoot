@@ -13,7 +13,6 @@ use App\Services\Reports\V2\Reports\Conversations\MetricBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response as ResponseFacade;
 
 class ReportsController extends Controller
@@ -339,10 +338,33 @@ class ReportsController extends Controller
      */
     private function generateAgentsReport(Account $account, Request $request): array
     {
-        // This would use the AgentSummaryBuilder when implemented
+        $reports = (new \App\Services\Reports\V2\Reports\AgentSummaryBuilder(
+            $account,
+            $this->buildSummaryReportParams($request)
+        ))->build()['agents'] ?? [];
+
+        $reportById = collect($reports)->keyBy('id');
+
+        $rows = $account->users()
+            ->nonAdministrators()
+            ->get()
+            ->map(function ($agent) use ($reportById) {
+                $report = $reportById->get($agent->id, []);
+
+                return [
+                    $agent->name,
+                    $report['conversations_count'] ?? 0,
+                    $this->formatDuration($report['avg_first_response_time'] ?? null),
+                    $this->formatDuration($report['avg_resolution_time'] ?? null),
+                    $this->formatDuration($report['reply_time'] ?? null),
+                    $report['resolutions_count'] ?? 0,
+                ];
+            })
+            ->all();
+
         return [
-            'headers' => ['Agent Name', 'Email', 'Conversations', 'Resolved', 'Avg Response Time'],
-            'data' => [],
+            'headers' => ['Agent Name', 'Conversations', 'Avg First Response Time', 'Avg Resolution Time', 'Avg Reply Time', 'Resolution Count'],
+            'data' => $rows,
         ];
     }
 
@@ -351,10 +373,30 @@ class ReportsController extends Controller
      */
     private function generateInboxesReport(Account $account, Request $request): array
     {
-        // This would use the InboxSummaryBuilder when implemented
+        $reports = (new \App\Services\Reports\V2\Reports\InboxSummaryBuilder(
+            $account,
+            $this->buildSummaryReportParams($request)
+        ))->build()['inboxes'] ?? [];
+
+        $reportById = collect($reports)->keyBy('id');
+
+        $rows = $account->inboxes()->with('channel')->get()
+            ->map(function ($inbox) use ($reportById) {
+                $report = $reportById->get($inbox->id, []);
+
+                return [
+                    $inbox->name,
+                    $report['channel_name'] ?? class_basename((string) $inbox->channel_type),
+                    $report['conversations_count'] ?? 0,
+                    $this->formatDuration($report['avg_first_response_time'] ?? null),
+                    $this->formatDuration($report['avg_resolution_time'] ?? null),
+                ];
+            })
+            ->all();
+
         return [
-            'headers' => ['Inbox Name', 'Channel', 'Conversations', 'Resolved', 'Response Rate'],
-            'data' => [],
+            'headers' => ['Inbox Name', 'Inbox Type', 'Conversations', 'Avg First Response Time', 'Avg Resolution Time'],
+            'data' => $rows,
         ];
     }
 
@@ -363,10 +405,27 @@ class ReportsController extends Controller
      */
     private function generateLabelsReport(Account $account, Request $request): array
     {
-        // This would use the LabelSummaryBuilder when implemented
+        $reports = (new \App\Services\Reports\V2\Reports\LabelSummaryBuilder(
+            $account,
+            $this->buildSummaryReportParams($request)
+        ))->build()['labels'] ?? [];
+
+        $rows = collect($reports)
+            ->map(function (array $report) {
+                return [
+                    $report['title'] ?? '',
+                    $report['conversations_count'] ?? 0,
+                    $this->formatDuration($report['avg_first_response_time'] ?? null),
+                    $this->formatDuration($report['avg_resolution_time'] ?? null),
+                    $this->formatDuration($report['reply_time'] ?? null),
+                    $report['resolutions_count'] ?? 0,
+                ];
+            })
+            ->all();
+
         return [
-            'headers' => ['Label', 'Conversations', 'Usage %'],
-            'data' => [],
+            'headers' => ['Label', 'Conversations', 'Avg First Response Time', 'Avg Resolution Time', 'Avg Reply Time', 'Resolution Count'],
+            'data' => $rows,
         ];
     }
 
@@ -375,10 +434,31 @@ class ReportsController extends Controller
      */
     private function generateTeamsReport(Account $account, Request $request): array
     {
-        // This would use the TeamSummaryBuilder when implemented
+        $reports = (new \App\Services\Reports\V2\Reports\TeamSummaryBuilder(
+            $account,
+            $this->buildSummaryReportParams($request)
+        ))->build()['teams'] ?? [];
+
+        $reportById = collect($reports)->keyBy('id');
+
+        $rows = $account->teams()->get()
+            ->map(function ($team) use ($reportById) {
+                $report = $reportById->get($team->id, []);
+
+                return [
+                    $team->name,
+                    $report['conversations_count'] ?? 0,
+                    $this->formatDuration($report['avg_first_response_time'] ?? null),
+                    $this->formatDuration($report['avg_resolution_time'] ?? null),
+                    $this->formatDuration($report['reply_time'] ?? null),
+                    $report['resolutions_count'] ?? 0,
+                ];
+            })
+            ->all();
+
         return [
-            'headers' => ['Team Name', 'Members', 'Conversations', 'Resolved', 'Avg Response Time'],
-            'data' => [],
+            'headers' => ['Team Name', 'Conversations', 'Avg First Response Time', 'Avg Resolution Time', 'Avg Reply Time', 'Resolution Count'],
+            'data' => $rows,
         ];
     }
 
@@ -387,30 +467,52 @@ class ReportsController extends Controller
      */
     private function generateConversationsSummaryReport(Account $account, Request $request): array
     {
-        $since = $request->input('since', now()->subDays(30)->timestamp);
-        $until = $request->input('until', now()->timestamp);
-
-        $sinceAt = is_numeric($since) ? now()->createFromTimestamp((int) $since) : now()->parse($since);
-        $untilAt = is_numeric($until) ? now()->createFromTimestamp((int) $until) : now()->parse($until);
-
-        $summary = DB::table('conversations')
-            ->where('account_id', $account->id)
-            ->whereBetween('created_at', [$sinceAt, $untilAt])
-            ->selectRaw('COUNT(*) as conversations_count')
-            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as open_count', [\App\Models\Conversation::STATUS_OPEN])
-            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as resolved_count', [\App\Models\Conversation::STATUS_RESOLVED])
-            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as pending_count', [\App\Models\Conversation::STATUS_PENDING])
-            ->first();
+        $params = $this->buildSummaryReportParams($request, ['type' => 'account']);
+        $summary = (new MetricBuilder($account, $params))->summary();
 
         return [
-            'headers' => ['conversations_count', 'open_count', 'resolved_count', 'pending_count'],
+            'headers' => ['conversations_count', 'incoming_messages_count', 'outgoing_messages_count', 'avg_first_response_time', 'avg_resolution_time', 'resolution_count', 'avg_reply_time'],
             'data' => [[
-                $summary->conversations_count ?? 0,
-                $summary->open_count ?? 0,
-                $summary->resolved_count ?? 0,
-                $summary->pending_count ?? 0,
+                $summary['conversations_count'] ?? 0,
+                $summary['incoming_messages_count'] ?? 0,
+                $summary['outgoing_messages_count'] ?? 0,
+                $this->formatDuration($summary['avg_first_response_time'] ?? null),
+                $this->formatDuration($summary['avg_resolution_time'] ?? null),
+                $summary['resolutions_count'] ?? 0,
+                $this->formatDuration($summary['reply_time'] ?? null),
             ]],
         ];
+    }
+
+    private function buildSummaryReportParams(Request $request, array $extra = []): array
+    {
+        return array_merge([
+            'since' => $request->input('since', now()->subDays(30)->timestamp),
+            'until' => $request->input('until', now()->timestamp),
+            'business_hours' => $request->boolean('business_hours', false),
+        ], $extra);
+    }
+
+    private function formatDuration(?float $seconds): string
+    {
+        if ($seconds === null) {
+            return '0s';
+        }
+
+        $total = (int) round($seconds);
+        $hours = intdiv($total, 3600);
+        $minutes = intdiv($total % 3600, 60);
+        $secs = $total % 60;
+
+        if ($hours > 0) {
+            return sprintf('%dh %dm %ds', $hours, $minutes, $secs);
+        }
+
+        if ($minutes > 0) {
+            return sprintf('%dm %ds', $minutes, $secs);
+        }
+
+        return sprintf('%ds', $secs);
     }
 
     /**
