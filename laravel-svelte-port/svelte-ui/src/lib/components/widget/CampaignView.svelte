@@ -24,7 +24,7 @@
     useInboxAvatarForBot = false,
     inboxAvatarUrl = '',
     widgetColor = '#1f93ff',
-    unreadMessageCount = 0
+    unreadMessageCount = 0,
   }: Props = $props();
 
   const dispatch = createEventDispatcher<{
@@ -36,12 +36,12 @@
   let isBackgroundLighter = $derived(() => {
     // Simple check for light colors
     if (!widgetColor) return false;
-    
+
     const hex = widgetColor.replace('#', '');
     const r = parseInt(hex.substr(0, 2), 16);
     const g = parseInt(hex.substr(2, 2), 16);
     const b = parseInt(hex.substr(4, 2), 16);
-    
+
     // Calculate brightness using relative luminance formula
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;
     return brightness > 128;
@@ -63,9 +63,9 @@
 <div class="unread-wrap" dir="ltr">
   <!-- Close button -->
   <div class="close-unread-wrap">
-    <button 
+    <button
       type="button"
-      class="button small close-unread-button" 
+      class="button small close-unread-button"
       onclick={handleClose}
     >
       <span class="flex items-center">
@@ -108,7 +108,7 @@
   {/if}
 </div>
 
-<style>
+<style lang="postcss">
   .unread-wrap {
     width: 100%;
     height: auto;
@@ -137,6 +137,6 @@
   }
 
   .button {
-    @apply cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+    @apply cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-blue-500/50;
   }
 </style>

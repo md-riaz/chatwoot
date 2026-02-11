@@ -6,16 +6,16 @@
   import { getWebSocketStore } from '$lib/websocket/store.svelte.js';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import { Wifi, WifiOff, RotateCcw, AlertTriangle } from 'lucide-svelte';
-  
+
   interface Props {
     showDetails?: boolean;
     class?: string;
   }
-  
+
   let { showDetails = false, class: className = '' }: Props = $props();
-  
+
   let wsStore = getWebSocketStore();
-  
+
   // Reactive values
   let connectionState = $derived(wsStore.connectionState);
   let connectionStatus = $derived(wsStore.connectionStatus);
@@ -25,23 +25,33 @@
   let isFailed = $derived(wsStore.isFailed);
   let error = $derived(wsStore.error);
   let stats = $derived(wsStore.stats);
-  
+
   // Get appropriate icon and variant
   let icon = $derived(
-    isConnected ? Wifi
-    : (isConnecting || isReconnecting) ? RotateCcw
-    : isFailed ? AlertTriangle
-    : WifiOff
+    isConnected
+      ? Wifi
+      : isConnecting || isReconnecting
+        ? RotateCcw
+        : isFailed
+          ? AlertTriangle
+          : WifiOff
   );
-  
-  let variant = $derived<'default' | 'destructive' | 'outline' | 'secondary' | undefined>(
-    isConnected ? 'default'
-    : (isConnecting || isReconnecting) ? 'secondary'
-    : isFailed ? 'destructive'
-    : 'outline'
+
+  let variant = $derived<
+    'default' | 'destructive' | 'outline' | 'secondary' | undefined
+  >(
+    isConnected
+      ? 'default'
+      : isConnecting || isReconnecting
+        ? 'secondary'
+        : isFailed
+          ? 'destructive'
+          : 'outline'
   );
-  
-  let iconClass = $derived((isConnecting || isReconnecting) ? 'animate-spin' : '');
+
+  let iconClass = $derived(
+    isConnecting || isReconnecting ? 'animate-spin' : ''
+  );
 </script>
 
 <div class="websocket-status {className}">
@@ -52,7 +62,7 @@
       {connectionStatus}
     </span>
   </Badge>
-  
+
   {#if showDetails && (error || stats.connectionDuration)}
     <div class="websocket-status__details">
       {#if error}
@@ -61,7 +71,7 @@
           <span class="text-xs text-destructive">{error}</span>
         </div>
       {/if}
-      
+
       {#if stats.connectionDuration}
         <div class="websocket-status__duration">
           <span class="text-xs text-muted-foreground">
@@ -69,11 +79,14 @@
           </span>
         </div>
       {/if}
-      
+
       {#if stats.subscriptionsCount > 0}
         <div class="websocket-status__subscriptions">
           <span class="text-xs text-muted-foreground">
-            {stats.subscriptionsCount} subscription{stats.subscriptionsCount === 1 ? '' : 's'}
+            {stats.subscriptionsCount} subscription{stats.subscriptionsCount ===
+            1
+              ? ''
+              : 's'}
           </span>
         </div>
       {/if}
@@ -81,19 +94,19 @@
   {/if}
 </div>
 
-<style>
+<style lang="postcss">
   .websocket-status {
     @apply flex flex-col gap-1;
   }
-  
+
   .websocket-status__details {
     @apply flex flex-col gap-1;
   }
-  
+
   .websocket-status__error {
     @apply flex items-center gap-1;
   }
-  
+
   .websocket-status__duration,
   .websocket-status__subscriptions {
     @apply flex items-center;

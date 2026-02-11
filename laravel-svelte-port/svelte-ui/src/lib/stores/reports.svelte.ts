@@ -6,11 +6,11 @@
 
 import * as reportsApi from '$lib/api/reports';
 import { authStore } from './auth.svelte';
-import type { 
-  ConversationMetrics, 
-  AgentMetrics, 
+import type {
+  ConversationMetrics,
+  AgentMetrics,
   TeamMetrics,
-  ReportFilters 
+  ReportFilters,
 } from '$lib/api/reports';
 
 // Live metrics interfaces (matching Vue structure)
@@ -41,7 +41,7 @@ export interface AgentStatusMetric {
 
 export interface HeatmapData {
   timestamp: number; // Unix timestamp
-  value: number;     // Metric value
+  value: number; // Metric value
 }
 
 interface ReportsState {
@@ -49,18 +49,18 @@ interface ReportsState {
   conversationMetrics: ConversationMetrics | null;
   agentMetrics: AgentMetrics[];
   teamMetrics: TeamMetrics[];
-  
+
   // Live metrics (real-time data)
   overview: {
     accountConversationMetric: LiveAccountMetric;
     agentConversationMetric: LiveAgentMetric[];
     teamConversationMetric: LiveTeamMetric[];
     agentStatus: AgentStatusMetric;
-    
+
     // Heatmap data
     accountConversationHeatmap: HeatmapData[];
     accountResolutionHeatmap: HeatmapData[];
-    
+
     // UI flags (granular loading states)
     uiFlags: {
       isFetchingAccountConversationMetric: boolean;
@@ -71,7 +71,7 @@ interface ReportsState {
       isFetchingAgentStatus: boolean;
     };
   };
-  
+
   filters: ReportFilters;
   isLoading: boolean;
   error: string | null;
@@ -82,20 +82,20 @@ class ReportsStore {
     conversationMetrics: null,
     agentMetrics: [],
     teamMetrics: [],
-    
+
     overview: {
       accountConversationMetric: {
         open: 0,
         unattended: 0,
         unassigned: 0,
-        pending: 0
+        pending: 0,
       },
       agentConversationMetric: [],
       teamConversationMetric: [],
       agentStatus: {
         online: 0,
         busy: 0,
-        offline: 0
+        offline: 0,
       },
       accountConversationHeatmap: [],
       accountResolutionHeatmap: [],
@@ -106,15 +106,15 @@ class ReportsStore {
         isFetchingAgentConversationMetric: false,
         isFetchingTeamConversationMetric: false,
         isFetchingAgentStatus: false,
-      }
+      },
     },
-    
+
     filters: {
       since: this.getDefaultStartDate(),
-      until: this.getDefaultEndDate()
+      until: this.getDefaultEndDate(),
     },
     isLoading: false,
-    error: null
+    error: null,
   });
 
   // Getters - Historical data
@@ -185,9 +185,11 @@ class ReportsStore {
   }
 
   get hasData() {
-    return !!this.state.conversationMetrics || 
-      this.state.agentMetrics.length > 0 || 
-      this.state.teamMetrics.length > 0;
+    return (
+      !!this.state.conversationMetrics ||
+      this.state.agentMetrics.length > 0 ||
+      this.state.teamMetrics.length > 0
+    );
   }
 
   // Helper methods
@@ -210,12 +212,25 @@ class ReportsStore {
     this.state.error = null;
 
     try {
-      console.log('🔄 Fetching account conversation metrics with params:', params);
-      const response = await reportsApi.getLiveConversationMetrics(accountId, params);
-      this.state.overview.accountConversationMetric = response.data as LiveAccountMetric;
-      console.log('✅ Account conversation metrics fetched:', this.state.overview.accountConversationMetric);
+      console.log(
+        '🔄 Fetching account conversation metrics with params:',
+        params
+      );
+      const response = await reportsApi.getLiveConversationMetrics(
+        accountId,
+        params
+      );
+      this.state.overview.accountConversationMetric =
+        response.data as LiveAccountMetric;
+      console.log(
+        '✅ Account conversation metrics fetched:',
+        this.state.overview.accountConversationMetric
+      );
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch account conversation metrics';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch account conversation metrics';
       console.error('❌ Error fetching account conversation metrics:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingAccountConversationMetric = false;
@@ -231,11 +246,20 @@ class ReportsStore {
 
     try {
       console.log('🔄 Fetching agent conversation metrics');
-      const response = await reportsApi.getLiveGroupedConversations(accountId, { groupBy: 'assignee_id' });
-      this.state.overview.agentConversationMetric = response.data as LiveAgentMetric[];
-      console.log('✅ Agent conversation metrics fetched:', this.state.overview.agentConversationMetric);
+      const response = await reportsApi.getLiveGroupedConversations(accountId, {
+        groupBy: 'assignee_id',
+      });
+      this.state.overview.agentConversationMetric =
+        response.data as LiveAgentMetric[];
+      console.log(
+        '✅ Agent conversation metrics fetched:',
+        this.state.overview.agentConversationMetric
+      );
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch agent conversation metrics';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch agent conversation metrics';
       console.error('❌ Error fetching agent conversation metrics:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingAgentConversationMetric = false;
@@ -251,11 +275,20 @@ class ReportsStore {
 
     try {
       console.log('🔄 Fetching team conversation metrics');
-      const response = await reportsApi.getLiveGroupedConversations(accountId, { groupBy: 'team_id' });
-      this.state.overview.teamConversationMetric = response.data as LiveTeamMetric[];
-      console.log('✅ Team conversation metrics fetched:', this.state.overview.teamConversationMetric);
+      const response = await reportsApi.getLiveGroupedConversations(accountId, {
+        groupBy: 'team_id',
+      });
+      this.state.overview.teamConversationMetric =
+        response.data as LiveTeamMetric[];
+      console.log(
+        '✅ Team conversation metrics fetched:',
+        this.state.overview.teamConversationMetric
+      );
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch team conversation metrics';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch team conversation metrics';
       console.error('❌ Error fetching team conversation metrics:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingTeamConversationMetric = false;
@@ -275,7 +308,8 @@ class ReportsStore {
       this.state.overview.agentStatus = response.data as AgentStatusMetric;
       console.log('✅ Agent status fetched:', this.state.overview.agentStatus);
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch agent status';
+      this.state.error =
+        error instanceof Error ? error.message : 'Failed to fetch agent status';
       console.error('❌ Error fetching agent status:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingAgentStatus = false;
@@ -300,10 +334,14 @@ class ReportsStore {
     try {
       console.log('🔄 Fetching conversation heatmap with params:', params);
       const response = await reportsApi.getHeatmapData(accountId, params);
-      this.state.overview.accountConversationHeatmap = response.data as HeatmapData[];
+      this.state.overview.accountConversationHeatmap =
+        response.data as HeatmapData[];
       console.log('✅ Conversation heatmap fetched:', response.data);
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch conversation heatmap';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch conversation heatmap';
       console.error('❌ Error fetching conversation heatmap:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingAccountConversationsHeatmap = false;
@@ -328,24 +366,34 @@ class ReportsStore {
     try {
       console.log('🔄 Fetching resolution heatmap with params:', params);
       const response = await reportsApi.getHeatmapData(accountId, params);
-      this.state.overview.accountResolutionHeatmap = response.data as HeatmapData[];
+      this.state.overview.accountResolutionHeatmap =
+        response.data as HeatmapData[];
       console.log('✅ Resolution heatmap fetched:', response.data);
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch resolution heatmap';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch resolution heatmap';
       console.error('❌ Error fetching resolution heatmap:', error);
     } finally {
       this.state.overview.uiFlags.isFetchingAccountResolutionsHeatmap = false;
     }
   }
 
-  async downloadAccountConversationHeatmap(params: { daysBefore: number; to: number }) {
+  async downloadAccountConversationHeatmap(params: {
+    daysBefore: number;
+    to: number;
+  }) {
     const accountId = authStore.currentAccount?.id;
     if (!accountId) return;
 
     try {
       await reportsApi.downloadConversationTrafficCSV(accountId, params);
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to download heatmap data';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to download heatmap data';
       console.error('Error downloading heatmap data:', error);
     }
   }
@@ -359,10 +407,14 @@ class ReportsStore {
     this.state.error = null;
 
     try {
-      const response = await reportsApi.getAccountReports(accountId, mergedFilters);
+      const response = await reportsApi.getAccountReports(
+        accountId,
+        mergedFilters
+      );
       this.state.conversationMetrics = response.data as ConversationMetrics;
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch reports';
+      this.state.error =
+        error instanceof Error ? error.message : 'Failed to fetch reports';
       console.error('Error fetching account reports:', error);
     } finally {
       this.state.isLoading = false;
@@ -378,10 +430,16 @@ class ReportsStore {
     this.state.error = null;
 
     try {
-      const response = await reportsApi.getAgentReports(accountId, mergedFilters);
+      const response = await reportsApi.getAgentReports(
+        accountId,
+        mergedFilters
+      );
       this.state.agentMetrics = response.data as AgentMetrics[];
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch agent reports';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch agent reports';
       console.error('Error fetching agent reports:', error);
     } finally {
       this.state.isLoading = false;
@@ -397,10 +455,14 @@ class ReportsStore {
     this.state.error = null;
 
     try {
-      const response = await reportsApi.getTeamReports(accountId, mergedFilters);
+      const response = await reportsApi.getTeamReports(
+        accountId,
+        mergedFilters
+      );
       this.state.teamMetrics = response.data as TeamMetrics[];
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch team reports';
+      this.state.error =
+        error instanceof Error ? error.message : 'Failed to fetch team reports';
       console.error('Error fetching team reports:', error);
     } finally {
       this.state.isLoading = false;
@@ -411,7 +473,7 @@ class ReportsStore {
     await Promise.all([
       this.fetchAccountReports(filters),
       this.fetchAgentReports(filters),
-      this.fetchTeamReports(filters)
+      this.fetchTeamReports(filters),
     ]);
   }
 
@@ -419,14 +481,14 @@ class ReportsStore {
     this.state.filters = {
       ...this.state.filters,
       since,
-      until
+      until,
     };
   }
 
   setFilters(filters: ReportFilters) {
     this.state.filters = {
       ...this.state.filters,
-      ...filters
+      ...filters,
     };
   }
 
@@ -457,15 +519,15 @@ class ReportsStore {
       },
       filters: {
         since: this.getDefaultStartDate(),
-        until: this.getDefaultEndDate()
+        until: this.getDefaultEndDate(),
       },
       isLoading: false,
-      error: null
+      error: null,
     };
   }
 
   // Vue parity methods for component compatibility
-  
+
   /**
    * Get chart data for a specific metric key
    * Vue parity: matches Vuex getter pattern
@@ -483,14 +545,16 @@ class ReportsStore {
   getUIFlag(flagKey: string): boolean {
     // Check overview UI flags first
     if (flagKey in this.state.overview.uiFlags) {
-      return this.state.overview.uiFlags[flagKey as keyof typeof this.state.overview.uiFlags];
+      return this.state.overview.uiFlags[
+        flagKey as keyof typeof this.state.overview.uiFlags
+      ];
     }
-    
+
     // Check for dynamic flag patterns like isFetching_metricName
     if (flagKey.startsWith('isFetching_')) {
       return this.state.isLoading;
     }
-    
+
     return this.state.isLoading;
   }
 
@@ -503,15 +567,15 @@ class ReportsStore {
     if (dataKey === 'accountSummary' || dataKey.includes('summary')) {
       return this.state.conversationMetrics;
     }
-    
+
     if (dataKey.includes('agent')) {
       return this.state.agentMetrics;
     }
-    
+
     if (dataKey.includes('team')) {
       return this.state.teamMetrics;
     }
-    
+
     return null;
   }
 
@@ -524,11 +588,11 @@ class ReportsStore {
     if (getterKey.includes('agent')) {
       return this.state.agentMetrics;
     }
-    
+
     if (getterKey.includes('team')) {
       return this.state.teamMetrics;
     }
-    
+
     return [];
   }
 
@@ -539,11 +603,17 @@ class ReportsStore {
   async dispatchAction(actionKey: string, params?: any): Promise<void> {
     // Map action keys to methods
     const actionMap: Record<string, (params?: any) => Promise<void>> = {
-      'fetchAccountConversationMetric': (p) => this.fetchAccountConversationMetric(p),
-      'fetchAgentConversationMetric': () => this.fetchAgentConversationMetric(),
-      'fetchTeamConversationMetric': () => this.fetchTeamConversationMetric(),
-      'fetchAgentStatus': () => this.fetchAgentStatus(),
-      'downloadAccountConversationHeatmap': (p) => this.downloadAccountConversationHeatmap(p),
+      fetchAccountConversationMetric: p =>
+        this.fetchAccountConversationMetric(p),
+      fetchAgentConversationMetric: () => this.fetchAgentConversationMetric(),
+      fetchTeamConversationMetric: () => this.fetchTeamConversationMetric(),
+      fetchAgentStatus: () => this.fetchAgentStatus(),
+      downloadAccountConversationHeatmap: p =>
+        this.downloadAccountConversationHeatmap(p),
+      downloadAgentReports: p => this.downloadAgentReports(p),
+      downloadLabelReports: p => this.downloadLabelReports(p),
+      downloadInboxReports: p => this.downloadInboxReports(p),
+      downloadTeamReports: p => this.downloadTeamReports(p),
     };
 
     const action = actionMap[actionKey];
@@ -578,7 +648,10 @@ class ReportsStore {
       this.state.conversationMetrics = response.data as ConversationMetrics;
       console.log('✅ Account summary fetched');
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch account summary';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch account summary';
       console.error('❌ Error fetching account summary:', error);
     } finally {
       this.state.isLoading = false;
@@ -607,13 +680,16 @@ class ReportsStore {
     try {
       console.log('🔄 Fetching account report with params:', params);
       const response = await reportsApi.getAccountReport(accountId, params);
-      
+
       // Store the report data - in Vue this would update a specific metric
       // For now, we'll update the main metrics
       this.state.conversationMetrics = response.data as ConversationMetrics;
       console.log('✅ Account report fetched for metric:', params.metric);
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch account report';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch account report';
       console.error('❌ Error fetching account report:', error);
     } finally {
       this.state.isLoading = false;
@@ -644,7 +720,8 @@ class ReportsStore {
       this.state.conversationMetrics = response.data as ConversationMetrics;
       console.log('✅ Bot summary fetched');
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to fetch bot summary';
+      this.state.error =
+        error instanceof Error ? error.message : 'Failed to fetch bot summary';
       console.error('❌ Error fetching bot summary:', error);
     } finally {
       this.state.isLoading = false;
@@ -669,7 +746,10 @@ class ReportsStore {
       await reportsApi.downloadConversationsSummary(accountId, params);
       console.log('✅ Conversations summary download initiated');
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to download conversations summary';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to download conversations summary';
       console.error('❌ Error downloading conversations summary:', error);
     }
   }
@@ -693,7 +773,10 @@ class ReportsStore {
       this.downloadCsvFile(params.fileName, csvData);
       console.log('✅ Agent reports download initiated');
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to download agent reports';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to download agent reports';
       console.error('❌ Error downloading agent reports:', error);
     }
   }
@@ -717,7 +800,10 @@ class ReportsStore {
       this.downloadCsvFile(params.fileName, csvData);
       console.log('✅ Label reports download initiated');
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to download label reports';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to download label reports';
       console.error('❌ Error downloading label reports:', error);
     }
   }
@@ -741,7 +827,10 @@ class ReportsStore {
       this.downloadCsvFile(params.fileName, csvData);
       console.log('✅ Inbox reports download initiated');
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to download inbox reports';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to download inbox reports';
       console.error('❌ Error downloading inbox reports:', error);
     }
   }
@@ -765,7 +854,10 @@ class ReportsStore {
       this.downloadCsvFile(params.fileName, csvData);
       console.log('✅ Team reports download initiated');
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Failed to download team reports';
+      this.state.error =
+        error instanceof Error
+          ? error.message
+          : 'Failed to download team reports';
       console.error('❌ Error downloading team reports:', error);
     }
   }
@@ -784,26 +876,6 @@ class ReportsStore {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-  }
-
-  /**
-   * Generic action dispatcher for Vue parity
-   * Allows calling store methods by name (used by WootReports component)
-   */
-  async dispatchAction(actionName: string, params: any): Promise<void> {
-    const actions: Record<string, (params: any) => Promise<void>> = {
-      downloadAgentReports: this.downloadAgentReports.bind(this),
-      downloadLabelReports: this.downloadLabelReports.bind(this),
-      downloadInboxReports: this.downloadInboxReports.bind(this),
-      downloadTeamReports: this.downloadTeamReports.bind(this),
-    };
-
-    const action = actions[actionName];
-    if (action) {
-      await action(params);
-    } else {
-      console.error(`Unknown action: ${actionName}`);
-    }
   }
 }
 
