@@ -6,7 +6,11 @@
    */
   import { createEventDispatcher } from 'svelte';
   import type { WidgetCampaign } from '$lib/api/widget-campaigns';
-  import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/ui/avatar';
+  import {
+    Avatar,
+    AvatarImage,
+    AvatarFallback,
+  } from '$lib/components/ui/avatar';
 
   interface Props {
     campaign: WidgetCampaign;
@@ -21,7 +25,7 @@
     showSender = false,
     companyName = '',
     useInboxAvatarForBot = false,
-    inboxAvatarUrl = ''
+    inboxAvatarUrl = '',
   }: Props = $props();
 
   const dispatch = createEventDispatcher<{
@@ -44,7 +48,9 @@
         : 'Bot'
   );
 
-  let availabilityStatus = $derived(campaign.sender?.availability_status || null);
+  let availabilityStatus = $derived(
+    campaign.sender?.availability_status || null
+  );
 
   let displayCompanyName = $derived(companyName ? `from ${companyName}` : '');
 
@@ -65,9 +71,9 @@
 </script>
 
 <div class="chat-bubble-wrap">
-  <button 
+  <button
     type="button"
-    class="chat-bubble agent bg-white" 
+    class="chat-bubble agent bg-white"
     onclick={handleClick}
   >
     {#if showSender}
@@ -82,14 +88,14 @@
         {/if}
       </div>
     {/if}
-    
+
     <div class="message-content">
       {@html formatMessage(campaign.message)}
     </div>
   </button>
 </div>
 
-<style>
+<style lang="postcss">
   .chat-bubble {
     @apply max-w-[85%] cursor-pointer p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow;
   }

@@ -26,7 +26,7 @@
     websiteToken,
     companyName = '',
     widgetColor = '#1f93ff',
-    isIFrame = false
+    isIFrame = false,
   }: Props = $props();
 
   // Widget state
@@ -40,7 +40,9 @@
 
   // Reactive campaign state
   let activeCampaign = $derived(widgetCampaignsStore.activeCampaign);
-  let isCampaignReadyToExecute = $derived(widgetCampaignsStore.isCampaignReadyToExecute);
+  let isCampaignReadyToExecute = $derived(
+    widgetCampaignsStore.isCampaignReadyToExecute
+  );
 
   onMount(async () => {
     // Initialize campaign manager
@@ -120,7 +122,7 @@
   function setupUrlChangeDetection() {
     // Listen for URL changes (for SPAs)
     let lastUrl = window.location.href;
-    
+
     const checkUrlChange = () => {
       const currentUrl = window.location.href;
       if (currentUrl !== lastUrl) {
@@ -146,13 +148,11 @@
   }
 
   function setCampaignView() {
-    const shouldSnoozeCampaign = 
+    const shouldSnoozeCampaign =
       campaignsSnoozedTill && campaignsSnoozedTill > Date.now();
-    
+
     const isCampaignReady =
-      activeCampaign &&
-      !messageCount &&
-      !shouldSnoozeCampaign;
+      activeCampaign && !messageCount && !shouldSnoozeCampaign;
 
     if (isIFrame && isCampaignReady) {
       currentRoute = 'campaigns';
@@ -196,7 +196,7 @@
     if (isIFrame) {
       sendIFrameMessage({
         event: 'setIframeHeight',
-        data: { expand }
+        data: { expand },
       });
     }
   }
@@ -243,11 +243,16 @@
     <div class="home-view">
       <h3>Widget Home</h3>
       <p>Welcome to the widget</p>
-      
+
       {#if activeCampaign && isCampaignReadyToExecute}
         <div class="campaign-notification">
           <p>Campaign ready: {activeCampaign.title}</p>
-          <button onclick={() => handleCampaignClick({ detail: { campaignId: activeCampaign.id } } as CustomEvent<{ campaignId: number }>)}>
+          <button
+            onclick={() =>
+              handleCampaignClick({
+                detail: { campaignId: activeCampaign.id },
+              } as CustomEvent<{ campaignId: number }>)}
+          >
             View Campaign
           </button>
         </div>
@@ -256,7 +261,7 @@
   {/if}
 </div>
 
-<style>
+<style lang="postcss">
   .widget-app {
     @apply w-full h-full;
   }

@@ -64,7 +64,7 @@
   });
 
   // Get filter items list from appropriate store based on type
-  const filterItemsList = $derived(() => {
+  const filterItemsList = $derived.by(() => {
     switch (type) {
       case 'agent':
         return agentsStore.allAgents;
@@ -126,11 +126,11 @@
   }
 
   function fetchChartData() {
-    Object.keys(reportKeys).forEach(async (key) => {
+    Object.keys(reportKeys).forEach(async key => {
       try {
         const metric = reportKeys[key as keyof typeof reportKeys];
         if (!metric) return;
-        
+
         await reportsStore.fetchAccountReport({
           metric,
           from,
@@ -166,18 +166,18 @@
     from = newFrom;
     to = newTo;
     groupByfilterItemsList = fetchFilterItems(newGroupBy);
-    
+
     const filterItems = groupByfilterItemsList.filter(
-      (item) => item.id === groupBy.id
+      item => item.id === groupBy.id
     );
-    
+
     if (filterItems.length > 0) {
       selectedGroupByFilter = filterItems[0];
     } else {
       selectedGroupByFilter = groupByfilterItemsList[0];
       groupBy = GROUP_BY_FILTER[selectedGroupByFilter.id];
     }
-    
+
     fetchAllData();
   }
 
@@ -219,7 +219,7 @@
   </Button>
 </ReportHeader>
 
-{#if filterItemsList}
+{#if filterItemsList.length}
   <ReportFilters
     {type}
     {filterItemsList}
