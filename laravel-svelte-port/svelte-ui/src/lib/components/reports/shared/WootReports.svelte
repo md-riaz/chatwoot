@@ -6,13 +6,15 @@
   import ReportFilters from './ReportFilters.svelte';
   import ReportContainer from './ReportContainer.svelte';
   import { reportsStore } from '$lib/stores/reports.svelte';
+  import { agentsStore } from '$lib/stores/agents.svelte';
+  import { teamsStore } from '$lib/stores/teams.svelte';
+  import { inboxesStore } from '$lib/stores/inboxes.svelte';
+  import { labelsStore } from '$lib/stores/labels.svelte';
   import { GROUP_BY_FILTER } from '$lib/constants/reports';
   import { generateFileName } from '$lib/utils/downloadHelper';
 
   interface Props {
     type?: string;
-    getterKey?: string;
-    actionKey?: string;
     downloadButtonLabel?: string;
     reportTitle?: string;
     hasBackButton?: boolean;
@@ -21,8 +23,6 @@
 
   let {
     type = 'account',
-    getterKey = '',
-    actionKey = '',
     downloadButtonLabel = 'Download Reports',
     reportTitle = 'Download Reports',
     hasBackButton = false,
@@ -56,17 +56,28 @@
 
   // Use $derived to maintain reactive reference to selectedItem prop
   const selectedItemRef = $derived(selectedItem);
-  let selectedFilter = $state(selectedItemRef);
+  let selectedFilter = $state<any>(null);
 
   // Update local state when prop changes
   $effect(() => {
     selectedFilter = selectedItemRef;
   });
 
-  // Get filter items list from store based on getterKey
-  const filterItemsList = $derived(
-    getterKey ? reportsStore.getFilterItems(getterKey) : []
-  );
+  // Get filter items list from appropriate store based on type
+  const filterItemsList = $derived(() => {
+    switch (type) {
+      case 'agent':
+        return agentsStore.allAgents;
+      case 'team':
+        return teamsStore.allTeams;
+      case 'inbox':
+        return inboxesStore.allInboxes;
+      case 'label':
+        return labelsStore.allLabels;
+      default:
+        return [];
+    }
+  });
 
   const isAgentType = $derived(type === 'agent');
 
@@ -83,8 +94,20 @@
   });
 
   onMount(() => {
-    if (actionKey) {
-      reportsStore.dispatchAction(actionKey);
+    // Fetch data from appropriate store based on type
+    switch (type) {
+      case 'agent':
+        agentsStore.fetchAgents();
+        break;
+      case 'team':
+        teamsStore.fetchTeams();
+        break;
+      case 'inbox':
+        inboxesStore.fetchInboxes();
+        break;
+      case 'label':
+        labelsStore.fetchLabels();
+        break;
     }
   });
 
@@ -105,8 +128,11 @@
   function fetchChartData() {
     Object.keys(reportKeys).forEach(async (key) => {
       try {
+        const metric = reportKeys[key as keyof typeof reportKeys];
+        if (!metric) return;
+        
         await reportsStore.fetchAccountReport({
-          metric: reportKeys[key as keyof typeof reportKeys],
+          metric,
           from,
           to,
           type,

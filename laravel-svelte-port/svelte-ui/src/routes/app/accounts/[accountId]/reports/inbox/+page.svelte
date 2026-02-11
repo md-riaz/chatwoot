@@ -6,8 +6,6 @@
   <div class="w-full mx-auto max-w-[80rem] px-6">
     <WootReports
       type="inbox"
-      getterKey="inboxes/getInboxes"
-      actionKey="inboxes/get"
       downloadButtonLabel="Download Inbox Reports"
       reportTitle="Inbox Reports"
     />

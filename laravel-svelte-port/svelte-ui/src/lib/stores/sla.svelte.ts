@@ -202,6 +202,14 @@ class SLAStore {
     return this.state.all.find(p => p.id === id) || null;
   }
 
+  /**
+   * Fetch SLAs - Vue parity alias for fetchPolicies
+   * Vue components may call fetchSLAs instead of fetchPolicies
+   */
+  async fetchSLAs() {
+    return this.fetchPolicies();
+  }
+
   clearError() {
     this.state.error = null;
   }

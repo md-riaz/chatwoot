@@ -401,8 +401,9 @@
         
         <form onsubmit={(e) => { e.preventDefault(); handleCreateContact(); }}>
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+            <label for="contact-name" class="block text-sm font-medium text-gray-700 mb-2">Name</label>
             <input
+              id="contact-name"
               bind:value={createForm.name}
               type="text"
               required
@@ -414,8 +415,9 @@
           </div>
           
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <label for="contact-email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
             <input
+              id="contact-email"
               bind:value={createForm.email}
               type="email"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -426,8 +428,9 @@
           </div>
           
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+            <label for="contact-phone" class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
             <input
+              id="contact-phone"
               bind:value={createForm.phoneNumber}
               type="tel"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"

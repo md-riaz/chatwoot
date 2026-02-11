@@ -89,7 +89,8 @@
   </PopoverTrigger>
   <PopoverContent class="w-auto p-0" align="start">
     <Calendar
-      bind:value={dateValue}
+      type="single"
+      bind:value={dateValue as any}
       {disabled}
       {readonly}
     />

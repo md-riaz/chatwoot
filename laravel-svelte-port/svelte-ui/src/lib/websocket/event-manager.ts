@@ -181,7 +181,10 @@ export class WebSocketEventManager {
       const client = getReverbClient();
       try {
         // Update presence on server
-        client.updatePresence?.();
+        // Note: updatePresence may not be available on all ReverbClient implementations
+        if ('updatePresence' in client && typeof (client as any).updatePresence === 'function') {
+          (client as any).updatePresence();
+        }
       } catch (error) {
         console.error('Failed to update presence:', error);
       }

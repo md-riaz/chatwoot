@@ -17,7 +17,7 @@
 
   const dispatch = createEventDispatcher();
 
-  let form = $state(extractContactFormData(contact));
+  let form = $state(extractContactFormData(null));
   let phoneCountry = $state('US');
   let avatarFile = $state<File | null>(null);
   let avatarPreview = $state<string | null>(null);

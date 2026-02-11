@@ -90,14 +90,10 @@
       unsetUnreadView();
     });
 
-    // Handle campaign execution
-    widgetEmitter.on(EXECUTE_CAMPAIGN, async (event) => {
-      try {
-        await campaignManager.handleExecuteCampaign(event);
-        currentRoute = 'messages';
-      } catch (error) {
-        console.error('Campaign execution failed:', error);
-      }
+    // Campaign execution is handled by campaignManager internally
+    // Just listen for navigation after execution
+    widgetEmitter.on('navigate-to-messages', () => {
+      currentRoute = 'messages';
     });
 
     // Handle campaign snoozing
@@ -224,7 +220,7 @@
       campaign={activeCampaign}
       {companyName}
       {widgetColor}
-      {messageCount}
+      unreadMessageCount={messageCount}
       useInboxAvatarForBot={true}
       on:close={handleCampaignClose}
       on:campaignClick={handleCampaignClick}
@@ -251,7 +247,7 @@
       {#if activeCampaign && isCampaignReadyToExecute}
         <div class="campaign-notification">
           <p>Campaign ready: {activeCampaign.title}</p>
-          <button onclick={() => handleCampaignClick({ detail: { campaignId: activeCampaign.id } })}>
+          <button onclick={() => handleCampaignClick({ detail: { campaignId: activeCampaign.id } } as CustomEvent<{ campaignId: number }>)}>
             View Campaign
           </button>
         </div>

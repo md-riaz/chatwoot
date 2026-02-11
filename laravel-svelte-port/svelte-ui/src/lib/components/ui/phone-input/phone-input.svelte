@@ -5,6 +5,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { cn } from '$lib/utils';
+  // @ts-ignore - Package has module resolution issues
   import { usePhonePicker } from '@kevwpl/svelte-o-phone';
   import { tick } from 'svelte';
 

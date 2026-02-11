@@ -244,3 +244,211 @@ export async function downloadConversationTrafficCSV(
   document.body.removeChild(a);
   window.URL.revokeObjectURL(url);
 }
+
+/**
+ * Get account summary (Vue parity)
+ */
+export async function getAccountSummary(
+  accountId: number,
+  params: {
+    from: number;
+    to: number;
+    type?: string;
+    id?: number;
+    groupBy?: string;
+    businessHours?: boolean;
+  }
+): Promise<ReportsResponse> {
+  return api.get(`api/v1/accounts/${accountId}/v2/reports/summary`, {
+    searchParams: toSearchParams({
+      since: params.from,
+      until: params.to,
+      type: params.type,
+      id: params.id,
+      group_by: params.groupBy,
+      business_hours: params.businessHours,
+      timezone_offset: -new Date().getTimezoneOffset() / 60
+    })
+  }).json();
+}
+
+/**
+ * Get account report for specific metric (Vue parity)
+ */
+export async function getAccountReport(
+  accountId: number,
+  params: {
+    metric: string;
+    from: number;
+    to: number;
+    type?: string;
+    id?: number;
+    groupBy?: string;
+    businessHours?: boolean;
+  }
+): Promise<ReportsResponse> {
+  return api.get(`api/v1/accounts/${accountId}/v2/reports`, {
+    searchParams: toSearchParams({
+      metric: params.metric,
+      since: params.from,
+      until: params.to,
+      type: params.type,
+      id: params.id,
+      group_by: params.groupBy,
+      business_hours: params.businessHours,
+      timezone_offset: -new Date().getTimezoneOffset() / 60
+    })
+  }).json();
+}
+
+/**
+ * Get bot summary (Vue parity)
+ */
+export async function getBotSummary(
+  accountId: number,
+  params: {
+    from: number;
+    to: number;
+    type?: string;
+    id?: number;
+    groupBy?: string;
+    businessHours?: boolean;
+  }
+): Promise<ReportsResponse> {
+  return api.get(`api/v1/accounts/${accountId}/v2/reports/bots/summary`, {
+    searchParams: toSearchParams({
+      since: params.from,
+      until: params.to,
+      type: params.type,
+      id: params.id,
+      group_by: params.groupBy,
+      business_hours: params.businessHours,
+      timezone_offset: -new Date().getTimezoneOffset() / 60
+    })
+  }).json();
+}
+
+/**
+ * Download conversations summary as CSV (Vue parity)
+ */
+export async function downloadConversationsSummary(
+  accountId: number,
+  params: {
+    from: number;
+    to: number;
+    fileName?: string;
+    businessHours?: boolean;
+  }
+): Promise<void> {
+  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/conversations/download`, {
+    searchParams: toSearchParams({
+      since: params.from,
+      until: params.to,
+      business_hours: params.businessHours,
+      timezone_offset: -new Date().getTimezoneOffset() / 60
+    })
+  });
+
+  // Handle CSV download
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = params.fileName || `conversations_summary_${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
+}
+
+/**
+ * Download agent reports as CSV (Vue parity)
+ */
+export async function downloadAgentReports(
+  accountId: number,
+  params: {
+    from: number;
+    to: number;
+    fileName?: string;
+    businessHours?: boolean;
+  }
+): Promise<string> {
+  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/agents`, {
+    searchParams: toSearchParams({
+      since: params.from,
+      until: params.to,
+      business_hours: params.businessHours
+    })
+  });
+
+  return response.text();
+}
+
+/**
+ * Download label reports as CSV (Vue parity)
+ */
+export async function downloadLabelReports(
+  accountId: number,
+  params: {
+    from: number;
+    to: number;
+    fileName?: string;
+    businessHours?: boolean;
+  }
+): Promise<string> {
+  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/labels`, {
+    searchParams: toSearchParams({
+      since: params.from,
+      until: params.to,
+      business_hours: params.businessHours
+    })
+  });
+
+  return response.text();
+}
+
+/**
+ * Download inbox reports as CSV (Vue parity)
+ */
+export async function downloadInboxReports(
+  accountId: number,
+  params: {
+    from: number;
+    to: number;
+    fileName?: string;
+    businessHours?: boolean;
+  }
+): Promise<string> {
+  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/inboxes`, {
+    searchParams: toSearchParams({
+      since: params.from,
+      until: params.to,
+      business_hours: params.businessHours
+    })
+  });
+
+  return response.text();
+}
+
+/**
+ * Download team reports as CSV (Vue parity)
+ */
+export async function downloadTeamReports(
+  accountId: number,
+  params: {
+    from: number;
+    to: number;
+    fileName?: string;
+    businessHours?: boolean;
+  }
+): Promise<string> {
+  const response = await api.get(`api/v1/accounts/${accountId}/v2/reports/teams`, {
+    searchParams: toSearchParams({
+      since: params.from,
+      until: params.to,
+      business_hours: params.businessHours
+    })
+  });
+
+  return response.text();
+}

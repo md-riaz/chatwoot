@@ -89,8 +89,9 @@
     </PopoverTrigger>
     <PopoverContent class="w-auto p-0" align="start">
       <Calendar
-        value={value}
-        onValueChange={handleCalendarChange}
+        type="single"
+        value={value as any}
+        onValueChange={handleCalendarChange as any}
         {minValue}
         {maxValue}
         {disabled}

@@ -91,11 +91,11 @@
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-1.5 min-w-0">
           <Checkbox
-            checked={allSelected
+            checked={(allSelected
               ? true
               : selectedContactIds.length > 0 && !allSelected
                 ? 'indeterminate'
-                : false}
+                : false) as any}
             onCheckedChange={onToggleAll}
           />
           <span

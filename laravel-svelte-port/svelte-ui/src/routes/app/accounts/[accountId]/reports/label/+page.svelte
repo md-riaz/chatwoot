@@ -6,8 +6,6 @@
   <div class="w-full mx-auto max-w-[80rem] px-6">
     <WootReports
       type="label"
-      getterKey="labels/getLabels"
-      actionKey="labels/get"
       downloadButtonLabel="Download Label Reports"
       reportTitle="Label Reports"
     />

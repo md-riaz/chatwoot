@@ -27,8 +27,8 @@
   const currentFilterId = $derived(currentFilter?.id?.toString() || '');
   const selectedGroupById = $derived(selectedGroupByFilter?.id?.toString() || '');
 
-  let selectedFilterValue = $state(currentFilterId);
-  let selectedGroupByValue = $state(selectedGroupById);
+  let selectedFilterValue = $state('');
+  let selectedGroupByValue = $state('');
   let businessHoursEnabled = $state(false);
 
   // Update local state when props change

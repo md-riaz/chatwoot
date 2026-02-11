@@ -463,6 +463,348 @@ class ReportsStore {
       error: null
     };
   }
+
+  // Vue parity methods for component compatibility
+  
+  /**
+   * Get chart data for a specific metric key
+   * Vue parity: matches Vuex getter pattern
+   */
+  getChartData(metricKey: string): any {
+    // Return chart data based on metric key
+    // This would typically come from a data structure organized by metric keys
+    return this.state.conversationMetrics || null;
+  }
+
+  /**
+   * Get UI flag status for loading states
+   * Vue parity: matches Vuex getter pattern for granular loading states
+   */
+  getUIFlag(flagKey: string): boolean {
+    // Check overview UI flags first
+    if (flagKey in this.state.overview.uiFlags) {
+      return this.state.overview.uiFlags[flagKey as keyof typeof this.state.overview.uiFlags];
+    }
+    
+    // Check for dynamic flag patterns like isFetching_metricName
+    if (flagKey.startsWith('isFetching_')) {
+      return this.state.isLoading;
+    }
+    
+    return this.state.isLoading;
+  }
+
+  /**
+   * Get data by key
+   * Vue parity: matches Vuex getter pattern for accessing nested data
+   */
+  getData(dataKey: string): any {
+    // Return data based on key
+    if (dataKey === 'accountSummary' || dataKey.includes('summary')) {
+      return this.state.conversationMetrics;
+    }
+    
+    if (dataKey.includes('agent')) {
+      return this.state.agentMetrics;
+    }
+    
+    if (dataKey.includes('team')) {
+      return this.state.teamMetrics;
+    }
+    
+    return null;
+  }
+
+  /**
+   * Get filter items for dropdowns
+   * Vue parity: matches Vuex getter pattern for filter options
+   */
+  getFilterItems(getterKey: string): any[] {
+    // Return filter items based on getter key
+    if (getterKey.includes('agent')) {
+      return this.state.agentMetrics;
+    }
+    
+    if (getterKey.includes('team')) {
+      return this.state.teamMetrics;
+    }
+    
+    return [];
+  }
+
+  /**
+   * Dispatch action dynamically
+   * Vue parity: matches Vuex dispatch pattern for dynamic action calls
+   */
+  async dispatchAction(actionKey: string, params?: any): Promise<void> {
+    // Map action keys to methods
+    const actionMap: Record<string, (params?: any) => Promise<void>> = {
+      'fetchAccountConversationMetric': (p) => this.fetchAccountConversationMetric(p),
+      'fetchAgentConversationMetric': () => this.fetchAgentConversationMetric(),
+      'fetchTeamConversationMetric': () => this.fetchTeamConversationMetric(),
+      'fetchAgentStatus': () => this.fetchAgentStatus(),
+      'downloadAccountConversationHeatmap': (p) => this.downloadAccountConversationHeatmap(p),
+    };
+
+    const action = actionMap[actionKey];
+    if (action) {
+      await action(params);
+    } else {
+      console.warn(`Action ${actionKey} not found in reportsStore`);
+    }
+  }
+
+  /**
+   * Fetch account summary
+   * Vue parity: matches Vue reports store action
+   */
+  async fetchAccountSummary(params: {
+    from: number;
+    to: number;
+    type?: string;
+    id?: number;
+    groupBy?: string;
+    businessHours?: boolean;
+  }): Promise<void> {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    this.state.isLoading = true;
+    this.state.error = null;
+
+    try {
+      console.log('🔄 Fetching account summary with params:', params);
+      const response = await reportsApi.getAccountSummary(accountId, params);
+      this.state.conversationMetrics = response.data as ConversationMetrics;
+      console.log('✅ Account summary fetched');
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to fetch account summary';
+      console.error('❌ Error fetching account summary:', error);
+    } finally {
+      this.state.isLoading = false;
+    }
+  }
+
+  /**
+   * Fetch account report for specific metric
+   * Vue parity: matches Vue reports store action
+   */
+  async fetchAccountReport(params: {
+    metric: string;
+    from: number;
+    to: number;
+    type?: string;
+    id?: number;
+    groupBy?: string;
+    businessHours?: boolean;
+  }): Promise<void> {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    this.state.isLoading = true;
+    this.state.error = null;
+
+    try {
+      console.log('🔄 Fetching account report with params:', params);
+      const response = await reportsApi.getAccountReport(accountId, params);
+      
+      // Store the report data - in Vue this would update a specific metric
+      // For now, we'll update the main metrics
+      this.state.conversationMetrics = response.data as ConversationMetrics;
+      console.log('✅ Account report fetched for metric:', params.metric);
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to fetch account report';
+      console.error('❌ Error fetching account report:', error);
+    } finally {
+      this.state.isLoading = false;
+    }
+  }
+
+  /**
+   * Fetch bot summary
+   * Vue parity: matches Vue reports store action for bot metrics
+   */
+  async fetchBotSummary(params: {
+    from: number;
+    to: number;
+    type?: string;
+    id?: number;
+    groupBy?: string;
+    businessHours?: boolean;
+  }): Promise<void> {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    this.state.isLoading = true;
+    this.state.error = null;
+
+    try {
+      console.log('🔄 Fetching bot summary with params:', params);
+      const response = await reportsApi.getBotSummary(accountId, params);
+      this.state.conversationMetrics = response.data as ConversationMetrics;
+      console.log('✅ Bot summary fetched');
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to fetch bot summary';
+      console.error('❌ Error fetching bot summary:', error);
+    } finally {
+      this.state.isLoading = false;
+    }
+  }
+
+  /**
+   * Download conversations summary reports as CSV
+   * Vue parity: matches Vue reports store action
+   */
+  async downloadConversationsSummaryReports(params: {
+    from: number;
+    to: number;
+    fileName?: string;
+    businessHours?: boolean;
+  }): Promise<void> {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    try {
+      console.log('🔄 Downloading conversations summary with params:', params);
+      await reportsApi.downloadConversationsSummary(accountId, params);
+      console.log('✅ Conversations summary download initiated');
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to download conversations summary';
+      console.error('❌ Error downloading conversations summary:', error);
+    }
+  }
+
+  /**
+   * Download agent reports as CSV
+   * Vue parity: matches Vue reports store action
+   */
+  async downloadAgentReports(params: {
+    from: number;
+    to: number;
+    fileName: string;
+    businessHours?: boolean;
+  }): Promise<void> {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    try {
+      console.log('🔄 Downloading agent reports with params:', params);
+      const csvData = await reportsApi.downloadAgentReports(accountId, params);
+      this.downloadCsvFile(params.fileName, csvData);
+      console.log('✅ Agent reports download initiated');
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to download agent reports';
+      console.error('❌ Error downloading agent reports:', error);
+    }
+  }
+
+  /**
+   * Download label reports as CSV
+   * Vue parity: matches Vue reports store action
+   */
+  async downloadLabelReports(params: {
+    from: number;
+    to: number;
+    fileName: string;
+    businessHours?: boolean;
+  }): Promise<void> {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    try {
+      console.log('🔄 Downloading label reports with params:', params);
+      const csvData = await reportsApi.downloadLabelReports(accountId, params);
+      this.downloadCsvFile(params.fileName, csvData);
+      console.log('✅ Label reports download initiated');
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to download label reports';
+      console.error('❌ Error downloading label reports:', error);
+    }
+  }
+
+  /**
+   * Download inbox reports as CSV
+   * Vue parity: matches Vue reports store action
+   */
+  async downloadInboxReports(params: {
+    from: number;
+    to: number;
+    fileName: string;
+    businessHours?: boolean;
+  }): Promise<void> {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    try {
+      console.log('🔄 Downloading inbox reports with params:', params);
+      const csvData = await reportsApi.downloadInboxReports(accountId, params);
+      this.downloadCsvFile(params.fileName, csvData);
+      console.log('✅ Inbox reports download initiated');
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to download inbox reports';
+      console.error('❌ Error downloading inbox reports:', error);
+    }
+  }
+
+  /**
+   * Download team reports as CSV
+   * Vue parity: matches Vue reports store action
+   */
+  async downloadTeamReports(params: {
+    from: number;
+    to: number;
+    fileName: string;
+    businessHours?: boolean;
+  }): Promise<void> {
+    const accountId = authStore.currentAccount?.id;
+    if (!accountId) return;
+
+    try {
+      console.log('🔄 Downloading team reports with params:', params);
+      const csvData = await reportsApi.downloadTeamReports(accountId, params);
+      this.downloadCsvFile(params.fileName, csvData);
+      console.log('✅ Team reports download initiated');
+    } catch (error) {
+      this.state.error = error instanceof Error ? error.message : 'Failed to download team reports';
+      console.error('❌ Error downloading team reports:', error);
+    }
+  }
+
+  /**
+   * Helper method to download CSV file
+   * Vue parity: matches downloadCsvFile helper from Vue
+   */
+  private downloadCsvFile(fileName: string, data: string): void {
+    const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Generic action dispatcher for Vue parity
+   * Allows calling store methods by name (used by WootReports component)
+   */
+  async dispatchAction(actionName: string, params: any): Promise<void> {
+    const actions: Record<string, (params: any) => Promise<void>> = {
+      downloadAgentReports: this.downloadAgentReports.bind(this),
+      downloadLabelReports: this.downloadLabelReports.bind(this),
+      downloadInboxReports: this.downloadInboxReports.bind(this),
+      downloadTeamReports: this.downloadTeamReports.bind(this),
+    };
+
+    const action = actions[actionName];
+    if (action) {
+      await action(params);
+    } else {
+      console.error(`Unknown action: ${actionName}`);
+    }
+  }
 }
 
 export const reportsStore = new ReportsStore();

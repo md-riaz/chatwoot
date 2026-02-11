@@ -165,9 +165,12 @@
   }
 
   // Format date
-  function formatDate(dateString: string | null | undefined): string {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('en-US', {
+  function formatDate(timestamp: string | number | null | undefined): string {
+    if (!timestamp) return '-';
+    const date = typeof timestamp === 'number' 
+      ? new Date(timestamp * 1000) // Unix timestamp to milliseconds
+      : new Date(timestamp);
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -175,9 +178,11 @@
   }
 
   // Format relative time
-  function formatRelativeTime(dateString: string | null | undefined): string {
-    if (!dateString) return 'Never';
-    const date = new Date(dateString);
+  function formatRelativeTime(timestamp: string | number | null | undefined): string {
+    if (!timestamp) return 'Never';
+    const date = typeof timestamp === 'number'
+      ? new Date(timestamp * 1000) // Unix timestamp to milliseconds
+      : new Date(timestamp);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
@@ -189,7 +194,7 @@
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays}d ago`;
-    return formatDate(dateString);
+    return formatDate(timestamp);
   }
 
   // Load contact on mount
