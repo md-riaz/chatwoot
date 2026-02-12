@@ -414,7 +414,7 @@ export async function downloadAgentReports(
   }
 ): Promise<string> {
   const response = await api.get(
-    `api/v1/accounts/${accountId}/v2/summary_reports/agent`,
+    `api/v1/accounts/${accountId}/v2/reports/agents`,
     {
       searchParams: toSearchParams({
         since: params.from,
@@ -440,7 +440,7 @@ export async function downloadLabelReports(
   }
 ): Promise<string> {
   const response = await api.get(
-    `api/v1/accounts/${accountId}/v2/summary_reports/label`,
+    `api/v1/accounts/${accountId}/v2/reports/labels`,
     {
       searchParams: toSearchParams({
         since: params.from,
@@ -466,7 +466,7 @@ export async function downloadInboxReports(
   }
 ): Promise<string> {
   const response = await api.get(
-    `api/v1/accounts/${accountId}/v2/summary_reports/inbox`,
+    `api/v1/accounts/${accountId}/v2/reports/inboxes`,
     {
       searchParams: toSearchParams({
         since: params.from,
@@ -492,7 +492,7 @@ export async function downloadTeamReports(
   }
 ): Promise<string> {
   const response = await api.get(
-    `api/v1/accounts/${accountId}/v2/summary_reports/team`,
+    `api/v1/accounts/${accountId}/v2/reports/teams`,
     {
       searchParams: toSearchParams({
         since: params.from,

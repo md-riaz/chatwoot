@@ -16,14 +16,14 @@ class LabelSummaryBuilder extends BaseSummaryBuilder
 
         $labelSummaries = [];
 
+        $summaryByLabelId = (new \App\Services\Reports\V2\Reports\Conversations\MetricBuilder($this->account, [
+            'since' => $dateRange['since'],
+            'until' => $dateRange['until'],
+            'type' => 'label',
+        ]))->summaryByIds($labels->pluck('id')->all());
+
         foreach ($labels as $label) {
-            $summary = (new \App\Services\Reports\V2\Reports\Conversations\MetricBuilder($this->account, [
-                'since' => $dateRange['since'],
-                'until' => $dateRange['until'],
-                'type' => 'label',
-                'id' => $label->id,
-                'business_hours' => $this->shouldUseBusinessHours(),
-            ]))->summary();
+            $summary = $summaryByLabelId[$label->id] ?? [];
 
             $usagePercentage = $totalConversations > 0
                 ? (($summary['conversations_count'] ?? 0) / $totalConversations) * 100
