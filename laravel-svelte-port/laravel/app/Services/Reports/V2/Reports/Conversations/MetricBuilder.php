@@ -67,6 +67,7 @@ class MetricBuilder
         return $summaries;
     }
 
+
     /**
      * Generate summary metrics for label IDs without per-label reporting-event queries.
      */
