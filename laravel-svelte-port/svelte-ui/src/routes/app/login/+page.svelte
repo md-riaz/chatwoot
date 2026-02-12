@@ -14,10 +14,20 @@
   import { Label } from '$lib/components/ui/label';
   import { toast } from 'svelte-sonner';
 
-  let email = $state('');
-  let password = $state('');
+  const SEEDED_LOGIN = {
+    email: 'michael_scott@paperlayer.test',
+    password: 'Password1!.',
+  };
+
+  let email = $state(SEEDED_LOGIN.email);
+  let password = $state(SEEDED_LOGIN.password);
   let error = $state('');
   let loading = $state(false);
+
+  function useSeededCredentials() {
+    email = SEEDED_LOGIN.email;
+    password = SEEDED_LOGIN.password;
+  }
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
@@ -61,7 +71,7 @@
   <div class="space-y-2 text-center">
     <h2 class="text-2xl font-semibold tracking-tight">Sign in</h2>
     <p class="text-sm text-muted-foreground">
-      Enter your credentials to access your account
+      Enter your credentials to access your account. Seeded login is prefilled for instant testing.
     </p>
   </div>
 
@@ -98,6 +108,16 @@
 
     <Button type="submit" class="w-full" disabled={loading}>
       {loading ? 'Signing in...' : 'Sign in'}
+    </Button>
+
+    <Button
+      type="button"
+      variant="outline"
+      class="w-full"
+      disabled={loading}
+      onclick={useSeededCredentials}
+    >
+      Use seeded credentials
     </Button>
   </form>
 
