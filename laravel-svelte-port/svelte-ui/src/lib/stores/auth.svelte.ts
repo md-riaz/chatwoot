@@ -4,12 +4,17 @@
  */
 
 import { goto } from '$app/navigation';
+import { resolve } from '$app/paths';
 import { page } from '$app/state';
-import type { AvailabilityUpdateParams, CurrentUser, PasswordUpdateParams, ProfileUpdateParams } from '$lib/api/auth';
+import type {
+  AvailabilityUpdateParams,
+  CurrentUser,
+  PasswordUpdateParams,
+  ProfileUpdateParams,
+} from '$lib/api/auth';
 import * as authAPI from '$lib/api/auth';
 import * as accountsAPI from '$lib/api/accounts';
 import { clearStorage, loadFromStorage, saveToStorage } from './persistence';
-import { ROLES, AVAILABLE_CUSTOM_ROLE_PERMISSIONS } from '$lib/constants/permissions';
 import { globalConfig } from '$lib/stores/globalConfig.svelte';
 
 /**
@@ -28,17 +33,19 @@ const initialUser: CurrentUser = {
  */
 class AuthStore {
   // Reactive state using runes
-  currentUser = $state<CurrentUser>(loadFromStorage<CurrentUser>('current_user') || initialUser);
+  currentUser = $state<CurrentUser>(
+    loadFromStorage<CurrentUser>('current_user') || initialUser
+  );
   isFetching = $state<boolean>(true);
   error = $state<string | null>(null);
-  
+
   // Computed values using $derived
   isLoggedIn = $derived(!!this.currentUser.id);
   currentUserId = $derived(this.currentUser.id);
   uiSettings = $derived(this.currentUser.uiSettings || {});
   messageSignature = $derived(this.currentUser.messageSignature || '');
   userAccounts = $derived(this.currentUser.accounts || []);
-  
+
   /**
    * Get current account ID from route params
    */
@@ -46,7 +53,7 @@ class AuthStore {
     const accountId = page.params?.accountId;
     return accountId ? Number(accountId) : null;
   }
-  
+
   /**
    * Get current account from accounts list
    */
@@ -61,21 +68,21 @@ class AuthStore {
    */
   hasPermission(permission: string): boolean {
     if (!this.isLoggedIn || !this.currentAccount) return false;
-    
+
     const role = this.currentAccount.role;
     if (role === 'administrator') return true;
-    
+
     // If permission specifically asks for administrator, deny non-admins
     if (permission === 'administrator') return false;
-    
+
     // For agents, check specific permissions if using custom roles
     // If not using custom roles, agents have basic permissions
     if (role === 'agent') {
       // Logic for standard agent vs custom role would go here
       // For now, assuming standard agent has access to basic features
-      return true; 
+      return true;
     }
-    
+
     return false;
   }
 
@@ -85,42 +92,46 @@ class AuthStore {
   isFeatureEnabled(featureFlag: string): boolean {
     // Check account specific features first
     const account = this.currentAccount;
-    if (account && account.features && account.features[featureFlag] !== undefined) {
+    if (
+      account &&
+      account.features &&
+      account.features[featureFlag] !== undefined
+    ) {
       return account.features[featureFlag];
     }
-    
+
     // Fallback to global config
     return globalConfig.isFeatureEnabled(featureFlag);
   }
-  
+
   /**
    * Get current user availability
    */
   get currentAvailability() {
     return this.currentAccount?.availability || 'offline';
   }
-  
+
   /**
    * Get current user auto-offline setting
    */
   get currentAutoOffline() {
     return this.currentAccount?.autoOffline || false;
   }
-  
+
   /**
    * Get current user role
    */
   get currentRole() {
     return this.currentAccount?.role || null;
   }
-  
+
   /**
    * Get current user custom role ID
    */
   get currentCustomRoleId() {
     return this.currentAccount?.customRoleId || null;
   }
-  
+
   /**
    * Check validity of current session
    */
@@ -129,22 +140,31 @@ class AuthStore {
       const user = await authAPI.validityCheck();
       this.setCurrentUser(user);
       this.error = null;
-    } catch (err: any) {
-      if (err?.response?.status === 401) {
+    } catch (err: unknown) {
+      const status =
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof (err as { response?: { status?: unknown } }).response?.status ===
+          'number'
+          ? (err as { response?: { status?: number } }).response?.status
+          : undefined;
+
+      if (status === 401) {
         this.clearUser();
       }
-      this.error = err.message || 'Failed to validate session';
+      this.error = this.getErrorMessage(err) || 'Failed to validate session';
       throw err;
     }
   }
-  
+
   /**
    * Validate current session (alias for validityCheck for compatibility)
    */
   async validateSession() {
     return this.validityCheck();
   }
-  
+
   /**
    * Initialize user session
    */
@@ -159,7 +179,7 @@ class AuthStore {
       this.isFetching = false;
     }
   }
-  
+
   /**
    * Logout current user
    */
@@ -171,16 +191,16 @@ class AuthStore {
       console.error('Logout error:', err);
     } finally {
       this.clearUser();
-      
+
       // Clear all localStorage
       clearStorage('current_user');
       clearStorage('auth_token');
-      
+
       // Redirect to login
-      goto('/login');
+      goto(resolve('/login'));
     }
   }
-  
+
   /**
    * Update user profile
    */
@@ -189,12 +209,12 @@ class AuthStore {
       const user = await authAPI.updateProfile(params);
       this.setCurrentUser(user);
       this.error = null;
-    } catch (err: any) {
-      this.error = err.message || 'Failed to update profile';
+    } catch (err: unknown) {
+      this.error = this.getErrorMessage(err) || 'Failed to update profile';
       throw err;
     }
   }
-  
+
   /**
    * Update user password
    */
@@ -203,12 +223,12 @@ class AuthStore {
       const user = await authAPI.updatePassword(params);
       this.setCurrentUser(user);
       this.error = null;
-    } catch (err: any) {
-      this.error = err.message || 'Failed to update password';
+    } catch (err: unknown) {
+      this.error = this.getErrorMessage(err) || 'Failed to update password';
       throw err;
     }
   }
-  
+
   /**
    * Delete user avatar
    */
@@ -222,21 +242,21 @@ class AuthStore {
       console.error('Delete avatar error:', err);
     }
   }
-  
+
   /**
    * Update UI settings
    */
-  async updateUISettings(uiSettings: Record<string, any>) {
+  async updateUISettings(uiSettings: Record<string, unknown>) {
     // Optimistically update UI settings
     this.currentUser = {
       ...this.currentUser,
       uiSettings: {
         ...this.currentUser.uiSettings,
-        ...uiSettings
-      }
+        ...uiSettings,
+      },
     };
     this.persistUser();
-    
+
     try {
       // Don't update on server if impersonating
       const isImpersonating = loadFromStorage<boolean>('impersonating');
@@ -250,65 +270,65 @@ class AuthStore {
       console.error('Update UI settings error:', err);
     }
   }
-  
+
   /**
    * Update availability status
    */
   async updateAvailability(params: AvailabilityUpdateParams) {
     const previousAvailability = this.currentAvailability;
-    
+
     // Optimistically update availability
     this.setAvailability(params.availability);
-    
+
     try {
       const user = await authAPI.updateAvailability(params);
       this.setCurrentUser(user);
       this.error = null;
-      
+
       // TODO: Dispatch to agents store to update presence
       // dispatch('agents/updateSingleAgentPresence', {
       //   id: user.id,
       //   availabilityStatus: params.availability
       // });
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Revert on error
       this.setAvailability(previousAvailability);
-      this.error = err.message || 'Failed to update availability';
+      this.error = this.getErrorMessage(err) || 'Failed to update availability';
       throw err;
     }
   }
-  
+
   /**
    * Update auto-offline setting
    */
   async updateAutoOffline(accountId: number, autoOffline: boolean) {
     const previousAutoOffline = this.currentAutoOffline;
-    
+
     // Optimistically update
     this.setAutoOffline(autoOffline);
-    
+
     try {
       const user = await authAPI.updateAutoOffline(accountId, autoOffline);
       this.setCurrentUser(user);
       this.error = null;
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Revert on error
       this.setAutoOffline(previousAutoOffline);
-      this.error = err.message || 'Failed to update auto-offline';
+      this.error = this.getErrorMessage(err) || 'Failed to update auto-offline';
       throw err;
     }
   }
-  
+
   /**
    * Set availability from external source (WebSocket)
    */
   setCurrentUserAvailability(data: Record<number, string>) {
     const userId = this.currentUser.id;
     if (data[userId]) {
-      this.setAvailability(data[userId] as any);
+      this.setAvailability(data[userId] as "online" | "offline" | "busy");
     }
   }
-  
+
   /**
    * Set active account
    */
@@ -321,7 +341,7 @@ class AuthStore {
       console.error('Set active account error:', err);
     }
   }
-  
+
   /**
    * Reset access token
    */
@@ -331,12 +351,12 @@ class AuthStore {
       this.setCurrentUser(user);
       this.error = null;
       return true;
-    } catch (err) {
+    } catch {
       this.error = 'Failed to reset access token';
       return false;
     }
   }
-  
+
   /**
    * Resend confirmation email
    */
@@ -355,31 +375,34 @@ class AuthStore {
    */
   async updateAccount(params: accountsAPI.UpdateAccountParams) {
     if (!this.currentAccountId) return;
-    
+
     try {
-      const updatedAccount = await accountsAPI.update(this.currentAccountId, params);
-      
+      const updatedAccount = await accountsAPI.update(
+        this.currentAccountId,
+        params
+      );
+
       // Update the account in the accounts list
       const accounts = this.currentUser.accounts.map(account => {
         if (account.id === this.currentAccountId) {
           return {
             ...account,
-            ...updatedAccount
+            ...updatedAccount,
           };
         }
         return account;
       });
-      
+
       this.currentUser = {
         ...this.currentUser,
-        accounts
+        accounts,
       };
-      
+
       this.persistUser();
       this.error = null;
       return updatedAccount;
-    } catch (err: any) {
-      this.error = err.message || 'Failed to update account';
+    } catch (err: unknown) {
+      this.error = this.getErrorMessage(err) || 'Failed to update account';
       throw err;
     }
   }
@@ -393,14 +416,43 @@ class AuthStore {
       await accountsAPI.toggleDeletion(this.currentAccountId, actionType);
       // Refresh user/account data to reflect changes
       await this.validityCheck();
-    } catch (err: any) {
-      this.error = err.message || 'Failed to toggle account deletion';
+    } catch (err: unknown) {
+      this.error = this.getErrorMessage(err) || 'Failed to toggle account deletion';
       throw err;
     }
   }
-  
+
+  /**
+   * Apply login payload to store and persistence layers.
+   */
+  setAuthenticatedUser(user: CurrentUser, token?: string) {
+    if (token) {
+      saveToStorage('auth_token', token);
+
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('auth_token', token);
+      }
+    }
+
+    this.setCurrentUser(user);
+
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('current_user', JSON.stringify(user));
+    }
+
+    this.error = null;
+  }
+
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return '';
+  }
+
   // Private helper methods
-  
+
   /**
    * Set current user and persist
    */
@@ -408,7 +460,7 @@ class AuthStore {
     this.currentUser = user;
     this.persistUser();
   }
-  
+
   /**
    * Clear current user
    */
@@ -416,30 +468,30 @@ class AuthStore {
     this.currentUser = initialUser;
     clearStorage('current_user');
   }
-  
+
   /**
    * Set availability for current account
    */
-  private setAvailability(availability: string) {
+  private setAvailability(availability: "online" | "offline" | "busy") {
     const accountId = this.currentUser.accountId;
     const accounts = this.currentUser.accounts.map(account => {
       if (account.id === accountId) {
         return {
           ...account,
-          availability: availability as any,
-          availabilityStatus: availability as any
+          availability,
+          availabilityStatus: availability,
         };
       }
       return account;
     });
-    
+
     this.currentUser = {
       ...this.currentUser,
-      accounts
+      accounts,
     };
     this.persistUser();
   }
-  
+
   /**
    * Set auto-offline for current account
    */
@@ -451,14 +503,14 @@ class AuthStore {
       }
       return account;
     });
-    
+
     this.currentUser = {
       ...this.currentUser,
-      accounts
+      accounts,
     };
     this.persistUser();
   }
-  
+
   /**
    * Persist user to localStorage
    */

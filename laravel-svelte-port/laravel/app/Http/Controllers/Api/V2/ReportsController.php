@@ -53,7 +53,9 @@ class ReportsController extends Controller
             businessHours: $request->boolean('business_hours', false)
         );
 
-        return response()->json($data);
+        return response()->json([
+            'data' => $data,
+        ]);
     }
 
     /**

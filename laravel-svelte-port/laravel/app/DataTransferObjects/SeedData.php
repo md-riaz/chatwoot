@@ -142,7 +142,7 @@ class SeedData extends Data
             [
                 'name' => 'Karen Filippelli',
                 'gender' => 'female',
-                'email' => 'karn@paperlayer.test',
+                'email' => 'karen@paperlayer.test',
                 'teams' => ['Sales'],
                 'custom_role' => 'Sales Representative',
             ],
@@ -264,7 +264,7 @@ class SeedData extends Data
                 'conversations' => [[
                     'channel' => 'FacebookPage',
                     'source_id' => 'fb_002',
-                    'assignee' => 'karn@paperlayer.test',
+                    'assignee' => 'karen@paperlayer.test',
                     'priority' => 'high',
                     'labels' => ['billing', 'premium-customer'],
                     'messages' => [
