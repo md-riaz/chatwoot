@@ -7,39 +7,17 @@
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
   import { login } from '$lib/api/auth';
+  import { getErrorMessage } from '$lib/api/errors';
   import { authStore } from '$lib/stores/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import { toast } from 'svelte-sonner';
 
-  let email = $state('mdriaz@alpha.net.bd');
-  let password = $state('12345678');
+  let email = $state('');
+  let password = $state('');
   let error = $state('');
   let loading = $state(false);
-
-  function getErrorMessage(err: unknown): string {
-    if (typeof err === 'object' && err !== null) {
-      const knownError = err as {
-        response?: { data?: { errors?: Record<string, string[]>; message?: string } };
-        message?: string;
-      };
-
-      if (knownError.response?.data?.errors) {
-        return Object.values(knownError.response.data.errors).flat().join(', ');
-      }
-
-      if (knownError.response?.data?.message) {
-        return knownError.response.data.message;
-      }
-
-      if (knownError.message) {
-        return knownError.message;
-      }
-    }
-
-    return 'Login failed. Please check your credentials and try again.';
-  }
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
@@ -124,8 +102,8 @@
   </form>
 
   <div class="text-center text-sm">
-    <a href={resolve('/login')} class="text-primary hover:underline">
-      Need help signing in?
+    <a href={resolve('/auth/forgot-password')} class="text-primary hover:underline">
+      Forgot your password?
     </a>
   </div>
 

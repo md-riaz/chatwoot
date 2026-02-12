@@ -14,6 +14,7 @@ import type {
 } from '$lib/api/auth';
 import * as authAPI from '$lib/api/auth';
 import * as accountsAPI from '$lib/api/accounts';
+import { getErrorMessage as getApiErrorMessage } from '$lib/api/errors';
 import { clearStorage, loadFromStorage, saveToStorage } from './persistence';
 import { globalConfig } from '$lib/stores/globalConfig.svelte';
 
@@ -153,7 +154,7 @@ class AuthStore {
       if (status === 401) {
         this.clearUser();
       }
-      this.error = this.getErrorMessage(err) || 'Failed to validate session';
+      this.error = getApiErrorMessage(err) || 'Failed to validate session';
       throw err;
     }
   }
@@ -210,7 +211,7 @@ class AuthStore {
       this.setCurrentUser(user);
       this.error = null;
     } catch (err: unknown) {
-      this.error = this.getErrorMessage(err) || 'Failed to update profile';
+      this.error = getApiErrorMessage(err) || 'Failed to update profile';
       throw err;
     }
   }
@@ -224,7 +225,7 @@ class AuthStore {
       this.setCurrentUser(user);
       this.error = null;
     } catch (err: unknown) {
-      this.error = this.getErrorMessage(err) || 'Failed to update password';
+      this.error = getApiErrorMessage(err) || 'Failed to update password';
       throw err;
     }
   }
@@ -293,7 +294,7 @@ class AuthStore {
     } catch (err: unknown) {
       // Revert on error
       this.setAvailability(previousAvailability);
-      this.error = this.getErrorMessage(err) || 'Failed to update availability';
+      this.error = getApiErrorMessage(err) || 'Failed to update availability';
       throw err;
     }
   }
@@ -314,7 +315,7 @@ class AuthStore {
     } catch (err: unknown) {
       // Revert on error
       this.setAutoOffline(previousAutoOffline);
-      this.error = this.getErrorMessage(err) || 'Failed to update auto-offline';
+      this.error = getApiErrorMessage(err) || 'Failed to update auto-offline';
       throw err;
     }
   }
@@ -402,7 +403,7 @@ class AuthStore {
       this.error = null;
       return updatedAccount;
     } catch (err: unknown) {
-      this.error = this.getErrorMessage(err) || 'Failed to update account';
+      this.error = getApiErrorMessage(err) || 'Failed to update account';
       throw err;
     }
   }
@@ -417,7 +418,7 @@ class AuthStore {
       // Refresh user/account data to reflect changes
       await this.validityCheck();
     } catch (err: unknown) {
-      this.error = this.getErrorMessage(err) || 'Failed to toggle account deletion';
+      this.error = getApiErrorMessage(err) || 'Failed to toggle account deletion';
       throw err;
     }
   }
@@ -441,14 +442,6 @@ class AuthStore {
     }
 
     this.error = null;
-  }
-
-  private getErrorMessage(error: unknown): string {
-    if (error instanceof Error) {
-      return error.message;
-    }
-
-    return '';
   }
 
   // Private helper methods
