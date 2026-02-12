@@ -56,17 +56,34 @@ class MetricBuilder
             return $this->summaryByLabelIds($ids);
         }
 
+        $idColumn = match ($type) {
+            'agent' => 'user_id',
+            'inbox' => 'inbox_id',
+            'team' => 'team_id',
+            default => throw new \InvalidArgumentException("Batch summary for type '{$type}' is not supported."),
+        };
+
+        $since = Carbon::parse($this->params['since']);
+        $until = Carbon::parse($this->params['until']);
+
+        $normalizedIds = collect($ids)->map(fn ($id) => (int) $id)->values();
+
+        $allEvents = ReportingEvent::query()
+            ->where('account_id', $this->account->id)
+            ->whereBetween('created_at', [$since, $until])
+            ->whereIn($idColumn, $normalizedIds)
+            ->get();
+
+        $eventsById = $allEvents->groupBy($idColumn);
+
         $summaries = [];
 
-        foreach ($ids as $id) {
-            $events = $this->getEventsForTypeAndId($type, (int) $id);
-
-            $summaries[(int) $id] = $this->buildSummaryFromEvents($events);
+        foreach ($normalizedIds as $id) {
+            $summaries[$id] = $this->buildSummaryFromEvents($eventsById->get($id, collect()));
         }
 
         return $summaries;
     }
-
 
     /**
      * Generate summary metrics for label IDs without per-label reporting-event queries.
@@ -78,7 +95,7 @@ class MetricBuilder
 
         $labelings = \App\Models\Labeling::query()
             ->whereIn('label_id', $ids)
-            ->whereIn('labelable_type', [\App\Models\Conversation::class, 'Conversation'])
+            ->where('labelable_type', \App\Models\Conversation::class)
             ->get(['label_id', 'labelable_id']);
 
         $conversationIds = $labelings
@@ -159,22 +176,6 @@ class MetricBuilder
     }
 
     /**
-     * Get reporting events for a specific type/id pair.
-     */
-    private function getEventsForTypeAndId(string $type, int $id): Collection
-    {
-        $since = Carbon::parse($this->params['since']);
-        $until = Carbon::parse($this->params['until']);
-
-        $query = ReportingEvent::where('account_id', $this->account->id)
-            ->whereBetween('created_at', [$since, $until]);
-
-        $this->applyTypeFilter($query, $type, $id);
-
-        return $query->get();
-    }
-
-    /**
      * Apply type-specific filters to the query.
      */
     private function applyTypeFilter(Builder $query, string $type, ?int $id = null): void
@@ -201,7 +202,7 @@ class MetricBuilder
                         $subquery->select('labelable_id')
                             ->from('labelings')
                             ->where('label_id', $id)
-                            ->whereIn('labelable_type', [\App\Models\Conversation::class, 'Conversation']);
+                            ->where('labelable_type', \App\Models\Conversation::class);
                     });
                 }
                 break;

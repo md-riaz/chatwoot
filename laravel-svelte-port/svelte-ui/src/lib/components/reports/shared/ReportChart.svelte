@@ -6,7 +6,6 @@
     title: string;
     metricKey: string;
     isTime?: boolean;
-    groupBy?: string | null;
   }
 
   let { title, metricKey, isTime = false }: Props = $props();
