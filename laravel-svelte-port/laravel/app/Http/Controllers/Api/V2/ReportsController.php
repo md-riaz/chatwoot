@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\V2;
 
-use App\Actions\Reports\GetHeatmapDataAction;
 use App\Actions\Reports\ExportConversationTrafficAction;
+use App\Actions\Reports\GetHeatmapDataAction;
 use App\Http\Controllers\Api\V1\Concerns\RequiresAccountAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Services\Reports\V2\ReportBuilder;
-use App\Services\Reports\V2\Reports\Conversations\MetricBuilder;
 use App\Services\Reports\V2\Reports\BotMetricsBuilder;
+use App\Services\Reports\V2\Reports\Conversations\MetricBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -21,13 +21,13 @@ class ReportsController extends Controller
 
     /**
      * Get timeseries report data (for heatmaps).
-     * 
+     *
      * GET /api/v2/accounts/{account}/reports
      */
     public function index(Request $request, Account $account): JsonResponse
     {
         $this->ensureAdmin($request, $account);
-        
+
         // Validate parameters
         $request->validate([
             'metric' => 'required|string',
@@ -52,8 +52,10 @@ class ReportsController extends Controller
             id: $request->integer('id'),
             businessHours: $request->boolean('business_hours', false)
         );
-        
-        return response()->json(['data' => $data]);
+
+        return response()->json([
+            'data' => $data,
+        ]);
     }
 
     /**
@@ -62,9 +64,9 @@ class ReportsController extends Controller
     public function summary(Request $request, Account $account): JsonResponse
     {
         $this->ensureAdmin($request, $account);
-        
+
         $summary = $this->buildSummary($account, $request, 'summary');
-        
+
         return response()->json($summary);
     }
 
@@ -74,9 +76,9 @@ class ReportsController extends Controller
     public function botSummary(Request $request, Account $account): JsonResponse
     {
         $this->ensureAdmin($request, $account);
-        
+
         $summary = $this->buildSummary($account, $request, 'botSummary');
-        
+
         return response()->json($summary);
     }
 
@@ -86,9 +88,9 @@ class ReportsController extends Controller
     public function agents(Request $request, Account $account): Response
     {
         $this->ensureAdmin($request, $account);
-        
+
         $reportData = $this->generateAgentsReport($account, $request);
-        
+
         return $this->generateCsv('agents_report', $reportData);
     }
 
@@ -98,9 +100,9 @@ class ReportsController extends Controller
     public function inboxes(Request $request, Account $account): Response
     {
         $this->ensureAdmin($request, $account);
-        
+
         $reportData = $this->generateInboxesReport($account, $request);
-        
+
         return $this->generateCsv('inboxes_report', $reportData);
     }
 
@@ -110,9 +112,9 @@ class ReportsController extends Controller
     public function labels(Request $request, Account $account): Response
     {
         $this->ensureAdmin($request, $account);
-        
+
         $reportData = $this->generateLabelsReport($account, $request);
-        
+
         return $this->generateCsv('labels_report', $reportData);
     }
 
@@ -122,21 +124,33 @@ class ReportsController extends Controller
     public function teams(Request $request, Account $account): Response
     {
         $this->ensureAdmin($request, $account);
-        
+
         $reportData = $this->generateTeamsReport($account, $request);
-        
+
         return $this->generateCsv('teams_report', $reportData);
     }
 
     /**
+     * Get conversations summary report as CSV.
+     */
+    public function conversationsSummary(Request $request, Account $account): Response
+    {
+        $this->ensureAdmin($request, $account);
+
+        $reportData = $this->generateConversationsSummaryReport($account, $request);
+
+        return $this->generateCsv('conversations_summary_report', $reportData);
+    }
+
+    /**
      * Get conversation traffic report as CSV (heatmap export).
-     * 
+     *
      * GET /api/v2/accounts/{account}/reports/conversation_traffic
      */
     public function conversationTraffic(Request $request, Account $account): Response
     {
         $this->ensureAdmin($request, $account);
-        
+
         // Validate parameters
         $request->validate([
             'days_before' => 'nullable|integer|min:0|max:365',
@@ -149,10 +163,10 @@ class ReportsController extends Controller
             daysBefore: $request->integer('days_before', 6),
             timezoneOffset: $request->input('timezone_offset', 0)
         );
-        
+
         // Generate CSV
         $csv = $this->generateHeatmapCsv($result['data'], $result['timezone']);
-        
+
         return ResponseFacade::make($csv, 200, [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="conversation_traffic_reports.csv"',
@@ -187,15 +201,15 @@ class ReportsController extends Controller
     public function conversations(Request $request, Account $account): JsonResponse
     {
         $this->ensureAdmin($request, $account);
-        
+
         if (empty($request->get('type'))) {
             return response()->json(['error' => 'Type parameter is required'], 422);
         }
-        
+
         $params = $this->validateConversationParams($request);
         $builder = new ReportBuilder($account, $params);
         $metrics = $builder->conversationMetrics();
-        
+
         return response()->json($metrics);
     }
 
@@ -205,11 +219,11 @@ class ReportsController extends Controller
     public function botMetrics(Request $request, Account $account): JsonResponse
     {
         $this->ensureAdmin($request, $account);
-        
+
         $params = $this->validateReportParams($request);
         $builder = new BotMetricsBuilder($account, $params);
         $metrics = $builder->metrics();
-        
+
         return response()->json($metrics);
     }
 
@@ -265,25 +279,25 @@ class ReportsController extends Controller
     private function buildSummary(Account $account, Request $request, string $method): array
     {
         $range = $this->calculateDateRange($request);
-        
+
         $currentParams = $this->getCommonParams($request) + [
             'since' => $range['current']['since'],
             'until' => $range['current']['until'],
             'timezone_offset' => $request->get('timezone_offset', 0),
         ];
-        
+
         $previousParams = $this->getCommonParams($request) + [
             'since' => $range['previous']['since'],
             'until' => $range['previous']['until'],
             'timezone_offset' => $request->get('timezone_offset', 0),
         ];
-        
+
         $currentBuilder = new MetricBuilder($account, $currentParams);
         $previousBuilder = new MetricBuilder($account, $previousParams);
-        
+
         $currentSummary = $currentBuilder->$method();
         $previousSummary = $previousBuilder->$method();
-        
+
         return array_merge($currentSummary, ['previous' => $previousSummary]);
     }
 
@@ -308,7 +322,7 @@ class ReportsController extends Controller
         $since = strtotime($request->get('since'));
         $until = strtotime($request->get('until'));
         $duration = $until - $since;
-        
+
         return [
             'current' => [
                 'since' => $request->get('since'),
@@ -326,10 +340,33 @@ class ReportsController extends Controller
      */
     private function generateAgentsReport(Account $account, Request $request): array
     {
-        // This would use the AgentSummaryBuilder when implemented
+        $reports = (new \App\Services\Reports\V2\Reports\AgentSummaryBuilder(
+            $account,
+            $this->buildSummaryReportParams($request)
+        ))->build()['agents'] ?? [];
+
+        $reportById = collect($reports)->keyBy('id');
+
+        $rows = $account->users()
+            ->nonAdministrators()
+            ->get()
+            ->map(function ($agent) use ($reportById) {
+                $report = $reportById->get($agent->id, []);
+
+                return [
+                    $agent->name,
+                    $report['conversations_count'] ?? 0,
+                    $this->formatDuration($report['avg_first_response_time'] ?? null),
+                    $this->formatDuration($report['avg_resolution_time'] ?? null),
+                    $this->formatDuration($report['reply_time'] ?? null),
+                    $report['resolutions_count'] ?? 0,
+                ];
+            })
+            ->all();
+
         return [
-            'headers' => ['Agent Name', 'Email', 'Conversations', 'Resolved', 'Avg Response Time'],
-            'data' => [],
+            'headers' => ['Agent Name', 'Conversations', 'Avg First Response Time', 'Avg Resolution Time', 'Avg Reply Time', 'Resolution Count'],
+            'data' => $rows,
         ];
     }
 
@@ -338,10 +375,30 @@ class ReportsController extends Controller
      */
     private function generateInboxesReport(Account $account, Request $request): array
     {
-        // This would use the InboxSummaryBuilder when implemented
+        $reports = (new \App\Services\Reports\V2\Reports\InboxSummaryBuilder(
+            $account,
+            $this->buildSummaryReportParams($request)
+        ))->build()['inboxes'] ?? [];
+
+        $reportById = collect($reports)->keyBy('id');
+
+        $rows = $account->inboxes()->with('channel')->get()
+            ->map(function ($inbox) use ($reportById) {
+                $report = $reportById->get($inbox->id, []);
+
+                return [
+                    $inbox->name,
+                    $report['channel_name'] ?? class_basename((string) $inbox->channel_type),
+                    $report['conversations_count'] ?? 0,
+                    $this->formatDuration($report['avg_first_response_time'] ?? null),
+                    $this->formatDuration($report['avg_resolution_time'] ?? null),
+                ];
+            })
+            ->all();
+
         return [
-            'headers' => ['Inbox Name', 'Channel', 'Conversations', 'Resolved', 'Response Rate'],
-            'data' => [],
+            'headers' => ['Inbox Name', 'Inbox Type', 'Conversations', 'Avg First Response Time', 'Avg Resolution Time'],
+            'data' => $rows,
         ];
     }
 
@@ -350,10 +407,27 @@ class ReportsController extends Controller
      */
     private function generateLabelsReport(Account $account, Request $request): array
     {
-        // This would use the LabelSummaryBuilder when implemented
+        $reports = (new \App\Services\Reports\V2\Reports\LabelSummaryBuilder(
+            $account,
+            $this->buildSummaryReportParams($request)
+        ))->build()['labels'] ?? [];
+
+        $rows = collect($reports)
+            ->map(function (array $report) {
+                return [
+                    $report['title'] ?? '',
+                    $report['conversations_count'] ?? 0,
+                    $this->formatDuration($report['avg_first_response_time'] ?? null),
+                    $this->formatDuration($report['avg_resolution_time'] ?? null),
+                    $this->formatDuration($report['reply_time'] ?? null),
+                    $report['resolutions_count'] ?? 0,
+                ];
+            })
+            ->all();
+
         return [
-            'headers' => ['Label', 'Conversations', 'Usage %'],
-            'data' => [],
+            'headers' => ['Label', 'Conversations', 'Avg First Response Time', 'Avg Resolution Time', 'Avg Reply Time', 'Resolution Count'],
+            'data' => $rows,
         ];
     }
 
@@ -362,11 +436,85 @@ class ReportsController extends Controller
      */
     private function generateTeamsReport(Account $account, Request $request): array
     {
-        // This would use the TeamSummaryBuilder when implemented
+        $reports = (new \App\Services\Reports\V2\Reports\TeamSummaryBuilder(
+            $account,
+            $this->buildSummaryReportParams($request)
+        ))->build()['teams'] ?? [];
+
+        $reportById = collect($reports)->keyBy('id');
+
+        $rows = $account->teams()->get()
+            ->map(function ($team) use ($reportById) {
+                $report = $reportById->get($team->id, []);
+
+                return [
+                    $team->name,
+                    $report['conversations_count'] ?? 0,
+                    $this->formatDuration($report['avg_first_response_time'] ?? null),
+                    $this->formatDuration($report['avg_resolution_time'] ?? null),
+                    $this->formatDuration($report['reply_time'] ?? null),
+                    $report['resolutions_count'] ?? 0,
+                ];
+            })
+            ->all();
+
         return [
-            'headers' => ['Team Name', 'Members', 'Conversations', 'Resolved', 'Avg Response Time'],
-            'data' => [],
+            'headers' => ['Team Name', 'Conversations', 'Avg First Response Time', 'Avg Resolution Time', 'Avg Reply Time', 'Resolution Count'],
+            'data' => $rows,
         ];
+    }
+
+    /**
+     * Generate conversations summary report data.
+     */
+    private function generateConversationsSummaryReport(Account $account, Request $request): array
+    {
+        $params = $this->buildSummaryReportParams($request, ['type' => 'account']);
+        $summary = (new MetricBuilder($account, $params))->summary();
+
+        return [
+            'headers' => ['conversations_count', 'incoming_messages_count', 'outgoing_messages_count', 'avg_first_response_time', 'avg_resolution_time', 'resolution_count', 'avg_reply_time'],
+            'data' => [[
+                $summary['conversations_count'] ?? 0,
+                $summary['incoming_messages_count'] ?? 0,
+                $summary['outgoing_messages_count'] ?? 0,
+                $this->formatDuration($summary['avg_first_response_time'] ?? null),
+                $this->formatDuration($summary['avg_resolution_time'] ?? null),
+                $summary['resolutions_count'] ?? 0,
+                $this->formatDuration($summary['reply_time'] ?? null),
+            ]],
+        ];
+    }
+
+    private function buildSummaryReportParams(Request $request, array $extra = []): array
+    {
+        return array_merge([
+            'since' => $request->input('since', now()->subDays(30)->timestamp),
+            'until' => $request->input('until', now()->timestamp),
+            'business_hours' => $request->boolean('business_hours', false),
+        ], $extra);
+    }
+
+    private function formatDuration(?float $seconds): string
+    {
+        if ($seconds === null) {
+            return '0s';
+        }
+
+        $total = (int) round($seconds);
+        $hours = intdiv($total, 3600);
+        $minutes = intdiv($total % 3600, 60);
+        $secs = $total % 60;
+
+        if ($hours > 0) {
+            return sprintf('%dh %dm %ds', $hours, $minutes, $secs);
+        }
+
+        if ($minutes > 0) {
+            return sprintf('%dm %ds', $minutes, $secs);
+        }
+
+        return sprintf('%ds', $secs);
     }
 
     /**
@@ -387,7 +535,7 @@ class ReportsController extends Controller
     private function generateCsv(string $filename, array $reportData): Response
     {
         $csv = $this->arrayToCsv($reportData);
-        
+
         return ResponseFacade::make($csv, 200, [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename={$filename}.csv",
@@ -400,23 +548,23 @@ class ReportsController extends Controller
     private function arrayToCsv(array $data): string
     {
         $output = fopen('php://temp', 'r+');
-        
+
         // Add headers
         if (isset($data['headers'])) {
             fputcsv($output, $data['headers']);
         }
-        
+
         // Add data rows
         if (isset($data['data'])) {
             foreach ($data['data'] as $row) {
                 fputcsv($output, $row);
             }
         }
-        
+
         rewind($output);
         $csv = stream_get_contents($output);
         fclose($output);
-        
+
         return $csv;
     }
 }

@@ -3,10 +3,10 @@
  * Replaces axios from Vue application with modern ky-based client
  */
 
-import ky, { type KyInstance, type Options } from 'ky';
+import ky, { type KyInstance } from 'ky';
 import { keysToCamel, keysToSnake } from './transformers';
 import { ApiError, NetworkError, handleHttpError } from './errors';
-import type { RequestOptions, UploadOptions, UploadProgressCallback } from './types';
+import type { RequestOptions, UploadOptions } from './types';
 
 /**
  * Get auth token from storage
@@ -15,7 +15,7 @@ function getAuthToken(): string | null {
   if (typeof localStorage === 'undefined') return null;
   try {
     return localStorage.getItem('auth_token');
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -24,7 +24,11 @@ function getAuthToken(): string | null {
  * Create base ky instance with configuration
  */
 const createApiClient = (): KyInstance => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const baseUrl =
+    import.meta.env.VITE_API_BASE_URL ||
+    (typeof window !== 'undefined'
+      ? window.location.origin
+      : 'http://127.0.0.1:8000');
 
   return ky.create({
     prefixUrl: baseUrl,
@@ -33,7 +37,7 @@ const createApiClient = (): KyInstance => {
       limit: 3,
       methods: ['get'],
       statusCodes: [408, 413, 429, 500, 502, 503, 504],
-      backoffLimit: 30000
+      backoffLimit: 30000,
     },
     hooks: {
       beforeRequest: [
@@ -54,29 +58,32 @@ const createApiClient = (): KyInstance => {
             !options.skipTransform
           ) {
             const contentType = request.headers.get('content-type');
-            
+
             // Only transform JSON bodies
             if (!contentType || contentType.includes('application/json')) {
               try {
                 // Handle both string and ReadableStream bodies
-                const bodyContent = typeof request.body === 'string' 
-                  ? request.body 
-                  : (request.body ? await new Response(request.body).text() : '');
-                
+                const bodyContent =
+                  typeof request.body === 'string'
+                    ? request.body
+                    : request.body
+                      ? await new Response(request.body).text()
+                      : '';
+
                 if (bodyContent) {
                   const data = JSON.parse(bodyContent);
                   const transformed = keysToSnake(data);
                   request.headers.set('content-type', 'application/json');
                   return new Request(request, {
-                    body: JSON.stringify(transformed)
+                    body: JSON.stringify(transformed),
                   });
                 }
-              } catch (e) {
+              } catch {
                 // Body is not JSON, leave as is
               }
             }
           }
-        }
+        },
       ],
       afterResponse: [
         async (request, options: RequestOptions, response) => {
@@ -93,34 +100,36 @@ const createApiClient = (): KyInstance => {
                 const data = await response.json();
                 const transformed = keysToCamel(data);
                 return new Response(JSON.stringify(transformed), response);
-              } catch (e) {
+              } catch {
                 // Response is not JSON or already consumed
                 return response;
               }
             }
           }
-          
+
           return response;
-        }
+        },
       ],
       beforeError: [
-        async (error) => {
+        async error => {
           const { request, response } = error;
-          
+
           if (!response) {
             // Network error
-            throw new NetworkError('Network error: Unable to connect to server');
+            throw new NetworkError(
+              'Network error: Unable to connect to server'
+            );
           }
 
           // Handle specific error status codes
           const endpoint = request.url;
-          
+
           if (response.status === 401) {
             // Clear auth token on 401
             if (typeof localStorage !== 'undefined') {
               localStorage.removeItem('auth_token');
             }
-            
+
             // Redirect to login if in browser
             if (typeof window !== 'undefined' && window.location) {
               window.location.href = '/login';
@@ -129,12 +138,12 @@ const createApiClient = (): KyInstance => {
 
           // Parse and throw ApiError
           await handleHttpError(response, endpoint);
-          
+
           // Return the error to satisfy the hook type
           return error;
-        }
-      ]
-    }
+        },
+      ],
+    },
   });
 };
 
@@ -150,7 +159,7 @@ export async function uploadFile(
   endpoint: string,
   file: File | FormData,
   options: UploadOptions = {}
-): Promise<any> {
+): Promise<unknown> {
   const formData = file instanceof FormData ? file : new FormData();
   if (file instanceof File) {
     formData.append('file', file);
@@ -160,14 +169,21 @@ export async function uploadFile(
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     const token = getAuthToken();
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+    const baseUrl =
+      import.meta.env.VITE_API_BASE_URL ||
+      (typeof window !== 'undefined'
+        ? `${window.location.origin}/`
+        : 'http://127.0.0.1:8000/');
 
-    xhr.open(options.method || 'POST', `${baseUrl}/${endpoint}`);
-    
+    const normalizedBaseUrl = baseUrl.endsWith('/')
+      ? baseUrl.slice(0, -1)
+      : baseUrl;
+    xhr.open(options.method || 'POST', `${normalizedBaseUrl}/${endpoint}`);
+
     if (token) {
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     }
-    
+
     if (options.headers) {
       Object.entries(options.headers).forEach(([key, value]) => {
         xhr.setRequestHeader(key, value);
@@ -176,7 +192,7 @@ export async function uploadFile(
 
     // Progress tracking
     if (options.onProgress) {
-      xhr.upload.addEventListener('progress', (e) => {
+      xhr.upload.addEventListener('progress', e => {
         if (e.lengthComputable) {
           const progress = (e.loaded / e.total) * 100;
           options.onProgress?.(progress);
@@ -190,14 +206,20 @@ export async function uploadFile(
         try {
           const response = JSON.parse(xhr.responseText);
           resolve(keysToCamel(response));
-        } catch (e) {
+        } catch {
           resolve(xhr.responseText);
         }
       } else {
         try {
           const errorData = JSON.parse(xhr.responseText);
-          reject(new ApiError(xhr.status, errorData.message || 'Upload failed', errorData));
-        } catch (e) {
+          reject(
+            new ApiError(
+              xhr.status,
+              errorData.message || 'Upload failed',
+              errorData
+            )
+          );
+        } catch {
           reject(new ApiError(xhr.status, 'Upload failed'));
         }
       }
@@ -226,16 +248,16 @@ export async function uploadFile(
 /**
  * Helper to create query string from params
  */
-export function buildQueryString(params: Record<string, any>): string {
+export function buildQueryString(params: Record<string, unknown>): string {
   const transformed = keysToSnake(params);
   const searchParams = new URLSearchParams();
-  
+
   Object.entries(transformed).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       searchParams.append(key, String(value));
     }
   });
-  
+
   const queryString = searchParams.toString();
   return queryString ? `?${queryString}` : '';
 }
@@ -247,15 +269,17 @@ export function buildQueryString(params: Record<string, any>): string {
  * Keys are automatically transformed to snake_case
  * Returns undefined if params is undefined or empty
  */
-export function toSearchParams(params?: Record<string, any>): Record<string, string> | undefined {
+export function toSearchParams<T extends object>(
+  params?: T
+): Record<string, string> | undefined {
   if (!params || Object.keys(params).length === 0) {
     return undefined;
   }
-  
+
   // Transform keys to snake_case first
   const transformed = keysToSnake(params);
   const result: Record<string, string> = {};
-  
+
   Object.entries(transformed).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       if (typeof value === 'boolean') {
@@ -269,7 +293,7 @@ export function toSearchParams(params?: Record<string, any>): Record<string, str
       }
     }
   });
-  
+
   return Object.keys(result).length > 0 ? result : undefined;
 }
 

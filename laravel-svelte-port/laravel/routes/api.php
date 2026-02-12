@@ -540,6 +540,7 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
             Route::get('inboxes', [\App\Http\Controllers\Api\V2\ReportsController::class, 'inboxes']);
             Route::get('labels', [\App\Http\Controllers\Api\V2\ReportsController::class, 'labels']);
             Route::get('teams', [\App\Http\Controllers\Api\V2\ReportsController::class, 'teams']);
+            Route::get('conversations_summary', [\App\Http\Controllers\Api\V2\ReportsController::class, 'conversationsSummary']);
             Route::get('conversation_traffic', [\App\Http\Controllers\Api\V2\ReportsController::class, 'conversationTraffic']);
             Route::get('conversations', [\App\Http\Controllers\Api\V2\ReportsController::class, 'conversations']);
             Route::get('bot_metrics', [\App\Http\Controllers\Api\V2\ReportsController::class, 'botMetrics']);
@@ -555,13 +556,6 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
         Route::prefix('v2/agents')->group(function () {
             Route::get('status', [\App\Http\Controllers\Api\V2\AgentsController::class, 'status']);
         });
-
-        // Reports V2 - Heatmap data and CSV exports
-        Route::prefix('v2/reports')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Api\V2\ReportsController::class, 'index']); // Heatmap timeseries data
-            Route::get('conversation_traffic', [\App\Http\Controllers\Api\V2\ReportsController::class, 'conversationTraffic']); // CSV export
-        });
-
         // Summary Reports V2 - Detailed summary reports by entity type
         Route::prefix('v2/summary_reports')->group(function () {
             Route::get('agent', [\App\Http\Controllers\Api\V2\SummaryReportsController::class, 'agent']);

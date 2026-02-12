@@ -25,7 +25,9 @@
 
   // Use $derived to maintain reactive references to props
   const currentFilterId = $derived(currentFilter?.id?.toString() || '');
-  const selectedGroupById = $derived(selectedGroupByFilter?.id?.toString() || '');
+  const selectedGroupById = $derived(
+    selectedGroupByFilter?.id?.toString() || ''
+  );
 
   let selectedFilterValue = $state('');
   let selectedGroupByValue = $state('');
@@ -41,25 +43,30 @@
   });
 
   const filterLabel = $derived(
-    filterItemsList.find((item) => item.id?.toString() === selectedFilterValue)?.name || 
-    `Select ${type}`
+    filterItemsList.find(item => item.id?.toString() === selectedFilterValue)
+      ?.name || `Select ${type}`
   );
 
   const groupByLabel = $derived(
-    groupByfilterItemsList.find((item) => item.id?.toString() === selectedGroupByValue)?.groupBy || 
-    'Select grouping'
+    groupByfilterItemsList.find(
+      item => item.id?.toString() === selectedGroupByValue
+    )?.groupByKey || 'Select grouping'
   );
 
   function onFilterSelect(value: string) {
     selectedFilterValue = value;
-    const filter = filterItemsList.find((item) => item.id?.toString() === value);
+    const filter = filterItemsList.find(item => item.id?.toString() === value);
     dispatch('filter-change', filter);
   }
 
   function onGroupBySelect(value: string) {
     selectedGroupByValue = value;
-    const groupBy = groupByfilterItemsList.find((item) => item.id?.toString() === value);
-    dispatch('group-by-filter-change', groupBy);
+    const groupBy = groupByfilterItemsList.find(
+      item => item.id?.toString() === value
+    );
+    if (groupBy) {
+      dispatch('group-by-filter-change', groupBy);
+    }
   }
 
   function onDateRangeChange(event: CustomEvent) {
@@ -83,7 +90,11 @@
     <!-- Filter Selector -->
     <div class="space-y-2">
       <Label>Filter by {type}</Label>
-      <Select.Root value={selectedFilterValue} onValueChange={onFilterSelect} type="single">
+      <Select.Root
+        value={selectedFilterValue}
+        onValueChange={onFilterSelect}
+        type="single"
+      >
         <Select.Trigger>
           {filterLabel}
         </Select.Trigger>
@@ -100,14 +111,18 @@
     <!-- Group By Selector -->
     <div class="space-y-2">
       <Label>Group By</Label>
-      <Select.Root value={selectedGroupByValue} onValueChange={onGroupBySelect} type="single">
+      <Select.Root
+        value={selectedGroupByValue}
+        onValueChange={onGroupBySelect}
+        type="single"
+      >
         <Select.Trigger>
           {groupByLabel}
         </Select.Trigger>
         <Select.Content>
           {#each groupByfilterItemsList as item}
-            <Select.Item value={item.id?.toString()} label={item.groupBy}>
-              {item.groupBy}
+            <Select.Item value={item.id?.toString()} label={item.groupByKey}>
+              {item.groupByKey}
             </Select.Item>
           {/each}
         </Select.Content>

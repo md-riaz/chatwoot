@@ -267,8 +267,8 @@
           {
             id: 'reports-conversation',
             label: safeT("SIDEBAR.REPORTS_CONVERSATION", 'Conversation'),
-            href: `/app/accounts/${accountId}/reports/conversations`,
-            activeOn: [`/app/accounts/${accountId}/reports/conversations`],
+            href: `/app/accounts/${accountId}/reports/conversation`,
+            activeOn: [`/app/accounts/${accountId}/reports/conversation`],
             permission: 'report_manage',
           },
           {
