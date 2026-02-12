@@ -12,7 +12,7 @@ export interface Agent {
   avatarUrl?: string;
   confirmed: boolean;
   accountId: number;
-  customAttributes?: Record<string, any>;
+  customAttributes?: Record<string, unknown>;
 }
 
 export interface AgentListParams {
@@ -48,7 +48,8 @@ export async function getAgents(
   const query = searchParams.toString();
   const url = `api/v1/accounts/${accountId}/agents${query ? `?${query}` : ''}`;
 
-  return api.get(url).json();
+  const response = await api.get(url).json<{ data: Agent[] }>();
+  return response.data;
 }
 
 /**
@@ -58,7 +59,10 @@ export async function getAgent(
   accountId: number,
   agentId: number
 ): Promise<Agent> {
-  return api.get(`api/v1/accounts/${accountId}/agents/${agentId}`).json();
+  const response = await api
+    .get(`api/v1/accounts/${accountId}/agents/${agentId}`)
+    .json<{ data: Agent }>();
+  return response.data;
 }
 
 /**
@@ -68,9 +72,10 @@ export async function createAgent(
   accountId: number,
   data: CreateAgentParams
 ): Promise<Agent> {
-  return api
+  const response = await api
     .post(`api/v1/accounts/${accountId}/agents`, { json: data })
-    .json();
+    .json<{ data: Agent }>();
+  return response.data;
 }
 
 /**
@@ -81,9 +86,10 @@ export async function updateAgent(
   agentId: number,
   data: UpdateAgentParams
 ): Promise<Agent> {
-  return api
+  const response = await api
     .patch(`api/v1/accounts/${accountId}/agents/${agentId}`, { json: data })
-    .json();
+    .json<{ data: Agent }>();
+  return response.data;
 }
 
 /**

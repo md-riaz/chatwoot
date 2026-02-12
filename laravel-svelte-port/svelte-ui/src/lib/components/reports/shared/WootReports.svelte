@@ -63,6 +63,12 @@
     selectedFilter = selectedItemRef;
   });
 
+  $effect(() => {
+    if (!selectedFilter && filterItemsList.length) {
+      selectedFilter = filterItemsList[0];
+    }
+  });
+
   // Get filter items list from appropriate store based on type
   const filterItemsList = $derived.by(() => {
     switch (type) {
@@ -167,6 +173,10 @@
     to = newTo;
     groupByfilterItemsList = fetchFilterItems(newGroupBy);
 
+    if (!groupByfilterItemsList.length) {
+      return;
+    }
+
     const filterItems = groupByfilterItemsList.filter(
       item => item.id === groupBy.id
     );
@@ -189,6 +199,10 @@
   }
 
   function onGroupByFilterChange(event: CustomEvent) {
+    if (!event.detail?.id) {
+      return;
+    }
+
     groupBy = GROUP_BY_FILTER[event.detail.id];
     fetchAllData();
   }
