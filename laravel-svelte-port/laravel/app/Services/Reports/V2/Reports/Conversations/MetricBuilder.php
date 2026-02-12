@@ -7,6 +7,7 @@ use App\Models\ReportingEvent;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class MetricBuilder
 {
@@ -93,10 +94,12 @@ class MetricBuilder
         $since = Carbon::parse($this->params['since']);
         $until = Carbon::parse($this->params['until']);
 
-        $labelings = \App\Models\Labeling::query()
-            ->whereIn('label_id', $ids)
-            ->where('labelable_type', \App\Models\Conversation::class)
-            ->get(['label_id', 'labelable_id']);
+        $labelings = DB::table('labelings')
+            ->join('conversations', 'labelings.labelable_id', '=', 'conversations.id')
+            ->where('conversations.account_id', $this->account->id)
+            ->whereIn('labelings.label_id', $ids)
+            ->whereIn('labelings.labelable_type', [\App\Models\Conversation::class, 'Conversation'])
+            ->get(['labelings.label_id', 'labelings.labelable_id']);
 
         $conversationIds = $labelings
             ->pluck('labelable_id')
@@ -199,10 +202,12 @@ class MetricBuilder
             case 'label':
                 if ($id) {
                     $query->whereIn('conversation_id', function ($subquery) use ($id) {
-                        $subquery->select('labelable_id')
+                        $subquery->select('labelings.labelable_id')
                             ->from('labelings')
-                            ->where('label_id', $id)
-                            ->where('labelable_type', \App\Models\Conversation::class);
+                            ->join('conversations', 'labelings.labelable_id', '=', 'conversations.id')
+                            ->where('labelings.label_id', $id)
+                            ->where('conversations.account_id', $this->account->id)
+                            ->whereIn('labelings.labelable_type', [\App\Models\Conversation::class, 'Conversation']);
                     });
                 }
                 break;

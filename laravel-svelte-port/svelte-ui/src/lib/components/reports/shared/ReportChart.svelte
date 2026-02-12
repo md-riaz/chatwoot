@@ -71,7 +71,7 @@
     <div class="h-[300px] animate-pulse bg-muted rounded"></div>
   {:else if points.length > 0}
     <div class="h-[300px] flex items-end gap-1 rounded bg-muted/20 p-3 overflow-x-auto">
-      {#each points as point, index (labels[index] ?? index)}
+      {#each points as point, index (index)}
         <div class="flex flex-col items-center min-w-[18px]" title={formatValue(point)}>
           <div
             class="w-4 rounded-t bg-primary/70 hover:bg-primary transition-colors"
