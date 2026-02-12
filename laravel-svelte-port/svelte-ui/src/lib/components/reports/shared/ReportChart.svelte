@@ -6,21 +6,42 @@
     title: string;
     metricKey: string;
     isTime?: boolean;
+    groupBy?: string | null;
   }
 
   let { title, metricKey, isTime = false }: Props = $props();
 
-  const chartData = $derived(reportsStore.getChartData(metricKey));
+  const rawChartData = $derived(reportsStore.getChartData(metricKey));
   const isLoading = $derived(reportsStore.getUIFlag(`isFetching_${metricKey}`));
 
-  const points = $derived<number[]>(
-    Array.isArray(chartData?.data) ? chartData.data : []
-  );
+  const chartData = $derived.by<{ data: number[]; labels: string[] }>(() => {
+    if (
+      rawChartData &&
+      Array.isArray(rawChartData.data) &&
+      Array.isArray(rawChartData.labels)
+    ) {
+      return {
+        data: rawChartData.data.map((point: unknown) => Number(point) || 0),
+        labels: rawChartData.labels.map((label: unknown) => String(label ?? '')),
+      };
+    }
 
-  const labels = $derived<string[]>(
-    Array.isArray(chartData?.labels) ? chartData.labels : []
-  );
+    const fallbackValue = Number(
+      (rawChartData as Record<string, unknown> | null)?.[metricKey]
+    );
 
+    if (!Number.isFinite(fallbackValue)) {
+      return { data: [], labels: [] };
+    }
+
+    return {
+      data: [fallbackValue],
+      labels: ['Total'],
+    };
+  });
+
+  const points = $derived<number[]>(chartData.data);
+  const labels = $derived<string[]>(chartData.labels);
   const maxValue = $derived(points.length ? Math.max(...points, 1) : 1);
 
   function formatTime(seconds: number): string {

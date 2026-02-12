@@ -26,6 +26,7 @@ use App\Models\Label;
 use App\Models\Message;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -81,40 +82,40 @@ class AccountSeederService
     {
         // Use raw database queries to avoid model relationship side-effects.
         // Order matters to preserve referential integrity.
-        \Illuminate\Support\Facades\DB::table('team_members')
+        DB::table('team_members')
             ->whereIn('team_id', function ($query) {
                 $query->select('id')->from('teams')->where('account_id', $this->account->id);
             })->delete();
 
         // Delete account_users relationships first
-        \Illuminate\Support\Facades\DB::table('account_users')->where('account_id', $this->account->id)->delete();
+        DB::table('account_users')->where('account_id', $this->account->id)->delete();
 
         // Delete seeded test users only when they no longer belong to any account.
 
         // Delete all channel tables for this account
-        \Illuminate\Support\Facades\DB::table('channel_web_widgets')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('channel_facebook_pages')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('channel_twitter_profiles')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('channel_whatsapp')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('channel_sms')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('channel_email')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('channel_api')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('channel_telegram')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('channel_line')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('channel_voice')->where('account_id', $this->account->id)->delete();
+        DB::table('channel_web_widgets')->where('account_id', $this->account->id)->delete();
+        DB::table('channel_facebook_pages')->where('account_id', $this->account->id)->delete();
+        DB::table('channel_twitter_profiles')->where('account_id', $this->account->id)->delete();
+        DB::table('channel_whatsapp')->where('account_id', $this->account->id)->delete();
+        DB::table('channel_sms')->where('account_id', $this->account->id)->delete();
+        DB::table('channel_email')->where('account_id', $this->account->id)->delete();
+        DB::table('channel_api')->where('account_id', $this->account->id)->delete();
+        DB::table('channel_telegram')->where('account_id', $this->account->id)->delete();
+        DB::table('channel_line')->where('account_id', $this->account->id)->delete();
+        DB::table('channel_voice')->where('account_id', $this->account->id)->delete();
 
-        \Illuminate\Support\Facades\DB::table('teams')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('conversations')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('labelings')->whereIn('label_id', function ($query) {
+        DB::table('teams')->where('account_id', $this->account->id)->delete();
+        DB::table('conversations')->where('account_id', $this->account->id)->delete();
+        DB::table('labelings')->whereIn('label_id', function ($query) {
             $query->select('id')->from('labels')->where('account_id', $this->account->id);
         })->delete();
-        \Illuminate\Support\Facades\DB::table('labels')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('inboxes')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('contacts')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('custom_roles')->where('account_id', $this->account->id)->delete();
-        \Illuminate\Support\Facades\DB::table('canned_responses')->where('account_id', $this->account->id)->delete();
+        DB::table('labels')->where('account_id', $this->account->id)->delete();
+        DB::table('inboxes')->where('account_id', $this->account->id)->delete();
+        DB::table('contacts')->where('account_id', $this->account->id)->delete();
+        DB::table('custom_roles')->where('account_id', $this->account->id)->delete();
+        DB::table('canned_responses')->where('account_id', $this->account->id)->delete();
 
-        \Illuminate\Support\Facades\DB::table('users')
+        DB::table('users')
             ->where('email', 'like', '%@paperlayer.test')
             ->whereNotExists(function ($query) {
                 $query->selectRaw('1')

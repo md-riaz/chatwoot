@@ -6,8 +6,8 @@ This update addresses review feedback to take screenshots by logging in and visi
 
 - Backend: `php artisan serve --host=0.0.0.0 --port=8000`
 - Frontend: `npm run dev -- --host 0.0.0.0 --port 5173`
-- Login: `mdriaz@alpha.net.bd` / `12345678`
-- Account: `1`
+- Login: `<REDACTED_EMAIL>` / `<REDACTED_PASSWORD>`
+- Account: `<REDACTED_ACCOUNT_ID>`
 
 ## Menu-by-menu screenshots
 

@@ -5,6 +5,8 @@ namespace App\Services\Reports\V2\Reports\Conversations;
 use App\Models\Account;
 use App\Models\ReportingEvent;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class MetricBuilder
 {
@@ -40,6 +42,88 @@ class MetricBuilder
     }
 
     /**
+     * Generate summary metrics for a list of IDs for the configured type.
+     */
+    public function summaryByIds(array $ids): array
+    {
+        $type = $this->params['type'] ?? null;
+
+        if (! $type || $type === 'account' || empty($ids)) {
+            return [];
+        }
+
+        if ($type === 'label') {
+            return $this->summaryByLabelIds($ids);
+        }
+
+        $summaries = [];
+
+        foreach ($ids as $id) {
+            $events = $this->getEventsForTypeAndId($type, (int) $id);
+
+            $summaries[(int) $id] = $this->buildSummaryFromEvents($events);
+        }
+
+        return $summaries;
+    }
+
+    /**
+     * Generate summary metrics for label IDs without per-label reporting-event queries.
+     */
+    private function summaryByLabelIds(array $ids): array
+    {
+        $since = Carbon::parse($this->params['since']);
+        $until = Carbon::parse($this->params['until']);
+
+        $labelings = \App\Models\Labeling::query()
+            ->whereIn('label_id', $ids)
+            ->whereIn('labelable_type', [\App\Models\Conversation::class, 'Conversation'])
+            ->get(['label_id', 'labelable_id']);
+
+        $conversationIds = $labelings
+            ->pluck('labelable_id')
+            ->unique()
+            ->values()
+            ->all();
+
+        $events = ReportingEvent::query()
+            ->where('account_id', $this->account->id)
+            ->whereBetween('created_at', [$since, $until])
+            ->whereIn('conversation_id', $conversationIds)
+            ->get();
+
+        $conversationIdsByLabel = $labelings
+            ->groupBy('label_id')
+            ->map(fn (Collection $items) => $items->pluck('labelable_id')->unique()->all());
+
+        $summaries = [];
+
+        foreach ($ids as $id) {
+            $labelConversationIds = $conversationIdsByLabel->get((int) $id, []);
+            $labelEvents = $events->whereIn('conversation_id', $labelConversationIds);
+            $summaries[(int) $id] = $this->buildSummaryFromEvents($labelEvents);
+        }
+
+        return $summaries;
+    }
+
+    /**
+     * Build summary payload from reporting events.
+     */
+    private function buildSummaryFromEvents(Collection $events): array
+    {
+        return [
+            'conversations_count' => $this->getConversationsCount($events),
+            'incoming_messages_count' => $this->getIncomingMessagesCount($events),
+            'outgoing_messages_count' => $this->getOutgoingMessagesCount($events),
+            'resolutions_count' => $this->getResolutionsCount($events),
+            'avg_first_response_time' => $this->getAvgFirstResponseTime($events),
+            'avg_resolution_time' => $this->getAvgResolutionTime($events),
+            'reply_time' => $this->getAvgReplyTime($events),
+        ];
+    }
+
+    /**
      * Generate bot summary metrics.
      */
     public function botSummary(): array
@@ -60,15 +144,31 @@ class MetricBuilder
     /**
      * Get reporting events for the specified period.
      */
-    private function getReportingEvents(Carbon $since, Carbon $until)
+    private function getReportingEvents(Carbon $since, Carbon $until): Collection
     {
         $query = ReportingEvent::where('account_id', $this->account->id)
             ->whereBetween('created_at', [$since, $until]);
 
         // Apply type filter if specified
         if (isset($this->params['type']) && $this->params['type'] !== 'account') {
-            $this->applyTypeFilter($query);
+            $this->applyTypeFilter($query, $this->params['type'], $this->params['id'] ?? null);
         }
+
+        return $query->get();
+    }
+
+    /**
+     * Get reporting events for a specific type/id pair.
+     */
+    private function getEventsForTypeAndId(string $type, int $id): Collection
+    {
+        $since = Carbon::parse($this->params['since']);
+        $until = Carbon::parse($this->params['until']);
+
+        $query = ReportingEvent::where('account_id', $this->account->id)
+            ->whereBetween('created_at', [$since, $until]);
+
+        $this->applyTypeFilter($query, $type, $id);
 
         return $query->get();
     }
@@ -76,11 +176,8 @@ class MetricBuilder
     /**
      * Apply type-specific filters to the query.
      */
-    private function applyTypeFilter($query): void
+    private function applyTypeFilter(Builder $query, string $type, ?int $id = null): void
     {
-        $type = $this->params['type'];
-        $id = $this->params['id'] ?? null;
-
         switch ($type) {
             case 'agent':
                 if ($id) {
@@ -99,12 +196,12 @@ class MetricBuilder
                 break;
             case 'label':
                 if ($id) {
-                    $conversationIds = \Illuminate\Support\Facades\DB::table('labelings')
-                        ->where('label_id', $id)
-                        ->whereIn('labelable_type', [\App\Models\Conversation::class, 'Conversation'])
-                        ->pluck('labelable_id');
-
-                    $query->whereIn('conversation_id', $conversationIds);
+                    $query->whereIn('conversation_id', function ($subquery) use ($id) {
+                        $subquery->select('labelable_id')
+                            ->from('labelings')
+                            ->where('label_id', $id)
+                            ->whereIn('labelable_type', [\App\Models\Conversation::class, 'Conversation']);
+                    });
                 }
                 break;
         }
