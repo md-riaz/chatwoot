@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\User;
 
+use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,17 +19,17 @@ class UserResource extends JsonResource
             'avatar_url' => $this->getAvatarUrl(),
             'availability' => $this->availability,
             'custom_attributes' => $this->custom_attributes,
-            'email_verified_at' => $this->email_verified_at?->toISOString(),
-            'created_at' => $this->created_at?->toISOString(),
-            'updated_at' => $this->updated_at?->toISOString(),
-            
+            'email_verified_at' => $this->formatTimestamp($this->email_verified_at),
+            'created_at' => $this->formatTimestamp($this->created_at),
+            'updated_at' => $this->formatTimestamp($this->updated_at),
+
             // User type (SuperAdmin or User) - critical for frontend authorization
             'type' => $this->type ?? 'User',
-            
+
             // Rails parity fields
-            'confirmed' => !is_null($this->email_verified_at),
+            'confirmed' => ! is_null($this->email_verified_at),
             'locked' => $this->custom_attributes['locked'] ?? false,
-            
+
             // Additional Rails parity fields for frontend compatibility
             'access_token' => $this->access_token ?? null,
             'account_id' => $this->getActiveAccountId(),
@@ -36,17 +37,17 @@ class UserResource extends JsonResource
             'message_signature' => $this->message_signature ?? '',
             'provider' => $this->provider ?? 'email',
             'pubsub_token' => $this->pubsub_token ?? null,
-            'ui_settings' => $this->ui_settings ?? new \stdClass(),
+            'ui_settings' => $this->ui_settings ?? new \stdClass,
             'uid' => $this->uid ?? null,
-            
+
             // Spatie roles (platform-level)
             'roles' => $this->whenLoaded('roles', function () {
                 return $this->roles->pluck('name');
             }, []),
-            
+
             // Account relationships with complete Rails parity
             'accounts' => $this->whenLoaded('accountUsers', function () {
-                return $this->accountUsers->map(fn($accountUser) => [
+                return $this->accountUsers->map(fn ($accountUser) => [
                     'id' => $accountUser->account_id,
                     'name' => $accountUser->account->name ?? null,
                     'status' => $accountUser->account->status->getName(),
@@ -54,14 +55,27 @@ class UserResource extends JsonResource
                     'availability' => $accountUser->availability->getName(), // Convert enum to string
                     'availability_status' => $accountUser->availability->getName(), // Presence status
                     'auto_offline' => $accountUser->auto_offline ?? false,
-                    'active_at' => $accountUser->active_at ? $accountUser->active_at->toISOString() : null,
+                    'active_at' => $this->formatTimestamp($accountUser->active_at),
                     'inviter_id' => $accountUser->inviter_id ?? null,
                     'permissions' => $accountUser->permissions ?? [],
                 ]);
             }, []),
         ];
     }
-    
+
+    private function formatTimestamp(mixed $value): ?string
+    {
+        if ($value instanceof CarbonInterface) {
+            return $value->toISOString();
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format(DATE_ATOM);
+        }
+
+        return null;
+    }
+
     /**
      * Get the active account ID for the user
      */
@@ -71,9 +85,10 @@ class UserResource extends JsonResource
         if ($this->relationLoaded('accountUsers') && $this->accountUsers->isNotEmpty()) {
             return $this->accountUsers->first()->account_id;
         }
-        
+
         // Fallback: query for the first account
         $firstAccountUser = $this->accountUsers()->first();
+
         return $firstAccountUser ? $firstAccountUser->account_id : null;
     }
 }

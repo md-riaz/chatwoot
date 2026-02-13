@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { authStore } from '$lib/stores/auth.svelte';
   import { globalConfig } from '$lib/stores/globalConfig.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import * as Select from '$lib/components/ui/select';
-  import { toast } from "svelte-sonner";
+  import { toast } from 'svelte-sonner';
   import { _ } from '$lib/i18n';
-  
+
+  import BaseSettingsHeader from '../components/BaseSettingsHeader.svelte';
   import SectionLayout from './components/SectionLayout.svelte';
   import AccountId from './components/AccountId.svelte';
   import BuildInfo from './components/BuildInfo.svelte';
@@ -26,27 +26,43 @@
   // Derived
   let currentAccount = $derived(authStore.currentAccount);
   let uiSettings = $derived(authStore.uiSettings);
-  let accountId = $derived(authStore.currentAccountId);
-  
+
   // Feature Flags
-  let showAutoResolutionConfig = $derived(authStore.isFeatureEnabled('auto_resolve_conversations'));
-  let showAudioTranscriptionConfig = $derived(authStore.isFeatureEnabled('captain_integration'));
-  let featureInboundEmailEnabled = $derived(authStore.isFeatureEnabled('inbound_emails'));
-  let featureCustomReplyDomainEnabled = $derived(featureInboundEmailEnabled && authStore.isFeatureEnabled('custom_reply_domain'));
-  let featureCustomReplyEmailEnabled = $derived(featureInboundEmailEnabled && authStore.isFeatureEnabled('custom_reply_email'));
+  let showAutoResolutionConfig = $derived(
+    authStore.isFeatureEnabled('auto_resolve_conversations')
+  );
+  let showAudioTranscriptionConfig = $derived(
+    authStore.isFeatureEnabled('captain_integration')
+  );
+  let featureInboundEmailEnabled = $derived(
+    authStore.isFeatureEnabled('inbound_emails')
+  );
+  let featureCustomReplyDomainEnabled = $derived(
+    featureInboundEmailEnabled &&
+      authStore.isFeatureEnabled('custom_reply_domain')
+  );
+  let featureCustomReplyEmailEnabled = $derived(
+    featureInboundEmailEnabled &&
+      authStore.isFeatureEnabled('custom_reply_email')
+  );
   let isOnChatwootCloud = $derived(globalConfig.get('isOnChatwootCloud'));
 
   // Languages
-  let enabledLanguages = $derived(globalConfig.get('enabledLanguages') || [
-    { iso_639_1_code: 'en', name: 'English' }
-  ]);
-  let languagesSortedByCode = $derived([...enabledLanguages].sort((l1, l2) => 
-    l1.iso_639_1_code.localeCompare(l2.iso_639_1_code)
-  ));
-  
+  let enabledLanguages = $derived(
+    globalConfig.get('enabledLanguages') || [
+      { iso_639_1_code: 'en', name: 'English' },
+    ]
+  );
+  let languagesSortedByCode = $derived(
+    [...enabledLanguages].sort((l1, l2) =>
+      l1.iso_639_1_code.localeCompare(l2.iso_639_1_code)
+    )
+  );
+
   // Language display label
   const localeLabel = $derived(
-    languagesSortedByCode.find(lang => lang.iso_639_1_code === locale)?.name || 'Select language'
+    languagesSortedByCode.find(lang => lang.iso_639_1_code === locale)?.name ||
+      'Select language'
   );
 
   // Initialize data
@@ -56,7 +72,7 @@
       locale = currentAccount.locale || 'en';
       domain = currentAccount.domain || '';
       supportEmail = currentAccount.supportEmail || '';
-      
+
       // Override with UI settings locale if available (matching Vue logic)
       if (uiSettings?.locale) {
         // In Vue it sets this.$root.$i18n.locale, but here we just ensure the form reflects the account locale?
@@ -83,9 +99,9 @@
         name,
         locale,
         domain,
-        supportEmail: supportEmail
+        supportEmail: supportEmail,
       });
-      
+
       toast.success($_('GENERAL_SETTINGS.UPDATE.SUCCESS'));
     } catch (error) {
       toast.error($_('GENERAL_SETTINGS.UPDATE.ERROR'));
@@ -96,11 +112,7 @@
 </script>
 
 <div class="flex flex-col max-w-4xl mx-auto w-full p-6">
-  <header class="mb-6">
-    <h1 class="text-3xl font-bold tracking-tight text-foreground">
-      {$_('GENERAL_SETTINGS.TITLE')}
-    </h1>
-  </header>
+  <BaseSettingsHeader title={$_('GENERAL_SETTINGS.TITLE')} />
 
   <div class="flex-grow flex-shrink min-w-0 space-y-6">
     <!-- General Settings Section -->
@@ -108,21 +120,30 @@
       title={$_('GENERAL_SETTINGS.FORM.GENERAL_SECTION.TITLE')}
       description={$_('GENERAL_SETTINGS.FORM.GENERAL_SECTION.NOTE')}
     >
-      <form class="grid gap-6 max-w-2xl" onsubmit={(e) => { e.preventDefault(); updateAccount(); }}>
-        
+      <form
+        class="grid gap-6 max-w-2xl"
+        onsubmit={e => {
+          e.preventDefault();
+          updateAccount();
+        }}
+      >
         <!-- Name -->
         <div class="grid gap-2">
-          <Label for="account-name">{$_('GENERAL_SETTINGS.FORM.NAME.LABEL')}</Label>
-          <Input 
-            id="account-name" 
-            bind:value={name} 
+          <Label for="account-name"
+            >{$_('GENERAL_SETTINGS.FORM.NAME.LABEL')}</Label
+          >
+          <Input
+            id="account-name"
+            bind:value={name}
             placeholder={$_('GENERAL_SETTINGS.FORM.NAME.PLACEHOLDER')}
           />
         </div>
 
         <!-- Language -->
         <div class="grid gap-2">
-          <Label for="account-locale">{$_('GENERAL_SETTINGS.FORM.LANGUAGE.LABEL')}</Label>
+          <Label for="account-locale"
+            >{$_('GENERAL_SETTINGS.FORM.LANGUAGE.LABEL')}</Label
+          >
           <Select.Root type="single" bind:value={locale}>
             <Select.Trigger id="account-locale">
               {localeLabel}
@@ -140,10 +161,12 @@
         <!-- Domain -->
         {#if featureCustomReplyDomainEnabled}
           <div class="grid gap-2">
-            <Label for="account-domain">{$_('GENERAL_SETTINGS.FORM.DOMAIN.LABEL')}</Label>
-            <Input 
-              id="account-domain" 
-              bind:value={domain} 
+            <Label for="account-domain"
+              >{$_('GENERAL_SETTINGS.FORM.DOMAIN.LABEL')}</Label
+            >
+            <Input
+              id="account-domain"
+              bind:value={domain}
               placeholder={$_('GENERAL_SETTINGS.FORM.DOMAIN.PLACEHOLDER')}
             />
             <p class="text-sm text-muted-foreground">
@@ -151,7 +174,9 @@
                 {$_('GENERAL_SETTINGS.FORM.FEATURES.INBOUND_EMAIL_ENABLED')}
               {/if}
               {#if featureCustomReplyDomainEnabled}
-                {$_('GENERAL_SETTINGS.FORM.FEATURES.CUSTOM_EMAIL_DOMAIN_ENABLED')}
+                {$_(
+                  'GENERAL_SETTINGS.FORM.FEATURES.CUSTOM_EMAIL_DOMAIN_ENABLED'
+                )}
               {/if}
             </p>
           </div>
@@ -160,11 +185,15 @@
         <!-- Support Email -->
         {#if featureCustomReplyEmailEnabled}
           <div class="grid gap-2">
-            <Label for="account-email">{$_('GENERAL_SETTINGS.FORM.SUPPORT_EMAIL.LABEL')}</Label>
-            <Input 
-              id="account-email" 
-              bind:value={supportEmail} 
-              placeholder={$_('GENERAL_SETTINGS.FORM.SUPPORT_EMAIL.PLACEHOLDER')}
+            <Label for="account-email"
+              >{$_('GENERAL_SETTINGS.FORM.SUPPORT_EMAIL.LABEL')}</Label
+            >
+            <Input
+              id="account-email"
+              bind:value={supportEmail}
+              placeholder={$_(
+                'GENERAL_SETTINGS.FORM.SUPPORT_EMAIL.PLACEHOLDER'
+              )}
             />
           </div>
         {/if}

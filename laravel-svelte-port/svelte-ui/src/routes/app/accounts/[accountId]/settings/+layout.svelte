@@ -1,19 +1,16 @@
 <script lang="ts">
-  /**
-   * Settings Layout
-   * Wrapper for settings pages to provide consistent spacing and layout
-   */
-  
   import type { Snippet } from 'svelte';
-  
+
   interface Props {
     children: Snippet;
+    data: {
+      accountId: number;
+    };
   }
-  
-  let { children }: Props = $props();
+
+  let { children, data }: Props = $props();
 </script>
 
-<!-- Settings Content Area -->
-<div class="container max-w-[60rem] py-8 h-full">
+<section class="h-full w-full px-6 py-6" data-account-id={data.accountId}>
   {@render children()}
-</div>
+</section>

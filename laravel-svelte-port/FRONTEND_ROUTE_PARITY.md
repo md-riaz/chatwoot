@@ -1,0 +1,109 @@
+# Frontend Route Parity Checklist (Vue Settings → Svelte)
+
+Source of truth: `app/javascript/dashboard/routes/dashboard/settings/**/**/*.routes.js`.
+
+Status legend:
+
+- `implemented`
+- `partial`
+- `missing`
+- `excluded (AI)`
+
+Acceptance criteria used for each mapped route:
+
+1. Route loads without 404.
+2. Route respects account context (`/app/accounts/[accountId]/...`).
+3. Route has functional UI (not placeholder-only content).
+
+## Settings + Related Profile Routes
+
+| Vue route                                                             | Target Svelte route                                               | Status        | Acceptance criteria                                                                                                              |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `/accounts/:accountId/settings`                                       | `/app/accounts/[accountId]/settings`                              | implemented   | Redirects with Vue parity behavior: administrators -> account settings, non-admin -> macros/profile fallback in account context. |
+| `/accounts/:accountId/settings/general`                               | `/app/accounts/[accountId]/settings/account`                      | partial       | Loads account config page in account context; parity uses `account` slug instead of legacy `general`.                            |
+| `/accounts/:accountId/settings/agent-bots`                            | `/app/accounts/[accountId]/settings/agent-bots`                   | missing       | Route file not yet present.                                                                                                      |
+| `/accounts/:accountId/settings/agents`                                | `/app/accounts/[accountId]/settings/agents`                       | implemented   | Loads agents management with store-backed list and actions.                                                                      |
+| `/accounts/:accountId/settings/agents/list`                           | `/app/accounts/[accountId]/settings/agents`                       | partial       | List behavior exists on base route; no dedicated `/list` alias yet.                                                              |
+| `/accounts/:accountId/settings/assignment-policy`                     | `/app/accounts/[accountId]/settings/assignment-policy`            | implemented   | New route added; account-aware + saveable controls (no placeholder-only UI).                                                     |
+| `/accounts/:accountId/settings/assignment-policy/index`               | `/app/accounts/[accountId]/settings/assignment-policy`            | partial       | Base page implemented; explicit `/index` alias not added.                                                                        |
+| `/accounts/:accountId/settings/assignment-policy/assignment`          | `/app/accounts/[accountId]/settings/assignment-policy`            | partial       | Core assignment controls exist; sub-route split not yet ported.                                                                  |
+| `/accounts/:accountId/settings/assignment-policy/assignment/create`   | `/app/accounts/[accountId]/settings/assignment-policy`            | partial       | Create flow not yet split into dedicated route.                                                                                  |
+| `/accounts/:accountId/settings/assignment-policy/assignment/edit/:id` | `/app/accounts/[accountId]/settings/assignment-policy`            | partial       | Edit flow not yet split into dedicated route.                                                                                    |
+| `/accounts/:accountId/settings/assignment-policy/capacity`            | `/app/accounts/[accountId]/settings/assignment-policy`            | partial       | Capacity toggle exists; dedicated sub-route missing.                                                                             |
+| `/accounts/:accountId/settings/assignment-policy/capacity/create`     | `/app/accounts/[accountId]/settings/assignment-policy`            | partial       | Dedicated create route missing.                                                                                                  |
+| `/accounts/:accountId/settings/assignment-policy/capacity/edit/:id`   | `/app/accounts/[accountId]/settings/assignment-policy`            | partial       | Dedicated edit route missing.                                                                                                    |
+| `/accounts/:accountId/settings/custom-attributes`                     | `/app/accounts/[accountId]/settings/attributes`                   | implemented   | Existing attributes page is functional in account context.                                                                       |
+| `/accounts/:accountId/settings/custom-attributes/list`                | `/app/accounts/[accountId]/settings/attributes`                   | partial       | Base list exists; explicit `/list` alias missing.                                                                                |
+| `/accounts/:accountId/settings/audit-logs`                            | `/app/accounts/[accountId]/settings/audit-logs`                   | implemented   | Existing route with account-context path.                                                                                        |
+| `/accounts/:accountId/settings/audit-logs/list`                       | `/app/accounts/[accountId]/settings/audit-logs`                   | partial       | Base page exists; explicit `/list` alias missing.                                                                                |
+| `/accounts/:accountId/settings/automation`                            | `/app/accounts/[accountId]/settings/automation`                   | implemented   | Existing route is functional.                                                                                                    |
+| `/accounts/:accountId/settings/automation/list`                       | `/app/accounts/[accountId]/settings/automation`                   | partial       | Base list exists; explicit alias missing.                                                                                        |
+| `/accounts/:accountId/settings/billing`                               | `/app/accounts/[accountId]/settings/billing`                      | implemented   | Existing route is functional.                                                                                                    |
+| `/accounts/:accountId/settings/canned-response`                       | `/app/accounts/[accountId]/settings/canned`                       | missing       | Sidebar entry exists but route file not yet ported.                                                                              |
+| `/accounts/:accountId/settings/captain`                               | N/A                                                               | excluded (AI) | Captain is AI-adjacent and excluded from migration scope.                                                                        |
+| `/accounts/:accountId/settings/custom-roles`                          | `/app/accounts/[accountId]/settings/custom-roles`                 | implemented   | New route added with create/list role management UI in account context.                                                          |
+| `/accounts/:accountId/settings/custom-roles/list`                     | `/app/accounts/[accountId]/settings/custom-roles`                 | partial       | Base route implemented; explicit `/list` alias missing.                                                                          |
+| `/accounts/:accountId/settings/inboxes`                               | `/app/accounts/[accountId]/settings/inboxes`                      | implemented   | Existing route is functional.                                                                                                    |
+| `/accounts/:accountId/settings/inboxes/list`                          | `/app/accounts/[accountId]/settings/inboxes`                      | partial       | Base list exists; explicit `/list` alias missing.                                                                                |
+| `/accounts/:accountId/settings/inboxes/new`                           | `/app/accounts/[accountId]/settings/inboxes/new`                  | implemented   | Existing route is functional.                                                                                                    |
+| `/accounts/:accountId/settings/inboxes/:inboxId/:tab?`                | `/app/accounts/[accountId]/settings/inboxes/[id]`                 | partial       | Detail route exists; optional tab variant not fully mapped.                                                                      |
+| `/accounts/:accountId/settings/integrations`                          | `/app/accounts/[accountId]/settings/integrations`                 | missing       | Sidebar entry exists but route file not yet ported.                                                                              |
+| `/accounts/:accountId/settings/integrations/dashboard_apps`           | `/app/accounts/[accountId]/settings/integrations`                 | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/integrations/webhook`                  | `/app/accounts/[accountId]/settings/integrations`                 | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/integrations/slack`                    | `/app/accounts/[accountId]/settings/integrations/slack`           | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/integrations/linear`                   | `/app/accounts/[accountId]/settings/integrations/linear`          | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/integrations/notion`                   | `/app/accounts/[accountId]/settings/integrations/notion`          | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/integrations/shopify`                  | `/app/accounts/[accountId]/settings/integrations/shopify`         | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/integrations/:integration_id`          | `/app/accounts/[accountId]/settings/integrations/[integrationId]` | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/labels`                                | `/app/accounts/[accountId]/settings/labels`                       | missing       | Sidebar entry exists but route file not yet ported.                                                                              |
+| `/accounts/:accountId/settings/labels/list`                           | `/app/accounts/[accountId]/settings/labels`                       | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/macros`                                | `/app/accounts/[accountId]/settings/macros`                       | implemented   | Existing route is functional.                                                                                                    |
+| `/accounts/:accountId/settings/macros/new`                            | `/app/accounts/[accountId]/settings/macros/new`                   | missing       | Dedicated create route not yet ported.                                                                                           |
+| `/accounts/:accountId/settings/macros/:macroId/edit`                  | `/app/accounts/[accountId]/settings/macros/[macroId]/edit`        | missing       | Dedicated edit route not yet ported.                                                                                             |
+| `/accounts/:accountId/settings/sla`                                   | `/app/accounts/[accountId]/settings/sla`                          | implemented   | Existing route is functional.                                                                                                    |
+| `/accounts/:accountId/settings/sla/list`                              | `/app/accounts/[accountId]/settings/sla`                          | partial       | Base list exists; explicit alias missing.                                                                                        |
+| `/accounts/:accountId/settings/teams`                                 | `/app/accounts/[accountId]/settings/teams`                        | missing       | Sidebar entry exists but route files are not present yet.                                                                        |
+| `/accounts/:accountId/settings/teams/list`                            | `/app/accounts/[accountId]/settings/teams`                        | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/teams/new`                             | `/app/accounts/[accountId]/settings/teams/new`                    | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/teams/new/:teamId/agents`              | `/app/accounts/[accountId]/settings/teams/new/[teamId]/agents`    | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/teams/new/:teamId/finish`              | `/app/accounts/[accountId]/settings/teams/new/[teamId]/finish`    | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/teams/:teamId/edit`                    | `/app/accounts/[accountId]/settings/teams/[teamId]/edit`          | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/teams/:teamId/edit/agents`             | `/app/accounts/[accountId]/settings/teams/[teamId]/edit/agents`   | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/settings/teams/:teamId/edit/finish`             | `/app/accounts/[accountId]/settings/teams/[teamId]/edit/finish`   | missing       | Not yet ported.                                                                                                                  |
+| `/accounts/:accountId/profile/settings`                               | `/app/accounts/[accountId]/settings/profile`                      | implemented   | Existing profile settings route works in account context.                                                                        |
+| `/accounts/:accountId/profile/mfa`                                    | `/app/accounts/[accountId]/settings/profile`                      | partial       | MFA-specific route variant not separated yet.                                                                                    |
+| `/accounts/:accountId/settings/security`                              | `/app/accounts/[accountId]/settings/security`                     | implemented   | New route added with saveable security controls and account context.                                                             |
+
+## Reports Route Variants Referenced from Vue Settings Route Tree
+
+| Vue route                                       | Target Svelte route                                  | Status      | Acceptance criteria                                                     |
+| ----------------------------------------------- | ---------------------------------------------------- | ----------- | ----------------------------------------------------------------------- |
+| `/accounts/:accountId/reports/overview`         | `/app/accounts/[accountId]/reports`                  | implemented | Existing report overview route works.                                   |
+| `/accounts/:accountId/reports/conversation`     | `/app/accounts/[accountId]/reports/conversation`     | implemented | Existing route works.                                                   |
+| `/accounts/:accountId/reports/agent`            | `/app/accounts/[accountId]/reports/agent`            | implemented | Existing route works.                                                   |
+| `/accounts/:accountId/reports/inboxes`          | `/app/accounts/[accountId]/reports/inboxes`          | implemented | Added alias route that redirects to active inbox report view.           |
+| `/accounts/:accountId/reports/label`            | `/app/accounts/[accountId]/reports/label`            | implemented | Existing route works.                                                   |
+| `/accounts/:accountId/reports/teams`            | `/app/accounts/[accountId]/reports/teams`            | implemented | Added alias route that redirects to active team report view.            |
+| `/accounts/:accountId/reports/agents_overview`  | `/app/accounts/[accountId]/reports/agents_overview`  | implemented | New alias route added and redirects to active report view.              |
+| `/accounts/:accountId/reports/agents/:id`       | `/app/accounts/[accountId]/reports/agents/[id]`      | implemented | New alias route added and preserves account context via redirect query. |
+| `/accounts/:accountId/reports/inboxes_overview` | `/app/accounts/[accountId]/reports/inboxes_overview` | implemented | New alias route added and redirects to active report view.              |
+| `/accounts/:accountId/reports/inboxes/:id`      | `/app/accounts/[accountId]/reports/inboxes/[id]`     | implemented | New alias route added and preserves account context via redirect query. |
+| `/accounts/:accountId/reports/teams_overview`   | `/app/accounts/[accountId]/reports/teams_overview`   | implemented | New alias route added and redirects to active report view.              |
+| `/accounts/:accountId/reports/teams/:id`        | `/app/accounts/[accountId]/reports/teams/[id]`       | implemented | New alias route added and preserves account context via redirect query. |
+| `/accounts/:accountId/reports/labels_overview`  | `/app/accounts/[accountId]/reports/labels_overview`  | implemented | New alias route added and redirects to active report view.              |
+| `/accounts/:accountId/reports/labels/:id`       | `/app/accounts/[accountId]/reports/labels/[id]`      | implemented | New alias route added and preserves account context via redirect query. |
+| `/accounts/:accountId/reports/sla`              | `/app/accounts/[accountId]/reports/sla`              | implemented | Existing route works.                                                   |
+| `/accounts/:accountId/reports/csat`             | `/app/accounts/[accountId]/reports/csat`             | implemented | Existing route works.                                                   |
+| `/accounts/:accountId/reports/bot`              | `/app/accounts/[accountId]/reports/bot`              | implemented | Existing route works.                                                   |
+
+## Account Settings Component Parity Cross-check
+
+| Vue component usage in `account/Index.vue` | Svelte counterpart                                                     | Status      |
+| ------------------------------------------ | ---------------------------------------------------------------------- | ----------- |
+| `BaseSettingsHeader`                       | `settings/components/BaseSettingsHeader.svelte` + used in account page | implemented |
+| `SectionLayout`                            | `settings/account/components/SectionLayout.svelte`                     | implemented |
+| `AccountId`                                | `settings/account/components/AccountId.svelte`                         | implemented |
+| `BuildInfo`                                | `settings/account/components/BuildInfo.svelte`                         | implemented |
+| `AccountDelete`                            | `settings/account/components/AccountDelete.svelte`                     | implemented |
+| `AutoResolve`                              | `settings/account/components/AutoResolve.svelte`                       | implemented |
+| `AudioTranscription`                       | `settings/account/components/AudioTranscription.svelte`                | implemented |
