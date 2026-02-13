@@ -41,47 +41,53 @@ export interface SearchResponse {
  * Global search across all entities
  */
 export async function search(
+  accountId: number,
   query: string,
   filters: SearchFilters = {},
   page: number = 1
 ): Promise<SearchResponse> {
-  return api.get('api/v1/search', {
-    searchParams: toSearchParams({
-      q: query,
-      ...filters,
-      page
+  return api
+    .get(`api/v1/accounts/${accountId}/search`, {
+      searchParams: toSearchParams({
+        q: query,
+        ...filters,
+        page,
+      }),
     })
-  }).json();
+    .json();
 }
 
 /**
  * Search conversations specifically
  */
 export async function searchConversations(
+  accountId: number,
   query: string,
   filters: Omit<SearchFilters, 'type'> = {},
   page: number = 1
 ): Promise<SearchResponse> {
-  return search(query, { ...filters, type: 'conversation' }, page);
+  return search(accountId, query, { ...filters, type: 'conversation' }, page);
 }
 
 /**
  * Search contacts specifically
  */
 export async function searchContacts(
+  accountId: number,
   query: string,
   page: number = 1
 ): Promise<SearchResponse> {
-  return search(query, { type: 'contact' }, page);
+  return search(accountId, query, { type: 'contact' }, page);
 }
 
 /**
  * Search messages specifically
  */
 export async function searchMessages(
+  accountId: number,
   query: string,
   filters: Omit<SearchFilters, 'type'> = {},
   page: number = 1
 ): Promise<SearchResponse> {
-  return search(query, { ...filters, type: 'message' }, page);
+  return search(accountId, query, { ...filters, type: 'message' }, page);
 }

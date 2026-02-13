@@ -1,3 +1,5 @@
+import { page } from '$app/stores';
+import { get } from 'svelte/store';
 /**
  * Search Store
  * Manages search state and history using Svelte 5 runes
@@ -20,6 +22,10 @@ interface SearchState {
 const MAX_HISTORY = 10;
 
 class SearchStore {
+  get currentAccountId(): number {
+    const pageStore = get(page);
+    return parseInt(pageStore.params.accountId || '0', 10);
+  }
   private state = $state<SearchState>({
     query: '',
     results: [],
@@ -28,7 +34,7 @@ class SearchStore {
     error: null,
     currentPage: 1,
     totalResults: 0,
-    history: this.loadHistory()
+    history: this.loadHistory(),
   });
 
   // Getters
@@ -62,33 +68,31 @@ class SearchStore {
 
   // Derived getters
   get conversationResults() {
-    return (
-      this.state.results.filter(r => r.type === 'conversation')
-    );
+    return this.state.results.filter(r => r.type === 'conversation');
   }
 
   get contactResults() {
-    return (
-      this.state.results.filter(r => r.type === 'contact')
-    );
+    return this.state.results.filter(r => r.type === 'contact');
   }
 
   get messageResults() {
-    return (
-      this.state.results.filter(r => r.type === 'message')
-    );
+    return this.state.results.filter(r => r.type === 'message');
   }
 
   get hasResults() {
-    return (this.state.results.length > 0);
+    return this.state.results.length > 0;
   }
 
   get hasQuery() {
-    return (this.state.query.trim().length > 0);
+    return this.state.query.trim().length > 0;
   }
 
   // Actions
-  async performSearch(query: string, filters: SearchFilters = {}, page: number = 1) {
+  async performSearch(
+    query: string,
+    filters: SearchFilters = {},
+    page: number = 1
+  ) {
     if (!query.trim()) {
       this.clearResults();
       return;
@@ -101,27 +105,36 @@ class SearchStore {
     this.state.currentPage = page;
 
     try {
-      const response = await searchApi.search(query, filters, page);
-      
+      const response = await searchApi.search(
+        this.currentAccountId,
+        query,
+        filters,
+        page
+      );
+
       if (page === 1) {
         this.state.results = response.results;
       } else {
         this.state.results = [...this.state.results, ...response.results];
       }
-      
+
       this.state.totalResults = response.meta.total;
-      
+
       // Add to history
       this.addToHistory(query);
     } catch (error) {
-      this.state.error = error instanceof Error ? error.message : 'Search failed';
+      this.state.error =
+        error instanceof Error ? error.message : 'Search failed';
       console.error('Search error:', error);
     } finally {
       this.state.isSearching = false;
     }
   }
 
-  async searchConversations(query: string, filters: Omit<SearchFilters, 'type'> = {}) {
+  async searchConversations(
+    query: string,
+    filters: Omit<SearchFilters, 'type'> = {}
+  ) {
     await this.performSearch(query, { ...filters, type: 'conversation' });
   }
 
@@ -129,13 +142,16 @@ class SearchStore {
     await this.performSearch(query, { type: 'contact' });
   }
 
-  async searchMessages(query: string, filters: Omit<SearchFilters, 'type'> = {}) {
+  async searchMessages(
+    query: string,
+    filters: Omit<SearchFilters, 'type'> = {}
+  ) {
     await this.performSearch(query, { ...filters, type: 'message' });
   }
 
   async loadMore() {
     if (this.state.isSearching || !this.state.query) return;
-    
+
     await this.performSearch(
       this.state.query,
       this.state.filters,
@@ -169,7 +185,7 @@ class SearchStore {
   // History management
   private loadHistory(): string[] {
     if (typeof localStorage === 'undefined') return [];
-    
+
     try {
       const saved = localStorage.getItem('search_history');
       return saved ? JSON.parse(saved) : [];
@@ -180,9 +196,12 @@ class SearchStore {
 
   private saveHistory() {
     if (typeof localStorage === 'undefined') return;
-    
+
     try {
-      localStorage.setItem('search_history', JSON.stringify(this.state.history));
+      localStorage.setItem(
+        'search_history',
+        JSON.stringify(this.state.history)
+      );
     } catch (error) {
       console.error('Failed to save search history:', error);
     }
@@ -191,7 +210,7 @@ class SearchStore {
   addToHistory(query: string) {
     const trimmed = query.trim();
     if (!trimmed || this.state.history.includes(trimmed)) return;
-    
+
     this.state.history = [trimmed, ...this.state.history].slice(0, MAX_HISTORY);
     this.saveHistory();
   }
@@ -215,7 +234,7 @@ class SearchStore {
       error: null,
       currentPage: 1,
       totalResults: 0,
-      history: this.loadHistory()
+      history: this.loadHistory(),
     };
   }
 }
