@@ -22,16 +22,26 @@
 
   async function savePreferences() {
     saving = true;
-    await authStore.updateUISettings({
-      ...authStore.uiSettings,
-      securityPreferences: {
-        samlEnforced,
-        mfaRecommended,
-        sessionTimeout,
-      },
-    });
-    savedMessage = 'Security preferences updated.';
-    saving = false;
+    savedMessage = null;
+
+    try {
+      await authStore.updateUISettings({
+        ...authStore.uiSettings,
+        securityPreferences: {
+          samlEnforced,
+          mfaRecommended,
+          sessionTimeout,
+        },
+      });
+      savedMessage = 'Security preferences updated.';
+      setTimeout(() => {
+        savedMessage = null;
+      }, 3000);
+    } catch {
+      savedMessage = 'Failed to save security preferences.';
+    } finally {
+      saving = false;
+    }
   }
 </script>
 

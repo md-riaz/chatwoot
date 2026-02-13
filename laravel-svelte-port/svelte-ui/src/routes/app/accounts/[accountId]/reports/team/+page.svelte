@@ -1,5 +1,11 @@
 <script lang="ts">
+  import { page } from '$app/state';
   import WootReports from '$lib/components/reports/shared/WootReports.svelte';
+
+  const selectedItem = $derived.by(() => {
+    const teamId = Number(page.url.searchParams.get('teamId'));
+    return Number.isFinite(teamId) && teamId > 0 ? { id: teamId } : null;
+  });
 </script>
 
 <div class="h-full flex flex-col bg-background">
@@ -8,6 +14,7 @@
       type="team"
       downloadButtonLabel="Download Team Reports"
       reportTitle="Team Reports"
+      {selectedItem}
     />
   </div>
 </div>

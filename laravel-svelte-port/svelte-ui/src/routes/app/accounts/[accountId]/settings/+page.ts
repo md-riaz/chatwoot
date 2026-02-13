@@ -1,9 +1,15 @@
 import { authStore } from '$lib/stores/auth.svelte';
 import { globalConfig } from '$lib/stores/globalConfig.svelte';
 import { redirect } from '@sveltejs/kit';
+import type { PageLoad } from './$types';
 
-export function load({ params }: { params: { accountId: string } }) {
+export const load: PageLoad = ({ params }) => {
   const accountId = Number(params.accountId);
+
+  if (!authStore.currentUser?.accounts) {
+    throw redirect(302, '/app/unauthorized');
+  }
+
   const account = authStore.currentUser.accounts.find(
     currentAccount => currentAccount.id === accountId
   );
@@ -24,4 +30,4 @@ export function load({ params }: { params: { accountId: string } }) {
   }
 
   throw redirect(302, `/app/accounts/${accountId}/settings/profile`);
-}
+};

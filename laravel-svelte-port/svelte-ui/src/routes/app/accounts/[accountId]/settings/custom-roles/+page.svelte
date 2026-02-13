@@ -9,16 +9,27 @@
 
   let draft = $state<RoleDraft>({ name: '', permissions: '' });
   let roles = $state<{ name: string; permissions: string[] }[]>([]);
+  let errorMessage = $state<string | null>(null);
 
   $effect(() => {
     roles = authStore.uiSettings?.customRoles || [];
   });
 
   async function addRole() {
-    if (!draft.name.trim() || !draft.permissions.trim()) return;
+    const normalizedName = draft.name.trim().toLowerCase();
+    const trimmedName = draft.name.trim();
+
+    if (!trimmedName || !draft.permissions.trim()) return;
+
+    if (roles.some(role => role.name.trim().toLowerCase() === normalizedName)) {
+      errorMessage = 'Role name already exists.';
+      return;
+    }
+
+    errorMessage = null;
 
     const nextRole = {
-      name: draft.name.trim(),
+      name: trimmedName,
       permissions: draft.permissions
         .split(',')
         .map(permission => permission.trim())
@@ -26,12 +37,17 @@
     };
 
     const nextRoles = [...roles, nextRole];
-    await authStore.updateUISettings({
-      ...authStore.uiSettings,
-      customRoles: nextRoles,
-    });
 
-    draft = { name: '', permissions: '' };
+    try {
+      await authStore.updateUISettings({
+        ...authStore.uiSettings,
+        customRoles: nextRoles,
+      });
+      draft = { name: '', permissions: '' };
+      roles = nextRoles;
+    } catch {
+      errorMessage = 'Failed to save role. Please try again.';
+    }
   }
 </script>
 
@@ -42,6 +58,13 @@
       Create account-specific roles and permission bundles.
     </p>
   </div>
+
+
+  {#if errorMessage}
+    <div class="rounded border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive">
+      {errorMessage}
+    </div>
+  {/if}
 
   <Card.Root>
     <Card.Header>

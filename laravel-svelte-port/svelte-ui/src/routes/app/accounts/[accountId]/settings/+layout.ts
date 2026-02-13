@@ -1,6 +1,6 @@
 import { authStore } from '$lib/stores/auth.svelte';
-import { globalConfig } from '$lib/stores/globalConfig.svelte';
 import { redirect } from '@sveltejs/kit';
+import type { LayoutLoad } from './$types';
 
 export const ssr = false;
 
@@ -55,14 +55,13 @@ const settingsRouteGuards: SettingsRouteGuard[] = [
   { prefix: '/settings/notifications' },
 ];
 
-export function load({
-  params,
-  url,
-}: {
-  params: { accountId: string };
-  url: URL;
-}) {
+export const load: LayoutLoad = ({ params, url }) => {
   const targetAccountId = Number(params.accountId);
+
+  if (!authStore.currentUser?.accounts) {
+    throw redirect(302, '/app/unauthorized');
+  }
+
   const account = authStore.currentUser.accounts.find(
     acc => acc.id === targetAccountId
   );
@@ -71,29 +70,28 @@ export function load({
     throw redirect(302, '/app/unauthorized');
   }
 
+  if (url.pathname === `/app/accounts/${targetAccountId}/settings`) {
+    return { accountId: targetAccountId };
+  }
+
   const activeGuard = settingsRouteGuards.find(route =>
-    url.pathname.includes(`/accounts/${targetAccountId}${route.prefix}`)
+    url.pathname.startsWith(`/app/accounts/${targetAccountId}${route.prefix}`)
   );
 
   if (!activeGuard) {
-    return { accountId: targetAccountId };
+    throw redirect(302, '/app/unauthorized');
   }
 
   if (activeGuard.requiresAdmin && account.role !== 'administrator') {
     throw redirect(302, `/app/accounts/${targetAccountId}/settings/profile`);
   }
 
-  if (activeGuard.featureFlag) {
-    const accountFlagValue = account.features?.[activeGuard.featureFlag];
-    const isEnabled =
-      accountFlagValue !== undefined
-        ? !!accountFlagValue
-        : globalConfig.isFeatureEnabled(activeGuard.featureFlag);
-
-    if (!isEnabled) {
-      throw redirect(302, `/app/accounts/${targetAccountId}/settings`);
-    }
+  if (
+    activeGuard.featureFlag &&
+    !authStore.isFeatureEnabled(activeGuard.featureFlag)
+  ) {
+    throw redirect(302, `/app/accounts/${targetAccountId}/settings`);
   }
 
   return { accountId: targetAccountId };
-}
+};

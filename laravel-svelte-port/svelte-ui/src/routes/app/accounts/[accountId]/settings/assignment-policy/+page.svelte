@@ -19,15 +19,18 @@
 
   async function handleSave() {
     isSaving = true;
-    await authStore.updateUISettings({
-      ...authStore.uiSettings,
-      assignmentPolicy: {
-        roundRobinEnabled,
-        enforceAgentCapacity,
-        useOnlineAgentsOnly,
-      },
-    });
-    isSaving = false;
+    try {
+      await authStore.updateUISettings({
+        ...authStore.uiSettings,
+        assignmentPolicy: {
+          roundRobinEnabled,
+          enforceAgentCapacity,
+          useOnlineAgentsOnly,
+        },
+      });
+    } finally {
+      isSaving = false;
+    }
   }
 </script>
 
