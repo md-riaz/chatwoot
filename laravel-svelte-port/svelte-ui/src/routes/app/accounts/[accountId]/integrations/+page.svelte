@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import {
@@ -21,8 +20,10 @@
   const isLoading = $derived(integrationsStore.isLoading);
   const error = $derived(integrationsStore.error);
 
-  onMount(async () => {
-    await integrationsStore.fetch();
+  $effect(() => {
+    if (accountId) {
+      integrationsStore.fetch();
+    }
   });
 
   function handleIntegrationAction(status: 'connected' | 'available') {
@@ -45,12 +46,6 @@
         Connect your favorite tools and channels
       </p>
     </div>
-  </div>
-
-  <div class="mb-4">
-    <p class="text-sm text-muted-foreground">
-      {integrationsStore.connectedCount} of {integrations.length} integrations connected
-    </p>
   </div>
 
   {#if isLoading}
@@ -82,6 +77,12 @@
       </Card.Content>
     </Card.Root>
   {:else}
+    <div class="mb-4">
+      <p class="text-sm text-muted-foreground">
+        {integrationsStore.connectedCount} of {integrations.length} integrations connected
+      </p>
+    </div>
+
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {#each integrations as integration (integration.id)}
         <Card.Root class="transition-all hover:shadow-md">

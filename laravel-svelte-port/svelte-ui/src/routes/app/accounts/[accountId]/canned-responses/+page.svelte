@@ -114,8 +114,12 @@
         <p class="mb-4 text-sm text-muted-foreground">{error}</p>
         <Button
           variant="outline"
-          onclick={() => cannedResponsesStore.fetch({ page: 1, perPage: 15 })}
-          >Retry</Button
+          onclick={() =>
+            cannedResponsesStore.fetch({
+              page: 1,
+              perPage: 15,
+              search: searchQuery.trim() || undefined,
+            })}>Retry</Button
         >
       </Card.Content>
     </Card.Root>
@@ -159,8 +163,9 @@
                   variant="outline"
                   size="sm"
                   onclick={() =>
-                    goto(`/app/accounts/${accountId}/settings/macros`)}
-                  ><Edit class="h-4 w-4" /></Button
+                    goto(
+                      `/app/accounts/${accountId}/settings/macros?edit=${response.id}`
+                    )}><Edit class="h-4 w-4" /></Button
                 >
                 <Button
                   variant="outline"

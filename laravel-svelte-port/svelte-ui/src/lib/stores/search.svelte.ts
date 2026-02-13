@@ -22,9 +22,16 @@ interface SearchState {
 const MAX_HISTORY = 10;
 
 class SearchStore {
-  get currentAccountId(): number {
+  get currentAccountId(): number | undefined {
     const pageStore = get(page);
-    return parseInt(pageStore.params.accountId || '0', 10);
+    const accountIdParam = pageStore.params.accountId;
+
+    if (!accountIdParam) return undefined;
+
+    const parsedAccountId = Number.parseInt(accountIdParam, 10);
+    return Number.isFinite(parsedAccountId) && parsedAccountId > 0
+      ? parsedAccountId
+      : undefined;
   }
   private state = $state<SearchState>({
     query: '',
@@ -104,9 +111,21 @@ class SearchStore {
     this.state.error = null;
     this.state.currentPage = pageNumber;
 
+    const accountId = this.currentAccountId;
+
+    if (!accountId) {
+      this.state.error =
+        'Search is unavailable because the account context is missing. Please refresh this page from an account route.';
+      this.state.isSearching = false;
+      console.warn(
+        '[SearchStore] Aborting search request due to missing/invalid accountId'
+      );
+      return;
+    }
+
     try {
       const response = await searchApi.search(
-        this.currentAccountId,
+        accountId,
         query,
         filters,
         pageNumber

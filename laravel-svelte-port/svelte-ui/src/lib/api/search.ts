@@ -50,10 +50,10 @@ function toSearchResult(
   type: SearchResult['type'],
   item: Record<string, unknown>
 ): SearchResult {
-  const id = Number(item.id ?? 0);
-  const conversationId = Number(
-    item.conversationId ?? item.conversation_id ?? item.id ?? 0
-  );
+  const id = Number(item.id ?? 0) || 0;
+  const conversationId =
+    Number(item.conversationId ?? item.conversation_id ?? item.id ?? 0) || 0;
+  const contactId = Number(item.contactId ?? item.contact_id ?? 0) || 0;
 
   return {
     id,
@@ -75,10 +75,7 @@ function toSearchResult(
       (item.email as string | undefined),
     conversationId:
       type === 'contact' ? undefined : conversationId || undefined,
-    contactId:
-      type === 'contact'
-        ? id
-        : Number(item.contactId ?? item.contact_id ?? 0) || undefined,
+    contactId: type === 'contact' ? id : contactId || undefined,
     createdAt: String(
       item.createdAt ?? item.created_at ?? new Date().toISOString()
     ),
