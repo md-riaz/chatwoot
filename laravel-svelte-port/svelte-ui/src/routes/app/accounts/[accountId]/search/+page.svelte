@@ -24,6 +24,11 @@
       return;
     }
 
+    if (result.type === 'message' && result.conversationId) {
+      goto(`/app/accounts/${accountId}/conversations/${result.conversationId}`);
+      return;
+    }
+
     if (result.type === 'contact' && result.contactId) {
       goto(`/app/accounts/${accountId}/contacts/${result.contactId}`);
     }

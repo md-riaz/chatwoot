@@ -91,7 +91,7 @@ class SearchStore {
   async performSearch(
     query: string,
     filters: SearchFilters = {},
-    page: number = 1
+    pageNumber: number = 1
   ) {
     if (!query.trim()) {
       this.clearResults();
@@ -102,17 +102,17 @@ class SearchStore {
     this.state.filters = filters;
     this.state.isSearching = true;
     this.state.error = null;
-    this.state.currentPage = page;
+    this.state.currentPage = pageNumber;
 
     try {
       const response = await searchApi.search(
         this.currentAccountId,
         query,
         filters,
-        page
+        pageNumber
       );
 
-      if (page === 1) {
+      if (pageNumber === 1) {
         this.state.results = response.results;
       } else {
         this.state.results = [...this.state.results, ...response.results];

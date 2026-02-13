@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import {
@@ -19,6 +18,7 @@
   import { Skeleton } from '$lib/components/ui/skeleton';
   import { cannedResponsesStore } from '$lib/stores/cannedResponses.svelte';
   import { toast } from 'svelte-sonner';
+  import { truncate } from '$lib/utils/format';
 
   let searchQuery = $state('');
   let responseToDelete = $state<number | null>(null);
@@ -30,8 +30,10 @@
   const isDeleting = $derived(cannedResponsesStore.isDeleting);
   const error = $derived(cannedResponsesStore.error);
 
-  onMount(async () => {
-    await cannedResponsesStore.fetch({ page: 1, perPage: 15 });
+  $effect(() => {
+    if (accountId) {
+      cannedResponsesStore.fetch({ page: 1, perPage: 15 });
+    }
   });
 
   async function handleSearch() {
@@ -43,14 +45,22 @@
   }
 
   async function copyShortCode(code: string) {
-    await navigator.clipboard.writeText(code);
-    toast.success('Short code copied to clipboard');
+    try {
+      await navigator.clipboard.writeText(code);
+      toast.success('Short code copied to clipboard');
+    } catch {
+      toast.error('Failed to copy to clipboard');
+    }
   }
 
   async function confirmDelete() {
     if (!responseToDelete) return;
     const deleted = await cannedResponsesStore.delete(responseToDelete);
     if (deleted) toast.success('Canned response deleted');
+    else
+      toast.error(
+        cannedResponsesStore.error ?? 'Failed to delete canned response'
+      );
     responseToDelete = null;
     showDeleteDialog = false;
   }
@@ -64,10 +74,7 @@
       <h1 class="text-3xl font-bold">Canned Responses</h1>
       <p class="text-muted-foreground">Save time with pre-written responses</p>
     </div>
-    <Button
-      onclick={() =>
-        goto(`/app/accounts/${accountId}/settings/canned-responses/new`)}
-    >
+    <Button onclick={() => goto(`/app/accounts/${accountId}/settings/macros`)}>
       <Plus class="mr-2 h-4 w-4" />
       New Response
     </Button>
@@ -133,7 +140,7 @@
                   >{response.shortCode}</Badge
                 >
                 <p class="mb-3 text-sm text-muted-foreground">
-                  {response.content}
+                  {truncate(response.content, 120)}
                 </p>
                 <span class="text-xs text-muted-foreground"
                   >Updated {new Date(
@@ -152,9 +159,8 @@
                   variant="outline"
                   size="sm"
                   onclick={() =>
-                    goto(
-                      `/app/accounts/${accountId}/settings/canned-responses/${response.id}/edit`
-                    )}><Edit class="h-4 w-4" /></Button
+                    goto(`/app/accounts/${accountId}/settings/macros`)}
+                  ><Edit class="h-4 w-4" /></Button
                 >
                 <Button
                   variant="outline"

@@ -86,6 +86,19 @@
       {#each integrations as integration (integration.id)}
         <Card.Root class="transition-all hover:shadow-md">
           <Card.Content class="p-6">
+            <div
+              class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10"
+            >
+              {#if integration.logo}
+                <img
+                  src={integration.logo}
+                  alt={`${integration.name} logo`}
+                  class="h-8 w-8 rounded"
+                />
+              {:else}
+                <Puzzle class="h-6 w-6 text-primary" />
+              {/if}
+            </div>
             <div class="mb-2 flex items-center gap-2">
               <h3 class="font-semibold">{integration.name}</h3>
               <Badge
@@ -94,7 +107,9 @@
                   : 'secondary'}
                 class="gap-1 text-xs"
               >
-                <CheckCircle class="h-3 w-3" />
+                {#if integration.status === 'connected'}
+                  <CheckCircle class="h-3 w-3" />
+                {/if}
                 {integration.status}
               </Badge>
             </div>

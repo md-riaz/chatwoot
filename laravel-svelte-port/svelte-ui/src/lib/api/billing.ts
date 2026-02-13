@@ -23,7 +23,11 @@ export async function getCurrentPlan(accountId: number): Promise<BillingPlan> {
     name: 'Workspace Plan',
     amount: 0,
     billingCycle: 'monthly',
-    features: Object.keys(account.features || {}).slice(0, 5),
+    features: Object.keys(account.features || {})
+      .slice(0, 5)
+      .map(key =>
+        key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())
+      ),
     status: account.status || 'active',
   };
 }

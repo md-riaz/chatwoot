@@ -28,8 +28,11 @@ class BillingStore {
 
       this.plan = plan;
       this.invoices = invoices;
-    } catch (err: any) {
-      this.error = err.message || 'Failed to fetch billing information';
+    } catch (err: unknown) {
+      this.error =
+        err instanceof Error
+          ? err.message
+          : 'Failed to fetch billing information';
       this.plan = null;
       this.invoices = [];
     } finally {
