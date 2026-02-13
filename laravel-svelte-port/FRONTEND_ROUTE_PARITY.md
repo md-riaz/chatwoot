@@ -95,3 +95,15 @@ Acceptance criteria used for each mapped route:
 | `/accounts/:accountId/reports/sla`              | `/app/accounts/[accountId]/reports/sla`              | implemented | Existing route works.                                                   |
 | `/accounts/:accountId/reports/csat`             | `/app/accounts/[accountId]/reports/csat`             | implemented | Existing route works.                                                   |
 | `/accounts/:accountId/reports/bot`              | `/app/accounts/[accountId]/reports/bot`              | implemented | Existing route works.                                                   |
+
+## Account Settings Component Parity Cross-check
+
+| Vue component usage in `account/Index.vue` | Svelte counterpart                                                     | Status      |
+| ------------------------------------------ | ---------------------------------------------------------------------- | ----------- |
+| `BaseSettingsHeader`                       | `settings/components/BaseSettingsHeader.svelte` + used in account page | implemented |
+| `SectionLayout`                            | `settings/account/components/SectionLayout.svelte`                     | implemented |
+| `AccountId`                                | `settings/account/components/AccountId.svelte`                         | implemented |
+| `BuildInfo`                                | `settings/account/components/BuildInfo.svelte`                         | implemented |
+| `AccountDelete`                            | `settings/account/components/AccountDelete.svelte`                     | implemented |
+| `AutoResolve`                              | `settings/account/components/AutoResolve.svelte`                       | implemented |
+| `AudioTranscription`                       | `settings/account/components/AudioTranscription.svelte`                | implemented |
