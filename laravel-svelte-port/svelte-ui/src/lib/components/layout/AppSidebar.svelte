@@ -6,7 +6,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { _ } from '$lib/i18n';
   import { get } from 'svelte/store';
-  
+
   // Safe translator: avoid calling the formatter before initial locale is set.
   function safeT(key: string, fallback?: string) {
     try {
@@ -251,7 +251,7 @@
       },
       {
         id: 'reports',
-          label: 'Reports',
+        label: 'Reports',
         icon: 'chart-spline',
         children: [
           // The following items map to the report pages present in Vue
@@ -259,67 +259,67 @@
           // the initial locale is set (which throws in svelte-i18n).
           {
             id: 'reports-overview',
-            label: safeT("SIDEBAR.REPORTS_OVERVIEW", 'Overview'),
+            label: safeT('SIDEBAR.REPORTS_OVERVIEW', 'Overview'),
             href: `/app/accounts/${accountId}/reports`,
             activeOn: [`/app/accounts/${accountId}/reports`],
             permission: 'report_manage',
           },
           {
             id: 'reports-conversation',
-            label: safeT("SIDEBAR.REPORTS_CONVERSATION", 'Conversation'),
+            label: safeT('SIDEBAR.REPORTS_CONVERSATION', 'Conversation'),
             href: `/app/accounts/${accountId}/reports/conversation`,
             activeOn: [`/app/accounts/${accountId}/reports/conversation`],
             permission: 'report_manage',
           },
           {
             id: 'reports-agent',
-              label: safeT("SIDEBAR.REPORTS_AGENT", 'Agent Reports'),
+            label: safeT('SIDEBAR.REPORTS_AGENT', 'Agent Reports'),
             href: `/app/accounts/${accountId}/reports/agent`,
             activeOn: [`/app/accounts/${accountId}/reports/agent`],
             permission: 'report_manage',
           },
           {
             id: 'reports-label',
-              label: safeT("SIDEBAR.REPORTS_LABEL", 'Label Reports'),
+            label: safeT('SIDEBAR.REPORTS_LABEL', 'Label Reports'),
             href: `/app/accounts/${accountId}/reports/label`,
             activeOn: [`/app/accounts/${accountId}/reports/label`],
             permission: 'report_manage',
           },
           {
             id: 'reports-inbox',
-              label: safeT("SIDEBAR.REPORTS_INBOX", 'Inbox Reports'),
+            label: safeT('SIDEBAR.REPORTS_INBOX', 'Inbox Reports'),
             href: `/app/accounts/${accountId}/reports/inbox`,
             activeOn: [`/app/accounts/${accountId}/reports/inbox`],
             permission: 'report_manage',
           },
           {
             id: 'reports-team',
-              label: safeT("SIDEBAR.REPORTS_TEAM", 'Team Reports'),
+            label: safeT('SIDEBAR.REPORTS_TEAM', 'Team Reports'),
             href: `/app/accounts/${accountId}/reports/team`,
             activeOn: [`/app/accounts/${accountId}/reports/team`],
             permission: 'report_manage',
           },
-            {
-              id: 'reports-csat',
-              label: safeT("SIDEBAR.CSAT", 'CSAT'),
-              href: `/app/accounts/${accountId}/reports/csat`,
-              activeOn: [`/app/accounts/${accountId}/reports/csat`],
-              permission: 'report_manage',
-            },
-            {
-              id: 'reports-sla',
-              label: safeT("SIDEBAR.REPORTS_SLA", 'SLA'),
-              href: `/app/accounts/${accountId}/reports/sla`,
-              activeOn: [`/app/accounts/${accountId}/reports/sla`],
-              permission: 'report_manage',
-            },
-            {
-              id: 'reports-bot',
-              label: safeT("SIDEBAR.REPORTS_BOT", 'Bot'),
-              href: `/app/accounts/${accountId}/reports/bot`,
-              activeOn: [`/app/accounts/${accountId}/reports/bot`],
-              permission: 'report_manage',
-            },
+          {
+            id: 'reports-csat',
+            label: safeT('SIDEBAR.CSAT', 'CSAT'),
+            href: `/app/accounts/${accountId}/reports/csat`,
+            activeOn: [`/app/accounts/${accountId}/reports/csat`],
+            permission: 'report_manage',
+          },
+          {
+            id: 'reports-sla',
+            label: safeT('SIDEBAR.REPORTS_SLA', 'SLA'),
+            href: `/app/accounts/${accountId}/reports/sla`,
+            activeOn: [`/app/accounts/${accountId}/reports/sla`],
+            permission: 'report_manage',
+          },
+          {
+            id: 'reports-bot',
+            label: safeT('SIDEBAR.REPORTS_BOT', 'Bot'),
+            href: `/app/accounts/${accountId}/reports/bot`,
+            activeOn: [`/app/accounts/${accountId}/reports/bot`],
+            permission: 'report_manage',
+          },
         ],
       },
       {
@@ -418,8 +418,8 @@
             id: 'settings-assignment',
             label: 'Agent Assignment',
             icon: 'user-cog',
-            href: `/app/accounts/${accountId}/settings/assignment`,
-            activeOn: [`/app/accounts/${accountId}/settings/assignment`],
+            href: `/app/accounts/${accountId}/settings/assignment-policy`,
+            activeOn: [`/app/accounts/${accountId}/settings/assignment-policy`],
             permission: 'administrator',
           },
           {
@@ -490,16 +490,16 @@
             id: 'settings-audit',
             label: 'Audit Logs',
             icon: 'briefcase',
-            href: `/app/accounts/${accountId}/settings/audit`,
-            activeOn: [`/app/accounts/${accountId}/settings/audit`],
+            href: `/app/accounts/${accountId}/settings/audit-logs`,
+            activeOn: [`/app/accounts/${accountId}/settings/audit-logs`],
             permission: 'administrator',
           },
           {
             id: 'settings-roles',
             label: 'Custom Roles',
             icon: 'shield-plus',
-            href: `/app/accounts/${accountId}/settings/roles`,
-            activeOn: [`/app/accounts/${accountId}/settings/roles`],
+            href: `/app/accounts/${accountId}/settings/custom-roles`,
+            activeOn: [`/app/accounts/${accountId}/settings/custom-roles`],
             permission: 'administrator',
           },
           {

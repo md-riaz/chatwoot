@@ -3,74 +3,86 @@
    * Settings Home Page
    * Overview of all settings sections
    */
-  
-  import { Settings, Users, Bell, Lock, Palette, Globe } from '@lucide/svelte';
-  import * as Card from '$lib/components/ui/card';
-  import { ClickableCard } from '$lib/components/custom';
-  import { Button } from '$lib/components/ui/button';
+
   import { goto } from '$app/navigation';
-  
-  const settingsSections = [
-    {
-      id: 'general',
-      title: 'General Settings',
-      description: 'Manage your account preferences and basic settings',
-      icon: Settings,
-      href: '/app/settings/general',
-    },
+  import { page } from '$app/stores';
+  import {
+    Lock,
+    ScrollText,
+    Settings,
+    Shield,
+    UserCog,
+    Users,
+  } from '@lucide/svelte';
+  import { ClickableCard } from '$lib/components/custom';
+  import * as Card from '$lib/components/ui/card';
+
+  const accountId = $derived($page.params.accountId);
+
+  const settingsSections = $derived([
     {
       id: 'account',
       title: 'Account Settings',
-      description: 'Update your profile, email, and account details',
-      icon: Users,
-      href: '/app/settings/account',
+      description: 'Manage account preferences and system-level defaults',
+      icon: Settings,
+      href: `/app/accounts/${accountId}/settings/account`,
     },
     {
-      id: 'notifications',
-      title: 'Notifications',
-      description: 'Configure email and push notification preferences',
-      icon: Bell,
-      href: '/app/settings/notifications',
+      id: 'agents',
+      title: 'Agents',
+      description: 'Manage team members and access within your account',
+      icon: Users,
+      href: `/app/accounts/${accountId}/settings/agents`,
+    },
+    {
+      id: 'assignment-policy',
+      title: 'Assignment Policy',
+      description: 'Configure automatic conversation assignment behavior',
+      icon: UserCog,
+      href: `/app/accounts/${accountId}/settings/assignment-policy`,
+    },
+    {
+      id: 'custom-roles',
+      title: 'Custom Roles',
+      description: 'Create and maintain account-specific permission bundles',
+      icon: Shield,
+      href: `/app/accounts/${accountId}/settings/custom-roles`,
     },
     {
       id: 'security',
-      title: 'Security & Privacy',
-      description: 'Manage passwords, two-factor authentication, and privacy',
+      title: 'Security',
+      description: 'Configure SAML, MFA preferences, and session safeguards',
       icon: Lock,
-      href: '/app/settings/security',
+      href: `/app/accounts/${accountId}/settings/security`,
     },
     {
-      id: 'appearance',
-      title: 'Appearance',
-      description: 'Customize theme, language, and display preferences',
-      icon: Palette,
-      href: '/app/settings/appearance',
+      id: 'audit-logs',
+      title: 'Audit Logs',
+      description: 'Review account activity and administrative changes',
+      icon: ScrollText,
+      href: `/app/accounts/${accountId}/settings/audit-logs`,
     },
-    {
-      id: 'integrations',
-      title: 'Integrations',
-      description: 'Connect with third-party apps and services',
-      icon: Globe,
-      href: '/app/settings/integrations',
-    },
-  ];
+  ]);
 </script>
 
 <div class="space-y-6">
   <div>
     <h1 class="text-3xl font-bold">Settings</h1>
     <p class="text-muted-foreground mt-2">
-      Manage your account settings and preferences
+      Manage account configuration for the selected workspace.
     </p>
   </div>
-  
+
   <div class="grid gap-4 md:grid-cols-2">
     {#each settingsSections as section}
-      <ClickableCard class="hover:border-primary transition-colors" onclick={() => goto(section.href)}>
+      <ClickableCard
+        class="hover:border-primary transition-colors"
+        onclick={() => goto(section.href)}
+      >
         <Card.Header>
           <div class="flex items-start gap-4">
             <div class="p-2 bg-primary/10 rounded-lg">
-              <svelte:component this={section.icon} class="h-6 w-6 text-primary" />
+              <section.icon class="h-6 w-6 text-primary" />
             </div>
             <div class="flex-1">
               <Card.Title class="text-base">{section.title}</Card.Title>
