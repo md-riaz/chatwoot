@@ -5,13 +5,19 @@
   interface Props {
     title: string;
     metricKey: string;
+    groupBy?: string | null;
     isTime?: boolean;
   }
 
-  let { title, metricKey, isTime = false }: Props = $props();
+  let { title, metricKey, groupBy = null, isTime = false }: Props = $props();
 
-  const rawChartData = $derived(reportsStore.getChartData(metricKey));
-  const isLoading = $derived(reportsStore.getUIFlag(`isFetching_${metricKey}`));
+  const chartMetricKey = $derived(
+    groupBy ? `${metricKey}_${groupBy}` : metricKey
+  );
+  const rawChartData = $derived(reportsStore.getChartData(chartMetricKey));
+  const isLoading = $derived(
+    reportsStore.getUIFlag(`isFetching_${chartMetricKey}`)
+  );
 
   const chartData = $derived.by<{ data: number[]; labels: string[] }>(() => {
     if (
@@ -21,7 +27,9 @@
     ) {
       return {
         data: rawChartData.data.map((point: unknown) => Number(point) || 0),
-        labels: rawChartData.labels.map((label: unknown) => String(label ?? '')),
+        labels: rawChartData.labels.map((label: unknown) =>
+          String(label ?? '')
+        ),
       };
     }
 
@@ -70,15 +78,22 @@
   {#if isLoading}
     <div class="h-[300px] animate-pulse bg-muted rounded"></div>
   {:else if points.length > 0}
-    <div class="h-[300px] flex items-end gap-1 rounded bg-muted/20 p-3 overflow-x-auto">
+    <div
+      class="h-[300px] flex items-end gap-1 rounded bg-muted/20 p-3 overflow-x-auto"
+    >
       {#each points as point, index (index)}
-        <div class="flex flex-col items-center min-w-[18px]" title={formatValue(point)}>
+        <div
+          class="flex flex-col items-center min-w-[18px]"
+          title={formatValue(point)}
+        >
           <div
             class="w-4 rounded-t bg-primary/70 hover:bg-primary transition-colors"
             style={`height: ${Math.max((point / maxValue) * 220, 2)}px`}
           ></div>
           {#if labels[index]}
-            <span class="mt-1 text-[10px] text-muted-foreground truncate max-w-[18px]">
+            <span
+              class="mt-1 text-[10px] text-muted-foreground truncate max-w-[18px]"
+            >
               {labels[index]}
             </span>
           {/if}
@@ -86,7 +101,9 @@
       {/each}
     </div>
   {:else}
-    <div class="h-[300px] flex items-center justify-center text-muted-foreground">
+    <div
+      class="h-[300px] flex items-center justify-center text-muted-foreground"
+    >
       No data available
     </div>
   {/if}
