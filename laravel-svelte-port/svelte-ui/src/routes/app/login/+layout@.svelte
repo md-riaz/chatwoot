@@ -32,7 +32,7 @@
     
     <!-- Footer -->
     <div class="mt-8 text-center text-xs text-muted-foreground">
-      {$_('auth.layout.footer_copyright')}
+      {$_('auth.layout.footer_copyright', { values: { year: new Date().getFullYear() } })}
     </div>
   </div>
 </div>

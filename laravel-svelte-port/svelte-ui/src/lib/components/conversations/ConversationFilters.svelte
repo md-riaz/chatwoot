@@ -35,12 +35,12 @@
     { value: 'resolved', label: $_('conversation.filters.status.resolved'), count: statusCounts.resolved || 0 },
   ]);
   
-  const sortOptions = [
+  const sortOptions = $derived([
     { value: 'latest', label: $_('conversation.filters.sort.latest') },
     { value: 'oldest', label: $_('conversation.filters.sort.oldest') },
     { value: 'priority', label: $_('conversation.filters.sort.priority') },
     { value: 'unread', label: $_('conversation.filters.sort.unread') },
-  ];
+  ]);
   
   let selectedStatus = $state('all');
   let selectedSort = $state('latest');
