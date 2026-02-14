@@ -5,7 +5,6 @@
 
 import type { Agent } from '$lib/api/agents';
 import type { Team } from '$lib/api/teams';
-import type { CurrentUser } from '$lib/api/auth';
 
 export type PresenceStatus = 'online' | 'offline' | 'busy' | 'away';
 
@@ -72,26 +71,14 @@ export interface AccountPresencePayload extends RealtimeEventEnvelope {
 
 export interface AssigneeChangedPayload extends RealtimeEventEnvelope {
   conversation?: { id: number } & Record<string, unknown>;
-  current_user?: Agent;
+  previous_assignee?: Agent | null;
+  new_assignee?: Agent | null;
 }
 
 export interface TeamChangedPayload extends RealtimeEventEnvelope {
   conversation?: { id: number } & Record<string, unknown>;
-  team?: Team;
-  action?: 'created' | 'updated' | 'deleted';
-  id?: number;
-}
-
-export interface UserAvailabilityPayload extends RealtimeEventEnvelope {
-  user_id: number;
-  availability_status: Exclude<PresenceStatus, 'away'>;
-}
-
-export interface UserUpdatedPayload extends RealtimeEventEnvelope {
-  user: Partial<CurrentUser> & {
-    id: number;
-    availability_status?: Exclude<PresenceStatus, 'away'>;
-  };
+  previous_team?: Team | null;
+  new_team?: Team | null;
 }
 
 export type MessageHandler = (data: any) => void;

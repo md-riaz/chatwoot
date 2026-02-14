@@ -202,11 +202,10 @@ class AgentsStore {
         ...this.allAgents[index],
         ...agent,
       };
-      this.allAgents = [...this.allAgents];
       return;
     }
 
-    this.allAgents = [...this.allAgents, agent];
+    this.allAgents.push(agent);
   }
 
   /**
@@ -223,7 +222,6 @@ class AgentsStore {
       ...this.allAgents[index],
       availabilityStatus,
     };
-    this.allAgents = [...this.allAgents];
   }
 
   /**

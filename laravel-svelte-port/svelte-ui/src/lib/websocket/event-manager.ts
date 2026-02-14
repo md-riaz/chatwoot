@@ -223,7 +223,8 @@ export class WebSocketEventManager {
     }
 
     if (typeof data.user_id !== 'number') {
-      return true;
+      console.warn('User event missing user_id, rejecting for safety');
+      return false;
     }
 
     const isValid = data.user_id === this.currentUserId;
@@ -568,11 +569,15 @@ export class WebSocketEventManager {
         console.log('Assignee changed:', payload);
 
         if (payload.conversation) {
-          conversationsStore.updateConversation(payload.conversation as any);
+          conversationsStore.updateConversation(
+            payload.conversation as unknown as Parameters<
+              typeof conversationsStore.updateConversation
+            >[0]
+          );
         }
 
-        if (payload.current_user) {
-          agentsStore.addOrUpdateAgent(payload.current_user);
+        if (payload.new_assignee) {
+          agentsStore.addOrUpdateAgent(payload.new_assignee);
         }
 
         // Emit event for stats refresh (matching Vue)
@@ -586,15 +591,19 @@ export class WebSocketEventManager {
         console.log('Team changed:', payload);
 
         if (payload.conversation) {
-          conversationsStore.updateConversation(payload.conversation as any);
+          conversationsStore.updateConversation(
+            payload.conversation as unknown as Parameters<
+              typeof conversationsStore.updateConversation
+            >[0]
+          );
         }
 
-        if (payload.team) {
-          teamsStore.addOrUpdateTeam(payload.team);
+        if (payload.new_team) {
+          teamsStore.addOrUpdateTeam(payload.new_team);
         }
 
-        if (payload.action === 'deleted' && payload.id) {
-          teamsStore.removeTeam(payload.id);
+        if (payload.previous_team && !payload.new_team) {
+          teamsStore.removeTeam(payload.previous_team.id);
         }
 
         // Emit event for stats refresh (matching Vue)
