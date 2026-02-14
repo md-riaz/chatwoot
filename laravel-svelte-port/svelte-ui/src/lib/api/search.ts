@@ -88,10 +88,24 @@ function normalizeSearchResponse(
   perPage: number
 ): SearchResponse {
   if (Array.isArray(response.results)) {
+    const normalizedResults = response.results.map(item => {
+      const resultType =
+        item.type === 'conversation' ||
+        item.type === 'contact' ||
+        item.type === 'message'
+          ? item.type
+          : 'conversation';
+
+      return toSearchResult(
+        resultType,
+        item as unknown as Record<string, unknown>
+      );
+    });
+
     return {
-      results: response.results,
+      results: normalizedResults,
       meta: {
-        total: response.meta?.total ?? response.results.length,
+        total: response.meta?.total ?? normalizedResults.length,
         page,
         perPage,
       },

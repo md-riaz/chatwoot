@@ -32,6 +32,7 @@
 
   $effect(() => {
     if (accountId) {
+      searchQuery = '';
       cannedResponsesStore.fetch({ page: 1, perPage: 15 });
     }
   });
@@ -147,9 +148,14 @@
                   {truncate(response.content, 120)}
                 </p>
                 <span class="text-xs text-muted-foreground"
-                  >Updated {new Date(
-                    response.updatedAt
-                  ).toLocaleDateString()}</span
+                  >Updated {(() => {
+                    const fallback = response.createdAt ?? 'N/A';
+                    const timestamp = response.updatedAt ?? fallback;
+                    const date = new Date(timestamp);
+                    return Number.isNaN(date.getTime())
+                      ? fallback
+                      : date.toLocaleDateString();
+                  })()}</span
                 >
               </div>
               <div class="flex gap-2">
