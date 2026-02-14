@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import {
     Search,
     MessageSquare,
@@ -24,7 +24,7 @@
   let responseToDelete = $state<number | null>(null);
   let showDeleteDialog = $state(false);
 
-  const accountId = $derived($page.params.accountId);
+  const accountId = $derived(page.params.accountId);
   const cannedResponses = $derived(cannedResponsesStore.items);
   const isLoading = $derived(cannedResponsesStore.isLoading);
   const isDeleting = $derived(cannedResponsesStore.isDeleting);
