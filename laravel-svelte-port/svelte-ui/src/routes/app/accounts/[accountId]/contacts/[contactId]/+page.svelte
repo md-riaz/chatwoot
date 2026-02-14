@@ -214,8 +214,13 @@
   async function handleMergeContact(targetContactId: number) {
     if (!contact) return;
 
+    const mergeCandidate = mergeResults.find(
+      candidate => candidate.id === targetContactId
+    );
+    const candidateName = mergeCandidate?.name || `Contact #${targetContactId}`;
+
     const confirmed = window.confirm(
-      'Merge this contact into the current contact? This action cannot be undone.'
+      `Merge candidate "${candidateName}" INTO the current contact (this page)? This will delete "${candidateName}" and cannot be undone.`
     );
     if (!confirmed) return;
 
@@ -311,7 +316,13 @@
   });
 
   $effect(() => {
-    runMergeSearch(mergeQuery);
+    const timer = setTimeout(() => {
+      runMergeSearch(mergeQuery);
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+    };
   });
 
   // Social profiles computed (merge common keys)
@@ -340,6 +351,26 @@
 
   function formatSocialLabel(k: string) {
     return k.charAt(0).toUpperCase() + k.slice(1);
+  }
+
+  function getSocialProfileValue(value: unknown): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    const normalized = String(value).trim();
+    return normalized.length > 0 ? normalized : null;
+  }
+
+  function getSocialProfileHref(value: unknown): string | null {
+    const profileValue = getSocialProfileValue(value);
+    if (!profileValue) {
+      return null;
+    }
+
+    return profileValue.startsWith('http')
+      ? profileValue
+      : `https://${profileValue}`;
   }
 </script>
 
@@ -696,14 +727,17 @@
                                 <span class="text-sm text-muted-foreground"
                                   >{formatSocialLabel(sk)}:</span
                                 >
-                                <a
-                                  class="text-sm text-blue-600 underline"
-                                  href={String(sv).startsWith('http')
-                                    ? String(sv)
-                                    : `https://${String(sv)}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer">{String(sv)}</a
-                                >
+                                {#if getSocialProfileHref(sv) && getSocialProfileValue(sv)}
+                                  <a
+                                    class="text-sm text-blue-600 underline"
+                                    href={getSocialProfileHref(sv)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >{getSocialProfileValue(sv)}</a
+                                  >
+                                {:else}
+                                  <span class="text-sm">—</span>
+                                {/if}
                               </div>
                             {/each}
                           </div>
@@ -875,14 +909,17 @@
                                   <span class="text-sm text-muted-foreground"
                                     >{formatSocialLabel(sk)}:</span
                                   >
-                                  <a
-                                    class="text-sm text-blue-600 underline"
-                                    href={String(sv).startsWith('http')
-                                      ? String(sv)
-                                      : `https://${String(sv)}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer">{String(sv)}</a
-                                  >
+                                  {#if getSocialProfileHref(sv) && getSocialProfileValue(sv)}
+                                    <a
+                                      class="text-sm text-blue-600 underline"
+                                      href={getSocialProfileHref(sv)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      >{getSocialProfileValue(sv)}</a
+                                    >
+                                  {:else}
+                                    <span class="text-sm">—</span>
+                                  {/if}
                                 </div>
                               {/each}
                             </div>

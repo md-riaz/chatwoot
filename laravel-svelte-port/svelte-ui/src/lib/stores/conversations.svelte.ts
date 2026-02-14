@@ -1,7 +1,7 @@
 /**
  * Conversations Store using Svelte 5 runes with Vue-style mutation/action pattern
  * Replaces app/javascript/dashboard/store/modules/conversations/
- * 
+ *
  * Implements Vue ActionCable parity with:
  * - Strict separation of mutations (pure state) and actions (side effects)
  * - Account event validation for security
@@ -10,7 +10,12 @@
  */
 
 import { page } from '$app/stores';
-import type { Conversation, ConversationListParams, ConversationPriority, ConversationStatus } from '$lib/api/conversations';
+import type {
+  Conversation,
+  ConversationListParams,
+  ConversationPriority,
+  ConversationStatus,
+} from '$lib/api/conversations';
 import * as conversationsAPI from '$lib/api/conversations';
 import { get } from 'svelte/store';
 import { eventBus, BUS_EVENTS } from '$lib/utils/event-bus';
@@ -45,27 +50,28 @@ class ConversationsStore {
   selectedConversationId = $state<number | null>(null);
   isLoading = $state<boolean>(false);
   error = $state<string | null>(null);
-  
+
   // Filters
   statusFilter = $state<ConversationStatus>('open');
   sortFilter = $state<SortType>('latest');
   currentInboxId = $state<number | null>(null);
   appliedFilters = $state<any[]>([]);
-  
+
   // Attachments cache
   attachments = $state<Record<number, any[]>>({});
-  
+
   // Computed values using $derived
   selectedConversation = $derived(
-    this.allConversations.find(c => c.id === this.selectedConversationId) || null
+    this.allConversations.find(c => c.id === this.selectedConversationId) ||
+      null
   );
-  
+
   selectedConversationAttachments = $derived(
-    this.selectedConversationId 
+    this.selectedConversationId
       ? this.attachments[this.selectedConversationId] || []
       : []
   );
-  
+
   /**
    * Get sorted conversations
    */
@@ -88,14 +94,23 @@ class ConversationsStore {
         case 'unread':
           return (b.unreadCount || 0) - (a.unreadCount || 0);
         case 'priority':
-          const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3, '': 4 };
-          return (priorityOrder[a.priority || ''] || 4) - (priorityOrder[b.priority || ''] || 4);
+          const priorityOrder: Record<string, number> = {
+            urgent: 0,
+            high: 1,
+            medium: 2,
+            low: 3,
+            '': 4,
+          };
+          return (
+            (priorityOrder[a.priority || ''] || 4) -
+            (priorityOrder[b.priority || ''] || 4)
+          );
         default:
           return 0;
       }
     });
   }
-  
+
   /**
    * Get filtered conversations (by status, inbox, etc.)
    */
@@ -105,16 +120,16 @@ class ConversationsStore {
       if (this.statusFilter && conversation.status !== this.statusFilter) {
         return false;
       }
-      
+
       // Filter by inbox
       if (this.currentInboxId && conversation.inboxId !== this.currentInboxId) {
         return false;
       }
-      
+
       return true;
     });
   }
-  
+
   /**
    * Get current account ID from route
    */
@@ -123,14 +138,14 @@ class ConversationsStore {
     const accountId = pageData?.params?.accountId;
     return accountId ? Number(accountId) : null;
   }
-  
+
   /**
    * Get conversation by ID
    */
   getConversationById(conversationId: number): Conversation | null {
     return this.allConversations.find(c => c.id === conversationId) || null;
   }
-  
+
   /**
    * Fetch all conversations
    */
@@ -140,21 +155,22 @@ class ConversationsStore {
       this.error = 'No account ID available';
       return;
     }
-    
+
     this.isLoading = true;
     this.error = null;
-    
+
     try {
       const response = await conversationsAPI.getConversations({
         accountId,
         status: this.statusFilter,
         inboxId: this.currentInboxId || undefined,
         sortBy: this.sortFilter,
-        ...params
+        ...params,
       });
-      
+
       // Handle Laravel pagination format
-      const conversations = response?.data || (response as any)?.items || response || [];
+      const conversations =
+        response?.data || (response as any)?.items || response || [];
       this.setConversations(conversations);
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch conversations';
@@ -163,7 +179,7 @@ class ConversationsStore {
       this.isLoading = false;
     }
   }
-  
+
   /**
    * Fetch filtered conversations
    */
@@ -173,17 +189,17 @@ class ConversationsStore {
       this.error = 'No account ID available';
       return;
     }
-    
+
     this.isLoading = true;
     this.error = null;
-    
+
     try {
       const response = await conversationsAPI.filterConversations({
         accountId,
         payload,
-        page
+        page,
       });
-      
+
       this.setConversations(response.payload);
       this.appliedFilters = payload;
     } catch (err: any) {
@@ -193,7 +209,7 @@ class ConversationsStore {
       this.isLoading = false;
     }
   }
-  
+
   /**
    * Fetch single conversation
    */
@@ -203,9 +219,12 @@ class ConversationsStore {
       this.error = 'No account ID available';
       return;
     }
-    
+
     try {
-      const conversation = await conversationsAPI.getConversation(accountId, conversationId);
+      const conversation = await conversationsAPI.getConversation(
+        accountId,
+        conversationId
+      );
       this.updateConversation(conversation);
       return conversation;
     } catch (err: any) {
@@ -213,122 +232,147 @@ class ConversationsStore {
       throw err;
     }
   }
-  
+
   /**
    * Select a conversation
    */
   setSelectedConversation(conversationId: number | null) {
     this.selectedConversationId = conversationId;
   }
-  
+
   /**
    * Update conversation status
    */
-  async updateStatus(conversationId: number, status: ConversationStatus, snoozedUntil?: number) {
+  async updateStatus(
+    conversationId: number,
+    status: ConversationStatus,
+    snoozedUntil?: number
+  ) {
     const accountId = this.currentAccountId;
     if (!accountId) return;
-    
+
     const previousStatus = this.getConversationById(conversationId)?.status;
-    
+
     // Optimistic update - convert number to string for snoozedUntil
-    this.updateConversationLocally(conversationId, { 
-      status, 
-      snoozedUntil: snoozedUntil ? snoozedUntil.toString() : undefined 
+    this.updateConversationLocally(conversationId, {
+      status,
+      snoozedUntil: snoozedUntil ? snoozedUntil.toString() : undefined,
     });
-    
+
     try {
-      const updated = await conversationsAPI.updateConversation(accountId, conversationId, {
-        status,
-        snoozedUntil: snoozedUntil || undefined
-      });
+      const updated = await conversationsAPI.updateConversation(
+        accountId,
+        conversationId,
+        {
+          status,
+          snoozedUntil: snoozedUntil || undefined,
+        }
+      );
       this.updateConversation(updated);
     } catch (err: any) {
       // Revert on error
       if (previousStatus) {
-        this.updateConversationLocally(conversationId, { status: previousStatus });
+        this.updateConversationLocally(conversationId, {
+          status: previousStatus,
+        });
       }
       this.error = err.message || 'Failed to update status';
       throw err;
     }
   }
-  
+
   /**
    * Toggle conversation status (open <-> resolved)
    */
   async toggleStatus(conversationId: number) {
     const accountId = this.currentAccountId;
     if (!accountId) return;
-    
+
     try {
-      const updated = await conversationsAPI.toggleStatus(accountId, conversationId);
+      const updated = await conversationsAPI.toggleStatus(
+        accountId,
+        conversationId
+      );
       this.updateConversation(updated);
     } catch (err: any) {
       this.error = err.message || 'Failed to toggle status';
       throw err;
     }
   }
-  
+
   /**
    * Assign agent to conversation
    */
   async assignAgent(conversationId: number, assigneeId: number | null) {
     const accountId = this.currentAccountId;
     if (!accountId) return;
-    
+
     try {
-      const updated = await conversationsAPI.assignAgent(accountId, conversationId, assigneeId);
+      const updated = await conversationsAPI.assignAgent(
+        accountId,
+        conversationId,
+        assigneeId
+      );
       this.updateConversation(updated);
     } catch (err: any) {
       this.error = err.message || 'Failed to assign agent';
       throw err;
     }
   }
-  
+
   /**
    * Assign team to conversation
    */
   async assignTeam(conversationId: number, teamId: number | null) {
     const accountId = this.currentAccountId;
     if (!accountId) return;
-    
+
     try {
-      const updated = await conversationsAPI.assignTeam(accountId, conversationId, teamId);
+      const updated = await conversationsAPI.assignTeam(
+        accountId,
+        conversationId,
+        teamId
+      );
       this.updateConversation(updated);
     } catch (err: any) {
       this.error = err.message || 'Failed to assign team';
       throw err;
     }
   }
-  
+
   /**
    * Update conversation priority
    */
   async updatePriority(conversationId: number, priority: ConversationPriority) {
     const accountId = this.currentAccountId;
     if (!accountId) return;
-    
+
     // Optimistic update
     this.updateConversationLocally(conversationId, { priority });
-    
+
     try {
-      const updated = await conversationsAPI.updateConversation(accountId, conversationId, { priority });
+      const updated = await conversationsAPI.updateConversation(
+        accountId,
+        conversationId,
+        { priority }
+      );
       this.updateConversation(updated);
     } catch (err: any) {
       this.error = err.message || 'Failed to update priority';
       throw err;
     }
   }
-  
+
   /**
    * Mute conversation
    */
   async muteConversation(conversationId: number) {
     const accountId = this.currentAccountId;
     if (!accountId) return;
-    
+
     // Optimistic update
     this.updateConversationLocally(conversationId, { muted: true });
-    
+
     try {
       await conversationsAPI.muteConversation(accountId, conversationId);
     } catch (err: any) {
@@ -338,17 +382,17 @@ class ConversationsStore {
       throw err;
     }
   }
-  
+
   /**
    * Unmute conversation
    */
   async unmuteConversation(conversationId: number) {
     const accountId = this.currentAccountId;
     if (!accountId) return;
-    
+
     // Optimistic update
     this.updateConversationLocally(conversationId, { muted: false });
-    
+
     try {
       await conversationsAPI.unmuteConversation(accountId, conversationId);
     } catch (err: any) {
@@ -358,17 +402,17 @@ class ConversationsStore {
       throw err;
     }
   }
-  
+
   /**
    * Update conversation labels
    */
   async updateLabels(conversationId: number, labels: string[]) {
     const accountId = this.currentAccountId;
     if (!accountId) return;
-    
+
     // Optimistic update
     this.updateConversationLocally(conversationId, { labels });
-    
+
     try {
       await conversationsAPI.updateLabels(accountId, conversationId, labels);
     } catch (err: any) {
@@ -376,83 +420,91 @@ class ConversationsStore {
       throw err;
     }
   }
-  
+
   /**
    * Update custom attributes
    */
-  async updateCustomAttributes(conversationId: number, customAttributes: Record<string, any>) {
+  async updateCustomAttributes(
+    conversationId: number,
+    customAttributes: Record<string, any>
+  ) {
     const accountId = this.currentAccountId;
     if (!accountId) return;
-    
+
     try {
-      const updated = await conversationsAPI.updateCustomAttributes(accountId, conversationId, customAttributes);
+      const updated = await conversationsAPI.updateCustomAttributes(
+        accountId,
+        conversationId,
+        customAttributes
+      );
       this.updateConversation(updated);
     } catch (err: any) {
       this.error = err.message || 'Failed to update custom attributes';
       throw err;
     }
   }
-  
+
   /**
    * Mark messages as read
    */
   async markMessagesRead(conversationId: number) {
     const accountId = this.currentAccountId;
     if (!accountId) return;
-    
+
     try {
-      const { agentLastSeenAt, unreadCount } = await conversationsAPI.markMessagesRead(
-        accountId,
-        conversationId
-      );
-      
+      const { agentLastSeenAt, unreadCount } =
+        await conversationsAPI.markMessagesRead(accountId, conversationId);
+
       this.updateConversationLocally(conversationId, {
         agentLastSeenAt,
-        unreadCount
+        unreadCount,
       });
     } catch (err: any) {
       this.error = err.message || 'Failed to mark as read';
       throw err;
     }
   }
-  
+
   /**
    * Fetch attachments for a conversation
    */
   async fetchAttachments(conversationId: number) {
     const accountId = this.currentAccountId;
     if (!accountId) return;
-    
+
     try {
-      const attachments = await conversationsAPI.getAllAttachments(accountId, conversationId);
+      const attachments = await conversationsAPI.getAllAttachments(
+        accountId,
+        conversationId
+      );
       this.attachments[conversationId] = attachments;
     } catch (err: any) {
       // Don't throw, just log
       console.error('Failed to fetch attachments:', err);
     }
   }
-  
+
   /**
    * Set status filter
    */
   setStatusFilter(status: ConversationStatus) {
     this.statusFilter = status;
   }
-  
+
   /**
    * Set sort filter
    */
   setSortFilter(sort: SortType) {
     this.sortFilter = sort;
   }
-  
+
   /**
    * Set active inbox
    */
   setActiveInbox(inboxId: number | null) {
     this.currentInboxId = inboxId;
   }
-  
+
   /**
    * Clear all conversations
    */
@@ -460,7 +512,7 @@ class ConversationsStore {
     this.allConversations = [];
     this.selectedConversationId = null;
   }
-  
+
   // WebSocket event handlers with Vue parity
 
   /**
@@ -469,12 +521,12 @@ class ConversationsStore {
   handleMessageCreated(message: any): void {
     // Mutation: Pure state update
     this.mutations.ADD_MESSAGE(message);
-    
+
     // Actions: Side effects (matching Vue pattern)
     this.playAudioNotification(message);
     this.updateConversationStats();
     this.moveConversationToTop(message.conversation_id);
-    
+
     // Emit event for external listeners
     eventBus.emit(BUS_EVENTS.AGENT_MESSAGE_RECEIVED, message);
   }
@@ -485,7 +537,7 @@ class ConversationsStore {
   addConversation(conversation: Conversation): void {
     // Mutation: Pure state update
     this.mutations.ADD_CONVERSATION(conversation);
-    
+
     // Actions: Side effects
     this.updateConversationStats();
   }
@@ -546,15 +598,16 @@ class ConversationsStore {
    */
   setLastMessageId(): number | null {
     const allMessages = this.allConversations.flatMap(c => c.messages || []);
-    
+
     if (allMessages.length > 0) {
-      const lastMessage = allMessages.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      const lastMessage = allMessages.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )[0];
-      
+
       return lastMessage.id;
     }
-    
+
     return null;
   }
 
@@ -568,7 +621,7 @@ class ConversationsStore {
           conversation.messages = [];
         }
         conversation.messages.push(message);
-        
+
         // Update conversation metadata
         conversation.lastActivityAt = message.created_at;
         conversation.unreadCount = (conversation.unreadCount || 0) + 1;
@@ -585,7 +638,9 @@ class ConversationsStore {
     UPDATE_MESSAGE: (message: any) => {
       const conversation = this.getConversationById(message.conversation_id);
       if (conversation && conversation.messages) {
-        const messageIndex = conversation.messages.findIndex(m => m.id === message.id);
+        const messageIndex = conversation.messages.findIndex(
+          m => m.id === message.id
+        );
         if (messageIndex >= 0) {
           conversation.messages[messageIndex] = message;
         }
@@ -595,7 +650,9 @@ class ConversationsStore {
     REMOVE_MESSAGE: (messageId: number) => {
       this.allConversations.forEach(conversation => {
         if (conversation.messages) {
-          conversation.messages = conversation.messages.filter(m => m.id !== messageId);
+          conversation.messages = conversation.messages.filter(
+            m => m.id !== messageId
+          );
         }
       });
     },
@@ -614,9 +671,11 @@ class ConversationsStore {
         if (!(conversation as any).typingUsers) {
           (conversation as any).typingUsers = [];
         }
-        
-        const existingIndex = (conversation as any).typingUsers.findIndex((u: any) => u.id === typer.id);
-        
+
+        const existingIndex = (conversation as any).typingUsers.findIndex(
+          (u: any) => u.id === typer.id
+        );
+
         if (isTyping && existingIndex === -1) {
           (conversation as any).typingUsers.push(typer);
         } else if (!isTyping && existingIndex >= 0) {
@@ -633,15 +692,17 @@ class ConversationsStore {
     },
 
     UPDATE_CONVERSATION: (conversation: Conversation) => {
-      const index = this.allConversations.findIndex(c => c.id === conversation.id);
-      
+      const index = this.allConversations.findIndex(
+        c => c.id === conversation.id
+      );
+
       if (index >= 0) {
         // Merge with existing to preserve local state
         const existing = this.allConversations[index];
         this.allConversations[index] = {
           ...existing,
           ...conversation,
-          messages: existing.messages || conversation.messages
+          messages: existing.messages || conversation.messages,
         };
       } else {
         // Add new conversation
@@ -651,7 +712,7 @@ class ConversationsStore {
   };
 
   // Private action helpers (side effects, matching Vue pattern)
-  
+
   /**
    * Play audio notification for new message (matching Vue DashboardAudioNotificationHelper)
    */
@@ -659,7 +720,7 @@ class ConversationsStore {
     audioNotificationManager.onNewMessage({
       sender_id: message.sender_id,
       message_type: message.message_type,
-      conversation: this.getConversationById(message.conversation_id)
+      conversation: this.getConversationById(message.conversation_id),
     });
   }
 
@@ -680,9 +741,9 @@ class ConversationsStore {
       this.allConversations.unshift(conversation);
     }
   }
-  
+
   // Private helper methods
-  
+
   /**
    * Set conversations list (merge with existing)
    */
@@ -692,12 +753,12 @@ class ConversationsStore {
       console.warn('setConversations called with invalid data:', conversations);
       return;
     }
-    
+
     const newConversations = [...this.allConversations];
-    
+
     conversations.forEach(conversation => {
       const index = newConversations.findIndex(c => c.id === conversation.id);
-      
+
       if (index < 0) {
         // New conversation
         newConversations.push(conversation);
@@ -711,14 +772,14 @@ class ConversationsStore {
           ...conversation,
           messages: existing.messages || conversation.messages,
           allMessagesLoaded: existing.allMessagesLoaded,
-          dataFetched: existing.dataFetched
+          dataFetched: existing.dataFetched,
         };
       }
     });
-    
+
     this.allConversations = newConversations;
   }
-  
+
   /**
    * Update a single conversation in the list (Action)
    */
@@ -726,11 +787,14 @@ class ConversationsStore {
     // Mutation: Pure state update
     this.mutations.UPDATE_CONVERSATION(conversation);
   }
-  
+
   /**
    * Update conversation properties locally (optimistic updates)
    */
-  private updateConversationLocally(conversationId: number, updates: Partial<Conversation>) {
+  private updateConversationLocally(
+    conversationId: number,
+    updates: Partial<Conversation>
+  ) {
     const conversation = this.getConversationById(conversationId);
     if (conversation) {
       Object.assign(conversation, updates);

@@ -115,8 +115,18 @@ interface ConversationsApiResponse {
   };
 }
 
+function toSafeNumber(value: unknown): number {
+  if (value === null || value === undefined || value === '') {
+    return 0;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 function toConversationTimestamp(value: unknown): string | null {
   if (typeof value === 'number') {
+    if (!Number.isFinite(value)) return null;
     return new Date(value * 1000).toISOString();
   }
 
@@ -133,11 +143,11 @@ export function transformConversationFromApi(
 ): Conversation {
   return {
     ...rawConversation,
-    id: Number(rawConversation.id),
-    accountId: Number(rawConversation.accountId),
-    inboxId: Number(rawConversation.inboxId),
-    contactId: Number(rawConversation.contactId),
-    displayId: Number(rawConversation.displayId),
+    id: toSafeNumber(rawConversation.id),
+    accountId: toSafeNumber(rawConversation.accountId),
+    inboxId: toSafeNumber(rawConversation.inboxId),
+    contactId: toSafeNumber(rawConversation.contactId),
+    displayId: toSafeNumber(rawConversation.displayId),
     lastActivityAt: toConversationTimestamp(rawConversation.lastActivityAt),
     createdAt: toConversationTimestamp(rawConversation.createdAt),
     updatedAt: toConversationTimestamp(rawConversation.updatedAt),
@@ -275,13 +285,13 @@ export async function createConversation(
     teamId?: number;
   }
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .post(`api/v1/accounts/${accountId}/conversations`, {
       json: params,
     })
     .json<Conversation>();
 
-  return response;
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -299,13 +309,13 @@ export async function updateConversation(
     customAttributes: Record<string, any>;
   }>
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .patch(`api/v1/accounts/${accountId}/conversations/${conversationId}`, {
       json: params,
     })
     .json<Conversation>();
 
-  return response;
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -315,13 +325,13 @@ export async function toggleStatus(
   accountId: number,
   conversationId: number
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .post(
       `api/v1/accounts/${accountId}/conversations/${conversationId}/toggle_status`
     )
     .json<Conversation>();
 
-  return response;
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -332,7 +342,7 @@ export async function assignAgent(
   conversationId: number,
   assigneeId: number | null
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .post(
       `api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`,
       {
@@ -341,7 +351,7 @@ export async function assignAgent(
     )
     .json<Conversation>();
 
-  return response;
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -352,7 +362,7 @@ export async function assignTeam(
   conversationId: number,
   teamId: number | null
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .post(
       `api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`,
       {
@@ -361,7 +371,7 @@ export async function assignTeam(
     )
     .json<Conversation>();
 
-  return response;
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -371,11 +381,11 @@ export async function muteConversation(
   accountId: number,
   conversationId: number
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/mute`)
     .json<Conversation>();
 
-  return response;
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -385,11 +395,11 @@ export async function unmuteConversation(
   accountId: number,
   conversationId: number
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/unmute`)
     .json<Conversation>();
 
-  return response;
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -450,7 +460,7 @@ export async function updateCustomAttributes(
   conversationId: number,
   customAttributes: Record<string, any>
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .post(
       `api/v1/accounts/${accountId}/conversations/${conversationId}/custom_attributes`,
       {
@@ -459,7 +469,7 @@ export async function updateCustomAttributes(
     )
     .json<Conversation>();
 
-  return response;
+  return transformConversationFromApi(raw);
 }
 
 /**
