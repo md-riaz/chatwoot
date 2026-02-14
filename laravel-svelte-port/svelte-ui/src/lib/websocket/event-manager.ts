@@ -602,10 +602,6 @@ export class WebSocketEventManager {
           teamsStore.addOrUpdateTeam(payload.new_team);
         }
 
-        if (payload.previous_team && !payload.new_team) {
-          teamsStore.removeTeam(payload.previous_team.id);
-        }
-
         // Emit event for stats refresh (matching Vue)
         this.fetchConversationStats();
       },
@@ -735,7 +731,7 @@ export class WebSocketEventManager {
         console.log('Member added to presence:', member);
         presenceStore.addMember(member);
 
-        if (member?.id) {
+        if (member?.id && member.type !== 'contact') {
           agentsStore.updateSingleAgentPresence(member.id, 'online');
           if (member.id === authStore.currentUserId) {
             authStore.setCurrentUserAvailability({ [member.id]: 'online' });
@@ -747,7 +743,7 @@ export class WebSocketEventManager {
         console.log('Member removed from presence:', member);
         presenceStore.removeMember(member);
 
-        if (member?.id) {
+        if (member?.id && member.type !== 'contact') {
           agentsStore.updateSingleAgentPresence(member.id, 'offline');
           if (member.id === authStore.currentUserId) {
             authStore.setCurrentUserAvailability({ [member.id]: 'offline' });
