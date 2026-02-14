@@ -10,6 +10,7 @@
   import { register } from '$lib/api/auth';
   import { goto } from '$app/navigation';
   import { toast } from 'svelte-sonner';
+  import { _ } from '$lib/i18n';
   
   let name = $state('');
   let email = $state('');
@@ -24,17 +25,17 @@
     
     // Client-side validation
     if (!name || !email || !password || !passwordConfirmation) {
-      error = 'All fields are required';
+      error = $_('auth.signup_page.errors.all_required');
       return;
     }
     
     if (password !== passwordConfirmation) {
-      error = 'Passwords do not match';
+      error = $_('auth.signup_page.errors.password_mismatch');
       return;
     }
     
     if (password.length < 8) {
-      error = 'Password must be at least 8 characters';
+      error = $_('auth.signup_page.errors.password_min_length');
       return;
     }
     
@@ -58,7 +59,7 @@
       }
       
       // Show success message
-      toast.success(response.message || 'Registration successful! Please check your email to confirm your account.');
+      toast.success(response.message || $_('auth.signup_page.messages.registration_success'));
       
       // Redirect to app
       await goto('/app');
@@ -72,7 +73,7 @@
       } else if (err.message) {
         error = err.message;
       } else {
-        error = 'Registration failed. Please try again.';
+        error = $_('auth.signup_page.messages.registration_failed');
       }
     } finally {
       loading = false;
@@ -82,19 +83,19 @@
 
 <div class="space-y-6">
   <div class="space-y-2 text-center">
-    <h2 class="text-2xl font-semibold tracking-tight">Create an account</h2>
+    <h2 class="text-2xl font-semibold tracking-tight">{$_('auth.signup_page.title')}</h2>
     <p class="text-sm text-muted-foreground">
-      Enter your information to get started
+      {$_('auth.signup_page.description')}
     </p>
   </div>
   
   <form onsubmit={handleSubmit} class="space-y-4">
     <div class="space-y-2">
-      <Label for="name">Full Name</Label>
+      <Label for="name">{$_('auth.signup_page.full_name')}</Label>
       <Input
         id="name"
         type="text"
-        placeholder="John Doe"
+        placeholder={$_('auth.signup_page.placeholders.full_name')}
         bind:value={name}
         required
         disabled={loading}
@@ -102,11 +103,11 @@
     </div>
     
     <div class="space-y-2">
-      <Label for="email">Email</Label>
+      <Label for="email">{$_('auth.email')}</Label>
       <Input
         id="email"
         type="email"
-        placeholder="name@example.com"
+        placeholder={$_('auth.placeholders.email')}
         bind:value={email}
         required
         disabled={loading}
@@ -114,24 +115,24 @@
     </div>
     
     <div class="space-y-2">
-      <Label for="password">Password</Label>
+      <Label for="password">{$_('auth.password')}</Label>
       <Input
         id="password"
         type="password"
-        placeholder="Enter your password"
+        placeholder={$_('auth.placeholders.password')}
         bind:value={password}
         required
         disabled={loading}
       />
-      <p class="text-xs text-muted-foreground">Must be at least 8 characters</p>
+      <p class="text-xs text-muted-foreground">{$_('auth.signup_page.password_hint')}</p>
     </div>
     
     <div class="space-y-2">
-      <Label for="password-confirmation">Confirm Password</Label>
+      <Label for="password-confirmation">{$_('auth.signup_page.confirm_password')}</Label>
       <Input
         id="password-confirmation"
         type="password"
-        placeholder="Confirm your password"
+        placeholder={$_('auth.signup_page.placeholders.confirm_password')}
         bind:value={passwordConfirmation}
         required
         disabled={loading}
@@ -145,14 +146,14 @@
     {/if}
     
     <Button type="submit" class="w-full" disabled={loading}>
-      {loading ? 'Creating account...' : 'Create account'}
+      {loading ? $_('auth.signup_page.creating_account') : $_('auth.signup_page.submit')}
     </Button>
   </form>
   
   <div class="text-center text-sm text-muted-foreground">
-    Already have an account?{' '}
+    {$_('auth.signup_page.has_account')}{' '}
     <a href="/app/login" class="text-primary hover:underline">
-      Sign in
+      {$_('auth.login_page.title')}
     </a>
   </div>
 </div>

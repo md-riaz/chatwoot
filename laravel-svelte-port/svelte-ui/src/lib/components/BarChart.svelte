@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Chart, Svg, Axis, Bars, Highlight, Tooltip as LayerTooltip } from 'layerchart';
   import { cn } from '$lib/utils';
+  import { _ } from '$lib/i18n';
   
   interface Props {
     data: any[];
@@ -28,12 +29,12 @@
         <Bars radius={4} strokeWidth={1} />
         <Highlight area />
       </Svg>
-      <Tooltip header={(data: any) => data[xKey] || 'Unknown'}>
+      <Tooltip header={(data: any) => data[xKey] || $_('common.unknown')}>
         {#snippet children(data: any)}
           <div class="rounded-md border bg-popover p-2 text-popover-foreground shadow-md">
-            <div class="font-semibold">{data[xKey] || 'N/A'}</div>
+            <div class="font-semibold">{data[xKey] || $_('common.not_available')}</div>
             <div class="text-sm text-surface-content/50">
-              {data[yKey] != null ? data[yKey] : 'N/A'}
+              {data[yKey] != null ? data[yKey] : $_('common.not_available')}
             </div>
           </div>
         {/snippet}
@@ -41,7 +42,7 @@
     </Chart>
   {:else}
     <div class="flex items-center justify-center h-full text-muted-foreground">
-      No data available
+      {$_('common.empty.no_data_available')}
     </div>
   {/if}
 </div>

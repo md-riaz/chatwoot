@@ -16,7 +16,15 @@
     "export": "Export",
     "import": "Import",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "unknown": "Unknown",
+    "not_available": "N/A",
+    "empty": {
+      "no_data_available": "No data available"
+    },
+    "badges": {
+      "overflow": "99+"
+    }
   },
   "dashboard": {
     "title": "Dashboard",
@@ -34,7 +42,24 @@
     "resolve": "Resolve",
     "reopen": "Reopen",
     "send_message": "Send message",
-    "type_message": "Type your message..."
+    "type_message": "Type your message...",
+    "filters": {
+      "sort_by": "Sort by:",
+      "status": {
+        "all": "All",
+        "mine": "Mine",
+        "unassigned": "Unassigned",
+        "open": "Open",
+        "resolved": "Resolved"
+      },
+      "sort": {
+        "latest": "Latest",
+        "oldest": "Oldest",
+        "priority": "Priority",
+        "unread": "Unread",
+        "select_order": "Select sort order"
+      }
+    }
   },
   "contact": {
     "name": "Name",
@@ -53,7 +78,62 @@
     "password": "Password",
     "forgot_password": "Forgot password?",
     "reset_password": "Reset password",
-    "remember_me": "Remember me"
+    "remember_me": "Remember me",
+    "placeholders": {
+      "email": "name@example.com",
+      "password": "Enter your password"
+    },
+    "messages": {
+      "login_success": "Logged in successfully!"
+    },
+    "login_page": {
+      "title": "Sign in",
+      "description": "Enter your credentials to access your account. Seeded login is prefilled for instant testing.",
+      "submit": "Sign in",
+      "signing_in": "Signing in...",
+      "use_seeded_credentials": "Use seeded credentials",
+      "no_account": "Don't have an account?"
+    },
+    "signup_page": {
+      "title": "Create an account",
+      "description": "Enter your information to get started",
+      "full_name": "Full Name",
+      "confirm_password": "Confirm Password",
+      "password_hint": "Must be at least 8 characters",
+      "submit": "Create account",
+      "creating_account": "Creating account...",
+      "has_account": "Already have an account?",
+      "placeholders": {
+        "full_name": "John Doe",
+        "confirm_password": "Confirm your password"
+      },
+      "errors": {
+        "all_required": "All fields are required",
+        "password_mismatch": "Passwords do not match",
+        "password_min_length": "Password must be at least 8 characters"
+      },
+      "messages": {
+        "registration_success": "Registration successful! Please check your email to confirm your account.",
+        "registration_failed": "Registration failed. Please try again."
+      }
+    },
+    "layout": {
+      "tagline": "Customer engagement platform",
+      "footer_copyright": "© {year} Chatwoot. All rights reserved."
+    },
+    "no_accounts": {
+      "title": "No Accounts Found",
+      "description": "You don't have access to any accounts in the system.",
+      "note": "Contact your administrator to be added to an account or create a new one.",
+      "create_account": "Create New Account",
+      "sign_out": "Sign Out"
+    },
+    "unauthorized": {
+      "title": "Access Denied",
+      "description": "You don't have permission to access this resource.",
+      "note": "Contact your administrator if you believe this is an error.",
+      "back_to_dashboard": "Back to Dashboard"
+    }
   },
   "errors": {
     "required": "This field is required",
@@ -69,7 +149,9 @@
     "success": "Success!",
     "error": "Error!",
     "warning": "Warning!",
-    "info": "Info"
+    "info": "Info",
+    "empty_state": "No notifications yet",
+    "load_more": "Load more"
   },
   "inbox": {
     "list": {
@@ -84,8 +166,7 @@
       "snoozed": "Snoozed",
       "read": "Read"
     }
-  }
-  ,
+  },
   "SIDEBAR": {
     "REPORTS_OVERVIEW": "Overview",
     "REPORTS_CONVERSATION": "Conversation",
@@ -96,8 +177,7 @@
     "CSAT": "CSAT",
     "REPORTS_SLA": "SLA",
     "REPORTS_BOT": "Bot"
-  }
-  ,
+  },
   "GENERAL_SETTINGS": {
     "TITLE": "General Settings",
     "SUBMIT": "Save changes",
@@ -177,8 +257,7 @@
       "NOTE": "Schedule permanent deletion of this account",
       "SCHEDULED_DELETION": {
         "MESSAGE_MANUAL": "This account is scheduled for deletion.",
-        "MESSAGE_INACTIVITY": "This account will be deleted due to inactivity."
-      ,
+        "MESSAGE_INACTIVITY": "This account will be deleted due to inactivity.",
         "CLEAR_BUTTON": "Clear scheduled deletion"
       },
       "CONFIRM": {
