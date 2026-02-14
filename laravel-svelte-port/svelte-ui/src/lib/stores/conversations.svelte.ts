@@ -93,7 +93,7 @@ class ConversationsStore {
           return getLastActivityTime(a) - getLastActivityTime(b);
         case 'unread':
           return (b.unreadCount || 0) - (a.unreadCount || 0);
-        case 'priority':
+        case 'priority': {
           const priorityOrder: Record<string, number> = {
             urgent: 0,
             high: 1,
@@ -105,6 +105,7 @@ class ConversationsStore {
             (priorityOrder[a.priority || ''] || 4) -
             (priorityOrder[b.priority || ''] || 4)
           );
+        }
         default:
           return 0;
       }
