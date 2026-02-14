@@ -24,7 +24,7 @@ class AgentsStore {
 
   // Computed values using $derived rune
   selectedAgent = $derived(
-    this.allAgents.find((a) => a.id === this.selectedAgentId) || null
+    this.allAgents.find(a => a.id === this.selectedAgentId) || null
   );
 
   // Computed account ID from route params
@@ -42,15 +42,15 @@ class AgentsStore {
   }
 
   get administrators(): Agent[] {
-    return this.allAgents.filter((a) => a.role === 'administrator');
+    return this.allAgents.filter(a => a.role === 'administrator');
   }
 
   get regularAgents(): Agent[] {
-    return this.allAgents.filter((a) => a.role === 'agent');
+    return this.allAgents.filter(a => a.role === 'agent');
   }
 
   get onlineAgents(): Agent[] {
-    return this.allAgents.filter((a) => a.availabilityStatus === 'online');
+    return this.allAgents.filter(a => a.availabilityStatus === 'online');
   }
 
   get agentsCount(): number {
@@ -90,7 +90,7 @@ class AgentsStore {
       const agent = await agentsApi.getAgent(this.currentAccountId, agentId);
 
       // Update in the store if it exists
-      const index = this.allAgents.findIndex((a) => a.id === agent.id);
+      const index = this.allAgents.findIndex(a => a.id === agent.id);
       if (index !== -1) {
         this.allAgents[index] = agent;
       } else {
@@ -148,7 +148,7 @@ class AgentsStore {
         data
       );
 
-      const index = this.allAgents.findIndex((a) => a.id === agentId);
+      const index = this.allAgents.findIndex(a => a.id === agentId);
       if (index !== -1) {
         this.allAgents[index] = updatedAgent;
       }
@@ -175,7 +175,7 @@ class AgentsStore {
 
       await agentsApi.deleteAgent(this.currentAccountId, agentId);
 
-      this.allAgents = this.allAgents.filter((a) => a.id !== agentId);
+      this.allAgents = this.allAgents.filter(a => a.id !== agentId);
       if (this.selectedAgentId === agentId) {
         this.selectedAgentId = null;
       }
@@ -188,6 +188,40 @@ class AgentsStore {
     } finally {
       this.isDeleting = false;
     }
+  }
+
+  /**
+   * Add or update agent in store (used by realtime events)
+   */
+  addOrUpdateAgent(agent: Agent): void {
+    const index = this.allAgents.findIndex(
+      existingAgent => existingAgent.id === agent.id
+    );
+    if (index !== -1) {
+      this.allAgents[index] = {
+        ...this.allAgents[index],
+        ...agent,
+      };
+      return;
+    }
+
+    this.allAgents.push(agent);
+  }
+
+  /**
+   * Update a single agent presence from realtime payload
+   */
+  updateSingleAgentPresence(
+    agentId: number,
+    availabilityStatus: Agent['availabilityStatus']
+  ): void {
+    const index = this.allAgents.findIndex(agent => agent.id === agentId);
+    if (index === -1) return;
+
+    this.allAgents[index] = {
+      ...this.allAgents[index],
+      availabilityStatus,
+    };
   }
 
   /**
