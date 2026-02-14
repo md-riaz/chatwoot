@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import type { CreateMacroParams, Macro } from '$lib/api/macros';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
@@ -12,6 +11,8 @@
     mode: 'create' | 'edit';
     macro?: Macro | null;
     isSubmitting?: boolean;
+    onSubmit?: (payload: CreateMacroParams) => void;
+    onClose?: () => void;
   }
 
   let {
@@ -19,12 +20,9 @@
     mode = 'create',
     macro = null,
     isSubmitting = false,
+    onSubmit,
+    onClose,
   }: Props = $props();
-
-  const dispatch = createEventDispatcher<{
-    submit: CreateMacroParams;
-    close: void;
-  }>();
 
   let name = $state('');
   let visibility = $state<'global' | 'personal' | 'team'>('personal');
@@ -32,9 +30,10 @@
     '[\n  {\n    "actionName": "send_reply",\n    "actionParams": ["Thank you for reaching out."]\n  }\n]'
   );
   let errors = $state<Record<string, string>>({});
+  let wasOpen = $state(false);
 
   $effect(() => {
-    if (open) {
+    if (open && !wasOpen) {
       errors = {};
       if (mode === 'edit' && macro) {
         name = macro.name;
@@ -47,6 +46,8 @@
           '[\n  {\n    "actionName": "send_reply",\n    "actionParams": ["Thank you for reaching out."]\n  }\n]';
       }
     }
+
+    wasOpen = open;
   });
 
   function validateAndBuildPayload(): CreateMacroParams | null {
@@ -90,11 +91,19 @@
   function handleSubmit() {
     const payload = validateAndBuildPayload();
     if (!payload) return;
-    dispatch('submit', payload);
+    onSubmit?.(payload);
   }
 </script>
 
-<Dialog.Root {open} onOpenChange={value => (open = value)}>
+<Dialog.Root
+  {open}
+  onOpenChange={value => {
+    open = value;
+    if (!value) {
+      onClose?.();
+    }
+  }}
+>
   <Dialog.Content class="max-w-2xl">
     <Dialog.Header>
       <Dialog.Title
@@ -153,7 +162,7 @@
     <Dialog.Footer>
       <Button
         variant="outline"
-        onclick={() => dispatch('close')}
+        onclick={() => onClose?.()}
         disabled={isSubmitting}>Cancel</Button
       >
       <Button onclick={handleSubmit} disabled={isSubmitting}

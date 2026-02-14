@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -10,18 +9,17 @@
     open: boolean;
     macro?: Macro | null;
     isSubmitting?: boolean;
+    onExecute?: (conversationIds: number[]) => void;
+    onClose?: () => void;
   }
 
   let {
     open = $bindable(false),
     macro = null,
     isSubmitting = false,
+    onExecute,
+    onClose,
   }: Props = $props();
-
-  const dispatch = createEventDispatcher<{
-    execute: number[];
-    close: void;
-  }>();
 
   let conversationIdsInput = $state('');
   let error = $state('');
@@ -37,7 +35,9 @@
     const ids = conversationIdsInput
       .split(',')
       .map(item => Number(item.trim()))
-      .filter(item => Number.isFinite(item) && item > 0);
+      .filter(
+        item => Number.isFinite(item) && Number.isInteger(item) && item > 0
+      );
 
     if (!ids.length) {
       error = 'Enter at least one valid conversation ID.';
@@ -45,11 +45,19 @@
     }
 
     error = '';
-    dispatch('execute', ids);
+    onExecute?.(ids);
   }
 </script>
 
-<Dialog.Root {open} onOpenChange={value => (open = value)}>
+<Dialog.Root
+  {open}
+  onOpenChange={value => {
+    open = value;
+    if (!value) {
+      onClose?.();
+    }
+  }}
+>
   <Dialog.Content class="max-w-lg">
     <Dialog.Header>
       <Dialog.Title>Execute Macro</Dialog.Title>
@@ -78,7 +86,7 @@
     <Dialog.Footer>
       <Button
         variant="outline"
-        onclick={() => dispatch('close')}
+        onclick={() => onClose?.()}
         disabled={isSubmitting}>Cancel</Button
       >
       <Button onclick={handleExecute} disabled={isSubmitting}

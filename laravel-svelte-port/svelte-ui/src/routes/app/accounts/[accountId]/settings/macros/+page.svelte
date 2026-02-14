@@ -48,9 +48,7 @@
     showExecuteDialog = true;
   }
 
-  async function handleSubmit(event: CustomEvent<CreateMacroParams>) {
-    const payload = event.detail;
-
+  async function handleSubmit(payload: CreateMacroParams) {
     const result = editingMacroId
       ? await macrosStore.updateMacro(editingMacroId, payload)
       : await macrosStore.createMacro(payload);
@@ -70,12 +68,12 @@
     toast.error(macrosStore.error || 'Failed to save macro.');
   }
 
-  async function handleExecuteSubmit(event: CustomEvent<number[]>) {
+  async function handleExecuteSubmit(conversationIds: number[]) {
     if (!executeMacroId) return;
 
     const success = await macrosStore.executeMacro(
       executeMacroId,
-      event.detail
+      conversationIds
     );
     if (success) {
       toast.success('Macro executed successfully.');
@@ -137,23 +135,23 @@
 </div>
 
 <MacroFormDialog
-  open={showEditor}
+  bind:open={showEditor}
   mode={editingMacroId ? 'edit' : 'create'}
   macro={editingMacro}
   isSubmitting={isSaving}
-  on:submit={handleSubmit}
-  on:close={() => {
+  onSubmit={handleSubmit}
+  onClose={() => {
     showEditor = false;
     editingMacroId = null;
   }}
 />
 
 <MacroExecuteDialog
-  open={showExecuteDialog}
+  bind:open={showExecuteDialog}
   macro={macroToExecute}
   isSubmitting={isExecuting}
-  on:execute={handleExecuteSubmit}
-  on:close={() => {
+  onExecute={handleExecuteSubmit}
+  onClose={() => {
     showExecuteDialog = false;
     executeMacroId = null;
   }}

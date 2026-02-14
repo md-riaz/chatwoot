@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import type { Automation, CreateAutomationParams } from '$lib/api/automation';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
@@ -13,6 +12,8 @@
     mode: 'create' | 'edit';
     automation?: Automation | null;
     isSubmitting?: boolean;
+    onSubmit?: (payload: CreateAutomationParams) => void;
+    onClose?: () => void;
   }
 
   let {
@@ -20,27 +21,25 @@
     mode = 'create',
     automation = null,
     isSubmitting = false,
+    onSubmit,
+    onClose,
   }: Props = $props();
-
-  const dispatch = createEventDispatcher<{
-    submit: CreateAutomationParams;
-    close: void;
-  }>();
 
   let name = $state('');
   let description = $state('');
   let eventName = $state('conversation_created');
   let active = $state(true);
-  let conditionsJson = $state(
-    '[\n  {\n    "attributeKey": "status",\n    "filterOperator": "equal_to",\n    "values": ["open"]\n  }\n]'
-  );
-  let actionsJson = $state(
-    '[\n  {\n    "actionName": "send_email_transcript"\n  }\n]'
-  );
+  const defaultConditionsJson =
+    '[\n  {\n    "attributeKey": "status",\n    "filterOperator": "equal_to",\n    "values": ["open"]\n  }\n]';
+  const defaultActionsJson =
+    '[\n  {\n    "actionName": "send_email_transcript"\n  }\n]';
+  let conditionsJson = $state(defaultConditionsJson);
+  let actionsJson = $state(defaultActionsJson);
   let errors = $state<Record<string, string>>({});
+  let wasOpen = $state(false);
 
   $effect(() => {
-    if (open) {
+    if (open && !wasOpen) {
       errors = {};
       if (mode === 'edit' && automation) {
         name = automation.name;
@@ -54,8 +53,12 @@
         description = '';
         eventName = 'conversation_created';
         active = true;
+        conditionsJson = defaultConditionsJson;
+        actionsJson = defaultActionsJson;
       }
     }
+
+    wasOpen = open;
   });
 
   function parseJsonArray<T>(value: string, field: string): T[] | null {
@@ -97,7 +100,7 @@
       return;
     }
 
-    dispatch('submit', {
+    onSubmit?.({
       name: name.trim(),
       description: description.trim() || undefined,
       eventName: eventName.trim(),
@@ -108,7 +111,15 @@
   }
 </script>
 
-<Dialog.Root {open} onOpenChange={value => (open = value)}>
+<Dialog.Root
+  {open}
+  onOpenChange={value => {
+    open = value;
+    if (!value) {
+      onClose?.();
+    }
+  }}
+>
   <Dialog.Content class="max-w-3xl max-h-[85vh] overflow-y-auto">
     <Dialog.Header>
       <Dialog.Title
@@ -193,7 +204,7 @@
     <Dialog.Footer>
       <Button
         variant="outline"
-        onclick={() => dispatch('close')}
+        onclick={() => onClose?.()}
         disabled={isSubmitting}>Cancel</Button
       >
       <Button onclick={handleSubmit} disabled={isSubmitting}

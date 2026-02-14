@@ -23,6 +23,12 @@
       : null
   );
 
+  $effect(() => {
+    if (!showEditor) {
+      editingAutomationId = null;
+    }
+  });
+
   onMount(() => {
     automationStore.fetchAutomations();
   });
@@ -37,9 +43,7 @@
     showEditor = true;
   }
 
-  async function handleSubmit(event: CustomEvent<CreateAutomationParams>) {
-    const payload = event.detail;
-
+  async function handleSubmit(payload: CreateAutomationParams) {
     const result = editingAutomationId
       ? await automationStore.updateAutomation(editingAutomationId, payload)
       : await automationStore.createAutomation(payload);
@@ -107,12 +111,12 @@
 </div>
 
 <AutomationFormDialog
-  open={showEditor}
+  bind:open={showEditor}
   mode={editingAutomationId ? 'edit' : 'create'}
   automation={editingAutomation}
   isSubmitting={isSaving}
-  on:submit={handleSubmit}
-  on:close={() => {
+  onSubmit={handleSubmit}
+  onClose={() => {
     showEditor = false;
     editingAutomationId = null;
   }}

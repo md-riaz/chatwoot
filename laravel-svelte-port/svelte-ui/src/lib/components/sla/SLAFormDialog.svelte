@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import type { CreateSLAPolicyParams, SLAPolicy } from '$lib/api/sla';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
@@ -13,6 +12,8 @@
     mode: 'create' | 'edit';
     policy?: SLAPolicy | null;
     isSubmitting?: boolean;
+    onSubmit?: (payload: CreateSLAPolicyParams) => void;
+    onClose?: () => void;
   }
 
   let {
@@ -20,12 +21,9 @@
     mode = 'create',
     policy = null,
     isSubmitting = false,
+    onSubmit,
+    onClose,
   }: Props = $props();
-
-  const dispatch = createEventDispatcher<{
-    submit: CreateSLAPolicyParams;
-    close: void;
-  }>();
 
   let name = $state('');
   let description = $state('');
@@ -34,32 +32,42 @@
   let resolutionMinutes = $state(1440);
   let onlyDuringBusinessHours = $state(false);
   let errors = $state<Record<string, string>>({});
+  let formInitialized = $state(false);
 
   $effect(() => {
-    if (open) {
-      errors = {};
-      if (mode === 'edit' && policy) {
-        name = policy.name;
-        description = policy.description || '';
-        firstResponseMinutes = Math.max(
-          1,
-          Math.round(policy.firstResponseTime / 60)
-        );
-        nextResponseMinutes = Math.max(
-          1,
-          Math.round(policy.nextResponseTime / 60)
-        );
-        resolutionMinutes = Math.max(1, Math.round(policy.resolutionTime / 60));
-        onlyDuringBusinessHours = policy.onlyDuringBusinessHours;
-      } else {
-        name = '';
-        description = '';
-        firstResponseMinutes = 60;
-        nextResponseMinutes = 120;
-        resolutionMinutes = 1440;
-        onlyDuringBusinessHours = false;
-      }
+    if (!open) {
+      formInitialized = false;
+      return;
     }
+
+    if (formInitialized) {
+      return;
+    }
+
+    errors = {};
+    if (mode === 'edit' && policy) {
+      name = policy.name;
+      description = policy.description || '';
+      firstResponseMinutes = Math.max(
+        1,
+        Math.round(policy.firstResponseTime / 60)
+      );
+      nextResponseMinutes = Math.max(
+        1,
+        Math.round(policy.nextResponseTime / 60)
+      );
+      resolutionMinutes = Math.max(1, Math.round(policy.resolutionTime / 60));
+      onlyDuringBusinessHours = policy.onlyDuringBusinessHours;
+    } else {
+      name = '';
+      description = '';
+      firstResponseMinutes = 60;
+      nextResponseMinutes = 120;
+      resolutionMinutes = 1440;
+      onlyDuringBusinessHours = false;
+    }
+
+    formInitialized = true;
   });
 
   function validatePositiveMinutes(
@@ -98,7 +106,7 @@
       return;
     }
 
-    dispatch('submit', {
+    onSubmit?.({
       name: name.trim(),
       description: description.trim() || undefined,
       firstResponseTime: Math.round(firstResponseMinutes * 60),
@@ -109,7 +117,15 @@
   }
 </script>
 
-<Dialog.Root {open} onOpenChange={value => (open = value)}>
+<Dialog.Root
+  {open}
+  onOpenChange={value => {
+    open = value;
+    if (!value) {
+      onClose?.();
+    }
+  }}
+>
   <Dialog.Content class="max-w-2xl">
     <Dialog.Header>
       <Dialog.Title
@@ -200,7 +216,7 @@
     <Dialog.Footer>
       <Button
         variant="outline"
-        onclick={() => dispatch('close')}
+        onclick={() => onClose?.()}
         disabled={isSubmitting}>Cancel</Button
       >
       <Button onclick={handleSubmit} disabled={isSubmitting}

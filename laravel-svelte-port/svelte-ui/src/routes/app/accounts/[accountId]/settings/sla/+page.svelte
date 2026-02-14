@@ -34,9 +34,7 @@
     showEditor = true;
   }
 
-  async function handleSubmit(event: CustomEvent<CreateSLAPolicyParams>) {
-    const payload = event.detail;
-
+  async function handleSubmit(payload: CreateSLAPolicyParams) {
     const result = editingPolicyId
       ? await slaStore.updatePolicy(editingPolicyId, payload)
       : await slaStore.createPolicy(payload);
@@ -94,12 +92,12 @@
 </div>
 
 <SLAFormDialog
-  open={showEditor}
+  bind:open={showEditor}
   mode={editingPolicyId ? 'edit' : 'create'}
   policy={editingPolicy}
   isSubmitting={isSaving}
-  on:submit={handleSubmit}
-  on:close={() => {
+  onSubmit={handleSubmit}
+  onClose={() => {
     showEditor = false;
     editingPolicyId = null;
   }}
