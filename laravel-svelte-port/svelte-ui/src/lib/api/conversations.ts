@@ -100,6 +100,53 @@ export interface Conversation {
   };
 }
 
+interface ConversationsApiResponse {
+  data?: {
+    payload?: any[];
+    meta?: {
+      totalPages?: number;
+      count?: number;
+    };
+  };
+  payload?: any[];
+  meta?: {
+    totalPages?: number;
+    count?: number;
+  };
+}
+
+function toConversationTimestamp(value: unknown): string {
+  if (typeof value === 'number') {
+    return new Date(value * 1000).toISOString();
+  }
+
+  if (typeof value === 'string' && value.length > 0) {
+    return value;
+  }
+
+  return new Date(0).toISOString();
+}
+
+export function transformConversationFromApi(
+  rawConversation: any
+): Conversation {
+  return {
+    ...rawConversation,
+    id: Number(rawConversation.id),
+    accountId: Number(rawConversation.accountId),
+    inboxId: Number(rawConversation.inboxId),
+    contactId: Number(rawConversation.contactId),
+    displayId: Number(rawConversation.displayId),
+    lastActivityAt: toConversationTimestamp(rawConversation.lastActivityAt),
+    createdAt: toConversationTimestamp(rawConversation.createdAt),
+    updatedAt: toConversationTimestamp(rawConversation.updatedAt),
+  };
+}
+
+function extractConversationPayload(response: ConversationsApiResponse): any[] {
+  return response?.data?.payload || response?.payload || [];
+}
+
 /**
  * Conversation list params
  */
@@ -127,50 +174,88 @@ export interface ConversationFilterParams {
 /**
  * Get list of conversations
  */
-export async function getConversations(params: ConversationListParams): Promise<PaginatedResponse<Conversation>> {
+export async function getConversations(
+  params: ConversationListParams
+): Promise<PaginatedResponse<Conversation>> {
   const { accountId, ...queryParams } = params;
-  
-  const response = await api.get(`api/v1/accounts/${accountId}/conversations`, {
-    searchParams: toSearchParams(queryParams)
-  }).json<{ data: { payload: Conversation[]; meta: any } }>();
-  
+
+  const response = await api
+    .get(`api/v1/accounts/${accountId}/conversations`, {
+      searchParams: toSearchParams(queryParams),
+    })
+    .json<ConversationsApiResponse>();
+
+  const conversations = extractConversationPayload(response).map(
+    transformConversationFromApi
+  );
+  const meta = response?.data?.meta || response?.meta || {};
+
   return {
-    data: response.data.payload,
+    data: conversations,
     meta: {
       currentPage: queryParams.page || 1,
-      nextPage: (queryParams.page || 1) < (response.data.meta?.total_pages || 1) ? (queryParams.page || 1) + 1 : null,
-      prevPage: (queryParams.page || 1) > 1 ? (queryParams.page || 1) - 1 : null,
-      totalPages: response.data.meta?.total_pages || 1,
-      totalCount: response.data.meta?.count || 0
-    }
+      nextPage:
+        (queryParams.page || 1) < (meta.totalPages || 1)
+          ? (queryParams.page || 1) + 1
+          : null,
+      prevPage:
+        (queryParams.page || 1) > 1 ? (queryParams.page || 1) - 1 : null,
+      totalPages: meta.totalPages || 1,
+      totalCount: meta.count || 0,
+    },
   };
 }
 
 /**
  * Get filtered conversations
  */
-export async function filterConversations(params: ConversationFilterParams): Promise<{ payload: Conversation[] }> {
+export async function filterConversations(
+  params: ConversationFilterParams
+): Promise<{ payload: Conversation[] }> {
   const { accountId, payload, page = 1 } = params;
-  
-  const response = await api.post(`api/v1/accounts/${accountId}/conversations/filter`, {
-    json: {
-      payload,
-      page
-    }
-  }).json<{ payload: Conversation[] }>();
-  
-  return response;
+
+  const response = await api
+    .post(`api/v1/accounts/${accountId}/conversations/filter`, {
+      json: {
+        payload,
+        page,
+      },
+    })
+    .json<ConversationsApiResponse>();
+
+  return {
+    payload: extractConversationPayload(response).map(
+      transformConversationFromApi
+    ),
+  };
 }
 
 /**
  * Get single conversation by ID
  */
-export async function getConversation(accountId: number, conversationId: number): Promise<Conversation> {
+export async function getConversation(
+  accountId: number,
+  conversationId: number
+): Promise<Conversation> {
   const response = await api
     .get(`api/v1/accounts/${accountId}/conversations/${conversationId}`)
-    .json<Conversation>();
-  
-  return response;
+    .json<any>();
+
+  return transformConversationFromApi(response);
+}
+
+export async function getConversationsByContact(
+  accountId: number,
+  contactId: number,
+  page = 1
+): Promise<Conversation[]> {
+  const response = await api
+    .get(`api/v1/accounts/${accountId}/contacts/${contactId}/conversations`, {
+      searchParams: toSearchParams({ page }),
+    })
+    .json<ConversationsApiResponse>();
+
+  return extractConversationPayload(response).map(transformConversationFromApi);
 }
 
 /**
@@ -191,10 +276,10 @@ export async function createConversation(
 ): Promise<Conversation> {
   const response = await api
     .post(`api/v1/accounts/${accountId}/conversations`, {
-      json: params
+      json: params,
     })
     .json<Conversation>();
-  
+
   return response;
 }
 
@@ -215,10 +300,10 @@ export async function updateConversation(
 ): Promise<Conversation> {
   const response = await api
     .patch(`api/v1/accounts/${accountId}/conversations/${conversationId}`, {
-      json: params
+      json: params,
     })
     .json<Conversation>();
-  
+
   return response;
 }
 
@@ -230,9 +315,11 @@ export async function toggleStatus(
   conversationId: number
 ): Promise<Conversation> {
   const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/toggle_status`)
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/toggle_status`
+    )
     .json<Conversation>();
-  
+
   return response;
 }
 
@@ -245,11 +332,14 @@ export async function assignAgent(
   assigneeId: number | null
 ): Promise<Conversation> {
   const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`, {
-      json: { assigneeId }
-    })
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`,
+      {
+        json: { assigneeId },
+      }
+    )
     .json<Conversation>();
-  
+
   return response;
 }
 
@@ -262,11 +352,14 @@ export async function assignTeam(
   teamId: number | null
 ): Promise<Conversation> {
   const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`, {
-      json: { teamId }
-    })
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`,
+      {
+        json: { teamId },
+      }
+    )
     .json<Conversation>();
-  
+
   return response;
 }
 
@@ -280,7 +373,7 @@ export async function muteConversation(
   const response = await api
     .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/mute`)
     .json<Conversation>();
-  
+
   return response;
 }
 
@@ -294,18 +387,21 @@ export async function unmuteConversation(
   const response = await api
     .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/unmute`)
     .json<Conversation>();
-  
+
   return response;
 }
 
 /**
  * Get conversation labels
  */
-export async function getLabels(accountId: number, conversationId: number): Promise<string[]> {
+export async function getLabels(
+  accountId: number,
+  conversationId: number
+): Promise<string[]> {
   const response = await api
     .get(`api/v1/accounts/${accountId}/conversations/${conversationId}/labels`)
     .json<{ payload: string[] }>();
-  
+
   return response.payload;
 }
 
@@ -318,11 +414,14 @@ export async function updateLabels(
   labels: string[]
 ): Promise<string[]> {
   const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/labels`, {
-      json: { labels }
-    })
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/labels`,
+      {
+        json: { labels },
+      }
+    )
     .json<{ payload: string[] }>();
-  
+
   return response.payload;
 }
 
@@ -334,9 +433,11 @@ export async function getAllAttachments(
   conversationId: number
 ): Promise<any[]> {
   const response = await api
-    .get(`api/v1/accounts/${accountId}/conversations/${conversationId}/attachments`)
+    .get(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/attachments`
+    )
     .json<{ payload: any[] }>();
-  
+
   return response.payload;
 }
 
@@ -349,11 +450,14 @@ export async function updateCustomAttributes(
   customAttributes: Record<string, any>
 ): Promise<Conversation> {
   const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/custom_attributes`, {
-      json: { customAttributes }
-    })
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/custom_attributes`,
+      {
+        json: { customAttributes },
+      }
+    )
     .json<Conversation>();
-  
+
   return response;
 }
 
@@ -366,10 +470,13 @@ export async function markMessagesRead(
   beforeId?: number
 ): Promise<{ agentLastSeenAt: number; unreadCount: number }> {
   const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/update_last_seen`, {
-      json: { agentLastSeenAt: Math.floor(Date.now() / 1000) }
-    })
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/update_last_seen`,
+      {
+        json: { agentLastSeenAt: Math.floor(Date.now() / 1000) },
+      }
+    )
     .json<{ agentLastSeenAt: number; unreadCount: number }>();
-  
+
   return response;
 }
