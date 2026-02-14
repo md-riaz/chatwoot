@@ -92,6 +92,7 @@
   let isSearchingMerge = $state(false);
   let mergeError = $state<string | null>(null);
   let isMerging = $state(false);
+  let mergeSearchRequestId = 0;
 
   // Navigate back to contacts list
   function goBack() {
@@ -99,8 +100,9 @@
   }
 
   async function refreshContactState() {
-    await contactsStore.fetchContact(contactId);
     await contactsStore.fetchContacts({ page: contactsStore.currentPage || 1 });
+    await contactsStore.fetchContact(contactId);
+    contactsStore.selectContact(contactId);
   }
 
   async function refreshConversationState() {
@@ -193,8 +195,11 @@
 
   async function runMergeSearch(query: string) {
     const trimmedQuery = query.trim();
+    const requestId = ++mergeSearchRequestId;
+
     if (!trimmedQuery || !accountId) {
       mergeResults = [];
+      isSearchingMerge = false;
       return;
     }
 
@@ -202,12 +207,23 @@
       isSearchingMerge = true;
       mergeError = null;
       const response = await searchContacts(accountId, trimmedQuery, 1, 10);
+
+      if (requestId !== mergeSearchRequestId) {
+        return;
+      }
+
       mergeResults = (response.data || []).filter(c => c.id !== contactId);
     } catch (error: any) {
+      if (requestId !== mergeSearchRequestId) {
+        return;
+      }
+
       mergeError = error?.message || 'Failed to search contacts';
       mergeResults = [];
     } finally {
-      isSearchingMerge = false;
+      if (requestId === mergeSearchRequestId) {
+        isSearchingMerge = false;
+      }
     }
   }
 
