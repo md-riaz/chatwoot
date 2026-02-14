@@ -54,11 +54,11 @@ export interface Conversation {
   uuid?: string;
   customAttributes: Record<string, any>;
   firstReplyCreatedAt?: string | null;
-  lastActivityAt: string;
+  lastActivityAt: string | null;
   waitingSince?: string | null;
   snoozedUntil?: string | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | null;
+  updatedAt: string | null;
   // Client-side properties
   agentLastSeenAt?: number;
   canReply?: boolean;
@@ -100,6 +100,64 @@ export interface Conversation {
   };
 }
 
+interface ConversationsApiResponse {
+  data?: {
+    payload?: any[];
+    meta?: {
+      totalPages?: number;
+      count?: number;
+    };
+  };
+  payload?: any[];
+  meta?: {
+    totalPages?: number;
+    count?: number;
+  };
+}
+
+function toSafeNumber(value: unknown): number {
+  if (value === null || value === undefined || value === '') {
+    return 0;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function toConversationTimestamp(value: unknown): string | null {
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) return null;
+    return new Date(value * 1000).toISOString();
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim();
+    return normalized.length > 0 ? normalized : null;
+  }
+
+  return null;
+}
+
+export function transformConversationFromApi(
+  rawConversation: any
+): Conversation {
+  return {
+    ...rawConversation,
+    id: toSafeNumber(rawConversation.id),
+    accountId: toSafeNumber(rawConversation.accountId),
+    inboxId: toSafeNumber(rawConversation.inboxId),
+    contactId: toSafeNumber(rawConversation.contactId),
+    displayId: toSafeNumber(rawConversation.displayId),
+    lastActivityAt: toConversationTimestamp(rawConversation.lastActivityAt),
+    createdAt: toConversationTimestamp(rawConversation.createdAt),
+    updatedAt: toConversationTimestamp(rawConversation.updatedAt),
+  };
+}
+
+function extractConversationPayload(response: ConversationsApiResponse): any[] {
+  return response?.data?.payload || response?.payload || [];
+}
+
 /**
  * Conversation list params
  */
@@ -127,50 +185,88 @@ export interface ConversationFilterParams {
 /**
  * Get list of conversations
  */
-export async function getConversations(params: ConversationListParams): Promise<PaginatedResponse<Conversation>> {
+export async function getConversations(
+  params: ConversationListParams
+): Promise<PaginatedResponse<Conversation>> {
   const { accountId, ...queryParams } = params;
-  
-  const response = await api.get(`api/v1/accounts/${accountId}/conversations`, {
-    searchParams: toSearchParams(queryParams)
-  }).json<{ data: { payload: Conversation[]; meta: any } }>();
-  
+
+  const response = await api
+    .get(`api/v1/accounts/${accountId}/conversations`, {
+      searchParams: toSearchParams(queryParams),
+    })
+    .json<ConversationsApiResponse>();
+
+  const conversations = extractConversationPayload(response).map(
+    transformConversationFromApi
+  );
+  const meta = response?.data?.meta || response?.meta || {};
+
   return {
-    data: response.data.payload,
+    data: conversations,
     meta: {
       currentPage: queryParams.page || 1,
-      nextPage: (queryParams.page || 1) < (response.data.meta?.total_pages || 1) ? (queryParams.page || 1) + 1 : null,
-      prevPage: (queryParams.page || 1) > 1 ? (queryParams.page || 1) - 1 : null,
-      totalPages: response.data.meta?.total_pages || 1,
-      totalCount: response.data.meta?.count || 0
-    }
+      nextPage:
+        (queryParams.page || 1) < (meta.totalPages || 1)
+          ? (queryParams.page || 1) + 1
+          : null,
+      prevPage:
+        (queryParams.page || 1) > 1 ? (queryParams.page || 1) - 1 : null,
+      totalPages: meta.totalPages || 1,
+      totalCount: meta.count || 0,
+    },
   };
 }
 
 /**
  * Get filtered conversations
  */
-export async function filterConversations(params: ConversationFilterParams): Promise<{ payload: Conversation[] }> {
+export async function filterConversations(
+  params: ConversationFilterParams
+): Promise<{ payload: Conversation[] }> {
   const { accountId, payload, page = 1 } = params;
-  
-  const response = await api.post(`api/v1/accounts/${accountId}/conversations/filter`, {
-    json: {
-      payload,
-      page
-    }
-  }).json<{ payload: Conversation[] }>();
-  
-  return response;
+
+  const response = await api
+    .post(`api/v1/accounts/${accountId}/conversations/filter`, {
+      json: {
+        payload,
+        page,
+      },
+    })
+    .json<ConversationsApiResponse>();
+
+  return {
+    payload: extractConversationPayload(response).map(
+      transformConversationFromApi
+    ),
+  };
 }
 
 /**
  * Get single conversation by ID
  */
-export async function getConversation(accountId: number, conversationId: number): Promise<Conversation> {
+export async function getConversation(
+  accountId: number,
+  conversationId: number
+): Promise<Conversation> {
   const response = await api
     .get(`api/v1/accounts/${accountId}/conversations/${conversationId}`)
-    .json<Conversation>();
-  
-  return response;
+    .json<any>();
+
+  return transformConversationFromApi(response);
+}
+
+export async function getConversationsByContact(
+  accountId: number,
+  contactId: number,
+  page = 1
+): Promise<Conversation[]> {
+  const response = await api
+    .get(`api/v1/accounts/${accountId}/contacts/${contactId}/conversations`, {
+      searchParams: toSearchParams({ page }),
+    })
+    .json<ConversationsApiResponse>();
+
+  return extractConversationPayload(response).map(transformConversationFromApi);
 }
 
 /**
@@ -189,13 +285,13 @@ export async function createConversation(
     teamId?: number;
   }
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .post(`api/v1/accounts/${accountId}/conversations`, {
-      json: params
+      json: params,
     })
     .json<Conversation>();
-  
-  return response;
+
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -213,13 +309,13 @@ export async function updateConversation(
     customAttributes: Record<string, any>;
   }>
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .patch(`api/v1/accounts/${accountId}/conversations/${conversationId}`, {
-      json: params
+      json: params,
     })
     .json<Conversation>();
-  
-  return response;
+
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -229,11 +325,13 @@ export async function toggleStatus(
   accountId: number,
   conversationId: number
 ): Promise<Conversation> {
-  const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/toggle_status`)
+  const raw = await api
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/toggle_status`
+    )
     .json<Conversation>();
-  
-  return response;
+
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -244,13 +342,16 @@ export async function assignAgent(
   conversationId: number,
   assigneeId: number | null
 ): Promise<Conversation> {
-  const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`, {
-      json: { assigneeId }
-    })
+  const raw = await api
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`,
+      {
+        json: { assigneeId },
+      }
+    )
     .json<Conversation>();
-  
-  return response;
+
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -261,13 +362,16 @@ export async function assignTeam(
   conversationId: number,
   teamId: number | null
 ): Promise<Conversation> {
-  const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`, {
-      json: { teamId }
-    })
+  const raw = await api
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`,
+      {
+        json: { teamId },
+      }
+    )
     .json<Conversation>();
-  
-  return response;
+
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -277,11 +381,11 @@ export async function muteConversation(
   accountId: number,
   conversationId: number
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/mute`)
     .json<Conversation>();
-  
-  return response;
+
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -291,21 +395,24 @@ export async function unmuteConversation(
   accountId: number,
   conversationId: number
 ): Promise<Conversation> {
-  const response = await api
+  const raw = await api
     .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/unmute`)
     .json<Conversation>();
-  
-  return response;
+
+  return transformConversationFromApi(raw);
 }
 
 /**
  * Get conversation labels
  */
-export async function getLabels(accountId: number, conversationId: number): Promise<string[]> {
+export async function getLabels(
+  accountId: number,
+  conversationId: number
+): Promise<string[]> {
   const response = await api
     .get(`api/v1/accounts/${accountId}/conversations/${conversationId}/labels`)
     .json<{ payload: string[] }>();
-  
+
   return response.payload;
 }
 
@@ -318,11 +425,14 @@ export async function updateLabels(
   labels: string[]
 ): Promise<string[]> {
   const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/labels`, {
-      json: { labels }
-    })
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/labels`,
+      {
+        json: { labels },
+      }
+    )
     .json<{ payload: string[] }>();
-  
+
   return response.payload;
 }
 
@@ -334,9 +444,11 @@ export async function getAllAttachments(
   conversationId: number
 ): Promise<any[]> {
   const response = await api
-    .get(`api/v1/accounts/${accountId}/conversations/${conversationId}/attachments`)
+    .get(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/attachments`
+    )
     .json<{ payload: any[] }>();
-  
+
   return response.payload;
 }
 
@@ -348,13 +460,16 @@ export async function updateCustomAttributes(
   conversationId: number,
   customAttributes: Record<string, any>
 ): Promise<Conversation> {
-  const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/custom_attributes`, {
-      json: { customAttributes }
-    })
+  const raw = await api
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/custom_attributes`,
+      {
+        json: { customAttributes },
+      }
+    )
     .json<Conversation>();
-  
-  return response;
+
+  return transformConversationFromApi(raw);
 }
 
 /**
@@ -366,10 +481,13 @@ export async function markMessagesRead(
   beforeId?: number
 ): Promise<{ agentLastSeenAt: number; unreadCount: number }> {
   const response = await api
-    .post(`api/v1/accounts/${accountId}/conversations/${conversationId}/update_last_seen`, {
-      json: { agentLastSeenAt: Math.floor(Date.now() / 1000) }
-    })
+    .post(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/update_last_seen`,
+      {
+        json: { agentLastSeenAt: Math.floor(Date.now() / 1000) },
+      }
+    )
     .json<{ agentLastSeenAt: number; unreadCount: number }>();
-  
+
   return response;
 }

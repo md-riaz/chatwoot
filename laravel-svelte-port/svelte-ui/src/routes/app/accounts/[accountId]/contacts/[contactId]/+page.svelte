@@ -7,7 +7,6 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import MergeContactDialog from '$lib/components/ui/contact-management/merge-contact-dialog.svelte';
   import {
     ArrowLeft,
     Mail,
@@ -23,10 +22,7 @@
     Pencil,
     Trash2,
     Camera,
-    Upload,
     PanelRightOpen,
-    Check,
-    Merge,
     Facebook,
     Twitter,
     Linkedin,
@@ -46,13 +42,21 @@
   import { Input } from '$lib/components/ui/input';
   import { Textarea } from '$lib/components/ui/textarea';
   import { Badge } from '$lib/components/ui/badge';
+  import * as Alert from '$lib/components/ui/alert';
 
   // Specific Components
   import ContactForm from '$lib/components/ui/contact-management/contact-form/contact-form.svelte';
   import { contactsStore } from '$lib/stores/contacts.svelte';
-
-  // ... state ...
-  let showMergeDialog = $state(false);
+  import {
+    mergeContacts,
+    searchContacts,
+    toggleContactBlocked,
+    type Contact,
+  } from '$lib/api/contacts';
+  import {
+    getConversationsByContact,
+    type Conversation,
+  } from '$lib/api/conversations';
 
   const accountId = $derived(parseInt($page.params.accountId ?? '', 10));
   const contactId = $derived(parseInt($page.params.contactId ?? '', 10));
@@ -77,10 +81,32 @@
   let isBlocking = $state(false);
   let newNote = $state('');
   let avatarInput = $state<HTMLInputElement>();
+  let actionError = $state<string | null>(null);
+
+  let conversations = $state<Conversation[]>([]);
+  let isLoadingHistory = $state(false);
+  let historyError = $state<string | null>(null);
+
+  let mergeQuery = $state('');
+  let mergeResults = $state<Contact[]>([]);
+  let isSearchingMerge = $state(false);
+  let mergeError = $state<string | null>(null);
+  let isMerging = $state(false);
+  let mergeSearchRequestId = 0;
 
   // Navigate back to contacts list
   function goBack() {
     goto(`/app/accounts/${accountId}/contacts`);
+  }
+
+  async function refreshContactState() {
+    await contactsStore.fetchContacts({ page: contactsStore.currentPage || 1 });
+    await contactsStore.fetchContact(contactId);
+    contactsStore.selectContact(contactId);
+  }
+
+  async function refreshConversationState() {
+    conversations = await getConversationsByContact(accountId, contactId);
   }
 
   // Handle contact update
@@ -91,14 +117,15 @@
 
     try {
       isUpdating = true;
+      actionError = null;
       const updated = await contactsStore.updateContact(contactId, apiData);
 
       if (updated && avatarFile) {
         await contactsStore.updateContact(contactId, { avatar: avatarFile });
       }
       showEditDialog = false;
-    } catch (error) {
-      console.error('Failed to update contact', error);
+    } catch (error: any) {
+      actionError = error?.message || 'Failed to update contact';
     } finally {
       isUpdating = false;
     }
@@ -108,12 +135,13 @@
   async function handleDeleteContact() {
     try {
       isDeleting = true;
+      actionError = null;
       const success = await contactsStore.deleteContact(contactId);
       if (success) {
         goBack();
       }
-    } catch (error) {
-      console.error('Failed to delete contact', error);
+    } catch (error: any) {
+      actionError = error?.message || 'Failed to delete contact';
     } finally {
       isDeleting = false;
       showDeleteDialog = false;
@@ -128,12 +156,12 @@
 
     try {
       isUploadingAvatar = true;
+      actionError = null;
       await contactsStore.updateContact(contactId, { avatar: file });
-    } catch (error) {
-      console.error('Failed to upload avatar', error);
+    } catch (error: any) {
+      actionError = error?.message || 'Failed to upload avatar';
     } finally {
       isUploadingAvatar = false;
-      // Reset input
       if (avatarInput) avatarInput.value = '';
     }
   }
@@ -142,23 +170,111 @@
   async function handleDeleteAvatar() {
     try {
       isUploadingAvatar = true;
+      actionError = null;
       await contactsStore.deleteContactAvatar(contactId);
-    } catch (error) {
-      console.error('Failed to delete avatar', error);
+    } catch (error: any) {
+      actionError = error?.message || 'Failed to delete avatar';
     } finally {
       isUploadingAvatar = false;
     }
   }
 
-  // Handle block/unblock contact (placeholder - API not yet implemented)
+  async function loadConversationHistory() {
+    if (!contactId || !accountId) return;
+
+    try {
+      isLoadingHistory = true;
+      historyError = null;
+      await refreshConversationState();
+    } catch (error: any) {
+      historyError = error?.message || 'Failed to load conversation history';
+    } finally {
+      isLoadingHistory = false;
+    }
+  }
+
+  async function runMergeSearch(query: string) {
+    const trimmedQuery = query.trim();
+    const requestId = ++mergeSearchRequestId;
+
+    if (!trimmedQuery || !accountId) {
+      mergeResults = [];
+      isSearchingMerge = false;
+      return;
+    }
+
+    try {
+      isSearchingMerge = true;
+      mergeError = null;
+      const response = await searchContacts(accountId, trimmedQuery, 1, 10);
+
+      if (requestId !== mergeSearchRequestId) {
+        return;
+      }
+
+      mergeResults = (response.data || []).filter(c => c.id !== contactId);
+    } catch (error: any) {
+      if (requestId !== mergeSearchRequestId) {
+        return;
+      }
+
+      mergeError = error?.message || 'Failed to search contacts';
+      mergeResults = [];
+    } finally {
+      if (requestId === mergeSearchRequestId) {
+        isSearchingMerge = false;
+      }
+    }
+  }
+
+  async function handleMergeContact(targetContactId: number) {
+    if (!contact) return;
+
+    const mergeCandidate = mergeResults.find(
+      candidate => candidate.id === targetContactId
+    );
+    const candidateName = mergeCandidate?.name || `Contact #${targetContactId}`;
+
+    const confirmed = window.confirm(
+      `Merge candidate "${candidateName}" INTO the current contact (this page)? This will delete "${candidateName}" and cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    try {
+      isMerging = true;
+      mergeError = null;
+      await mergeContacts(accountId, contact.id, targetContactId);
+      await refreshContactState();
+      await refreshConversationState();
+      mergeResults = mergeResults.filter(
+        candidate => candidate.id !== targetContactId
+      );
+    } catch (error: any) {
+      mergeError = error?.message || 'Failed to merge contact';
+    } finally {
+      isMerging = false;
+    }
+  }
+
   async function handleToggleBlock() {
+    if (!contact) return;
+
+    const willBlock = !contact.blocked;
+    const confirmed = window.confirm(
+      willBlock
+        ? 'Block this contact? They will no longer be able to start conversations.'
+        : 'Unblock this contact?'
+    );
+    if (!confirmed) return;
+
     try {
       isBlocking = true;
-      // TODO: Call blockContact/unblockContact API when available
-      console.log('Block/unblock contact:', contactId);
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
-    } catch (error) {
-      console.error('Failed to toggle block status', error);
+      actionError = null;
+      await toggleContactBlocked(accountId, contact.id, willBlock);
+      await refreshContactState();
+      await refreshConversationState();
+    } catch (error: any) {
+      actionError = error?.message || 'Failed to update block status';
     } finally {
       isBlocking = false;
     }
@@ -167,9 +283,10 @@
   // Format date
   function formatDate(timestamp: string | number | null | undefined): string {
     if (!timestamp) return '-';
-    const date = typeof timestamp === 'number' 
-      ? new Date(timestamp * 1000) // Unix timestamp to milliseconds
-      : new Date(timestamp);
+    const date =
+      typeof timestamp === 'number'
+        ? new Date(timestamp * 1000)
+        : new Date(timestamp);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -178,11 +295,14 @@
   }
 
   // Format relative time
-  function formatRelativeTime(timestamp: string | number | null | undefined): string {
+  function formatRelativeTime(
+    timestamp: string | number | null | undefined
+  ): string {
     if (!timestamp) return 'Never';
-    const date = typeof timestamp === 'number'
-      ? new Date(timestamp * 1000) // Unix timestamp to milliseconds
-      : new Date(timestamp);
+    const date =
+      typeof timestamp === 'number'
+        ? new Date(timestamp * 1000)
+        : new Date(timestamp);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
@@ -197,12 +317,28 @@
     return formatDate(timestamp);
   }
 
-  // Load contact on mount
   onMount(async () => {
     if (contactId) {
       await contactsStore.fetchContact(contactId);
       contactsStore.selectContact(contactId);
+      await loadConversationHistory();
     }
+  });
+
+  $effect(() => {
+    if (activeTab === 'history') {
+      loadConversationHistory();
+    }
+  });
+
+  $effect(() => {
+    const timer = setTimeout(() => {
+      runMergeSearch(mergeQuery);
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+    };
   });
 
   // Social profiles computed (merge common keys)
@@ -210,8 +346,10 @@
     (contact && {
       ...(contact.additionalAttributes?.social_profiles || {}),
       twitter: contact?.additionalAttributes?.screen_name || null,
-      telegram: contact?.additionalAttributes?.social_telegram_user_name || null,
-    }) || {}
+      telegram:
+        contact?.additionalAttributes?.social_telegram_user_name || null,
+    }) ||
+      {}
   );
 
   const socialMediaLinks = [
@@ -224,12 +362,31 @@
   ];
 
   function formatAttributeKey(k: string) {
-    // Convert snake_case to camelCase-like display (basic)
     return k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
   function formatSocialLabel(k: string) {
     return k.charAt(0).toUpperCase() + k.slice(1);
+  }
+
+  function getSocialProfileValue(value: unknown): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    const normalized = String(value).trim();
+    return normalized.length > 0 ? normalized : null;
+  }
+
+  function getSocialProfileHref(value: unknown): string | null {
+    const profileValue = getSocialProfileValue(value);
+    if (!profileValue) {
+      return null;
+    }
+
+    return profileValue.startsWith('http')
+      ? profileValue
+      : `https://${profileValue}`;
   }
 </script>
 
@@ -277,7 +434,11 @@
           </DropdownMenu.Item>
           <DropdownMenu.Item onclick={handleToggleBlock} disabled={isBlocking}>
             <Ban class="h-4 w-4 mr-2" />
-            {isBlocking ? 'Blocking...' : 'Block Contact'}
+            {isBlocking
+              ? 'Saving...'
+              : contact?.blocked
+                ? 'Unblock Contact'
+                : 'Block Contact'}
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
           <DropdownMenu.Item
@@ -294,6 +455,14 @@
 
   <!-- Main content with sidebar -->
   <div class="flex-1 flex overflow-hidden">
+    {#if actionError}
+      <div class="absolute top-20 right-6 z-50 w-[360px]">
+        <Alert.Root variant="destructive">
+          <Alert.Title>Action failed</Alert.Title>
+          <Alert.Description>{actionError}</Alert.Description>
+        </Alert.Root>
+      </div>
+    {/if}
     {#if isLoading && !contact}
       <!-- Loading state -->
       <div class="flex-1 p-6 space-y-4">
@@ -559,29 +728,45 @@
               <h3 class="font-medium mb-3">Additional Attributes</h3>
               {#if contact.additionalAttributes && Object.keys(contact.additionalAttributes).length > 0}
                 <div class="space-y-3">
-                      {#each Object.entries(contact.additionalAttributes) as [key, value]}
-                        <div class="text-sm">
-                          <span class="text-muted-foreground">{formatAttributeKey(key)}:</span>
-                          {#if value === null || value === ''}
-                            <span class="ml-2">-</span>
-                          {:else if typeof value === 'object'}
-                            {#if key === 'social_profiles'}
-                              <div class="ml-2 space-y-1">
-                                {#each Object.entries(value) as [sk, sv]}
-                                  <div class="flex items-center gap-2">
-                                    <span class="text-sm text-muted-foreground">{formatSocialLabel(sk)}:</span>
-                                    <a class="text-sm text-blue-600 underline" href={String(sv).startsWith('http') ? String(sv) : `https://${String(sv)}`} target="_blank" rel="noopener noreferrer">{String(sv)}</a>
-                                  </div>
-                                {/each}
+                  {#each Object.entries(contact.additionalAttributes) as [key, value]}
+                    <div class="text-sm">
+                      <span class="text-muted-foreground"
+                        >{formatAttributeKey(key)}:</span
+                      >
+                      {#if value === null || value === ''}
+                        <span class="ml-2">-</span>
+                      {:else if typeof value === 'object'}
+                        {#if key === 'social_profiles'}
+                          <div class="ml-2 space-y-1">
+                            {#each Object.entries(value) as [sk, sv]}
+                              <div class="flex items-center gap-2">
+                                <span class="text-sm text-muted-foreground"
+                                  >{formatSocialLabel(sk)}:</span
+                                >
+                                {#if getSocialProfileHref(sv) && getSocialProfileValue(sv)}
+                                  <a
+                                    class="text-sm text-blue-600 underline"
+                                    href={getSocialProfileHref(sv)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >{getSocialProfileValue(sv)}</a
+                                  >
+                                {:else}
+                                  <span class="text-sm">—</span>
+                                {/if}
                               </div>
-                            {:else}
-                              <pre class="ml-2 whitespace-pre-wrap">{JSON.stringify(value)}</pre>
-                            {/if}
-                          {:else}
-                            <span class="ml-2">{value}</span>
-                          {/if}
-                        </div>
-                      {/each}
+                            {/each}
+                          </div>
+                        {:else}
+                          <pre class="ml-2 whitespace-pre-wrap">{JSON.stringify(
+                              value
+                            )}</pre>
+                        {/if}
+                      {:else}
+                        <span class="ml-2">{value}</span>
+                      {/if}
+                    </div>
+                  {/each}
                 </div>
               {:else}
                 <p class="text-sm text-muted-foreground">
@@ -592,10 +777,36 @@
 
             <Tabs.Content value="history" class="mt-0">
               <h3 class="font-medium mb-3">Conversation History</h3>
-              <p class="text-sm text-muted-foreground">
+              <p class="text-sm text-muted-foreground mb-3">
                 {contact.conversationsCount || 0} conversations
               </p>
-              <!-- TODO: Load and display conversation history -->
+              {#if isLoadingHistory}
+                <p class="text-sm text-muted-foreground">
+                  Loading conversations...
+                </p>
+              {:else if historyError}
+                <p class="text-sm text-destructive">{historyError}</p>
+              {:else if conversations.length === 0}
+                <p class="text-sm text-muted-foreground">
+                  No conversation history found.
+                </p>
+              {:else}
+                <div class="space-y-2">
+                  {#each conversations as conversation}
+                    <div class="rounded-md border p-2">
+                      <div class="text-sm font-medium">
+                        Conversation # {conversation.displayId ||
+                          conversation.id}
+                      </div>
+                      <div class="text-xs text-muted-foreground">
+                        Status: {conversation.status} · Last activity: {formatRelativeTime(
+                          conversation.lastActivityAt
+                        )}
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              {/if}
             </Tabs.Content>
 
             <Tabs.Content value="notes" class="mt-0">
@@ -619,8 +830,49 @@
                 Search for a contact to merge with this one. The current contact
                 will be kept.
               </p>
-              <Input placeholder="Search contacts to merge..." />
-              <!-- TODO: Implement merge search and action -->
+              <Input
+                bind:value={mergeQuery}
+                placeholder="Search contacts to merge..."
+              />
+              {#if mergeError}
+                <p class="text-sm text-destructive mt-2">{mergeError}</p>
+              {/if}
+              <div class="mt-3 space-y-2">
+                {#if isSearchingMerge}
+                  <p class="text-sm text-muted-foreground">
+                    Searching contacts...
+                  </p>
+                {:else if mergeResults.length === 0 && mergeQuery.trim()}
+                  <p class="text-sm text-muted-foreground">
+                    No matching contacts found.
+                  </p>
+                {:else if mergeResults.length > 0}
+                  {#each mergeResults as candidate}
+                    <div
+                      class="border rounded-md p-2 flex items-center justify-between gap-2"
+                    >
+                      <div class="min-w-0">
+                        <p class="text-sm font-medium truncate">
+                          {candidate.name}
+                        </p>
+                        <p class="text-xs text-muted-foreground truncate">
+                          {candidate.email ||
+                            candidate.phoneNumber ||
+                            'No contact details'}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={isMerging || isBlocking}
+                        onclick={() => handleMergeContact(candidate.id)}
+                      >
+                        {isMerging ? 'Merging...' : 'Merge'}
+                      </Button>
+                    </div>
+                  {/each}
+                {/if}
+              </div>
             </Tabs.Content>
           </div>
         </Tabs.Root>
@@ -659,28 +911,45 @@
                 {#if contact.additionalAttributes && Object.keys(contact.additionalAttributes).length > 0}
                   <div class="space-y-3">
                     {#each Object.entries(contact.additionalAttributes) as [key, value]}
-                          <div class="text-sm">
-                            <span class="text-muted-foreground">{formatAttributeKey(key)}:</span>
-                            {#if value === null || value === ''}
-                              <span class="ml-2">-</span>
-                            {:else if typeof value === 'object'}
-                              {#if key === 'social_profiles'}
-                                <div class="ml-2 space-y-1">
-                                  {#each Object.entries(value) as [sk, sv]}
-                                    <div class="flex items-center gap-2">
-                                      <span class="text-sm text-muted-foreground">{formatSocialLabel(sk)}:</span>
-                                      <a class="text-sm text-blue-600 underline" href={String(sv).startsWith('http') ? String(sv) : `https://${String(sv)}`} target="_blank" rel="noopener noreferrer">{String(sv)}</a>
-                                    </div>
-                                  {/each}
+                      <div class="text-sm">
+                        <span class="text-muted-foreground"
+                          >{formatAttributeKey(key)}:</span
+                        >
+                        {#if value === null || value === ''}
+                          <span class="ml-2">-</span>
+                        {:else if typeof value === 'object'}
+                          {#if key === 'social_profiles'}
+                            <div class="ml-2 space-y-1">
+                              {#each Object.entries(value) as [sk, sv]}
+                                <div class="flex items-center gap-2">
+                                  <span class="text-sm text-muted-foreground"
+                                    >{formatSocialLabel(sk)}:</span
+                                  >
+                                  {#if getSocialProfileHref(sv) && getSocialProfileValue(sv)}
+                                    <a
+                                      class="text-sm text-blue-600 underline"
+                                      href={getSocialProfileHref(sv)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      >{getSocialProfileValue(sv)}</a
+                                    >
+                                  {:else}
+                                    <span class="text-sm">—</span>
+                                  {/if}
                                 </div>
-                              {:else}
-                                <pre class="ml-2 whitespace-pre-wrap">{JSON.stringify(value)}</pre>
-                              {/if}
-                            {:else}
-                              <span class="ml-2">{value}</span>
-                            {/if}
-                          </div>
-                        {/each}
+                              {/each}
+                            </div>
+                          {:else}
+                            <pre
+                              class="ml-2 whitespace-pre-wrap">{JSON.stringify(
+                                value
+                              )}</pre>
+                          {/if}
+                        {:else}
+                          <span class="ml-2">{value}</span>
+                        {/if}
+                      </div>
+                    {/each}
                   </div>
                 {:else}
                   <p class="text-sm text-muted-foreground">
@@ -691,9 +960,36 @@
 
               <Tabs.Content value="history" class="mt-0">
                 <h3 class="font-medium mb-3">Conversation History</h3>
-                <p class="text-sm text-muted-foreground">
+                <p class="text-sm text-muted-foreground mb-3">
                   {contact.conversationsCount || 0} conversations
                 </p>
+                {#if isLoadingHistory}
+                  <p class="text-sm text-muted-foreground">
+                    Loading conversations...
+                  </p>
+                {:else if historyError}
+                  <p class="text-sm text-destructive">{historyError}</p>
+                {:else if conversations.length === 0}
+                  <p class="text-sm text-muted-foreground">
+                    No conversation history found.
+                  </p>
+                {:else}
+                  <div class="space-y-2">
+                    {#each conversations as conversation}
+                      <div class="rounded-md border p-2">
+                        <div class="text-sm font-medium">
+                          Conversation # {conversation.displayId ||
+                            conversation.id}
+                        </div>
+                        <div class="text-xs text-muted-foreground">
+                          Status: {conversation.status} · Last activity: {formatRelativeTime(
+                            conversation.lastActivityAt
+                          )}
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                {/if}
               </Tabs.Content>
 
               <Tabs.Content value="notes" class="mt-0">
@@ -714,7 +1010,49 @@
                 <p class="text-sm text-muted-foreground mb-4">
                   Search for a contact to merge.
                 </p>
-                <Input placeholder="Search contacts..." />
+                <Input
+                  bind:value={mergeQuery}
+                  placeholder="Search contacts..."
+                />
+                {#if mergeError}
+                  <p class="text-sm text-destructive mt-2">{mergeError}</p>
+                {/if}
+                <div class="mt-3 space-y-2">
+                  {#if isSearchingMerge}
+                    <p class="text-sm text-muted-foreground">
+                      Searching contacts...
+                    </p>
+                  {:else if mergeResults.length === 0 && mergeQuery.trim()}
+                    <p class="text-sm text-muted-foreground">
+                      No matching contacts found.
+                    </p>
+                  {:else if mergeResults.length > 0}
+                    {#each mergeResults as candidate}
+                      <div
+                        class="border rounded-md p-2 flex items-center justify-between gap-2"
+                      >
+                        <div class="min-w-0">
+                          <p class="text-sm font-medium truncate">
+                            {candidate.name}
+                          </p>
+                          <p class="text-xs text-muted-foreground truncate">
+                            {candidate.email ||
+                              candidate.phoneNumber ||
+                              'No contact details'}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={isMerging || isBlocking}
+                          onclick={() => handleMergeContact(candidate.id)}
+                        >
+                          {isMerging ? 'Merging...' : 'Merge'}
+                        </Button>
+                      </div>
+                    {/each}
+                  {/if}
+                </div>
               </Tabs.Content>
             </div>
           </Tabs.Root>
@@ -742,7 +1080,10 @@
           <Button variant="ghost" onclick={() => (showEditDialog = false)}>
             Cancel
           </Button>
-          <Button onclick={() => contactFormInstance?.submit()} disabled={isUpdating}>
+          <Button
+            onclick={() => contactFormInstance?.submit()}
+            disabled={isUpdating}
+          >
             {isUpdating ? 'Saving...' : 'Save'}
           </Button>
         </Dialog.Footer>

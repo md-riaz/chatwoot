@@ -1,6 +1,9 @@
 import { api, toSearchParams } from './client';
 import type { PaginatedResponse } from './types';
-import { transformContactFromApi, transformContactForApi } from '$lib/utils/contact-data';
+import {
+  transformContactFromApi,
+  transformContactForApi,
+} from '$lib/utils/contact-data';
 
 // Contact interfaces
 export interface Contact {
@@ -18,14 +21,14 @@ export interface Contact {
   createdAt: number; // Rails uses Unix timestamp
   updatedAt?: number; // Rails uses Unix timestamp
   conversationsCount?: number;
-  
+
   // Computed properties from additionalAttributes (Rails pattern)
   get city(): string | null;
   get country(): string | null;
   get countryCode(): string | null;
   get company(): string | null;
   get avatarUrl(): string | null; // Alias for thumbnail
-  
+
   // Legacy support for backward compatibility
   availabilityStatus?: string | null;
   conversations?: any[];
@@ -120,7 +123,7 @@ export async function searchContacts(
 ): Promise<PaginatedResponse<Contact>> {
   const response = await api
     .get(`api/v1/accounts/${accountId}/contacts/search`, {
-      searchParams: toSearchParams({ q: query, page, per_page: perPage }),
+      searchParams: toSearchParams({ q: query, page, perPage }),
     })
     .json<PaginatedResponse<any>>();
 
@@ -135,7 +138,7 @@ export async function searchContacts(
  * Filter contacts with advanced filters (Vue parity)
  * Sends filters wrapped in {payload: []} as Vue does
  * API client auto-transforms keys to snake_case
- * 
+ *
  * IMPORTANT: First filter should NOT have query_operator (Vue parity)
  * Only filters[1+] have query_operator to chain conditions
  */
@@ -159,9 +162,12 @@ export async function filterContacts(
   });
 
   const response = await api
-    .post(`api/v1/accounts/${accountId}/contacts/filter?include_contact_inboxes=false&page=${page}&sort=${sortAttr}`, {
-      json: { payload: transformedPayload },
-    })
+    .post(
+      `api/v1/accounts/${accountId}/contacts/filter?include_contact_inboxes=false&page=${page}&sort=${sortAttr}`,
+      {
+        json: { payload: transformedPayload },
+      }
+    )
     .json<PaginatedResponse<any>>();
 
   // Transform contacts to add computed properties
@@ -198,7 +204,9 @@ export async function getContact(
   accountId: number,
   contactId: number
 ): Promise<Contact> {
-  const raw = await api.get(`api/v1/accounts/${accountId}/contacts/${contactId}`).json<{ data?: any } | any>();
+  const raw = await api
+    .get(`api/v1/accounts/${accountId}/contacts/${contactId}`)
+    .json<{ data?: any } | any>();
   const contactPayload = raw?.data ?? raw;
   return transformContactFromApi(contactPayload);
 }
@@ -212,7 +220,7 @@ export async function createContact(
 ): Promise<Contact> {
   // Transform data to Rails-compatible format
   const apiData = transformContactForApi(params);
-  
+
   const raw = await api
     .post(`api/v1/accounts/${accountId}/contacts`, {
       json: apiData,
@@ -283,6 +291,22 @@ export async function deleteContact(
 /**
  * Delete contact avatar
  */
+
+export async function toggleContactBlocked(
+  accountId: number,
+  contactId: number,
+  blocked: boolean
+): Promise<Contact> {
+  const raw = await api
+    .patch(`api/v1/accounts/${accountId}/contacts/${contactId}`, {
+      json: { blocked },
+    })
+    .json<{ data?: any } | any>();
+
+  const contactPayload = raw?.data ?? raw;
+  return transformContactFromApi(contactPayload);
+}
+
 export async function deleteContactAvatar(
   accountId: number,
   contactId: number
@@ -317,7 +341,7 @@ export async function mergeContacts(
 ): Promise<Contact> {
   const raw = await api
     .post(`api/v1/accounts/${accountId}/contacts/${primaryContactId}/merge`, {
-      json: { child_contact_id: secondaryContactId },
+      json: { childContactId: secondaryContactId },
     })
     .json<{ data?: any } | any>();
 
@@ -346,9 +370,7 @@ export async function importContacts(
  * Export contacts
  */
 export async function exportContacts(accountId: number): Promise<Blob> {
-  return api
-    .get(`api/v1/accounts/${accountId}/contacts/export`)
-    .blob();
+  return api.get(`api/v1/accounts/${accountId}/contacts/export`).blob();
 }
 
 /**
