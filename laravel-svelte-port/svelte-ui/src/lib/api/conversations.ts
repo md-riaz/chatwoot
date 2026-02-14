@@ -54,11 +54,11 @@ export interface Conversation {
   uuid?: string;
   customAttributes: Record<string, any>;
   firstReplyCreatedAt?: string | null;
-  lastActivityAt: string;
+  lastActivityAt: string | null;
   waitingSince?: string | null;
   snoozedUntil?: string | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | null;
+  updatedAt: string | null;
   // Client-side properties
   agentLastSeenAt?: number;
   canReply?: boolean;
@@ -115,16 +115,17 @@ interface ConversationsApiResponse {
   };
 }
 
-function toConversationTimestamp(value: unknown): string {
+function toConversationTimestamp(value: unknown): string | null {
   if (typeof value === 'number') {
     return new Date(value * 1000).toISOString();
   }
 
-  if (typeof value === 'string' && value.length > 0) {
-    return value;
+  if (typeof value === 'string') {
+    const normalized = value.trim();
+    return normalized.length > 0 ? normalized : null;
   }
 
-  return new Date(0).toISOString();
+  return null;
 }
 
 export function transformConversationFromApi(

@@ -70,12 +70,21 @@ class ConversationsStore {
    * Get sorted conversations
    */
   get sortedConversations() {
+    const getLastActivityTime = (conversation: Conversation): number => {
+      if (!conversation.lastActivityAt) {
+        return 0;
+      }
+
+      const timestamp = new Date(conversation.lastActivityAt).getTime();
+      return Number.isNaN(timestamp) ? 0 : timestamp;
+    };
+
     return [...this.allConversations].sort((a, b) => {
       switch (this.sortFilter) {
         case 'latest':
-          return new Date(b.lastActivityAt).getTime() - new Date(a.lastActivityAt).getTime();
+          return getLastActivityTime(b) - getLastActivityTime(a);
         case 'oldest':
-          return new Date(a.lastActivityAt).getTime() - new Date(b.lastActivityAt).getTime();
+          return getLastActivityTime(a) - getLastActivityTime(b);
         case 'unread':
           return (b.unreadCount || 0) - (a.unreadCount || 0);
         case 'priority':
