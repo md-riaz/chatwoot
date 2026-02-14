@@ -1,123 +1,42 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
   import {
-    MessageCircle,
-    Mail,
-    Facebook,
-    Twitter,
-    Send,
     Puzzle,
-    Zap,
-    Webhook,
     Plus,
     Settings,
     CheckCircle,
+    AlertCircle,
   } from '@lucide/svelte';
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import { Badge } from '$lib/components/ui/badge';
   import { Skeleton } from '$lib/components/ui/skeleton';
+  import { integrationsStore } from '$lib/stores/integrations.svelte';
+  import { toast } from 'svelte-sonner';
 
-  type IntegrationStatus = 'connected' | 'available';
+  const accountId = $derived($page.params.accountId);
+  const integrations = $derived(integrationsStore.integrations);
+  const isLoading = $derived(integrationsStore.isLoading);
+  const error = $derived(integrationsStore.error);
 
-  interface Integration {
-    id: string;
-    name: string;
-    description: string;
-    icon: any;
-    status: IntegrationStatus;
-  }
-
-  // State for integrations (placeholder - will be replaced with store)
-  let integrations = $state<Integration[]>([
-    {
-      id: 'slack',
-      name: 'Slack',
-      description:
-        'Get notified about new conversations in your Slack workspace',
-      icon: MessageCircle,
-      status: 'connected',
-    },
-    {
-      id: 'whatsapp',
-      name: 'WhatsApp',
-      description: 'Connect your WhatsApp Business account to receive messages',
-      icon: MessageCircle,
-      status: 'available',
-    },
-    {
-      id: 'facebook',
-      name: 'Facebook Messenger',
-      description: 'Respond to Facebook messages directly from Chatwoot',
-      icon: Facebook,
-      status: 'available',
-    },
-    {
-      id: 'email',
-      name: 'Email',
-      description: 'Forward emails to your Chatwoot inbox',
-      icon: Mail,
-      status: 'connected',
-    },
-    {
-      id: 'telegram',
-      name: 'Telegram',
-      description: 'Connect your Telegram bot to receive messages',
-      icon: Send,
-      status: 'available',
-    },
-    {
-      id: 'twitter',
-      name: 'Twitter',
-      description: 'Respond to Twitter mentions and direct messages',
-      icon: Twitter,
-      status: 'available',
-    },
-    {
-      id: 'zapier',
-      name: 'Zapier',
-      description: 'Connect with 5000+ apps using Zapier workflows',
-      icon: Zap,
-      status: 'available',
-    },
-    {
-      id: 'webhooks',
-      name: 'Webhooks',
-      description: 'Send real-time data to external services',
-      icon: Webhook,
-      status: 'connected',
-    },
-  ]);
-
-  let isLoading = $state(false);
-
-  // Get connected integrations count
-  const connectedCount = $derived(
-    integrations.filter(i => i.status === 'connected').length
-  );
-
-  // Get badge variant based on status
-  function getBadgeVariant(status: IntegrationStatus): 'default' | 'secondary' {
-    return status === 'connected' ? 'default' : 'secondary';
-  }
-
-  // Get button text based on status
-  function getButtonText(status: IntegrationStatus): string {
-    return status === 'connected' ? 'Configure' : 'Connect';
-  }
-
-  // Get badge icon
-  function getBadgeIcon(status: IntegrationStatus) {
-    return status === 'connected' ? CheckCircle : Plus;
-  }
-
-  onMount(() => {
-    // TODO: Fetch integrations from store
+  $effect(() => {
+    if (accountId) {
+      integrationsStore.fetch();
+    }
   });
+
+  function handleIntegrationAction(status: 'connected' | 'available') {
+    if (status === 'connected') {
+      goto(`/app/accounts/${accountId}/settings/inboxes`);
+      return;
+    }
+
+    toast.info('Integration setup flow will be available in a next iteration.');
+  }
 </script>
 
 <div class="container mx-auto p-6">
-  <!-- Header -->
   <div
     class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
   >
@@ -129,86 +48,92 @@
     </div>
   </div>
 
-  <!-- Integration count -->
-  <div class="mb-4">
-    <p class="text-sm text-muted-foreground">
-      {connectedCount} of {integrations.length} integrations connected
-    </p>
-  </div>
-
-  <!-- Loading state -->
   {#if isLoading}
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {#each Array(6) as _}
-        <Card.Root>
-          <Card.Content class="p-6">
-            <div class="space-y-3">
-              <Skeleton class="h-12 w-12 rounded-lg" />
-              <Skeleton class="h-6 w-32" />
-              <Skeleton class="h-4 w-full" />
-              <Skeleton class="h-9 w-24" />
-            </div>
-          </Card.Content>
-        </Card.Root>
+        <Card.Root
+          ><Card.Content class="p-6"
+            ><Skeleton class="h-24 w-full" /></Card.Content
+          ></Card.Root
+        >
       {/each}
     </div>
+  {:else if error}
+    <Card.Root>
+      <Card.Content class="flex flex-col items-center justify-center py-12">
+        <AlertCircle class="mb-4 h-12 w-12 text-destructive" />
+        <h3 class="mb-2 text-lg font-semibold">Unable to load integrations</h3>
+        <p class="mb-4 text-sm text-muted-foreground">{error}</p>
+        <Button variant="outline" onclick={() => integrationsStore.fetch()}
+          >Retry</Button
+        >
+      </Card.Content>
+    </Card.Root>
   {:else if integrations.length === 0}
-    <!-- Empty state -->
     <Card.Root>
       <Card.Content class="flex flex-col items-center justify-center py-12">
         <Puzzle class="mb-4 h-12 w-12 text-muted-foreground" />
         <h3 class="mb-2 text-lg font-semibold">No integrations available</h3>
-        <p class="text-center text-sm text-muted-foreground">
-          Check back later for new integrations
-        </p>
       </Card.Content>
     </Card.Root>
   {:else}
-    <!-- Integrations grid -->
+    <div class="mb-4">
+      <p class="text-sm text-muted-foreground">
+        {integrationsStore.connectedCount} of {integrations.length} integrations connected
+      </p>
+    </div>
+
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {#each integrations as integration (integration.id)}
-        {@const IntegrationIcon = integration.icon}
-        {@const BadgeIcon = getBadgeIcon(integration.status)}
-        <Card.Root class="transition-all hover:scale-105 hover:shadow-md">
+        <Card.Root class="transition-all hover:shadow-md">
           <Card.Content class="p-6">
-            <!-- Icon -->
             <div
-              class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary"
+              class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10"
             >
-              <IntegrationIcon class="h-6 w-6" />
+              {#if integration.logo}
+                <img
+                  src={integration.logo}
+                  alt={`${integration.name} logo`}
+                  class="h-8 w-8 rounded"
+                />
+              {:else}
+                <Puzzle class="h-6 w-6 text-primary" />
+              {/if}
             </div>
-
-            <!-- Name and badge -->
             <div class="mb-2 flex items-center gap-2">
               <h3 class="font-semibold">{integration.name}</h3>
               <Badge
-                variant={getBadgeVariant(integration.status)}
+                variant={integration.status === 'connected'
+                  ? 'default'
+                  : 'secondary'}
                 class="gap-1 text-xs"
               >
-                <BadgeIcon class="h-3 w-3" />
-                {integration.status === 'connected' ? 'Connected' : 'Available'}
+                {#if integration.status === 'connected'}
+                  <CheckCircle class="h-3 w-3" />
+                {/if}
+                {integration.status}
               </Badge>
             </div>
-
-            <!-- Description -->
-            <p class="mb-4 text-sm text-muted-foreground">
-              {integration.description}
-            </p>
-
-            <!-- Action button -->
+            {#if integration.description}
+              <p class="mb-4 text-sm text-muted-foreground">
+                {integration.description}
+              </p>
+            {/if}
             <Button
               variant={integration.status === 'connected'
                 ? 'secondary'
                 : 'default'}
               size="sm"
               class="w-full"
+              onclick={() => handleIntegrationAction(integration.status)}
             >
               {#if integration.status === 'connected'}
                 <Settings class="mr-2 h-4 w-4" />
+                Configure
               {:else}
                 <Plus class="mr-2 h-4 w-4" />
+                Connect
               {/if}
-              {getButtonText(integration.status)}
             </Button>
           </Card.Content>
         </Card.Root>
