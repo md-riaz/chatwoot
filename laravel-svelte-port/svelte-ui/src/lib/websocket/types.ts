@@ -3,6 +3,12 @@
  * Type definitions for WebSocket client and channel management
  */
 
+import type { Agent } from '$lib/api/agents';
+import type { Team } from '$lib/api/teams';
+import type { CurrentUser } from '$lib/api/auth';
+
+export type PresenceStatus = 'online' | 'offline' | 'busy' | 'away';
+
 export type ConnectionState =
   | 'disconnected'
   | 'connecting'
@@ -45,6 +51,47 @@ export interface ChannelOptions {
   onConnected?: () => void;
   onDisconnected?: () => void;
   onError?: (error: Error) => void;
+}
+
+export interface RealtimeEventEnvelope {
+  account_id?: number;
+  user_id?: number;
+}
+
+export interface AccountPresencePayload extends RealtimeEventEnvelope {
+  status: PresenceStatus;
+  metadata?: Record<string, unknown>;
+  user: {
+    id: number;
+    name: string;
+    avatar_url?: string;
+    avatarUrl?: string;
+    type?: 'agent' | 'contact';
+  };
+}
+
+export interface AssigneeChangedPayload extends RealtimeEventEnvelope {
+  conversation?: { id: number } & Record<string, unknown>;
+  current_user?: Agent;
+}
+
+export interface TeamChangedPayload extends RealtimeEventEnvelope {
+  conversation?: { id: number } & Record<string, unknown>;
+  team?: Team;
+  action?: 'created' | 'updated' | 'deleted';
+  id?: number;
+}
+
+export interface UserAvailabilityPayload extends RealtimeEventEnvelope {
+  user_id: number;
+  availability_status: Exclude<PresenceStatus, 'away'>;
+}
+
+export interface UserUpdatedPayload extends RealtimeEventEnvelope {
+  user: Partial<CurrentUser> & {
+    id: number;
+    availability_status?: Exclude<PresenceStatus, 'away'>;
+  };
 }
 
 export type MessageHandler = (data: any) => void;

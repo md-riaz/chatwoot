@@ -17,6 +17,7 @@ import * as accountsAPI from '$lib/api/accounts';
 import { getErrorMessage as getApiErrorMessage } from '$lib/api/errors';
 import { clearStorage, loadFromStorage, saveToStorage } from './persistence';
 import { globalConfig } from '$lib/stores/globalConfig.svelte';
+import { agentsStore } from '$lib/stores/agents.svelte';
 
 /**
  * Initial user state
@@ -286,11 +287,7 @@ class AuthStore {
       this.setCurrentUser(user);
       this.error = null;
 
-      // TODO: Dispatch to agents store to update presence
-      // dispatch('agents/updateSingleAgentPresence', {
-      //   id: user.id,
-      //   availabilityStatus: params.availability
-      // });
+      this.updateCurrentUserRealtimePresence(params.availability);
     } catch (err: unknown) {
       // Revert on error
       this.setAvailability(previousAvailability);
@@ -325,9 +322,26 @@ class AuthStore {
    */
   setCurrentUserAvailability(data: Record<number, string>) {
     const userId = this.currentUser.id;
-    if (data[userId]) {
-      this.setAvailability(data[userId] as "online" | "offline" | "busy");
+    const availability = data[userId];
+
+    if (
+      availability === 'online' ||
+      availability === 'offline' ||
+      availability === 'busy'
+    ) {
+      this.setAvailability(availability);
+      this.updateCurrentUserRealtimePresence(availability);
     }
+  }
+
+  /**
+   * Sync current user presence into central agents store
+   */
+  updateCurrentUserRealtimePresence(
+    availability: 'online' | 'offline' | 'busy'
+  ) {
+    if (!this.currentUser.id) return;
+    agentsStore.updateSingleAgentPresence(this.currentUser.id, availability);
   }
 
   /**
@@ -418,7 +432,8 @@ class AuthStore {
       // Refresh user/account data to reflect changes
       await this.validityCheck();
     } catch (err: unknown) {
-      this.error = getApiErrorMessage(err) || 'Failed to toggle account deletion';
+      this.error =
+        getApiErrorMessage(err) || 'Failed to toggle account deletion';
       throw err;
     }
   }
@@ -465,7 +480,7 @@ class AuthStore {
   /**
    * Set availability for current account
    */
-  private setAvailability(availability: "online" | "offline" | "busy") {
+  private setAvailability(availability: 'online' | 'offline' | 'busy') {
     const accountId = this.currentUser.accountId;
     const accounts = this.currentUser.accounts.map(account => {
       if (account.id === accountId) {
