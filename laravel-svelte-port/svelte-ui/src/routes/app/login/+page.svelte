@@ -9,6 +9,7 @@
   import { login } from '$lib/api/auth';
   import { getErrorMessage } from '$lib/api/errors';
   import { authStore } from '$lib/stores/auth.svelte';
+  import { _ } from '$lib/i18n';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
@@ -43,7 +44,7 @@
 
         // Redirect based on user type
         if (response.user.type === 'SuperAdmin') {
-          toast.success('Logged in successfully!');
+          toast.success($_('auth.messages.login_success'));
           await goto(resolve('/app/super_admin/dashboard'));
           return;
         }
@@ -51,13 +52,13 @@
         // Regular user - redirect to their account's conversations page
         if (response.user.accounts && response.user.accounts.length > 0) {
           const firstAccount = response.user.accounts[0];
-          toast.success('Logged in successfully!');
+          toast.success($_('auth.messages.login_success'));
           await goto(resolve(`/app/accounts/${firstAccount.id}/conversations`));
           return;
         }
       }
 
-      toast.success('Logged in successfully!');
+      toast.success($_('auth.messages.login_success'));
       await goto(resolve('/app'));
     } catch (err: unknown) {
       error = getErrorMessage(err);
@@ -69,19 +70,19 @@
 
 <div class="space-y-6">
   <div class="space-y-2 text-center">
-    <h2 class="text-2xl font-semibold tracking-tight">Sign in</h2>
+    <h2 class="text-2xl font-semibold tracking-tight">{$_('auth.login_page.title')}</h2>
     <p class="text-sm text-muted-foreground">
-      Enter your credentials to access your account. Seeded login is prefilled for instant testing.
+      {$_('auth.login_page.description')}
     </p>
   </div>
 
   <form onsubmit={handleSubmit} class="space-y-4">
     <div class="space-y-2">
-      <Label for="email">Email</Label>
+      <Label for="email">{$_('auth.email')}</Label>
       <Input
         id="email"
         type="email"
-        placeholder="name@example.com"
+        placeholder={$_('auth.placeholders.email')}
         bind:value={email}
         required
         disabled={loading}
@@ -89,11 +90,11 @@
     </div>
 
     <div class="space-y-2">
-      <Label for="password">Password</Label>
+      <Label for="password">{$_('auth.password')}</Label>
       <Input
         id="password"
         type="password"
-        placeholder="Enter your password"
+        placeholder={$_('auth.placeholders.password')}
         bind:value={password}
         required
         disabled={loading}
@@ -107,7 +108,7 @@
     {/if}
 
     <Button type="submit" class="w-full" disabled={loading}>
-      {loading ? 'Signing in...' : 'Sign in'}
+      {loading ? $_('auth.login_page.signing_in') : $_('auth.login_page.submit')}
     </Button>
 
     <Button
@@ -117,18 +118,18 @@
       disabled={loading}
       onclick={useSeededCredentials}
     >
-      Use seeded credentials
+      {$_('auth.login_page.use_seeded_credentials')}
     </Button>
   </form>
 
   <div class="text-center text-sm">
     <a href={resolve('/auth/forgot-password')} class="text-primary hover:underline">
-      Forgot your password?
+      {$_('auth.forgot_password')}
     </a>
   </div>
 
   <div class="text-center text-sm text-muted-foreground">
-    Don't have an account?
-    <a href={resolve('/app/signup')} class="text-primary hover:underline">Sign up</a>
+    {$_('auth.login_page.no_account')}
+    <a href={resolve('/app/signup')} class="text-primary hover:underline">{$_('auth.signup')}</a>
   </div>
 </div>

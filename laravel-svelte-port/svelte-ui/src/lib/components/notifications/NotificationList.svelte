@@ -4,6 +4,7 @@
   import NotificationItem from './NotificationItem.svelte';
   import { Button } from '$lib/components/ui/button';
   import { AlertCircle, Loader2 } from '@lucide/svelte';
+  import { _ } from '$lib/i18n';
   
   interface Props {
     onNotificationOpen?: (notification: Notification) => void;
@@ -29,7 +30,7 @@
   {:else if notifications.length === 0}
     <div class="flex flex-col items-center justify-center py-12 text-center px-4">
       <AlertCircle class="h-12 w-12 text-gray-400 mb-3" />
-      <p class="text-sm text-gray-600">No notifications yet</p>
+      <p class="text-sm text-gray-600">{$_('notifications.empty_state')}</p>
     </div>
   {:else}
     <div class="divide-y">
@@ -48,7 +49,7 @@
         {#if isLoading}
           <Loader2 class="h-4 w-4 mr-2 animate-spin" />
         {/if}
-        Load more
+        {$_('notifications.load_more')}
       </Button>
     </div>
   {/if}

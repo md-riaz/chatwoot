@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { _ } from '$lib/i18n';
   import { authStore } from '$lib/stores/auth.svelte';
   import { onMount } from 'svelte';
   
@@ -36,6 +37,6 @@
 
 <div class="flex items-center justify-center h-screen">
   <div class="text-center">
-    <p class="text-muted-foreground">Loading...</p>
+    <p class="text-muted-foreground">{$_('common.loading')}</p>
   </div>
 </div>

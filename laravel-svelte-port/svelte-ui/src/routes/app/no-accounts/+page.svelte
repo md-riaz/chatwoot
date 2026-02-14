@@ -7,8 +7,8 @@
   import { Button } from '$lib/components/ui/button';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { authStore } from '$lib/stores/auth.svelte';
-  import { goto } from '$app/navigation';
-
+  import { _ } from '$lib/i18n';
+  
   async function handleCreateAccount() {
     // Redirect to account creation or show account creation form
     // This would depend on whether account creation from dashboard is enabled
@@ -24,21 +24,21 @@
 <div class="flex min-h-screen items-center justify-center bg-background p-4">
   <Card class="w-full max-w-md">
     <CardHeader class="text-center">
-      <CardTitle>No Accounts Found</CardTitle>
+      <CardTitle>{$_('auth.no_accounts.title')}</CardTitle>
       <CardDescription>
-        You don't have access to any accounts in the system.
+        {$_('auth.no_accounts.description')}
       </CardDescription>
     </CardHeader>
     <CardContent class="space-y-4">
       <p class="text-sm text-muted-foreground text-center">
-        Contact your administrator to be added to an account or create a new one.
+        {$_('auth.no_accounts.note')}
       </p>
       <div class="flex flex-col gap-2">
         <Button onclick={handleCreateAccount} class="w-full">
-          Create New Account
+          {$_('auth.no_accounts.create_account')}
         </Button>
         <Button variant="outline" onclick={handleLogout} class="w-full">
-          Sign Out
+          {$_('auth.no_accounts.sign_out')}
         </Button>
       </div>
     </CardContent>

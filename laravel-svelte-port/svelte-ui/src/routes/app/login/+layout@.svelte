@@ -6,6 +6,7 @@
   
   import type { Snippet } from 'svelte';
   import Logo from '$lib/components/layout/Logo.svelte';
+  import { _ } from '$lib/i18n';
   
   interface Props {
     children: Snippet;
@@ -21,7 +22,7 @@
         <Logo class="h-8 w-8" aria-label="Chatwoot logo" />
         <span class="text-3xl font-bold">Chatwoot</span>
       </div>
-      <p class="mt-2 text-sm text-muted-foreground">Customer engagement platform</p>
+      <p class="mt-2 text-sm text-muted-foreground">{$_('auth.layout.tagline')}</p>
     </div>
     
     <!-- Content -->
@@ -31,7 +32,7 @@
     
     <!-- Footer -->
     <div class="mt-8 text-center text-xs text-muted-foreground">
-      © 2026 Chatwoot. All rights reserved.
+      {$_('auth.layout.footer_copyright')}
     </div>
   </div>
 </div>
