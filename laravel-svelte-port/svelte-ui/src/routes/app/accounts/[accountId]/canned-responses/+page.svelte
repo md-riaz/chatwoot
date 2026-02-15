@@ -16,6 +16,7 @@
   import { Input } from '$lib/components/ui/input';
   import { Badge } from '$lib/components/ui/badge';
   import { Skeleton } from '$lib/components/ui/skeleton';
+  import { PaginationFooter } from '$lib/components/ui/pagination';
   import { cannedResponsesStore } from '$lib/stores/cannedResponses.svelte';
   import { toast } from 'svelte-sonner';
   import { truncate } from '$lib/utils/format';
@@ -188,29 +189,18 @@
       {/each}
     </div>
 
-    <div class="mt-6 flex justify-between">
-      <Button
-        variant="outline"
-        disabled={cannedResponsesStore.currentPage <= 1}
-        onclick={() =>
-          cannedResponsesStore.fetch({
-            page: cannedResponsesStore.currentPage - 1,
-            perPage: cannedResponsesStore.perPage,
-            search: searchQuery.trim() || undefined,
-          })}>Previous</Button
-      >
-      <Button
-        variant="outline"
-        disabled={cannedResponsesStore.currentPage >=
-          cannedResponsesStore.lastPage}
-        onclick={() =>
-          cannedResponsesStore.fetch({
-            page: cannedResponsesStore.currentPage + 1,
-            perPage: cannedResponsesStore.perPage,
-            search: searchQuery.trim() || undefined,
-          })}>Next</Button
-      >
-    </div>
+    <PaginationFooter
+      class="mt-6 px-0"
+      currentPage={cannedResponsesStore.currentPage}
+      totalItems={cannedResponsesStore.total}
+      itemsPerPage={cannedResponsesStore.perPage}
+      onPageChange={nextPage =>
+        cannedResponsesStore.fetch({
+          page: nextPage,
+          perPage: cannedResponsesStore.perPage,
+          search: searchQuery.trim() || undefined,
+        })}
+    />
   {/if}
 </div>
 
