@@ -40,7 +40,7 @@
   import * as Skeleton from '$lib/components/ui/skeleton';
   import { PaginationFooter } from '$lib/components/ui/pagination';
   import ContactForm from '$lib/components/ui/contact-management/contact-form/contact-form.svelte';
-  import AdvancedFilter from '$lib/components/ui/contact-management/advanced-filter.svelte';
+  import { AdvancedFilter } from '$lib/components/ui/filters';
   import ImportDialog from '$lib/components/ui/contact-management/import-dialog.svelte';
   import ExportDialog from '$lib/components/ui/contact-management/export-dialog.svelte';
   import BulkActionBar from '$lib/components/ui/contact-management/bulk-action-bar.svelte';
@@ -175,8 +175,7 @@
   }
 
   // Handle filter apply - call the filter API with payload
-  async function handleFilterApply(event: CustomEvent<FilterCondition[]>) {
-    const filters = event.detail;
+  async function handleFilterApply(filters: FilterCondition[]) {
     activeFiltersArray = filters;
 
     // Call the filter API with the payload
@@ -381,8 +380,8 @@
               <AdvancedFilter
                 bind:open={showFilterDialog}
                 bind:filters={activeFiltersArray}
-                on:apply={handleFilterApply}
-                on:clear={handleFilterClear}
+                onapply={handleFilterApply}
+                onclear={handleFilterClear}
               />
             </div>
 
@@ -695,11 +694,14 @@
                 class="hidden xl:flex items-center gap-2 text-sm text-muted-foreground w-32"
               >
                 {#if contact.countryCode}
-                  <Flag country={contact.countryCode} class="h-4 w-4 shrink-0 rounded-sm" />
+                  <Flag
+                    country={contact.countryCode}
+                    class="h-4 w-4 shrink-0 rounded-sm"
+                  />
                 {:else if contact.city || contact.country}
                   <MapPin class="h-3 w-3 shrink-0" />
                 {/if}
-                
+
                 {#if contact.city || contact.country}
                   <span class="truncate"
                     >{[contact.city, contact.country]

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { cn } from '$lib/utils';
-  import { Badge } from '$lib/components/ui/badge';
+  import { LabelPill } from '$lib/components/ui/label-pill';
   import { Button } from '$lib/components/ui/button';
 
   interface Label {
@@ -30,14 +30,14 @@
 
   const filteredLabels = $derived(
     labels.filter(
-      (label) =>
+      label =>
         label.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !selectedLabels.includes(label.id)
     )
   );
 
   const displayedLabels = $derived(
-    labels.filter((label) => selectedLabels.includes(label.id))
+    labels.filter(label => selectedLabels.includes(label.id))
   );
 
   function handleAddLabel(label: Label) {
@@ -46,7 +46,7 @@
   }
 
   function handleRemoveLabel(labelId: string) {
-    selectedLabels = selectedLabels.filter((id) => id !== labelId);
+    selectedLabels = selectedLabels.filter(id => id !== labelId);
     onRemove(labelId);
   }
 </script>
@@ -55,39 +55,25 @@
   <!-- Selected Labels -->
   <div class="flex flex-wrap gap-2">
     {#each displayedLabels as label}
-      <Badge
-        variant="secondary"
-        class="flex items-center gap-1.5"
-        style="background-color: {label.color}20; border-color: {label.color}; color: {label.color}"
-      >
-        <span
-          class="w-2 h-2 rounded-full"
-          style="background-color: {label.color}"
-        ></span>
-        {label.title}
-        <button
-          type="button"
-          class="ml-1 hover:opacity-70"
-          onclick={() => handleRemoveLabel(label.id)}
-        >
-          ×
-        </button>
-      </Badge>
+      <LabelPill
+        title={label.title}
+        color={label.color}
+        removable
+        onRemove={() => handleRemoveLabel(label.id)}
+      />
     {/each}
   </div>
 
   <!-- Add Label Dropdown -->
   <div class="relative">
-    <Button
-      variant="outline"
-      size="sm"
-      onclick={() => (isOpen = !isOpen)}
-    >
+    <Button variant="outline" size="sm" onclick={() => (isOpen = !isOpen)}>
       + Add Label
     </Button>
 
     {#if isOpen}
-      <div class="absolute z-50 top-full left-0 mt-1 w-64 bg-popover border rounded-md shadow-lg">
+      <div
+        class="absolute z-50 top-full left-0 mt-1 w-64 bg-popover border rounded-md shadow-lg"
+      >
         <input
           type="text"
           class="w-full px-3 py-2 text-sm border-b bg-transparent outline-hidden"
@@ -111,7 +97,9 @@
                 ></span>
                 <span>{label.title}</span>
                 {#if label.description}
-                  <span class="text-xs text-muted-foreground ml-auto truncate max-w-[100px]">
+                  <span
+                    class="text-xs text-muted-foreground ml-auto truncate max-w-[100px]"
+                  >
                     {label.description}
                   </span>
                 {/if}

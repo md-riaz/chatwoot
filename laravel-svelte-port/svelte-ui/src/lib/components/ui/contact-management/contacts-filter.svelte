@@ -9,6 +9,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Badge } from '$lib/components/ui/badge';
+  import { LabelPill } from '$lib/components/ui/label-pill';
   import { Checkbox } from '$lib/components/ui/checkbox';
   import type { Label } from '$lib/api/labels';
 
@@ -135,22 +136,12 @@
         {:else}
           <div class="flex flex-wrap gap-2">
             {#each labels as label}
-              <button
-                type="button"
-                onclick={() => toggleLabel(label.title)}
-                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs transition-colors {selectedLabels.has(
-                  label.title
-                )
-                  ? 'ring-2 ring-primary ring-offset-1'
-                  : 'hover:bg-muted'}"
-                style="background-color: {label.color}20; color: {label.color}"
-              >
-                <div
-                  class="w-2 h-2 rounded-full"
-                  style="background-color: {label.color}"
-                ></div>
-                {label.title}
-              </button>
+              <LabelPill
+                title={label.title}
+                color={label.color}
+                selected={selectedLabels.has(label.title)}
+                onClick={() => toggleLabel(label.title)}
+              />
             {/each}
           </div>
         {/if}
@@ -164,11 +155,14 @@
         </label>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label for="date-from" class="text-xs text-muted-foreground">From</label>
+            <label for="date-from" class="text-xs text-muted-foreground"
+              >From</label
+            >
             <Input id="date-from" type="date" bind:value={dateFrom} />
           </div>
           <div>
-            <label for="date-to" class="text-xs text-muted-foreground">To</label>
+            <label for="date-to" class="text-xs text-muted-foreground">To</label
+            >
             <Input id="date-to" type="date" bind:value={dateTo} />
           </div>
         </div>

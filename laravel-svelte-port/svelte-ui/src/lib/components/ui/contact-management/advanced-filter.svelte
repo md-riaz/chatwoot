@@ -4,7 +4,6 @@
    * Inline filter panel with condition rows like Vue ContactsFilter.vue
    * Features: AND/OR query operator, searchSelect, multiSelect, date inputs
    */
-  import { createEventDispatcher } from 'svelte';
   import { Trash2, ChevronDown, Check, Search } from 'lucide-svelte';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as Popover from '$lib/components/ui/popover';
@@ -40,12 +39,16 @@
     open?: boolean;
     filters?: FilterCondition[];
     labels?: Array<{ id: string; name: string; title?: string }>;
+    onapply?: (filters: FilterCondition[]) => void;
+    onclear?: () => void;
   }
 
   let {
     open = $bindable(false),
     filters = $bindable([]),
     labels = [],
+    onapply = (_filters: FilterCondition[]) => {},
+    onclear = () => {},
   }: Props = $props();
 
   // Build filter types with labels from props
@@ -75,11 +78,6 @@
     }
   });
 
-  const dispatch = createEventDispatcher<{
-    apply: FilterCondition[];
-    clear: void;
-  }>();
-
   // Search states for searchSelect
   let searchQueries = $state<Record<number, string>>({});
 
@@ -98,12 +96,18 @@
     return ops.find(op => op.value === operatorValue)?.label || operatorValue;
   }
 
-  function getCurrentOperator(key: string, operatorValue: string): FilterOperator {
+  function getCurrentOperator(
+    key: string,
+    operatorValue: string
+  ): FilterOperator {
     const ops = getOperators(key);
     return ops.find(op => op.value === operatorValue) || ops[0];
   }
 
-  function getFilteredOptions(index: number, options: FilterOption[]): FilterOption[] {
+  function getFilteredOptions(
+    index: number,
+    options: FilterOption[]
+  ): FilterOption[] {
     const query = searchQueries[index]?.toLowerCase() || '';
     if (!query) return options;
     return options.filter(opt => opt.name.toLowerCase().includes(query));
@@ -135,7 +139,7 @@
   function removeFilter(index: number) {
     if (filters.length === 1) {
       filters = [{ ...DEFAULT_FILTER }];
-      dispatch('clear');
+      onclear();
     } else {
       filters = filters.filter((_, i) => i !== index);
     }
@@ -148,7 +152,7 @@
       ...newFilters[index],
       attributeKey: newKey,
       filterOperator: newType.filterOperators[0].value,
-      values: [],  // Always reset to empty array
+      values: [], // Always reset to empty array
     };
     filters = newFilters;
   }
@@ -185,14 +189,14 @@
   function toggleMultiSelectValue(index: number, optionId: string) {
     const newFilters = [...filters];
     const currentValues = [...newFilters[index].values];
-    
+
     const valueIndex = currentValues.indexOf(optionId);
     if (valueIndex > -1) {
       currentValues.splice(valueIndex, 1);
     } else {
       currentValues.push(optionId);
     }
-    
+
     newFilters[index] = {
       ...newFilters[index],
       values: currentValues,
@@ -222,14 +226,14 @@
 
   function clearFilters() {
     filters = [{ ...DEFAULT_FILTER }];
-    dispatch('clear');
+    onclear();
     open = false;
   }
 
   function applyFilters() {
     // Dispatch filters with values always as arrays (Vue parity)
     // The API client will auto-convert keys to snake_case
-    dispatch('apply', filters);
+    onapply(filters);
     open = false;
   }
 </script>
@@ -265,10 +269,13 @@
                 <DropdownMenu.Content align="start" class="w-28">
                   {#each queryOperatorOptions as qop}
                     <DropdownMenu.Item
-                      onclick={() => updateQueryOperator(index, qop.value as 'and' | 'or')}
+                      onclick={() =>
+                        updateQueryOperator(index, qop.value as 'and' | 'or')}
                       class="flex items-center gap-2"
                     >
-                      <span class="text-blue-600 font-mono text-xs">{qop.icon}</span>
+                      <span class="text-blue-600 font-mono text-xs"
+                        >{qop.icon}</span
+                      >
                       {qop.label}
                     </DropdownMenu.Item>
                   {/each}
@@ -313,7 +320,10 @@
                     class="h-8 gap-1 text-muted-foreground"
                   >
                     <span class="text-blue-600 font-medium">=</span>
-                    {getOperatorLabel(filter.attributeKey, filter.filterOperator)}
+                    {getOperatorLabel(
+                      filter.attributeKey,
+                      filter.filterOperator
+                    )}
                     <ChevronDown class="h-3 w-3 opacity-50" />
                   </Button>
                 {/snippet}
@@ -333,7 +343,7 @@
             <!-- Value Input (based on inputType) -->
             {#if getCurrentOperator(filter.attributeKey, filter.filterOperator).hasInput}
               {@const filterType = getFilterType(filter.attributeKey)}
-              
+
               {#if filterType.inputType === 'searchSelect' && filterType.options}
                 <!-- Searchable Single Select -->
                 <Popover.Root>
@@ -358,7 +368,8 @@
                           type="text"
                           placeholder="Search..."
                           class="flex-1 bg-transparent text-sm outline-none"
-                          oninput={(e) => searchQueries[index] = e.currentTarget.value}
+                          oninput={e =>
+                            (searchQueries[index] = e.currentTarget.value)}
                         />
                       </div>
                     </div>
@@ -381,7 +392,6 @@
                     </div>
                   </Popover.Content>
                 </Popover.Root>
-                
               {:else if filterType.inputType === 'multiSelect' && filterType.options}
                 <!-- Multi Select -->
                 <Popover.Root>
@@ -396,10 +406,14 @@
                         {#if filter.values.length > 0}
                           <div class="flex gap-1 flex-wrap max-w-[200px]">
                             {#each getSelectedMultipleNames(filter).slice(0, 2) as name}
-                              <Badge variant="secondary" class="text-xs px-1">{name}</Badge>
+                              <Badge variant="secondary" class="text-xs px-1"
+                                >{name}</Badge
+                              >
                             {/each}
                             {#if filter.values.length > 2}
-                              <Badge variant="secondary" class="text-xs px-1">+{filter.values.length - 2}</Badge>
+                              <Badge variant="secondary" class="text-xs px-1"
+                                >+{filter.values.length - 2}</Badge
+                              >
                             {/if}
                           </div>
                         {:else}
@@ -417,7 +431,8 @@
                           type="text"
                           placeholder="Search..."
                           class="flex-1 bg-transparent text-sm outline-none"
-                          oninput={(e) => searchQueries[index] = e.currentTarget.value}
+                          oninput={e =>
+                            (searchQueries[index] = e.currentTarget.value)}
                         />
                       </div>
                     </div>
@@ -426,7 +441,8 @@
                         <button
                           type="button"
                           class="w-full px-2 py-1.5 text-sm text-left rounded hover:bg-muted flex items-center gap-2"
-                          onclick={() => toggleMultiSelectValue(index, String(option.id))}
+                          onclick={() =>
+                            toggleMultiSelectValue(index, String(option.id))}
                         >
                           <Checkbox
                             checked={filter.values.includes(String(option.id))}
@@ -438,21 +454,19 @@
                     </div>
                   </Popover.Content>
                 </Popover.Root>
-                
               {:else if filterType.inputType === 'date'}
                 <!-- Date Input -->
                 <Input
                   type="date"
                   value={filter.values[0] || ''}
-                  oninput={(e) => updateValue(index, e.currentTarget.value)}
+                  oninput={e => updateValue(index, e.currentTarget.value)}
                   class="h-8 w-[150px]"
                 />
-                
               {:else}
                 <!-- Plain Text Input -->
                 <Input
                   value={filter.values[0] || ''}
-                  oninput={(e) => updateValue(index, e.currentTarget.value)}
+                  oninput={e => updateValue(index, e.currentTarget.value)}
                   placeholder="Enter value"
                   class="h-8 flex-1"
                 />
