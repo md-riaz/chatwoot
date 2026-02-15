@@ -20,9 +20,16 @@
     onPageSizeChange?: (value: number) => void;
   } = $props();
 
-  const totalPages = $derived(Math.ceil(totalItems / itemsPerPage));
-  const startItem = $derived((currentPage - 1) * itemsPerPage + 1);
-  const endItem = $derived(Math.min(currentPage * itemsPerPage, totalItems));
+  const itemsPerPageSafe = $derived(Math.max(1, itemsPerPage));
+  const totalPages = $derived(Math.ceil(totalItems / itemsPerPageSafe));
+  const startItem = $derived(
+    totalItems === 0
+      ? 0
+      : Math.min(totalItems, (currentPage - 1) * itemsPerPageSafe + 1)
+  );
+  const endItem = $derived(
+    Math.min(currentPage * itemsPerPageSafe, totalItems)
+  );
 
   function handlePageSizeChange(event: Event) {
     const target = event.currentTarget as HTMLSelectElement;
