@@ -21,12 +21,7 @@
 </script>
 
 <div class={`flex gap-2 ${className}`}>
-  <Input
-    {id}
-    type={'color' as any}
-    bind:value
-    class={`h-10 w-20 ${colorInputClass}`}
-  />
+  <Input {id} type="color" bind:value class={`h-10 w-20 ${colorInputClass}`} />
   <Input
     type="text"
     bind:value

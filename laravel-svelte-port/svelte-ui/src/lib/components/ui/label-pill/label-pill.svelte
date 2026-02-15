@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Badge } from '$lib/components/ui/badge';
   import { cn } from '$lib/utils';
 
   interface Props {

@@ -175,8 +175,7 @@
   }
 
   // Handle filter apply - call the filter API with payload
-  async function handleFilterApply(event: CustomEvent<FilterCondition[]>) {
-    const filters = event.detail;
+  async function handleFilterApply(filters: FilterCondition[]) {
     activeFiltersArray = filters;
 
     // Call the filter API with the payload
@@ -381,8 +380,8 @@
               <AdvancedFilter
                 bind:open={showFilterDialog}
                 bind:filters={activeFiltersArray}
-                on:apply={handleFilterApply}
-                on:clear={handleFilterClear}
+                onapply={handleFilterApply}
+                onclear={handleFilterClear}
               />
             </div>
 

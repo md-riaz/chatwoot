@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import ContactAdvancedFilter from '$lib/components/ui/contact-management/advanced-filter.svelte';
   import type { FilterCondition } from '$lib/constants/filter-types';
 
@@ -13,24 +12,17 @@
     open?: boolean;
     filters?: FilterCondition[];
     labels?: LabelOption[];
+    onapply?: (filters: FilterCondition[]) => void;
+    onclear?: () => void;
   }
 
   let {
     open = $bindable(false),
     filters = $bindable<FilterCondition[]>([]),
     labels = [],
+    onapply = (_filters: FilterCondition[]) => {},
+    onclear = () => {},
   }: Props = $props();
-
-  const dispatch = createEventDispatcher<{
-    apply: FilterCondition[];
-    clear: void;
-  }>();
 </script>
 
-<ContactAdvancedFilter
-  bind:open
-  bind:filters
-  {labels}
-  on:apply={event => dispatch('apply', event.detail)}
-  on:clear={() => dispatch('clear')}
-/>
+<ContactAdvancedFilter bind:open bind:filters {labels} {onapply} {onclear} />
