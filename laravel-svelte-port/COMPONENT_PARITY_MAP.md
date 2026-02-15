@@ -33,6 +33,6 @@ This inventory tracks shared Vue components from `app/javascript/dashboard/compo
 
 ## Follow-up parity candidates
 
-1. Extract route-scoped conversation filter widgets into `svelte-ui/src/lib/components/ui/filters/**` to match Vue `filter/inputs/*` reusability.
-2. Add a shared label pill/label manager primitive to reduce `contacts` route-level label duplication.
-3. Introduce a dedicated color picker primitive in `ui/color-picker/**` for parity with Vue `colorpicker/ColorPicker.vue`.
+1. Migrate the conversation custom-view filtering workflow to directly consume `ui/filters/advanced-filter.svelte`.
+2. Add visual tests for `label-pill` and `color-picker` primitives in Storybook or component tests.
+3. Expand the new color picker usage to any remaining widget/branding settings forms.

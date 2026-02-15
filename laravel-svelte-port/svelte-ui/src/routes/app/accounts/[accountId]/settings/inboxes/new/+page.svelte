@@ -12,6 +12,7 @@
   import * as Card from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
+  import { ColorPicker } from '$lib/components/ui/color-picker';
   import { Textarea } from '$lib/components/ui/textarea';
   import * as Select from '$lib/components/ui/select';
   import { Switch } from '$lib/components/ui/switch';
@@ -515,20 +516,11 @@
               
               <div>
                 <Label for="widgetColor">Widget Color</Label>
-                <div class="flex gap-2">
-                  <Input
-                    id="widgetColor"
-                    type={"color" as any}
-                    bind:value={widgetColor}
-                    class="w-20 h-10"
-                  />
-                  <Input
-                    type="text"
-                    bind:value={widgetColor}
-                    placeholder="#1f93ff"
-                    class="flex-1"
-                  />
-                </div>
+                <ColorPicker
+                  id="widgetColor"
+                  bind:value={widgetColor}
+                  colorInputClass="w-20"
+                />
               </div>
             </div>
           {:else if selectedChannelType === 'Channel::Email'}

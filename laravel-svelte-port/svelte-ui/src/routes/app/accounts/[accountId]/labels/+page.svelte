@@ -4,6 +4,7 @@
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import { Badge } from '$lib/components/ui/badge';
+  import { LabelPill } from '$lib/components/ui/label-pill';
   import { Skeleton } from '$lib/components/ui/skeleton';
   import { labelsStore } from '$lib/stores/labels.svelte';
 
@@ -85,11 +86,11 @@
             <!-- Label header -->
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <div
-                  class="h-4 w-4 rounded-full"
-                  style="background-color: {label.color};"
-                ></div>
-                <h3 class="font-semibold">{label.title}</h3>
+                <LabelPill
+                  title={label.title}
+                  color={label.color}
+                  class="pointer-events-none"
+                />
               </div>
             </div>
 
