@@ -26,7 +26,11 @@
 
   function handlePageSizeChange(event: Event) {
     const target = event.currentTarget as HTMLSelectElement;
-    onPageSizeChange(Number.parseInt(target.value, 10));
+    const parsedValue = Number.parseInt(target.value, 10);
+
+    if (!Number.isNaN(parsedValue)) {
+      onPageSizeChange(parsedValue);
+    }
   }
 </script>
 
