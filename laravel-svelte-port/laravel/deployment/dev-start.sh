@@ -36,6 +36,29 @@ info() {
     echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')] INFO:${NC} $1" | tee -a "$LOG_FILE"
 }
 
+# --- GLOBAL FIX FOR WSL SLEEP ISSUE ---
+# Create a local bin directory for our shim
+SHIM_DIR="$SCRIPT_DIR/.bin"
+mkdir -p "$SHIM_DIR"
+
+# Create a 'sleep' shim that doesn't crash on WSL clock errors
+cat << 'EOF' > "$SHIM_DIR/sleep"
+#!/bin/bash
+# This shim avoids the "cannot read realtime clock: Invalid argument" error in WSL
+/bin/sleep "$@" 2>/dev/null || {
+    # If /bin/sleep fails, use perl or read to wait
+    D=$1
+    # Remove any 's' suffix if present
+    D=${D%s}
+    perl -e "select(undef, undef, undef, $D)" 2>/dev/null || read -t "$D" -n 1 2>/dev/null || true
+}
+EOF
+chmod +x "$SHIM_DIR/sleep"
+
+# Add it to the FRONT of the PATH so all commands use it
+export PATH="$SHIM_DIR:$PATH"
+# --------------------------------------
+
 # Cleanup function for graceful shutdown
 cleanup() {
     log "Shutting down development servers..."
@@ -95,38 +118,7 @@ fi
 command -v php >/dev/null 2>&1 || error "PHP is not installed"
 command -v composer >/dev/null 2>&1 || error "Composer is not installed"
 command -v node >/dev/null 2>&1 || error "Node.js is not installed"
-
-# Install pnpm if not available
-# Check both system PATH and local pnpm installation
-PNPM_PATH="$HOME/.local/share/pnpm"
-if ! command -v pnpm >/dev/null 2>&1 && [ ! -f "$PNPM_PATH/pnpm" ]; then
-    log "Installing pnpm..."
-    curl -fsSL https://get.pnpm.io/install.sh | sh -
-    
-    # Add to current session PATH
-    export PATH="$PNPM_PATH:$PATH"
-    
-    # Fallback to npm if pnpm installation fails
-    if ! command -v pnpm >/dev/null 2>&1 && [ ! -f "$PNPM_PATH/pnpm" ]; then
-        log "pnpm installation failed, using npm to install pnpm..."
-        npm install -g pnpm 2>/dev/null || warning "Could not install pnpm globally"
-    fi
-elif [ -f "$PNPM_PATH/pnpm" ] && ! command -v pnpm >/dev/null 2>&1; then
-    # pnpm exists but not in PATH, add it
-    log "Adding existing pnpm to PATH..."
-    export PATH="$PNPM_PATH:$PATH"
-fi
-
-# Verify pnpm is available
-if command -v pnpm >/dev/null 2>&1; then
-    log "✓ pnpm is available: $(pnpm --version)"
-elif [ -f "$PNPM_PATH/pnpm" ]; then
-    log "✓ pnpm is available: $($PNPM_PATH/pnpm --version)"
-    # Create alias for this session
-    alias pnpm="$PNPM_PATH/pnpm"
-else
-    warning "pnpm not available, will use npm instead"
-fi
+command -v npm >/dev/null 2>&1 || error "npm is not installed"
 
 # Setup Laravel development environment
 log "Setting up Laravel development environment..."
@@ -135,7 +127,7 @@ cd "$LARAVEL_DIR"
 # Install Composer dependencies
 if [ ! -d "vendor" ] || [ "composer.json" -nt "vendor/autoload.php" ]; then
     log "Installing/updating Composer dependencies..."
-    # composer install
+    composer install
     # Update timestamp to prevent re-running loop if composer didn't modify files
     touch vendor/autoload.php
 fi
@@ -153,9 +145,13 @@ if [ ! -f ".env" ]; then
         sed -i "s/APP_ENV=.*/APP_ENV=local/" .env
         sed -i "s/APP_DEBUG=.*/APP_DEBUG=true/" .env
         sed -i "s/APP_URL=.*/APP_URL=http:\/\/localhost:8000/" .env
+        
+        # Database setup: Use unix socket and current user for zero-password setup
         sed -i "s/DB_DATABASE=.*/DB_DATABASE=clearline_development/" .env
-        sed -i "s/DB_USERNAME=.*/DB_USERNAME=postgres/" .env
+        sed -i "s/DB_USERNAME=.*/DB_USERNAME=$USER/" .env
         sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=/" .env
+        # Point DB_HOST to the PostgreSQL socket directory for unix socket (peer auth)
+        sed -i "s|DB_HOST=.*|DB_HOST=/var/run/postgresql|" .env
         
         # CORS settings for development
         sed -i "s/CORS_ALLOWED_ORIGINS=.*/CORS_ALLOWED_ORIGINS=http:\/\/localhost:5173,http:\/\/localhost:3000/" .env
@@ -181,6 +177,14 @@ if [ ! -f ".env" ]; then
     else
         error ".env.example not found"
     fi
+else
+    # Update existing .env if it has the wrong username
+    if grep -q "DB_USERNAME=postgres" .env; then
+        log "Updating .env to use current user instead of postgres root user..."
+        sed -i "s/DB_USERNAME=postgres/DB_USERNAME=$USER/" .env
+        sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=/" .env
+        sed -i "s|DB_HOST=127.0.0.1|DB_HOST=/var/run/postgresql|" .env
+    fi
 fi
 
 # Ensure database exists
@@ -189,37 +193,38 @@ log "Setting up development database..."
 # Start PostgreSQL service in WSL if not running
 if grep -q Microsoft /proc/version; then
     log "Starting PostgreSQL service (WSL environment)..."
-    sudo service postgresql start 2>/dev/null || sudo pg_ctlcluster 17 main start 2>/dev/null || true
+    sudo env "PATH=$PATH" service postgresql start 2>/dev/null || sudo env "PATH=$PATH" pg_ctlcluster 17 main start 2>/dev/null || true
     
     # Start Redis service in WSL if not running
     log "Starting Redis service (WSL environment)..."
-    sudo service redis-server start 2>/dev/null || true
+    sudo env "PATH=$PATH" service redis-server start 2>/dev/null || true
     
     # Wait for services to start
     sleep 3
 fi
 
 # Verify PostgreSQL is running
-if ! pg_isready -h localhost -p 5432 >/dev/null 2>&1; then
+if ! pg_isready -q; then
     warning "PostgreSQL is not responding. Attempting to start..."
     if grep -q Microsoft /proc/version; then
-        sudo service postgresql start || sudo pg_ctlcluster 17 main start || true
+        sudo env "PATH=$PATH" service postgresql start || sudo env "PATH=$PATH" pg_ctlcluster 17 main start || true
         sleep 5
     fi
     
     # Check again
-    if ! pg_isready -h localhost -p 5432 >/dev/null 2>&1; then
+    if ! pg_isready -q; then
         error "PostgreSQL failed to start. Please start it manually: sudo service postgresql start"
     fi
 fi
 
 log "✓ PostgreSQL is running"
 
-# Create PostgreSQL user if needed
-sudo -u postgres createuser --superuser $USER 2>/dev/null || log "PostgreSQL user already exists"
+# Create PostgreSQL user if needed (using current OS user)
+sudo env "PATH=$PATH" -u postgres createuser --superuser $USER 2>/dev/null || log "PostgreSQL user already exists"
 
 if command -v createdb >/dev/null 2>&1; then
-    createdb clearline_development 2>/dev/null || log "Database already exists or could not create"
+    # Try to create db as current user
+    createdb clearline_development 2>/dev/null || log "Database already exists or could not create as $USER"
 else
     warning "createdb not found - ensure PostgreSQL database 'clearline_development' exists"
 fi
@@ -269,17 +274,9 @@ EOF
 log "✓ SvelteKit .env file created with matching Reverb credentials"
 
 # Install Node.js dependencies
-if [ ! -d "node_modules" ] || [ "package.json" -nt "node_modules/.package-lock.json" ]; then
+if [ ! -d "node_modules" ] || [ "package.json" -nt "package-lock.json" ]; then
     log "Installing/updating Node.js dependencies..."
-    PNPM_PATH="$HOME/.local/share/pnpm"
-    
-    if command -v pnpm >/dev/null 2>&1; then
-        pnpm install
-    elif [ -f "$PNPM_PATH/pnpm" ]; then
-        "$PNPM_PATH/pnpm" install
-    else
-        npm install
-    fi
+    npm install
 fi
 
 # Start development servers
@@ -289,7 +286,7 @@ log "Starting development servers..."
 if ! redis-cli ping >/dev/null 2>&1; then
     warning "Redis is not responding. Attempting to start..."
     if grep -q Microsoft /proc/version; then
-        sudo service redis-server start 2>/dev/null || true
+        sudo env "PATH=$PATH" service redis-server start 2>/dev/null || true
         sleep 3
     fi
     
@@ -326,15 +323,7 @@ fi
 # Start SvelteKit development server
 cd "$SVELTE_DIR"
 log "Starting SvelteKit development server on http://localhost:5173..."
-PNPM_PATH="$HOME/.local/share/pnpm"
-
-if command -v pnpm >/dev/null 2>&1; then
-    nohup pnpm run dev --host 0.0.0.0 --port 5173 > /tmp/svelte-dev.log 2>&1 &
-elif [ -f "$PNPM_PATH/pnpm" ]; then
-    nohup "$PNPM_PATH/pnpm" run dev --host 0.0.0.0 --port 5173 > /tmp/svelte-dev.log 2>&1 &
-else
-    nohup npm run dev -- --host 0.0.0.0 --port 5173 > /tmp/svelte-dev.log 2>&1 &
-fi
+nohup npm run dev -- --host 0.0.0.0 --port 5173 > /tmp/svelte-dev.log 2>&1 &
 echo $! > /tmp/svelte-dev.pid
 
 # Wait for servers to start
@@ -449,11 +438,7 @@ while true; do
     if [ -f "/tmp/svelte-dev.pid" ] && ! kill -0 $(cat /tmp/svelte-dev.pid) 2>/dev/null; then
         warning "SvelteKit server died, restarting..."
         cd "$SVELTE_DIR"
-        if command -v pnpm >/dev/null 2>&1; then
-            nohup pnpm run dev --host 0.0.0.0 --port 5173 > /tmp/svelte-dev.log 2>&1 &
-        else
-            nohup npm run dev -- --host 0.0.0.0 --port 5173 > /tmp/svelte-dev.log 2>&1 &
-        fi
+        nohup npm run dev -- --host 0.0.0.0 --port 5173 > /tmp/svelte-dev.log 2>&1 &
         echo $! > /tmp/svelte-dev.pid
     fi
     

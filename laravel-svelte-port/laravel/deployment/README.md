@@ -77,7 +77,7 @@ chmod +x deployment/deploy.sh
 #### `build-frontend.sh` - Frontend Build Pipeline
 - **Purpose**: Builds SvelteKit frontend and integrates with Laravel
 - **Features**:
-  - Installs SvelteKit dependencies (prefers pnpm over npm)
+  - Installs SvelteKit dependencies
   - Builds production SvelteKit SPA
   - Copies built assets to Laravel public directory
   - Sets proper file permissions

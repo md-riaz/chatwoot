@@ -71,7 +71,7 @@ Complete checklist for deploying ClearLine to production with Laravel Reverb Web
 ## Frontend (Svelte UI)
 
 ### Build & Deploy
-- [ ] Frontend built (`pnpm run build`)
+- [ ] Frontend built (`npm run build`)
 - [ ] Static files copied to Laravel public directory
 - [ ] Frontend environment configured:
   ```bash
