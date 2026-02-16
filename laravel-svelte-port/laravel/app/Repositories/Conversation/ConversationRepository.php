@@ -15,6 +15,24 @@ class ConversationRepository extends BaseRepository
     }
 
     /**
+     * Normalize a status value (string or int) to its integer constant.
+     */
+    private function normalizeStatus(mixed $status): int
+    {
+        if (is_int($status)) {
+            return $status;
+        }
+
+        return match ((string) $status) {
+            'open' => Conversation::STATUS_OPEN,
+            'resolved' => Conversation::STATUS_RESOLVED,
+            'pending' => Conversation::STATUS_PENDING,
+            'snoozed' => Conversation::STATUS_SNOOZED,
+            default => (int) $status,
+        };
+    }
+
+    /**
      * Find conversations for a specific account with filters.
      */
     public function findForAccount(int $accountId, array $filters = []): LengthAwarePaginator
@@ -22,7 +40,7 @@ class ConversationRepository extends BaseRepository
         $query = $this->model->where('account_id', $accountId);
 
         if (isset($filters['status'])) {
-            $query->where('status', $filters['status']);
+            $query->where('status', $this->normalizeStatus($filters['status']));
         }
 
         if (isset($filters['assignee_id'])) {
@@ -72,7 +90,7 @@ class ConversationRepository extends BaseRepository
             'resolved_count' => (clone $query)->where('status', \App\Models\Conversation::STATUS_RESOLVED)->count(),
             'pending_count' => (clone $query)->where('status', \App\Models\Conversation::STATUS_PENDING)->count(),
             'snoozed_count' => (clone $query)->where('status', \App\Models\Conversation::STATUS_SNOOZED)->count(),
-            'unassigned_count' => (clone $query)->whereNull('assignee_id')->where('status', 'open')->count(),
+            'unassigned_count' => (clone $query)->whereNull('assignee_id')->where('status', Conversation::STATUS_OPEN)->count(),
         ];
     }
 
@@ -98,7 +116,7 @@ class ConversationRepository extends BaseRepository
         }
 
         if (isset($filters['status'])) {
-            $builder->where('status', $filters['status']);
+            $builder->where('status', $this->normalizeStatus($filters['status']));
         }
 
         if (isset($filters['assignee_id'])) {
