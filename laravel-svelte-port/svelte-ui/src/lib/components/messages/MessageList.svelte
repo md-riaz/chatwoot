@@ -5,6 +5,7 @@
    */
   
   import { onMount, tick } from 'svelte';
+  import { page } from '$app/stores';
   import { messagesStore } from '$lib/stores/messages.svelte';
   import * as messagesApi from '$lib/api/messages';
   import MessageBubble from './MessageBubble.svelte';
@@ -16,6 +17,9 @@
   }
   
   let { conversationId }: Props = $props();
+  
+  // Get accountId from route params
+  const accountId = $derived(Number($page.params.accountId));
   
   // Reactive store access
   const messages = $derived(messagesStore.sortedMessages);
@@ -87,7 +91,7 @@
   // Load messages on mount
   onMount(async () => {
     try {
-      const loadedMessages = await messagesApi.getMessages(conversationId);
+      const loadedMessages = await messagesApi.getMessages(accountId, conversationId);
       messagesStore.setMessages(loadedMessages);
       scrollToBottom(false);
     } catch (err) {
@@ -97,8 +101,8 @@
   
   // Update when conversation changes
   $effect(() => {
-    if (conversationId) {
-      messagesApi.getMessages(conversationId).then((loadedMessages: any) => {
+    if (conversationId && accountId) {
+      messagesApi.getMessages(accountId, conversationId).then((loadedMessages: any) => {
         messagesStore.setMessages(loadedMessages);
       }).catch((err: Error) => {
         console.error('Failed to load messages:', err);

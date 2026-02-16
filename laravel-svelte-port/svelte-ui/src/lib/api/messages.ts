@@ -47,6 +47,7 @@ export interface MessageAttachment {
 }
 
 export interface CreateMessageParams {
+  accountId: number;
   conversationId: number;
   message?: string;
   private?: boolean;
@@ -60,12 +61,14 @@ export interface CreateMessageParams {
 }
 
 export interface GetMessagesParams {
+  accountId: number;
   conversationId: number;
   before?: number; // Message ID to fetch messages before
   after?: number; // Message ID to fetch messages after (for gaps)
 }
 
 export interface TranslateMessageParams {
+  accountId: number;
   conversationId: number;
   messageId: number;
   targetLanguage: string;
@@ -91,32 +94,32 @@ export function buildCreatePayload(params: CreateMessageParams): FormData | Reco
   // If files are attached, use FormData
   if (files && files.length > 0) {
     const payload = new FormData();
-    
+
     if (message) {
       payload.append('content', message);
     }
-    
+
     files.forEach(file => {
       payload.append('attachments[]', file);
     });
-    
+
     payload.append('private', isPrivate.toString());
-    
+
     if (echoId) {
       payload.append('echo_id', echoId);
     }
-    
+
     payload.append('cc_emails', ccEmails);
     payload.append('bcc_emails', bccEmails);
-    
+
     if (toEmails) {
       payload.append('to_emails', toEmails);
     }
-    
+
     if (contentAttributes) {
       payload.append('content_attributes', JSON.stringify(contentAttributes));
     }
-    
+
     return payload;
   }
 
@@ -137,16 +140,16 @@ export function buildCreatePayload(params: CreateMessageParams): FormData | Reco
  * Create a new message in a conversation
  */
 export async function createMessage(params: CreateMessageParams): Promise<Message> {
-  const { conversationId, ...rest } = params;
-  const payload = buildCreatePayload({ conversationId, ...rest });
-  
+  const { accountId, conversationId, ...rest } = params;
+  const payload = buildCreatePayload({ accountId, conversationId, ...rest });
+
   const isFormData = payload instanceof FormData;
-  
+
   const response = await api.post(
-    `conversations/${conversationId}/messages`,
+    `api/v1/accounts/${accountId}/conversations/${conversationId}/messages`,
     isFormData ? { body: payload } : { json: payload }
   );
-  
+
   return response.json<Message>();
 }
 
@@ -154,20 +157,22 @@ export async function createMessage(params: CreateMessageParams): Promise<Messag
  * Delete a message from a conversation
  */
 export async function deleteMessage(
+  accountId: number,
   conversationId: number,
   messageId: number
 ): Promise<void> {
-  await api.delete(`conversations/${conversationId}/messages/${messageId}`);
+  await api.delete(`api/v1/accounts/${accountId}/conversations/${conversationId}/messages/${messageId}`);
 }
 
 /**
  * Retry sending a failed message
  */
 export async function retryMessage(
+  accountId: number,
   conversationId: number,
   messageId: number
 ): Promise<Message> {
-  const response = await api.post(`conversations/${conversationId}/messages/${messageId}/retry`);
+  const response = await api.post(`api/v1/accounts/${accountId}/conversations/${conversationId}/messages/${messageId}/retry`);
   return response.json<Message>();
 }
 
@@ -178,39 +183,39 @@ export async function retryMessage(
 export async function getPreviousMessages(
   params: GetMessagesParams
 ): Promise<{ messages: Message[]; meta: PaginatedResponse<Message>['meta'] }> {
-  const { conversationId, before, after } = params;
-  
+  const { accountId, conversationId, before, after } = params;
+
   const searchParams = new URLSearchParams();
-  
+
   if (before !== undefined) {
     searchParams.append('before', before.toString());
   }
-  
+
   // Include 'after' if specified and different from 'before' (for gap filling)
   if (after !== undefined && after !== before) {
     searchParams.append('after', after.toString());
   }
-  
+
   const response = await api.get(
-    `conversations/${conversationId}/messages?${searchParams.toString()}`
+    `api/v1/accounts/${accountId}/conversations/${conversationId}/messages?${searchParams.toString()}`
   );
-  
-  const data = await response.json<{
-    payload: Message[];
+
+  const result = await response.json<{
+    data: Message[];
     meta: PaginatedResponse<Message>['meta'];
   }>();
-  
+
   return {
-    messages: data.payload || [],
-    meta: data.meta,
+    messages: result.data || [],
+    meta: result.meta,
   };
 }
 
 /**
  * Get messages for a conversation (wrapper for getPreviousMessages)
  */
-export async function getMessages(conversationId: number): Promise<Message[]> {
-  const result = await getPreviousMessages({ conversationId });
+export async function getMessages(accountId: number, conversationId: number): Promise<Message[]> {
+  const result = await getPreviousMessages({ accountId, conversationId });
   return result.messages;
 }
 
@@ -219,12 +224,14 @@ export async function getMessages(conversationId: number): Promise<Message[]> {
  * Used to sync missed messages after reconnection
  */
 export async function getMessagesSince(
+  accountId: number,
   conversationId: number,
   lastMessageId: number
 ): Promise<Message[]> {
-  const result = await getPreviousMessages({ 
-    conversationId, 
-    after: lastMessageId 
+  const result = await getPreviousMessages({
+    accountId,
+    conversationId,
+    after: lastMessageId
   });
   return result.messages;
 }
@@ -235,16 +242,16 @@ export async function getMessagesSince(
 export async function translateMessage(
   params: TranslateMessageParams
 ): Promise<{ translatedContent: string }> {
-  const { conversationId, messageId, targetLanguage } = params;
-  
+  const { accountId, conversationId, messageId, targetLanguage } = params;
+
   const response = await api.post(
-    `conversations/${conversationId}/messages/${messageId}/translate`,
+    `api/v1/accounts/${accountId}/conversations/${conversationId}/messages/${messageId}/translate`,
     {
       json: {
-        targetLanguage, // Will be transformed to target_language by API client
+        targetLanguage,
       },
     }
   );
-  
+
   return response.json<{ translatedContent: string }>();
 }

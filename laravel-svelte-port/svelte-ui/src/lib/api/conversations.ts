@@ -101,17 +101,12 @@ export interface Conversation {
 }
 
 interface ConversationsApiResponse {
-  data?: {
-    payload?: any[];
-    meta?: {
-      totalPages?: number;
-      count?: number;
-    };
-  };
-  payload?: any[];
+  data?: any[];
   meta?: {
     totalPages?: number;
     count?: number;
+    currentPage?: number;
+    total?: number;
   };
 }
 
@@ -144,23 +139,23 @@ export function transformConversationFromApi(
   return {
     ...rawConversation,
     id: toSafeNumber(rawConversation.id),
-    accountId: toSafeNumber(rawConversation.account_id || rawConversation.accountId),
-    inboxId: toSafeNumber(rawConversation.inbox_id || rawConversation.inboxId),
-    contactId: toSafeNumber(rawConversation.contact_id || rawConversation.contactId),
-    displayId: toSafeNumber(rawConversation.display_id || rawConversation.displayId),
-    assigneeId: rawConversation.assignee_id ? toSafeNumber(rawConversation.assignee_id) : (rawConversation.assigneeId ? toSafeNumber(rawConversation.assigneeId) : undefined),
-    teamId: rawConversation.team_id ? toSafeNumber(rawConversation.team_id) : (rawConversation.teamId ? toSafeNumber(rawConversation.teamId) : undefined),
-    lastActivityAt: toConversationTimestamp(rawConversation.last_activity_at || rawConversation.lastActivityAt),
-    createdAt: toConversationTimestamp(rawConversation.created_at || rawConversation.createdAt),
-    updatedAt: toConversationTimestamp(rawConversation.updated_at || rawConversation.updatedAt),
-    firstReplyCreatedAt: toConversationTimestamp(rawConversation.first_reply_created_at || rawConversation.firstReplyCreatedAt),
-    waitingSince: toConversationTimestamp(rawConversation.waiting_since || rawConversation.waitingSince),
-    snoozedUntil: toConversationTimestamp(rawConversation.snoozed_until || rawConversation.snoozedUntil),
+    accountId: toSafeNumber(rawConversation.accountId),
+    inboxId: toSafeNumber(rawConversation.inboxId),
+    contactId: toSafeNumber(rawConversation.contactId),
+    displayId: toSafeNumber(rawConversation.displayId),
+    assigneeId: rawConversation.assigneeId ? toSafeNumber(rawConversation.assigneeId) : undefined,
+    teamId: rawConversation.teamId ? toSafeNumber(rawConversation.teamId) : undefined,
+    lastActivityAt: toConversationTimestamp(rawConversation.lastActivityAt),
+    createdAt: toConversationTimestamp(rawConversation.createdAt),
+    updatedAt: toConversationTimestamp(rawConversation.updatedAt),
+    firstReplyCreatedAt: toConversationTimestamp(rawConversation.firstReplyCreatedAt),
+    waitingSince: toConversationTimestamp(rawConversation.waitingSince),
+    snoozedUntil: toConversationTimestamp(rawConversation.snoozedUntil),
   };
 }
 
 function extractConversationPayload(response: ConversationsApiResponse): any[] {
-  return response?.data?.payload || response?.payload || [];
+  return response?.data || [];
 }
 
 /**
@@ -204,7 +199,7 @@ export async function getConversations(
   const conversations = extractConversationPayload(response).map(
     transformConversationFromApi
   );
-  const meta = response?.data?.meta || response?.meta || {};
+  const meta = response?.meta || {};
 
   return {
     data: conversations,

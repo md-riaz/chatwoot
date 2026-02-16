@@ -17,19 +17,19 @@ class MessagesStore {
   isLoading = $state<boolean>(false);
   isSending = $state<boolean>(false);
   error = $state<string | null>(null);
-  
+
   // Pagination state
   allMessagesLoaded = $state<boolean>(false);
   currentPage = $state<number>(1);
-  
+
   // UI state
   selectedMessageId = $state<number | null>(null);
-  
+
   // Computed values using $derived rune
   selectedMessage = $derived(
     this.messages.find(m => m.id === this.selectedMessageId) || null
   );
-  
+
   // Get messages sorted by creation time (oldest first)
   get sortedMessages(): Message[] {
     return [...this.messages].sort((a, b) => {
@@ -38,16 +38,16 @@ class MessagesStore {
       return timeA - timeB;
     });
   }
-  
+
   // Get unread messages count
   get unreadCount(): number {
     return this.messages.filter(m => m.messageType === 0 && m.status !== 'read').length;
   }
-  
+
   // Get messages grouped by date
   get messagesByDate(): Record<string, Message[]> {
     const grouped: Record<string, Message[]> = {};
-    
+
     this.sortedMessages.forEach(message => {
       const date = new Date(message.createdAt).toDateString();
       if (!grouped[date]) {
@@ -55,20 +55,20 @@ class MessagesStore {
       }
       grouped[date].push(message);
     });
-    
+
     return grouped;
   }
-  
+
   // Get private (internal) messages
   get privateMessages(): Message[] {
     return this.messages.filter(m => m.private);
   }
-  
+
   // Get public messages
   get publicMessages(): Message[] {
     return this.messages.filter(m => !m.private);
   }
-  
+
   /**
    * Set messages for a conversation
    * Used when loading a conversation or switching conversations
@@ -79,7 +79,7 @@ class MessagesStore {
     this.currentPage = 1;
     this.error = null;
   }
-  
+
   /**
    * Add a single message
    * Used for new incoming/outgoing messages via WebSocket
@@ -87,7 +87,7 @@ class MessagesStore {
   addMessage(message: Message): void {
     // Check if message already exists (avoid duplicates)
     const existingIndex = this.messages.findIndex(m => m.id === message.id);
-    
+
     if (existingIndex === -1) {
       this.messages = [...this.messages, message];
     } else {
@@ -99,14 +99,14 @@ class MessagesStore {
       ];
     }
   }
-  
+
   /**
    * Update a message
    * Used for status updates, edits, etc.
    */
   updateMessage(messageId: number, updates: Partial<Message>): void {
     const index = this.messages.findIndex(m => m.id === messageId);
-    
+
     if (index !== -1) {
       this.messages = [
         ...this.messages.slice(0, index),
@@ -115,27 +115,27 @@ class MessagesStore {
       ];
     }
   }
-  
+
   /**
    * Remove a message
    */
   removeMessage(messageId: number): void {
     this.messages = this.messages.filter(m => m.id !== messageId);
   }
-  
+
   /**
    * Create and send a new message
    */
   async sendMessage(params: CreateMessageParams): Promise<Message | null> {
     this.isSending = true;
     this.error = null;
-    
+
     try {
       const message = await messagesApi.createMessage(params);
-      
+
       // Add message to store
       this.addMessage(message);
-      
+
       return message;
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to send message';
@@ -145,19 +145,19 @@ class MessagesStore {
       this.isSending = false;
     }
   }
-  
+
   /**
    * Delete a message
    */
-  async deleteMessage(conversationId: number, messageId: number): Promise<boolean> {
+  async deleteMessage(accountId: number, conversationId: number, messageId: number): Promise<boolean> {
     this.error = null;
-    
+
     // Optimistic update
     const originalMessages = [...this.messages];
     this.removeMessage(messageId);
-    
+
     try {
-      await messagesApi.deleteMessage(conversationId, messageId);
+      await messagesApi.deleteMessage(accountId, conversationId, messageId);
       return true;
     } catch (err) {
       // Rollback on error
@@ -167,22 +167,22 @@ class MessagesStore {
       return false;
     }
   }
-  
+
   /**
    * Retry sending a failed message
    */
-  async retryMessage(conversationId: number, messageId: number): Promise<boolean> {
+  async retryMessage(accountId: number, conversationId: number, messageId: number): Promise<boolean> {
     this.error = null;
-    
+
     // Update status to 'progress'
     this.updateMessage(messageId, { status: 'progress' });
-    
+
     try {
-      const message = await messagesApi.retryMessage(conversationId, messageId);
-      
+      const message = await messagesApi.retryMessage(accountId, conversationId, messageId);
+
       // Update with new message data
       this.updateMessage(messageId, message);
-      
+
       return true;
     } catch (err) {
       // Update status to 'failed'
@@ -192,43 +192,44 @@ class MessagesStore {
       return false;
     }
   }
-  
+
   /**
    * Load previous messages (pagination)
    */
-  async loadPreviousMessages(conversationId: number): Promise<boolean> {
+  async loadPreviousMessages(accountId: number, conversationId: number): Promise<boolean> {
     if (this.allMessagesLoaded || this.isLoading) {
       return false;
     }
-    
+
     this.isLoading = true;
     this.error = null;
-    
+
     try {
       // Get the oldest message ID to use as 'before' parameter
       const oldestMessage = this.sortedMessages[0];
       const before = oldestMessage?.id;
-      
+
       const { messages, meta } = await messagesApi.getPreviousMessages({
+        accountId,
         conversationId,
         before,
       });
-      
+
       if (messages.length === 0) {
         this.allMessagesLoaded = true;
         return false;
       }
-      
+
       // Prepend messages to the beginning
       this.messages = [...messages, ...this.messages];
-      
+
       // Check if all messages are loaded
       if (meta && meta.currentPage >= meta.totalPages) {
         this.allMessagesLoaded = true;
       }
-      
+
       this.currentPage = meta?.currentPage || this.currentPage + 1;
-      
+
       return true;
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to load messages';
@@ -238,27 +239,29 @@ class MessagesStore {
       this.isLoading = false;
     }
   }
-  
+
   /**
    * Translate a message
    */
   async translateMessage(
+    accountId: number,
     conversationId: number,
     messageId: number,
     targetLanguage: string
   ): Promise<boolean> {
     this.error = null;
-    
+
     try {
       const { translatedContent } = await messagesApi.translateMessage({
+        accountId,
         conversationId,
         messageId,
         targetLanguage,
       });
-      
+
       // Update message with translated content
       this.updateMessage(messageId, { translatedContent });
-      
+
       return true;
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to translate message';
@@ -266,7 +269,7 @@ class MessagesStore {
       return false;
     }
   }
-  
+
   /**
    * Add a temporary message (optimistic update for sending)
    * Used to show message immediately before API response
@@ -284,16 +287,16 @@ class MessagesStore {
       contentAttributes: message.contentAttributes,
       attachments: message.attachments,
     };
-    
+
     this.addMessage(tempMessage);
   }
-  
+
   /**
    * Replace temporary message with actual message from API
    */
   replaceTemporaryMessage(echoId: string, message: Message): void {
     const tempIndex = this.messages.findIndex(m => m.echoId === echoId);
-    
+
     if (tempIndex !== -1) {
       this.messages = [
         ...this.messages.slice(0, tempIndex),
@@ -305,21 +308,21 @@ class MessagesStore {
       this.addMessage(message);
     }
   }
-  
+
   /**
    * Remove temporary message (on send failure)
    */
   removeTemporaryMessage(echoId: string): void {
     this.messages = this.messages.filter(m => m.echoId !== echoId);
   }
-  
+
   /**
    * Select a message
    */
   selectMessage(messageId: number | null): void {
     this.selectedMessageId = messageId;
   }
-  
+
   /**
    * Clear all messages
    */
@@ -330,7 +333,7 @@ class MessagesStore {
     this.selectedMessageId = null;
     this.error = null;
   }
-  
+
   /**
    * Reset store state
    */
