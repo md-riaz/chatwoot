@@ -56,6 +56,7 @@ class AccountSeederService
             'users_created' => 0,
             'labels_created' => 0,
             'inboxes_created' => 0,
+            'companies_created' => 0,
             'contacts_created' => 0,
             'conversations_created' => 0,
             'messages_created' => 0,
@@ -69,6 +70,7 @@ class AccountSeederService
         $stats['users_created'] = $this->seedUsers();
         $stats['labels_created'] = $this->seedLabels();
         $stats['inboxes_created'] = $this->seedInboxes();
+        $stats['companies_created'] = $this->seedCompanies();
         $stats['contacts_created'] = $this->seedContacts();
         $stats['canned_responses_created'] = $this->seedCannedResponses();
 
@@ -112,6 +114,7 @@ class AccountSeederService
         DB::table('labels')->where('account_id', $this->account->id)->delete();
         DB::table('inboxes')->where('account_id', $this->account->id)->delete();
         DB::table('contacts')->where('account_id', $this->account->id)->delete();
+        DB::table('companies')->where('account_id', $this->account->id)->delete();
         DB::table('custom_roles')->where('account_id', $this->account->id)->delete();
         DB::table('canned_responses')->where('account_id', $this->account->id)->delete();
 
@@ -270,14 +273,41 @@ class AccountSeederService
     }
 
     /**
+     * Seed companies using Laravel factories.
+     */
+    private function seedCompanies(): int
+    {
+        $count = 0;
+        foreach ($this->seedData->companies as $companyData) {
+            \App\Models\Company::factory()->create([
+                'account_id' => $this->account->id,
+                'name' => $companyData['name'],
+                'domain' => $companyData['domain'],
+            ]);
+            $count++;
+        }
+
+        return $count;
+    }
+
+    /**
      * Seed contacts and conversations using Laravel factories.
      */
     private function seedContacts(): int
     {
         $count = 0;
         foreach ($this->seedData->contacts as $contactData) {
+            $companyId = null;
+            if (! empty($contactData['company'])) {
+                $company = \App\Models\Company::where('account_id', $this->account->id)
+                    ->where('name', $contactData['company'])
+                    ->first();
+                $companyId = $company?->id;
+            }
+
             $contact = Contact::factory()->create([
                 'account_id' => $this->account->id,
+                'company_id' => $companyId,
                 'name' => $contactData['name'],
                 'email' => $contactData['email'],
             ]);

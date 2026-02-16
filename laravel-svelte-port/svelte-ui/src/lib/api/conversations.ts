@@ -144,13 +144,18 @@ export function transformConversationFromApi(
   return {
     ...rawConversation,
     id: toSafeNumber(rawConversation.id),
-    accountId: toSafeNumber(rawConversation.accountId),
-    inboxId: toSafeNumber(rawConversation.inboxId),
-    contactId: toSafeNumber(rawConversation.contactId),
-    displayId: toSafeNumber(rawConversation.displayId),
-    lastActivityAt: toConversationTimestamp(rawConversation.lastActivityAt),
-    createdAt: toConversationTimestamp(rawConversation.createdAt),
-    updatedAt: toConversationTimestamp(rawConversation.updatedAt),
+    accountId: toSafeNumber(rawConversation.account_id || rawConversation.accountId),
+    inboxId: toSafeNumber(rawConversation.inbox_id || rawConversation.inboxId),
+    contactId: toSafeNumber(rawConversation.contact_id || rawConversation.contactId),
+    displayId: toSafeNumber(rawConversation.display_id || rawConversation.displayId),
+    assigneeId: rawConversation.assignee_id ? toSafeNumber(rawConversation.assignee_id) : (rawConversation.assigneeId ? toSafeNumber(rawConversation.assigneeId) : undefined),
+    teamId: rawConversation.team_id ? toSafeNumber(rawConversation.team_id) : (rawConversation.teamId ? toSafeNumber(rawConversation.teamId) : undefined),
+    lastActivityAt: toConversationTimestamp(rawConversation.last_activity_at || rawConversation.lastActivityAt),
+    createdAt: toConversationTimestamp(rawConversation.created_at || rawConversation.createdAt),
+    updatedAt: toConversationTimestamp(rawConversation.updated_at || rawConversation.updatedAt),
+    firstReplyCreatedAt: toConversationTimestamp(rawConversation.first_reply_created_at || rawConversation.firstReplyCreatedAt),
+    waitingSince: toConversationTimestamp(rawConversation.waiting_since || rawConversation.waitingSince),
+    snoozedUntil: toConversationTimestamp(rawConversation.snoozed_until || rawConversation.snoozedUntil),
   };
 }
 

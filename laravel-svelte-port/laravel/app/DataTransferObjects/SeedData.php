@@ -12,6 +12,7 @@ class SeedData extends Data
         public array $teams,
         public array $customRoles,
         public array $labels,
+        public array $companies,
         public array $contacts,
     ) {}
 
@@ -29,8 +30,20 @@ class SeedData extends Data
             teams: self::getDefaultTeams(),
             customRoles: self::getDefaultCustomRoles(),
             labels: self::getDefaultLabels(),
+            companies: self::getDefaultCompanies(),
             contacts: self::getDefaultContacts(),
         );
+    }
+
+    private static function getDefaultCompanies(): array
+    {
+        return [
+            ['name' => 'Acme Corp', 'domain' => 'acme.test'],
+            ['name' => 'Globex Corporation', 'domain' => 'globex.test'],
+            ['name' => 'Soylent Corp', 'domain' => 'soylent.test'],
+            ['name' => 'Initech', 'domain' => 'initech.test'],
+            ['name' => 'Umbrella Corp', 'domain' => 'umbrella.test'],
+        ];
     }
 
     private static function getDefaultTeams(): array
@@ -238,6 +251,7 @@ class SeedData extends Data
         return [
             [
                 'name' => 'Lorrie Trosdall',
+                'company' => 'Acme Corp',
                 'email' => 'ltrosdall0@bravesites.test',
                 'conversations' => [[
                     'channel' => 'WebWidget',
@@ -260,6 +274,7 @@ class SeedData extends Data
             ],
             [
                 'name' => 'Tiffanie Cloughton',
+                'company' => 'Globex Corporation',
                 'email' => 'tcloughton1@newyorker.test',
                 'conversations' => [[
                     'channel' => 'FacebookPage',
@@ -282,6 +297,7 @@ class SeedData extends Data
             ],
             [
                 'name' => 'Mikel Kipple',
+                'company' => 'Soylent Corp',
                 'email' => 'mkipple2@marriott.test',
                 'conversations' => [[
                     'channel' => 'TwitterProfile',
@@ -304,6 +320,7 @@ class SeedData extends Data
             ],
             [
                 'name' => 'Shae Wallis',
+                'company' => 'Initech',
                 'email' => 'swallis3@washingtonpost.test',
                 'conversations' => [[
                     'channel' => 'Whatsapp',
@@ -326,6 +343,7 @@ class SeedData extends Data
             ],
             [
                 'name' => 'Renie Champ',
+                'company' => 'Umbrella Corp',
                 'email' => 'rchamp4@stackoverflow.test',
                 'conversations' => [[
                     'channel' => 'Sms',
@@ -348,6 +366,7 @@ class SeedData extends Data
             ],
             [
                 'name' => 'Louise Farny',
+                'company' => 'Acme Corp',
                 'email' => 'lfarny5@developer.test',
                 'conversations' => [[
                     'channel' => 'Email',
@@ -370,6 +389,7 @@ class SeedData extends Data
             ],
             [
                 'name' => 'Jaye Geldert',
+                'company' => 'Globex Corporation',
                 'email' => 'jgeldert6@airbnb.test',
                 'conversations' => [[
                     'channel' => 'Api',
@@ -392,6 +412,7 @@ class SeedData extends Data
             ],
             [
                 'name' => 'Inna McIlory',
+                'company' => 'Soylent Corp',
                 'email' => 'imcilory7@spotify.test',
                 'conversations' => [[
                     'channel' => 'Telegram',
@@ -414,6 +435,7 @@ class SeedData extends Data
             ],
             [
                 'name' => 'Micaela Fosey',
+                'company' => 'Initech',
                 'email' => 'mfosey8@figma.test',
                 'conversations' => [[
                     'channel' => 'Line',

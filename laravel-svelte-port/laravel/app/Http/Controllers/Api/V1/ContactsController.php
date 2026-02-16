@@ -11,6 +11,7 @@ use App\Data\Contact\ContactData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Contact\StoreContactRequest;
 use App\Http\Resources\Contact\ContactResource;
+use App\Http\Resources\Conversation\ConversationResource;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Repositories\Contact\ContactRepository;
@@ -39,6 +40,22 @@ class ContactsController extends Controller
 
         return ContactResource::collection($contacts);
     }
+
+    /**
+     * Get conversations for a contact.
+     */
+    public function conversations(Account $account, Contact $contact): AnonymousResourceCollection
+    {
+        abort_unless($contact->account_id === $account->id, 404);
+
+        $conversations = $contact->conversations()
+            ->with(['contact', 'inbox', 'assignee', 'team'])
+            ->orderByDesc('last_activity_at')
+            ->paginate(request()->input('per_page', 25));
+
+        return ConversationResource::collection($conversations);
+    }
+
 
     /**
      * Search contacts.

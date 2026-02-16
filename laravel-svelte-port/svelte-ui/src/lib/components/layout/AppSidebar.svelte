@@ -204,14 +204,11 @@
             permission: 'contact_manage',
           },
 
-          // Segments
+          // Segments (collapsible group only, no parent href — matches Vue parity)
           {
             id: 'contacts-segments',
             label: 'Segments',
             icon: 'users-round',
-            href: `/app/accounts/${accountId}/contacts/segments`, // This might not be a real page, wait.
-            // Actually, we usually list segments as children, OR have a segments management page.
-            // Chatwoot sidebar lists segments directly.
             children: segmentsStore.allSegments.map(segment => ({
               id: `segment-${segment.id}`,
               label: segment.name,
@@ -222,10 +219,10 @@
             })),
             permission: 'contact_manage',
           },
-          // Labels
+          // Tagged With (Vue parity: SIDEBAR.TAGGED_WITH)
           {
             id: 'contacts-labels',
-            label: 'Labels',
+            label: 'Tagged With',
             icon: 'tags',
             children: labelsStore.sidebarLabels.map(label => ({
               id: `contact-label-${label.title}`,
@@ -239,10 +236,17 @@
             })),
             permission: 'contact_manage',
           },
+        ],
+      },
+      // Companies — separate top-level group matching Vue parity
+      {
+        id: 'companies',
+        label: 'Companies',
+        icon: 'building-2',
+        children: [
           {
             id: 'companies-all',
             label: 'All Companies',
-            icon: 'building-2',
             href: `/app/accounts/${accountId}/companies`,
             activeOn: [`/app/accounts/${accountId}/companies`],
             permission: 'contact_manage',

@@ -405,6 +405,7 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
         Route::apiResource('contacts', ContactsController::class)->where(['contact' => '[0-9]+']);
         
         Route::post('contacts/{contact}/merge', [ContactsController::class, 'merge']);
+        Route::get('contacts/{contact}/conversations', [ContactsController::class, 'conversations']);
         Route::get('contacts/{contact}/contactable_inboxes', [ContactsController::class, 'contactableInboxes']);
         Route::post('contacts/{contact}/destroy_custom_attributes', [ContactsController::class, 'destroyCustomAttributes']);
         Route::delete('contacts/{contact}/avatar', [ContactsController::class, 'avatar']);
