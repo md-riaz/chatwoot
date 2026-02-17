@@ -252,7 +252,9 @@ export async function getConversation(
     .get(`api/v1/accounts/${accountId}/conversations/${conversationId}`)
     .json<any>();
 
-  return transformConversationFromApi(response);
+  // Unwrap data/payload if present
+  const data = response.data || response.payload || response;
+  return transformConversationFromApi(data);
 }
 
 export async function getConversationsByContact(

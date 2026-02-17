@@ -3,7 +3,7 @@
    * MessageComposer - Main message composition component
    * Features: Rich text input, file attachments, emoji picker, private notes
    */
-  
+
   import { onMount } from 'svelte';
   import { Send, Paperclip, Smile, AtSign } from '@lucide/svelte';
   import { Button } from '$lib/components/ui/button';
@@ -14,17 +14,20 @@
   import { Switch } from '$lib/components/ui/switch';
   import { Label } from '$lib/components/ui/label';
   import { Badge } from '$lib/components/ui/badge';
-  import { messagesStore } from '$lib/stores/messages.svelte';
-  import type { MessageMode, Attachment } from './types';
-  
+  import ReplyTopPanel from './ReplyTopPanel.svelte';
+
   interface Props {
     conversationId: number;
     mode?: MessageMode;
-    onSend?: (content: string, attachments: File[], isPrivate: boolean) => Promise<void>;
+    onSend?: (
+      content: string,
+      attachments: File[],
+      isPrivate: boolean
+    ) => Promise<void>;
   }
-  
+
   let { conversationId, mode = 'reply', onSend }: Props = $props();
-  
+
   // Local state
   let messageContent = $state('');
   let attachments = $state<Attachment[]>([]);
@@ -33,14 +36,16 @@
   let showEmojiPicker = $state(false);
   let showFileUpload = $state(false);
   let textareaElement = $state<HTMLTextAreaElement | null>(null);
-  
+
   // Derived values
   const isSendDisabled = $derived(
     !messageContent.trim() && attachments.length === 0
   );
   const characterCount = $derived(messageContent.length);
-  const hasContent = $derived(messageContent.trim().length > 0 || attachments.length > 0);
-  
+  const hasContent = $derived(
+    messageContent.trim().length > 0 || attachments.length > 0
+  );
+
   // Load draft from localStorage
   function loadDraft() {
     try {
@@ -55,7 +60,7 @@
       console.error('Failed to load draft:', error);
     }
   }
-  
+
   // Save draft to localStorage
   function saveDraft() {
     try {
@@ -70,7 +75,7 @@
       console.error('Failed to save draft:', error);
     }
   }
-  
+
   // Clear draft
   function clearDraft() {
     try {
@@ -80,7 +85,7 @@
       console.error('Failed to clear draft:', error);
     }
   }
-  
+
   // Handle file selection
   function handleFileSelect(files: File[]) {
     const newAttachments: Attachment[] = files.map(file => ({
@@ -88,12 +93,14 @@
       name: file.name,
       size: file.size,
       type: file.type,
-      preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+      preview: file.type.startsWith('image/')
+        ? URL.createObjectURL(file)
+        : undefined,
     }));
     attachments = [...attachments, ...newAttachments];
     showFileUpload = false;
   }
-  
+
   // Remove attachment
   function removeAttachment(index: number) {
     const attachment = attachments[index];
@@ -102,26 +109,26 @@
     }
     attachments = attachments.filter((_, i) => i !== index);
   }
-  
+
   // Handle emoji selection
   function handleEmojiSelect(emoji: string) {
     const cursorPos = textareaElement?.selectionStart || messageContent.length;
-    messageContent = 
-      messageContent.slice(0, cursorPos) + 
-      emoji + 
+    messageContent =
+      messageContent.slice(0, cursorPos) +
+      emoji +
       messageContent.slice(cursorPos);
     showEmojiPicker = false;
     textareaElement?.focus();
   }
-  
+
   // Handle send message
   async function handleSend() {
     if (isSendDisabled || isSending) return;
-    
+
     isSending = true;
     try {
       const files = attachments.map(a => a.file);
-      
+
       if (onSend) {
         await onSend(messageContent, files, isPrivate);
       } else {
@@ -133,7 +140,7 @@
           files: files,
         });
       }
-      
+
       // Clear form on success
       messageContent = '';
       attachments = [];
@@ -144,7 +151,7 @@
       isSending = false;
     }
   }
-  
+
   // Handle keyboard shortcuts
   function handleKeyDown(e: KeyboardEvent) {
     // Ctrl/Cmd + Enter to send
@@ -152,8 +159,23 @@
       e.preventDefault();
       handleSend();
     }
+    // Alt + P for Private Note
+    if (e.altKey && e.code === 'KeyP') {
+      e.preventDefault();
+      handleModeChange('private');
+    }
+    // Alt + L for Reply (Vue parity uses L for Reply? Wait, Vue uses P for Private, L for Reply?)
+    // Checking ReplyTopPanel.vue: Alt+KeyP (Note), Alt+KeyL (Reply).
+    if (e.altKey && e.code === 'KeyL') {
+      e.preventDefault();
+      handleModeChange('reply');
+    }
   }
-  
+
+  function handleModeChange(newMode: 'reply' | 'private') {
+    isPrivate = newMode === 'private';
+  }
+
   // Auto-save draft
   let draftTimeout: ReturnType<typeof setTimeout>;
   $effect(() => {
@@ -163,12 +185,17 @@
         saveDraft();
       }, 1000);
     }
+    // Update textarea background when mode changes
+    if (textareaElement) {
+      // We can't easily set class directly on the mounted component's internal element without props
+      // But we can rely on the container class.
+    }
   });
-  
+
   // Load draft on mount
   onMount(() => {
     loadDraft();
-    
+
     return () => {
       // Cleanup attachment previews
       attachments.forEach(attachment => {
@@ -180,37 +207,35 @@
   });
 </script>
 
-<ReplyBox.Root mode={isPrivate ? 'private' : mode}>
+<div
+  class={`rounded-xl border shadow-sm flex flex-col transition-colors ${isPrivate ? 'bg-amber-50/50 border-amber-200' : 'bg-background border-border'}`}
+>
   <!-- Top Actions Bar -->
-  <div class="flex items-center justify-between mb-2 pb-2 border-b">
-    <div class="flex items-center gap-2">
-      <Label class="text-sm font-medium">
-        {isPrivate ? 'Private Note' : 'Reply'}
-      </Label>
-      {#if characterCount > 0}
-        <Badge variant="outline" class="text-xs">
-          {characterCount} chars
-        </Badge>
-      {/if}
-    </div>
-    
-    <div class="flex items-center gap-2">
-      <label for="private-toggle" class="text-sm cursor-pointer">Private</label>
-      <Switch id="private-toggle" bind:checked={isPrivate} />
-    </div>
+  <div class="flex items-center justify-between p-2 pb-0">
+    <ReplyTopPanel
+      mode={isPrivate ? 'private' : 'reply'}
+      onModeChange={handleModeChange}
+    />
+    {#if characterCount > 0}
+      <Badge variant="outline" class="text-xs ml-auto">
+        {characterCount} chars
+      </Badge>
+    {/if}
   </div>
-  
+
   <!-- Attachments Preview -->
   {#if attachments.length > 0}
-    <div class="mb-3 p-2 bg-muted/50 rounded-md">
+    <div
+      class="mx-3 mt-3 p-2 bg-background/50 rounded-md border border-border/50"
+    >
       <div class="flex flex-wrap gap-2">
         {#each attachments as attachment, index}
           <div class="relative group">
             {#if attachment.preview}
               <!-- Image preview -->
               <div class="relative w-20 h-20 rounded-md overflow-hidden border">
-                <img 
-                  src={attachment.preview} 
+                <img
+                  src={attachment.preview}
                   alt={attachment.name}
                   class="w-full h-full object-cover"
                 />
@@ -224,7 +249,9 @@
               </div>
             {:else}
               <!-- File preview -->
-              <div class="flex items-center gap-2 p-2 bg-background rounded-md border min-w-[160px]">
+              <div
+                class="flex items-center gap-2 p-2 bg-background rounded-md border min-w-[160px]"
+              >
                 <Paperclip class="h-4 w-4 text-muted-foreground" />
                 <div class="flex-1 min-w-0">
                   <p class="text-sm truncate">{attachment.name}</p>
@@ -246,74 +273,86 @@
       </div>
     </div>
   {/if}
-  
+
   <!-- Message Input -->
-  <Textarea
-    bind:value={messageContent}
-    bind:ref={textareaElement}
-    placeholder={isPrivate ? 'Add a private note...' : 'Type your message...'}
-    class="min-h-[80px] resize-none"
-    disabled={isSending}
-    onkeydown={handleKeyDown}
-  />
-  
+  <div class="px-3 py-2">
+    <Textarea
+      bind:value={messageContent}
+      bind:ref={textareaElement}
+      placeholder={isPrivate ? 'Add a private note...' : 'Type your message...'}
+      class={`min-h-[120px] resize-none border-0 focus-visible:ring-0 shadow-none bg-transparent ${isPrivate ? 'placeholder:text-amber-900/40 text-amber-900' : ''}`}
+      disabled={isSending}
+      onkeydown={handleKeyDown}
+    />
+  </div>
+
   <!-- Bottom Actions Bar -->
-  <div class="flex items-center justify-between mt-2 pt-2 border-t">
+  <div class="flex items-center justify-between p-2 pt-0">
     <div class="flex items-center gap-1">
       <!-- Emoji Picker Button -->
       <Button
         variant="ghost"
         size="icon"
-        onclick={() => showEmojiPicker = !showEmojiPicker}
+        onclick={() => (showEmojiPicker = !showEmojiPicker)}
         title="Add emoji"
+        class={isPrivate
+          ? 'text-amber-900 hover:text-amber-950 hover:bg-amber-100'
+          : ''}
       >
         <Smile class="h-4 w-4" />
       </Button>
-      
+
       <!-- File Upload Button -->
       <Button
         variant="ghost"
         size="icon"
-        onclick={() => showFileUpload = !showFileUpload}
+        onclick={() => (showFileUpload = !showFileUpload)}
         title="Attach file"
+        class={isPrivate
+          ? 'text-amber-900 hover:text-amber-950 hover:bg-amber-100'
+          : ''}
       >
         <Paperclip class="h-4 w-4" />
       </Button>
-      
+
       <!-- Mention Button (placeholder) -->
       <Button
         variant="ghost"
         size="icon"
         title="Mention"
         disabled
+        class={isPrivate
+          ? 'text-amber-900 hover:text-amber-950 hover:bg-amber-100'
+          : ''}
       >
         <AtSign class="h-4 w-4" />
       </Button>
     </div>
-    
+
     <!-- Send Button -->
     <Button
       onclick={handleSend}
       disabled={isSendDisabled || isSending}
-      class="gap-2"
+      class={`gap-2 min-w-[100px] ${isPrivate ? 'bg-amber-400 text-amber-950 hover:bg-amber-500' : ''}`}
     >
       <Send class="h-4 w-4" />
-      {isSending ? 'Sending...' : 'Send'}
+      {#if isSending}
+        {isPrivate ? 'Creating...' : 'Sending...'}
+      {:else}
+        {isPrivate ? 'Create Note' : 'Send'}
+      {/if}
     </Button>
   </div>
-  
+
   <!-- Emoji Picker Popover -->
   {#if showEmojiPicker}
     <div class="absolute bottom-full left-0 mb-2 z-50">
       <div class="bg-popover border rounded-lg shadow-lg">
-        <EmojiPicker.Root 
-          onEmojiSelect={handleEmojiSelect}
-          class="w-80"
-        />
+        <EmojiPicker.Root onEmojiSelect={handleEmojiSelect} class="w-80" />
       </div>
     </div>
   {/if}
-  
+
   <!-- File Upload Dialog -->
   {#if showFileUpload}
     <div class="absolute bottom-full left-0 mb-2 z-50 w-full max-w-md">
@@ -325,10 +364,10 @@
           maxSize={10 * 1024 * 1024}
         />
         <div class="mt-2 flex justify-end">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="sm"
-            onclick={() => showFileUpload = false}
+            onclick={() => (showFileUpload = false)}
           >
             Cancel
           </Button>
@@ -336,7 +375,7 @@
       </div>
     </div>
   {/if}
-</ReplyBox.Root>
+</div>
 
 <style>
   :global(.relative) {

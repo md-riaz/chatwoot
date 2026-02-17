@@ -14,7 +14,12 @@ import type { RequestOptions, UploadOptions } from './types';
 function getAuthToken(): string | null {
   if (typeof localStorage === 'undefined') return null;
   try {
-    return localStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
+    // Handle potentially double-quoted token from JSON.stringify
+    if (token && token.startsWith('"') && token.endsWith('"')) {
+      return token.slice(1, -1);
+    }
+    return token;
   } catch {
     return null;
   }
@@ -46,7 +51,10 @@ const createApiClient = (): KyInstance => {
           if (!options.skipAuth) {
             const token = getAuthToken();
             if (token) {
+              console.log('DEBUG: Attaching token to request:', request.url, token.substring(0, 10) + '...');
               request.headers.set('Authorization', `Bearer ${token}`);
+            } else {
+              console.warn('DEBUG: No token found for request:', request.url);
             }
           }
 
