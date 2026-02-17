@@ -63,7 +63,7 @@ class ConversationsStore {
   // Computed values using $derived
   selectedConversation = $derived(
     this.allConversations.find(c => c.id === this.selectedConversationId) ||
-      null
+    null
   );
 
   selectedConversationAttachments = $derived(

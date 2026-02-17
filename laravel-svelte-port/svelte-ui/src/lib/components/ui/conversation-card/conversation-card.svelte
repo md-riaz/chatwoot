@@ -22,10 +22,11 @@
 
 <div
   class={cn(
-    'flex flex-col gap-2 p-3 cursor-pointer transition-colors border-l-2 border-l-transparent',
-    'hover:bg-accent',
-    selected && 'bg-accent border-l-primary',
-    unread && 'bg-primary/5',
+    'flex flex-col gap-2 p-4 cursor-pointer transition-all border-l-[3px] border-l-transparent select-none relative',
+    'hover:bg-slate-50 dark:hover:bg-slate-800/50',
+    selected &&
+      'bg-primary/5 dark:bg-primary/10 border-l-primary shadow-sm z-10',
+    unread && !selected && 'bg-white dark:bg-slate-900',
     className
   )}
   role="button"

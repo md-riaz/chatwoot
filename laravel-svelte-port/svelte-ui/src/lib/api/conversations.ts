@@ -346,7 +346,7 @@ export async function assignAgent(
 ): Promise<Conversation> {
   const raw = await api
     .post(
-      `api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`,
+      `api/v1/accounts/${accountId}/conversations/${conversationId}/assign`,
       {
         json: { assigneeId },
       }
@@ -365,8 +365,8 @@ export async function assignTeam(
   teamId: number | null
 ): Promise<Conversation> {
   const raw = await api
-    .post(
-      `api/v1/accounts/${accountId}/conversations/${conversationId}/assignments`,
+    .patch(
+      `api/v1/accounts/${accountId}/conversations/${conversationId}`,
       {
         json: { teamId },
       }

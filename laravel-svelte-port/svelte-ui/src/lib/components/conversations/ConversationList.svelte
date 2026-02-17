@@ -89,17 +89,21 @@
 
   // Get contact from meta.sender or contacts store
   function getContact(conversation: any): any {
-    // Prefer meta.sender (comes from API) over separate contacts store
-    if (conversation.meta?.sender) {
+    // Prefer contact (Laravel API) or meta.sender (Rails API)
+    const contactInfo =
+      conversation.contact || conversation.meta?.sender || conversation.sender;
+
+    if (contactInfo) {
       return {
-        id: conversation.meta.sender.id,
-        name: conversation.meta.sender.name,
-        email: conversation.meta.sender.email,
+        id: contactInfo.id,
+        name: contactInfo.name,
+        email: contactInfo.email,
         thumbnail:
-          conversation.meta.sender.avatarUrl ||
-          conversation.meta.sender.thumbnail ||
+          contactInfo.thumbnail ||
+          contactInfo.avatarUrl || // Handle both camelCase and snake_case/Rails styles
+          contactInfo.avatar_url ||
           '',
-        availabilityStatus: conversation.meta.sender.availabilityStatus,
+        availabilityStatus: contactInfo.availabilityStatus,
       };
     }
     if (!conversation.contactId) return undefined;

@@ -7,6 +7,7 @@
   import * as Avatar from '$lib/components/ui/avatar';
   import * as MessageBubble from '$lib/components/ui/message-bubble';
   import { Badge } from '$lib/components/ui/badge';
+  import { cn } from '$lib/utils';
   import type { Message as MessagesMessage } from '$lib/api/messages';
   import type { Message as ConversationsMessage } from '$lib/api/conversations';
 
@@ -54,24 +55,24 @@
 </script>
 
 {#if variant() === 'activity'}
-  <div class="flex justify-center my-4">
+  <div class="flex justify-center my-6">
     <div
-      class="text-xs text-muted-foreground text-center max-w-[80%] bg-muted/50 px-3 py-1 rounded-full"
+      class="text-[11px] font-medium text-muted-foreground/80 text-center max-w-[90%] bg-secondary/30 px-4 py-1.5 rounded-full border border-secondary/20"
     >
       {@html formattedContent()}
     </div>
   </div>
 {:else}
   <MessageBubble.Root
-    variant={variant() === 'private' ? 'outgoing' : variant()}
-    class="mb-3"
+    variant={variant() === 'private' ? 'outgoing' : (variant() as any)}
+    class="mb-4"
   >
     <!-- Avatar -->
     {#if showAvatar}
       <MessageBubble.Avatar>
-        <Avatar.Root class="h-8 w-8">
+        <Avatar.Root class="h-8 w-8 shadow-sm">
           <Avatar.Image src={senderAvatar} alt={senderName} />
-          <Avatar.Fallback>
+          <Avatar.Fallback class="text-[10px] bg-slate-100 dark:bg-slate-800">
             {senderName.charAt(0).toUpperCase()}
           </Avatar.Fallback>
         </Avatar.Root>
@@ -79,46 +80,50 @@
     {/if}
 
     <!-- Message Content -->
-    <MessageBubble.Content>
+    <MessageBubble.Content variant={variant() as any} class="group relative">
       <!-- Sender Name (for incoming messages) -->
       {#if variant() === 'incoming' && showAvatar}
-        <div class="text-xs font-medium text-muted-foreground mb-1">
+        <div
+          class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1 ml-1"
+        >
           {senderName}
         </div>
       {/if}
 
       <!-- Message Text -->
-      <div
-        class={`rounded-lg p-3 text-sm 
-          ${variant() === 'outgoing' ? 'bg-primary text-primary-foreground' : ''}
-          ${variant() === 'incoming' ? 'bg-muted' : ''}
-          ${variant() === 'private' ? 'bg-amber-50 text-amber-900 border border-amber-200' : ''}
-        `}
-      >
+      <div class="prose prose-sm dark:prose-invert max-w-none">
         {@html formattedContent()}
       </div>
 
       <!-- Attachments -->
       {#if message.attachments && message.attachments.length > 0}
-        <div class="mt-2 space-y-2">
+        <div class="mt-3 space-y-2">
           {#each message.attachments as attachment}
             {#if (attachment as any).fileType === 'image'}
               <img
                 src={(attachment as any).dataUrl}
                 alt="Attachment"
-                class="max-w-xs rounded-lg"
+                class="max-w-xs rounded-xl shadow-sm border border-black/5"
               />
             {:else}
               <a
                 href={(attachment as any).dataUrl}
-                class="flex items-center gap-2 p-2 bg-background rounded-md border text-sm hover:bg-accent"
+                class="flex items-center gap-3 p-3 bg-background/50 backdrop-blur-sm rounded-xl border shadow-sm text-sm hover:bg-accent transition-colors"
               >
-                <span class="flex-1 truncate">File</span>
-                {#if (attachment as any).fileSize}
-                  <Badge variant="outline" class="text-xs">
-                    {((attachment as any).fileSize / 1024).toFixed(1)} KB
-                  </Badge>
-                {/if}
+                <div
+                  class="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary"
+                >
+                  <!-- Lucide icon placeholder logic if needed, but keeping it simple -->
+                  <span class="text-[10px] font-bold">FILE</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium truncate text-xs">File</div>
+                  {#if (attachment as any).fileSize}
+                    <div class="text-[10px] text-muted-foreground">
+                      {((attachment as any).fileSize / 1024).toFixed(1)} KB
+                    </div>
+                  {/if}
+                </div>
               </a>
             {/if}
           {/each}
@@ -126,14 +131,25 @@
       {/if}
 
       <!-- Metadata -->
-      <div class="flex items-center gap-2 mt-1">
-        <span class="text-[10px] text-muted-foreground">{timestamp()}</span>
+      <div
+        class={cn(
+          'flex items-center gap-2 mt-1.5 px-1',
+          variant() === 'outgoing' || variant() === 'private'
+            ? 'justify-end'
+            : 'justify-start'
+        )}
+      >
+        <span
+          class="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-tight"
+          >{timestamp()}</span
+        >
         {#if (message as any).private}
-          <Badge
-            variant="outline"
-            class="text-[10px] h-4 px-1 border-amber-200 text-amber-700 bg-amber-50"
-            >Private</Badge
+          <div
+            class="flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-wider"
           >
+            <span class="h-1 w-1 rounded-full bg-current"></span>
+            Private
+          </div>
         {/if}
       </div>
     </MessageBubble.Content>

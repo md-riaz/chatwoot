@@ -214,10 +214,10 @@ class ConversationsController extends Controller
 
         $updatedConversation = UpdateConversationAction::run(
             $conversation,
-            $request->only(['status', 'priority', 'custom_attributes', 'snoozed_until'])
+            $request->only(['status', 'priority', 'custom_attributes', 'snoozed_until', 'assignee_id', 'team_id', 'assigneeId', 'teamId'])
         );
 
-        return new ConversationResource($updatedConversation->load('contact', 'inbox', 'assignee'));
+        return new ConversationResource($updatedConversation->load('contact', 'inbox', 'assignee', 'team'));
     }
 
     /**
@@ -227,9 +227,10 @@ class ConversationsController extends Controller
     {
         abort_unless($conversation->account_id === $account->id, 404);
 
+        $assigneeId = $request->input('assignee_id') ?? $request->input('assigneeId');
         $assignee = null;
-        if ($request->has('assignee_id') && ! is_null($request->assignee_id)) {
-            $assignee = User::findOrFail($request->assignee_id);
+        if (! is_null($assigneeId)) {
+            $assignee = User::findOrFail($assigneeId);
         }
 
         $updatedConversation = AssignConversationAction::run($conversation, $assignee);

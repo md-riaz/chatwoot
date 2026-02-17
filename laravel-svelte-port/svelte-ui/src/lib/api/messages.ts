@@ -201,12 +201,13 @@ export async function getPreviousMessages(
   );
 
   const result = await response.json<{
-    data: Message[];
+    data?: Message[];
+    payload?: Message[];
     meta: PaginatedResponse<Message>['meta'];
   }>();
 
   return {
-    messages: result.data || [],
+    messages: result.payload || result.data || [],
     meta: result.meta,
   };
 }

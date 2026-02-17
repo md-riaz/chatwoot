@@ -6,13 +6,13 @@ import Status from './message-bubble-status.svelte';
 import Avatar from './message-bubble-avatar.svelte';
 
 const messageBubbleVariants = tv({
-  base: 'max-w-[80%] rounded-lg px-4 py-2',
+  base: 'max-w-[85%] rounded-2xl px-4 py-2.5 shadow-sm text-sm transition-all',
   variants: {
     variant: {
-      incoming: 'bg-muted text-foreground rounded-bl-none',
-      outgoing: 'bg-primary text-primary-foreground rounded-br-none ml-auto',
-      private: 'bg-warning/20 text-warning-foreground border border-warning/30 rounded-bl-none',
-      bot: 'bg-info/20 text-info-foreground border border-info/30 rounded-bl-none'
+      incoming: 'bg-white dark:bg-slate-800 text-foreground rounded-tl-sm border border-slate-100 dark:border-slate-700',
+      outgoing: 'bg-primary text-primary-foreground rounded-tr-sm shadow-primary/20',
+      private: 'bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-900/50 rounded-tl-sm shadow-amber-900/5',
+      bot: 'bg-indigo-50 dark:bg-indigo-950/30 text-indigo-900 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-900/50 rounded-tl-sm shadow-indigo-900/5'
     }
   },
   defaultVariants: {

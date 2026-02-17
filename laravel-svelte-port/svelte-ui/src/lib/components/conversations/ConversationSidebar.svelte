@@ -51,13 +51,15 @@
     conversationsStore.allConversations.find(c => c.id == conversationId)
   );
 
-  // Derive contact from meta or contactId
+  // Derive contact from contact (Laravel), meta (Rails), sender, or contactId
   const contact = $derived(
-    conversation?.meta?.sender ||
+    conversation?.contact ||
+      conversation?.meta?.sender ||
+      (conversation as any)?.sender ||
       (conversation?.contactId
         ? $state
-            .snapshot(contactsStore.contacts)
-            .find(c => c.id == conversation.contactId)
+            .snapshot(contactsStore.allContacts)
+            .find((c: any) => c.id == conversation.contactId)
         : undefined)
   );
 
@@ -99,22 +101,22 @@
   async function handleAgentChange(value: string) {
     if (!conversation) return;
     selectedAgentId = value;
-    const assignee_id = value === 'none' ? null : parseInt(value);
-    await conversationsStore.updateBox(conversation.id, { assignee_id });
+    const assigneeId = value === 'none' ? null : parseInt(value);
+    await conversationsStore.assignAgent(conversation.id, assigneeId);
   }
 
   async function handleTeamChange(value: string) {
     if (!conversation) return;
     selectedTeamId = value;
-    const team_id = value === 'none' ? null : parseInt(value);
-    await conversationsStore.updateBox(conversation.id, { team_id });
+    const teamId = value === 'none' ? null : parseInt(value);
+    await conversationsStore.assignTeam(conversation.id, teamId);
   }
 
   async function handlePriorityChange(value: string) {
     if (!conversation) return;
     selectedPriority = value;
-    const priority = value === 'none' ? null : value;
-    await conversationsStore.updateBox(conversation.id, { priority });
+    const priority = value === 'none' ? null : (value as any);
+    await conversationsStore.updatePriority(conversation.id, priority);
   }
 
   async function handleLabelRemove(label: string) {
@@ -141,18 +143,18 @@
       {
         label: 'Initiated at',
         value: conversation.createdAt
-          ? new Date(Number(conversation.createdAt) * 1000).toLocaleString()
+          ? new Date(conversation.createdAt).toLocaleString()
           : 'Unknown',
         icon: Clock,
       },
       {
         label: 'Browser',
-        value: meta.additionalAttributes?.browser?.browser_name || 'Unknown',
+        value: meta.additionalAttributes?.browser?.browserName || 'Unknown',
         icon: Monitor,
       },
       {
         label: 'OS',
-        value: meta.additionalAttributes?.browser?.platform_name || 'Unknown',
+        value: meta.additionalAttributes?.browser?.platformName || 'Unknown',
         icon: Monitor,
       },
       {
@@ -169,170 +171,140 @@
 >
   {#if conversation}
     <ScrollArea class="h-full">
-      <div class="p-4 space-y-6">
+      <div class="p-5 space-y-8">
         <!-- Contact Info Section -->
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-5">
           <!-- Profile Header -->
-          <div class="flex flex-col items-start gap-3">
-            <div class="flex items-center gap-3 w-full">
-              <Avatar.Root class="h-12 w-12 rounded-full border border-border">
+          <div class="flex flex-col items-start gap-4">
+            <div class="flex items-center gap-4 w-full">
+              <Avatar.Root
+                class="h-14 w-14 rounded-full border-2 border-slate-50 shadow-sm shrink-0"
+              >
                 <Avatar.Image
                   src={contact?.avatarUrl || contact?.thumbnail}
                   alt={contact?.name}
                 />
-                <Avatar.Fallback class="text-lg"
+                <Avatar.Fallback
+                  class="text-xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold"
                   >{contact?.name?.charAt(0) || '?'}</Avatar.Fallback
                 >
               </Avatar.Root>
 
               <div class="flex flex-col min-w-0 flex-1">
-                <h3 class="text-base font-semibold text-foreground truncate">
+                <h3
+                  class="text-lg font-bold text-slate-900 dark:text-slate-100 truncate leading-tight"
+                >
                   {contact?.name || 'Unknown Contact'}
                 </h3>
-                <div class="flex items-center gap-2 text-muted-foreground">
-                  {#if contact?.email}
-                    <span class="text-xs truncate">{contact.email}</span>
-                  {/if}
-                  <a
-                    href="#"
-                    class="text-muted-foreground hover:text-foreground"
+                {#if contact?.email}
+                  <p
+                    class="text-[13px] text-slate-500 dark:text-slate-400 truncate mt-0.5"
                   >
-                    <ExternalLink class="h-3.5 w-3.5" />
-                  </a>
-                </div>
+                    {contact.email}
+                  </p>
+                {/if}
               </div>
             </div>
 
             <!-- Description -->
             {#if contact?.description}
-              <p class="text-sm text-muted-foreground line-clamp-2">
-                {contact.description}
+              <p
+                class="text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed italic"
+              >
+                "{contact.description}"
               </p>
             {/if}
 
             <!-- Contact Details Rows -->
-            <div class="w-full space-y-2 mt-2">
-              {#if contact?.email}
-                <div class="flex items-center gap-2 text-sm">
-                  <div
-                    class="flex items-center justify-center w-6 h-6 rounded bg-muted"
-                  >
-                    <Mail class="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <span class="truncate flex-1" title={contact.email}
-                    >{contact.email}</span
-                  >
-                </div>
-              {/if}
+            <div class="w-full space-y-2.5">
               {#if contact?.phoneNumber}
-                <div class="flex items-center gap-2 text-sm">
-                  <div
-                    class="flex items-center justify-center w-6 h-6 rounded bg-muted"
-                  >
-                    <Phone class="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <span>{contact.phoneNumber}</span>
+                <div
+                  class="flex items-center gap-3 text-[13px] text-slate-600 dark:text-slate-300"
+                >
+                  <Phone class="h-4 w-4 text-slate-400 shrink-0" />
+                  <span class="font-medium">{contact.phoneNumber}</span>
                 </div>
               {/if}
               {#if contact?.location}
-                <div class="flex items-center gap-2 text-sm">
-                  <div
-                    class="flex items-center justify-center w-6 h-6 rounded bg-muted"
-                  >
-                    <MapPin class="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <span>{contact.location}</span>
+                <div
+                  class="flex items-center gap-3 text-[13px] text-slate-600 dark:text-slate-300"
+                >
+                  <MapPin class="h-4 w-4 text-slate-400 shrink-0" />
+                  <span class="font-medium">{contact.location}</span>
                 </div>
               {/if}
-              {#if contact?.company_name}
-                <div class="flex items-center gap-2 text-sm">
-                  <div
-                    class="flex items-center justify-center w-6 h-6 rounded bg-muted"
-                  >
-                    <Building class="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <span>{contact.company_name}</span>
+              {#if contact?.companyName}
+                <div
+                  class="flex items-center gap-3 text-[13px] text-slate-600 dark:text-slate-300"
+                >
+                  <Building class="h-4 w-4 text-slate-400 shrink-0" />
+                  <span class="font-medium">{contact.companyName}</span>
                 </div>
               {/if}
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex items-center gap-2 pt-2">
+            <div class="flex items-center gap-2 pt-1 w-full flex-wrap">
               <Button
-                variant="outline"
-                size="icon"
-                class="h-8 w-8"
-                title="New Message"
+                variant="secondary"
+                size="sm"
+                class="h-8 flex-1 gap-2 text-[11px] font-bold uppercase tracking-wider"
               >
-                <MessageSquarePlus class="h-4 w-4" />
+                <MessageSquarePlus class="h-3.5 w-3.5" />
+                Message
               </Button>
               <Button
                 variant="outline"
                 size="icon"
-                class="h-8 w-8"
-                title="Call"
+                class="h-8 w-8 text-slate-500"
               >
-                <PhoneCall class="h-4 w-4" />
+                <PhoneCall class="h-3.5 w-3.5" />
               </Button>
               <Button
                 variant="outline"
                 size="icon"
-                class="h-8 w-8"
-                title="Edit Contact"
+                class="h-8 w-8 text-slate-500"
               >
-                <Pencil class="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                class="h-8 w-8"
-                title="Merge Contact"
-              >
-                <Merge class="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                class="h-8 w-8 text-destructive hover:text-destructive"
-                title="Delete Contact"
-              >
-                <Trash2 class="h-4 w-4" />
+                <Pencil class="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
         </div>
 
-        <Separator />
+        <Separator class="bg-slate-100 dark:bg-slate-800" />
 
         <!-- Conversation Actions -->
         <Collapsible.Root bind:open={isActionsOpen}>
-          <div class="flex items-center justify-between mb-2">
+          <div
+            class="flex items-center justify-between group cursor-pointer"
+            onclick={() => (isActionsOpen = !isActionsOpen)}
+            onkeydown={e =>
+              e.key === 'Enter' && (isActionsOpen = !isActionsOpen)}
+            role="button"
+            tabindex="0"
+          >
             <span
-              class="text-sm font-semibold tracking-wide uppercase text-muted-foreground"
+              class="text-[11px] font-bold tracking-widest uppercase text-slate-500/80 dark:text-slate-400/80"
             >
               Conversation Actions
             </span>
-            <Collapsible.Trigger>
-              {#snippet child({ props })}
-                <Button
-                  {...props}
-                  variant="ghost"
-                  size="sm"
-                  class="h-6 w-6 p-0"
-                >
-                  {#if isActionsOpen}
-                    <ChevronDown class="h-4 w-4" />
-                  {:else}
-                    <ChevronRight class="h-4 w-4" />
-                  {/if}
-                </Button>
-              {/snippet}
-            </Collapsible.Trigger>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="h-6 w-6 p-0 opacity-50 group-hover:opacity-100"
+            >
+              {#if isActionsOpen}
+                <ChevronDown class="h-3.5 w-3.5" />
+              {:else}
+                <ChevronRight class="h-3.5 w-3.5" />
+              {/if}
+            </Button>
           </div>
-          <Collapsible.Content class="space-y-4 pt-1">
+          <Collapsible.Content class="space-y-4 pt-4">
             <!-- Agent Select -->
-            <div class="space-y-1.5">
-              <span class="text-xs font-medium text-muted-foreground"
+            <div class="space-y-2">
+              <span
+                class="text-[11px] font-bold text-slate-400 uppercase tracking-tighter"
                 >Assigned Agent</span
               >
               <Select.Root
@@ -340,7 +312,9 @@
                 bind:value={selectedAgentId}
                 onValueChange={handleAgentChange}
               >
-                <Select.Trigger class="w-full h-9">
+                <Select.Trigger
+                  class="w-full h-10 text-[13px] font-medium bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 shadow-none"
+                >
                   <span>
                     {#if selectedAgentId === 'none'}
                       Select Agent
@@ -362,8 +336,9 @@
             </div>
 
             <!-- Team Select -->
-            <div class="space-y-1.5">
-              <span class="text-xs font-medium text-muted-foreground"
+            <div class="space-y-2">
+              <span
+                class="text-[11px] font-bold text-slate-400 uppercase tracking-tighter"
                 >Assigned Team</span
               >
               <Select.Root
@@ -371,7 +346,9 @@
                 bind:value={selectedTeamId}
                 onValueChange={handleTeamChange}
               >
-                <Select.Trigger class="w-full h-9">
+                <Select.Trigger
+                  class="w-full h-10 text-[13px] font-medium bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 shadow-none"
+                >
                   <span>
                     {#if selectedTeamId === 'none'}
                       Select Team
@@ -393,8 +370,9 @@
             </div>
 
             <!-- Priority Select -->
-            <div class="space-y-1.5">
-              <span class="text-xs font-medium text-muted-foreground"
+            <div class="space-y-2">
+              <span
+                class="text-[11px] font-bold text-slate-400 uppercase tracking-tighter"
                 >Priority</span
               >
               <Select.Root
@@ -402,7 +380,9 @@
                 bind:value={selectedPriority}
                 onValueChange={handlePriorityChange}
               >
-                <Select.Trigger class="w-full h-9">
+                <Select.Trigger
+                  class="w-full h-10 text-[13px] font-medium bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 shadow-none"
+                >
                   <div class="flex items-center gap-2">
                     <span class="capitalize"
                       >{selectedPriority === 'none'
@@ -423,36 +403,37 @@
           </Collapsible.Content>
         </Collapsible.Root>
 
-        <Separator />
+        <Separator class="bg-slate-100 dark:bg-slate-800" />
 
         <!-- Conversation Labels -->
         <Collapsible.Root bind:open={isLabelsOpen}>
-          <div class="flex items-center justify-between mb-2">
+          <div
+            class="flex items-center justify-between group cursor-pointer"
+            onclick={() => (isLabelsOpen = !isLabelsOpen)}
+            onkeydown={e => e.key === 'Enter' && (isLabelsOpen = !isLabelsOpen)}
+            role="button"
+            tabindex="0"
+          >
             <span
-              class="text-sm font-semibold tracking-wide uppercase text-muted-foreground"
+              class="text-[11px] font-bold tracking-widest uppercase text-slate-500/80 dark:text-slate-400/80"
             >
               Conversation Labels
             </span>
-            <Collapsible.Trigger>
-              {#snippet child({ props })}
-                <Button
-                  {...props}
-                  variant="ghost"
-                  size="sm"
-                  class="h-6 w-6 p-0"
-                >
-                  {#if isLabelsOpen}
-                    <ChevronDown class="h-4 w-4" />
-                  {:else}
-                    <ChevronRight class="h-4 w-4" />
-                  {/if}
-                </Button>
-              {/snippet}
-            </Collapsible.Trigger>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="h-6 w-6 p-0 opacity-50 group-hover:opacity-100"
+            >
+              {#if isLabelsOpen}
+                <ChevronDown class="h-3.5 w-3.5" />
+              {:else}
+                <ChevronRight class="h-3.5 w-3.5" />
+              {/if}
+            </Button>
           </div>
 
-          <Collapsible.Content class="pt-2">
-            <div class="flex flex-wrap gap-2 mb-3">
+          <Collapsible.Content class="pt-4">
+            <div class="flex flex-wrap gap-2 mb-4">
               {#if conversation.labels && conversation.labels.length > 0}
                 {#each conversation.labels as label}
                   <LabelPill
@@ -463,55 +444,70 @@
                   />
                 {/each}
               {:else}
-                <span class="text-sm text-muted-foreground italic"
+                <span class="text-sm text-slate-400 italic px-1"
                   >No labels added</span
                 >
               {/if}
             </div>
 
-            <Button variant="outline" size="sm" class="w-full gap-1">
-              <Plus class="h-3.5 w-3.5" /> Start typing to search labels
+            <Button
+              variant="outline"
+              size="sm"
+              class="w-full gap-2 text-xs font-semibold text-slate-500 border-dashed border-2 hover:border-primary hover:text-primary transition-all"
+            >
+              <Plus class="h-3.5 w-3.5" /> Add Labels
             </Button>
           </Collapsible.Content>
         </Collapsible.Root>
 
-        <Separator />
+        <Separator class="bg-slate-100 dark:bg-slate-800" />
 
         <!-- Conversation Information -->
         <Collapsible.Root bind:open={isInfoOpen}>
-          <div class="flex items-center justify-between mb-2">
+          <div
+            class="flex items-center justify-between group cursor-pointer"
+            onclick={() => (isInfoOpen = !isInfoOpen)}
+            onkeydown={e => e.key === 'Enter' && (isInfoOpen = !isInfoOpen)}
+            role="button"
+            tabindex="0"
+          >
             <span
-              class="text-sm font-semibold tracking-wide uppercase text-muted-foreground"
+              class="text-[11px] font-bold tracking-widest uppercase text-slate-500/80 dark:text-slate-400/80"
             >
               Conversation Information
             </span>
-            <Collapsible.Trigger>
-              {#snippet child({ props })}
-                <Button
-                  {...props}
-                  variant="ghost"
-                  size="sm"
-                  class="h-6 w-6 p-0"
-                >
-                  {#if isInfoOpen}
-                    <ChevronDown class="h-4 w-4" />
-                  {:else}
-                    <ChevronRight class="h-4 w-4" />
-                  {/if}
-                </Button>
-              {/snippet}
-            </Collapsible.Trigger>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="h-6 w-6 p-0 opacity-50 group-hover:opacity-100"
+            >
+              {#if isInfoOpen}
+                <ChevronDown class="h-3.5 w-3.5" />
+              {:else}
+                <ChevronRight class="h-3.5 w-3.5" />
+              {/if}
+            </Button>
           </div>
 
-          <Collapsible.Content class="pt-2 space-y-3">
+          <Collapsible.Content class="pt-4 space-y-4">
             {#each getMetadata() as item}
-              <div class="flex items-start gap-3 text-sm">
-                <div class="mt-0.5 text-muted-foreground">
-                  <item.icon class="h-4 w-4" />
+              <div class="flex items-start gap-4">
+                <div
+                  class="mt-1 flex items-center justify-center h-7 w-7 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 shrink-0"
+                >
+                  <item.icon class="h-3.5 w-3.5 text-slate-400" />
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-xs text-muted-foreground">{item.label}</p>
-                  <p class="truncate font-medium">{item.value}</p>
+                  <p
+                    class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mb-0.5"
+                  >
+                    {item.label}
+                  </p>
+                  <p
+                    class="truncate text-[13px] font-medium text-slate-700 dark:text-slate-300"
+                  >
+                    {item.value}
+                  </p>
                 </div>
               </div>
             {/each}
