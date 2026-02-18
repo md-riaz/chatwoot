@@ -42,7 +42,7 @@
 </script>
 
 <SectionLayout title="Create Team" description="Create a new team of agents">
-  <form on:submit|preventDefault={handleSubmit} class="space-y-6 max-w-2xl">
+  <form onsubmit={handleSubmit} class="space-y-6 max-w-2xl">
     <div class="grid w-full gap-1.5">
       <Label for="name">Name *</Label>
       <Input

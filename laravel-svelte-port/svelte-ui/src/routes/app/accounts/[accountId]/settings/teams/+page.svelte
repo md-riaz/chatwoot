@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { teamsStore } from '$lib/stores/teams.svelte';
-  import SectionLayout from '../components/SectionLayout.svelte';
+  import SectionLayout from '../account/components/SectionLayout.svelte';
   import DataTable from '$lib/components/DataTable.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Plus } from 'lucide-svelte';
@@ -44,7 +44,7 @@
 
 <SectionLayout title="Teams" description="Organize your agents into teams">
   <div slot="actions">
-    <Button on:click={handleAdd}>
+    <Button onclick={handleAdd}>
       <Plus class="mr-2 h-4 w-4" />
       Create New Team
     </Button>
@@ -54,8 +54,7 @@
     {columns}
     data={teams}
     {loading}
-    on:edit={e => handleEdit(e.detail)}
-    on:delete={e => handleDelete(e.detail)}
+    onRowClick={handleEdit}
     emptyMessage="No teams found"
   />
 </SectionLayout>

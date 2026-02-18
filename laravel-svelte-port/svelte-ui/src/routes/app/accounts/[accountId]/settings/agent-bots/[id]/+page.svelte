@@ -66,6 +66,15 @@
   function handleCancel() {
     goto(`/app/accounts/${accountId}/settings/agent-bots`);
   }
+
+  async function handleDelete() {
+    if (!botId) return;
+    if (confirm('Are you sure you want to delete this agent bot?')) {
+      await agentBotsStore.deleteAgentBot(botId);
+      toast.success('Agent bot deleted successfully');
+      goto(`/app/accounts/${accountId}/settings/agent-bots`);
+    }
+  }
 </script>
 
 <SectionLayout
@@ -107,17 +116,26 @@
       </p>
     </div>
 
-    <div class="flex justify-end gap-2 pt-4">
-      <Button variant="outline" type="button" on:click={handleCancel}
-        >Cancel</Button
-      >
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting
-          ? 'Saving...'
-          : botId
-            ? 'Update Agent Bot'
-            : 'Create Agent Bot'}
-      </Button>
+    <div class="flex justify-between pt-4">
+      {#if botId}
+        <Button variant="destructive" type="button" onclick={handleDelete}>
+          Delete
+        </Button>
+      {:else}
+        <div></div>
+      {/if}
+      <div class="flex gap-2">
+        <Button variant="outline" type="button" onclick={handleCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting
+            ? 'Saving...'
+            : botId
+              ? 'Update Agent Bot'
+              : 'Create Agent Bot'}
+        </Button>
+      </div>
     </div>
   </form>
 </SectionLayout>

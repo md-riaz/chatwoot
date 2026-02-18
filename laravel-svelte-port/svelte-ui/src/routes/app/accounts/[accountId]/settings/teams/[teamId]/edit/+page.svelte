@@ -4,7 +4,7 @@
   import { page } from '$app/stores';
   import { teamsStore } from '$lib/stores/teams.svelte';
   import { agentsStore } from '$lib/stores/agents.svelte';
-  import SectionLayout from '../../../../account/components/SectionLayout.svelte';
+  import SectionLayout from '../../../account/components/SectionLayout.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
@@ -91,6 +91,14 @@
       if (success) toast.success('Member removed from team');
     }
   }
+
+  async function handleDelete() {
+    if (confirm('Are you sure you want to delete this team?')) {
+      await teamsStore.deleteTeam(teamId);
+      toast.success('Team deleted successfully');
+      goto(`/app/accounts/${accountId}/settings/teams`);
+    }
+  }
 </script>
 
 <div class="space-y-8">
@@ -98,7 +106,7 @@
     {#if isLoading}
       <div>Loading...</div>
     {:else}
-      <form on:submit|preventDefault={handleSubmit} class="space-y-6 max-w-2xl">
+      <form onsubmit={handleSubmit} class="space-y-6 max-w-2xl">
         <div class="grid w-full gap-1.5">
           <Label for="name">Name *</Label>
           <Input
@@ -129,16 +137,21 @@
           </Label>
         </div>
 
-        <div class="flex justify-end gap-2 pt-4">
-          <Button
-            variant="outline"
-            type="button"
-            onclick={() => goto(`/app/accounts/${accountId}/settings/teams`)}
-            >Back to List</Button
-          >
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : 'Update Team'}
+        <div class="flex justify-between pt-4">
+          <Button variant="destructive" type="button" onclick={handleDelete}>
+            Delete Team
           </Button>
+          <div class="flex gap-2">
+            <Button
+              variant="outline"
+              type="button"
+              onclick={() => goto(`/app/accounts/${accountId}/settings/teams`)}
+              >Back to List</Button
+            >
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Update Team'}
+            </Button>
+          </div>
         </div>
       </form>
     {/if}
