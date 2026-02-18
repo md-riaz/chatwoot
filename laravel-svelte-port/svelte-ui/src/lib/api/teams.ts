@@ -90,7 +90,7 @@ export async function deleteTeam(accountId: number, teamId: number): Promise<voi
  * Get team members
  */
 export async function getTeamMembers(accountId: number, teamId: number): Promise<TeamMember[]> {
-  const response = await api.get(`api/v1/accounts/${accountId}/teams/${teamId}/team_members`).json<TeamMember[]>();
+  const response = await api.get(`api/v1/accounts/${accountId}/teams/${teamId}/members`).json<TeamMember[]>();
   return response;
 }
 
@@ -98,7 +98,7 @@ export async function getTeamMembers(accountId: number, teamId: number): Promise
  * Add agent to team
  */
 export async function addTeamMember(accountId: number, teamId: number, agentId: number): Promise<void> {
-  await api.post(`api/v1/accounts/${accountId}/teams/${teamId}/team_members`, {
+  await api.post(`api/v1/accounts/${accountId}/teams/${teamId}/members`, {
     json: {
       user_ids: [agentId],
     },
@@ -109,7 +109,7 @@ export async function addTeamMember(accountId: number, teamId: number, agentId: 
  * Remove agent from team
  */
 export async function removeTeamMember(accountId: number, teamId: number, agentId: number): Promise<void> {
-  await api.delete(`api/v1/accounts/${accountId}/teams/${teamId}/team_members`, {
+  await api.delete(`api/v1/accounts/${accountId}/teams/${teamId}/members`, {
     json: {
       user_ids: [agentId],
     },

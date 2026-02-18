@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { teamsStore } from '$lib/stores/teams.svelte';
-  import SectionLayout from '../../components/SectionLayout.svelte';
+  import SectionLayout from '../../account/components/SectionLayout.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
@@ -74,8 +74,9 @@
     </div>
 
     <div class="flex justify-end gap-2 pt-4">
-      <Button variant="outline" type="button" on:click={handleCancel}
+      <Button variant="outline" type="button" onclick={handleCancel}
         >Cancel</Button
+      >
       >
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? 'Creating...' : 'Create Team'}

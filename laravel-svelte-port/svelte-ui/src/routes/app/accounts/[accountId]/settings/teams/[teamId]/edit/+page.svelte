@@ -4,7 +4,7 @@
   import { page } from '$app/stores';
   import { teamsStore } from '$lib/stores/teams.svelte';
   import { agentsStore } from '$lib/stores/agents.svelte';
-  import SectionLayout from '../../../components/SectionLayout.svelte';
+  import SectionLayout from '../../../../account/components/SectionLayout.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
@@ -23,11 +23,13 @@
   let allowAutoAssign = $state(true);
   let isSubmitting = $derived(teamsStore.uiFlags.isUpdating);
   let isLoading = $derived(teamsStore.uiFlags.isFetchingItem);
-  
-  const teamMembers = $derived(teamsStore.teamMembers);
+
+  const teamMembers = $derived(teamsStore.selectedTeamMembers);
   const allAgents = $derived(agentsStore.allAgents);
   const availableAgents = $derived(
-    allAgents.filter(agent => !teamMembers.some(member => member.id === agent.id))
+    allAgents.filter(
+      agent => !teamMembers.some(member => member.id === agent.id)
+    )
   );
 
   onMount(async () => {
@@ -40,18 +42,18 @@
       //   // Actually fetchTeam just updates the store list/map
       //   team = teamsStore.allTeams.find(t => t.id === teamId);
       // }
-       await Promise.all([
-         teamsStore.fetchTeam(teamId),
-         teamsStore.fetchTeamMembers(teamId),
-         agentsStore.fetchAgents()
-       ]);
+      await Promise.all([
+        teamsStore.fetchTeam(teamId),
+        teamsStore.fetchTeamMembers(teamId),
+        agentsStore.fetchAgents(),
+      ]);
 
-       const team = teamsStore.allTeams.find(t => t.id === teamId);
-       if (team) {
-         name = team.name;
-         description = team.description;
-         allowAutoAssign = team.allowAutoAssign;
-       }
+      const team = teamsStore.allTeams.find(t => t.id === teamId);
+      if (team) {
+        name = team.name;
+        description = team.description;
+        allowAutoAssign = team.allowAutoAssign;
+      }
     }
   });
 
@@ -79,7 +81,7 @@
   // }
 
   async function handleAddMember(agentId: number) {
-    const success = await teamsStore.addTeamMember(teamId, [agentId]);
+    const success = await teamsStore.addTeamMember(teamId, agentId);
     if (success) toast.success('Member added to team');
   }
 
@@ -92,10 +94,7 @@
 </script>
 
 <div class="space-y-8">
-  <SectionLayout
-    title="Edit Team"
-    description="Update team details"
-  >
+  <SectionLayout title="Edit Team" description="Update team details">
     {#if isLoading}
       <div>Loading...</div>
     {:else}
@@ -131,7 +130,12 @@
         </div>
 
         <div class="flex justify-end gap-2 pt-4">
-          <Button variant="outline" type="button" on:click={() => goto(`/app/accounts/${accountId}/settings/teams`)}>Back to List</Button>
+          <Button
+            variant="outline"
+            type="button"
+            onclick={() => goto(`/app/accounts/${accountId}/settings/teams`)}
+            >Back to List</Button
+          >
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Saving...' : 'Update Team'}
           </Button>
@@ -152,18 +156,26 @@
         </Card.Header>
         <Card.Content class="space-y-4">
           {#each teamMembers as member}
-            <div class="flex items-center justify-between border-b pb-2 last:border-0">
+            <div
+              class="flex items-center justify-between border-b pb-2 last:border-0"
+            >
               <div>
                 <p class="font-medium text-sm">{member.name}</p>
                 <p class="text-xs text-muted-foreground">{member.email}</p>
               </div>
-              <Button variant="ghost" size="sm" on:click={() => handleRemoveMember(member.id)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onclick={() => handleRemoveMember(member.id)}
+              >
                 <Trash2 class="h-4 w-4 text-destructive" />
               </Button>
             </div>
           {/each}
           {#if teamMembers.length === 0}
-            <p class="text-sm text-muted-foreground italic">No members in this team.</p>
+            <p class="text-sm text-muted-foreground italic">
+              No members in this team.
+            </p>
           {/if}
         </Card.Content>
       </Card.Root>
@@ -176,19 +188,27 @@
         <Card.Content class="space-y-4">
           <div class="max-h-[300px] overflow-y-auto space-y-2">
             {#each availableAgents as agent}
-              <div class="flex items-center justify-between rounded-lg border p-2">
+              <div
+                class="flex items-center justify-between rounded-lg border p-2"
+              >
                 <div>
                   <p class="font-medium text-sm">{agent.name}</p>
                   <p class="text-xs text-muted-foreground">{agent.email}</p>
                 </div>
-                <Button variant="outline" size="sm" on:click={() => handleAddMember(agent.id)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onclick={() => handleAddMember(agent.id)}
+                >
                   <UserPlus class="h-4 w-4 mr-1" />
                   Add
                 </Button>
               </div>
             {/each}
             {#if availableAgents.length === 0}
-              <p class="text-sm text-muted-foreground italic">No more agents to add.</p>
+              <p class="text-sm text-muted-foreground italic">
+                No more agents to add.
+              </p>
             {/if}
           </div>
         </Card.Content>

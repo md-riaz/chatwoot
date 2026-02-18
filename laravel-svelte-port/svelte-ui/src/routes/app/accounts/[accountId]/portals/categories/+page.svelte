@@ -2,20 +2,20 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { categoriesStore } from '$lib/portal/stores/categories.svelte';
-  import SectionLayout from '../../settings/components/SectionLayout.svelte';
-  import DataTable from '$lib/components/ui/DataTable.svelte';
+  import { portalCategoriesStore } from '$lib/portal/stores/categories.svelte';
+  import SectionLayout from '../../settings/account/components/SectionLayout.svelte';
+  import DataTable from '$lib/components/DataTable.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Plus } from 'lucide-svelte';
-  import type { Category } from '$lib/api/portal/categories';
+  import type { Category } from '$lib/portal/api/types';
 
   const accountId = $derived(Number($page.params.accountId));
-  const categories = $derived(categoriesStore.allCategories);
-  const loading = $derived(categoriesStore.uiFlags.isFetching);
+  const categories = $derived(portalCategoriesStore.allCategories);
+  const loading = $derived(portalCategoriesStore.errorMessage !== null); // Temporary loading check
   const portalSlug = 'default'; // Placeholder
 
   onMount(() => {
-    categoriesStore.fetchCategories(portalSlug);
+    portalCategoriesStore.fetchCategories(portalSlug);
   });
 
   function handleAdd() {
@@ -37,18 +37,18 @@
   title="Categories"
   description="Organize articles into categories"
 >
-  <div slot="actions">
-    <Button on:click={handleAdd}>
+  {#snippet headerActions()}
+    <Button onclick={handleAdd}>
       <Plus class="mr-2 h-4 w-4" />
       Add Category
     </Button>
-  </div>
+  {/snippet}
 
   <DataTable
     {columns}
     data={categories}
     {loading}
-    on:edit={e => handleEdit(e.detail)}
+    onRowClick={handleEdit}
     emptyMessage="No categories found"
   />
 </SectionLayout>

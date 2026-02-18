@@ -3,7 +3,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
-  import SectionLayout from '../../settings/components/SectionLayout.svelte';
+  import SectionLayout from '../../settings/account/components/SectionLayout.svelte';
 
   const accountId = $derived(Number($page.params.accountId));
 
@@ -44,7 +44,7 @@
     </div>
 
     <div class="pt-4">
-      <Button on:click={handleSave}>Update Settings</Button>
+      <Button onclick={handleSave}>Update Settings</Button>
     </div>
   </div>
 </SectionLayout>

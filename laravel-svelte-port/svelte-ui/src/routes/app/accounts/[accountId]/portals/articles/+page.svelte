@@ -2,16 +2,16 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { articlesStore } from '$lib/portal/stores/articles.svelte';
-  import SectionLayout from '../../settings/components/SectionLayout.svelte';
-  import DataTable from '$lib/components/ui/DataTable.svelte';
+  import { portalArticlesStore } from '$lib/portal/stores/articles.svelte';
+  import SectionLayout from '../../settings/account/components/SectionLayout.svelte';
+  import DataTable from '$lib/components/DataTable.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Plus } from 'lucide-svelte';
-  import type { Article } from '$lib/api/portal/articles';
+  import type { Article } from '$lib/portal/api/types';
 
   const accountId = $derived(Number($page.params.accountId));
-  const articles = $derived(articlesStore.allArticles);
-  const loading = $derived(articlesStore.uiFlags.isFetching);
+  const articles = $derived(portalArticlesStore.allArticles);
+  const loading = $derived(portalArticlesStore.loading);
 
   // Need to get portal slug/id. Assuming single portal for now or passed in route.
   // The route is /app/accounts/[accountId]/portals/articles
@@ -20,7 +20,7 @@
   const portalSlug = 'default'; // Placeholder: should be dynamic
 
   onMount(() => {
-    articlesStore.fetchArticles(portalSlug);
+    portalArticlesStore.fetchArticlesByCategory(portalSlug);
   });
 
   function handleAdd() {
@@ -44,18 +44,18 @@
 </script>
 
 <SectionLayout title="Articles" description="Manage your help center articles">
-  <div slot="actions">
-    <Button on:click={handleAdd}>
+  {#snippet headerActions()}
+    <Button onclick={handleAdd}>
       <Plus class="mr-2 h-4 w-4" />
       Add Article
     </Button>
-  </div>
+  {/snippet}
 
   <DataTable
     {columns}
     data={articles}
     {loading}
-    on:edit={e => handleEdit(e.detail)}
+    onRowClick={handleEdit}
     emptyMessage="No articles found"
   />
 </SectionLayout>

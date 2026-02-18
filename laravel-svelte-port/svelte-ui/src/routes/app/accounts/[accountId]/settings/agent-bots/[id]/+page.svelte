@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { agentBotsStore } from '$lib/stores/agentBots.svelte';
-  import SectionLayout from '../../components/SectionLayout.svelte';
+  import SectionLayout from '../../account/components/SectionLayout.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
@@ -72,7 +72,7 @@
   title={botId ? 'Edit Agent Bot' : 'New Agent Bot'}
   description={botId ? 'Update agent bot details' : 'Create a new agent bot'}
 >
-  <form on:submit|preventDefault={handleSubmit} class="space-y-6 max-w-2xl">
+  <form onsubmit={handleSubmit} class="space-y-6 max-w-2xl">
     <div class="grid w-full gap-1.5">
       <Label for="name">Name *</Label>
       <Input

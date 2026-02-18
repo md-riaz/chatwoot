@@ -3,8 +3,8 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { agentBotsStore } from '$lib/stores/agentBots.svelte';
-  import SectionLayout from '../components/SectionLayout.svelte';
-  import DataTable from '$lib/components/ui/DataTable.svelte';
+  import SectionLayout from '../account/components/SectionLayout.svelte';
+  import DataTable from '$lib/components/DataTable.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Plus } from 'lucide-svelte';
   import type { AgentBot } from '$lib/api/agentBots';
@@ -42,19 +42,18 @@
   title="Agent Bots"
   description="Configure agent bots for your account"
 >
-  <div slot="actions">
-    <Button on:click={handleAdd}>
+  {#snippet headerActions()}
+    <Button onclick={handleAdd}>
       <Plus class="mr-2 h-4 w-4" />
       Add Agent Bot
     </Button>
-  </div>
+  {/snippet}
 
   <DataTable
     {columns}
     data={bots}
     {loading}
-    on:edit={e => handleEdit(e.detail)}
-    on:delete={e => handleDelete(e.detail)}
+    onRowClick={handleEdit}
     emptyMessage="No agent bots found"
   />
 </SectionLayout>
