@@ -1,50 +1,67 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { Button } from '$lib/components/ui/button';
-  import { Input } from '$lib/components/ui/input';
-  import { Label } from '$lib/components/ui/label';
+  import { portalsStore } from '$lib/stores/portals.svelte';
+  // Correct import path for SectionLayout based on previous file content
   import SectionLayout from '../../settings/account/components/SectionLayout.svelte';
+  import DataTable from '$lib/components/DataTable.svelte';
+  import { Button } from '$lib/components/ui/button';
+  import { Plus } from 'lucide-svelte';
+  import type { Portal } from '$lib/api/portals';
 
   const accountId = $derived(Number($page.params.accountId));
+  const portals = $derived(portalsStore.allPortals);
+  const loading = $derived(portalsStore.uiFlags.isFetching);
 
-  // Placeholder state for portal settings
-  let name = $state('Help Center');
-  let slug = $state('help');
-  let domain = $state('');
+  onMount(() => {
+    portalsStore.fetchPortals();
+  });
 
-  function handleSave() {
-    // Save logic
-    alert('Settings saved (placeholder)');
+  function handleAdd() {
+    goto(`/app/accounts/${accountId}/portals/settings/new`);
   }
+
+  function handleEdit(portal: Portal) {
+    goto(`/app/accounts/${accountId}/portals/settings/${portal.slug}`);
+  }
+
+  async function handleDelete(portal: Portal) {
+    if (
+      confirm(`Are you sure you want to delete the portal "${portal.name}"?`)
+    ) {
+      await portalsStore.deletePortal(portal.slug);
+    }
+  }
+
+  const columns = [
+    { key: 'name', label: 'Name' },
+    { key: 'slug', label: 'Slug' },
+    { key: 'custom_domain', label: 'Domain' },
+    {
+      key: 'archived',
+      label: 'Status',
+      formatter: (val: boolean) => (val ? 'Archived' : 'Active'),
+    },
+  ];
 </script>
 
 <SectionLayout
-  title="General Settings"
-  description="Configure your help center basics"
+  title="Help Center Portals"
+  description="Manage your help center portals"
 >
-  <div class="space-y-6 max-w-2xl">
-    <div class="grid w-full gap-1.5">
-      <Label for="name">Portal Name</Label>
-      <Input type="text" id="name" bind:value={name} />
-    </div>
+  {#snippet headerActions()}
+    <Button onclick={handleAdd}>
+      <Plus class="mr-2 h-4 w-4" />
+      Add Portal
+    </Button>
+  {/snippet}
 
-    <div class="grid w-full gap-1.5">
-      <Label for="slug">Slug</Label>
-      <Input type="text" id="slug" bind:value={slug} />
-    </div>
-
-    <div class="grid w-full gap-1.5">
-      <Label for="domain">Custom Domain</Label>
-      <Input
-        type="text"
-        id="domain"
-        bind:value={domain}
-        placeholder="help.example.com"
-      />
-    </div>
-
-    <div class="pt-4">
-      <Button onclick={handleSave}>Update Settings</Button>
-    </div>
-  </div>
+  <DataTable
+    {columns}
+    data={portals}
+    {loading}
+    onRowClick={handleEdit}
+    emptyMessage="No portals found"
+  />
 </SectionLayout>

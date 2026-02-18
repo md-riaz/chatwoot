@@ -4,7 +4,7 @@
   import { page } from '$app/stores';
   import { teamsStore } from '$lib/stores/teams.svelte';
   import SectionLayout from '../components/SectionLayout.svelte';
-  import DataTable from '$lib/components/ui/DataTable.svelte';
+  import DataTable from '$lib/components/DataTable.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Plus } from 'lucide-svelte';
   import type { Team } from '$lib/api/teams';
