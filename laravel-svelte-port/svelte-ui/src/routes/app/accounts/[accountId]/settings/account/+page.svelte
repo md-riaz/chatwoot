@@ -224,7 +224,7 @@
     <AccountId />
 
     <!-- Account Delete -->
-    {#if isOnChatwootCloud}
+    {#if authStore.currentRole === 'administrator'}
       <AccountDelete />
     {/if}
 

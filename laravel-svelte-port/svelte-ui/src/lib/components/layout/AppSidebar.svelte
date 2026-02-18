@@ -36,7 +36,7 @@
 
   let { ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
 
-  const accountId = authStore.currentAccountId;
+  const accountId = $derived(authStore.currentAccountId);
   const currentUser = $derived(authStore.currentUser);
   const currentAccount = $derived(authStore.currentAccount);
   const isLoggedIn = $derived(authStore.isLoggedIn);
