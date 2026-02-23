@@ -101,9 +101,23 @@ class ConversationsController extends Controller
      */
     public function index(Account $account, Request $request): AnonymousResourceCollection
     {
+        $filters = $request->only([
+            'status',
+            'assignee_id',
+            'assignee_type',
+            'inbox_id',
+            'team_id',
+            'priority',
+            'mentioned',
+            'unattended',
+            'label',
+            'per_page',
+        ]);
+        $filters['current_user_id'] = $request->user()?->id;
+
         $conversations = $this->conversationRepository->findForAccount(
             $account->id,
-            $request->only(['status', 'assignee_id', 'inbox_id', 'team_id', 'priority', 'per_page'])
+            $filters
         );
 
         return ConversationResource::collection($conversations);
@@ -114,9 +128,20 @@ class ConversationsController extends Controller
      */
     public function meta(Account $account, Request $request): JsonResponse
     {
+        $filters = $request->only([
+            'inbox_id',
+            'team_id',
+            'assignee_id',
+            'assignee_type',
+            'mentioned',
+            'unattended',
+            'label',
+        ]);
+        $filters['current_user_id'] = $request->user()?->id;
+
         $counts = $this->conversationRepository->getMetaForAccount(
             $account->id,
-            $request->only(['inbox_id', 'team_id', 'assignee_id'])
+            $filters
         );
 
         return response()->json(['meta' => $counts]);

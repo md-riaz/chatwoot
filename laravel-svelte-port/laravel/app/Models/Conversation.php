@@ -149,6 +149,14 @@ class Conversation extends Model
     }
 
     /**
+     * Get all mentions for the conversation.
+     */
+    public function mentions(): HasMany
+    {
+        return $this->hasMany(Mention::class);
+    }
+
+    /**
      * Get the CSAT survey response for the conversation.
      */
     public function csatSurveyResponse(): HasOne

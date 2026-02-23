@@ -10,6 +10,7 @@
  */
 
 import { page } from '$app/stores';
+import { authStore } from '$lib/stores/auth.svelte';
 import type {
   Conversation,
   ConversationListParams,
@@ -52,10 +53,24 @@ class ConversationsStore {
   error = $state<string | null>(null);
 
   // Filters
-  statusFilter = $state<ConversationStatus>('open');
+  statusFilter = $state<ConversationStatus | null>(null);
   sortFilter = $state<SortType>('latest');
   currentInboxId = $state<number | null>(null);
+  currentTeamId = $state<number | null>(null);
+  currentLabel = $state<string | null>(null);
+  assigneeTypeFilter = $state<'me' | 'unassigned' | 'all' | null>(null);
+  mentionedOnly = $state<boolean>(false);
+  unattendedOnly = $state<boolean>(false);
   appliedFilters = $state<any[]>([]);
+  statusCounts = $state({
+    all: 0,
+    mine: 0,
+    unassigned: 0,
+    open: 0,
+    resolved: 0,
+    pending: 0,
+    snoozed: 0,
+  });
 
   // Attachments cache
   attachments = $state<Record<number, any[]>>({});
@@ -127,6 +142,11 @@ class ConversationsStore {
         return false;
       }
 
+      // Filter by team
+      if (this.currentTeamId && conversation.teamId !== this.currentTeamId) {
+        return false;
+      }
+
       return true;
     });
   }
@@ -161,18 +181,28 @@ class ConversationsStore {
     this.error = null;
 
     try {
-      const response = await conversationsAPI.getConversations({
+      const requestParams: ConversationListParams = {
         accountId,
-        status: this.statusFilter,
+        status: this.statusFilter || undefined,
         inboxId: this.currentInboxId || undefined,
+        teamId: this.currentTeamId || undefined,
+        label: this.currentLabel || undefined,
+        assigneeType: this.assigneeTypeFilter || undefined,
+        mentioned: this.mentionedOnly || undefined,
+        unattended: this.unattendedOnly || undefined,
         sortBy: this.sortFilter,
         ...params,
+      };
+
+      const response = await conversationsAPI.getConversations({
+        ...requestParams,
       });
 
       // Handle Laravel pagination format
       const conversations =
         response?.data || (response as any)?.items || response || [];
       this.setConversations(conversations);
+      await this.fetchMetaCounts();
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch conversations';
       throw err;
@@ -486,24 +516,116 @@ class ConversationsStore {
   }
 
   /**
-   * Set status filter
+   * Fetch conversation meta counts for current filter context.
    */
-  setStatusFilter(status: ConversationStatus) {
+  async fetchMetaCounts() {
+    const accountId = this.currentAccountId;
+    if (!accountId) return;
+
+    const sharedFilters: Partial<ConversationListParams> = {
+      inboxId: this.currentInboxId || undefined,
+      teamId: this.currentTeamId || undefined,
+      label: this.currentLabel || undefined,
+      mentioned: this.mentionedOnly || undefined,
+      unattended: this.unattendedOnly || undefined,
+    };
+
+    try {
+      const [meta, mineMeta] = await Promise.all([
+        conversationsAPI.getConversationsMeta(accountId, sharedFilters),
+        authStore.currentUserId
+          ? conversationsAPI.getConversationsMeta(accountId, {
+              ...sharedFilters,
+              assigneeId: authStore.currentUserId,
+            })
+          : Promise.resolve(null),
+      ]);
+
+      this.statusCounts = {
+        all: meta.allCount,
+        mine: mineMeta?.allCount || 0,
+        unassigned: meta.unassignedCount,
+        open: meta.openCount,
+        resolved: meta.resolvedCount,
+        pending: meta.pendingCount,
+        snoozed: meta.snoozedCount,
+      };
+    } catch (err) {
+      console.error('Failed to fetch conversation meta counts:', err);
+    }
+  }
+
+  /**
+   * Set status filter.
+   */
+  setStatusFilter(status: ConversationStatus | null) {
     this.statusFilter = status;
   }
 
   /**
-   * Set sort filter
+   * Set sort filter.
    */
   setSortFilter(sort: SortType) {
     this.sortFilter = sort;
   }
 
   /**
-   * Set active inbox
+   * Set active inbox.
    */
   setActiveInbox(inboxId: number | null) {
     this.currentInboxId = inboxId;
+  }
+
+  /**
+   * Set active team.
+   */
+  setActiveTeam(teamId: number | null) {
+    this.currentTeamId = teamId;
+  }
+
+  /**
+   * Set active label title.
+   */
+  setLabelFilter(label: string | null) {
+    this.currentLabel = label;
+  }
+
+  /**
+   * Set assignee type filter.
+   */
+  setAssigneeType(assigneeType: 'me' | 'unassigned' | 'all' | null) {
+    this.assigneeTypeFilter = assigneeType;
+  }
+
+  /**
+   * Set mentions-only filter.
+   */
+  setMentionedOnly(value: boolean) {
+    this.mentionedOnly = value;
+  }
+
+  /**
+   * Set unattended-only filter.
+   */
+  setUnattendedOnly(value: boolean) {
+    this.unattendedOnly = value;
+  }
+
+  /**
+   * Apply route-level list filters before fetching.
+   */
+  applyRouteFilters(filters: {
+    inboxId?: number | null;
+    teamId?: number | null;
+    label?: string | null;
+    mentioned?: boolean;
+    unattended?: boolean;
+  }) {
+    this.currentInboxId = filters.inboxId ?? null;
+    this.currentTeamId = filters.teamId ?? null;
+    this.currentLabel = filters.label ?? null;
+    this.mentionedOnly = Boolean(filters.mentioned);
+    this.unattendedOnly = Boolean(filters.unattended);
   }
 
   /**

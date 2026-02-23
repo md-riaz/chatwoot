@@ -110,6 +110,21 @@ interface ConversationsApiResponse {
   };
 }
 
+const STATUS_MAP: Record<number, ConversationStatus> = {
+  0: 'open',
+  1: 'resolved',
+  2: 'pending',
+  3: 'snoozed',
+};
+
+const PRIORITY_MAP: Record<number, ConversationPriority> = {
+  0: null,
+  1: 'low',
+  2: 'medium',
+  3: 'high',
+  4: 'urgent',
+};
+
 function toSafeNumber(value: unknown): number {
   if (value === null || value === undefined || value === '') {
     return 0;
@@ -133,9 +148,70 @@ function toConversationTimestamp(value: unknown): string | null {
   return null;
 }
 
+function normalizeConversationStatus(value: unknown): ConversationStatus {
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (
+      normalized === 'open' ||
+      normalized === 'resolved' ||
+      normalized === 'pending' ||
+      normalized === 'snoozed'
+    ) {
+      return normalized;
+    }
+
+    const numericValue = Number(normalized);
+    if (Number.isFinite(numericValue) && STATUS_MAP[numericValue]) {
+      return STATUS_MAP[numericValue];
+    }
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value) && STATUS_MAP[value]) {
+    return STATUS_MAP[value];
+  }
+
+  return 'open';
+}
+
+function normalizeConversationPriority(value: unknown): ConversationPriority {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (
+      normalized === 'low' ||
+      normalized === 'medium' ||
+      normalized === 'high' ||
+      normalized === 'urgent'
+    ) {
+      return normalized;
+    }
+
+    const numericValue = Number(normalized);
+    if (Number.isFinite(numericValue) && numericValue in PRIORITY_MAP) {
+      return PRIORITY_MAP[numericValue];
+    }
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value) && value in PRIORITY_MAP) {
+    return PRIORITY_MAP[value];
+  }
+
+  return null;
+}
+
 export function transformConversationFromApi(
   rawConversation: any
 ): Conversation {
+  const lastActivityAt = toConversationTimestamp(
+    rawConversation.lastActivityAt ?? rawConversation.timestamp
+  );
+  const unixTimestamp = lastActivityAt
+    ? Math.floor(new Date(lastActivityAt).getTime() / 1000)
+    : undefined;
+
   return {
     ...rawConversation,
     id: toSafeNumber(rawConversation.id),
@@ -145,12 +221,18 @@ export function transformConversationFromApi(
     displayId: toSafeNumber(rawConversation.displayId),
     assigneeId: rawConversation.assigneeId ? toSafeNumber(rawConversation.assigneeId) : undefined,
     teamId: rawConversation.teamId ? toSafeNumber(rawConversation.teamId) : undefined,
-    lastActivityAt: toConversationTimestamp(rawConversation.lastActivityAt),
+    status: normalizeConversationStatus(rawConversation.status),
+    priority: normalizeConversationPriority(rawConversation.priority),
+    lastActivityAt,
     createdAt: toConversationTimestamp(rawConversation.createdAt),
     updatedAt: toConversationTimestamp(rawConversation.updatedAt),
     firstReplyCreatedAt: toConversationTimestamp(rawConversation.firstReplyCreatedAt),
     waitingSince: toConversationTimestamp(rawConversation.waitingSince),
     snoozedUntil: toConversationTimestamp(rawConversation.snoozedUntil),
+    timestamp:
+      rawConversation.timestamp && Number.isFinite(Number(rawConversation.timestamp))
+        ? Number(rawConversation.timestamp)
+        : unixTimestamp,
   };
 }
 
@@ -164,13 +246,25 @@ function extractConversationPayload(response: ConversationsApiResponse): any[] {
 export interface ConversationListParams {
   accountId: number;
   inboxId?: number;
+  teamId?: number;
+  label?: string;
+  mentioned?: boolean;
+  unattended?: boolean;
   status?: ConversationStatus;
   assigneeType?: 'me' | 'unassigned' | 'all';
-  labels?: string[];
-  teamId?: number;
   page?: number;
   sortBy?: 'latest' | 'oldest' | 'unread' | 'priority';
+  perPage?: number;
   [key: string]: string | number | boolean | string[] | undefined;
+}
+
+export interface ConversationMetaCounts {
+  allCount: number;
+  openCount: number;
+  resolvedCount: number;
+  pendingCount: number;
+  snoozedCount: number;
+  unassignedCount: number;
 }
 
 /**
@@ -214,6 +308,30 @@ export async function getConversations(
       totalPages: meta.totalPages || 1,
       totalCount: meta.count || 0,
     },
+  };
+}
+
+/**
+ * Get conversation list meta counts.
+ */
+export async function getConversationsMeta(
+  accountId: number,
+  params: Partial<ConversationListParams> = {}
+): Promise<ConversationMetaCounts> {
+  const response = await api
+    .get(`api/v1/accounts/${accountId}/conversations/meta`, {
+      searchParams: toSearchParams(params),
+    })
+    .json<{ meta?: Partial<ConversationMetaCounts> }>();
+
+  const meta = response.meta || {};
+  return {
+    allCount: Number(meta.allCount || 0),
+    openCount: Number(meta.openCount || 0),
+    resolvedCount: Number(meta.resolvedCount || 0),
+    pendingCount: Number(meta.pendingCount || 0),
+    snoozedCount: Number(meta.snoozedCount || 0),
+    unassignedCount: Number(meta.unassignedCount || 0),
   };
 }
 

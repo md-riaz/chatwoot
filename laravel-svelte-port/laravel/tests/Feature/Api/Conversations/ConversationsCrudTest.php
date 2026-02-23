@@ -11,6 +11,8 @@ use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Conversation;
 use App\Models\Inbox;
+use App\Models\Label;
+use App\Models\Mention;
 use App\Models\User;
 
 describe('Conversation Listing', function () {
@@ -101,6 +103,144 @@ describe('Conversation Listing', function () {
         $response->assertOk();
         $ids = collect($response->json('data'))->pluck('id')->toArray();
         expect($ids[0])->toBe($recent->id);
+    });
+
+    test('can filter conversations by assignee_type me', function () {
+        $user = User::factory()->create();
+        $otherAgent = User::factory()->create();
+        $account = Account::factory()->create();
+        $account->users()->attach($user->id, ['role' => 0]);
+        $account->users()->attach($otherAgent->id, ['role' => 0]);
+
+        $inbox = Inbox::factory()->for($account)->create();
+        $contact = Contact::factory()->for($account)->create();
+
+        $mine = Conversation::factory()->for($account)->for($inbox)->for($contact)->create([
+            'assignee_id' => $user->id,
+        ]);
+        Conversation::factory()->for($account)->for($inbox)->for($contact)->create([
+            'assignee_id' => $otherAgent->id,
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/conversations?assignee_type=me");
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        expect($ids)->toContain($mine->id);
+        expect($ids)->toHaveCount(1);
+    });
+
+    test('can filter conversations by assignee_type unassigned', function () {
+        $user = User::factory()->create();
+        $agent = User::factory()->create();
+        $account = Account::factory()->create();
+        $account->users()->attach($user->id, ['role' => 0]);
+        $account->users()->attach($agent->id, ['role' => 0]);
+
+        $inbox = Inbox::factory()->for($account)->create();
+        $contact = Contact::factory()->for($account)->create();
+
+        $unassigned = Conversation::factory()->for($account)->for($inbox)->for($contact)->create([
+            'assignee_id' => null,
+        ]);
+        Conversation::factory()->for($account)->for($inbox)->for($contact)->create([
+            'assignee_id' => $agent->id,
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/conversations?assignee_type=unassigned");
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        expect($ids)->toContain($unassigned->id);
+        expect($ids)->toHaveCount(1);
+    });
+
+    test('can filter conversations by unattended', function () {
+        $user = User::factory()->create();
+        $account = Account::factory()->create();
+        $account->users()->attach($user->id, ['role' => 0]);
+
+        $inbox = Inbox::factory()->for($account)->create();
+        $contact = Contact::factory()->for($account)->create();
+
+        $unattended = Conversation::factory()->for($account)->for($inbox)->for($contact)->create([
+            'status' => Conversation::STATUS_OPEN,
+            'first_reply_created_at' => null,
+            'waiting_since' => now(),
+        ]);
+        Conversation::factory()->for($account)->for($inbox)->for($contact)->create([
+            'status' => Conversation::STATUS_OPEN,
+            'first_reply_created_at' => now(),
+            'waiting_since' => null,
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/conversations?unattended=true");
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        expect($ids)->toContain($unattended->id);
+        expect($ids)->toHaveCount(1);
+    });
+
+    test('can filter conversations by mentioned', function () {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $account = Account::factory()->create();
+        $account->users()->attach($user->id, ['role' => 0]);
+        $account->users()->attach($otherUser->id, ['role' => 0]);
+
+        $inbox = Inbox::factory()->for($account)->create();
+        $contact = Contact::factory()->for($account)->create();
+
+        $mentionedConversation = Conversation::factory()->for($account)->for($inbox)->for($contact)->create();
+        $otherConversation = Conversation::factory()->for($account)->for($inbox)->for($contact)->create();
+
+        Mention::create([
+            'account_id' => $account->id,
+            'user_id' => $user->id,
+            'conversation_id' => $mentionedConversation->id,
+            'mentioned_at' => now(),
+        ]);
+        Mention::create([
+            'account_id' => $account->id,
+            'user_id' => $otherUser->id,
+            'conversation_id' => $otherConversation->id,
+            'mentioned_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/conversations?mentioned=true");
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        expect($ids)->toContain($mentionedConversation->id);
+        expect($ids)->not->toContain($otherConversation->id);
+    });
+
+    test('can filter conversations by label title', function () {
+        $user = User::factory()->create();
+        $account = Account::factory()->create();
+        $account->users()->attach($user->id, ['role' => 0]);
+
+        $inbox = Inbox::factory()->for($account)->create();
+        $contact = Contact::factory()->for($account)->create();
+
+        $vipConversation = Conversation::factory()->for($account)->for($inbox)->for($contact)->create();
+        $normalConversation = Conversation::factory()->for($account)->for($inbox)->for($contact)->create();
+
+        $vipLabel = Label::factory()->for($account)->create(['title' => 'vip']);
+        $vipConversation->labels()->attach($vipLabel->id);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson("/api/v1/accounts/{$account->id}/conversations?label=vip");
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        expect($ids)->toContain($vipConversation->id);
+        expect($ids)->not->toContain($normalConversation->id);
     });
 });
 

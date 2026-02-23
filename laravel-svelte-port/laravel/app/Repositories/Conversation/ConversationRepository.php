@@ -4,6 +4,7 @@ namespace App\Repositories\Conversation;
 
 use App\Models\Conversation;
 use App\Repositories\BaseRepository;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -33,18 +34,53 @@ class ConversationRepository extends BaseRepository
     }
 
     /**
-     * Find conversations for a specific account with filters.
+     * Determine if a mixed value should be treated as true.
      */
-    public function findForAccount(int $accountId, array $filters = []): LengthAwarePaginator
+    private function isTruthy(mixed $value): bool
     {
-        $query = $this->model->where('account_id', $accountId);
-
-        if (isset($filters['status'])) {
-            $query->where('status', $this->normalizeStatus($filters['status']));
+        if (is_bool($value)) {
+            return $value;
         }
 
-        if (isset($filters['assignee_id'])) {
-            $query->where('assignee_id', $filters['assignee_id']);
+        if (is_int($value)) {
+            return $value === 1;
+        }
+
+        if (is_string($value)) {
+            return in_array(strtolower($value), ['1', 'true', 'yes'], true);
+        }
+
+        return false;
+    }
+
+    /**
+     * Normalize a label filter value into a list of non-empty titles.
+     *
+     * @return array<int, string>
+     */
+    private function normalizeLabels(mixed $value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter(array_map(
+                static fn ($item) => trim((string) $item),
+                $value
+            )));
+        }
+
+        if (is_string($value)) {
+            return array_values(array_filter(array_map('trim', explode(',', $value))));
+        }
+
+        return [];
+    }
+
+    /**
+     * Apply shared conversation listing/meta filters.
+     */
+    private function applyConversationFilters(Builder $query, array $filters): Builder
+    {
+        if (isset($filters['status']) && $filters['status'] !== '') {
+            $query->where('status', $this->normalizeStatus($filters['status']));
         }
 
         if (isset($filters['inbox_id'])) {
@@ -59,6 +95,45 @@ class ConversationRepository extends BaseRepository
             $query->where('priority', $filters['priority']);
         }
 
+        $assigneeType = $filters['assignee_type'] ?? null;
+        if ($assigneeType === 'me' && !empty($filters['current_user_id'])) {
+            $query->where('assignee_id', $filters['current_user_id']);
+        } elseif ($assigneeType === 'unassigned') {
+            $query->whereNull('assignee_id');
+        } elseif (isset($filters['assignee_id'])) {
+            $query->where('assignee_id', $filters['assignee_id']);
+        }
+
+        if ($this->isTruthy($filters['unattended'] ?? false)) {
+            $query->where('status', Conversation::STATUS_OPEN)->unattended();
+        }
+
+        if ($this->isTruthy($filters['mentioned'] ?? false) && !empty($filters['current_user_id'])) {
+            $query->whereHas('mentions', function (Builder $mentionQuery) use ($filters) {
+                $mentionQuery->where('user_id', $filters['current_user_id']);
+            });
+        }
+
+        $labels = $this->normalizeLabels($filters['label'] ?? []);
+        if (!empty($labels)) {
+            $query->whereHas('labels', function (Builder $labelQuery) use ($labels) {
+                $labelQuery->whereIn('title', $labels);
+            });
+        }
+
+        return $query;
+    }
+
+    /**
+     * Find conversations for a specific account with filters.
+     */
+    public function findForAccount(int $accountId, array $filters = []): LengthAwarePaginator
+    {
+        $query = $this->applyConversationFilters(
+            $this->model->where('account_id', $accountId),
+            $filters
+        );
+
         return $query
             ->with(['contact', 'inbox', 'assignee', 'team'])
             ->orderByDesc('last_activity_at')
@@ -70,19 +145,10 @@ class ConversationRepository extends BaseRepository
      */
     public function getMetaForAccount(int $accountId, array $filters = []): array
     {
-        $query = $this->model->where('account_id', $accountId);
-
-        if (isset($filters['inbox_id'])) {
-            $query->where('inbox_id', $filters['inbox_id']);
-        }
-
-        if (isset($filters['team_id'])) {
-            $query->where('team_id', $filters['team_id']);
-        }
-
-        if (isset($filters['assignee_id'])) {
-            $query->where('assignee_id', $filters['assignee_id']);
-        }
+        $query = $this->applyConversationFilters(
+            $this->model->where('account_id', $accountId),
+            $filters
+        );
 
         return [
             'all_count' => (clone $query)->count(),
