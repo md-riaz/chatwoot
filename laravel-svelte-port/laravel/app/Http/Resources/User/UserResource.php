@@ -37,6 +37,7 @@ class UserResource extends JsonResource
             'message_signature' => $this->message_signature ?? '',
             'provider' => $this->provider ?? 'email',
             'pubsub_token' => $this->pubsub_token ?? null,
+            'hmac_identifier' => $this->hmac_identifier,
             'ui_settings' => $this->ui_settings ?? new \stdClass,
             'uid' => $this->uid ?? null,
 
@@ -58,6 +59,9 @@ class UserResource extends JsonResource
                     'active_at' => $this->formatTimestamp($accountUser->active_at),
                     'inviter_id' => $accountUser->inviter_id ?? null,
                     'permissions' => $accountUser->permissions ?? [],
+                    'features' => collect($accountUser->account->getEnabledFeatures() ?? [])
+                        ->mapWithKeys(fn($feature) => [$feature => true])
+                        ->toArray(),
                 ]);
             }, []),
         ];

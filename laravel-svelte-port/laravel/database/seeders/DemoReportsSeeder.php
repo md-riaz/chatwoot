@@ -33,6 +33,14 @@ class DemoReportsSeeder extends Seeder
             ]
         );
 
+        // Enable standard & enterprise features for local demo environment parity
+        $demoAccount->enableFeature('custom_attributes');
+        $demoAccount->enableFeature('automations');
+        $demoAccount->enableFeature('audit_logs');
+        $demoAccount->enableFeature('sla');
+        $demoAccount->enableFeature('custom_roles');
+        $demoAccount->enableFeature('saml');
+
         (new AccountSeederService($demoAccount))->perform();
 
         $demoUser = User::query()->updateOrCreate(
@@ -40,7 +48,7 @@ class DemoReportsSeeder extends Seeder
             [
                 'name' => 'Demo Reports Admin',
                 'password' => Hash::make('12345678'),
-                'type' => 'User',
+                'type' => 'SuperAdmin',
                 'email_verified_at' => now(),
             ]
         );

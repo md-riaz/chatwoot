@@ -1,5 +1,4 @@
-import { page } from '$app/stores';
-import { get } from 'svelte/store';
+import { page } from '$app/state';
 import * as teamsAPI from '$lib/api/teams';
 import type {
   Team,
@@ -41,8 +40,7 @@ class TeamsStore {
 
   // Getter for current account ID from route
   get currentAccountId(): number {
-    const pageStore = get(page);
-    return Number(pageStore.params.accountId);
+    return Number(page.params.accountId || 0);
   }
 
   // Getter for sorted teams (alphabetically by name)
@@ -182,10 +180,10 @@ class TeamsStore {
 
     try {
       await teamsAPI.deleteTeam(accountId, teamId);
-      
+
       // Remove team members from cache
       this.teamMembers.delete(teamId);
-      
+
       return true;
     } catch (err: any) {
       // Rollback on error
@@ -231,10 +229,10 @@ class TeamsStore {
 
     try {
       await teamsAPI.addTeamMember(accountId, teamId, agentId);
-      
+
       // Refresh team members
       await this.fetchTeamMembers(teamId);
-      
+
       return true;
     } catch (err: any) {
       this.error = err.message || 'Failed to add team member';
@@ -254,10 +252,10 @@ class TeamsStore {
 
     try {
       await teamsAPI.removeTeamMember(accountId, teamId, agentId);
-      
+
       // Refresh team members
       await this.fetchTeamMembers(teamId);
-      
+
       return true;
     } catch (err: any) {
       this.error = err.message || 'Failed to remove team member';
@@ -278,10 +276,10 @@ class TeamsStore {
 
     try {
       await teamsAPI.updateTeamMembers(accountId, teamId, agentIds);
-      
+
       // Refresh team members
       await this.fetchTeamMembers(teamId);
-      
+
       return true;
     } catch (err: any) {
       this.error = err.message || 'Failed to update team members';
@@ -355,10 +353,10 @@ class TeamsStore {
    */
   async revalidate(cacheKey?: string): Promise<void> {
     console.log('Revalidating teams store with cache key:', cacheKey);
-    
+
     // Force refresh teams from server
     await this.fetchTeams();
-    
+
     // Log successful revalidation
     console.log(`Teams store revalidated successfully. Count: ${this.teamsCount}`);
   }

@@ -187,6 +187,15 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->attributes['pubsub_token'] ?? null;
     }
+
+    /**
+     * Get HMAC identifier for user (Rails parity)
+     */
+    public function getHmacIdentifierAttribute(): string
+    {
+        $key = config('app.key');
+        return hash_hmac('sha256', (string) $this->id, $key);
+    }
     
     /**
      * Get the active account user relationship

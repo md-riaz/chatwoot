@@ -1,5 +1,4 @@
-import { page } from '$app/stores';
-import { get } from 'svelte/store';
+import { page } from '$app/state';
 import * as agentsApi from '$lib/api/agents';
 import type {
   Agent,
@@ -29,8 +28,7 @@ class AgentsStore {
 
   // Computed account ID from route params
   get currentAccountId(): number {
-    const pageStore = get(page);
-    return parseInt(pageStore.params.accountId || '0', 10);
+    return parseInt(page.params.accountId || '0', 10);
   }
 
   get sortedAgents(): Agent[] {

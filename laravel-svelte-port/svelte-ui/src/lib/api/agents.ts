@@ -10,6 +10,8 @@ export interface Agent {
   role: 'administrator' | 'agent';
   availabilityStatus: 'online' | 'offline' | 'busy';
   avatarUrl?: string;
+  thumbnail?: string;
+  customRoleId?: number | null;
   confirmed: boolean;
   accountId: number;
   customAttributes?: Record<string, unknown>;

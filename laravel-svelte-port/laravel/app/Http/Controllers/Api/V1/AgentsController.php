@@ -9,7 +9,7 @@ use App\Enums\AccountUserRole;
 use App\Enums\UserAvailability;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\User\UserResource;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -18,11 +18,11 @@ class AgentsController extends Controller
     /**
      * Display a listing of agents for an account.
      */
-    public function index(Account $account): JsonResource
+    public function index(Account $account)
     {
         $agents = $account->users()->paginate();
 
-        return JsonResource::collection($agents);
+        return UserResource::collection($agents);
     }
 
     /**
@@ -59,7 +59,7 @@ class AgentsController extends Controller
             'availability' => UserAvailability::tryFrom($validated['availability'] ?? 1) ?? UserAvailability::ONLINE,
         ]);
 
-        return response()->json(['data' => $user->load('accounts')], 201);
+        return response()->json(['data' => new UserResource($user->load('accountUsers'))], 201);
     }
 
     /**
@@ -69,7 +69,7 @@ class AgentsController extends Controller
     {
         abort_unless($account->users()->where('users.id', $agent->id)->exists(), 404);
 
-        return response()->json(['data' => $agent]);
+        return response()->json(['data' => new UserResource($agent)]);
     }
 
     /**
@@ -103,7 +103,7 @@ class AgentsController extends Controller
             $account->users()->updateExistingPivot($agent->id, $pivotData);
         }
 
-        return response()->json(['data' => $agent->fresh()]);
+        return response()->json(['data' => new UserResource($agent->fresh())]);
     }
 
     /**

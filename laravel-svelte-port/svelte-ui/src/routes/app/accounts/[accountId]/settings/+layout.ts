@@ -15,23 +15,27 @@ const settingsRouteGuards: SettingsRouteGuard[] = [
   {
     prefix: '/settings/agents',
     requiresAdmin: true,
-    featureFlag: 'agent_management',
+    featureFlag: 'agentManagement',
   },
+  { prefix: '/settings/agent-bots', requiresAdmin: true },
   {
     prefix: '/settings/assignment-policy',
     requiresAdmin: true,
-    featureFlag: 'assignment_v2',
+    featureFlag: 'assignmentV2',
   },
+  { prefix: '/settings/canned', requiresAdmin: true },
   {
     prefix: '/settings/custom-roles',
     requiresAdmin: true,
-    featureFlag: 'custom_roles',
+    featureFlag: 'customRoles',
   },
+  { prefix: '/settings/integrations', requiresAdmin: true },
+  { prefix: '/settings/labels', requiresAdmin: true },
   { prefix: '/settings/security', requiresAdmin: true, featureFlag: 'saml' },
   {
     prefix: '/settings/attributes',
     requiresAdmin: true,
-    featureFlag: 'custom_attributes',
+    featureFlag: 'customAttributes',
   },
   {
     prefix: '/settings/automation',
@@ -41,15 +45,16 @@ const settingsRouteGuards: SettingsRouteGuard[] = [
   {
     prefix: '/settings/audit-logs',
     requiresAdmin: true,
-    featureFlag: 'audit_logs',
+    featureFlag: 'auditLogs',
   },
   {
     prefix: '/settings/inboxes',
     requiresAdmin: true,
-    featureFlag: 'inbox_management',
+    featureFlag: 'inboxManagement',
   },
   { prefix: '/settings/macros', featureFlag: 'macros' },
   { prefix: '/settings/sla', requiresAdmin: true, featureFlag: 'sla' },
+  { prefix: '/settings/teams', requiresAdmin: true },
   { prefix: '/settings/billing', requiresAdmin: true },
   { prefix: '/settings/profile' },
   { prefix: '/settings/notifications' },
@@ -58,7 +63,16 @@ const settingsRouteGuards: SettingsRouteGuard[] = [
 export const load: LayoutLoad = ({ params, url }) => {
   const targetAccountId = Number(params.accountId);
 
-  if (!authStore.currentUser?.accounts) {
+  console.log('DEBUG: Settings Guard - Params AccountId:', params.accountId);
+  console.log('DEBUG: Settings Guard - Current User Accounts:', authStore.currentUser?.accounts?.length);
+
+  if (!authStore.currentUser?.accounts || isNaN(targetAccountId)) {
+    console.log('DEBUG: Settings Guard - No accounts or targetAccountId is NaN, redirecting to unauthorized');
+    throw redirect(302, '/app/unauthorized');
+  }
+
+  if (!authStore.currentUser?.accounts || authStore.currentUser.accounts.length === 0) {
+    console.log('DEBUG: Settings layout - No accounts found, redirecting to unauthorized');
     throw redirect(302, '/app/unauthorized');
   }
 
@@ -82,13 +96,13 @@ export const load: LayoutLoad = ({ params, url }) => {
     throw redirect(302, '/app/unauthorized');
   }
 
-  if (activeGuard.requiresAdmin && account.role !== 'administrator') {
+  if (activeGuard.requiresAdmin && !authStore.hasPermission('administrator', targetAccountId)) {
     throw redirect(302, `/app/accounts/${targetAccountId}/settings/profile`);
   }
 
   if (
     activeGuard.featureFlag &&
-    !authStore.isFeatureEnabled(activeGuard.featureFlag)
+    !authStore.isFeatureEnabled(activeGuard.featureFlag, targetAccountId)
   ) {
     throw redirect(302, `/app/accounts/${targetAccountId}/settings`);
   }

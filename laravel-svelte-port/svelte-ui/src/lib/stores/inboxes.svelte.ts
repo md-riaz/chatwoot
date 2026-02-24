@@ -1,5 +1,4 @@
-import { page } from '$app/stores';
-import { get } from 'svelte/store';
+import { page } from '$app/state';
 import * as inboxesAPI from '$lib/api/inboxes';
 import type {
   Inbox,
@@ -40,9 +39,8 @@ class InboxesStore {
 
   // Getter for current account ID from route
   get currentAccountId(): number {
-    const pageStore = get(page);
-    const routeAccountId = pageStore.params.accountId;
-    
+    const routeAccountId = page.params.accountId;
+
     // Try to get accountId from route params first
     if (routeAccountId) {
       const parsed = parseInt(routeAccountId, 10);
@@ -50,7 +48,7 @@ class InboxesStore {
         return parsed;
       }
     }
-    
+
     // Fall back to user's current account ID (with null safety)
     // Returns 0 if user is not logged in, which will be caught by isValidAccountId()
     return authStore.currentUser?.accountId ?? 0;
@@ -79,14 +77,14 @@ class InboxesStore {
   getWhatsAppTemplates(inboxId: number): MessageTemplate[] {
     const inbox = this.allInboxes.find((i) => i.id === inboxId);
     if (!inbox) return [];
-    
+
     return inbox.messageTemplates || inbox.additionalAttributes?.message_templates || [];
   }
 
   // Getter for filtered WhatsApp templates (approved, non-authentication, etc.)
   getFilteredWhatsAppTemplates(inboxId: number): MessageTemplate[] {
     const templates = this.getWhatsAppTemplates(inboxId);
-    
+
     if (!Array.isArray(templates)) return [];
 
     return templates.filter((template) => {
@@ -271,7 +269,7 @@ class InboxesStore {
 
     try {
       await inboxesAPI.deleteInboxAvatar(this.currentAccountId, inboxId);
-      
+
       // Update inbox in store
       const inbox = this.allInboxes.find((i) => i.id === inboxId);
       if (inbox) {
@@ -325,10 +323,10 @@ class InboxesStore {
 
     try {
       await inboxesAPI.setAgentBot(this.currentAccountId, inboxId, botId);
-      
+
       // Refresh inbox data
       await this.fetchInbox(inboxId);
-      
+
       return true;
     } catch (err: any) {
       this.error = err.message || 'Failed to set agent bot';
@@ -353,7 +351,7 @@ class InboxesStore {
 
     try {
       const templates = await inboxesAPI.syncTemplates(this.currentAccountId, inboxId);
-      
+
       // Update inbox with new templates
       const inbox = this.allInboxes.find((i) => i.id === inboxId);
       if (inbox) {
@@ -486,10 +484,10 @@ class InboxesStore {
    */
   async revalidate(cacheKey?: string): Promise<void> {
     console.log('Revalidating inboxes store with cache key:', cacheKey);
-    
+
     // Force refresh inboxes from server
     await this.fetchInboxes();
-    
+
     // Log successful revalidation
     console.log(`Inboxes store revalidated successfully. Count: ${this.allInboxes.length}`);
   }

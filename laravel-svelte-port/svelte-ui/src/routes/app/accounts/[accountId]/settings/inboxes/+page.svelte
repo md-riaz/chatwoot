@@ -8,13 +8,20 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { inboxesStore } from '$lib/stores/inboxes.svelte';
+  import { authStore } from '$lib/stores/auth.svelte';
+  import SectionLayout from '../account/components/SectionLayout.svelte';
+  import BaseSettingsHeader from '../components/BaseSettingsHeader.svelte';
   import { Button } from '$lib/components/ui/button';
-  import * as Card from '$lib/components/ui/card';
-  import { Badge } from '$lib/components/ui/badge';
+  import * as Table from '$lib/components/ui/table';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog';
+  import { Plus, Settings, Trash2 } from 'lucide-svelte';
 
-  let accountId = $derived($page.params.accountId);
-  let inboxes = $derived(inboxesStore.sortedInboxes);
-  let isLoading = $derived(inboxesStore.isLoading);
+  const accountId = $derived(Number($page.params.accountId));
+  const inboxes = $derived(inboxesStore.sortedInboxes);
+  const isLoading = $derived(inboxesStore.isLoading);
+
+  const currentUserRole = $derived(authStore.currentRole);
+  const isAdmin = $derived(currentUserRole === 'administrator');
 
   onMount(() => {
     inboxesStore.fetchInboxes();
@@ -44,92 +51,180 @@
     return icons[channelType] || '📮';
   }
 
-  function getStatusBadge(status: string) {
-    return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+  // Delete dialog state
+  let showDeleteDialog = $state(false);
+  let deletingInbox = $state<any>(null);
+  let isDeleting = $state(false);
+
+  function handleDeleteClick(inbox: any) {
+    deletingInbox = inbox;
+    showDeleteDialog = true;
   }
 
-  function getConversationsCount(inbox: any): number {
-    // Try to get count from various possible locations
-    return inbox.conversationsCount || inbox.conversations_count || 0;
+  async function confirmDelete() {
+    if (!deletingInbox) return;
+    isDeleting = true;
+    try {
+      await inboxesStore.deleteInbox(deletingInbox.id);
+      showDeleteDialog = false;
+      deletingInbox = null;
+    } finally {
+      isDeleting = false;
+    }
+  }
+
+  function cancelDelete() {
+    showDeleteDialog = false;
+    deletingInbox = null;
   }
 </script>
 
-<div class="space-y-6">
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-3xl font-bold">Inboxes</h1>
-      <p class="text-muted-foreground mt-2">
-        Manage your communication channels and inboxes
-      </p>
-    </div>
-    <Button onclick={handleCreateInbox}>Create Inbox</Button>
-  </div>
+<div class="flex flex-col max-w-4xl mx-auto w-full p-6">
+  <BaseSettingsHeader title="Inboxes" />
 
-  {#if isLoading}
-    <div class="flex justify-center items-center py-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-    </div>
-  {:else if inboxes.length === 0}
-    <Card.Root class="text-center py-12">
-      <Card.Content>
-        <div class="mb-4">
-          <svg
-            class="mx-auto h-16 w-16 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-            />
-          </svg>
+  <div class="flex-grow flex-shrink min-w-0 space-y-6">
+    <SectionLayout
+      title="Inboxes List"
+      description="Manage your communication channels and inboxes"
+    >
+      {#snippet headerActions()}
+        {#if isAdmin}
+          <Button onclick={handleCreateInbox}>
+            <Plus class="mr-2 h-4 w-4" />
+            Create New Inbox
+          </Button>
+        {/if}
+      {/snippet}
+
+      {#if isLoading}
+        <div class="flex justify-center items-center py-20">
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"
+          ></div>
         </div>
-        <h2 class="text-xl font-semibold mb-2">No inboxes yet</h2>
-        <p class="text-gray-600 mb-4">
-          Create your first inbox to start receiving messages
-        </p>
-        <Button onclick={handleCreateInbox}>Create Your First Inbox</Button>
-      </Card.Content>
-    </Card.Root>
-  {:else}
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {#each inboxes as inbox}
-        <Card.Root
-          class="hover:shadow-md transition-shadow cursor-pointer"
-          onclick={() => handleViewInbox(inbox.id)}
+      {:else if inboxes.length === 0}
+        <div
+          class="text-center py-12 border rounded-lg bg-card text-card-foreground"
         >
-          <Card.Content class="p-6">
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center gap-3">
-                <div class="text-3xl">{getChannelIcon(inbox.channelType)}</div>
-                <div>
-                  <h3 class="font-semibold text-lg">{inbox.name}</h3>
-                  <p class="text-sm text-gray-600 capitalize">
-                    {inbox.channelType.replace('Channel::', '')}
-                  </p>
-                </div>
-              </div>
-            </div>
+          <div class="mb-4">
+            <svg
+              class="mx-auto h-16 w-16 text-muted-foreground"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+              />
+            </svg>
+          </div>
+          <h2 class="text-xl font-semibold mb-2">No inboxes yet</h2>
+          <p class="text-muted-foreground mb-4">
+            Create your first inbox to start receiving messages.
+          </p>
+          {#if isAdmin}
+            <Button onclick={handleCreateInbox}>Create Your First Inbox</Button>
+          {/if}
+        </div>
+      {:else}
+        <div class="rounded-md border">
+          <Table.Root>
+            <Table.Body>
+              {#each inboxes as inbox}
+                <Table.Row class="hover:bg-muted/50 transition-colors">
+                  <Table.Cell class="py-4 pl-4 pr-4 align-top w-full">
+                    <div class="flex items-center gap-4">
+                      {#if inbox.avatarUrl}
+                        <div
+                          class="bg-muted/30 rounded-full h-12 w-12 p-2 ring-1 ring-border shadow-sm flex items-center justify-center overflow-hidden"
+                        >
+                          <img
+                            src={inbox.avatarUrl}
+                            alt={inbox.name}
+                            class="h-full w-full object-cover rounded-full"
+                          />
+                        </div>
+                      {:else}
+                        <div
+                          class="bg-muted/30 rounded-full h-12 w-12 p-2 ring-1 ring-border shadow-sm flex items-center justify-center text-xl"
+                        >
+                          {getChannelIcon(inbox.channelType)}
+                        </div>
+                      {/if}
 
-            <div class="flex items-center justify-between">
-              <div class="text-sm">
-                <span class="font-medium">{getConversationsCount(inbox)}</span>
-                <span class="text-gray-600"> conversations</span>
-              </div>
-              <span
-                class="px-2 py-1 rounded text-xs font-medium {getStatusBadge(
-                  inbox.enableAutoAssignment ? 'active' : 'inactive'
-                )}"
-              >
-                {inbox.enableAutoAssignment ? 'active' : 'inactive'}
-              </span>
-            </div>
-          </Card.Content>
-        </Card.Root>
-      {/each}
-    </div>
-  {/if}
+                      <div>
+                        <span class="block font-medium capitalize text-base"
+                          >{inbox.name}</span
+                        >
+                        <p class="text-sm text-muted-foreground m-0 capitalize">
+                          {inbox.channelType.replace('Channel::', '')}
+                        </p>
+                      </div>
+                    </div>
+                  </Table.Cell>
+
+                  <Table.Cell
+                    class="py-4 pr-4 align-top text-right whitespace-nowrap align-middle"
+                  >
+                    <div class="flex justify-end gap-1 mt-1">
+                      {#if isAdmin}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          class="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          title="Settings"
+                          onclick={() => handleViewInbox(inbox.id)}
+                        >
+                          <Settings class="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          class="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          title="Delete Inbox"
+                          onclick={() => handleDeleteClick(inbox)}
+                          disabled={isDeleting &&
+                            deletingInbox?.id === inbox.id}
+                        >
+                          <Trash2 class="h-4 w-4" />
+                        </Button>
+                      {/if}
+                    </div>
+                  </Table.Cell>
+                </Table.Row>
+              {/each}
+            </Table.Body>
+          </Table.Root>
+        </div>
+      {/if}
+    </SectionLayout>
+  </div>
 </div>
+
+<!-- Delete Confirm Dialog -->
+<AlertDialog.Root bind:open={showDeleteDialog}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>Delete Inbox</AlertDialog.Title>
+      <AlertDialog.Description>
+        Are you sure you want to delete <strong>{deletingInbox?.name}</strong>?
+        This action cannot be undone.
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel onclick={cancelDelete} disabled={isDeleting}>
+        Cancel
+      </AlertDialog.Cancel>
+      <AlertDialog.Action
+        class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+        onclick={confirmDelete}
+        disabled={isDeleting}
+      >
+        {isDeleting ? 'Deleting...' : 'Delete Inbox'}
+      </AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>

@@ -52,12 +52,12 @@ function registerLocales() {
 function getPreferredLocale(): SupportedLocale {
   // Check localStorage
   if (typeof localStorage !== 'undefined') {
-    const stored = localStorage.getItem('chatwoot_locale');
+    const stored = localStorage.getItem('locale');
     if (stored && SUPPORTED_LOCALES.includes(stored as SupportedLocale)) {
       return stored as SupportedLocale;
     }
   }
-  
+
   // Check browser locale
   const browserLocale = getLocaleFromNavigator();
   if (browserLocale) {
@@ -65,14 +65,14 @@ function getPreferredLocale(): SupportedLocale {
     if (SUPPORTED_LOCALES.includes(browserLocale as SupportedLocale)) {
       return browserLocale as SupportedLocale;
     }
-    
+
     // Try language code only (e.g., 'en' from 'en-US')
     const langCode = browserLocale.split('-')[0];
     if (SUPPORTED_LOCALES.includes(langCode as SupportedLocale)) {
       return langCode as SupportedLocale;
     }
   }
-  
+
   return DEFAULT_LOCALE;
 }
 
@@ -102,15 +102,15 @@ export async function switchLocale(newLocale: SupportedLocale): Promise<void> {
     console.warn(`Locale '${newLocale}' is not supported`);
     return;
   }
-  
+
   // Set locale (triggers reactive updates)
   locale.set(newLocale);
-  
+
   // Persist to localStorage
   if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('chatwoot_locale', newLocale);
+    localStorage.setItem('locale', newLocale);
   }
-  
+
   // Update document direction for RTL
   if (typeof document !== 'undefined') {
     document.documentElement.dir = isRTL(newLocale) ? 'rtl' : 'ltr';
@@ -123,12 +123,12 @@ export async function switchLocale(newLocale: SupportedLocale): Promise<void> {
  */
 export function getCurrentLocale(): string {
   let currentLocale = DEFAULT_LOCALE;
-  
+
   const unsubscribe = locale.subscribe(value => {
     if (value) currentLocale = value as typeof DEFAULT_LOCALE;
   });
   unsubscribe();
-  
+
   return currentLocale;
 }
 
@@ -194,7 +194,7 @@ export function getLocaleDisplayName(localeCode: SupportedLocale): string {
     'zh_CN': '简体中文 (Simplified Chinese)',
     'zh_TW': '繁體中文 (Traditional Chinese)'
   };
-  
+
   return names[localeCode] || localeCode;
 }
 

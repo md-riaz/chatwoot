@@ -48,30 +48,35 @@ class AuthStore {
   messageSignature = $derived(this.currentUser.messageSignature || '');
   userAccounts = $derived(this.currentUser.accounts || []);
 
-  /**
-   * Get current account ID from route params
-   */
   get currentAccountId(): number | null {
     const accountId = page.params?.accountId;
-    return accountId ? Number(accountId) : null;
+    if (!accountId) return null;
+    const id = Number(accountId);
+    return isNaN(id) ? null : id;
   }
 
   /**
    * Get current account from accounts list
+   * @param accountId Optional account ID to check. Defaults to route param.
    */
+  getAccount(accountId?: number | null) {
+    const id = accountId ?? this.currentAccountId;
+    if (!id) return null;
+    return this.currentUser.accounts.find(acc => acc.id === id) || null;
+  }
+
   get currentAccount() {
-    const accountId = this.currentAccountId;
-    if (!accountId) return null;
-    return this.currentUser.accounts.find(acc => acc.id === accountId) || null;
+    return this.getAccount();
   }
 
   /**
    * Check if user has a specific permission
    */
-  hasPermission(permission: string): boolean {
-    if (!this.isLoggedIn || !this.currentAccount) return false;
+  hasPermission(permission: string, accountId?: number): boolean {
+    const account = this.getAccount(accountId);
+    if (!this.isLoggedIn || !account) return false;
 
-    const role = this.currentAccount.role;
+    const role = account.role;
     if (role === 'administrator') return true;
 
     // If permission specifically asks for administrator, deny non-admins
@@ -91,9 +96,9 @@ class AuthStore {
   /**
    * Check if a feature is enabled for the current account
    */
-  isFeatureEnabled(featureFlag: string): boolean {
+  isFeatureEnabled(featureFlag: string, accountId?: number): boolean {
     // Check account specific features first
-    const account = this.currentAccount;
+    const account = this.getAccount(accountId);
     if (
       account &&
       account.features &&
@@ -145,9 +150,9 @@ class AuthStore {
     } catch (err: unknown) {
       const status =
         typeof err === 'object' &&
-        err !== null &&
-        'response' in err &&
-        typeof (err as { response?: { status?: unknown } }).response?.status ===
+          err !== null &&
+          'response' in err &&
+          typeof (err as { response?: { status?: unknown } }).response?.status ===
           'number'
           ? (err as { response?: { status?: number } }).response?.status
           : undefined;
@@ -444,17 +449,9 @@ class AuthStore {
   setAuthenticatedUser(user: CurrentUser, token?: string) {
     if (token) {
       saveToStorage('auth_token', token);
-
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('auth_token', token);
-      }
     }
 
     this.setCurrentUser(user);
-
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('current_user', JSON.stringify(user));
-    }
 
     this.error = null;
   }

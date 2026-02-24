@@ -1,5 +1,4 @@
-import { page } from '$app/stores';
-import { get } from 'svelte/store';
+import { page } from '$app/state';
 /**
  * Search Store
  * Manages search state and history using Svelte 5 runes
@@ -23,8 +22,7 @@ const MAX_HISTORY = 10;
 
 class SearchStore {
   get currentAccountId(): number | undefined {
-    const pageStore = get(page);
-    const accountIdParam = pageStore.params.accountId;
+    const accountIdParam = page.params.accountId;
 
     if (!accountIdParam) return undefined;
 

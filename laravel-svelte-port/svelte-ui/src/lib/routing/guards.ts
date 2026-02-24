@@ -11,7 +11,7 @@ import type { Load } from '@sveltejs/kit';
  */
 export function isAuthenticated(): boolean {
   if (typeof localStorage === 'undefined') return false;
-  
+
   try {
     const token = localStorage.getItem('auth_token');
     return !!token;
@@ -25,7 +25,7 @@ export function isAuthenticated(): boolean {
  */
 export function getCurrentUser(): any | null {
   if (typeof localStorage === 'undefined') return null;
-  
+
   try {
     const userStr = localStorage.getItem('current_user');
     return userStr ? JSON.parse(userStr) : null;
@@ -68,7 +68,7 @@ export function requireRole(role: string): void {
     goto('/login');
     return;
   }
-  
+
   if (!hasRole(role)) {
     goto('/unauthorized');
   }
@@ -82,7 +82,7 @@ export function requireAnyRole(roles: string[]): void {
     goto('/login');
     return;
   }
-  
+
   if (!hasAnyRole(roles)) {
     goto('/unauthorized');
   }
@@ -96,11 +96,11 @@ export function requireAccount(accountId?: string): void {
     goto('/login');
     return;
   }
-  
+
   if (accountId) {
     const user = getCurrentUser();
     const hasAccess = user?.accounts?.some((a: any) => a.id === parseInt(accountId));
-    
+
     if (!hasAccess) {
       goto('/unauthorized');
     }
@@ -139,19 +139,19 @@ export function createAuthGuard(options: {
       requireAnyRole: anyRole,
       redirectTo = '/login'
     } = options;
-    
+
     if (needsAuth && !isAuthenticated()) {
       throw goto(`${redirectTo}?redirect=${encodeURIComponent(url.pathname)}`);
     }
-    
+
     if (role && !hasRole(role)) {
       throw goto('/unauthorized');
     }
-    
+
     if (anyRole && !hasAnyRole(anyRole)) {
       throw goto('/unauthorized');
     }
-    
+
     return {
       user: getCurrentUser()
     };
@@ -166,7 +166,7 @@ export function createGuestGuard(redirectTo: string = '/'): Load {
     if (isAuthenticated()) {
       throw goto(redirectTo);
     }
-    
+
     return {};
   };
 }

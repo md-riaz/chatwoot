@@ -2,14 +2,14 @@
  * LocalStorage persistence utilities for Svelte stores
  */
 
-const STORAGE_PREFIX = 'chatwoot_';
+const STORAGE_PREFIX = '';
 
 /**
  * Save data to localStorage
  */
 export function saveToStorage<T>(key: string, data: T): void {
   if (typeof localStorage === 'undefined') return;
-  
+
   try {
     const serialized = JSON.stringify(data);
     localStorage.setItem(`${STORAGE_PREFIX}${key}`, serialized);
@@ -23,11 +23,11 @@ export function saveToStorage<T>(key: string, data: T): void {
  */
 export function loadFromStorage<T>(key: string): T | null {
   if (typeof localStorage === 'undefined') return null;
-  
+
   try {
     const item = localStorage.getItem(`${STORAGE_PREFIX}${key}`);
     if (!item) return null;
-    
+
     return JSON.parse(item) as T;
   } catch (error) {
     console.error(`Failed to load from localStorage (key: ${key}):`, error);
@@ -40,7 +40,7 @@ export function loadFromStorage<T>(key: string): T | null {
  */
 export function clearStorage(key: string): void {
   if (typeof localStorage === 'undefined') return;
-  
+
   try {
     localStorage.removeItem(`${STORAGE_PREFIX}${key}`);
   } catch (error) {
@@ -53,7 +53,7 @@ export function clearStorage(key: string): void {
  */
 export function clearAllStorage(): void {
   if (typeof localStorage === 'undefined') return;
-  
+
   try {
     const keys = Object.keys(localStorage);
     keys.forEach(key => {
@@ -71,7 +71,7 @@ export function clearAllStorage(): void {
  */
 export function isStorageAvailable(): boolean {
   if (typeof localStorage === 'undefined') return false;
-  
+
   try {
     const testKey = `${STORAGE_PREFIX}__test__`;
     localStorage.setItem(testKey, 'test');
@@ -87,11 +87,11 @@ export function isStorageAvailable(): boolean {
  */
 export function getStorageSize(): number {
   if (typeof localStorage === 'undefined') return 0;
-  
+
   try {
     let size = 0;
     const keys = Object.keys(localStorage);
-    
+
     keys.forEach(key => {
       if (key.startsWith(STORAGE_PREFIX)) {
         const value = localStorage.getItem(key);
@@ -100,7 +100,7 @@ export function getStorageSize(): number {
         }
       }
     });
-    
+
     return size;
   } catch {
     return 0;

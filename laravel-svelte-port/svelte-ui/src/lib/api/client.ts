@@ -14,6 +14,7 @@ import type { RequestOptions, UploadOptions } from './types';
 function getAuthToken(): string | null {
   if (typeof localStorage === 'undefined') return null;
   try {
+    // Use un-prefixed keys for parity with original Chatwoot
     const token = localStorage.getItem('auth_token');
     // Handle potentially double-quoted token from JSON.stringify
     if (token && token.startsWith('"') && token.endsWith('"')) {
@@ -136,6 +137,7 @@ const createApiClient = (): KyInstance => {
             // Clear auth token on 401
             if (typeof localStorage !== 'undefined') {
               localStorage.removeItem('auth_token');
+              localStorage.removeItem('current_user');
             }
 
             // Redirect to login if in browser

@@ -3,7 +3,7 @@
    * Authenticated App Layout
    * Main application shell with header and sidebar
    */
-  
+
   import AppSidebar from '$lib/components/layout/AppSidebar.svelte';
   import MobileSidebarLauncher from '$lib/components/layout/MobileSidebarLauncher.svelte';
   import KeyboardShortcutsModal from '$lib/components/ui/keyboard-shortcuts-modal.svelte';
@@ -20,16 +20,16 @@
   import type { Snippet } from 'svelte';
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
-  
+
   interface Props {
     children: Snippet;
   }
-  
+
   let { children }: Props = $props();
-  
+
   // Local state
   let isSidebarOpen = $state(true);
-  
+
   // WebSocket state
   let eventManager = getWebSocketEventManager();
   let wsStore = getWebSocketStore();
@@ -55,19 +55,19 @@
       isSidebarOpen = !isSidebarOpen;
     }
   }
-  
+
   // WebSocket configuration constants
   // Note: Default ports - Laravel API: 8000, Reverb WebSocket: 8080
   // In production, both typically use the same domain with reverse proxy
   const DEFAULT_API_URL = 'http://localhost:8000';
   const DEFAULT_WS_URL = 'ws://localhost:8080/ws';
-  
+
   // Initialize auth and WebSocket on mount
   onMount(async () => {
     // Validate auth session
     try {
       await authStore.validateSession();
-      
+
       // Load initial data if user is logged in and account is selected
       if (authStore.isLoggedIn && authStore.currentAccountId) {
         Promise.all([
@@ -75,9 +75,9 @@
           labelsStore.fetchLabels(),
           teamsStore.fetchTeams(),
           customViewsStore.fetchCustomViews(),
-          notificationsStore.fetchUnreadCount(authStore.currentAccountId)
+          notificationsStore.fetchUnreadCount(authStore.currentAccountId),
         ]).catch(err => console.error('Failed to load initial data:', err));
-        
+
         // WebSocket initialization is handled by $effect below
       }
     } catch (error) {
@@ -85,7 +85,7 @@
       // Auth guard will handle redirect
     }
   });
-  
+
   // Cleanup on destroy
   onDestroy(() => {
     eventManager.cleanup();
@@ -110,18 +110,23 @@
       let wsHost = '127.0.0.1';
       let wsPort = 8080;
       let useTLS = false;
-      let reverbKey = import.meta.env.VITE_REVERB_APP_KEY || 'clearline-app-key';
-      
+      let reverbKey =
+        import.meta.env.VITE_REVERB_APP_KEY || 'clearline-app-key';
+
       // Parse WebSocket URL
       try {
         const url = new URL(wsUrl);
         wsHost = url.hostname;
         useTLS = url.protocol === 'wss:';
-        
+
         if (url.pathname === '/' || url.pathname === '') {
           wsPort = url.port ? parseInt(url.port) : 8080;
         } else if (url.pathname.startsWith('/ws')) {
-          wsPort = url.port ? parseInt(url.port) : (url.protocol === 'wss:' ? 443 : 80);
+          wsPort = url.port
+            ? parseInt(url.port)
+            : url.protocol === 'wss:'
+              ? 443
+              : 80;
         } else if (url.pathname.startsWith('/app/')) {
           const pathParts = url.pathname.split('/');
           if (pathParts.length >= 3) {
@@ -153,12 +158,19 @@
       client.connect();
 
       // Initialize event subscriptions
-      eventManager.initializeForAccount(authStore.currentAccountId, authStore.currentUser.id);
+      eventManager.initializeForAccount(
+        authStore.currentAccountId,
+        authStore.currentUser.id
+      );
 
       console.log('WebSocket initialized successfully');
     } catch (error) {
       console.error('Failed to initialize WebSocket:', error);
-      wsStore.setError(error instanceof Error ? error.message : 'WebSocket initialization failed');
+      wsStore.setError(
+        error instanceof Error
+          ? error.message
+          : 'WebSocket initialization failed'
+      );
     }
   }
 

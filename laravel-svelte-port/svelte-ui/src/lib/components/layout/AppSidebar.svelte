@@ -36,7 +36,9 @@
 
   let { ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
 
-  const accountId = $derived(authStore.currentAccountId);
+  import { page } from '$app/stores';
+
+  const accountId = $derived(Number($page.params.accountId) || null);
   const currentUser = $derived(authStore.currentUser);
   const currentAccount = $derived(authStore.currentAccount);
   const isLoggedIn = $derived(authStore.isLoggedIn);
@@ -65,7 +67,7 @@
       // Check feature flags
       if (
         item.featureFlag &&
-        !globalConfig.isFeatureEnabled(item.featureFlag)
+        !authStore.isFeatureEnabled(item.featureFlag, accountId ?? undefined)
       ) {
         return false;
       }
@@ -330,6 +332,7 @@
         id: 'campaigns',
         label: 'Campaigns',
         icon: 'megaphone',
+        featureFlag: 'campaigns',
         children: [
           {
             id: 'campaigns-livechat',
@@ -358,6 +361,7 @@
         id: 'portals',
         label: 'Help Center',
         icon: 'library-big',
+        featureFlag: 'helpCenter',
         children: [
           {
             id: 'portal-articles',
@@ -409,6 +413,7 @@
             href: `/app/accounts/${accountId}/settings/agents`,
             activeOn: [`/app/accounts/${accountId}/settings/agents`],
             permission: 'administrator',
+            featureFlag: 'agentManagement',
           },
           {
             id: 'settings-teams',
@@ -425,6 +430,7 @@
             href: `/app/accounts/${accountId}/settings/assignment-policy`,
             activeOn: [`/app/accounts/${accountId}/settings/assignment-policy`],
             permission: 'administrator',
+            featureFlag: 'assignmentV2',
           },
           {
             id: 'settings-inboxes',
@@ -433,6 +439,7 @@
             href: `/app/accounts/${accountId}/settings/inboxes`,
             activeOn: [`/app/accounts/${accountId}/settings/inboxes`],
             permission: 'administrator',
+            featureFlag: 'inboxManagement',
           },
           {
             id: 'settings-labels',
@@ -449,6 +456,7 @@
             href: `/app/accounts/${accountId}/settings/attributes`,
             activeOn: [`/app/accounts/${accountId}/settings/attributes`],
             permission: 'administrator',
+            featureFlag: 'customAttributes',
           },
           {
             id: 'settings-automation',
@@ -457,6 +465,7 @@
             href: `/app/accounts/${accountId}/settings/automation`,
             activeOn: [`/app/accounts/${accountId}/settings/automation`],
             permission: 'administrator',
+            featureFlag: 'automations',
           },
           {
             id: 'settings-agent-bots',
@@ -473,6 +482,7 @@
             href: `/app/accounts/${accountId}/settings/macros`,
             activeOn: [`/app/accounts/${accountId}/settings/macros`],
             permission: 'administrator',
+            featureFlag: 'macros',
           },
           {
             id: 'settings-canned',
@@ -497,6 +507,7 @@
             href: `/app/accounts/${accountId}/settings/audit-logs`,
             activeOn: [`/app/accounts/${accountId}/settings/audit-logs`],
             permission: 'administrator',
+            featureFlag: 'auditLogs',
           },
           {
             id: 'settings-roles',
@@ -505,6 +516,7 @@
             href: `/app/accounts/${accountId}/settings/custom-roles`,
             activeOn: [`/app/accounts/${accountId}/settings/custom-roles`],
             permission: 'administrator',
+            featureFlag: 'customRoles',
           },
           {
             id: 'settings-sla',
@@ -513,6 +525,7 @@
             href: `/app/accounts/${accountId}/settings/sla`,
             activeOn: [`/app/accounts/${accountId}/settings/sla`],
             permission: 'administrator',
+            featureFlag: 'sla',
           },
           {
             id: 'settings-security',
@@ -521,6 +534,7 @@
             href: `/app/accounts/${accountId}/settings/security`,
             activeOn: [`/app/accounts/${accountId}/settings/security`],
             permission: 'administrator',
+            featureFlag: 'saml',
           },
           {
             id: 'settings-billing',

@@ -489,14 +489,13 @@ class Account extends Model
     public function getEnabledFeatures(): array
     {
         $flagMap = $this->getFeatureFlagMap();
-        
         $enabledFeatures = [];
-        foreach ($flagMap as $feature => $flag) {
-            if (($this->feature_flags & $flag) !== 0) {
-                // Only add unique features (since some share bits)
-                if (!in_array($feature, $enabledFeatures)) {
-                    $enabledFeatures[] = $feature;
-                }
+        
+        // Loop through all features in the flab map and check if they are enabled via feature_enabled() 
+        // which accounts for both bitwise flags AND default values
+        foreach (array_keys($flagMap) as $feature) {
+            if ($this->feature_enabled($feature) && !in_array($feature, $enabledFeatures)) {
+                $enabledFeatures[] = $feature;
             }
         }
         

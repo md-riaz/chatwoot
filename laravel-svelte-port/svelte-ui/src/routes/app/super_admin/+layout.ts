@@ -13,24 +13,24 @@ export const load: LayoutLoad = async () => {
 		// Verify token validity and check if user is super admin
 		try {
 			const user = await authApi.getCurrentUser();
-			
+
 			// Check if user has SuperAdmin type
 			if (user.type !== 'SuperAdmin') {
 				console.log('User does not have SuperAdmin type:', user);
-				
+
 				// User is not a super admin, redirect to login with error
 				throw redirect(307, '/app/login?error=not_authorized');
 			}
-			
+
 			// Token is valid and user is super admin, proceed
 		} catch (error) {
-			
+
 			// Token is invalid or expired
 			localStorage.removeItem('auth_token');
-			localStorage.removeItem('user');
+			localStorage.removeItem('current_user');
 			throw redirect(307, '/app/login');
 		}
 	}
-	
+
 	return {};
 };

@@ -80,13 +80,13 @@ class AudioNotificationManager {
     try {
       const source = this.audioContext.createBufferSource();
       const gainNode = this.audioContext.createGain();
-      
+
       source.buffer = buffer;
       gainNode.gain.value = this.config.volume;
-      
+
       source.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
-      
+
       source.start();
     } catch (error) {
       console.error('Failed to play notification sound:', error);
@@ -154,9 +154,9 @@ class AudioNotificationManager {
    */
   updateConfig(config: Partial<AudioNotificationConfig>): void {
     this.config = { ...this.config, ...config };
-    
+
     // Save to localStorage
-    localStorage.setItem('chatwoot_audio_config', JSON.stringify(this.config));
+    localStorage.setItem('audio_config', JSON.stringify(this.config));
   }
 
   /**
@@ -164,7 +164,7 @@ class AudioNotificationManager {
    */
   loadConfig(): void {
     try {
-      const saved = localStorage.getItem('chatwoot_audio_config');
+      const saved = localStorage.getItem('audio_config');
       if (saved) {
         const config = JSON.parse(saved);
         this.config = { ...this.config, ...config };

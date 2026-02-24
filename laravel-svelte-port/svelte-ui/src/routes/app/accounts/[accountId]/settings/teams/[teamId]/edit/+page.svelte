@@ -5,43 +5,46 @@
   import { teamsStore } from '$lib/stores/teams.svelte';
   import { agentsStore } from '$lib/stores/agents.svelte';
   import SectionLayout from '../../../account/components/SectionLayout.svelte';
+  import BaseSettingsHeader from '../../../components/BaseSettingsHeader.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import { Textarea } from '$lib/components/ui/textarea';
   import { Checkbox } from '$lib/components/ui/checkbox';
+  import * as Table from '$lib/components/ui/table';
+  import * as Avatar from '$lib/components/ui/avatar';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import { toast } from 'svelte-sonner';
-  import * as Card from '$lib/components/ui/card';
-  import { Trash2, UserPlus } from 'lucide-svelte';
+  import type { Team } from '$lib/api/teams';
 
   const accountId = $derived(Number($page.params.accountId));
-  const teamId = $derived(Number($page.params.teamId)); // Note: folder name is [teamId] but param might be accessible via specific load or derived page
-  // Adjusting to match probable folder structure `[teamId]/edit`
+  const teamId = $derived(Number($page.params.teamId));
 
+  // Team Form State
   let name = $state('');
   let description = $state('');
   let allowAutoAssign = $state(true);
-  let isSubmitting = $derived(teamsStore.uiFlags.isUpdating);
+
+  let isUpdatingTeam = $derived(teamsStore.uiFlags.isUpdating);
   let isLoading = $derived(teamsStore.uiFlags.isFetchingItem);
 
+  // Agents State
+  let selectedAgents = $state<number[]>([]);
+  let isUpdatingMembers = $derived(teamsStore.uiFlags.isUpdatingMembers);
+
   const teamMembers = $derived(teamsStore.selectedTeamMembers);
-  const allAgents = $derived(agentsStore.allAgents);
-  const availableAgents = $derived(
-    allAgents.filter(
-      agent => !teamMembers.some(member => member.id === agent.id)
-    )
+  const agents = $derived(agentsStore.sortedAgents);
+
+  let allSelected = $derived(
+    agents.length > 0 && selectedAgents.length === agents.length
   );
+
+  // Delete State
+  let showDeleteDialog = $state(false);
+  let isDeleting = $derived(teamsStore.uiFlags.isDeleting);
 
   onMount(async () => {
     if (teamId) {
-      // Check if team is in store, else fetch
-      // let team = teamsStore.allTeams.find(t => t.id === teamId);
-      // if (!team) {
-      //   await teamsStore.fetchTeam(teamId);
-      //   team = teamsStore.selectedTeam; // Assumes fetchTeam sets selectedTeam or we find it again
-      //   // Actually fetchTeam just updates the store list/map
-      //   team = teamsStore.allTeams.find(t => t.id === teamId);
-      // }
       await Promise.all([
         teamsStore.fetchTeam(teamId),
         teamsStore.fetchTeamMembers(teamId),
@@ -51,14 +54,17 @@
       const team = teamsStore.allTeams.find(t => t.id === teamId);
       if (team) {
         name = team.name;
-        description = team.description;
+        description = team.description || '';
         allowAutoAssign = team.allowAutoAssign;
+
+        selectedAgents =
+          teamsStore.teamMembers.get(teamId)?.map(member => member.id) || [];
       }
     }
   });
 
-  async function handleSubmit() {
-    if (!name) {
+  async function handleUpdateTeam() {
+    if (!name.trim()) {
       toast.error('Team name is required');
       return;
     }
@@ -72,160 +78,252 @@
     const result = await teamsStore.updateTeam(teamId, data);
     if (result) {
       toast.success('Team updated successfully');
-      // goto(`/app/accounts/${accountId}/settings/teams`);
     }
   }
 
-  // function handleCancel() {
-  //   goto(`/app/accounts/${accountId}/settings/teams`);
-  // }
-
-  async function handleAddMember(agentId: number) {
-    const success = await teamsStore.addTeamMember(teamId, agentId);
-    if (success) toast.success('Member added to team');
-  }
-
-  async function handleRemoveMember(userId: number) {
-    if (confirm('Are you sure you want to remove this member?')) {
-      const success = await teamsStore.removeTeamMember(teamId, userId);
-      if (success) toast.success('Member removed from team');
+  function toggleAllAgents(checked: boolean) {
+    if (checked) {
+      selectedAgents = agents.map(a => a.id);
+    } else {
+      selectedAgents = [];
     }
   }
 
-  async function handleDelete() {
-    if (confirm('Are you sure you want to delete this team?')) {
-      await teamsStore.deleteTeam(teamId);
-      toast.success('Team deleted successfully');
-      goto(`/app/accounts/${accountId}/settings/teams`);
+  function toggleAgent(agentId: number, checked: boolean) {
+    if (checked) {
+      if (!selectedAgents.includes(agentId)) {
+        selectedAgents = [...selectedAgents, agentId];
+      }
+    } else {
+      selectedAgents = selectedAgents.filter(id => id !== agentId);
     }
+  }
+
+  async function handleUpdateMembers() {
+    const success = await teamsStore.updateTeamMembers(teamId, selectedAgents);
+    if (success) {
+      toast.success('Team members updated successfully');
+    } else {
+      toast.error('Failed to update team members');
+    }
+  }
+
+  async function confirmDelete() {
+    await teamsStore.deleteTeam(teamId);
+    toast.success('Team deleted successfully');
+    showDeleteDialog = false;
+    goto(`/app/accounts/${accountId}/settings/teams`);
   }
 </script>
 
-<div class="space-y-8">
-  <SectionLayout title="Edit Team" description="Update team details">
-    {#if isLoading}
-      <div>Loading...</div>
-    {:else}
-      <form onsubmit={handleSubmit} class="space-y-6 max-w-2xl">
-        <div class="grid w-full gap-1.5">
-          <Label for="name">Name *</Label>
-          <Input
-            type="text"
-            id="name"
-            bind:value={name}
-            placeholder="Sales Team"
-            required
-          />
-        </div>
+<div class="flex flex-col max-w-4xl mx-auto w-full p-6 space-y-8">
+  <BaseSettingsHeader title="Edit Team" />
 
-        <div class="grid w-full gap-1.5">
-          <Label for="description">Description</Label>
-          <Textarea
-            id="description"
-            bind:value={description}
-            placeholder="Handles sales inquiries..."
-          />
-        </div>
+  {#if isLoading}
+    <div class="flex justify-center items-center py-20">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"
+      ></div>
+    </div>
+  {:else}
+    <div class="space-y-6">
+      <SectionLayout
+        title="Team Details"
+        description="Update the basic information for this team."
+      >
+        <form
+          onsubmit={e => {
+            e.preventDefault();
+            handleUpdateTeam();
+          }}
+          class="space-y-6 max-w-2xl"
+        >
+          <div class="grid w-full gap-1.5">
+            <Label for="name">Name *</Label>
+            <Input
+              type="text"
+              id="name"
+              bind:value={name}
+              placeholder="Sales, Support, etc."
+              required
+            />
+          </div>
 
-        <div class="flex items-center space-x-2">
-          <Checkbox id="allow_auto_assign" bind:checked={allowAutoAssign} />
-          <Label
-            for="allow_auto_assign"
-            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            Allow auto assignment for this team
-          </Label>
-        </div>
+          <div class="grid w-full gap-1.5">
+            <Label for="description">Description (Optional)</Label>
+            <Textarea
+              id="description"
+              bind:value={description}
+              placeholder="Handles customer inquiries..."
+            />
+          </div>
 
-        <div class="flex justify-between pt-4">
-          <Button variant="destructive" type="button" onclick={handleDelete}>
-            Delete Team
-          </Button>
-          <div class="flex gap-2">
+          <div class="flex items-center space-x-2">
+            <Checkbox id="allow_auto_assign" bind:checked={allowAutoAssign} />
+            <div class="space-y-1 leading-none">
+              <Label
+                for="allow_auto_assign"
+                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Allow auto assignment for this team
+                <p class="text-xs text-muted-foreground mt-1 font-normal">
+                  If enabled, new conversations will be automatically assigned
+                  to agents in this team based on their availability and
+                  capacity.
+                </p>
+              </Label>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-4">
             <Button
               variant="outline"
               type="button"
               onclick={() => goto(`/app/accounts/${accountId}/settings/teams`)}
-              >Back to List</Button
             >
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Update Team'}
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isUpdatingTeam || !name.trim()}>
+              {isUpdatingTeam ? 'Saving...' : 'Update Team Info'}
             </Button>
           </div>
+        </form>
+      </SectionLayout>
+
+      <SectionLayout
+        title="Team Members"
+        description="Manage the agents assigned to this team."
+      >
+        <div
+          class="rounded-md border bg-card mb-4 min-h-[300px] max-h-[500px] overflow-y-auto w-full"
+        >
+          <Table.Root>
+            <Table.Header>
+              <Table.Row class="hover:bg-transparent">
+                <Table.Head class="w-12 pl-4">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={v => toggleAllAgents(v === true)}
+                    aria-label="Select all"
+                  />
+                </Table.Head>
+                <Table.Head>Agent</Table.Head>
+                <Table.Head>Email</Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {#if agents.length === 0}
+                <Table.Row class="hover:bg-transparent">
+                  <Table.Cell
+                    colspan={3}
+                    class="h-24 text-center text-muted-foreground"
+                  >
+                    No agents available to add.
+                  </Table.Cell>
+                </Table.Row>
+              {:else}
+                {#each agents as agent}
+                  <Table.Row
+                    class={selectedAgents.includes(agent.id)
+                      ? 'bg-muted/50'
+                      : 'hover:bg-muted/30'}
+                  >
+                    <Table.Cell class="pl-4">
+                      <Checkbox
+                        checked={selectedAgents.includes(agent.id)}
+                        onCheckedChange={v => toggleAgent(agent.id, v === true)}
+                        aria-label={`Select ${agent.name}`}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <div class="flex items-center gap-3">
+                        <Avatar.Root class="h-8 w-8">
+                          <Avatar.Image
+                            src={agent.thumbnail || ''}
+                            alt={agent.name}
+                          />
+                          <Avatar.Fallback
+                            class="bg-primary/10 text-primary font-semibold"
+                          >
+                            {(agent.name || agent.email || 'A')
+                              .charAt(0)
+                              .toUpperCase()}
+                          </Avatar.Fallback>
+                        </Avatar.Root>
+                        <span class="font-medium capitalize text-foreground"
+                          >{agent.name}</span
+                        >
+                      </div>
+                    </Table.Cell>
+                    <Table.Cell class="text-muted-foreground"
+                      >{agent.email || '---'}</Table.Cell
+                    >
+                  </Table.Row>
+                {/each}
+              {/if}
+            </Table.Body>
+          </Table.Root>
         </div>
-      </form>
-    {/if}
-  </SectionLayout>
 
-  <SectionLayout
-    title="Team Members"
-    description="Manage who belongs to this team"
-  >
-    <div class="grid gap-6 lg:grid-cols-2">
-      <!-- Current Members -->
-      <Card.Root>
-        <Card.Header>
-          <Card.Title>Current Members ({teamMembers.length})</Card.Title>
-        </Card.Header>
-        <Card.Content class="space-y-4">
-          {#each teamMembers as member}
-            <div
-              class="flex items-center justify-between border-b pb-2 last:border-0"
-            >
-              <div>
-                <p class="font-medium text-sm">{member.name}</p>
-                <p class="text-xs text-muted-foreground">{member.email}</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onclick={() => handleRemoveMember(member.id)}
-              >
-                <Trash2 class="h-4 w-4 text-destructive" />
-              </Button>
-            </div>
-          {/each}
-          {#if teamMembers.length === 0}
-            <p class="text-sm text-muted-foreground italic">
-              No members in this team.
+        <div class="flex items-center justify-between mt-6">
+          <p class="text-sm font-medium text-muted-foreground">
+            {selectedAgents.length} out of {agents.length} agents selected
+          </p>
+          <Button onclick={handleUpdateMembers} disabled={isUpdatingMembers}>
+            {isUpdatingMembers ? 'Saving Members...' : 'Update Team Members'}
+          </Button>
+        </div>
+      </SectionLayout>
+
+      <SectionLayout
+        title="Danger Zone"
+        description="Irreversible actions for this team."
+      >
+        <div
+          class="flex items-center justify-between p-4 border rounded-md border-destructive/20 bg-destructive/5"
+        >
+          <div>
+            <h4 class="font-medium text-destructive mb-1">Delete this team</h4>
+            <p class="text-sm text-destructive-foreground/75">
+              Once you delete a team, there is no going back. Please be certain.
             </p>
-          {/if}
-        </Card.Content>
-      </Card.Root>
-
-      <!-- Add Members -->
-      <Card.Root>
-        <Card.Header>
-          <Card.Title>Add Members</Card.Title>
-        </Card.Header>
-        <Card.Content class="space-y-4">
-          <div class="max-h-[300px] overflow-y-auto space-y-2">
-            {#each availableAgents as agent}
-              <div
-                class="flex items-center justify-between rounded-lg border p-2"
-              >
-                <div>
-                  <p class="font-medium text-sm">{agent.name}</p>
-                  <p class="text-xs text-muted-foreground">{agent.email}</p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onclick={() => handleAddMember(agent.id)}
-                >
-                  <UserPlus class="h-4 w-4 mr-1" />
-                  Add
-                </Button>
-              </div>
-            {/each}
-            {#if availableAgents.length === 0}
-              <p class="text-sm text-muted-foreground italic">
-                No more agents to add.
-              </p>
-            {/if}
           </div>
-        </Card.Content>
-      </Card.Root>
+          <Button
+            variant="destructive"
+            onclick={() => (showDeleteDialog = true)}
+          >
+            Delete Team
+          </Button>
+        </div>
+      </SectionLayout>
     </div>
-  </SectionLayout>
+  {/if}
 </div>
+
+<!-- Delete Confirm Dialog -->
+<AlertDialog.Root bind:open={showDeleteDialog}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>Delete Team</AlertDialog.Title>
+      <AlertDialog.Description>
+        Are you sure you want to delete <strong>{name}</strong>? This action
+        cannot be undone.
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel
+        onclick={() => (showDeleteDialog = false)}
+        disabled={isDeleting}
+      >
+        Cancel
+      </AlertDialog.Cancel>
+      <AlertDialog.Action
+        class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+        onclick={confirmDelete}
+        disabled={isDeleting}
+      >
+        {isDeleting ? 'Deleting...' : 'Delete Team'}
+      </AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
