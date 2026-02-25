@@ -98,7 +98,7 @@
   }
 </script>
 
-<div class="flex flex-col max-w-4xl mx-auto w-full p-6">
+<div class="flex flex-col w-full space-y-6">
   {#if step === 1}
     <BaseSettingsHeader title="Create new team" />
     <div class="flex-grow flex-shrink min-w-0 space-y-6">

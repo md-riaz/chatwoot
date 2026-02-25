@@ -1,0 +1,53 @@
+<script lang="ts">
+  import * as Card from '$lib/components/ui/card';
+  import { ChevronRight } from 'lucide-svelte';
+  import type { Component } from 'svelte';
+
+  interface Feature {
+    icon: Component;
+    label: string;
+  }
+
+  let {
+    title,
+    description,
+    features = [],
+    onclick,
+  }: {
+    title: string;
+    description: string;
+    features?: Feature[];
+    onclick?: () => void;
+  } = $props();
+</script>
+
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="cursor-pointer group" {onclick}>
+  <Card.Root
+    class="transition-all duration-200 hover:shadow-md hover:border-primary/30"
+  >
+    <Card.Header class="pb-2">
+      <div class="flex justify-between items-center">
+        <Card.Title class="text-base font-medium">{title}</Card.Title>
+        <ChevronRight
+          class="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors"
+        />
+      </div>
+      <Card.Description class="text-sm">{description}</Card.Description>
+    </Card.Header>
+    <Card.Content>
+      <ul class="flex flex-col gap-3">
+        {#each features as feature}
+          <li class="flex items-center gap-3 text-sm text-muted-foreground">
+            <svelte:component
+              this={feature.icon}
+              class="h-4 w-4 flex-shrink-0"
+            />
+            <span>{feature.label}</span>
+          </li>
+        {/each}
+      </ul>
+    </Card.Content>
+  </Card.Root>
+</div>

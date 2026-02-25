@@ -18,7 +18,7 @@
   });
 </script>
 
-<div class="max-w-[60rem] mx-auto p-6">
+<div class="space-y-6">
   <!-- Header -->
   <div
     class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"

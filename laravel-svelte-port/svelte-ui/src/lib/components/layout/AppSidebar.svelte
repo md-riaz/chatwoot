@@ -569,39 +569,44 @@
 
 <Sidebar.Root collapsible="icon" {...restProps}>
   <Sidebar.Header>
-    <div class="flex flex-col gap-2 p-2">
+    <div class="flex flex-col gap-2.5 p-2.5">
       {#if isLoggedIn && currentAccount}
         <div
-          class="flex gap-2 items-center px-2 min-w-0 group-data-[collapsible=icon]:hidden"
+          class="flex gap-2 items-center px-1.5 min-w-0 group-data-[collapsible=icon]:hidden"
         >
           <div class="grid flex-shrink-0 place-content-center size-6">
             <Logo class="h-4 w-4" aria-label="Chatwoot logo" />
           </div>
-          <div class="flex-shrink-0 w-px h-3 bg-border"></div>
+          <div
+            class="flex-shrink-0 w-px h-3.5 bg-slate-200 dark:bg-slate-700"
+          ></div>
           <SidebarAccountSwitcher class="flex-1 min-w-0" />
         </div>
       {:else}
-        <div class="flex items-center gap-2 px-2">
+        <div class="flex items-center gap-2 px-1.5">
           <div class="grid flex-shrink-0 place-content-center size-6">
             <Logo class="h-4 w-4" aria-label="Chatwoot logo" />
           </div>
-          <span class="text-lg font-semibold truncate">ClearLine</span>
+          <span
+            class="text-sm font-bold truncate text-slate-900 dark:text-slate-100"
+            >ClearLine</span
+          >
         </div>
       {/if}
-      <div class="flex gap-2 px-2">
+      <div class="flex gap-1.5 px-1">
         <button
           type="button"
-          class="flex gap-2 items-center px-2 py-1 w-full h-7 rounded-md border border-input bg-muted text-xs text-muted-foreground group-data-[collapsible=icon]:hidden"
+          class="flex gap-2 items-center px-2.5 py-1 w-full h-7 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-[11px] text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-colors group-data-[collapsible=icon]:hidden"
           onclick={onSearchClick}
         >
-          <Search class="h-4 w-4 text-muted-foreground" />
+          <Search class="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
           <span class="flex-1 text-left truncate">Search</span>
         </button>
         <Button
           variant="ghost"
           size="icon"
           onclick={onComposeClick}
-          class="h-7 w-7 group-data-[collapsible=icon]:hidden"
+          class="h-7 w-7 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors group-data-[collapsible=icon]:hidden"
         >
           <Plus class="h-4 w-4" />
         </Button>

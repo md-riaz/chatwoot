@@ -116,7 +116,7 @@
   }
 </script>
 
-<div class="flex flex-col max-w-4xl mx-auto w-full p-6 space-y-8">
+<div class="flex flex-col w-full space-y-8">
   <BaseSettingsHeader title="Edit Team" />
 
   {#if isLoading}

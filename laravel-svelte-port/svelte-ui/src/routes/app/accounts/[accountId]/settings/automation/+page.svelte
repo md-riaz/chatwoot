@@ -64,8 +64,8 @@
   }
 </script>
 
-<div class="automation-settings">
-  <div class="header mb-6">
+<div class="space-y-6">
+  <div class="mb-6 border-b border-border pb-6">
     <div class="flex items-start justify-between gap-4">
       <div class="flex-1">
         <div class="mb-2 flex items-center gap-3">
@@ -121,16 +121,3 @@
     editingAutomationId = null;
   }}
 />
-
-<style>
-  .automation-settings {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-  }
-
-  .header {
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 1.5rem;
-  }
-</style>

@@ -84,7 +84,7 @@
   <div class="flex-1 flex flex-col min-w-0 bg-background">
     <!-- Header -->
     <div
-      class="flex items-center justify-between px-4 h-16 border-b bg-background shrink-0"
+      class="flex items-center justify-between px-4 h-14 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 shrink-0"
     >
       <div class="flex items-center gap-3 overflow-hidden">
         <!-- Mobile back button -->
@@ -92,48 +92,54 @@
           variant="ghost"
           size="icon"
           onclick={handleBack}
-          class="lg:hidden shrink-0"
+          class="lg:hidden shrink-0 h-8 w-8"
         >
-          <ArrowLeft class="h-5 w-5" />
+          <ArrowLeft class="h-4 w-4" />
         </Button>
 
         {#if sender}
           <!-- Contact avatar with status dot -->
           <div class="relative shrink-0">
-            <Avatar class="h-10 w-10 border border-border">
+            <Avatar class="h-9 w-9 ring-2 ring-slate-100 dark:ring-slate-800">
               <AvatarImage src={sender.avatarUrl || ''} alt={sender.name} />
-              <AvatarFallback class="text-sm">
+              <AvatarFallback
+                class="text-xs font-semibold bg-primary/10 text-primary"
+              >
                 {sender.name?.charAt(0)?.toUpperCase() || '?'}
               </AvatarFallback>
             </Avatar>
-            <!-- Online Status Dot (Mock logic for now) -->
+            <!-- Online Status Dot -->
             <span
-              class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-background bg-slate-400"
+              class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-950 bg-slate-400"
             ></span>
           </div>
 
           <!-- Contact name & info -->
           <div class="min-w-0 flex flex-col justify-center">
-            <div class="flex items-center gap-2">
-              <span class="font-semibold text-sm truncate text-foreground">
+            <div class="flex items-center gap-1.5">
+              <span
+                class="font-semibold text-[13px] truncate text-slate-900 dark:text-slate-100 leading-tight"
+              >
                 {sender.name || 'Customer'}
               </span>
               {#if conversation?.inbox?.name}
                 <Badge
                   variant="outline"
-                  class="text-[10px] h-5 px-1.5 font-medium text-muted-foreground"
+                  class="text-[10px] h-[18px] px-1.5 font-medium text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 rounded"
                 >
                   {conversation.inbox.name}
                 </Badge>
               {/if}
               <Badge
                 variant="outline"
-                class="text-[10px] h-5 px-1.5 font-medium text-muted-foreground"
+                class="text-[10px] h-[18px] px-1.5 font-medium text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700 rounded"
               >
                 #{conversation.displayId}
               </Badge>
             </div>
-            <div class="text-xs text-muted-foreground truncate">
+            <div
+              class="text-[11px] text-slate-500 dark:text-slate-400 truncate leading-tight mt-0.5"
+            >
               {sender.email || sender.phoneNumber || 'No contact info'}
             </div>
           </div>
@@ -141,11 +147,15 @@
           <!-- Loading skeleton -->
           <div class="flex items-center gap-3">
             <div
-              class="h-10 w-10 bg-muted rounded-full animate-pulse shrink-0"
+              class="h-9 w-9 bg-slate-100 dark:bg-slate-800 rounded-full animate-pulse shrink-0"
             ></div>
             <div class="space-y-1.5">
-              <div class="h-4 w-32 bg-muted rounded animate-pulse"></div>
-              <div class="h-3 w-24 bg-muted rounded animate-pulse"></div>
+              <div
+                class="h-3.5 w-28 bg-slate-100 dark:bg-slate-800 rounded animate-pulse"
+              ></div>
+              <div
+                class="h-2.5 w-20 bg-slate-100 dark:bg-slate-800 rounded animate-pulse"
+              ></div>
             </div>
           </div>
         {/if}
@@ -156,9 +166,9 @@
         {#if conversation}
           {#if conversation.status === 'snoozed'}
             <div
-              class="hidden md:flex items-center gap-1.5 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md text-xs font-medium mr-2"
+              class="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-md text-[11px] font-semibold mr-1"
             >
-              <Clock class="h-3.5 w-3.5" />
+              <Clock class="h-3 w-3" />
               <span>Snoozed</span>
             </div>
           {/if}
@@ -170,38 +180,56 @@
                   {...props}
                   variant="outline"
                   size="sm"
-                  class="gap-1.5 h-8"
+                  class="gap-1.5 h-8 rounded-lg border-slate-200 dark:border-slate-700 shadow-sm text-xs font-semibold"
                 >
                   {#if conversation.status === 'resolved'}
-                    <CheckCircle2 class="h-4 w-4 text-green-600" />
-                    <span class="text-green-700">Resolved</span>
+                    <CheckCircle2 class="h-3.5 w-3.5 text-green-600" />
+                    <span class="text-green-700 dark:text-green-400"
+                      >Resolved</span
+                    >
                   {:else if conversation.status === 'pending'}
-                    <Clock class="h-4 w-4 text-yellow-600" />
-                    <span class="text-yellow-700">Pending</span>
+                    <Clock class="h-3.5 w-3.5 text-amber-600" />
+                    <span class="text-amber-700 dark:text-amber-400"
+                      >Pending</span
+                    >
                   {:else if conversation.status === 'snoozed'}
-                    <Archive class="h-4 w-4 text-yellow-600" />
-                    <span class="text-yellow-700">Snoozed</span>
+                    <Archive class="h-3.5 w-3.5 text-amber-600" />
+                    <span class="text-amber-700 dark:text-amber-400"
+                      >Snoozed</span
+                    >
                   {:else}
-                    <RotateCcw class="h-4 w-4 text-blue-600" />
-                    <span class="text-blue-700">Open</span>
+                    <RotateCcw class="h-3.5 w-3.5 text-blue-600" />
+                    <span class="text-blue-700 dark:text-blue-400">Open</span>
                   {/if}
-                  <ChevronDown class="h-3.5 w-3.5 opacity-50 ml-1" />
+                  <ChevronDown class="h-3 w-3 opacity-40 ml-0.5" />
                 </Button>
               {/snippet}
             </DropdownMenu.Trigger>
-            <DropdownMenu.Content align="end">
-              <DropdownMenu.Item onclick={() => handleStatusChange('open')}>
-                <RotateCcw class="mr-2 h-4 w-4 text-blue-600" /> Open
+            <DropdownMenu.Content align="end" class="min-w-[140px] rounded-lg">
+              <DropdownMenu.Item
+                onclick={() => handleStatusChange('open')}
+                class="gap-2 text-[13px]"
+              >
+                <RotateCcw class="h-3.5 w-3.5 text-blue-600" /> Open
               </DropdownMenu.Item>
-              <DropdownMenu.Item onclick={() => handleStatusChange('resolved')}>
-                <CheckCircle2 class="mr-2 h-4 w-4 text-green-600" /> Resolve
+              <DropdownMenu.Item
+                onclick={() => handleStatusChange('resolved')}
+                class="gap-2 text-[13px]"
+              >
+                <CheckCircle2 class="h-3.5 w-3.5 text-green-600" /> Resolve
               </DropdownMenu.Item>
-              <DropdownMenu.Item onclick={() => handleStatusChange('pending')}>
-                <Clock class="mr-2 h-4 w-4 text-yellow-600" /> Pending
+              <DropdownMenu.Item
+                onclick={() => handleStatusChange('pending')}
+                class="gap-2 text-[13px]"
+              >
+                <Clock class="h-3.5 w-3.5 text-amber-600" /> Pending
               </DropdownMenu.Item>
               <DropdownMenu.Separator />
-              <DropdownMenu.Item onclick={() => handleStatusChange('snoozed')}>
-                <Archive class="mr-2 h-4 w-4 text-orange-600" /> Snooze
+              <DropdownMenu.Item
+                onclick={() => handleStatusChange('snoozed')}
+                class="gap-2 text-[13px]"
+              >
+                <Archive class="h-3.5 w-3.5 text-orange-600" /> Snooze
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>

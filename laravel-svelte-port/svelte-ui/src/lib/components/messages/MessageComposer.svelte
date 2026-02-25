@@ -208,16 +208,19 @@
 </script>
 
 <div
-  class={`rounded-xl border shadow-sm flex flex-col transition-colors ${isPrivate ? 'bg-amber-50/50 border-amber-200' : 'bg-background border-border'}`}
+  class={`rounded-xl border shadow-sm flex flex-col transition-all duration-200 ${isPrivate ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/50' : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800'}`}
 >
   <!-- Top Actions Bar -->
-  <div class="flex items-center justify-between p-2 pb-0">
+  <div class="flex items-center justify-between px-3 pt-2.5 pb-0">
     <ReplyTopPanel
       mode={isPrivate ? 'private' : 'reply'}
       onModeChange={handleModeChange}
     />
     {#if characterCount > 0}
-      <Badge variant="outline" class="text-xs ml-auto">
+      <Badge
+        variant="outline"
+        class="text-[10px] ml-auto h-5 px-1.5 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
+      >
         {characterCount} chars
       </Badge>
     {/if}
@@ -226,41 +229,47 @@
   <!-- Attachments Preview -->
   {#if attachments.length > 0}
     <div
-      class="mx-3 mt-3 p-2 bg-background/50 rounded-md border border-border/50"
+      class="mx-3 mt-2.5 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-100 dark:border-slate-800"
     >
       <div class="flex flex-wrap gap-2">
         {#each attachments as attachment, index}
           <div class="relative group">
             {#if attachment.preview}
               <!-- Image preview -->
-              <div class="relative w-20 h-20 rounded-md overflow-hidden border">
+              <div
+                class="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700"
+              >
                 <img
                   src={attachment.preview}
                   alt={attachment.name}
                   class="w-full h-full object-cover"
                 />
                 <button
-                  class="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                   onclick={() => removeAttachment(index)}
                   aria-label="Remove attachment"
                 >
-                  <span class="text-xs">×</span>
+                  ×
                 </button>
               </div>
             {:else}
               <!-- File preview -->
               <div
-                class="flex items-center gap-2 p-2 bg-background rounded-md border min-w-[160px]"
+                class="flex items-center gap-2 p-2 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 min-w-[160px]"
               >
-                <Paperclip class="h-4 w-4 text-muted-foreground" />
+                <Paperclip class="h-4 w-4 text-slate-400" />
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm truncate">{attachment.name}</p>
-                  <p class="text-xs text-muted-foreground">
+                  <p
+                    class="text-[12px] font-medium truncate text-slate-700 dark:text-slate-300"
+                  >
+                    {attachment.name}
+                  </p>
+                  <p class="text-[10px] text-slate-400 dark:text-slate-500">
                     {(attachment.size / 1024).toFixed(1)} KB
                   </p>
                 </div>
                 <button
-                  class="text-destructive hover:text-destructive/80"
+                  class="text-slate-400 hover:text-red-500 transition-colors"
                   onclick={() => removeAttachment(index)}
                   aria-label="Remove attachment"
                 >
@@ -275,29 +284,31 @@
   {/if}
 
   <!-- Message Input -->
-  <div class="px-3 py-2">
+  <div class="px-3 py-1.5">
     <Textarea
       bind:value={messageContent}
       bind:ref={textareaElement}
       placeholder={isPrivate ? 'Add a private note...' : 'Type your message...'}
-      class={`min-h-[120px] resize-none border-0 focus-visible:ring-0 shadow-none bg-transparent ${isPrivate ? 'placeholder:text-amber-900/40 text-amber-900' : ''}`}
+      class={`min-h-[100px] resize-none border-0 focus-visible:ring-0 shadow-none bg-transparent text-[13px] leading-relaxed ${isPrivate ? 'placeholder:text-amber-800/30 dark:placeholder:text-amber-200/30 text-amber-900 dark:text-amber-200' : 'placeholder:text-slate-400 dark:placeholder:text-slate-500'}`}
       disabled={isSending}
       onkeydown={handleKeyDown}
     />
   </div>
 
   <!-- Bottom Actions Bar -->
-  <div class="flex items-center justify-between p-2 pt-0">
-    <div class="flex items-center gap-1">
+  <div class="flex items-center justify-between px-3 py-2 pt-0">
+    <div class="flex items-center gap-0.5">
       <!-- Emoji Picker Button -->
       <Button
         variant="ghost"
         size="icon"
         onclick={() => (showEmojiPicker = !showEmojiPicker)}
         title="Add emoji"
-        class={isPrivate
-          ? 'text-amber-900 hover:text-amber-950 hover:bg-amber-100'
-          : ''}
+        class={`h-8 w-8 rounded-lg ${
+          isPrivate
+            ? 'text-amber-700 dark:text-amber-300 hover:text-amber-900 hover:bg-amber-100 dark:hover:bg-amber-900/30'
+            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+        }`}
       >
         <Smile class="h-4 w-4" />
       </Button>
@@ -308,9 +319,11 @@
         size="icon"
         onclick={() => (showFileUpload = !showFileUpload)}
         title="Attach file"
-        class={isPrivate
-          ? 'text-amber-900 hover:text-amber-950 hover:bg-amber-100'
-          : ''}
+        class={`h-8 w-8 rounded-lg ${
+          isPrivate
+            ? 'text-amber-700 dark:text-amber-300 hover:text-amber-900 hover:bg-amber-100 dark:hover:bg-amber-900/30'
+            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+        }`}
       >
         <Paperclip class="h-4 w-4" />
       </Button>
@@ -321,9 +334,11 @@
         size="icon"
         title="Mention"
         disabled
-        class={isPrivate
-          ? 'text-amber-900 hover:text-amber-950 hover:bg-amber-100'
-          : ''}
+        class={`h-8 w-8 rounded-lg ${
+          isPrivate
+            ? 'text-amber-700/40 dark:text-amber-300/40'
+            : 'text-slate-400/50 dark:text-slate-500/50'
+        }`}
       >
         <AtSign class="h-4 w-4" />
       </Button>
@@ -333,9 +348,9 @@
     <Button
       onclick={handleSend}
       disabled={isSendDisabled || isSending}
-      class={`gap-2 min-w-[100px] ${isPrivate ? 'bg-amber-400 text-amber-950 hover:bg-amber-500' : ''}`}
+      class={`gap-2 min-w-[100px] h-8 rounded-lg text-xs font-semibold shadow-sm transition-all ${isPrivate ? 'bg-amber-500 hover:bg-amber-600 text-white dark:bg-amber-600 dark:hover:bg-amber-500' : ''}`}
     >
-      <Send class="h-4 w-4" />
+      <Send class="h-3.5 w-3.5" />
       {#if isSending}
         {isPrivate ? 'Creating...' : 'Sending...'}
       {:else}
@@ -368,6 +383,7 @@
             variant="ghost"
             size="sm"
             onclick={() => (showFileUpload = false)}
+            class="text-xs"
           >
             Cancel
           </Button>
