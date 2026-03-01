@@ -194,7 +194,7 @@ class ConversationRepository extends BaseRepository
         }
 
         return $builder
-            ->with(['contact', 'inbox', 'assignee'])
+            ->with(['contact', 'inbox', 'assignee', 'team'])
             ->orderByDesc('last_activity_at')
             ->paginate($filters['per_page'] ?? 25);
     }
@@ -210,7 +210,7 @@ class ConversationRepository extends BaseRepository
         $query = \App\Services\FilterService::applyFilters($query, $payload, $accountId);
 
         $conversations = $query
-            ->with(['contact', 'inbox', 'assignee'])
+            ->with(['contact', 'inbox', 'assignee', 'team'])
             ->orderByDesc('last_activity_at')
             ->paginate(25);
 

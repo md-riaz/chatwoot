@@ -1,22 +1,19 @@
 <script lang="ts">
   import * as Card from '$lib/components/ui/card';
   import { ChevronRight } from 'lucide-svelte';
-  import type { Component } from 'svelte';
-
-  interface Feature {
-    icon: Component;
-    label: string;
-  }
+  import type { Snippet } from 'svelte';
 
   let {
     title,
     description,
-    features = [],
+    featureLabels = [],
+    featureSnippet,
     onclick,
   }: {
     title: string;
     description: string;
-    features?: Feature[];
+    featureLabels?: string[];
+    featureSnippet?: Snippet;
     onclick?: () => void;
   } = $props();
 </script>
@@ -37,17 +34,19 @@
       <Card.Description class="text-sm">{description}</Card.Description>
     </Card.Header>
     <Card.Content>
-      <ul class="flex flex-col gap-3">
-        {#each features as feature}
-          <li class="flex items-center gap-3 text-sm text-muted-foreground">
-            <svelte:component
-              this={feature.icon}
-              class="h-4 w-4 flex-shrink-0"
-            />
-            <span>{feature.label}</span>
-          </li>
-        {/each}
-      </ul>
+      {#if featureSnippet}
+        {@render featureSnippet()}
+      {:else if featureLabels.length > 0}
+        <ul class="flex flex-col gap-3">
+          {#each featureLabels as label}
+            <li class="flex items-center gap-2 text-sm text-muted-foreground">
+              <span class="h-1.5 w-1.5 rounded-full bg-primary/60 flex-shrink-0"
+              ></span>
+              <span>{label}</span>
+            </li>
+          {/each}
+        </ul>
+      {/if}
     </Card.Content>
   </Card.Root>
 </div>

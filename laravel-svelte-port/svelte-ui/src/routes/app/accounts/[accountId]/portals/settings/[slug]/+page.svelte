@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { portalsStore } from '$lib/stores/portals.svelte';
-  import SectionLayout from '../../../../settings/account/components/SectionLayout.svelte';
+  import SectionLayout from '../../../settings/account/components/SectionLayout.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';

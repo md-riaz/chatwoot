@@ -16,6 +16,20 @@
   import { Textarea } from '$lib/components/ui/textarea';
   import * as Select from '$lib/components/ui/select';
   import { Switch } from '$lib/components/ui/switch';
+  import {
+    Globe,
+    Plug,
+    Mail,
+    Phone,
+    MessageCircle,
+    MessageSquare,
+    Send,
+    Hash,
+    Instagram,
+    Video,
+    ArrowLeft,
+    Check,
+  } from 'lucide-svelte';
   import type { CreateInboxParams } from '$lib/api/inboxes';
 
   let accountId = $derived($page.params.accountId);
@@ -91,37 +105,37 @@
     {
       type: 'Channel::WebWidget',
       name: 'Website',
-      icon: '💬',
+      icon: Globe,
       description: 'Live chat widget for your website',
     },
     {
       type: 'Channel::Api',
       name: 'API',
-      icon: '🔌',
+      icon: Plug,
       description: 'Custom channel using API',
     },
     {
       type: 'Channel::Email',
       name: 'Email',
-      icon: '📧',
+      icon: Mail,
       description: 'Support via email',
     },
     {
       type: 'Channel::Whatsapp',
       name: 'WhatsApp',
-      icon: '📱',
+      icon: Phone,
       description: 'WhatsApp Business API',
     },
     {
       type: 'Channel::Sms',
       name: 'SMS',
-      icon: '💌',
+      icon: MessageSquare,
       description: 'SMS channel',
     },
     {
       type: 'Channel::Voice',
       name: 'Voice',
-      icon: '📞',
+      icon: Phone,
       description: 'Voice calls via Twilio',
     },
   ];
@@ -387,10 +401,14 @@
 
 <div class="space-y-6">
   <div class="flex items-center gap-4">
-    <Button variant="ghost" onclick={handleBack}>← Back</Button>
+    <Button variant="ghost" onclick={handleBack}>
+      <ArrowLeft class="mr-1 h-4 w-4" /> Back
+    </Button>
     <div>
-      <h1 class="text-3xl font-bold">Create Inbox</h1>
-      <p class="text-muted-foreground mt-1">
+      <h1 class="text-xl font-medium tracking-tight text-foreground">
+        Create Inbox
+      </h1>
+      <p class="text-sm text-muted-foreground mt-1">
         {#if currentStep === 1}
           Choose a channel type to get started
         {:else if currentStep === 2}
@@ -411,54 +429,55 @@
       <div
         class="flex h-8 w-8 items-center justify-center rounded-full {currentStep ===
         1
-          ? 'bg-blue-600 text-white'
+          ? 'bg-primary text-primary-foreground'
           : currentStep > 1
-            ? 'bg-green-600 text-white'
-            : 'bg-gray-200'}"
+            ? 'bg-primary/80 text-primary-foreground'
+            : 'bg-muted'}"
       >
-        {#if currentStep > 1}✓{:else}1{/if}
+        {#if currentStep > 1}<Check class="h-4 w-4" />{:else}1{/if}
       </div>
       <span
-        class="text-sm {currentStep === 1 ? 'font-semibold' : 'text-gray-600'}"
-        >Select Channel</span
+        class="text-sm {currentStep === 1
+          ? 'font-semibold text-foreground'
+          : 'text-muted-foreground'}">Select Channel</span
       >
     </div>
     {#if needsProviderSelection(selectedChannelType)}
-      <div class="h-px w-12 bg-gray-300"></div>
+      <div class="h-px w-12 bg-border"></div>
       <div class="flex items-center gap-2">
         <div
           class="flex h-8 w-8 items-center justify-center rounded-full {currentStep ===
           2
-            ? 'bg-blue-600 text-white'
+            ? 'bg-primary text-primary-foreground'
             : currentStep > 2
-              ? 'bg-green-600 text-white'
-              : 'bg-gray-200'}"
+              ? 'bg-primary/80 text-primary-foreground'
+              : 'bg-muted'}"
         >
-          {#if currentStep > 2}✓{:else}2{/if}
+          {#if currentStep > 2}<Check class="h-4 w-4" />{:else}2{/if}
         </div>
         <span
           class="text-sm {currentStep === 2
-            ? 'font-semibold'
-            : 'text-gray-600'}">Select Provider</span
+            ? 'font-semibold text-foreground'
+            : 'text-muted-foreground'}">Select Provider</span
         >
       </div>
     {/if}
-    <div class="h-px w-12 bg-gray-300"></div>
+    <div class="h-px w-12 bg-border"></div>
     <div class="flex items-center gap-2">
       <div
         class="flex h-8 w-8 items-center justify-center rounded-full {currentStep ===
           3 ||
         (currentStep === 2 && !needsProviderSelection(selectedChannelType))
-          ? 'bg-blue-600 text-white'
-          : 'bg-gray-200'}"
+          ? 'bg-primary text-primary-foreground'
+          : 'bg-muted'}"
       >
         {needsProviderSelection(selectedChannelType) ? '3' : '2'}
       </div>
       <span
         class="text-sm {currentStep === 3 ||
         (currentStep === 2 && !needsProviderSelection(selectedChannelType))
-          ? 'font-semibold'
-          : 'text-gray-600'}">Configure</span
+          ? 'font-semibold text-foreground'
+          : 'text-muted-foreground'}">Configure</span
       >
     </div>
   </div>
@@ -473,9 +492,15 @@
         >
           <Card.Content class="p-6">
             <div class="flex flex-col items-center text-center gap-3">
-              <div class="text-5xl">{channel.icon}</div>
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded-lg bg-muted"
+              >
+                {#each [channel.icon] as IconComponent}
+                  <IconComponent class="h-6 w-6 text-muted-foreground" />
+                {/each}
+              </div>
               <h3 class="font-semibold text-lg">{channel.name}</h3>
-              <p class="text-sm text-gray-600">{channel.description}</p>
+              <p class="text-sm text-muted-foreground">{channel.description}</p>
             </div>
           </Card.Content>
         </Card.Root>
@@ -499,7 +524,11 @@
               onclick={() => handleProviderSelect(provider.value)}
             >
               <Card.Content class="p-6 text-center">
-                <div class="text-4xl mb-3">📞</div>
+                <div
+                  class="flex h-10 w-10 mx-auto mb-3 items-center justify-center rounded-lg bg-muted"
+                >
+                  <MessageSquare class="h-5 w-5 text-muted-foreground" />
+                </div>
                 <h3 class="font-semibold text-lg mb-2">{provider.label}</h3>
               </Card.Content>
             </Card.Root>
@@ -511,7 +540,11 @@
               onclick={() => handleProviderSelect(provider.value)}
             >
               <Card.Content class="p-6 text-center">
-                <div class="text-4xl mb-3">💬</div>
+                <div
+                  class="flex h-10 w-10 mx-auto mb-3 items-center justify-center rounded-lg bg-muted"
+                >
+                  <Phone class="h-5 w-5 text-muted-foreground" />
+                </div>
                 <h3 class="font-semibold text-lg mb-2">{provider.label}</h3>
               </Card.Content>
             </Card.Root>
@@ -608,7 +641,7 @@
                 {#if errors.emailAddress}
                   <p class="text-sm text-red-500 mt-1">{errors.emailAddress}</p>
                 {/if}
-                <p class="text-sm text-gray-600 mt-1">
+                <p class="text-sm text-muted-foreground mt-1">
                   Email forwarding will be configured after creation
                 </p>
               </div>
@@ -741,7 +774,9 @@
                         {errors.phoneNumber}
                       </p>
                     {/if}
-                    <p class="text-sm text-gray-600 mt-1">E.164 format</p>
+                    <p class="text-sm text-muted-foreground mt-1">
+                      E.164 format
+                    </p>
                   </div>
                 {/if}
               </div>
@@ -835,7 +870,7 @@
                       {errors.phoneNumber}
                     </p>
                   {/if}
-                  <p class="text-sm text-gray-600 mt-1">E.164 format</p>
+                  <p class="text-sm text-muted-foreground mt-1">E.164 format</p>
                 </div>
               </div>
             {/if}
@@ -994,7 +1029,7 @@
                       {errors.phoneNumber}
                     </p>
                   {/if}
-                  <p class="text-sm text-gray-600 mt-1">E.164 format</p>
+                  <p class="text-sm text-muted-foreground mt-1">E.164 format</p>
                 </div>
               </div>
             {:else if selectedProvider === '360dialog'}
@@ -1025,7 +1060,7 @@
                     bind:value={dialog360PartnerId}
                     placeholder="Your Partner ID"
                   />
-                  <p class="text-sm text-gray-600 mt-1">
+                  <p class="text-sm text-muted-foreground mt-1">
                     Leave empty if not applicable
                   </p>
                 </div>
@@ -1048,7 +1083,7 @@
                 {#if errors.phoneNumber}
                   <p class="text-sm text-red-500 mt-1">{errors.phoneNumber}</p>
                 {/if}
-                <p class="text-sm text-gray-600 mt-1">
+                <p class="text-sm text-muted-foreground mt-1">
                   Your Twilio phone number in E.164 format
                 </p>
               </div>
@@ -1134,7 +1169,7 @@
           {:else if selectedChannelType === 'Channel::Api'}
             <div class="space-y-4">
               <div>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-muted-foreground">
                   API channel allows you to integrate custom messaging
                   platforms. API credentials will be generated after creation.
                 </p>
@@ -1151,7 +1186,7 @@
             <div class="flex items-center justify-between">
               <div class="space-y-0.5">
                 <Label>Enable Greeting Message</Label>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-muted-foreground">
                   Show a greeting when conversation starts
                 </p>
               </div>
@@ -1180,7 +1215,7 @@
             <div class="flex items-center justify-between">
               <div class="space-y-0.5">
                 <Label>Auto Assignment</Label>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-muted-foreground">
                   Automatically assign conversations to agents
                 </p>
               </div>
@@ -1190,7 +1225,7 @@
             <div class="flex items-center justify-between">
               <div class="space-y-0.5">
                 <Label>Working Hours</Label>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-muted-foreground">
                   Enable working hours for this inbox
                 </p>
               </div>

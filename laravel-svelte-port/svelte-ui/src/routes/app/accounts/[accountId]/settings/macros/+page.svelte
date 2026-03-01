@@ -1,4 +1,9 @@
 <script lang="ts">
+  /**
+   * Macros Management Page
+   * Vue parity: app/javascript/dashboard/routes/dashboard/settings/macros/Index.vue
+   */
+
   import { onMount } from 'svelte';
   import { toast } from 'svelte-sonner';
   import { macrosStore } from '$lib/stores/macros.svelte';
@@ -7,15 +12,13 @@
   import MacroFormDialog from '$lib/components/macros/MacroFormDialog.svelte';
   import MacroExecuteDialog from '$lib/components/macros/MacroExecuteDialog.svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Plus, Sparkles } from '@lucide/svelte';
+  import { Plus } from '@lucide/svelte';
+  import BaseSettingsHeader from '../components/BaseSettingsHeader.svelte';
 
   const macros = $derived(macrosStore.sortedMacros);
   const isLoading = $derived(macrosStore.isLoading);
   const isSaving = $derived(macrosStore.isSaving);
   const isExecuting = $derived(macrosStore.isExecuting);
-  const totalCount = $derived(macrosStore.macroCount);
-  const globalCount = $derived(macrosStore.globalMacros.length);
-  const personalCount = $derived(macrosStore.personalMacros.length);
 
   let showEditor = $state(false);
   let showExecuteDialog = $state(false);
@@ -87,43 +90,22 @@
   }
 </script>
 
-<div class="space-y-6">
-  <div class="mb-6 border-b border-border pb-6">
-    <div class="flex items-start justify-between gap-4">
-      <div class="flex-1">
-        <div class="mb-2 flex items-center gap-3">
-          <Sparkles class="h-8 w-8 text-primary" />
-          <h1 class="text-3xl font-bold">Macros</h1>
-        </div>
-        <p class="text-gray-600">
-          Create quick action templates to automate repetitive tasks
-        </p>
-        <div class="mt-4 flex items-center gap-6 text-sm">
-          <div>
-            <span class="text-2xl font-bold text-primary">{totalCount}</span>
-            <span class="ml-2 text-gray-600">Total Macros</span>
-          </div>
-          <div>
-            <span class="text-2xl font-bold text-blue-600">{globalCount}</span>
-            <span class="ml-2 text-gray-600">Global</span>
-          </div>
-          <div>
-            <span class="text-2xl font-bold text-purple-600"
-              >{personalCount}</span
-            >
-            <span class="ml-2 text-gray-600">Personal</span>
-          </div>
-        </div>
-      </div>
-
-      <Button onclick={handleAdd} size="lg">
-        <Plus class="mr-2 h-5 w-5" />
+<div class="flex flex-col w-full h-full gap-8">
+  <BaseSettingsHeader
+    title="Macros"
+    description="A macro is a set of saved actions that help customer service agents easily complete tasks. The agents can define a set of actions like tagging a conversation with a label, sending an email transcript, updating a custom attribute, etc., and they can run these actions in a single click."
+    linkText="Learn more about macros"
+    linkUrl="https://www.chatwoot.com/hc/user-guide/articles/1677579781-what-are-macros-and-how-to-use-them"
+  >
+    {#snippet actions()}
+      <Button onclick={handleAdd}>
+        <Plus class="mr-2 h-4 w-4" />
         Add Macro
       </Button>
-    </div>
-  </div>
+    {/snippet}
+  </BaseSettingsHeader>
 
-  <div class="content">
+  <main>
     <MacrosList
       {macros}
       {isLoading}
@@ -131,7 +113,7 @@
       onexecute={handleExecute}
       onrefresh={() => macrosStore.fetchMacros()}
     />
-  </div>
+  </main>
 </div>
 
 <MacroFormDialog

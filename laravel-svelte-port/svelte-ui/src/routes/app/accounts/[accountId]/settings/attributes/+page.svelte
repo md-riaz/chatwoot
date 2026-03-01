@@ -1,18 +1,19 @@
 <script lang="ts">
   /**
    * Custom Attributes Management Page
-   * Create and manage custom attributes for contacts and conversations
+   * Vue parity: app/javascript/dashboard/routes/dashboard/settings/attributes/Index.vue
    */
 
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { attributesStore } from '$lib/stores/attributes.svelte';
   import { Button } from '$lib/components/ui/button';
-  import * as Card from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import type { CustomAttribute } from '$lib/api/attributes';
   import AttributeDialog from '$lib/components/attributes/AttributeDialog.svelte';
+  import { Plus, Pen, Trash2 } from 'lucide-svelte';
+  import BaseSettingsHeader from '../components/BaseSettingsHeader.svelte';
 
   let accountId = $derived($page.params.accountId);
   let attributes = $derived(attributesStore.sortedAttributes);
@@ -21,6 +22,19 @@
   let showCreateDialog = $state(false);
   let showEditDialog = $state(false);
   let editingAttribute = $state<CustomAttribute | null>(null);
+
+  // Delete dialog state
+  let showDeleteDialog = $state(false);
+  let deletingAttribute = $state<CustomAttribute | null>(null);
+
+  // Tabs: conversation vs contact (matching Vue)
+  let selectedTab = $state<'conversation_attribute' | 'contact_attribute'>(
+    'conversation_attribute'
+  );
+
+  let filteredAttributes = $derived(
+    attributes.filter(a => a.attributeModel === selectedTab)
+  );
 
   onMount(() => {
     attributesStore.fetchAttributes();
@@ -36,8 +50,7 @@
     attributesStore.fetchAttributes();
   }
 
-  function handleEditAttribute(event: Event, attribute: CustomAttribute) {
-    event.stopPropagation();
+  function handleEditAttribute(attribute: CustomAttribute) {
     editingAttribute = attribute;
     showEditDialog = true;
   }
@@ -50,142 +63,120 @@
     editingAttribute = null;
   }
 
-  async function handleDeleteAttribute(
-    event: Event,
-    attributeId: number,
-    attributeName: string
-  ) {
-    event.stopPropagation();
-    const attributeData = attributes.find((a) => a.id === attributeId);
-    if (
-      confirm(
-        `Are you sure you want to delete "${attributeName}"? This will remove the attribute from all ${attributeData?.attributeModel === 'contact_attribute' ? 'contacts' : 'conversations'}.`
-      )
-    ) {
-      await attributesStore.deleteAttribute(attributeId);
-    }
+  function handleDeleteClick(attribute: CustomAttribute) {
+    deletingAttribute = attribute;
+    showDeleteDialog = true;
   }
 
-  function getTypeBadgeClass(type: string) {
-    const classes: Record<string, string> = {
-      text: 'bg-blue-100 text-blue-800',
-      number: 'bg-green-100 text-green-800',
-      date: 'bg-purple-100 text-purple-800',
-      list: 'bg-orange-100 text-orange-800',
-      checkbox: 'bg-pink-100 text-pink-800',
-    };
-    return classes[type] || 'bg-gray-100 text-gray-800';
-  }
-
-  function getAppliesToBadgeClass(appliesTo: string) {
-    return appliesTo === 'contact_attribute'
-      ? 'bg-indigo-100 text-indigo-800'
-      : 'bg-teal-100 text-teal-800';
-  }
-
-  function getAppliesToLabel(appliesTo: string) {
-    return appliesTo === 'contact_attribute' ? 'contact' : 'conversation';
+  async function confirmDelete() {
+    if (!deletingAttribute) return;
+    await attributesStore.deleteAttribute(deletingAttribute.id);
+    showDeleteDialog = false;
+    deletingAttribute = null;
   }
 </script>
 
-<div class="space-y-6">
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-3xl font-bold">Custom Attributes</h1>
-      <p class="text-muted-foreground mt-2">
-        Define custom fields for contacts and conversations
-      </p>
-    </div>
-    <Button onclick={handleCreateAttribute}>Create Attribute</Button>
-  </div>
+<div class="flex flex-col w-full h-full gap-8">
+  <BaseSettingsHeader
+    title="Custom Attributes"
+    description="A custom attribute tracks additional details about your contacts or conversations — such as the subscription plan or the date of their first purchase. You can add different types of custom attributes."
+    linkText="Learn more about custom attributes"
+    linkUrl="https://www.chatwoot.com/hc/user-guide/articles/1677579748-how-to-create-and-manage-custom-attributes"
+  >
+    {#snippet actions()}
+      <Button onclick={handleCreateAttribute}>
+        <Plus class="mr-2 h-4 w-4" />
+        Add Attribute
+      </Button>
+    {/snippet}
+  </BaseSettingsHeader>
 
-  {#if isLoading}
-    <div class="flex justify-center items-center py-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  <main>
+    <!-- Tabs matching Vue's TabBar -->
+    <div class="flex gap-1 mb-6 max-w-xl">
+      <button
+        class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {selectedTab ===
+        'conversation_attribute'
+          ? 'bg-primary text-primary-foreground'
+          : 'bg-muted text-muted-foreground hover:text-foreground'}"
+        onclick={() => (selectedTab = 'conversation_attribute')}
+      >
+        Conversation
+      </button>
+      <button
+        class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {selectedTab ===
+        'contact_attribute'
+          ? 'bg-primary text-primary-foreground'
+          : 'bg-muted text-muted-foreground hover:text-foreground'}"
+        onclick={() => (selectedTab = 'contact_attribute')}
+      >
+        Contact
+      </button>
     </div>
-  {:else if attributes.length === 0}
-    <Card.Root class="text-center py-12">
-      <Card.Content>
-        <div class="mb-4">
-          <svg
-            class="mx-auto h-16 w-16 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+
+    {#if isLoading}
+      <div class="flex justify-center items-center py-20">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"
+        ></div>
+      </div>
+    {:else if filteredAttributes.length === 0}
+      <p
+        class="flex-1 py-20 text-foreground flex items-center justify-center text-base"
+      >
+        No custom attributes found for this category.
+      </p>
+    {:else}
+      <div class="grid gap-3">
+        {#each filteredAttributes as attribute (attribute.id)}
+          <div
+            class="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-            />
-          </svg>
-        </div>
-        <h2 class="text-xl font-semibold mb-2">No custom attributes yet</h2>
-        <p class="text-gray-600 mb-4">
-          Create custom attributes to capture additional information
-        </p>
-        <Button onclick={handleCreateAttribute}>
-          Create Your First Attribute
-        </Button>
-      </Card.Content>
-    </Card.Root>
-  {:else}
-    <div class="space-y-3">
-      {#each attributes as attribute}
-        <Card.Root class="hover:shadow-md transition-shadow">
-          <Card.Content class="p-6">
-            <div class="flex items-center justify-between">
-              <div class="flex-1">
-                <div class="flex items-center gap-3 mb-2">
-                  <h3 class="font-semibold text-lg">{attribute.attributeDisplayName}</h3>
-                  <span
-                    class="px-2 py-1 rounded text-xs font-medium {getTypeBadgeClass(
-                      attribute.attributeDisplayType
-                    )}"
-                  >
-                    {attribute.attributeDisplayType}
-                  </span>
-                  <span
-                    class="px-2 py-1 rounded text-xs font-medium {getAppliesToBadgeClass(
-                      attribute.attributeModel
-                    )}"
-                  >
-                    {getAppliesToLabel(attribute.attributeModel)}
-                  </span>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-3 mb-1">
+                <span class="font-medium text-foreground"
+                  >{attribute.attributeDisplayName}</span
+                >
+                <Badge variant="secondary" class="text-xs capitalize">
+                  {attribute.attributeDisplayType}
+                </Badge>
+              </div>
+              <span class="text-sm text-muted-foreground"
+                >Key: {attribute.attributeKey}</span
+              >
+              {#if attribute.attributeValues && attribute.attributeValues.length > 0}
+                <div class="mt-2 flex flex-wrap gap-1">
+                  {#each attribute.attributeValues as value}
+                    <Badge variant="outline" class="text-xs">{value}</Badge>
+                  {/each}
                 </div>
-                <p class="text-sm text-gray-600">Key: {attribute.attributeKey}</p>
-                {#if attribute.attributeValues && attribute.attributeValues.length > 0}
-                  <div class="mt-2 flex flex-wrap gap-1">
-                    {#each attribute.attributeValues as value}
-                      <Badge variant="outline" class="text-xs">{value}</Badge>
-                    {/each}
-                  </div>
-                {/if}
-              </div>
-              <div class="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onclick={(e: MouseEvent) => handleEditAttribute(e, attribute)}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onclick={(e: MouseEvent) =>
-                    handleDeleteAttribute(e, attribute.id, attribute.attributeDisplayName)}
-                >
-                  Delete
-                </Button>
-              </div>
+              {/if}
             </div>
-          </Card.Content>
-        </Card.Root>
-      {/each}
-    </div>
-  {/if}
+            <div class="flex gap-1 ml-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                class="h-8 w-8 text-muted-foreground hover:text-foreground"
+                title="Edit"
+                onclick={() => handleEditAttribute(attribute)}
+              >
+                <Pen class="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                class="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                title="Delete"
+                onclick={() => handleDeleteClick(attribute)}
+              >
+                <Trash2 class="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </main>
 </div>
 
 <!-- Attribute Dialogs -->
@@ -201,3 +192,36 @@
   attribute={editingAttribute}
   on:submit={handleSubmitEdit}
 />
+
+<!-- Delete Confirm Dialog -->
+<AlertDialog.Root bind:open={showDeleteDialog}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>Delete Attribute</AlertDialog.Title>
+      <AlertDialog.Description>
+        Are you sure you want to delete <strong
+          >{deletingAttribute?.attributeDisplayName}</strong
+        >? This will remove the attribute from all {deletingAttribute?.attributeModel ===
+        'contact_attribute'
+          ? 'contacts'
+          : 'conversations'}.
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel
+        onclick={() => {
+          showDeleteDialog = false;
+          deletingAttribute = null;
+        }}
+      >
+        Cancel
+      </AlertDialog.Cancel>
+      <AlertDialog.Action
+        class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+        onclick={confirmDelete}
+      >
+        Yes, delete {deletingAttribute?.attributeDisplayName}
+      </AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>

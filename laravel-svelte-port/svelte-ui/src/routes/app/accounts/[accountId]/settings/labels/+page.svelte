@@ -1,127 +1,112 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { Tag, Edit, Trash2, Plus } from '@lucide/svelte';
-  import * as Card from '$lib/components/ui/card';
-  import { Button } from '$lib/components/ui/button';
-  import { Badge } from '$lib/components/ui/badge';
-  import { LabelPill } from '$lib/components/ui/label-pill';
-  import { Skeleton } from '$lib/components/ui/skeleton';
-  import { labelsStore } from '$lib/stores/labels.svelte';
+  /**
+   * Labels Management Page
+   * Vue parity: app/javascript/dashboard/routes/dashboard/settings/labels/Index.vue
+   */
 
-  // Get labels from store
+  import { onMount } from 'svelte';
+  import { Plus, Pen, Trash2 } from 'lucide-svelte';
+  import { Button } from '$lib/components/ui/button';
+  import { labelsStore } from '$lib/stores/labels.svelte';
+  import BaseSettingsHeader from '../components/BaseSettingsHeader.svelte';
+
   const labels = $derived(labelsStore.allLabels);
   const isLoading = $derived(labelsStore.isLoading);
 
   onMount(async () => {
-    // Fetch labels from store
     await labelsStore.fetchLabels();
   });
 </script>
 
-<div class="space-y-6">
-  <!-- Header -->
-  <div
-    class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+<div class="flex flex-col w-full h-full gap-8">
+  <BaseSettingsHeader
+    title="Labels"
+    description="Labels help you categorize and prioritize conversations. You can assign a label to a conversation from the sidebar panel."
+    linkText="Learn more about labels"
+    linkUrl="https://www.chatwoot.com/hc/user-guide/articles/1677579743-how-to-create-and-manage-labels"
   >
-    <div>
-      <h1 class="text-3xl font-bold">Label Management</h1>
-      <p class="text-muted-foreground">Organize conversations with labels</p>
-    </div>
-    <Button>
-      <Plus class="mr-2 h-4 w-4" />
-      New Label
-    </Button>
-  </div>
+    {#snippet actions()}
+      <Button>
+        <Plus class="mr-2 h-4 w-4" />
+        Add Label
+      </Button>
+    {/snippet}
+  </BaseSettingsHeader>
 
-  <!-- Label count -->
-  <div class="mb-4">
-    <p class="text-sm text-muted-foreground">
-      {labels.length}
-      {labels.length === 1 ? 'label' : 'labels'}
-    </p>
-  </div>
-
-  <!-- Loading state -->
-  {#if isLoading}
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {#each Array(8) as _}
-        <Card.Root>
-          <Card.Content class="p-4">
-            <div class="space-y-3">
-              <div class="flex items-center gap-2">
-                <Skeleton class="h-4 w-4 rounded-full" />
-                <Skeleton class="h-5 w-32" />
-              </div>
-              <Skeleton class="h-4 w-full" />
-              <Skeleton class="h-6 w-20" />
-            </div>
-          </Card.Content>
-        </Card.Root>
-      {/each}
-    </div>
-  {:else if labels.length === 0}
-    <!-- Empty state -->
-    <Card.Root>
-      <Card.Content class="flex flex-col items-center justify-center py-12">
-        <Tag class="mb-4 h-12 w-12 text-muted-foreground" />
-        <h3 class="mb-2 text-lg font-semibold">No labels yet</h3>
-        <p class="mb-4 text-center text-sm text-muted-foreground">
-          Create labels to organize and categorize your conversations
-        </p>
-        <Button>
-          <Plus class="mr-2 h-4 w-4" />
-          Create Label
-        </Button>
-      </Card.Content>
-    </Card.Root>
-  {:else}
-    <!-- Labels grid -->
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {#each labels as label (label.id)}
-        <Card.Root
-          class="transition-all hover:scale-105 hover:shadow-md"
-          style="border-color: {label.color}; background: {label.color}10;"
-        >
-          <Card.Content class="p-4">
-            <!-- Label header -->
-            <div class="mb-3 flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <LabelPill
-                  title={label.title}
-                  color={label.color}
-                  class="pointer-events-none"
-                />
-              </div>
-            </div>
-
-            <!-- Label description -->
-            {#if label.description}
-              <p class="mb-3 text-sm text-muted-foreground line-clamp-2">
-                {label.description}
-              </p>
-            {/if}
-
-            <!-- Usage count -->
-            <div class="mb-3">
-              <Badge variant="secondary" class="text-xs">
-                {label.conversationsCount || 0} conversations
-              </Badge>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex gap-2">
-              <Button variant="outline" size="sm" class="flex-1">
-                <Edit class="mr-1 h-3 w-3" />
-                Edit
-              </Button>
-              <Button variant="outline" size="sm" class="flex-1">
-                <Trash2 class="mr-1 h-3 w-3" />
-                Delete
-              </Button>
-            </div>
-          </Card.Content>
-        </Card.Root>
-      {/each}
-    </div>
-  {/if}
+  <main>
+    {#if isLoading}
+      <div class="flex justify-center items-center py-20">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"
+        ></div>
+      </div>
+    {:else if labels.length === 0}
+      <p
+        class="flex-1 py-20 text-foreground flex items-center justify-center text-base"
+      >
+        No labels found. Create labels to categorize conversations.
+      </p>
+    {:else}
+      <table class="min-w-full overflow-x-auto divide-y divide-border">
+        <thead>
+          <tr>
+            <th class="py-4 pr-4 text-left font-semibold text-muted-foreground">
+              Name
+            </th>
+            <th class="py-4 pr-4 text-left font-semibold text-muted-foreground">
+              Description
+            </th>
+            <th class="py-4 pr-4 text-left font-semibold text-muted-foreground">
+              Color
+            </th>
+            <th class="py-4 text-right font-semibold text-muted-foreground"
+            ></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border text-foreground">
+          {#each labels as label (label.id)}
+            <tr>
+              <td class="py-4 pr-4">
+                <span class="mb-1 font-medium break-words">
+                  {label.title}
+                </span>
+              </td>
+              <td class="py-4 pr-4 text-muted-foreground">
+                {label.description || ''}
+              </td>
+              <td class="py-4 pr-4 leading-6">
+                <div class="flex items-center">
+                  <span
+                    class="w-4 h-4 mr-2 border border-border rounded"
+                    style="background-color: {label.color}"
+                  ></span>
+                  {label.color}
+                </div>
+              </td>
+              <td class="py-4 min-w-[80px]">
+                <div class="flex gap-1 justify-end">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    class="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    title="Edit"
+                  >
+                    <Pen class="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    class="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    title="Delete"
+                  >
+                    <Trash2 class="h-4 w-4" />
+                  </Button>
+                </div>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    {/if}
+  </main>
 </div>

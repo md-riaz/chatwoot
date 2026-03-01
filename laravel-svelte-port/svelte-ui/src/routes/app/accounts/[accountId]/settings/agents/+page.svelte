@@ -13,7 +13,6 @@
   import * as Table from '$lib/components/ui/table';
   import * as Avatar from '$lib/components/ui/avatar';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
-  import SectionLayout from '../account/components/SectionLayout.svelte';
   import BaseSettingsHeader from '../components/BaseSettingsHeader.svelte';
   import type { Agent } from '$lib/api/agents';
   import AgentDialog from '$lib/components/agents/AgentDialog.svelte';
@@ -101,132 +100,111 @@
   }
 </script>
 
-<div class="flex flex-col w-full space-y-6">
-  <BaseSettingsHeader title="Agents" />
+<div class="flex flex-col w-full h-full gap-8">
+  <BaseSettingsHeader
+    title="Agents"
+    description="An agent is a member of your customer support team. Agents can see and reply to messages from your users."
+    linkText="Learn more about agents"
+    linkUrl="https://www.chatwoot.com/hc/user-guide/articles/1677579639-how-to-create-and-manage-agents-in-chatwoot"
+  >
+    {#snippet actions()}
+      <Button onclick={handleAddAgent}>
+        <Plus class="mr-2 h-4 w-4" />
+        Invite Agent
+      </Button>
+    {/snippet}
+  </BaseSettingsHeader>
 
-  <div class="flex-grow flex-shrink min-w-0 space-y-6">
-    <SectionLayout
-      title="Agents List"
-      description="Manage your team members and their permissions"
-    >
-      {#snippet headerActions()}
-        <Button onclick={handleAddAgent}>
-          <Plus class="mr-2 h-4 w-4" />
-          Invite Agent
-        </Button>
-      {/snippet}
-
-      {#if isLoading}
-        <div class="flex justify-center items-center py-20">
-          <div
-            class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"
-          ></div>
-        </div>
-      {:else if agents.length === 0}
+  <main>
+    {#if isLoading}
+      <div class="flex justify-center items-center py-20">
         <div
-          class="text-center py-12 border rounded-lg bg-card text-card-foreground"
-        >
-          <div class="mb-4">
-            <svg
-              class="mx-auto h-16 w-16 text-muted-foreground"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-          </div>
-          <h2 class="text-xl font-semibold mb-2">No agents found</h2>
-          <p class="text-muted-foreground mb-4">
-            Add team members to start collaborating
-          </p>
-          <Button onclick={handleAddAgent}>Invite Your First Agent</Button>
-        </div>
-      {:else}
-        <div class="rounded-md border">
-          <Table.Root>
-            <Table.Body>
-              {#each agents as agent}
-                <Table.Row class="hover:bg-muted/50">
-                  <Table.Cell class="py-4">
-                    <div class="flex flex-row items-center gap-4">
-                      <Avatar.Root class="h-10 w-10">
-                        <Avatar.Image
-                          src={agent.thumbnail || ''}
-                          alt={agent.name}
-                        />
-                        <Avatar.Fallback
-                          class="bg-primary/10 text-primary font-semibold"
-                        >
-                          {(agent.name || agent.email || 'A')
-                            .charAt(0)
-                            .toUpperCase()}
-                        </Avatar.Fallback>
-                      </Avatar.Root>
-                      <div>
-                        <span class="block font-medium capitalize">
-                          {agent.name}
-                        </span>
-                        <span class="text-muted-foreground">{agent.email}</span>
-                      </div>
-                    </div>
-                  </Table.Cell>
-
-                  <Table.Cell class="py-4">
-                    <span class="block font-medium w-fit capitalize">
-                      {getAgentRoleName(agent)}
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"
+        ></div>
+      </div>
+    {:else if agents.length === 0}
+      <p
+        class="flex-1 py-20 text-foreground flex items-center justify-center text-base"
+      >
+        No agents found. Invite team members to get started.
+      </p>
+    {:else}
+      <table class="min-w-full overflow-x-auto">
+        <tbody class="divide-y divide-border flex-1 text-foreground">
+          {#each agents as agent}
+            <tr>
+              <td class="py-4 pr-4">
+                <div class="flex flex-row items-center gap-4">
+                  <Avatar.Root class="h-10 w-10">
+                    <Avatar.Image
+                      src={agent.thumbnail || ''}
+                      alt={agent.name}
+                    />
+                    <Avatar.Fallback
+                      class="bg-primary/10 text-primary font-semibold"
+                    >
+                      {(agent.name || agent.email || 'A')
+                        .charAt(0)
+                        .toUpperCase()}
+                    </Avatar.Fallback>
+                  </Avatar.Root>
+                  <div>
+                    <span class="block font-medium capitalize">
+                      {agent.name}
                     </span>
-                  </Table.Cell>
+                    <span class="text-muted-foreground">{agent.email}</span>
+                  </div>
+                </div>
+              </td>
 
-                  <Table.Cell class="py-4">
-                    <span class="text-muted-foreground">
-                      {#if agent.confirmed}
-                        Verified
-                      {:else}
-                        Verification Pending
-                      {/if}
-                    </span>
-                  </Table.Cell>
+              <td class="py-4 pr-4">
+                <span class="block font-medium w-fit capitalize">
+                  {getAgentRoleName(agent)}
+                </span>
+              </td>
 
-                  <Table.Cell class="py-4 text-right">
-                    <div class="flex justify-end gap-1">
-                      {#if showEditAction(agent)}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          class="h-8 w-8 text-muted-foreground hover:text-foreground"
-                          title="Edit Agent"
-                          onclick={() => handleEditAgent(agent)}
-                        >
-                          <Pen class="h-4 w-4" />
-                        </Button>
-                      {/if}
-                      {#if showDeleteAction(agent)}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          class="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                          title="Delete Agent"
-                          onclick={() => handleDeleteClick(agent)}
-                        >
-                          <Trash2 class="h-4 w-4" />
-                        </Button>
-                      {/if}
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
-              {/each}
-            </Table.Body>
-          </Table.Root>
-        </div>
-      {/if}
-    </SectionLayout>
-  </div>
+              <td class="py-4 pr-4">
+                <span class="text-muted-foreground">
+                  {#if agent.confirmed}
+                    Verified
+                  {:else}
+                    Verification Pending
+                  {/if}
+                </span>
+              </td>
+
+              <td class="py-4 text-right">
+                <div class="flex justify-end gap-1">
+                  {#if showEditAction(agent)}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="h-8 w-8 text-muted-foreground hover:text-foreground"
+                      title="Edit Agent"
+                      onclick={() => handleEditAgent(agent)}
+                    >
+                      <Pen class="h-4 w-4" />
+                    </Button>
+                  {/if}
+                  {#if showDeleteAction(agent)}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      title="Delete Agent"
+                      onclick={() => handleDeleteClick(agent)}
+                    >
+                      <Trash2 class="h-4 w-4" />
+                    </Button>
+                  {/if}
+                </div>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    {/if}
+  </main>
 </div>
 
 <!-- Create Agent Dialog -->

@@ -22,6 +22,7 @@ class ConversationResource extends JsonResource
             'display_id' => $this->display_id,
             'status' => $this->status,
             'priority' => $this->priority,
+            'muted' => (bool) $this->muted,
             'uuid' => $this->uuid,
             'custom_attributes' => $this->custom_attributes,
             'first_reply_created_at' => $this->first_reply_created_at?->toISOString(),
@@ -31,11 +32,50 @@ class ConversationResource extends JsonResource
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
 
-            // Relationships (when loaded)
+            // Rails parity: meta object with sender, channel, assignee, team
+            'meta' => $this->buildMeta(),
+
+            // Relationships (when loaded) — kept for backward compat
             'contact' => new ContactResource($this->whenLoaded('contact')),
             'inbox' => new InboxResource($this->whenLoaded('inbox')),
             'assignee' => new UserResource($this->whenLoaded('assignee')),
             'messages_count' => $this->whenCounted('messages'),
         ];
+    }
+
+    /**
+     * Build the meta object matching Rails API format.
+     * Rails: meta.sender, meta.channel, meta.assignee, meta.team, meta.hmac_verified
+     */
+    private function buildMeta(): array
+    {
+        $meta = [];
+
+        // sender = contact (Rails wraps contact as meta.sender)
+        if ($this->relationLoaded('contact') && $this->contact) {
+            $meta['sender'] = new ContactResource($this->contact);
+        }
+
+        // channel = inbox channel_type
+        if ($this->relationLoaded('inbox') && $this->inbox) {
+            $meta['channel'] = $this->inbox->channel_type;
+        }
+
+        // assignee
+        if ($this->relationLoaded('assignee') && $this->assignee) {
+            $meta['assignee'] = new UserResource($this->assignee);
+        }
+
+        // team
+        if ($this->relationLoaded('team') && $this->team) {
+            $meta['team'] = [
+                'id' => $this->team->id,
+                'name' => $this->team->name,
+            ];
+        }
+
+        $meta['hmac_verified'] = true; // Default for non-widget inboxes
+
+        return $meta;
     }
 }

@@ -38,20 +38,14 @@
     onsubmit?: (data: FormData) => void;
   } = $props();
 
-  // Form state
-  let name = $state(initialData?.name ?? '');
-  let description = $state(initialData?.description ?? '');
-  let enabled = $state(initialData?.enabled ?? false);
-  let assignmentOrder = $state(initialData?.assignmentOrder ?? ROUND_ROBIN);
-  let conversationPriority = $state(
-    initialData?.conversationPriority ?? EARLIEST_CREATED
-  );
-  let fairDistributionLimit = $state(
-    initialData?.fairDistributionLimit ?? DEFAULT_FAIR_DISTRIBUTION_LIMIT
-  );
-  let fairDistributionWindow = $state(
-    initialData?.fairDistributionWindow ?? DEFAULT_FAIR_DISTRIBUTION_WINDOW
-  );
+  // Form state - initialized to defaults, $effect syncs from initialData
+  let name = $state('');
+  let description = $state('');
+  let enabled = $state(false);
+  let assignmentOrder = $state(ROUND_ROBIN);
+  let conversationPriority = $state(EARLIEST_CREATED);
+  let fairDistributionLimit = $state(DEFAULT_FAIR_DISTRIBUTION_LIMIT);
+  let fairDistributionWindow = $state(DEFAULT_FAIR_DISTRIBUTION_WINDOW);
 
   // Update form when initialData changes (for edit mode)
   $effect(() => {

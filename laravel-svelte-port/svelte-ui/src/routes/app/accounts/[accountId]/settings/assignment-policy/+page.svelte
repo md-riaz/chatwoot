@@ -9,14 +9,6 @@
   import { goto } from '$app/navigation';
   import BaseSettingsHeader from '../components/BaseSettingsHeader.svelte';
   import AssignmentCard from '$lib/components/assignment-policy/AssignmentCard.svelte';
-  import {
-    ArrowUpCircle,
-    Scale,
-    Inbox,
-    GlassWater,
-    CircleMinus,
-    UsersRound,
-  } from 'lucide-svelte';
 
   let accountId = $derived($page.params.accountId);
 
@@ -26,19 +18,10 @@
       title: 'Agent Assignment Policy',
       description:
         'Configure how new conversations are automatically routed and distributed among your agents.',
-      features: [
-        {
-          icon: ArrowUpCircle,
-          label: 'Round-robin and balanced assignment strategies',
-        },
-        {
-          icon: Scale,
-          label: 'Fair distribution limits across agents',
-        },
-        {
-          icon: Inbox,
-          label: 'Inbox-level policy configuration',
-        },
+      featureLabels: [
+        'Round-robin and balanced assignment strategies',
+        'Fair distribution limits across agents',
+        'Inbox-level policy configuration',
       ],
     },
     {
@@ -46,19 +29,10 @@
       title: 'Agent Capacity Policy',
       description:
         'Set conversation capacity limits for agents to prevent overloading and ensure quality support.',
-      features: [
-        {
-          icon: GlassWater,
-          label: 'Per-agent conversation capacity limits',
-        },
-        {
-          icon: CircleMinus,
-          label: 'Exclusion rules for specific labels or older conversations',
-        },
-        {
-          icon: UsersRound,
-          label: 'Agent-level capacity management',
-        },
+      featureLabels: [
+        'Per-agent conversation capacity limits',
+        'Exclusion rules for specific labels or older conversations',
+        'Agent-level capacity management',
       ],
     },
   ];
@@ -68,7 +42,7 @@
   }
 </script>
 
-<div class="flex flex-col max-w-4xl mx-auto w-full p-6">
+<div class="flex flex-col w-full space-y-6">
   <BaseSettingsHeader title="Assignment Policy" />
 
   <p class="text-muted-foreground mb-8">
@@ -81,7 +55,7 @@
       <AssignmentCard
         title={card.title}
         description={card.description}
-        features={card.features}
+        featureLabels={card.featureLabels}
         onclick={() => handleCardClick(card.key)}
       />
     {/each}
