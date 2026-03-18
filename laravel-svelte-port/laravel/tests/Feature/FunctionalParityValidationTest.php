@@ -99,8 +99,6 @@ class FunctionalParityValidationTest extends TestCase
         // Test Shopify Integration
         $this->validate_shopify_integration_functionality();
         
-        // Test OpenAI Integration
-        $this->validate_openai_integration_functionality();
     }
 
     /**
@@ -455,23 +453,6 @@ class FunctionalParityValidationTest extends TestCase
         $response = $this->postJson("/api/v1/accounts/{$this->account->id}/integrations/shopify", $integrationData);
         $response->assertStatus(201)
                 ->assertJsonFragment(['name' => 'Shopify Integration']);
-    }
-
-    private function validate_openai_integration_functionality(): void
-    {
-        // Test OpenAI integration configuration
-        $integrationData = [
-            'name' => 'OpenAI Integration',
-            'hook_type' => 'openai',
-            'settings' => [
-                'api_key' => 'test_api_key',
-                'model' => 'gpt-3.5-turbo'
-            ]
-        ];
-        
-        $response = $this->postJson("/api/v1/accounts/{$this->account->id}/integrations/openai", $integrationData);
-        $response->assertStatus(201)
-                ->assertJsonFragment(['name' => 'OpenAI Integration']);
     }
 
     // ========================================

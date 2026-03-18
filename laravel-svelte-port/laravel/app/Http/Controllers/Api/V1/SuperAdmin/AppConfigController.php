@@ -107,7 +107,6 @@ class AppConfigController extends Controller
                 'twilio' => !empty(config('services.twilio.account_sid')),
                 'whatsapp' => !empty(config('services.whatsapp.access_token')),
                 'telegram' => !empty(config('services.telegram.bot_token')),
-                'openai' => !empty(config('services.openai.api_key')),
             ],
             
             // System status

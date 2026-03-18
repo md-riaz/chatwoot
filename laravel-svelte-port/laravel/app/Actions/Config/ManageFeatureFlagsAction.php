@@ -84,14 +84,6 @@ class ManageFeatureFlagsAction
                 'chatwoot_internal' => false,
                 'help_url' => 'https://docs.chatwoot.com/integrations/email',
             ],
-            'openai_integration' => [
-                'display_name' => 'OpenAI Integration',
-                'description' => 'AI-powered conversation assistance',
-                'enabled' => false,
-                'premium' => true,
-                'chatwoot_internal' => false,
-                'help_url' => 'https://docs.chatwoot.com/integrations/openai',
-            ],
             'audit_logs' => [
                 'display_name' => 'Audit Logs',
                 'description' => 'Comprehensive activity logging and monitoring',

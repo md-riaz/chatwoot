@@ -19,6 +19,22 @@ export interface LaravelPaginationResponse<T> {
   links: any;
 }
 
+interface LaravelMetaPagination {
+  current_page: number;
+  from: number | null;
+  last_page: number;
+  path: string;
+  per_page: number;
+  to: number | null;
+  total: number;
+}
+
+interface WrappedPaginationResponse<T> {
+  data: T[];
+  links: any;
+  meta: LaravelMetaPagination;
+}
+
 // SuperAdmin-specific types
 export interface Account {
   id: number;
@@ -212,6 +228,26 @@ export interface PaginationParams {
   [key: string]: string | number | boolean | undefined;
 }
 
+function normalizePaginationResponse<T>(
+  response: LaravelPaginationResponse<T> | WrappedPaginationResponse<T>
+): LaravelPaginationResponse<T> {
+  if ('meta' in response) {
+    return {
+      data: response.data,
+      current_page: response.meta.current_page,
+      last_page: response.meta.last_page,
+      per_page: response.meta.per_page,
+      total: response.meta.total,
+      from: response.meta.from,
+      to: response.meta.to,
+      path: response.meta.path,
+      links: response.links,
+    };
+  }
+
+  return response;
+}
+
 /**
  * SuperAdmin API methods
  */
@@ -228,7 +264,11 @@ export const superAdminApi = {
 
   // Accounts
   getAccounts: async (params?: PaginationParams): Promise<AccountsListResponse> => {
-    return api.get('api/v1/super_admin/accounts', { searchParams: toSearchParams(params) }).json();
+    const response = await api
+      .get('api/v1/super_admin/accounts', { searchParams: toSearchParams(params) })
+      .json<LaravelPaginationResponse<Account> | WrappedPaginationResponse<Account>>();
+
+    return normalizePaginationResponse(response);
   },
 
   getAccount: async (id: number): Promise<Account> => {

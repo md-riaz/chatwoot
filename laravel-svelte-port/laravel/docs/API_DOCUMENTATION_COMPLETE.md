@@ -379,15 +379,6 @@ curl -X POST "https://api.example.com/api/v1/accounts/1/integrations/slack" \
 | GET | `/accounts/{account}/integrations/linear/teams` | List Linear teams | Bearer | Admin |
 | POST | `/accounts/{account}/integrations/linear/issues` | Create Linear issue | Bearer | Admin |
 
-### OpenAI Integration
-
-| Method | Endpoint | Description | Auth Required | Permission |
-|--------|----------|-------------|---------------|------------|
-| GET | `/accounts/{account}/integrations/openai` | Get OpenAI integration | Bearer | Admin |
-| POST | `/accounts/{account}/integrations/openai` | Create OpenAI integration | Bearer | Admin |
-| POST | `/accounts/{account}/integrations/openai/summarize` | Summarize conversation | Bearer | Member |
-| POST | `/accounts/{account}/integrations/openai/suggest` | Get reply suggestions | Bearer | Member |
-
 ## Super Admin APIs
 
 ### Dashboard and Analytics

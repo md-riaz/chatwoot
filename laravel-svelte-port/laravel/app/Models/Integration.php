@@ -55,7 +55,6 @@ class Integration extends Model
             'slack',
             'linear',
             'dialogflow',
-            'openai',
             'shopify',
             'google_translate',
             'dyte',

@@ -19,7 +19,6 @@ This document provides detailed information about each integration type in Clear
 2. [Third-Party Integrations](#third-party-integrations)
    - [Slack](#slack)
    - [Dialogflow](#dialogflow)
-   - [OpenAI](#openai)
    - [Linear](#linear)
    - [Shopify](#shopify)
 
@@ -497,31 +496,6 @@ POST /api/v1/accounts/{account}/integrations/dialogflow/detect_intent
 2. Configure integration in ClearLine settings
 
 **Configuration:**
-```php
-[
-    'api_key' => 'sk-...',
-    'model' => 'gpt-4',
-    'max_tokens' => 500,
-]
-```
-
-**Available Actions:**
-- `suggest_reply` - Generate reply suggestions
-- `summarize` - Summarize conversation
-- `fix_spelling` - Fix spelling and grammar
-- `expand` - Expand short message
-- `shorten` - Make message more concise
-- `change_tone` - Adjust message tone (formal/friendly)
-
-**API Endpoints:**
-```
-GET  /api/v1/accounts/{account}/integrations/openai
-POST /api/v1/accounts/{account}/integrations/openai
-POST /api/v1/accounts/{account}/integrations/openai/actions/{action}
-```
-
----
-
 ### Linear
 
 **Purpose:** Create Linear issues from conversations.

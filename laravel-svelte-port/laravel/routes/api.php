@@ -34,7 +34,6 @@ use App\Http\Controllers\Api\V1\InboxesController;
 use App\Http\Controllers\Api\V1\Integrations\DialogflowController;
 use App\Http\Controllers\Api\V1\Integrations\IntegrationsController;
 use App\Http\Controllers\Api\V1\Integrations\LinearController;
-use App\Http\Controllers\Api\V1\Integrations\OpenAIController;
 use App\Http\Controllers\Api\V1\Integrations\ShopifyController;
 use App\Http\Controllers\Api\V1\Integrations\SlackController;
 use App\Http\Controllers\Api\V1\LabelsController;
@@ -708,14 +707,6 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
             Route::get('shopify/contacts/{contact}/orders', [ShopifyController::class, 'orders']);
             Route::get('shopify/orders/{order}', [ShopifyController::class, 'order']);
             
-            // OpenAI
-            Route::get('openai', [OpenAIController::class, 'show']);
-            Route::post('openai', [OpenAIController::class, 'create']);
-            Route::patch('openai', [OpenAIController::class, 'update']);
-            Route::delete('openai', [OpenAIController::class, 'destroy']);
-            Route::post('openai/suggest', [OpenAIController::class, 'suggest']);
-            Route::post('openai/summarize', [OpenAIController::class, 'summarize']);
-            Route::post('openai/improve_tone', [OpenAIController::class, 'improveTone']);
         });
 
         // Companies

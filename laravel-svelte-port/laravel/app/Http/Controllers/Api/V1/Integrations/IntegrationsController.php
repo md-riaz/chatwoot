@@ -45,13 +45,6 @@ class IntegrationsController extends Controller
                 'logo' => '/integrations/shopify.png',
             ],
             [
-                'id' => 'openai',
-                'name' => 'OpenAI',
-                'description' => 'AI-powered response suggestions',
-                'enabled' => false,
-                'logo' => '/integrations/openai.png',
-            ],
-            [
                 'id' => 'google_translate',
                 'name' => 'Google Translate',
                 'description' => 'Automatic message translation',

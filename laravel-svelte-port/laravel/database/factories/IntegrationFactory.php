@@ -14,7 +14,7 @@ class IntegrationFactory extends Factory
     {
         return [
             'account_id' => Account::factory(),
-            'type' => $this->faker->randomElement(['slack', 'linear', 'dialogflow', 'openai', 'shopify']),
+            'type' => $this->faker->randomElement(['slack', 'linear', 'dialogflow', 'shopify']),
             'settings' => [],
             'credentials' => [],
             'active' => true,
@@ -44,19 +44,6 @@ class IntegrationFactory extends Factory
             ],
             'credentials' => [
                 'api_key' => 'lin_api_' . $this->faker->regexify('[a-zA-Z0-9]{32}'),
-            ],
-        ]);
-    }
-
-    public function openai(): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'type' => 'openai',
-            'settings' => [
-                'model' => $this->faker->randomElement(['gpt-4', 'gpt-3.5-turbo']),
-            ],
-            'credentials' => [
-                'api_key' => 'sk-' . $this->faker->regexify('[a-zA-Z0-9]{48}'),
             ],
         ]);
     }
