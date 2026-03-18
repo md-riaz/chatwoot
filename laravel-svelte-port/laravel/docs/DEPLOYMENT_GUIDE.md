@@ -167,7 +167,6 @@ THROTTLE_REQUESTS_PER_MINUTE=60
 API_RATE_LIMIT=1000
 
 # Third-party Integrations (Optional)
-OPENAI_API_KEY=your-openai-key
 SLACK_CLIENT_ID=your-slack-client-id
 SLACK_CLIENT_SECRET=your-slack-client-secret
 LINEAR_API_KEY=your-linear-api-key

@@ -53,7 +53,7 @@ class FeatureFlagTransformationTest extends TestCase
     }
 
     /** @test */
-    public function it_shows_what_happens_with_camelcase_keys()
+    public function it_normalizes_camelcase_feature_keys()
     {
         $superAdmin = User::factory()->create([
             'type' => 'SuperAdmin',
@@ -80,13 +80,10 @@ class FeatureFlagTransformationTest extends TestCase
         
         $account->refresh();
         
-        // camelCase keys won't match feature map, so no features enabled
-        $this->assertEquals(0, $account->feature_flags);
-        $this->assertEmpty($account->getEnabledFeatures());
-        
-        dump('CamelCase test - feature_flags:', $account->feature_flags);
-        dump('CamelCase test - enabled features:', $account->getEnabledFeatures());
-        
-        $this->assertTrue(true);
+        $enabledFeatures = $account->getEnabledFeatures();
+
+        $this->assertContains('inbound_emails', $enabledFeatures);
+        $this->assertContains('channel_email', $enabledFeatures);
+        $this->assertContains('help_center', $enabledFeatures);
     }
 }

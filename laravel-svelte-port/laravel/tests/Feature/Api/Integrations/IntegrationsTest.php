@@ -173,24 +173,20 @@ describe('Dialogflow Integration', function () {
     });
 });
 
-describe('OpenAI Integration', function () {
-    test('can create openai integration', function () {
+describe('OpenAI Exclusion', function () {
+    test('does not advertise openai in integration listing', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
         $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
-            ->postJson("/api/v1/accounts/{$account->id}/integrations/apps", [
-                'app_id' => 'openai',
-                'settings' => [
-                    'api_key' => 'sk-mock-key',
-                ],
-            ]);
+            ->getJson("/api/v1/accounts/{$account->id}/integrations/apps");
 
-        $response->assertCreated();
+        $response->assertOk();
+        expect(collect($response->json('data'))->pluck('id'))->not->toContain('openai');
     });
 
-    test('can get reply suggestions', function () {
+    test('returns not found for openai endpoints', function () {
         $admin = User::factory()->create();
         $account = Account::factory()->create();
         $account->users()->attach($admin->id, ['role' =>   0]);
@@ -200,20 +196,7 @@ describe('OpenAI Integration', function () {
                 'conversation_id' => 1,
             ]);
 
-        $response->assertOk();
-    });
-
-    test('can summarize conversation', function () {
-        $admin = User::factory()->create();
-        $account = Account::factory()->create();
-        $account->users()->attach($admin->id, ['role' =>   0]);
-
-        $response = $this->actingAs($admin, 'sanctum')
-            ->postJson("/api/v1/accounts/{$account->id}/integrations/openai/summarize", [
-                'conversation_id' => 1,
-            ]);
-
-        $response->assertOk();
+        expect([404, 405])->toContain($response->status());
     });
 });
 

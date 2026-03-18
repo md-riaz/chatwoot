@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('integrations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
-            $table->string('type')->comment('slack, linear, dialogflow, openai, shopify, etc.');
+            $table->string('type')->comment('slack, linear, dialogflow, shopify, etc.');
             $table->json('settings')->nullable();
             $table->json('credentials')->nullable();
             $table->boolean('active')->default(true);
