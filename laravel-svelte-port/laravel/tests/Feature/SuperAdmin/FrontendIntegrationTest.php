@@ -69,7 +69,7 @@ class FrontendIntegrationTest extends TestCase
     }
 
     /** @test */
-    public function it_demonstrates_the_problem_scenario()
+    public function it_accepts_camelcase_feature_keys_as_a_server_side_fallback()
     {
         $superAdmin = User::factory()->create([
             'type' => 'SuperAdmin',
@@ -97,12 +97,10 @@ class FrontendIntegrationTest extends TestCase
         
         $account->refresh();
         
-        // camelCase keys won't match the feature map, so no features should be enabled
-        $this->assertEquals(0, $account->feature_flags, 'camelCase keys should not enable any features');
-        $this->assertEmpty($account->getEnabledFeatures(), 'No features should be enabled with camelCase keys');
-        
-        dump('Problem confirmed: No features enabled with camelCase keys');
-        
-        $this->assertTrue(true);
+        $enabledFeatures = $account->getEnabledFeatures();
+
+        $this->assertContains('inbound_emails', $enabledFeatures);
+        $this->assertContains('channel_email', $enabledFeatures);
+        $this->assertContains('help_center', $enabledFeatures);
     }
 }

@@ -33,9 +33,9 @@ class FeatureFlagUpdateTest extends TestCase
             'selected_feature_flags' => [
                 'macros',
                 'labels', 
-                'custom_branding',
+                'audit_logs',
                 'saml',
-                'sla_policies'
+                'sla'
             ]
         ];
         
@@ -49,9 +49,9 @@ class FeatureFlagUpdateTest extends TestCase
         
         $this->assertTrue($account->feature_enabled('macros'));
         $this->assertTrue($account->feature_enabled('labels'));
-        $this->assertTrue($account->feature_enabled('custom_branding'));
+        $this->assertTrue($account->feature_enabled('audit_logs'));
         $this->assertTrue($account->feature_enabled('saml'));
-        $this->assertTrue($account->feature_enabled('sla_policies'));
+        $this->assertTrue($account->feature_enabled('sla'));
         
         // Verify API response includes the features
         $responseData = $response->json('data');
@@ -59,8 +59,8 @@ class FeatureFlagUpdateTest extends TestCase
         
         $this->assertContains('macros', $selectedFeatures);
         $this->assertContains('labels', $selectedFeatures);
-        $this->assertContains('custom_branding', $selectedFeatures);
+        $this->assertContains('audit_logs', $selectedFeatures);
         $this->assertContains('saml', $selectedFeatures);
-        $this->assertContains('sla_policies', $selectedFeatures);
+        $this->assertContains('sla', $selectedFeatures);
     }
 }

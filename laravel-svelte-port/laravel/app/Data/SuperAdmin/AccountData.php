@@ -36,6 +36,10 @@ class AccountData extends Data
         #[Nullable]
         public ?array $selected_feature_flags = null,
         #[Nullable]
+        public ?array $manually_managed_features = null,
+        #[Nullable]
+        public ?array $enabled_features = null,
+        #[Nullable]
         public ?array $all_features = null,
         #[Nullable]
         public ?array $account_users = null,

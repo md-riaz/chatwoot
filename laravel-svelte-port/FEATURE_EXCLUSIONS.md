@@ -92,6 +92,7 @@ Do not implement AI-related API endpoints.
 **Endpoints to skip:**
 - `/api/v1/copilot/*`
 - `/api/v1/captain/*`
+- `/api/v1/accounts/*/integrations/openai*`
 - `/api/v1/ai/suggestions`
 - `/api/v1/ml/predictions`
 

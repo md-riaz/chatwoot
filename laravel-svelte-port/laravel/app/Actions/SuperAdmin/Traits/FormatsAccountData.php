@@ -4,7 +4,6 @@ namespace App\Actions\SuperAdmin\Traits;
 
 use App\Data\SuperAdmin\AccountData;
 use App\Data\SuperAdmin\AccountListData;
-use App\Enums\AccountStatus;
 use App\Models\Account;
 
 trait FormatsAccountData
@@ -86,20 +85,9 @@ trait FormatsAccountData
         return $locale;
     }
 
-    /**
-     * Format account status
-     */
-    protected function formatStatus(AccountStatus $status): string
+    private function formatStatus($status): string
     {
-        return $status->getName();
-    }
-
-    /**
-     * Parse status string to enum for database storage
-     */
-    protected function parseStatus(string $status): AccountStatus
-    {
-        return AccountStatus::fromString($status);
+        return method_exists($status, 'getName') ? $status->getName() : (string) $status;
     }
 
     /**
@@ -107,15 +95,7 @@ trait FormatsAccountData
      */
     private function formatLimits(Account $account): array
     {
-        $limits = $account->limits ?? [];
-        
-        // Ensure consistent structure matching Rails
-        return [
-            'agents' => $limits['agents'] ?? null,
-            'inboxes' => $limits['inboxes'] ?? null,
-            'captain_responses' => $limits['captain_responses'] ?? null,
-            'captain_documents' => $limits['captain_documents'] ?? null,
-        ];
+        return $account->limits ?? [];
     }
 
     /**
@@ -136,49 +116,7 @@ trait FormatsAccountData
      */
     private function getSelectedFeatureFlags(Account $account): array
     {
-        $flagMap = [
-            'email' => 1,
-            'sms' => 2,
-            'messenger' => 4,
-            'telegram' => 8,
-            'whatsapp' => 16,
-            'tiktok' => 32,
-            'instagram' => 64,
-            'line' => 128,
-            'macros' => 256,
-            'labels' => 512,
-            'teams' => 1024,
-            'reports' => 2048,
-            'campaigns' => 4096,
-            'webhooks' => 8192,
-            'google' => 16384,
-            'microsoft' => 32768,
-            'linear' => 65536,
-            'slack' => 131072,
-            'shopify' => 262144,
-            'cannedResponses' => 524288,
-            'helpCenter' => 1048576,
-            'automationRules' => 2097152,
-            'customAttributes' => 4194304,
-            'liveChat' => 8388608,
-        ];
-        
-        $selectedFlags = [];
-        
-        // Convert bitmask to array of enabled features
-        foreach ($flagMap as $feature => $flag) {
-            if (($account->feature_flags & $flag) !== 0) {
-                $selectedFlags[] = $feature;
-            }
-        }
-        
-        // Add manually managed features if in Chatwoot Cloud
-        if (config('app.chatwoot_cloud', false)) {
-            $manuallyManaged = $this->getManuallyManagedFeatures($account);
-            $selectedFlags = array_merge($selectedFlags, $manuallyManaged);
-        }
-        
-        return array_unique($selectedFlags);
+        return $account->getEnabledFeatures();
     }
 
     /**
@@ -186,69 +124,32 @@ trait FormatsAccountData
      */
     private function getAllFeatures(Account $account): array
     {
-        // Base features available to all accounts
-        $regularFeatures = [
-            // Communication Channels
-            'live_chat' => true,
-            'email' => true,
-            'sms' => true,
-            'messenger' => true,
-            'instagram' => true,
-            'whatsapp' => true,
-            'telegram' => true,
-            'line' => true,
-            'tiktok' => true,
-            
-            // Product Features
-            'help_center' => true,
-            'macros' => true,
-            'canned_responses' => true,
-            'labels' => true,
-            'teams' => true,
-            'custom_attributes' => true,
-            'automation_rules' => true,
-            'webhooks' => true,
-            'campaigns' => true,
-            'reports' => true,
-            
-            // OAuth & Authentication
-            'google' => true,
-            'microsoft' => true,
-            
-            // Third-party Integrations
-            'linear' => true,
-            'slack' => true,
-            'shopify' => true,
-        ];
+        $allFeatures = [];
 
-        // Premium/Enterprise features
-        $premiumFeatures = [
-            'captain' => config('app.enterprise', false),
-            'saml' => config('app.enterprise', false),
-            'custom_branding' => config('app.enterprise', false),
-            'agent_capacity' => config('app.enterprise', false),
-            'audit_logs' => config('app.enterprise', false),
-            'disable_branding' => config('app.enterprise', false),
-            'advanced_reporting' => config('app.enterprise', false),
-            'crm_integration' => config('app.enterprise', false),
-            'notion_integration' => config('app.enterprise', false),
-        ];
+        foreach (config('features.features', []) as $feature) {
+            $name = $feature['name'] ?? null;
 
-        // Merge features based on account capabilities
-        $allFeatures = array_merge($regularFeatures, $premiumFeatures);
+            if (! is_string($name) || $name === '') {
+                continue;
+            }
 
-        // Apply account-specific feature overrides from bitmask
-        $selectedFeatures = $this->getSelectedFeatureFlags($account);
-        foreach ($selectedFeatures as $feature) {
-            $allFeatures[$feature] = true;
+            $allFeatures[$name] = [
+                'available' => true,
+                'display_name' => $feature['display_name'] ?? ucwords(str_replace('_', ' ', $name)),
+                'enabled' => $feature['enabled'] ?? false,
+                'premium' => $feature['premium'] ?? false,
+                'help_url' => $feature['help_url'] ?? null,
+            ];
         }
 
-        // Apply manually managed features if in Chatwoot Cloud
-        if (config('app.chatwoot_cloud', false)) {
-            $manuallyManaged = $this->getManuallyManagedFeatures($account);
-            foreach ($manuallyManaged as $feature) {
-                $allFeatures[$feature] = true;
-            }
+        foreach ($this->getSelectedFeatureFlags($account) as $feature) {
+            $allFeatures[$feature] ??= [
+                'available' => true,
+                'display_name' => ucwords(str_replace('_', ' ', $feature)),
+                'enabled' => false,
+                'premium' => false,
+                'help_url' => null,
+            ];
         }
 
         return $allFeatures;

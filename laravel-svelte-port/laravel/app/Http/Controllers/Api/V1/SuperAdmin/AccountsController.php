@@ -2,305 +2,95 @@
 
 namespace App\Http\Controllers\Api\V1\SuperAdmin;
 
-use App\Actions\SuperAdmin\Traits\FormatsAccountData;
-use App\Enums\AccountStatus;
-use App\Http\Controllers\Controller;
+use App\Actions\SuperAdmin\CreateAccountAction;
+use App\Actions\SuperAdmin\DeleteAccountAction;
+use App\Actions\SuperAdmin\GetAccountAction;
+use App\Actions\SuperAdmin\ListAccountsAction;
+use App\Actions\SuperAdmin\ResetAccountCacheAction;
+use App\Actions\SuperAdmin\SeedAccountAction;
+use App\Actions\SuperAdmin\UpdateAccountAction;
+use App\Data\SuperAdmin\AccountData;
 use App\Http\Controllers\Concerns\RendersStandardizedErrors;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\SuperAdmin\AccountRequest;
 use App\Models\Account;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Validation\ValidationException;
 
 class AccountsController extends Controller
 {
-    use RendersStandardizedErrors, FormatsAccountData;
+    use RendersStandardizedErrors;
 
-    /**
-     * Transform account data to match Rails format.
-     * With simplified naming from features.yml, no mapping needed!
-     */
-    private function transformAccount($account): array
-    {
-        // Get enabled features - returns feature names directly
-        $enabledFeatures = $account->getEnabledFeatures();
-        
-        // Get all available features from Laravel config
-        $allAvailableFeatures = config('features.features', []);
-        
-        // Create allFeatures object with feature metadata for frontend
-        $allFeatures = [];
-        foreach ($allAvailableFeatures as $feature) {
-            $allFeatures[$feature['name']] = [
-                'available' => true,
-                'display_name' => $feature['display_name'] ?? ucwords(str_replace('_', ' ', $feature['name'])),
-                'enabled' => $feature['enabled'] ?? false,
-                'premium' => $feature['premium'] ?? false,
-                'help_url' => $feature['help_url'] ?? null,
-            ];
-        }
-        
-        $selectedFeatureFlags = $enabledFeatures;
-        
-        // Format account users if loaded
-        $accountUsers = [];
-        if ($account->relationLoaded('accountUsers')) {
-            $accountUsers = $account->accountUsers->map(function ($accountUser) {
-                return [
-                    'id' => $accountUser->id,
-                    'user_id' => $accountUser->user_id,
-                    'account_id' => $accountUser->account_id,
-                    'role' => $accountUser->role->value,
-                    'role_name' => $accountUser->role->getName(),
-                    'availability' => $accountUser->availability->value,
-                    'availability_name' => $accountUser->availability->getName(),
-                    'active_at' => $accountUser->active_at,
-                    'created_at' => $accountUser->created_at?->toISOString(),
-                    'updated_at' => $accountUser->updated_at?->toISOString(),
-                    'user' => $accountUser->user ? [
-                        'id' => $accountUser->user->id,
-                        'name' => $accountUser->user->name,
-                        'email' => $accountUser->user->email,
-                        'display_name' => $accountUser->user->display_name,
-                    ] : null,
-                    'inviter' => $accountUser->inviter ? [
-                        'id' => $accountUser->inviter->id,
-                        'name' => $accountUser->inviter->name,
-                        'email' => $accountUser->inviter->email,
-                        'display_name' => $accountUser->inviter->display_name,
-                    ] : null,
-                ];
-            })->toArray();
-        }
-        
-        return [
-            'id' => $account->id,
-            'name' => $account->name,
-            'locale' => $account->locale_code ?? 'en',
-            'domain' => $account->domain,
-            'support_email' => $account->support_email,
-            'auto_resolve_duration' => $account->auto_resolve_duration,
-            'status' => $account->status->getName(),
-            'users_count' => $account->users_count ?? 0,
-            'inboxes_count' => $account->inboxes_count ?? 0,
-            'conversations_count' => $account->conversations_count ?? 0,
-            'contacts_count' => $account->contacts_count ?? 0,
-            'selected_feature_flags' => $selectedFeatureFlags,
-            'all_features' => $allFeatures,
-            'account_users' => $accountUsers,
-            'settings' => $account->settings ?? [],
-            'limits' => $account->limits ?? [],
-            'custom_attributes' => $account->custom_attributes ?? [],
-            'internal_attributes' => $account->internal_attributes ?? [],
-            'created_at' => $account->created_at?->toISOString(),
-            'updated_at' => $account->updated_at?->toISOString(),
-        ];
-    }
-
-    /**
-     * List all accounts (paginated).
-     */
     public function index(Request $request): JsonResponse
     {
         try {
-            $query = Account::query();
+            $accounts = ListAccountsAction::run(
+                perPage: (int) $request->input('per_page', 20),
+                page: (int) $request->input('page', 1),
+                search: $request->input('search'),
+                status: $request->input('status'),
+                recent: $request->boolean('recent', false),
+                markedForDeletion: $request->boolean('marked_for_deletion', false),
+            );
 
-            // Search filter
-            if ($request->has('search')) {
-                $search = $request->input('search');
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('domain', 'like', "%{$search}%")
-                        ->orWhere('support_email', 'like', "%{$search}%");
-                });
-            }
-
-            // Status filter - convert string to enum for database comparison
-            if ($request->has('status')) {
-                $statusEnum = AccountStatus::fromString($request->input('status'));
-                $query->where('status', $statusEnum);
-            }
-
-            // Recent filter (last 30 days)
-            if ($request->boolean('recent', false)) {
-                $query->where('created_at', '>=', now()->subDays(30));
-            }
-
-            // Marked for deletion filter
-            if ($request->boolean('marked_for_deletion', false)) {
-                $query->whereNotNull('deleted_at');
-            }
-
-            // Add counts
-            $query->withCount(['users', 'inboxes', 'conversations', 'contacts']);
-
-            $accounts = $query->orderBy('created_at', 'desc')
-                ->paginate($request->input('per_page', 20));
-
-            // Transform accounts to match Rails format while keeping Laravel pagination
-            $accounts->getCollection()->transform(function ($account) {
-                return $this->transformAccount($account);
-            });
-
-            return response()->json($accounts);
+            return response()->json([
+                'data' => $accounts->items(),
+                'links' => [
+                    'first' => $accounts->url(1),
+                    'last' => $accounts->url($accounts->lastPage()),
+                    'prev' => $accounts->previousPageUrl(),
+                    'next' => $accounts->nextPageUrl(),
+                ],
+                'meta' => [
+                    'current_page' => $accounts->currentPage(),
+                    'from' => $accounts->firstItem(),
+                    'last_page' => $accounts->lastPage(),
+                    'path' => $accounts->path(),
+                    'per_page' => $accounts->perPage(),
+                    'to' => $accounts->lastItem(),
+                    'total' => $accounts->total(),
+                ],
+            ]);
         } catch (\Throwable $e) {
             return $this->handleException($e);
         }
     }
 
-    /**
-     * Show account details.
-     */
     public function show(Account $account): JsonResponse
     {
         try {
-            // Load counts AND account users with their related data
-            $account->loadCount(['users', 'inboxes', 'conversations', 'contacts']);
-            $account->load(['accountUsers.user', 'accountUsers.inviter']);
-            
-            return response()->json(['data' => $this->transformAccount($account)]);
+            return response()->json(['data' => GetAccountAction::run($account->id)->toArray()]);
         } catch (\Throwable $e) {
             return $this->handleException($e);
         }
     }
 
-    /**
-     * Create a new account.
-     */
-    public function store(Request $request): JsonResponse
+    public function store(AccountRequest $request): JsonResponse
     {
         try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'locale' => 'nullable|string|max:10',
-                'domain' => 'nullable|string|max:255|unique:accounts,domain',
-                'support_email' => 'nullable|email',
-                'auto_resolve_duration' => 'nullable|integer',
-                'settings' => 'nullable|array',
-                'limits' => 'nullable|array',
-                'custom_attributes' => 'nullable|array',
-                'internal_attributes' => 'nullable|array',
-                'features' => 'nullable|array',
-                'manually_managed_features' => 'nullable|array',
-                'selected_feature_flags' => 'nullable|array',
-                'enabled_features' => 'nullable|array', // Rails-compatible format
-                'status' => 'nullable|string|in:active,suspended',
-            ]);
+            $account = CreateAccountAction::run($this->makeAccountData($request));
 
-            // Convert status string to enum for database storage
-            if (isset($validated['status'])) {
-                $validated['status'] = AccountStatus::fromString($validated['status']);
-            }
-
-            // Handle Rails-style feature flag processing (enabled_features format)
-            if ($request->has('enabled_features')) {
-                // Extract feature names from enabled_features keys (remove 'feature_' prefix)
-                $enabledFeatureKeys = array_keys($request->input('enabled_features', []));
-                $featureNames = array_map(function($key) {
-                    return str_replace('feature_', '', $key);
-                }, $enabledFeatureKeys);
-                $validated['selected_feature_flags'] = $featureNames;
-            }
-            // Handle legacy format (selectedFeatureFlags array)
-            elseif ($request->has('selected_feature_flags')) {
-                // Already in correct format
-            }
-            
-            // Handle feature flag updates from frontend
-            if ($request->has('selected_feature_flags')) {
-                $this->updateAccountFeatureFlags($account ?? new Account(), $request->input('selected_feature_flags', []));
-            }
-
-            // Handle limits processing like Rails: permitted_params[:limits].to_h.compact
-            if (isset($validated['limits']) && is_array($validated['limits'])) {
-                $validated['limits'] = array_filter($validated['limits'], function($value) {
-                    return $value !== null && $value !== '';
-                });
-            }
-
-            $account = Account::create($validated);
-            $account->loadCount(['users', 'inboxes', 'conversations', 'contacts']);
-
-            return response()->json(['data' => $this->transformAccount($account)], 201);
-        } catch (ValidationException $e) {
-            return $this->renderValidationErrors($e);
+            return response()->json(['data' => $account->toArray()], 201);
         } catch (\Throwable $e) {
             return $this->handleException($e);
         }
     }
 
-    /**
-     * Update an account.
-     */
-    public function update(Request $request, Account $account): JsonResponse
+    public function update(AccountRequest $request, Account $account): JsonResponse
     {
         try {
-            $validated = $request->validate([
-                'name' => 'nullable|string|max:255',
-                'locale' => 'nullable|string|max:10',
-                'domain' => 'nullable|string|max:255|unique:accounts,domain,' . $account->id,
-                'support_email' => 'nullable|email',
-                'auto_resolve_duration' => 'nullable|integer',
-                'settings' => 'nullable|array',
-                'limits' => 'nullable|array',
-                'custom_attributes' => 'nullable|array',
-                'internal_attributes' => 'nullable|array',
-                'features' => 'nullable|array',
-                'manually_managed_features' => 'nullable|array',
-                'selected_feature_flags' => 'nullable|array',
-                'enabled_features' => 'nullable|array',
-                'status' => 'nullable|string|in:active,suspended',
-            ]);
+            $updatedAccount = UpdateAccountAction::run($account->id, $this->makeAccountData($request, $account));
 
-            // Convert status string to enum for database storage
-            if (isset($validated['status'])) {
-                $validated['status'] = AccountStatus::fromString($validated['status']);
-            }
-
-            // Handle feature flag updates - expect snake_case parameter names from client
-            if ($request->has('selected_feature_flags')) {
-                $selectedFeatureFlags = $request->input('selected_feature_flags');
-                
-                // Extract feature names from the request (should be snake_case from client)
-                $validated['selected_feature_flags'] = is_array($selectedFeatureFlags) ? array_keys($selectedFeatureFlags) : [];
-            }
-
-            // Handle limits processing like Rails: permitted_params[:limits].to_h.compact
-            if (isset($validated['limits']) && is_array($validated['limits'])) {
-                $validated['limits'] = array_filter($validated['limits'], function($value) {
-                    return $value !== null && $value !== '';
-                });
-            }
-
-            // Remove feature flag related fields from validated data to prevent conflicts
-            $featureFlagFields = ['selected_feature_flags', 'enabled_features', 'features'];
-            $accountData = collect($validated)->except($featureFlagFields)->toArray();
-            
-            // Update account data first (without feature flags)
-            $account->update($accountData);
-            
-            // Handle feature flag updates from frontend AFTER other updates
-            if (isset($validated['selected_feature_flags'])) {
-                $this->updateAccountFeatureFlags($account, $validated['selected_feature_flags']);
-            }
-
-            $account->loadCount(['users', 'inboxes', 'conversations', 'contacts']);
-
-            return response()->json(['data' => $this->transformAccount($account)]);
-        } catch (ValidationException $e) {
-            return $this->renderValidationErrors($e);
+            return response()->json(['data' => $updatedAccount->toArray()]);
         } catch (\Throwable $e) {
             return $this->handleException($e);
         }
     }
 
-    /**
-     * Delete an account.
-     */
     public function destroy(Account $account): JsonResponse
     {
         try {
-            $account->delete();
+            DeleteAccountAction::run($account);
 
             return response()->json([
                 'message' => 'Account deletion is in progress.',
@@ -310,13 +100,10 @@ class AccountsController extends Controller
         }
     }
 
-    /**
-     * Seed account with demo data.
-     */
     public function seed(Account $account): JsonResponse
     {
         try {
-            \App\Jobs\SeedAccountJob::dispatch($account);
+            SeedAccountAction::run($account);
 
             return response()->json([
                 'message' => 'Account seeding triggered. This may take a few minutes to complete.',
@@ -326,15 +113,10 @@ class AccountsController extends Controller
         }
     }
 
-    /**
-     * Reset account cache.
-     */
     public function resetCache(Account $account): JsonResponse
     {
         try {
-            Cache::forget("account_{$account->id}_settings");
-            Cache::forget("account_{$account->id}_features");
-            Cache::tags(["account_{$account->id}"])->flush();
+            ResetAccountCacheAction::run($account);
 
             return response()->json([
                 'message' => 'Cache keys cleared.',
@@ -344,49 +126,26 @@ class AccountsController extends Controller
         }
     }
 
-    /**
-     * Update account feature flags based on frontend selection.
-     * 
-     * This method batches all feature flag operations and saves once at the end
-     * to avoid race conditions from multiple saves.
-     */
-    private function updateAccountFeatureFlags(Account $account, array $selectedFeatures): void
+    private function makeAccountData(AccountRequest $request, ?Account $account = null): AccountData
     {
-        // Enterprise features that use custom_attributes instead of bit flags
-        $enterpriseFeatures = [
-            'saml', 'sla', 'custom_roles', 'audit_logs',
-            'advanced_search', 'companies'
-        ];
-        
-        // Separate bit flag features from enterprise features
-        $bitFlagFeatures = [];
-        $selectedEnterpriseFeatures = [];
-        
-        foreach ($selectedFeatures as $feature) {
-            if (in_array($feature, $enterpriseFeatures)) {
-                $selectedEnterpriseFeatures[] = $feature;
-            } else {
-                $bitFlagFeatures[] = $feature;
-            }
+        $validated = $request->validated();
+
+        if ($account !== null) {
+            $validated = array_merge([
+                'name' => $account->name,
+                'locale' => $account->locale?->getCode() ?? 'en',
+                'domain' => $account->domain,
+                'support_email' => $account->support_email,
+                'auto_resolve_duration' => $account->auto_resolve_duration,
+                'settings' => $account->settings,
+                'limits' => $account->limits,
+                'custom_attributes' => $account->custom_attributes,
+                'internal_attributes' => $account->internal_attributes,
+                'selected_feature_flags' => $account->getEnabledFeatures(),
+                'status' => $account->status->getName(),
+            ], $validated);
         }
-        
-        // Reset all bit flags to 0
-        $account->feature_flags = 0;
-        
-        // Enable selected bit flag features using Account's feature map
-        $flagMap = $account->getFeatureFlagMap();
-        foreach ($bitFlagFeatures as $feature) {
-            if (isset($flagMap[$feature])) {
-                $account->feature_flags |= $flagMap[$feature];
-            }
-        }
-        
-        // Update enterprise features in custom_attributes
-        $customAttributes = $account->custom_attributes ?? [];
-        $customAttributes['enabled_enterprise_features'] = $selectedEnterpriseFeatures;
-        $account->custom_attributes = $customAttributes;
-        
-        // Save once with all changes
-        $account->save();
+
+        return AccountData::from($validated);
     }
 }
