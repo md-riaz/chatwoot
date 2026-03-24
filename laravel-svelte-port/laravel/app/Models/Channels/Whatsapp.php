@@ -8,7 +8,6 @@ use App\Models\Inbox;
 use App\Models\Message;
 use App\Services\Channels\Whatsapp\Providers\BaseService;
 use App\Services\Channels\Whatsapp\Providers\WhatsappCloudService;
-use App\Services\Channels\Whatsapp\Providers\Whatsapp360DialogService;
 use App\Services\Channels\Whatsapp\WebhookSetupService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,14 +23,10 @@ class Whatsapp extends Model
     protected $table = 'channel_whatsapp';
 
     // Provider constants
-    public const PROVIDER_DEFAULT = 'default';
     public const PROVIDER_CLOUD = 'whatsapp_cloud';
-    public const PROVIDER_360_DIALOG = '360dialog';
 
     public const PROVIDERS = [
-        self::PROVIDER_DEFAULT,
         self::PROVIDER_CLOUD,
-        self::PROVIDER_360_DIALOG,
     ];
 
     protected $fillable = [
@@ -108,10 +103,11 @@ class Whatsapp extends Model
      */
     public function providerService(): BaseService
     {
-        return match ($this->provider) {
-            self::PROVIDER_CLOUD => WhatsappCloudService::make($this),
-            default => Whatsapp360DialogService::make($this),
-        };
+        if ($this->provider !== self::PROVIDER_CLOUD) {
+            throw new \InvalidArgumentException("Unsupported WhatsApp provider [{$this->provider}]");
+        }
+
+        return WhatsappCloudService::make($this);
     }
 
     /**

@@ -631,10 +631,8 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
             Route::post('api/{inbox}/regenerate_key', [ChannelApiController::class, 'regenerateKey']);
             
             // Instagram
-            Route::post('instagram', [InstagramController::class, 'create']);
             Route::patch('instagram/{inbox}', [InstagramController::class, 'update']);
             Route::get('instagram/initiateAuthorization', [InstagramController::class, 'initiateAuthorization']);
-            Route::post('instagram/callback', [InstagramController::class, 'callback']);
             
             // Voice (Twilio)
             Route::post('voice', [VoiceController::class, 'create']);
@@ -744,9 +742,8 @@ Route::middleware(['auth:sanctum', 'validate.bot.access'])->group(function () {
 
         // Callbacks (OAuth and webhooks for channels)
         Route::prefix('callbacks')->group(function () {
-            Route::get('facebook/initiateAuthorization', [FacebookController::class, 'authorize']);
-            Route::get('facebook/pages', [FacebookController::class, 'pages']);
-            Route::post('facebook/create', [FacebookController::class, 'createFromCallback']);
+            Route::get('facebook/initiateAuthorization', [FacebookController::class, 'initiateAuthorization']);
+            Route::get('facebook/token', [FacebookController::class, 'consumeCallbackToken']);
             Route::get('twitter/initiateAuthorization', [TwitterController::class, 'initiateAuthorization']);
             Route::post('twitter/callback', [TwitterController::class, 'callback']);
         });

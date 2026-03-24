@@ -3,6 +3,7 @@
 namespace App\Services\Channels\Facebook;
 
 use App\Models\Inbox;
+use App\Models\Channels\FacebookPage;
 use App\Models\Contact;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -228,7 +229,9 @@ class FacebookService
 
             // Find an inbox associated with this Facebook page
             $inbox = Inbox::where('channel_type', 'Channel::FacebookPage')
-                ->whereJsonContains('channel', ['page_id' => (string) $pageId])
+                ->whereHasMorph('channel', [FacebookPage::class], function ($query) use ($pageId) {
+                    $query->where('page_id', (string) $pageId);
+                })
                 ->first();
 
             if (! $inbox) {

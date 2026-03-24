@@ -31,6 +31,7 @@ Route::get('/', function () {
 
 // SAML Authentication Routes
 use App\Http\Controllers\Api\V1\Auth\SamlController;
+use App\Http\Controllers\Api\V1\Channels\FacebookController;
 
 Route::prefix('saml')->group(function () {
     Route::get('config/{account}', [SamlController::class, 'config'])->name('saml.config');
@@ -43,6 +44,11 @@ Route::prefix('saml')->group(function () {
 
 // SAML token endpoint for SPA
 Route::get('auth/saml/token', [SamlController::class, 'token'])->name('saml.token');
+
+Route::get('auth/facebook/callback', [FacebookController::class, 'oauthCallback'])
+    ->name('facebook.oauth.callback');
+Route::get('auth/instagram/callback', [\App\Http\Controllers\Api\V1\Channels\InstagramController::class, 'oauthCallback'])
+    ->name('instagram.oauth.callback');
 
 // SPA catch-all: Serve SvelteKit index.html for /app and all subroutes
 Route::get('/app/{any}', function () {

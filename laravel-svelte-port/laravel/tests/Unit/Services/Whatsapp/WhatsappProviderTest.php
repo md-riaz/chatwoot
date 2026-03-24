@@ -3,9 +3,7 @@
 namespace Tests\Unit\Services\Whatsapp;
 
 use App\Models\Channels\Whatsapp;
-use App\Models\Message;
 use App\Services\Channels\Whatsapp\Providers\WhatsappCloudService;
-use App\Services\Channels\Whatsapp\Providers\Whatsapp360DialogService;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -24,15 +22,16 @@ class WhatsappProviderTest extends TestCase
         $this->assertInstanceOf(WhatsappCloudService::class, $providerService);
     }
 
-    public function test_whatsapp_360dialog_provider_service_is_returned()
+    public function test_unsupported_provider_throws()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unsupported WhatsApp provider [360dialog]');
+
         $whatsappChannel = Whatsapp::factory()->create([
-            'provider' => Whatsapp::PROVIDER_DEFAULT,
+            'provider' => '360dialog',
         ]);
 
-        $providerService = $whatsappChannel->providerService();
-
-        $this->assertInstanceOf(Whatsapp360DialogService::class, $providerService);
+        $whatsappChannel->providerService();
     }
 
     public function test_whatsapp_channel_delegates_to_provider_service()
@@ -56,7 +55,8 @@ class WhatsappProviderTest extends TestCase
 
     public function test_webhook_setup_requires_business_account_and_api_key()
     {
-        $whatsappChannel = Whatsapp::factory()->create([
+        $whatsappChannel = Whatsapp::factory()->make([
+            'provider' => Whatsapp::PROVIDER_CLOUD,
             'provider_config' => [], // Empty config
         ]);
 
@@ -68,14 +68,10 @@ class WhatsappProviderTest extends TestCase
 
     public function test_provider_constants_are_defined()
     {
-        $this->assertEquals('default', Whatsapp::PROVIDER_DEFAULT);
         $this->assertEquals('whatsapp_cloud', Whatsapp::PROVIDER_CLOUD);
-        $this->assertEquals('360dialog', Whatsapp::PROVIDER_360_DIALOG);
         
         $expectedProviders = [
-            Whatsapp::PROVIDER_DEFAULT,
             Whatsapp::PROVIDER_CLOUD,
-            Whatsapp::PROVIDER_360_DIALOG,
         ];
         
         $this->assertEquals($expectedProviders, Whatsapp::PROVIDERS);

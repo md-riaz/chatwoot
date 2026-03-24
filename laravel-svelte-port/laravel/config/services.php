@@ -64,6 +64,10 @@ return [
     'instagram' => [
         'app_id' => env('INSTAGRAM_APP_ID'),
         'app_secret' => env('INSTAGRAM_APP_SECRET'),
+        'verify_token' => env('INSTAGRAM_VERIFY_TOKEN'),
+        'redirect_uri' => env('INSTAGRAM_REDIRECT_URI'),
+        'graph_url' => env('INSTAGRAM_GRAPH_URL', 'https://graph.instagram.com'),
+        'graph_version' => env('INSTAGRAM_GRAPH_VERSION', 'v22.0'),
     ],
 
     'twilio' => [
@@ -77,11 +81,6 @@ return [
         'api_key' => env('LIBRE_TRANSLATE_API_KEY'),
     ],
 
-    'facebook' => [
-        'graph_url' => env('FACEBOOK_GRAPH_URL', 'https://graph.facebook.com'),
-        'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v15.0'),
-    ],
-
     'twitter' => [
         'consumer_key' => env('TWITTER_CONSUMER_KEY'),
         'consumer_secret' => env('TWITTER_CONSUMER_SECRET'),
@@ -91,6 +90,9 @@ return [
         'app_id' => env('FACEBOOK_APP_ID'),
         'app_secret' => env('FACEBOOK_APP_SECRET'),
         'verify_token' => env('FACEBOOK_VERIFY_TOKEN'),
+        'redirect_uri' => env('FACEBOOK_REDIRECT_URI'),
+        'graph_url' => env('FACEBOOK_GRAPH_URL', 'https://graph.facebook.com'),
+        'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v18.0'),
     ],
 
     'shopify' => [

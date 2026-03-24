@@ -9,10 +9,12 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import ConversationList from '$lib/components/conversations/ConversationList.svelte';
+  import { conversationsStore } from '$lib/stores/conversations.svelte';
 
   let { children } = $props();
 
   const accountId = $derived($page.params.accountId);
+  const pathname = $derived($page.url.pathname);
 
   // Determine if we're viewing a specific conversation (child route has [id])
   const activeConversationId = $derived(
@@ -21,6 +23,68 @@
 
   // custom_view routes render their own list, so hide the default one
   const isCustomView = $derived($page.url.pathname.includes('/custom_view/'));
+
+  const routeScope = $derived.by(() => {
+    const inboxId =
+      pathname.includes('/conversations/inbox/') &&
+      $page.params.inboxId &&
+      !$page.params.id
+        ? Number($page.params.inboxId)
+        : null;
+    const teamId =
+      pathname.includes('/conversations/team/') && $page.params.teamId
+        ? Number($page.params.teamId)
+        : null;
+    const label =
+      pathname.includes('/conversations/label/') && $page.params.label
+        ? decodeURIComponent($page.params.label)
+        : null;
+
+    return {
+      mentionedOnly:
+        pathname.includes('/conversations/mentions') && !$page.params.id,
+      unattendedOnly:
+        pathname.includes('/conversations/unattended') && !$page.params.id,
+      currentInboxId: Number.isFinite(inboxId) ? inboxId : null,
+      currentTeamId: Number.isFinite(teamId) ? teamId : null,
+      currentLabel: label,
+    };
+  });
+
+  let lastAppliedScope = {
+    mentionedOnly: false,
+    unattendedOnly: false,
+    currentInboxId: null as number | null,
+    currentTeamId: null as number | null,
+    currentLabel: null as string | null,
+  };
+
+  $effect(() => {
+    if (isCustomView) {
+      return;
+    }
+
+    const nextScope = routeScope;
+    const hasScopeChanged =
+      nextScope.mentionedOnly !== lastAppliedScope.mentionedOnly ||
+      nextScope.unattendedOnly !== lastAppliedScope.unattendedOnly ||
+      nextScope.currentInboxId !== lastAppliedScope.currentInboxId ||
+      nextScope.currentTeamId !== lastAppliedScope.currentTeamId ||
+      nextScope.currentLabel !== lastAppliedScope.currentLabel;
+
+    conversationsStore.mentionedOnly = nextScope.mentionedOnly;
+    conversationsStore.unattendedOnly = nextScope.unattendedOnly;
+    conversationsStore.currentInboxId = nextScope.currentInboxId;
+    conversationsStore.currentTeamId = nextScope.currentTeamId;
+    conversationsStore.currentLabel = nextScope.currentLabel;
+
+    if (hasScopeChanged) {
+      lastAppliedScope = { ...nextScope };
+      conversationsStore.fetchConversations().catch(err => {
+        console.error('Failed to fetch scoped conversations:', err);
+      });
+    }
+  });
 
   function handleConversationSelect(conversationId: number) {
     goto(`/app/accounts/${accountId}/conversations/${conversationId}`);

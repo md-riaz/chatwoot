@@ -5,6 +5,7 @@
    */
 
   import { onMount } from 'svelte';
+  import { page } from '$app/stores';
   import { Send, Paperclip, Smile, AtSign } from '@lucide/svelte';
   import { Button } from '$lib/components/ui/button';
   import { Textarea } from '$lib/components/ui/textarea';
@@ -15,6 +16,8 @@
   import { Label } from '$lib/components/ui/label';
   import { Badge } from '$lib/components/ui/badge';
   import ReplyTopPanel from './ReplyTopPanel.svelte';
+  import { messagesStore } from '$lib/stores/messages.svelte';
+  import type { Attachment, MessageMode } from './types';
 
   interface Props {
     conversationId: number;
@@ -27,6 +30,7 @@
   }
 
   let { conversationId, mode = 'reply', onSend }: Props = $props();
+  const accountId = $derived(Number($page.params.accountId));
 
   // Local state
   let messageContent = $state('');
@@ -134,6 +138,7 @@
       } else {
         // Default: use messagesStore
         await messagesStore.sendMessage({
+          accountId,
           conversationId,
           message: messageContent,
           private: isPrivate,
@@ -177,10 +182,12 @@
   }
 
   // Auto-save draft
-  let draftTimeout: ReturnType<typeof setTimeout>;
+  let draftTimeout: ReturnType<typeof setTimeout> | null = null;
   $effect(() => {
     if (messageContent || isPrivate) {
-      clearTimeout(draftTimeout);
+      if (draftTimeout) {
+        clearTimeout(draftTimeout);
+      }
       draftTimeout = setTimeout(() => {
         saveDraft();
       }, 1000);
@@ -197,6 +204,9 @@
     loadDraft();
 
     return () => {
+      if (draftTimeout) {
+        clearTimeout(draftTimeout);
+      }
       // Cleanup attachment previews
       attachments.forEach(attachment => {
         if (attachment.preview) {

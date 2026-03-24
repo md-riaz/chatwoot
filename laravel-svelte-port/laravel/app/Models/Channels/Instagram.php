@@ -39,7 +39,7 @@ class Instagram extends Model
 
     public function inbox(): HasOne
     {
-        return $this->hasOne(Inbox::class, 'channel_id')->where('channel_type', self::class);
+        return $this->hasOne(Inbox::class, 'channel_id')->where('channel_type', 'Channel::Instagram');
     }
 
     public function name(): string

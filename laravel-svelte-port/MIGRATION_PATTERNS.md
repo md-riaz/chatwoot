@@ -191,6 +191,30 @@ let account = $state({
 3. Backend uses snake_case
 4. Transformation is automatic and transparent
 
+### 5. OAuth Channel Handoff Pattern
+
+For provider-backed inbox channels such as Facebook, do not push provider OAuth callback handling into the SPA.
+
+**Preferred Laravel pattern:**
+1. SPA calls an authenticated Laravel endpoint to start authorization
+2. Laravel generates provider redirect URL and stores short-lived state server-side
+3. Provider redirects back to a Laravel web callback route
+4. Laravel exchanges the authorization code for provider tokens
+5. Laravel redirects back to the SPA with a one-time handoff key
+6. SPA redeems that handoff key through an authenticated API endpoint
+7. SPA uses the returned token only for the immediate next parity step, such as page discovery
+
+**Why this pattern is preferred:**
+- Keeps provider secrets and code exchange on the backend
+- Preserves SPA routing while staying idiomatic for Laravel
+- Avoids long-lived provider tokens in browser URLs
+- Maps cleanly to Rails parity flows where backend-owned auth is expected
+
+**Facebook implementation reference:**
+- Backend callback: `GET /auth/facebook/callback`
+- SPA token redemption: `GET /api/v1/accounts/{account}/callbacks/facebook/token`
+- Page discovery: `GET /api/v1/accounts/{account}/channels/facebook/pages`
+
 ## Key Migration Considerations
 
 ### 1. Authentication

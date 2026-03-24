@@ -4,7 +4,6 @@
    * Multi-step wizard for creating different types of inboxes
    */
 
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { inboxesStore } from '$lib/stores/inboxes.svelte';
@@ -89,15 +88,6 @@
   let bandwidthPassword = $state('');
   let bandwidthApplicationId = $state('');
 
-  // WhatsApp Cloud fields
-  let phoneNumberId = $state('');
-  let businessAccountId = $state('');
-  let accessToken = $state('');
-
-  // 360Dialog fields
-  let dialog360ApiKey = $state('');
-  let dialog360PartnerId = $state('');
-
   // Errors
   let errors = $state<Record<string, string>>({});
 
@@ -107,6 +97,18 @@
       name: 'Website',
       icon: Globe,
       description: 'Live chat widget for your website',
+    },
+    {
+      type: 'Channel::Instagram',
+      name: 'Instagram',
+      icon: Instagram,
+      description: 'Direct messages from an Instagram professional account',
+    },
+    {
+      type: 'Channel::FacebookPage',
+      name: 'Facebook Page',
+      icon: MessageCircle,
+      description: 'Messenger conversations from a Facebook page',
     },
     {
       type: 'Channel::Api',
@@ -146,19 +148,41 @@
     { value: 'bandwidth', label: 'Bandwidth' },
   ];
 
-  const whatsappProviders = [
-    { value: 'whatsapp_cloud', label: 'WhatsApp Cloud' },
-    { value: 'twilio', label: 'Twilio' },
-    { value: '360dialog', label: '360Dialog' },
-  ];
-
   function needsProviderSelection(channelType: string): boolean {
-    return (
-      channelType === 'Channel::Sms' || channelType === 'Channel::Whatsapp'
-    );
+    return channelType === 'Channel::Sms';
   }
 
   function handleChannelSelect(channelType: string) {
+    if (channelType === 'Channel::WebWidget') {
+      goto(`/app/accounts/${accountId}/settings/inboxes/new/website`);
+      return;
+    }
+
+    if (channelType === 'Channel::Api') {
+      goto(`/app/accounts/${accountId}/settings/inboxes/new/api`);
+      return;
+    }
+
+    if (channelType === 'Channel::FacebookPage') {
+      goto(`/app/accounts/${accountId}/settings/inboxes/new/facebook`);
+      return;
+    }
+
+    if (channelType === 'Channel::Instagram') {
+      goto(`/app/accounts/${accountId}/settings/inboxes/new/instagram`);
+      return;
+    }
+
+    if (channelType === 'Channel::Email') {
+      goto(`/app/accounts/${accountId}/settings/inboxes/new/email`);
+      return;
+    }
+
+    if (channelType === 'Channel::Whatsapp') {
+      goto(`/app/accounts/${accountId}/settings/inboxes/new/whatsapp`);
+      return;
+    }
+
     selectedChannelType = channelType;
     if (needsProviderSelection(channelType)) {
       currentStep = 2; // Provider selection step
@@ -244,32 +268,6 @@
       }
     }
 
-    // WhatsApp validation based on provider
-    if (selectedChannelType === 'Channel::Whatsapp') {
-      if (selectedProvider === 'whatsapp_cloud') {
-        if (!phoneNumberId.trim())
-          errors.phoneNumberId = 'Phone Number ID is required';
-        if (!businessAccountId.trim())
-          errors.businessAccountId = 'Business Account ID is required';
-        if (!accessToken.trim())
-          errors.accessToken = 'Access Token is required';
-      } else if (selectedProvider === 'twilio') {
-        if (!accountSid.trim()) errors.accountSid = 'Account SID is required';
-        if (useApiKey) {
-          if (!apiKeySid.trim()) errors.apiKeySid = 'API Key SID is required';
-          if (!apiKeySecret.trim())
-            errors.apiKeySecret = 'API Key Secret is required';
-        } else {
-          if (!authToken.trim()) errors.authToken = 'Auth Token is required';
-        }
-        if (!phoneNumber.trim())
-          errors.phoneNumber = 'Phone number is required';
-      } else if (selectedProvider === '360dialog') {
-        if (!dialog360ApiKey.trim())
-          errors.dialog360ApiKey = 'API Key is required';
-      }
-    }
-
     // Voice validation
     if (selectedChannelType === 'Channel::Voice') {
       if (!phoneNumber.trim()) errors.phoneNumber = 'Phone number is required';
@@ -333,35 +331,6 @@
         };
         channelData.phone_number = phoneNumber;
       }
-    } else if (selectedChannelType === 'Channel::Whatsapp') {
-      if (selectedProvider === 'whatsapp_cloud') {
-        channelData.provider = 'whatsapp_cloud';
-        channelData.provider_config = {
-          phone_number_id: phoneNumberId,
-          business_account_id: businessAccountId,
-          api_key: accessToken,
-        };
-      } else if (selectedProvider === 'twilio') {
-        channelData.provider = 'twilio';
-        channelData.provider_config = {
-          account_sid: accountSid,
-          ...(useApiKey
-            ? {
-                api_key_sid: apiKeySid,
-                api_key_secret: apiKeySecret,
-              }
-            : {
-                auth_token: authToken,
-              }),
-        };
-        channelData.phone_number = phoneNumber;
-      } else if (selectedProvider === '360dialog') {
-        channelData.provider = '360dialog';
-        channelData.provider_config = {
-          api_key: dialog360ApiKey,
-          ...(dialog360PartnerId ? { partner_id: dialog360PartnerId } : {}),
-        };
-      }
     } else if (selectedChannelType === 'Channel::Voice') {
       channelData.phone_number = phoneNumber;
       channelData.provider = 'twilio';
@@ -376,8 +345,6 @@
               auth_token: authToken,
             }),
       };
-    } else if (selectedChannelType === 'Channel::Api') {
-      channelData.webhook_url = '';
     }
 
     const params: CreateInboxParams = {
@@ -394,7 +361,7 @@
     const inbox = await inboxesStore.createInbox(params);
 
     if (inbox) {
-      goto(`/app/accounts/${accountId}/settings/inboxes`);
+      goto(`/app/accounts/${accountId}/settings/inboxes/new/${inbox.id}/agents`);
     }
   }
 </script>
@@ -410,7 +377,7 @@
       </h1>
       <p class="text-sm text-muted-foreground mt-1">
         {#if currentStep === 1}
-          Choose a channel type to get started
+          Choose a supported channel type to get started
         {:else if currentStep === 2}
           Select a provider for {channelTypes.find(
             c => c.type === selectedChannelType
@@ -507,7 +474,7 @@
       {/each}
     </div>
   {:else if currentStep === 2 && needsProviderSelection(selectedChannelType)}
-    <!-- Step 2: Provider Selection (for SMS and WhatsApp) -->
+    <!-- Step 2: Provider Selection (for SMS) -->
     <div>
       <h2 class="text-2xl font-bold mb-4">Select Provider</h2>
       <p class="text-muted-foreground mb-6">
@@ -533,22 +500,6 @@
               </Card.Content>
             </Card.Root>
           {/each}
-        {:else if selectedChannelType === 'Channel::Whatsapp'}
-          {#each whatsappProviders as provider}
-            <Card.Root
-              class="hover:shadow-md transition-shadow cursor-pointer hover:border-blue-500"
-              onclick={() => handleProviderSelect(provider.value)}
-            >
-              <Card.Content class="p-6 text-center">
-                <div
-                  class="flex h-10 w-10 mx-auto mb-3 items-center justify-center rounded-lg bg-muted"
-                >
-                  <Phone class="h-5 w-5 text-muted-foreground" />
-                </div>
-                <h3 class="font-semibold text-lg mb-2">{provider.label}</h3>
-              </Card.Content>
-            </Card.Root>
-          {/each}
         {/if}
       </div>
     </div>
@@ -563,9 +514,6 @@
               <span class="font-semibold">Provider:</span>
               {#if selectedChannelType === 'Channel::Sms'}
                 {smsProviders.find(p => p.value === selectedProvider)?.label}
-              {:else if selectedChannelType === 'Channel::Whatsapp'}
-                {whatsappProviders.find(p => p.value === selectedProvider)
-                  ?.label}
               {/if}
             </p>
           </div>
@@ -871,198 +819,6 @@
                     </p>
                   {/if}
                   <p class="text-sm text-muted-foreground mt-1">E.164 format</p>
-                </div>
-              </div>
-            {/if}
-          {:else if selectedChannelType === 'Channel::Whatsapp'}
-            {#if selectedProvider === 'whatsapp_cloud'}
-              <!-- WhatsApp Cloud Configuration -->
-              <div class="space-y-4">
-                <div>
-                  <Label for="phoneNumberId"
-                    >Phone Number ID <span class="text-red-500">*</span></Label
-                  >
-                  <Input
-                    id="phoneNumberId"
-                    bind:value={phoneNumberId}
-                    placeholder="123456789012345"
-                    class={errors.phoneNumberId ? 'border-red-500' : ''}
-                  />
-                  {#if errors.phoneNumberId}
-                    <p class="text-sm text-red-500 mt-1">
-                      {errors.phoneNumberId}
-                    </p>
-                  {/if}
-                </div>
-
-                <div>
-                  <Label for="businessAccountId"
-                    >Business Account ID <span class="text-red-500">*</span
-                    ></Label
-                  >
-                  <Input
-                    id="businessAccountId"
-                    bind:value={businessAccountId}
-                    placeholder="123456789012345"
-                    class={errors.businessAccountId ? 'border-red-500' : ''}
-                  />
-                  {#if errors.businessAccountId}
-                    <p class="text-sm text-red-500 mt-1">
-                      {errors.businessAccountId}
-                    </p>
-                  {/if}
-                </div>
-
-                <div>
-                  <Label for="accessToken"
-                    >Access Token <span class="text-red-500">*</span></Label
-                  >
-                  <Input
-                    id="accessToken"
-                    type="password"
-                    bind:value={accessToken}
-                    placeholder="Your WhatsApp Access Token"
-                    class={errors.accessToken ? 'border-red-500' : ''}
-                  />
-                  {#if errors.accessToken}
-                    <p class="text-sm text-red-500 mt-1">
-                      {errors.accessToken}
-                    </p>
-                  {/if}
-                </div>
-              </div>
-            {:else if selectedProvider === 'twilio'}
-              <!-- Twilio WhatsApp Configuration -->
-              <div class="space-y-4">
-                <div>
-                  <Label for="accountSid"
-                    >Account SID <span class="text-red-500">*</span></Label
-                  >
-                  <Input
-                    id="accountSid"
-                    bind:value={accountSid}
-                    placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                    class={errors.accountSid ? 'border-red-500' : ''}
-                  />
-                  {#if errors.accountSid}
-                    <p class="text-sm text-red-500 mt-1">{errors.accountSid}</p>
-                  {/if}
-                </div>
-
-                <div class="flex items-center space-x-2">
-                  <label
-                    for="useApiKey"
-                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >Use API Key instead of Auth Token</label
-                  >
-                  <Switch bind:checked={useApiKey} id="useApiKey" />
-                </div>
-
-                {#if useApiKey}
-                  <div>
-                    <Label for="apiKeySid"
-                      >API Key SID <span class="text-red-500">*</span></Label
-                    >
-                    <Input
-                      id="apiKeySid"
-                      bind:value={apiKeySid}
-                      placeholder="SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                      class={errors.apiKeySid ? 'border-red-500' : ''}
-                    />
-                    {#if errors.apiKeySid}
-                      <p class="text-sm text-red-500 mt-1">
-                        {errors.apiKeySid}
-                      </p>
-                    {/if}
-                  </div>
-
-                  <div>
-                    <Label for="apiKeySecret"
-                      >API Key Secret <span class="text-red-500">*</span></Label
-                    >
-                    <Input
-                      id="apiKeySecret"
-                      type="password"
-                      bind:value={apiKeySecret}
-                      placeholder="Your API Key Secret"
-                      class={errors.apiKeySecret ? 'border-red-500' : ''}
-                    />
-                    {#if errors.apiKeySecret}
-                      <p class="text-sm text-red-500 mt-1">
-                        {errors.apiKeySecret}
-                      </p>
-                    {/if}
-                  </div>
-                {:else}
-                  <div>
-                    <Label for="authToken"
-                      >Auth Token <span class="text-red-500">*</span></Label
-                    >
-                    <Input
-                      id="authToken"
-                      type="password"
-                      bind:value={authToken}
-                      placeholder="Your Auth Token"
-                      class={errors.authToken ? 'border-red-500' : ''}
-                    />
-                    {#if errors.authToken}
-                      <p class="text-sm text-red-500 mt-1">
-                        {errors.authToken}
-                      </p>
-                    {/if}
-                  </div>
-                {/if}
-
-                <div>
-                  <Label for="phoneNumber"
-                    >Phone Number <span class="text-red-500">*</span></Label
-                  >
-                  <Input
-                    id="phoneNumber"
-                    type="tel"
-                    bind:value={phoneNumber}
-                    placeholder="+1234567890"
-                    class={errors.phoneNumber ? 'border-red-500' : ''}
-                  />
-                  {#if errors.phoneNumber}
-                    <p class="text-sm text-red-500 mt-1">
-                      {errors.phoneNumber}
-                    </p>
-                  {/if}
-                  <p class="text-sm text-muted-foreground mt-1">E.164 format</p>
-                </div>
-              </div>
-            {:else if selectedProvider === '360dialog'}
-              <!-- 360Dialog WhatsApp Configuration -->
-              <div class="space-y-4">
-                <div>
-                  <Label for="dialog360ApiKey"
-                    >API Key <span class="text-red-500">*</span></Label
-                  >
-                  <Input
-                    id="dialog360ApiKey"
-                    type="password"
-                    bind:value={dialog360ApiKey}
-                    placeholder="Your 360Dialog API Key"
-                    class={errors.dialog360ApiKey ? 'border-red-500' : ''}
-                  />
-                  {#if errors.dialog360ApiKey}
-                    <p class="text-sm text-red-500 mt-1">
-                      {errors.dialog360ApiKey}
-                    </p>
-                  {/if}
-                </div>
-
-                <div>
-                  <Label for="dialog360PartnerId">Partner ID (Optional)</Label>
-                  <Input
-                    id="dialog360PartnerId"
-                    bind:value={dialog360PartnerId}
-                    placeholder="Your Partner ID"
-                  />
-                  <p class="text-sm text-muted-foreground mt-1">
-                    Leave empty if not applicable
-                  </p>
                 </div>
               </div>
             {/if}

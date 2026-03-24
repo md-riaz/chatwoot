@@ -10,9 +10,9 @@
   import { page } from '$app/stores';
   import { inboxesStore } from '$lib/stores/inboxes.svelte';
   import { authStore } from '$lib/stores/auth.svelte';
+  import type { Inbox as InboxRecord } from '$lib/api/inboxes';
   import BaseSettingsHeader from '../components/BaseSettingsHeader.svelte';
   import { Button } from '$lib/components/ui/button';
-  import * as Table from '$lib/components/ui/table';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import {
     Plus,
@@ -98,12 +98,20 @@
 
   // Delete dialog state
   let showDeleteDialog = $state(false);
-  let deletingInbox = $state<any>(null);
+  let deletingInbox = $state<InboxRecord | null>(null);
   let isDeleting = $state(false);
 
-  function handleDeleteClick(inbox: any) {
+  function handleDeleteClick(inbox: InboxRecord) {
     deletingInbox = inbox;
     showDeleteDialog = true;
+  }
+
+  function getInboxMedium(inbox: InboxRecord): string | undefined {
+    const attributes = inbox.additionalAttributes as
+      | Record<string, unknown>
+      | undefined;
+    const medium = attributes?.medium;
+    return typeof medium === 'string' ? medium : undefined;
   }
 
   async function confirmDelete() {
@@ -185,7 +193,7 @@
                       {inbox.name}
                     </span>
                     <span class="text-sm text-muted-foreground">
-                      {getChannelName(inbox.channelType, inbox.medium)}
+                      {getChannelName(inbox.channelType, getInboxMedium(inbox))}
                     </span>
                   </div>
                 </div>

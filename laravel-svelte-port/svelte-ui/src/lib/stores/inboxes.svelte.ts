@@ -4,9 +4,14 @@ import type {
   Inbox,
   InboxListParams,
   CreateInboxParams,
+  CreateEmailInboxParams,
+  CreateWebWidgetInboxParams,
+  CreateWhatsappInboxParams,
   UpdateInboxParams,
   IMAPSettings,
   SMTPSettings,
+  UpdateWebWidgetInboxParams,
+  WorkingHours,
   MessageTemplate,
 } from '$lib/api/inboxes';
 import { authStore } from './auth.svelte';
@@ -189,6 +194,49 @@ class InboxesStore {
     } catch (err: any) {
       this.error = err.message || 'Failed to create inbox';
       console.error('Error creating inbox:', err);
+      return null;
+    } finally {
+      this.uiFlags.isCreating = false;
+    }
+  }
+
+  async createInboxThroughChannel(
+    channel: 'whatsapp' | 'email' | 'webWidget',
+    params:
+      | CreateWhatsappInboxParams
+      | CreateEmailInboxParams
+      | CreateWebWidgetInboxParams
+  ): Promise<Inbox | null> {
+    if (!this.isValidAccountId()) {
+      console.error(`Cannot create ${channel} inbox: invalid account ID`);
+      this.error = 'Invalid account ID';
+      return null;
+    }
+
+    this.uiFlags.isCreating = true;
+    this.error = null;
+
+    try {
+      const inbox =
+        channel === 'whatsapp'
+          ? await inboxesAPI.createWhatsappInbox(
+              this.currentAccountId,
+              params as CreateWhatsappInboxParams
+            )
+          : channel === 'email'
+            ? await inboxesAPI.createEmailInbox(
+              this.currentAccountId,
+              params as CreateEmailInboxParams
+            )
+            : await inboxesAPI.createWebWidgetInbox(
+              this.currentAccountId,
+              params as CreateWebWidgetInboxParams
+            );
+      this.addOrUpdateInbox(inbox);
+      return inbox;
+    } catch (err: any) {
+      this.error = err.message || `Failed to create ${channel} inbox`;
+      console.error(`Error creating ${channel} inbox:`, err);
       return null;
     } finally {
       this.uiFlags.isCreating = false;
@@ -420,6 +468,74 @@ class InboxesStore {
       return false;
     } finally {
       this.uiFlags.isUpdatingSMTP = false;
+    }
+  }
+
+  async updateWebWidget(
+    inboxId: number,
+    params: UpdateWebWidgetInboxParams
+  ): Promise<boolean> {
+    if (!this.isValidAccountId()) {
+      console.error('Cannot update web widget settings: invalid account ID');
+      this.error = 'Invalid account ID';
+      return false;
+    }
+
+    this.uiFlags.isUpdating = true;
+    this.error = null;
+
+    try {
+      const updatedInbox = await inboxesAPI.updateWebWidgetInbox(
+        this.currentAccountId,
+        inboxId,
+        params
+      );
+      this.addOrUpdateInbox(updatedInbox);
+      return true;
+    } catch (err: any) {
+      this.error = err.message || 'Failed to update web widget settings';
+      console.error('Error updating web widget settings:', err);
+      return false;
+    } finally {
+      this.uiFlags.isUpdating = false;
+    }
+  }
+
+  async updateWorkingHours(
+    inboxId: number,
+    workingHours: WorkingHours[]
+  ): Promise<boolean> {
+    if (!this.isValidAccountId()) {
+      console.error('Cannot update working hours: invalid account ID');
+      this.error = 'Invalid account ID';
+      return false;
+    }
+
+    this.uiFlags.isUpdating = true;
+    this.error = null;
+
+    try {
+      const updatedWorkingHours = await inboxesAPI.updateWorkingHours(
+        this.currentAccountId,
+        inboxId,
+        { working_hours: workingHours }
+      );
+
+      const existingInbox = this.allInboxes.find((inbox) => inbox.id === inboxId);
+      if (existingInbox) {
+        this.addOrUpdateInbox({
+          ...existingInbox,
+          workingHours: updatedWorkingHours,
+        });
+      }
+
+      return true;
+    } catch (err: any) {
+      this.error = err.message || 'Failed to update working hours';
+      console.error('Error updating working hours:', err);
+      return false;
+    } finally {
+      this.uiFlags.isUpdating = false;
     }
   }
 

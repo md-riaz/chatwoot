@@ -1,4 +1,5 @@
 import { api, toSearchParams } from './client';
+import type { Agent } from './agents';
 
 /**
  * Inbox interfaces
@@ -8,6 +9,7 @@ export interface Inbox {
   name: string;
   channelType: string;
   channelId: number;
+  channel?: Record<string, any>;
   greeting_enabled: boolean;
   greeting_message: string;
   emailAddress?: string;
@@ -15,6 +17,7 @@ export interface Inbox {
   websiteUrl?: string;
   webhookUrl?: string;
   enableAutoAssignment: boolean;
+  csatSurveyEnabled?: boolean;
   outOfOfficeMessage?: string;
   workingHoursEnabled: boolean;
   workingHours?: WorkingHours[];
@@ -36,6 +39,8 @@ export interface Inbox {
   messageTemplates?: MessageTemplate[];
   additionalAttributes?: Record<string, any>;
   avatarUrl?: string;
+  forwardingEnabled?: boolean;
+  forwardToEmail?: string;
 }
 
 export interface WorkingHours {
@@ -69,6 +74,70 @@ export interface TemplateComponent {
   buttons?: any[];
 }
 
+export interface FacebookPageOption {
+  id: string;
+  name: string;
+  pageAccessToken?: string;
+  userAccessToken?: string;
+  instagramId?: string | null;
+  exists?: boolean;
+}
+
+export interface CreateFacebookInboxParams {
+  name: string;
+  pageId: string;
+  pageAccessToken: string;
+  userAccessToken: string;
+}
+
+export interface CreateWhatsappInboxParams {
+  name: string;
+  phoneNumber: string;
+  provider: 'whatsapp_cloud';
+  providerConfig: {
+    phoneNumberId: string;
+    businessAccountId: string;
+    apiKey: string;
+  };
+}
+
+export interface CreateEmailInboxParams {
+  name: string;
+  email: string;
+  imapEnabled?: boolean;
+  smtpEnabled?: boolean;
+}
+
+export interface CreateWebWidgetInboxParams {
+  name: string;
+  websiteUrl: string;
+  widgetColor?: string;
+  welcomeTitle?: string;
+  welcomeTagline?: string;
+  greetingEnabled?: boolean;
+  greetingMessage?: string;
+  enableAutoAssignment?: boolean;
+  workingHoursEnabled?: boolean;
+  timezone?: string;
+}
+
+export interface UpdateWebWidgetInboxParams {
+  name?: string;
+  websiteUrl?: string;
+  widgetColor?: string;
+  welcomeTitle?: string;
+  welcomeTagline?: string;
+  preChatFormEnabled?: boolean;
+  preChatFormOptions?: Record<string, any>;
+  hmacMandatory?: boolean;
+  continuityViaEmail?: boolean;
+  allowedDomains?: string;
+}
+
+export interface WebWidgetScriptResponse {
+  script: string;
+}
+
 export interface InboxListParams {
   page?: number;
   perPage?: number;
@@ -91,6 +160,7 @@ export interface UpdateInboxParams {
   greeting_enabled?: boolean;
   greeting_message?: string;
   enable_auto_assignment?: boolean;
+  csat_survey_enabled?: boolean;
   out_of_office_message?: string;
   working_hours_enabled?: boolean;
   working_hours?: WorkingHours[];
@@ -121,6 +191,10 @@ export interface SMTPSettings {
   smtp_authentication?: string;
 }
 
+export interface UpdateWorkingHoursParams {
+  working_hours: WorkingHours[];
+}
+
 /**
  * Get list of inboxes
  */
@@ -147,6 +221,108 @@ export async function createInbox(accountId: number, params: CreateInboxParams):
     json: params,
   }).json<Inbox>();
   return response;
+}
+
+export async function getFacebookAuthorizationUrl(
+  accountId: number
+): Promise<string> {
+  const response = await api
+    .get(`api/v1/accounts/${accountId}/callbacks/facebook/initiateAuthorization`)
+    .json<{ authorizationUrl: string }>();
+
+  return response.authorizationUrl;
+}
+
+export async function getInstagramAuthorizationUrl(
+  accountId: number
+): Promise<string> {
+  const response = await api
+    .get(`api/v1/accounts/${accountId}/channels/instagram/initiateAuthorization`)
+    .json<{ url: string }>();
+
+  return response.url;
+}
+
+export async function consumeFacebookCallbackToken(
+  accountId: number,
+  tokenKey: string
+): Promise<string> {
+  const response = await api
+    .get(`api/v1/accounts/${accountId}/callbacks/facebook/token`, {
+      searchParams: {
+        token_key: tokenKey,
+      },
+    })
+    .json<{ userAccessToken: string }>();
+
+  return response.userAccessToken;
+}
+
+export async function getFacebookPages(
+  accountId: number,
+  userAccessToken?: string
+): Promise<FacebookPageOption[]> {
+  const response = await api
+    .get(`api/v1/accounts/${accountId}/channels/facebook/pages`, {
+      searchParams: userAccessToken
+        ? { user_access_token: userAccessToken }
+        : undefined,
+    })
+    .json<{ data: FacebookPageOption[] }>();
+
+  return response.data || [];
+}
+
+export async function createFacebookInbox(
+  accountId: number,
+  params: CreateFacebookInboxParams
+): Promise<Inbox> {
+  const response = await api
+    .post(`api/v1/accounts/${accountId}/channels/facebook`, {
+      json: params,
+    })
+    .json<{ data: Inbox }>();
+
+  return response.data;
+}
+
+export async function createWhatsappInbox(
+  accountId: number,
+  params: CreateWhatsappInboxParams
+): Promise<Inbox> {
+  const response = await api
+    .post(`api/v1/accounts/${accountId}/channels/whatsapp`, {
+      json: params,
+    })
+    .json<{ data: Inbox }>();
+
+  return response.data;
+}
+
+export async function createEmailInbox(
+  accountId: number,
+  params: CreateEmailInboxParams
+): Promise<Inbox> {
+  const response = await api
+    .post(`api/v1/accounts/${accountId}/channels/email`, {
+      json: params,
+    })
+    .json<{ data: Inbox }>();
+
+  return response.data;
+}
+
+export async function createWebWidgetInbox(
+  accountId: number,
+  params: CreateWebWidgetInboxParams
+): Promise<Inbox> {
+  const response = await api
+    .post(`api/v1/accounts/${accountId}/channels/web_widget`, {
+      json: params,
+    })
+    .json<{ data: Inbox }>();
+
+  return response.data;
 }
 
 /**
@@ -235,6 +411,46 @@ export async function getCampaigns(accountId: number, inboxId: number): Promise<
 }
 
 /**
+ * Get inbox members
+ */
+export async function getInboxMembers(
+  accountId: number,
+  inboxId: number
+): Promise<Agent[]> {
+  return api
+    .get(`api/v1/accounts/${accountId}/inboxes/${inboxId}/members`)
+    .json<Agent[]>();
+}
+
+/**
+ * Add inbox members
+ */
+export async function addInboxMembers(
+  accountId: number,
+  inboxId: number,
+  userIds: number[]
+): Promise<{ data: Agent[] }> {
+  return api
+    .post(`api/v1/accounts/${accountId}/inboxes/${inboxId}/members`, {
+      json: { userIds },
+    })
+    .json<{ data: Agent[] }>();
+}
+
+/**
+ * Remove inbox members
+ */
+export async function removeInboxMembers(
+  accountId: number,
+  inboxId: number,
+  userIds: number[]
+): Promise<void> {
+  await api.delete(`api/v1/accounts/${accountId}/inboxes/${inboxId}/members`, {
+    json: { userIds },
+  });
+}
+
+/**
  * Update IMAP settings
  */
 export async function updateIMAPSettings(
@@ -242,7 +458,7 @@ export async function updateIMAPSettings(
   inboxId: number,
   settings: IMAPSettings
 ): Promise<Inbox> {
-  const response = await api.patch(`api/v1/accounts/${accountId}/inboxes/${inboxId}`, {
+  const response = await api.patch(`api/v1/accounts/${accountId}/channels/email/${inboxId}`, {
     json: settings,
   }).json<Inbox>();
   return response;
@@ -256,8 +472,47 @@ export async function updateSMTPSettings(
   inboxId: number,
   settings: SMTPSettings
 ): Promise<Inbox> {
-  const response = await api.patch(`api/v1/accounts/${accountId}/inboxes/${inboxId}`, {
+  const response = await api.patch(`api/v1/accounts/${accountId}/channels/email/${inboxId}`, {
     json: settings,
   }).json<Inbox>();
   return response;
+}
+
+export async function updateWebWidgetInbox(
+  accountId: number,
+  inboxId: number,
+  params: UpdateWebWidgetInboxParams
+): Promise<Inbox> {
+  const response = await api
+    .patch(`api/v1/accounts/${accountId}/channels/web_widget/${inboxId}`, {
+      json: params,
+    })
+    .json<{ data: Inbox }>();
+
+  return response.data;
+}
+
+export async function getWebWidgetScript(
+  accountId: number,
+  inboxId: number
+): Promise<string> {
+  const response = await api
+    .get(`api/v1/accounts/${accountId}/channels/web_widget/${inboxId}/script`)
+    .json<{ data: WebWidgetScriptResponse }>();
+
+  return response.data.script;
+}
+
+export async function updateWorkingHours(
+  accountId: number,
+  inboxId: number,
+  params: UpdateWorkingHoursParams
+): Promise<WorkingHours[]> {
+  const response = await api
+    .patch(`api/v1/accounts/${accountId}/inboxes/${inboxId}/working_hours`, {
+      json: params,
+    })
+    .json<{ data: WorkingHours[] }>();
+
+  return response.data;
 }

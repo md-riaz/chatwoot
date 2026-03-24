@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Channels;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Inbox\InboxResource;
 use App\Models\Channels\Whatsapp;
 use App\Models\Account;
 use App\Models\Inbox;
@@ -18,44 +19,59 @@ class WhatsAppController extends Controller
      */
     public function create(Request $request, Account $account): JsonResponse
     {
+        abort_unless($request->user()?->isAdministratorOf($account), 403);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone_number' => 'required|string',
-            'provider' => 'required|string|in:whatsapp_cloud,twilio,360dialog',
+            'provider' => 'required|string|in:whatsapp_cloud',
             'provider_config' => 'required|array',
             'provider_config.phone_number_id' => 'required|string',
-            'provider_config.business_account_id' => 'nullable|string',
-            'provider_config.access_token' => 'required|string',
-            'provider_config.verify_token' => 'required|string',
+            'provider_config.business_account_id' => 'required|string',
+            'provider_config.api_key' => 'required|string',
         ]);
+
+        $existingInbox = Inbox::query()
+            ->where('account_id', $account->id)
+            ->where('channel_type', 'Channel::Whatsapp')
+            ->whereHasMorph('channel', [Whatsapp::class], function ($query) use ($validated) {
+                $query->where('phone_number', $validated['phone_number']);
+            })
+            ->first();
+
+        if ($existingInbox) {
+            abort(422, 'A WhatsApp inbox for this phone number already exists.');
+        }
+
+        $providerConfig = $validated['provider_config'];
 
         $channel = Whatsapp::create([
             'account_id' => $account->id,
             'phone_number' => $validated['phone_number'],
-            'phone_number_id' => $validated['provider_config']['phone_number_id'],
-            'business_account_id' => $validated['provider_config']['business_account_id'] ?? null,
-            'access_token' => $validated['provider_config']['access_token'],
-            'verify_token' => $validated['provider_config']['verify_token'],
             'provider' => $validated['provider'],
-            'provider_config' => $validated['provider_config'],
+            'provider_config' => $providerConfig,
         ]);
 
         $inbox = Inbox::create([
             'name' => $validated['name'],
             'account_id' => $account->id,
-            'channel_type' => Whatsapp::class,
+            'channel_type' => 'Channel::Whatsapp',
             'channel_id' => $channel->id,
         ]);
 
-        return response()->json([
-            'data' => [
-                'inbox' => $inbox,
-                'channel' => [
-                    'phone_number' => $validated['phone_number'],
-                    'provider' => $validated['provider'],
-                ]
-            ]
-        ], 201);
+        try {
+            $channel->setupWebhooks();
+        } catch (\Throwable $e) {
+            Log::warning('Failed to setup WhatsApp webhooks during inbox creation', [
+                'account_id' => $account->id,
+                'channel_id' => $channel->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return (new InboxResource($inbox->load('channel')))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
@@ -64,15 +80,14 @@ class WhatsAppController extends Controller
     public function update(Request $request, Account $account, Inbox $inbox): JsonResponse
     {
         abort_unless($inbox->account_id === $account->id, 404);
-        abort_unless($inbox->channel instanceof Whatsapp, 400);
+        abort_unless($inbox->channel_type === 'Channel::Whatsapp', 400);
 
         $validated = $request->validate([
             'name' => 'string|max:255',
             'provider_config' => 'array',
             'provider_config.phone_number_id' => 'string',
             'provider_config.business_account_id' => 'string|nullable',
-            'provider_config.access_token' => 'string',
-            'provider_config.verify_token' => 'string|nullable',
+            'provider_config.api_key' => 'string',
         ]);
 
         $inbox->update(['name' => $validated['name'] ?? $inbox->name]);
@@ -80,15 +95,11 @@ class WhatsAppController extends Controller
         if ($inbox->channel) {
             $config = array_merge($inbox->channel->provider_config ?? [], $validated['provider_config'] ?? []);
             $inbox->channel->update([
-                'phone_number_id' => $config['phone_number_id'] ?? $inbox->channel->phone_number_id,
-                'business_account_id' => $config['business_account_id'] ?? $inbox->channel->business_account_id,
-                'access_token' => $config['access_token'] ?? $inbox->channel->access_token,
-                'verify_token' => $config['verify_token'] ?? $inbox->channel->verify_token,
                 'provider_config' => $config,
             ]);
         }
 
-        return response()->json(['data' => $inbox]);
+        return response()->json(['data' => $inbox->fresh()->load('channel')]);
     }
 
     /**
@@ -120,8 +131,9 @@ class WhatsAppController extends Controller
         $token = $request->get('hub_verify_token');
         $challenge = $request->get('hub_challenge');
 
-        $channel = Whatsapp::where('verify_token', $token)
-            ->orWhere('provider_config->verify_token', $token)
+        $channel = Whatsapp::query()
+            ->where('provider', 'whatsapp_cloud')
+            ->where('provider_config->webhook_verify_token', $token)
             ->first();
 
         if ($mode === 'subscribe' && $channel) {
@@ -159,9 +171,10 @@ class WhatsAppController extends Controller
         abort_unless($inbox->account_id === $account->id, 404);
         abort_unless($inbox->channel_type === 'Channel::Whatsapp', 400);
 
-        // Fetch templates from WhatsApp API
-        // Store in database
+        /** @var Whatsapp $channel */
+        $channel = $inbox->channel;
+        $channel->syncTemplates();
 
-        return response()->json(['message' => 'Templates synced']);
+        return response()->json($channel->fresh()->message_templates ?? []);
     }
 }

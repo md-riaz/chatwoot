@@ -371,9 +371,9 @@ class AuthStore {
       this.setCurrentUser(user);
       this.error = null;
       return true;
-    } catch {
-      this.error = 'Failed to reset access token';
-      return false;
+    } catch (err: unknown) {
+      this.error = getApiErrorMessage(err) || 'Failed to reset access token';
+      throw err;
     }
   }
 

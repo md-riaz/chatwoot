@@ -28,17 +28,11 @@
   const conversations = $derived(conversationsStore.sortedConversations);
   const selectedId = $derived(conversationsStore.selectedConversationId);
   const isLoading = $derived(conversationsStore.isLoading);
+  const statusCounts = $derived(conversationsStore.statusCounts);
 
   // Local state
   let scrollContainer: HTMLElement | undefined;
   let currentFilters = $state<ConversationFilterOptions>({});
-  let statusCounts = $state({
-    all: 0,
-    mine: 0,
-    unassigned: 0,
-    open: 0,
-    resolved: 0,
-  });
 
   // Handle filter changes
   function handleFiltersChange(newFilters: ConversationFilterOptions) {
@@ -115,17 +109,6 @@
     return inboxesStore.allInboxes.find(i => i.id === inboxId);
   }
 
-  // Update status counts (mock data for now)
-  function updateStatusCounts() {
-    statusCounts = {
-      all: conversations.length,
-      mine: conversations.filter(c => c.meta?.assignee?.id === 1).length,
-      unassigned: conversations.filter(c => !c.meta?.assignee).length,
-      open: conversations.filter(c => c.status === 'open').length,
-      resolved: conversations.filter(c => c.status === 'resolved').length,
-    };
-  }
-
   // Initialize
   onMount(async () => {
     // Fetch initial data
@@ -134,15 +117,6 @@
       contactsStore.fetchContacts(),
       inboxesStore.fetchInboxes(),
     ]);
-
-    updateStatusCounts();
-  });
-
-  // Update counts when conversations change
-  $effect(() => {
-    if (conversations) {
-      updateStatusCounts();
-    }
   });
 </script>
 

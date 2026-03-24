@@ -33,7 +33,7 @@
   });
 
   async function handleSubmit() {
-    if (!name || !slug) {
+    if (!name || !slug || !portalSlugParam) {
       toast.error('Name and Slug are required');
       return;
     }

@@ -10,6 +10,7 @@
 use App\Models\Account;
 use App\Models\Inbox;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 
 describe('WhatsApp Channel', function () {
     test('can create whatsapp channel inbox', function () {
@@ -96,9 +97,10 @@ describe('Facebook Channel', function () {
         $account->users()->attach($admin->id, ['role' =>   0]);
 
         $response = $this->actingAs($admin, 'sanctum')
-            ->getJson("/api/v1/accounts/{$account->id}/callbacks/facebook/authorize");
+            ->getJson("/api/v1/accounts/{$account->id}/callbacks/facebook/initiateAuthorization");
 
         $response->assertOk();
+        $response->assertJsonStructure(['authorization_url']);
     });
 
     test('can list facebook pages after oauth', function () {
@@ -106,10 +108,27 @@ describe('Facebook Channel', function () {
         $account = Account::factory()->create();
         $account->users()->attach($admin->id, ['role' =>   0]);
 
+        Http::fake([
+            'https://graph.facebook.com/*/me/accounts*' => Http::response([
+                'data' => [
+                    [
+                        'id' => '123456789',
+                        'name' => 'Acme Support',
+                        'access_token' => 'page_token',
+                        'instagram_business_account' => ['id' => 'ig_123'],
+                    ],
+                ],
+            ], 200),
+        ]);
+
         $response = $this->actingAs($admin, 'sanctum')
-            ->getJson("/api/v1/accounts/{$account->id}/callbacks/facebook/pages");
+            ->getJson("/api/v1/accounts/{$account->id}/channels/facebook/pages?user_access_token=user_token");
 
         $response->assertOk();
+        $response->assertJsonPath('data.0.id', '123456789');
+        $response->assertJsonPath('data.0.page_access_token', 'page_token');
+        $response->assertJsonPath('data.0.user_access_token', 'user_token');
+        $response->assertJsonPath('data.0.exists', false);
     });
 
     test('can create facebook inbox', function () {
@@ -117,17 +136,23 @@ describe('Facebook Channel', function () {
         $account = Account::factory()->create();
         $account->users()->attach($admin->id, ['role' =>   0]);
 
+        Http::fake([
+            'https://graph.facebook.com/*/123456789/subscribed_apps' => Http::response([
+                'success' => true,
+            ], 200),
+        ]);
+
         $response = $this->actingAs($admin, 'sanctum')
-            ->postJson("/api/v1/accounts/{$account->id}/inboxes", [
+            ->postJson("/api/v1/accounts/{$account->id}/channels/facebook", [
                 'name' => 'Facebook Page',
-                'channel' => [
-                    'type' => 'facebook',
-                    'page_id' => '123456789',
-                    'page_access_token' => 'mock_token',
-                ],
+                'page_id' => '123456789',
+                'page_access_token' => 'mock_token',
+                'user_access_token' => 'user_token',
             ]);
 
         $response->assertCreated();
+        $response->assertJsonPath('data.name', 'Facebook Page');
+        $response->assertJsonPath('data.channel_type', 'Channel::FacebookPage');
     });
 });
 

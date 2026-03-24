@@ -296,6 +296,7 @@ export class WebSocketEventManager {
       for (const conversation of conversations) {
         try {
           const newMessages = await getMessagesSince(
+            this.currentAccountId,
             conversation.id,
             this.lastMessageId
           );

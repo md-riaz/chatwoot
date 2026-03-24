@@ -3,52 +3,84 @@
 namespace App\Http\Controllers\Api\V1\Channels;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Inbox\InboxResource;
 use App\Models\Account;
 use App\Models\Inbox;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use App\Services\Channels\Facebook\FacebookService;
+use App\Services\Channels\Facebook\FacebookGraphClient;
 use App\Jobs\Channels\ProcessFacebookWebhookJob;
 
 class FacebookController extends Controller
 {
+    public function __construct(
+        private FacebookGraphClient $facebookGraphClient
+    ) {}
+
     /**
      * Create a Facebook channel.
      */
     public function create(Request $request, Account $account): JsonResponse
     {
+        abort_unless($request->user()?->isAdministratorOf($account), 403);
+
         $validated = $request->validate([
             'page_access_token' => 'required|string',
             'page_id' => 'required|string',
-            'name' => 'string|max:255',
+            'name' => 'required|string|max:255',
+            'user_access_token' => 'required|string',
         ]);
+
+        $existingInbox = Inbox::query()
+            ->where('account_id', $account->id)
+            ->where('channel_type', 'Channel::FacebookPage')
+            ->whereHasMorph('channel', [\App\Models\Channels\FacebookPage::class], function ($query) use ($validated) {
+                $query->where('page_id', $validated['page_id']);
+            })
+            ->first();
+
+        if ($existingInbox) {
+            abort(422, 'A Facebook inbox for this page already exists.');
+        }
 
         // Create channel record for Facebook page
         $fb = \App\Models\Channels\FacebookPage::create([
             'account_id' => $account->id,
             'page_id' => $validated['page_id'],
             'page_access_token' => $validated['page_access_token'],
-            'user_access_token' => $request->input('user_access_token') ?? null,
+            'user_access_token' => $validated['user_access_token'] ?? null,
         ]);
 
         // Create the inbox and associate the channel
         $inbox = Inbox::create([
-            'name' => $validated['name'] ?? 'Facebook Page',
+            'name' => $validated['name'],
             'account_id' => $account->id,
             'channel_type' => 'Channel::FacebookPage',
             'channel_id' => $fb->id,
         ]);
 
-        // Dispatch subscription job so it can retry without blocking the request
         try {
-            \App\Jobs\Channels\SubscribeFacebookPageJob::dispatch($inbox->id);
+            $this->facebookGraphClient->subscribePage(
+                $validated['page_id'],
+                $validated['page_access_token']
+            );
         } catch (\Throwable $e) {
-            Log::warning('Failed to dispatch SubscribeFacebookPageJob', ['error' => $e->getMessage()]);
+            Log::warning('Failed to subscribe Facebook page during inbox creation', [
+                'account_id' => $account->id,
+                'page_id' => $validated['page_id'],
+                'error' => $e->getMessage(),
+            ]);
         }
 
-        return response()->json(['data' => $inbox->load('channel')], 201);
+        return (new InboxResource($inbox->load('channel')))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
@@ -129,7 +161,19 @@ class FacebookController extends Controller
      */
     public function initiateAuthorization(Request $request, Account $account): JsonResponse
     {
-        $redirectUri = config('services.facebook.redirect_uri', url('/callback'));
+        abort_unless($request->user()?->isAdministratorOf($account), 403);
+
+        $state = Str::random(40);
+        Cache::put(
+            "facebook_oauth_state:{$state}",
+            [
+                'account_id' => $account->id,
+                'user_id' => $request->user()->id,
+            ],
+            now()->addMinutes(10)
+        );
+
+        $redirectUri = route('facebook.oauth.callback');
         $appId = config('services.facebook.app_id', '');
 
         $oauthUrl = "https://www.facebook.com/v18.0/dialog/oauth?" . http_build_query([
@@ -137,6 +181,7 @@ class FacebookController extends Controller
             'redirect_uri' => $redirectUri,
             'scope' => 'pages_show_list,pages_messaging,pages_manage_metadata',
             'response_type' => 'code',
+            'state' => $state,
         ]);
 
         return response()->json([
@@ -144,49 +189,123 @@ class FacebookController extends Controller
         ]);
     }
 
+    public function oauthCallback(Request $request): RedirectResponse
+    {
+        $state = $request->string('state')->toString();
+        $code = $request->string('code')->toString();
+        $error = $request->string('error')->toString();
+
+        $statePayload = $state !== ''
+            ? Cache::pull("facebook_oauth_state:{$state}")
+            : null;
+
+        if (! is_array($statePayload) || empty($statePayload['account_id']) || empty($statePayload['user_id'])) {
+            return redirect('/app?facebook_auth=error&reason=invalid_state');
+        }
+
+        $redirectBase = "/app/accounts/{$statePayload['account_id']}/settings/inboxes/new/facebook";
+
+        if ($error !== '' || $code === '') {
+            return redirect("{$redirectBase}?facebook_auth=error&reason=authorization_failed");
+        }
+
+        try {
+            $tokenResponse = Http::acceptJson()
+                ->timeout(15)
+                ->get(rtrim(config('services.facebook.graph_url', 'https://graph.facebook.com'), '/') . '/' . trim(config('services.facebook.graph_version', 'v18.0'), '/') . '/oauth/access_token', [
+                    'client_id' => config('services.facebook.app_id'),
+                    'client_secret' => config('services.facebook.app_secret'),
+                    'redirect_uri' => route('facebook.oauth.callback'),
+                    'code' => $code,
+                ])
+                ->throw()
+                ->json();
+
+            $userAccessToken = $tokenResponse['access_token'] ?? null;
+
+            if (! is_string($userAccessToken) || $userAccessToken === '') {
+                throw new \RuntimeException('Facebook did not return an access token.');
+            }
+
+            $tokenKey = Str::random(48);
+            Cache::put(
+                "facebook_oauth_token:{$tokenKey}",
+                [
+                    'account_id' => $statePayload['account_id'],
+                    'user_id' => $statePayload['user_id'],
+                    'user_access_token' => $userAccessToken,
+                ],
+                now()->addMinutes(10)
+            );
+
+            return redirect("{$redirectBase}?facebook_auth=success&token_key={$tokenKey}");
+        } catch (\Throwable $e) {
+            Log::warning('Facebook OAuth callback failed', [
+                'account_id' => $statePayload['account_id'],
+                'user_id' => $statePayload['user_id'],
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect("{$redirectBase}?facebook_auth=error&reason=token_exchange_failed");
+        }
+    }
+
     /**
      * Get Facebook pages for authorization.
      */
     public function pages(Request $request, Account $account): JsonResponse
     {
-        // Access token can come from session or request
-        // In production, fetch pages from Facebook Graph API
-        $pages = [];
+        abort_unless($request->user()?->isAdministratorOf($account), 403);
+
+        $userAccessToken = $request->string('user_access_token')->toString();
+
+        if ($userAccessToken === '') {
+            return response()->json(['data' => []]);
+        }
+
+        $existingPageIds = \App\Models\Channels\FacebookPage::query()
+            ->where('account_id', $account->id)
+            ->pluck('page_id')
+            ->map(fn ($pageId) => (string) $pageId)
+            ->all();
+
+        $pages = $this->facebookGraphClient
+            ->getUserPages($userAccessToken)
+            ->map(function (array $page) use ($existingPageIds, $userAccessToken) {
+                return [
+                    'id' => $page['id'],
+                    'name' => $page['name'],
+                    'page_access_token' => $page['page_access_token'],
+                    'user_access_token' => $userAccessToken,
+                    'instagram_id' => $page['instagram_id'],
+                    'exists' => in_array($page['id'], $existingPageIds, true),
+                ];
+            })
+            ->values();
 
         return response()->json(['data' => $pages]);
     }
 
-    /**
-     * Create Facebook inbox from OAuth callback.
-     */
-    public function createFromCallback(Request $request, Account $account): JsonResponse
+    public function consumeCallbackToken(Request $request, Account $account): JsonResponse
     {
+        abort_unless($request->user()?->isAdministratorOf($account), 403);
+
         $validated = $request->validate([
-            'page_id' => 'required|string',
-            'page_access_token' => 'required|string',
-            'name' => 'required|string|max:255',
+            'token_key' => 'required|string',
         ]);
 
-        // Create channel record and associate with inbox
-        $fb = \App\Models\Channels\FacebookPage::create([
-            'account_id' => $account->id,
-            'page_id' => $validated['page_id'],
-            'page_access_token' => $validated['page_access_token'],
-        ]);
+        $payload = Cache::pull("facebook_oauth_token:{$validated['token_key']}");
 
-        $inbox = Inbox::create([
-            'name' => $validated['name'],
-            'account_id' => $account->id,
-            'channel_type' => 'Channel::FacebookPage',
-            'channel_id' => $fb->id,
-        ]);
-
-        try {
-            \App\Jobs\Channels\SubscribeFacebookPageJob::dispatch($inbox->id);
-        } catch (\Throwable $e) {
-            Log::warning('Failed to dispatch SubscribeFacebookPageJob (callback)', ['error' => $e->getMessage()]);
+        if (! is_array($payload)) {
+            abort(404, 'Facebook authorization token was not found or has expired.');
         }
 
-        return response()->json(['data' => $inbox->load('channel')], 201);
+        if ((int) $payload['account_id'] !== $account->id || (int) $payload['user_id'] !== $request->user()->id) {
+            abort(403, 'This Facebook authorization token does not belong to the current user.');
+        }
+
+        return response()->json([
+            'user_access_token' => $payload['user_access_token'],
+        ]);
     }
 }

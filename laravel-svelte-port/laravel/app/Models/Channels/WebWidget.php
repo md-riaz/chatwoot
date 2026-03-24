@@ -14,6 +14,7 @@ class WebWidget extends Model
     protected $table = 'channel_web_widgets';
 
     protected $fillable = [
+        'account_id',
         'website_url',
         'website_token',
         'widget_color',
@@ -22,12 +23,19 @@ class WebWidget extends Model
         'feature_flags',
         'pre_chat_form_options',
         'pre_chat_form_enabled',
+        'reply_time',
+        'hmac_token',
+        'hmac_mandatory',
+        'continuity_via_email',
+        'allowed_domains',
     ];
 
     protected $casts = [
         'feature_flags' => 'boolean',
         'pre_chat_form_options' => 'array',
         'pre_chat_form_enabled' => 'boolean',
+        'hmac_mandatory' => 'boolean',
+        'continuity_via_email' => 'boolean',
     ];
 
     /**

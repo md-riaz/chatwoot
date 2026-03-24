@@ -105,7 +105,7 @@ class InboxesController extends Controller
     {
         abort_unless($inbox->account_id === $account->id, 404);
 
-        return new InboxResource($inbox->loadCount('members'));
+        return new InboxResource($inbox->load(['channel'])->loadCount('members'));
     }
 
     /**
@@ -129,7 +129,7 @@ class InboxesController extends Controller
             'out_of_office_message',
         ]));
 
-        return new InboxResource($inbox->fresh());
+        return new InboxResource($inbox->fresh()->load('channel'));
     }
 
     /**
