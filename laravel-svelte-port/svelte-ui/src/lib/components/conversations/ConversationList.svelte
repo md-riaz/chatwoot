@@ -34,6 +34,23 @@
   let scrollContainer: HTMLElement | undefined;
   let currentFilters = $state<ConversationFilterOptions>({});
 
+  $effect(() => {
+    currentFilters = {
+      ...(conversationsStore.statusFilter
+        ? { status: conversationsStore.statusFilter }
+        : {}),
+      ...(conversationsStore.currentInboxId
+        ? { inboxId: conversationsStore.currentInboxId }
+        : {}),
+      ...(conversationsStore.assigneeTypeFilter
+        ? { assigneeType: conversationsStore.assigneeTypeFilter }
+        : {}),
+      ...(conversationsStore.currentTeamId
+        ? { teamId: conversationsStore.currentTeamId }
+        : {}),
+    };
+  });
+
   // Handle filter changes
   function handleFiltersChange(newFilters: ConversationFilterOptions) {
     currentFilters = newFilters;
@@ -120,9 +137,9 @@
   });
 </script>
 
-<div class="flex flex-col h-full">
+<div class="flex h-full flex-col bg-white">
   <!-- Filters -->
-  <div class="p-4">
+  <div class="shrink-0">
     <ConversationFilters
       filters={currentFilters}
       {statusCounts}
@@ -145,7 +162,7 @@
       <ConversationEmpty onAction={handleClearFilters} />
     {:else}
       <!-- Conversation items -->
-      <div class="flex flex-col">
+      <div class="flex flex-col px-2 pb-5">
         {#each conversations as conv (conv.id)}
           <ConversationItem
             conversation={conv}

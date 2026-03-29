@@ -442,3 +442,20 @@ Focused backend coverage:
 tests/Feature/Api/Channels/WebWidgetChannelParityTest.php
 tests/Feature/Api/Channels/EmailChannelParityTest.php
 ```
+
+## Channel Onboarding Alignment
+
+Current onboarding paths that are fully route-backed in Svelte and supported by Laravel:
+
+```text
+Website live chat  -> create website inbox -> add agents -> finish with widget script + widget builder entry
+Facebook Page      -> server-side OAuth -> page selection -> add agents -> finish with connected page details
+WhatsApp Cloud     -> create cloud inbox -> add agents -> finish with webhook/token details + template sync
+```
+
+Implemented contract notes:
+
+- Website live chat onboarding is now single-path and uses `POST /api/v1/accounts/:account_id/channels/web_widget`.
+- Facebook onboarding is now single-path and uses the Laravel callback/token handoff plus `GET /channels/facebook/pages` and `POST /channels/facebook`.
+- WhatsApp onboarding is now explicitly Cloud-only and uses `POST /api/v1/accounts/:account_id/channels/whatsapp`.
+- The finish step in Svelte is channel-aware and surfaces the immediate setup artifacts the operator needs next instead of a generic success state.
